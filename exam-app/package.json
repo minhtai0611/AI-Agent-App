@@ -1,0 +1,33 @@
+{
+  "name": "exam-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "crawl": "node scripts/crawl/index.js",
+    "crawl:questions": "node scripts/crawl/index.js --only=questions",
+    "crawl:schools": "node scripts/crawl/index.js --only=schools",
+    "crawl:validate": "node scripts/crawl/pipeline/validate.js --check-only"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.27.0",
+    "recharts": "^2.13.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "axios": "^1.7.7",
+    "cheerio": "^1.0.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "vite": "^5.4.10",
+    "vitest": "^2.1.4"
+  }
+}

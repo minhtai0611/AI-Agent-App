@@ -1,0 +1,47 @@
+[
+  {
+    "id": "hcmc_2024_math",
+    "year": 2024,
+    "title": "Đề thi thử Toán - TPHCM 2024",
+    "duration": 90,
+    "questionIds": [
+      "q_vndoc_2024_001","q_vndoc_2024_002","q_vndoc_2024_003","q_vndoc_2024_004","q_vndoc_2024_005",
+      "q_vndoc_2024_006","q_vndoc_2024_007","q_vndoc_2024_008","q_vndoc_2024_009","q_vndoc_2024_010",
+      "q_vndoc_2024_011","q_vndoc_2024_012","q_vndoc_2024_013","q_vndoc_2024_014","q_vndoc_2024_015",
+      "q_vndoc_2024_016","q_vndoc_2024_017","q_vndoc_2024_018","q_vndoc_2024_019","q_vndoc_2024_020",
+      "q_vndoc_2024_021","q_vndoc_2024_022","q_vndoc_2024_023","q_vndoc_2024_024","q_vndoc_2024_025",
+      "q_vndoc_2024_026","q_vndoc_2024_027","q_vndoc_2024_028","q_vndoc_2024_029","q_vndoc_2024_030"
+    ],
+    "totalQuestions": 30
+  },
+  {
+    "id": "hcmc_2023_math",
+    "year": 2023,
+    "title": "Đề thi thử Toán - TPHCM 2023",
+    "duration": 90,
+    "questionIds": [
+      "q_thuvien_2023_001","q_thuvien_2023_002","q_thuvien_2023_003","q_thuvien_2023_004","q_thuvien_2023_005",
+      "q_thuvien_2023_006","q_thuvien_2023_007","q_thuvien_2023_008","q_thuvien_2023_009","q_thuvien_2023_010",
+      "q_thuvien_2023_011","q_thuvien_2023_012","q_thuvien_2023_013","q_thuvien_2023_014","q_thuvien_2023_015",
+      "q_thuvien_2023_016","q_thuvien_2023_017","q_thuvien_2023_018","q_thuvien_2023_019","q_thuvien_2023_020",
+      "q_thuvien_2023_021","q_thuvien_2023_022","q_thuvien_2023_023","q_thuvien_2023_024","q_thuvien_2023_025",
+      "q_thuvien_2023_026","q_thuvien_2023_027","q_thuvien_2023_028","q_thuvien_2023_029","q_thuvien_2023_030"
+    ],
+    "totalQuestions": 30
+  },
+  {
+    "id": "hcmc_2022_math",
+    "year": 2022,
+    "title": "Đề thi thử Toán - TPHCM 2022",
+    "duration": 90,
+    "questionIds": [
+      "q_loigiai_2022_001","q_loigiai_2022_002","q_loigiai_2022_003","q_loigiai_2022_004","q_loigiai_2022_005",
+      "q_loigiai_2022_006","q_loigiai_2022_007","q_loigiai_2022_008","q_loigiai_2022_009","q_loigiai_2022_010",
+      "q_loigiai_2022_011","q_loigiai_2022_012","q_loigiai_2022_013","q_loigiai_2022_014","q_loigiai_2022_015",
+      "q_loigiai_2022_016","q_loigiai_2022_017","q_loigiai_2022_018","q_loigiai_2022_019","q_loigiai_2022_020",
+      "q_loigiai_2022_021","q_loigiai_2022_022","q_loigiai_2022_023","q_loigiai_2022_024","q_loigiai_2022_025",
+      "q_loigiai_2022_026","q_loigiai_2022_027","q_loigiai_2022_028","q_loigiai_2022_029","q_loigiai_2022_030"
+    ],
+    "totalQuestions": 30
+  }
+]

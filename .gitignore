@@ -1,0 +1,31 @@
+# Environment
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+exam-app/dist/
+
+# Claude Code local settings (machine-specific)
+.claude/settings.local.json
+
+# GitNexus index (regenerated via `gitnexus analyze`)
+.gitnexus/
+
+# Misc
+*.pen
+.DS_Store
+Thumbs.db
