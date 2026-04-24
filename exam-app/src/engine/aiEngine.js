@@ -62,10 +62,18 @@ export function analyzeResult(result, allResults, schools) {
     cutoff,
   }))
 
+  const TOPIC_VI = {
+    algebra: 'Đại số',
+    geometry: 'Hình học',
+    statistics: 'Thống kê',
+    combinatorics: 'Tổ hợp',
+  }
+
   // Improvement strategy
   const improvementStrategy = []
   if (weakTopics.length > 0) {
-    improvementStrategy.push(`Tập trung ôn tập: ${weakTopics.join(', ')}`)
+    const weakTopicsVi = weakTopics.map(t => TOPIC_VI[t] ?? t)
+    improvementStrategy.push(`Tập trung ôn tập: ${weakTopicsVi.join(', ')}`)
   }
   if (result.accuracy < 0.7) {
     improvementStrategy.push('Luyện tập thêm các bài tập cơ bản để củng cố nền tảng')
