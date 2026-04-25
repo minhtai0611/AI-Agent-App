@@ -126,10 +126,10 @@ This project uses two collaborating tools for code intelligence and structured w
 
 ### GitNexus rules
 
+- **Before any coding task in `exam-app/` or `backend/`** — ALWAYS run `npx gitnexus analyze --embeddings` to refresh the index, then run the relevant GitNexus MCP tools (impact, context, query) before writing a single line of code.
 - **Before editing any symbol** — run `gitnexus_impact({target: "symbolName", direction: "upstream"})` and report the blast radius. Stop and warn the user on HIGH or CRITICAL risk.
 - **Before committing** — run `gitnexus_detect_changes()` to verify only expected symbols were affected.
 - **Never rename with find-and-replace** — use `gitnexus_rename` which understands the call graph.
-- If the index is stale, run `gitnexus analyze /mnt/d/AI-Agent-App --skip-git` before querying.
 
 ### GitNexus skill files
 
