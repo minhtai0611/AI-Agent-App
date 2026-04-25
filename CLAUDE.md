@@ -17,7 +17,7 @@ npm run dev          # starts backend :8000 and frontend :5173 concurrently
 
 # Backend only
 pip install -r requirements.txt
-uvicorn backend.app.main:app --reload   # http://localhost:8000
+PYTHONPATH=backend uvicorn app.main:app --reload   # http://localhost:8000
 python3 -m pytest backend/tests/        # run tests
 
 # Frontend only
@@ -148,7 +148,7 @@ Indexed as **AI-Agent-App** — 109 nodes · 162 edges · 6 clusters · 6 execut
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **AI-Agent-App** (756 symbols, 1251 relationships, 32 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **AI-Agent-App** (731 symbols, 1226 relationships, 32 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

@@ -1,15 +1,22 @@
-import { useState, useEffect } from 'react'
-import { getHint } from '../api/aiClient.js'
+import { useState, useEffect, useRef } from 'react'
+import { getHint, getExplanation } from '../api/aiClient.js'
 
 const LABELS = ['A', 'B', 'C', 'D']
 const MAX_HINTS = 3
 
-function choiceStyle(index, chosen, question, showFeedback) {
+// aiCorrect is null while loading (answered but AI not yet responded)
+function choiceStyle(index, chosen, aiCorrect, showFeedback) {
   if (!showFeedback) {
     if (chosen === index) return { bg: '#111827', border: '#F2A20C', bw: '1.5px', labelBg: '#F2A20C', labelText: '#0A0E1A', text: '#F0B429' }
     return { bg: '#0D1221', border: '#1E2A44', bw: '1px', labelBg: '#1E2A44', labelText: '#94A3B8', text: '#94A3B8' }
   }
-  if (index === question.correct) return { bg: '#0A1F14', border: '#10B981', bw: '1.5px', labelBg: '#10B981', labelText: '#0A0E1A', text: '#6EE7B7' }
+  // Answered but AI still loading — keep chosen highlighted amber, others neutral
+  if (aiCorrect === null) {
+    if (chosen === index) return { bg: '#111827', border: '#F2A20C', bw: '1.5px', labelBg: '#F2A20C', labelText: '#0A0E1A', text: '#F0B429' }
+    return { bg: '#0D1221', border: '#1E2A44', bw: '1px', labelBg: '#1E2A44', labelText: '#475569', text: '#475569' }
+  }
+  // AI responded — show correct/wrong
+  if (index === aiCorrect) return { bg: '#0A1F14', border: '#10B981', bw: '1.5px', labelBg: '#10B981', labelText: '#0A0E1A', text: '#6EE7B7' }
   if (index === chosen) return { bg: '#1F0A0E', border: '#FB7185', bw: '1.5px', labelBg: '#FB7185', labelText: '#0A0E1A', text: '#FB7185' }
   return { bg: '#0D1221', border: '#1E2A44', bw: '1px', labelBg: '#1E2A44', labelText: '#475569', text: '#475569' }
 }
@@ -23,10 +30,26 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
   const hintCount = hintState?.count ?? 0
   const hintTexts = hintState?.texts ?? []
 
+  // null = not yet fetched / loading; { correct_index, explanation } = done
+  const [aiResult, setAiResult] = useState(null)
+  const fetchedForRef = useRef(null)
+
   useEffect(() => {
     setHintError(null)
     setHintLoading(false)
+    setAiResult(null)
+    fetchedForRef.current = null
   }, [question.id])
+
+  useEffect(() => {
+    if (!showFeedback) return
+    const cacheKey = `${question.id}-${chosen}`
+    if (fetchedForRef.current === cacheKey) return
+    fetchedForRef.current = cacheKey
+    getExplanation({ question, chosen_index: chosen }).then(({ data }) => {
+      if (data) setAiResult({ correct_index: data.correct_index, explanation: data.explanation })
+    })
+  }, [showFeedback, question.id, chosen])
 
   async function handleGetHint() {
     if (hintLoading || hintCount >= MAX_HINTS) return
@@ -46,6 +69,9 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
     }
   }
 
+  const aiCorrect = aiResult?.correct_index ?? null
+  const isCorrect = aiResult !== null && chosen === aiCorrect
+
   return (
     <div>
       <p className="font-fraunces text-[20px] text-[#F0F4FF] leading-relaxed mb-5 whitespace-pre-wrap">
@@ -53,7 +79,7 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
       </p>
       <div className="flex flex-col gap-2.5">
         {question.choices.map((choice, i) => {
-          const s = choiceStyle(i, chosen, question, showFeedback)
+          const s = choiceStyle(i, chosen, aiCorrect, showFeedback)
           return (
             <button
               key={i}
@@ -77,15 +103,45 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
       </div>
 
       {showFeedback && (
-        <div className="mt-5 flex items-start gap-3 p-3.5 rounded-xl border border-[#1A4A2A] bg-[#0A1F14]">
-          <span className="text-[#10B981] text-base leading-none mt-0.5">✓</span>
-          <p className="font-jakarta text-[13px] text-[#6EE7B7] leading-relaxed">
-            {question.explanation || `Đáp án đúng: ${LABELS[question.correct]}`}
-          </p>
+        <div
+          className="mt-5 flex items-start gap-3 p-3.5 rounded-xl transition-all"
+          style={{
+            border: `1px solid ${aiResult === null ? '#2A3A60' : isCorrect ? '#1A4A2A' : '#4A1A24'}`,
+            background: aiResult === null ? '#111827' : isCorrect ? '#0A1F14' : '#1F0A0E',
+          }}
+        >
+          {aiResult === null ? (
+            <>
+              <span className="inline-block w-3 h-3 border border-[#94A3B8] border-t-transparent rounded-full animate-spin flex-shrink-0 mt-0.5" />
+              <span className="font-jakarta text-[12px] text-[#475569]">AI đang phân tích đáp án...</span>
+            </>
+          ) : (
+            <>
+              <span
+                className="text-base leading-none mt-0.5 flex-shrink-0"
+                style={{ color: isCorrect ? '#10B981' : '#FB7185' }}
+              >
+                {isCorrect ? '✓' : '✗'}
+              </span>
+              <div className="flex-1 min-w-0">
+                {!isCorrect && (
+                  <p className="font-jakarta text-[12px] font-semibold text-[#FB7185] mb-1">
+                    Đáp án đúng: {LABELS[aiCorrect] ?? '?'}
+                  </p>
+                )}
+                <p
+                  className="font-jakarta text-[13px] leading-relaxed"
+                  style={{ color: isCorrect ? '#6EE7B7' : '#FCA5A5' }}
+                >
+                  {aiResult.explanation}
+                </p>
+              </div>
+            </>
+          )}
         </div>
       )}
 
-      {/* Hint button — practice mode only, before submitting and before answer feedback */}
+      {/* Hint button — practice mode only, before answer is chosen */}
       {practiceMode && !submitted && !showFeedback && (
         <div className="mt-4 flex flex-col gap-2">
           {hintCount < MAX_HINTS ? (
@@ -114,13 +170,8 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
             <p className="font-jakarta text-[12px] text-[#FB7185]">{hintError} — thử lại</p>
           )}
           {showExplanation && (
-            <div className="p-3.5 rounded-xl border border-[#1A4A2A] bg-[#0A1F14]">
-              <p className="font-jakarta text-[12px] font-semibold text-[#F2A20C] mb-1">
-                Đáp án đúng: {LABELS[question.correct] ?? '?'}
-              </p>
-              {question.explanation && (
-                <p className="font-jakarta text-[13px] text-[#6EE7B7] leading-relaxed">{question.explanation}</p>
-              )}
+            <div className="p-3.5 rounded-xl border border-[#2A3A60] bg-[#111827]">
+              <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">AI sẽ giải thích sau khi bạn chọn đáp án.</p>
             </div>
           )}
           {hintTexts.map((text, i) => (

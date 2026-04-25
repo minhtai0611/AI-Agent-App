@@ -12,6 +12,12 @@ class Settings(BaseSettings):
     anthropic_default_sonnet_model: str = "claude-sonnet-4.6"
     anthropic_default_haiku_model: str = "claude-haiku-4.5"
 
+    allowed_origins: str = "http://localhost:5173"
+
+    @property
+    def allowed_origins_list(self) -> list[str]:
+        return [o.strip() for o in self.allowed_origins.split(",")]
+
     @property
     def default_model(self) -> str:
         return self.anthropic_default_sonnet_model

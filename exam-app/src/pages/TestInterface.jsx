@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
+import { useExam, useExamDispatch, useHints } from '../context/ExamContext.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import Timer from '../components/Timer.jsx'
 
@@ -35,6 +35,7 @@ export default function TestInterface() {
 
   if (session.status === 'idle' || !session.exam) return null
 
+  const { hints, setHint } = useHints()
   const { questions, answers, mode, timeLeft, exam } = session
   const question = questions[currentIndex]
   const chosen = answers[question?.id] ?? null
@@ -118,11 +119,14 @@ export default function TestInterface() {
         {/* Question card */}
         {question && (
           <QuestionCard
+            key={question.id}
             question={question}
             chosen={chosen}
             onAnswer={handleAnswer}
             practiceMode={isPractice}
             submitted={session.status === 'submitted'}
+            hintState={hints[question.id]}
+            onHint={setHint}
           />
         )}
 
