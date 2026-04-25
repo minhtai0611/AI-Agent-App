@@ -29,3 +29,10 @@ exam-app/dist/
 *.pen
 .DS_Store
 Thumbs.db
+
+# Test/audit screenshots
+audit-*.png
+hint-*.png
+
+# Playwright MCP cache
+.playwright-mcp/
