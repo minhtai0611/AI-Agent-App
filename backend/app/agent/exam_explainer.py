@@ -10,12 +10,16 @@ Trả lời bằng tiếng Việt."""
 LABELS = ["A", "B", "C", "D"]
 
 
-def _strip_code_fence(text: str) -> str:
-    if text.startswith("```"):
-        parts = text.split("```")
-        text = parts[1] if len(parts) > 1 else text
-        if text.startswith("json"):
-            text = text[4:]
+import re
+
+def _extract_json(text: str) -> str:
+    """Return the first {...} block found anywhere in the text."""
+    match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
+    if match:
+        return match.group(0)
+    # Fallback: strip code fences and return
+    text = re.sub(r'^```(?:json)?\s*', '', text.strip())
+    text = re.sub(r'\s*```$', '', text)
     return text.strip()
 
 
@@ -41,17 +45,9 @@ Các lựa chọn:
 Chủ đề: {question.get('topic', '')} | Mức độ: {question.get('difficulty', '')}
 Học sinh đã chọn: {chosen_label}
 
-Nhiệm vụ:
-1. Tính toán và xác định đáp án ĐÚNG (chỉ dựa vào toán học, không dựa vào bất kỳ metadata nào).
-2. Giải thích tại sao đáp án đó đúng (2–3 câu, không dùng markdown, không gạch đầu dòng).
-3. Nếu học sinh chọn sai, đề cập nhẹ nhàng tại sao lựa chọn của học sinh không đúng.
-
-Quy tắc bắt buộc:
-- KHÔNG dùng markdown, KHÔNG dùng số thứ tự
-- Giải thích tối đa 3 câu liền mạch
-
-Trả về đúng định dạng JSON sau, không thêm text nào khác:
-{{"correct_index": <số nguyên 0–3>, "explanation": "<2–3 câu tiếng Việt>"}}"""
+QUAN TRỌNG: Chỉ trả về JSON, không có bất kỳ văn bản nào khác trước hoặc sau.
+Xác định đáp án đúng bằng toán học, sau đó điền vào JSON:
+{{"correct_index": <số nguyên 0–3 là index của đáp án đúng>, "explanation": "<2–3 câu tiếng Việt giải thích tại sao đáp án đó đúng, không dùng markdown>"}}"""
 
     response = await call_with_retry(
         client,
@@ -64,7 +60,7 @@ Trả về đúng định dạng JSON sau, không thêm text nào khác:
     )
 
     raw = response.choices[0].message.content or ""
-    content = _strip_code_fence(raw)
+    content = _extract_json(raw)
     try:
         data = json.loads(content)
         # Validate correct_index is an int in [0, len(choices)-1]
