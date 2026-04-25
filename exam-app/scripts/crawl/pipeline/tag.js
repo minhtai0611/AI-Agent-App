@@ -5,6 +5,21 @@ const TOPIC_KEYWORDS = {
   combinatorics: ['tổ hợp', 'chỉnh hợp', 'hoán vị', 'nhị thức Newton', 'quy tắc đếm'],
 }
 
+const FIGURE_KEYWORDS = [
+  'AB =', 'AC =', 'BC =', 'bán kính', 'đường kính',
+  'điểm A(', 'điểm B(', 'tọa độ',
+  'đồ thị hàm số', 'parabol', 'trục hoành', 'trục tung',
+  'tam giác ABC', 'tứ giác ABCD', 'hình thang ABCD',
+  'nội tiếp', 'ngoại tiếp', 'tiếp tuyến tại',
+  'đường tròn (O', 'đường tròn (O;', 'dây AB', 'dây cung', 'dây CD',
+  'tiếp tuyến MA', 'tiếp tuyến MB', 'kẻ hai tiếp tuyến',
+  'khoảng cách từ tâm', 'từ điểm M nằm ngoài',
+]
+
+function detectFigure(question) {
+  return FIGURE_KEYWORDS.some(kw => question.includes(kw))
+}
+
 function detectTopic(question) {
   const text = question.toLowerCase()
   for (const [topic, keywords] of Object.entries(TOPIC_KEYWORDS)) {
@@ -33,6 +48,7 @@ export function tag(questions) {
         ...q,
         topic: q.topic !== 'algebra' ? q.topic : detectTopic(q.question),
         difficulty: q.difficulty || detectDifficulty(i, group.length),
+        needs_figure: detectFigure(q.question),
       })
     })
   }

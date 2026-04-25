@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     anthropic_default_opus_model: str = "claude-opus-4.6"
     anthropic_default_sonnet_model: str = "claude-sonnet-4.6"
     anthropic_default_haiku_model: str = "claude-haiku-4.5"
+    anthropic_default_hint_model: str = "claude-haiku-4.5"
 
     allowed_origins: str = "http://localhost:5173"
 
@@ -29,6 +30,10 @@ class Settings(BaseSettings):
     @property
     def haiku_model(self) -> str:
         return self.anthropic_default_haiku_model
+
+    @property
+    def hint_model(self) -> str:
+        return self.anthropic_default_hint_model
 
 
 @lru_cache

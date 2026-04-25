@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useExamDispatch } from '../context/ExamContext.jsx'
-import { loadExams, loadQuestionsByIds } from '../api/index.js'
+import { loadExams, loadThiThuExams, loadQuestionsByIds } from '../api/index.js'
 
 export default function ExamSelect() {
   const navigate = useNavigate()
   const dispatch = useExamDispatch()
   const [searchParams] = useSearchParams()
   const [mode, setMode] = useState(searchParams.get('mode') === 'practice' ? 'practice' : 'timed')
-  const exams = loadExams()
+  const exams = mode === 'timed' ? loadThiThuExams() : loadExams()
 
   function handleStart(exam) {
     const questions = loadQuestionsByIds(exam.questionIds)
@@ -50,6 +50,7 @@ export default function ExamSelect() {
                   <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{exam.title}</span>
                   <span className="font-jakarta text-[13px] text-[#64748B]">
                     {exam.year} · {exam.totalQuestions} câu · {exam.duration} phút
+                    {exam.source && ` · ${exam.source}`}
                   </span>
                 </div>
                 <button onClick={() => handleStart(exam)}

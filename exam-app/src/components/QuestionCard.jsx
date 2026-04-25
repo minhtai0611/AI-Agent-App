@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { getHint, getExplanation } from '../api/aiClient.js'
+import { sanitizeSvg } from '../utils/sanitizeSvg.js'
 
 const LABELS = ['A', 'B', 'C', 'D']
 const MAX_HINTS = 3
@@ -74,6 +75,12 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
 
   return (
     <div>
+      {question.figure?.data && (
+        <div
+          className="mb-4 rounded-xl overflow-hidden border border-[#1E2A44] bg-[#0D1221] flex justify-center p-3"
+          dangerouslySetInnerHTML={{ __html: sanitizeSvg(question.figure.data) }}
+        />
+      )}
       <p className="font-fraunces text-[20px] text-[#F0F4FF] leading-relaxed mb-5 whitespace-pre-wrap">
         {question.question}
       </p>

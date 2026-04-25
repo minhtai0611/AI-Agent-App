@@ -12,14 +12,23 @@
     "crawl": "node scripts/crawl/index.js",
     "crawl:questions": "node scripts/crawl/index.js --only=questions",
     "crawl:schools": "node scripts/crawl/index.js --only=schools",
-    "crawl:validate": "node scripts/crawl/pipeline/validate.js --check-only"
+    "crawl:validate": "node scripts/crawl/pipeline/validate.js --check-only",
+    "crawl:publish": "node scripts/crawl/pipeline/publish.js",
+    "crawl:generate": "node scripts/crawl/generate.js",
+    "crawl:publish:check": "node scripts/crawl/pipeline/publish.js --check-only",
+    "crawl:preview": "node scripts/crawl/pipeline/buildPreview.js"
   },
   "dependencies": {
     "axios": "^1.7.7",
+    "katex": "^0.16.45",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^6.27.0",
-    "recharts": "^2.13.3"
+    "recharts": "^2.13.3",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.3",

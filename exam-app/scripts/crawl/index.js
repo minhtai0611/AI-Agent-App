@@ -1,12 +1,16 @@
 import { crawlQuestions } from './sources/questions/vndoc.js'
 import { crawlThuVienHocLieu } from './sources/questions/thuvienhoclieu.js'
 import { crawlLoiGiaiHay } from './sources/questions/loigiaihay.js'
+import { crawlToanMath } from './sources/questions/toanmath.js'
+import { crawlTaiLieu } from './sources/questions/tailieu.js'
 import { crawlTuyenSinh247 } from './sources/schools/tuyensinh247.js'
 import { crawlDantri } from './sources/schools/dantri.js'
 import { crawlHcmedu } from './sources/schools/hcmedu.js'
 import { normalize } from './pipeline/normalize.js'
 import { tag } from './pipeline/tag.js'
+import { addFigures } from './pipeline/figure.js'
 import { dedupe } from './pipeline/dedupe.js'
+import { aiValidate } from './pipeline/aiValidate.js'
 import { validate } from './pipeline/validate.js'
 import { merge } from './pipeline/merge.js'
 import { writeFileSync, mkdirSync } from 'fs'
@@ -17,7 +21,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const OUTPUT_DIR = join(__dirname, 'output')
 const RAW_DIR = join(OUTPUT_DIR, 'raw')
 
-const only = process.argv.find(a => a.startsWith('--only='))?.split('=')[1]
+const only          = process.argv.find(a => a.startsWith('--only='))?.split('=')[1]
+const skipValidate  = process.argv.includes('--skip-validate')
+const ignoreRobots  = process.argv.includes('--ignore-robots')
 
 async function sleep(ms) {
   return new Promise(r => setTimeout(r, ms))
@@ -40,14 +46,18 @@ async function checkRobots(domain) {
 async function runQuestions() {
   console.log('Crawling questions...')
   const sources = [
-    { fn: crawlQuestions,     domain: 'vndoc.com' },
+    { fn: crawlQuestions,      domain: 'vndoc.com' },
     { fn: crawlThuVienHocLieu, domain: 'thuvienhoclieu.com' },
-    { fn: crawlLoiGiaiHay,    domain: 'loigiaihay.com' },
+    { fn: crawlLoiGiaiHay,     domain: 'loigiaihay.com' },
+    { fn: crawlToanMath,       domain: 'toanmath.com' },
+    { fn: crawlTaiLieu,        domain: 'tailieu.vn' },
   ]
   let allRaw = []
   for (const { fn, domain } of sources) {
-    const ok = await checkRobots(domain)
-    if (!ok) continue
+    if (!ignoreRobots) {
+      const ok = await checkRobots(domain)
+      if (!ok) continue
+    }
     try {
       const items = await fn()
       allRaw.push(...items)
@@ -59,12 +69,14 @@ async function runQuestions() {
   }
   writeFileSync(join(RAW_DIR, 'questions-raw.json'), JSON.stringify(allRaw, null, 2))
 
-  const normalized = normalize.questions(allRaw)
-  const tagged     = tag(normalized)
-  const deduped    = dedupe(tagged)
-  const exams      = normalize.exams(deduped)
-  const report     = validate(deduped, null)
-  report.exams     = exams.length
+  const normalized  = normalize.questions(allRaw)
+  const tagged      = tag(normalized)
+  const withFigures = await addFigures(tagged)
+  const deduped     = dedupe(withFigures)
+  if (!skipValidate) await aiValidate(deduped)
+  const exams       = normalize.exams(deduped)
+  const report      = validate(deduped, null)
+  report.exams      = exams.length
 
   writeFileSync(join(OUTPUT_DIR, 'questions.json'), JSON.stringify(deduped, null, 2))
   writeFileSync(join(OUTPUT_DIR, 'exams.json'),     JSON.stringify(exams, null, 2))

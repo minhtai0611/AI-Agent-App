@@ -30,12 +30,31 @@ async def generate_explanation(
 ) -> dict:
     settings = get_settings()
     choices = question.get("choices", [])
+
+    # Ground truth from question data — never let AI guess the correct answer
+    correct_index = int(question.get("correct", 0))
+    correct_index = max(0, min(correct_index, len(choices) - 1))
+    base_explanation = question.get("explanation", "")
+
     chosen_label = LABELS[chosen_index] if chosen_index < len(LABELS) else str(chosen_index)
+    correct_label = LABELS[correct_index] if correct_index < len(LABELS) else str(correct_index)
 
     choices_text = "\n".join(
         f"  {LABELS[i]}. {c}" for i, c in enumerate(choices) if i < len(LABELS)
     )
 
+    # If the question already has an explanation, use it directly without an AI call
+    if base_explanation:
+        student_context = (
+            f"Bạn đã chọn đúng ({correct_label})! " if chosen_index == correct_index
+            else f"Bạn chọn {chosen_label}, đáp án đúng là {correct_label}. "
+        )
+        return {
+            "correct_index": correct_index,
+            "explanation": student_context + base_explanation,
+        }
+
+    # No pre-written explanation — ask AI to explain, but correct_index is already known
     prompt = f"""Câu hỏi trắc nghiệm toán lớp 10:
 {question.get('question', '')}
 
@@ -44,15 +63,16 @@ Các lựa chọn:
 
 Chủ đề: {question.get('topic', '')} | Mức độ: {question.get('difficulty', '')}
 Học sinh đã chọn: {chosen_label}
+Đáp án đúng: {correct_label} (index {correct_index}) — đây là sự thật, không được thay đổi.
 
 QUAN TRỌNG: Chỉ trả về JSON, không có bất kỳ văn bản nào khác trước hoặc sau.
-Xác định đáp án đúng bằng toán học, sau đó điền vào JSON:
-{{"correct_index": <số nguyên 0–3 là index của đáp án đúng>, "explanation": "<2–3 câu tiếng Việt giải thích tại sao đáp án đó đúng, không dùng markdown>"}}"""
+Giải thích ngắn gọn tại sao đáp án {correct_label} đúng:
+{{"correct_index": {correct_index}, "explanation": "<2–3 câu tiếng Việt giải thích, không dùng markdown>"}}"""
 
     response = await call_with_retry(
         client,
         model=settings.haiku_model,
-        max_tokens=600,
+        max_tokens=400,
         messages=[
             {"role": "system", "content": STATIC_EXPLAIN_INSTRUCTIONS},
             {"role": "user", "content": prompt},
@@ -63,9 +83,8 @@ Xác định đáp án đúng bằng toán học, sau đó điền vào JSON:
     content = _extract_json(raw)
     try:
         data = json.loads(content)
-        # Validate correct_index is an int in [0, len(choices)-1]
-        ci = int(data.get("correct_index", 0))
-        data["correct_index"] = max(0, min(ci, len(choices) - 1))
+        # Always use ground-truth correct_index regardless of what AI returns
+        data["correct_index"] = correct_index
         return data
     except (json.JSONDecodeError, ValueError):
-        return {"correct_index": 0, "explanation": raw.strip()}
+        return {"correct_index": correct_index, "explanation": raw.strip()}

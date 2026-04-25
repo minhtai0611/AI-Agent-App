@@ -1,33 +1,42 @@
-import axios from 'axios'
 import * as cheerio from 'cheerio'
+import { http } from '../../httpClient.js'
 import { parseQuestionBlock } from '../../pipeline/normalize.js'
 
 const BASE = 'https://thuvienhoclieu.com'
 const TAG  = '/de-thi-thu-toan-lop-10-tphcm'
+const YEAR_RANGE = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
 export async function crawlThuVienHocLieu() {
-  const res = await axios.get(BASE + TAG, { timeout: 10000 })
+  const res = await http.get(BASE + TAG)
   const $ = cheerio.load(res.data)
-  const links = []
-  $('a[href*="de-thi"]').each((_, el) => {
-    const href = $(el).attr('href')
-    if (href && !links.includes(href)) links.push(href)
+
+  const byYear = {}
+  $('a[href]').each((_, el) => {
+    const href = $(el).attr('href') ?? ''
+    if (!href.includes('de-thi') && !href.includes('toan')) return
+    const m = href.match(/20(\d{2})/)
+    if (!m) return
+    const year = 2000 + parseInt(m[1])
+    if (!YEAR_RANGE.includes(year) || byYear[year]) return
+    byYear[year] = href.startsWith('http') ? href : BASE + href
   })
 
   const results = []
-  for (const link of links.slice(0, 10)) {
+  for (const [year, url] of Object.entries(byYear)) {
     try {
-      const url = link.startsWith('http') ? link : BASE + link
-      const page = await axios.get(url, { timeout: 10000 })
+      const page = await http.get(url)
       const $p = cheerio.load(page.data)
       const text = $p('.entry-content, .post-content').text()
-      const yearMatch = url.match(/20(\d{2})/)
-      const year = yearMatch ? 2000 + parseInt(yearMatch[1]) : 2023
-      const questions = parseQuestionBlock(text, year, 'thuvienhoclieu')
+      const questions = parseQuestionBlock(text, parseInt(year), 'thuvienhoclieu')
+      if (questions.length === 0) {
+        console.warn(`  [WARN] thuvienhoclieu ${year}: 0 questions parsed`)
+        continue
+      }
       results.push(...questions)
+      console.log(`  thuvienhoclieu ${year}: ${questions.length} questions`)
       await new Promise(r => setTimeout(r, 1500))
     } catch (e) {
-      console.warn(`  thuvienhoclieu skip ${link}: ${e.message}`)
+      console.warn(`  [WARN] thuvienhoclieu ${year}: ${e.message}`)
     }
   }
   return results
