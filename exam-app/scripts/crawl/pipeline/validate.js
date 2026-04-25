@@ -9,12 +9,21 @@ const checkOnly = process.argv.includes('--check-only')
 
 function validateQuestions(questions) {
   const errors = []
-  if (!questions || questions.length < 60)
-    errors.push(`questions.json: only ${questions?.length ?? 0} questions, need ≥ 60`)
+  if (!questions || questions.length < 200)
+    errors.push(`questions.json: only ${questions?.length ?? 0} questions, need ≥ 200`)
 
-  const years = new Set(questions?.map(q => q.year) ?? [])
-  if (years.size < 3)
-    errors.push(`questions.json: only ${years.size} years, need ≥ 3`)
+  const yearMap = {}
+  for (const q of (questions ?? [])) {
+    yearMap[q.year] = (yearMap[q.year] ?? 0) + 1
+  }
+  const years = Object.keys(yearMap)
+  if (years.length < 8)
+    errors.push(`questions.json: only ${years.length} years, need ≥ 8`)
+
+  for (const [yr, count] of Object.entries(yearMap)) {
+    if (count < 8)
+      console.warn(`  [WARN] Year ${yr}: only ${count} questions (< 8, likely mixed-format exam)`)
+  }
 
   for (const q of (questions ?? [])) {
     if (typeof q.correct !== 'number' || q.correct < 0 || q.correct > 3)

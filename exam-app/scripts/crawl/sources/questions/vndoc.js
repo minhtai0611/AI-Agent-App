@@ -1,33 +1,42 @@
-import axios from 'axios'
 import * as cheerio from 'cheerio'
+import { http } from '../../httpClient.js'
 import { parseQuestionBlock } from '../../pipeline/normalize.js'
 
-const BASE = 'https://vndoc.com'
-const LISTING = '/de-thi-thu-vao-lop-10-mon-toan'
+const BASE    = 'https://vndoc.com'
+const LISTING = '/de-thi-vao-lop-10-mon-toan-tp-hcm'
+const YEAR_RANGE = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
 export async function crawlQuestions() {
-  const res = await axios.get(BASE + LISTING, { timeout: 10000 })
+  const res = await http.get(BASE + LISTING)
   const $ = cheerio.load(res.data)
-  const links = []
-  $('a[href*="de-thi-thu"]').each((_, el) => {
-    const href = $(el).attr('href')
-    if (href && !links.includes(href)) links.push(href)
+
+  const byYear = {}
+  $('a[href]').each((_, el) => {
+    const href = $(el).attr('href') ?? ''
+    if (!href.includes('toan') && !href.includes('de-thi')) return
+    const m = href.match(/20(\d{2})/)
+    if (!m) return
+    const year = 2000 + parseInt(m[1])
+    if (!YEAR_RANGE.includes(year) || byYear[year]) return
+    byYear[year] = href.startsWith('http') ? href : BASE + href
   })
 
   const results = []
-  for (const link of links.slice(0, 10)) {
+  for (const [year, url] of Object.entries(byYear)) {
     try {
-      const url = link.startsWith('http') ? link : BASE + link
-      const page = await axios.get(url, { timeout: 10000 })
+      const page = await http.get(url)
       const $p = cheerio.load(page.data)
-      const text = $p('.post-content').text()
-      const yearMatch = url.match(/20(\d{2})/)
-      const year = yearMatch ? 2000 + parseInt(yearMatch[1]) : 2024
-      const questions = parseQuestionBlock(text, year, 'vndoc')
+      const text = $p('.post-content, .article-content, .content').text()
+      const questions = parseQuestionBlock(text, parseInt(year), 'vndoc')
+      if (questions.length === 0) {
+        console.warn(`  [WARN] vndoc ${year}: 0 questions parsed`)
+        continue
+      }
       results.push(...questions)
+      console.log(`  vndoc ${year}: ${questions.length} questions`)
       await new Promise(r => setTimeout(r, 1500))
     } catch (e) {
-      console.warn(`  vndoc skip ${link}: ${e.message}`)
+      console.warn(`  [WARN] vndoc ${year}: ${e.message}`)
     }
   }
   return results

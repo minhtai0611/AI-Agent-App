@@ -40,7 +40,7 @@ export default function Landing() {
         {/* Stats row */}
         <div className="flex gap-5">
           {[
-            { value: '10+', label: 'đề thi', color: '#F2A20C' },
+            { value: '10+', label: 'đề thi thử', color: '#F2A20C' },
             { value: '300+', label: 'câu hỏi', color: '#F2A20C' },
             { value: 'AI', label: 'Phân tích', color: '#10B981' },
           ].map(({ value, label, color }) => (

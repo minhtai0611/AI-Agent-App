@@ -37,6 +37,7 @@ function normalizeQuestions(raw) {
     choices: q.choices,
     correct: typeof q.correct === 'number' ? q.correct : (LETTER_TO_INDEX[q.correct] ?? 0),
     explanation: q.explanation ?? null,
+    figure: q.figure ?? null,
   }))
 }
 
@@ -47,10 +48,11 @@ function normalizeExams(questions) {
     byYear[q.year].push(q.id)
   }
   return Object.entries(byYear).map(([year, ids]) => ({
-    id: `hcmc_${year}_math`,
+    id: `hcmc_${year}_math_thithu`,
     year: parseInt(year),
-    title: `Đề thi thử Toán - TPHCM ${year}`,
+    title: `Đề thi vào lớp 10 Toán - TPHCM ${year}`,
     duration: 90,
+    mode: 'thithu',
     questionIds: ids,
     totalQuestions: ids.length,
   }))

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useExam, useExamDispatch, useHints } from '../context/ExamContext.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import Timer from '../components/Timer.jsx'
+import TutorChat from '../components/TutorChat.jsx'
 
 const TOPIC_LABELS = { algebra: 'Đại số', geometry: 'Hình học', statistics: 'Thống kê', combinatorics: 'Tổ hợp' }
 const DIFF_LABELS = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
@@ -42,6 +43,36 @@ export default function TestInterface() {
   const isLast = currentIndex === questions.length - 1
   const isPractice = mode === 'practice'
   const progress = ((currentIndex + 1) / questions.length) * 100
+
+  const [tutorOpen, setTutorOpen] = useState(false)
+
+  // Build rich in-exam context for the tutor — recomputed on every relevant state change.
+  const examContext = useMemo(() => {
+    const topicProgress = {}
+    for (const q of questions) {
+      const t = q.topic || 'other'
+      if (!topicProgress[t]) topicProgress[t] = { total: 0, answered: 0, correct: isPractice ? 0 : undefined }
+      topicProgress[t].total++
+      if (answers[q.id] !== undefined) {
+        topicProgress[t].answered++
+        if (isPractice && topicProgress[t].correct !== undefined && answers[q.id] === q.correctAnswer) {
+          topicProgress[t].correct++
+        }
+      }
+    }
+    return {
+      inExam: true,
+      examId: exam?.id,
+      examTitle: exam?.title,
+      mode,
+      currentQuestionNumber: currentIndex + 1,
+      totalQuestions: questions.length,
+      answeredCount: Object.keys(answers).length,
+      currentTopic: question?.topic,
+      timeLeftSeconds: mode === 'timed' ? timeLeft : null,
+      topicProgress,
+    }
+  }, [exam, mode, currentIndex, questions, answers, timeLeft, question, isPractice])
 
   function handleAnswer(choiceIndex) {
     dispatch({ type: 'ANSWER_QUESTION', questionId: question.id, choiceIndex })
@@ -180,6 +211,23 @@ export default function TestInterface() {
           })}
         </div>
       </div>
+
+      {/* Floating AI tutor button */}
+      <button
+        onClick={() => setTutorOpen(true)}
+        className="fixed bottom-6 right-6 z-30 flex items-center gap-2 px-4 py-2.5 rounded-full font-jakarta text-[13px] font-bold text-[#0A0E1A] shadow-lg hover:opacity-90 transition-all"
+        style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
+        aria-label="Hỏi AI Gia Sư"
+      >
+        <span>✦</span>
+        <span>AI Gia Sư</span>
+      </button>
+
+      <TutorChat
+        open={tutorOpen}
+        onClose={() => setTutorOpen(false)}
+        examContext={examContext}
+      />
     </div>
   )
 }

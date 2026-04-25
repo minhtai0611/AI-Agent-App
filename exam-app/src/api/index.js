@@ -10,6 +10,12 @@ export function loadExams() {
   return examsData
 }
 
+export function loadThiThuExams() {
+  return examsData
+    .filter(e => e.mode === 'thithu')
+    .sort((a, b) => b.year - a.year)
+}
+
 export function loadSchools() {
   return schoolsData
 }

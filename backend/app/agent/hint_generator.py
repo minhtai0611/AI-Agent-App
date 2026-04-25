@@ -49,7 +49,7 @@ Trả về đúng định dạng JSON sau, không thêm text nào khác:
 
     response = await call_with_retry(
         client,
-        model=settings.haiku_model,
+        model=settings.hint_model,
         max_tokens=512,
         messages=[
             {"role": "system", "content": STATIC_HINT_INSTRUCTIONS},

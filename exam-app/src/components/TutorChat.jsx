@@ -1,10 +1,24 @@
 import { useState, useEffect, useRef } from 'react'
+import Markdown from 'react-markdown'
+import remarkMath from 'remark-math'
+import remarkGfm from 'remark-gfm'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 import { sendTutorMessage } from '../api/aiClient.js'
+
+const MIN_WIDTH = 280
+const MAX_WIDTH = 720
+const DEFAULT_WIDTH = 384
+const STORAGE_KEY = 'tutor-panel-width'
 
 export default function TutorChat({ open, onClose, examContext }) {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [panelWidth, setPanelWidth] = useState(
+    () => Number(localStorage.getItem(STORAGE_KEY)) || DEFAULT_WIDTH
+  )
+  const isDragging = useRef(false)
   const bottomRef = useRef(null)
 
   // Send greeting on first open
@@ -55,6 +69,32 @@ export default function TutorChat({ open, onClose, examContext }) {
     }
   }
 
+  function startDrag(e) {
+    e.preventDefault()
+    isDragging.current = true
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+
+    function onMove(ev) {
+      if (!isDragging.current) return
+      const w = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, window.innerWidth - ev.clientX))
+      setPanelWidth(w)
+    }
+
+    function onUp(ev) {
+      isDragging.current = false
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+      const w = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, window.innerWidth - ev.clientX))
+      localStorage.setItem(STORAGE_KEY, String(w))
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }
+
   return (
     <>
       {/* Backdrop */}
@@ -71,9 +111,20 @@ export default function TutorChat({ open, onClose, examContext }) {
         role="dialog"
         aria-modal="true"
         aria-label="AI Gia sư"
-        className="fixed top-0 right-0 h-full w-full max-w-sm z-50 flex flex-col bg-[#0D1221] border-l border-[#1E2A44] transition-transform duration-300"
-        style={{ transform: open ? 'translateX(0)' : 'translateX(100%)' }}
+        className="fixed top-0 right-0 h-full z-50 flex flex-col bg-[#0D1221] border-l border-[#1E2A44] transition-transform duration-300"
+        style={{
+          width: panelWidth,
+          transform: open ? 'translateX(0)' : 'translateX(100%)',
+        }}
       >
+        {/* Drag handle */}
+        <div
+          onMouseDown={startDrag}
+          className="absolute top-0 left-0 h-full w-1.5 z-10 cursor-col-resize group flex items-center justify-start"
+          title="Kéo để thay đổi kích thước"
+        >
+          <div className="w-0.5 h-12 rounded-full bg-[#1E2A44] group-hover:bg-[#F2A20C] transition-colors duration-150 ml-0.5" />
+        </div>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E2A44]">
           <div className="flex items-center gap-2">
@@ -100,10 +151,31 @@ export default function TutorChat({ open, onClose, examContext }) {
                 className={`max-w-[85%] px-4 py-2.5 rounded-2xl font-jakarta text-[13px] leading-relaxed ${
                   msg.role === 'user'
                     ? 'bg-[#F2A20C] text-[#0A0E1A] font-medium rounded-br-sm'
-                    : 'bg-[#111827] border border-[#1E2A44] text-[#CBD5E1] rounded-bl-sm'
+                    : 'bg-[#111827] border border-[#1E2A44] text-[#CBD5E1] rounded-bl-sm prose-tutor'
                 }`}
               >
-                {msg.content}
+                {msg.role === 'user' ? msg.content : (
+                  <Markdown
+                    remarkPlugins={[remarkMath, remarkGfm]}
+                    rehypePlugins={[rehypeKatex]}
+                    components={{
+                      p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+                      strong: ({ children }) => <strong className="text-[#F2A20C] font-semibold">{children}</strong>,
+                      ul: ({ children }) => <ul className="list-disc pl-4 mb-1 space-y-0.5">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal pl-4 mb-1 space-y-0.5">{children}</ol>,
+                      li: ({ children }) => <li className="leading-snug">{children}</li>,
+                      pre: ({ children }) => <pre className="bg-[#1E2A44] text-[#93C5FD] p-2 rounded text-[12px] font-mono overflow-x-auto my-1">{children}</pre>,
+                      code: ({ children }) => <code className="bg-[#1E2A44] text-[#93C5FD] px-1 rounded text-[12px] font-mono">{children}</code>,
+                      table: ({ children }) => <div className="overflow-x-auto my-2"><table className="w-full text-[12px] border-collapse">{children}</table></div>,
+                      thead: ({ children }) => <thead className="bg-[#1E2A44]">{children}</thead>,
+                      th: ({ children }) => <th className="px-2 py-1.5 text-left text-[#F2A20C] font-semibold border border-[#2A3A60]">{children}</th>,
+                      td: ({ children }) => <td className="px-2 py-1.5 text-[#CBD5E1] border border-[#1E2A44]">{children}</td>,
+                      tr: ({ children }) => <tr className="even:bg-[#0F1628]">{children}</tr>,
+                    }}
+                  >
+                    {msg.content}
+                  </Markdown>
+                )}
               </div>
             </div>
           ))}
