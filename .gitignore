@@ -36,3 +36,8 @@ hint-*.png
 
 # Playwright MCP cache
 .playwright-mcp/
+
+# Local dev/agent artifacts
+.claude/
+docs/
+exam-app-plan.md
