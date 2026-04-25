@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently -n backend,frontend -c blue,green \"uvicorn backend.app.main:app --reload\" \"npm --prefix exam-app run dev\""
+    "dev": "concurrently -n backend,frontend -c blue,green \"PYTHONPATH=backend uvicorn app.main:app --reload\" \"npm --prefix exam-app run dev\""
   },
   "devDependencies": {
     "concurrently": "^9.0.0"

@@ -6,6 +6,7 @@ import ExamSelect from './pages/ExamSelect.jsx'
 import TestInterface from './pages/TestInterface.jsx'
 import Results from './pages/Results.jsx'
 import History from './pages/History.jsx'
+import StudyPlan from './pages/StudyPlan.jsx'
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
             <Route path="/results/current" element={<Results />} />
             <Route path="/results/:resultId" element={<Results />} />
             <Route path="/history" element={<History />} />
+            <Route path="/study-plan/:resultId" element={<StudyPlan />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

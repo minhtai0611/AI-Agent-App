@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer } from 'react'
+import { createContext, useContext, useReducer } from 'react'
 
 const HistoryContext = createContext(null)
 
@@ -31,11 +31,9 @@ function reducer(state, action) {
 }
 
 export function HistoryProvider({ children }) {
-  const [results, dispatch] = useReducer(reducer, [])
-
-  useEffect(() => {
-    dispatch({ type: 'LOAD', results: load() })
-  }, [])
+  // Lazy initializer: load from localStorage synchronously on first render
+  // so results are available before any child effects fire.
+  const [results, dispatch] = useReducer(reducer, undefined, load)
 
   function addResult(result) {
     dispatch({ type: 'ADD', result })

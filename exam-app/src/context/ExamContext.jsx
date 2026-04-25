@@ -8,6 +8,7 @@ const initialState = {
   exam: null,
   questions: [],
   answers: {},
+  hints: {},
   mode: 'timed',
   timeLeft: null,
   status: 'idle', // idle | active | timeout | submitted
@@ -24,6 +25,19 @@ function reducer(state, action) {
         ...state,
         answers: { ...state.answers, [action.questionId]: action.choiceIndex },
       }
+    case 'SET_HINT': {
+      const prev = state.hints[action.questionId] || { count: 0, texts: [] }
+      return {
+        ...state,
+        hints: {
+          ...state.hints,
+          [action.questionId]: {
+            count: action.count,
+            texts: [...prev.texts, action.text],
+          },
+        },
+      }
+    }
     case 'TICK':
       return tick(state)
     case 'SUBMIT':
@@ -52,4 +66,12 @@ export function useExam() {
 
 export function useExamDispatch() {
   return useContext(ExamDispatch)
+}
+
+export function useHints() {
+  const { hints } = useContext(ExamContext)
+  const dispatch = useContext(ExamDispatch)
+  const setHint = (questionId, count, text) =>
+    dispatch({ type: 'SET_HINT', questionId, count, text })
+  return { hints, setHint }
 }

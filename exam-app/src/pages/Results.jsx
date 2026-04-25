@@ -5,8 +5,11 @@ import { useHistory } from '../context/HistoryContext.jsx'
 import { scoreExam } from '../engine/scoringEngine.js'
 import { analyzeResult } from '../engine/aiEngine.js'
 import { loadSchools } from '../api/index.js'
+import { analyzeResult as aiAnalyzeResult } from '../api/aiClient.js'
 import TopicBreakdownChart from '../components/TopicBreakdownChart.jsx'
 import AIInsights from '../components/AIInsights.jsx'
+import TutorChat from '../components/TutorChat.jsx'
+import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
 
 const TOPIC_LABELS = { algebra: 'Đại số', geometry: 'Hình học', statistics: 'Thống kê', combinatorics: 'Tổ hợp' }
 const TOPIC_COLORS = { algebra: '#10B981', geometry: '#FBBF24', statistics: '#FB7185', combinatorics: '#10B981' }
@@ -39,6 +42,9 @@ export default function Results() {
   const { results, addResult } = useHistory()
   const [result, setResult] = useState(null)
   const [analysis, setAnalysis] = useState(null)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState(false)
+  const [tutorOpen, setTutorOpen] = useState(false)
 
   const isCurrent = !resultId || resultId === 'current'
 
@@ -56,15 +62,37 @@ export default function Results() {
       const found = results.find(r => r.id === resultId)
       if (found) setResult(found)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resultId])
+  }, [resultId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!result) return
-    const schools = loadSchools()
     const allPast = results.filter(r => r.id !== result.id)
+
+    // Return cached AI analysis immediately if available
+    const cacheKey = `ai-analysis-${result.id}`
+    const cached = localStorage.getItem(cacheKey)
+    if (cached) {
+      setAnalysis(JSON.parse(cached))
+      return
+    }
+
+    // Local fallback while AI loads
+    const schools = loadSchools()
     setAnalysis(analyzeResult(result, allPast, schools))
-  }, [result, results])
+
+    setAiLoading(true)
+    setAiError(false)
+    aiAnalyzeResult({ result, history: allPast }).then(({ data, error }) => {
+      setAiLoading(false)
+      if (data) {
+        const aiAnalysis = { ...data, _source: 'ai' }
+        localStorage.setItem(cacheKey, JSON.stringify(aiAnalysis))
+        setAnalysis(aiAnalysis)
+      } else {
+        setAiError(true)
+      }
+    })
+  }, [result]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!result) {
     if (!isCurrent && results.length > 0 && !results.find(r => r.id === resultId)) {
@@ -89,6 +117,8 @@ export default function Results() {
 
   const { score, accuracy, timeSpent, topicBreakdown, examId } = result
   const topics = Object.entries(topicBreakdown)
+  const weakTopics = analysis?._source === 'ai' ? (analysis.weak_topics || []) : (analysis?.weakTopics || [])
+  const examContext = { examId, topicBreakdown, weakTopics }
 
   return (
     <div className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden">
@@ -196,10 +226,32 @@ export default function Results() {
             <span className="text-[#F2A20C]">✦</span>
             <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Phân tích AI</span>
           </div>
-          <AIInsights analysis={analysis} />
+          <AIErrorBoundary>
+            <AIInsights analysis={aiLoading ? null : analysis} loading={aiLoading} error={aiError} />
+          </AIErrorBoundary>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex gap-3">
+          <button
+            onClick={() => navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })}
+            className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-semibold text-[#F8FAFC] border border-[#1E2A44] bg-[#0D1221] hover:border-[#F2A20C] hover:text-[#F2A20C] transition"
+          >
+            Tạo Kế Hoạch Học Tập
+          </button>
+          <button
+            onClick={() => setTutorOpen(true)}
+            className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-semibold text-[#0A0E1A] hover:opacity-90 transition"
+            style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
+          >
+            Hỏi AI Gia Sư
+          </button>
         </div>
 
       </div>
+
+      {/* Tutor chat drawer */}
+      <TutorChat open={tutorOpen} onClose={() => setTutorOpen(false)} examContext={examContext} />
     </div>
   )
 }
