@@ -59,8 +59,4 @@ Trả về đúng định dạng JSON sau, không thêm text nào khác:
 
     raw = response.choices[0].message.content or ""
     content = _strip_code_fence(raw)
-    try:
-        return json.loads(content)
-    except json.JSONDecodeError:
-        # AI returned plain text instead of JSON — wrap it directly
-        return {"hint": raw.strip(), "difficulty_note": ""}
+    return json.loads(content)

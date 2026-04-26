@@ -7,6 +7,14 @@ body {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.35s ease forwards;
+}
+
 /* KaTeX dark-theme overrides inside the tutor chat bubble */
 .prose-tutor .katex { color: #E2E8F0; font-size: 1em; }
 .prose-tutor .katex-display { margin: 0.4em 0; overflow-x: auto; }

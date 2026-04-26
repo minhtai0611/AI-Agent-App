@@ -25,6 +25,10 @@ exam-app/dist/
 # GitNexus index (regenerated via `gitnexus analyze`)
 .gitnexus/
 
+# Ingestion state (local run progress, not source)
+exam-app/scripts/ingest/state.json
+backend/scripts/ingest/ingest_state.json
+
 # Misc
 *.pen
 .DS_Store
@@ -34,6 +38,8 @@ Thumbs.db
 audit-*.png
 hint-*.png
 proof-*.png
+landing.png
+oracle.png
 
 # Playwright MCP cache
 .playwright-mcp/

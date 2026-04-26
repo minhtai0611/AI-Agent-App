@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { generateStudyPlan } from '../api/aiClient.js'
+import { buildStudyPlanPayload } from '../api/index.js'
 
 const STORAGE_KEY = (resultId) => `study-plan-progress-${resultId}`
 const PLAN_CACHE_KEY = (resultId) => `study-plan-data-${resultId}`
@@ -70,7 +71,7 @@ export default function StudyPlan() {
     }
 
     setLoading(true)
-    generateStudyPlan({ result, history }).then(({ data, error: err }) => {
+    generateStudyPlan(buildStudyPlanPayload(result, history)).then(({ data, error: err }) => {
       setLoading(false)
       if (data) {
         localStorage.setItem(cacheKey, JSON.stringify(data))
@@ -124,7 +125,7 @@ export default function StudyPlan() {
           <div className="flex flex-col items-center gap-4 py-16">
             <p className="font-jakarta text-[#94A3B8]">Không thể tạo kế hoạch học tập</p>
             <button
-              onClick={() => { setError(false); setLoading(true); generateStudyPlan({ result, history }).then(({ data }) => { setLoading(false); if (data) setPlan(data); else setError(true) }) }}
+              onClick={() => { setError(false); setLoading(true); generateStudyPlan(buildStudyPlanPayload(result, history)).then(({ data }) => { setLoading(false); if (data) setPlan(data); else setError(true) }) }}
               className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold text-[#0A0E1A]"
               style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
             >
