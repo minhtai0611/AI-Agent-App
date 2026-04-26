@@ -3,9 +3,11 @@ import { crawlThuVienHocLieu } from './sources/questions/thuvienhoclieu.js'
 import { crawlLoiGiaiHay } from './sources/questions/loigiaihay.js'
 import { crawlToanMath } from './sources/questions/toanmath.js'
 import { crawlTaiLieu } from './sources/questions/tailieu.js'
+import { crawlHSG } from './sources/questions/hsg.js'
 import { crawlTuyenSinh247 } from './sources/schools/tuyensinh247.js'
 import { crawlDantri } from './sources/schools/dantri.js'
 import { crawlHcmedu } from './sources/schools/hcmedu.js'
+import { crawlBGDT } from './sources/schools/bgdt.js'
 import { normalize } from './pipeline/normalize.js'
 import { tag } from './pipeline/tag.js'
 import { addFigures } from './pipeline/figure.js'
@@ -51,6 +53,7 @@ async function runQuestions() {
     { fn: crawlLoiGiaiHay,     domain: 'loigiaihay.com' },
     { fn: crawlToanMath,       domain: 'toanmath.com' },
     { fn: crawlTaiLieu,        domain: 'tailieu.vn' },
+    { fn: crawlHSG,            domain: 'thuvienhoclieu.com' },
   ]
   let allRaw = []
   for (const { fn, domain } of sources) {
@@ -89,6 +92,7 @@ async function runSchools() {
     { fn: crawlTuyenSinh247, domain: 'tuyensinh247.com' },
     { fn: crawlDantri,       domain: 'dantri.com.vn' },
     { fn: crawlHcmedu,       domain: 'hcm.edu.vn' },
+    { fn: crawlBGDT,         domain: 'moet.gov.vn' },
   ]
   let allSchoolData = []
   for (const { fn, domain } of sources) {

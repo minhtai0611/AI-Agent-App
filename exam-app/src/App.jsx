@@ -7,6 +7,7 @@ import TestInterface from './pages/TestInterface.jsx'
 import Results from './pages/Results.jsx'
 import History from './pages/History.jsx'
 import StudyPlan from './pages/StudyPlan.jsx'
+import MathOracle from './pages/MathOracle.jsx'
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="/results/:resultId" element={<Results />} />
             <Route path="/history" element={<History />} />
             <Route path="/study-plan/:resultId" element={<StudyPlan />} />
+            <Route path="/oracle" element={<MathOracle />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

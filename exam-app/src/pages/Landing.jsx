@@ -23,7 +23,7 @@ export default function Landing() {
           </p>
         </div>
         {/* Buttons */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-wrap justify-center">
           <button onClick={() => navigate('/exams')}
             className="px-10 py-3.5 bg-[#F2A20C] text-[#0A0E1A] font-jakarta font-bold text-base rounded-lg hover:opacity-90 transition">
             Thi thử
@@ -31,6 +31,11 @@ export default function Landing() {
           <button onClick={() => navigate('/exams?mode=practice')}
             className="px-10 py-3.5 border border-[#F2A20C] text-[#F2A20C] font-jakarta font-semibold text-base rounded-lg hover:bg-[#F2A20C]/10 transition">
             Luyện tập
+          </button>
+          <button onClick={() => navigate('/oracle')}
+            className="px-10 py-3.5 border border-[#6366F1] text-[#6366F1] font-jakarta font-semibold text-base rounded-lg hover:bg-[#6366F1]/10 transition flex items-center gap-2">
+            <span>✦</span>
+            Toán Oracle
           </button>
         </div>
         {/* History link */}

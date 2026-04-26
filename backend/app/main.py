@@ -1,4 +1,8 @@
-from fastapi import FastAPI, Depends, HTTPException, Request
+import io
+import json
+import logging
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Depends, HTTPException, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import AsyncOpenAI
@@ -8,7 +12,22 @@ from app.middleware import RateLimitMiddleware
 from app.agent.core import run_agent
 from app.agent.memory import compress_conversation
 
-app = FastAPI(title="AI Agent App")
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        from app.math_wiki.storage.vectors import _get_local_model
+        logger.info("Pre-warming sentence-transformers embedding model...")
+        _get_local_model()
+        logger.info("Embedding model ready.")
+    except Exception as exc:
+        logger.warning("Math wiki embedding model unavailable (math features degraded): %s", exc)
+    yield
+
+
+app = FastAPI(title="AI Agent App", lifespan=lifespan)
 
 settings = get_settings()
 app.add_middleware(RateLimitMiddleware)
@@ -89,12 +108,22 @@ class ExplainResponse(BaseModel):
 class StudyPlanRequest(BaseModel):
     result: dict
     history: list[dict] = []
+    wrong_questions: list[dict] = []
+    topic_miss_counts: dict = {}
     student_name: str = ""
 
 
 class StudyPlanResponse(BaseModel):
     plan: str
     weekly_schedule: list[dict]
+
+
+class MathIngestRequest(BaseModel):
+    text: str
+
+
+class MathSolveRequest(BaseModel):
+    question: str
 
 
 # ── Existing routes ──────────────────────────────────────────────────────────
@@ -198,8 +227,75 @@ async def study_plan(
     client: AsyncOpenAI = Depends(get_ai_client),
 ):
     from app.agent.study_planner import generate_study_plan
-    data = await generate_study_plan(client, req.result, req.history, req.student_name)
+    data = await generate_study_plan(client, req.result, req.history, req.wrong_questions, req.topic_miss_counts, req.student_name)
     return StudyPlanResponse(
         plan=data.get("plan", ""),
         weekly_schedule=data.get("weekly_schedule", []),
     )
+
+
+@app.post("/math-ingest")
+async def math_ingest(req: MathIngestRequest):
+    client = get_ai_client()
+    from app.math_wiki.agents.ingest import ingest_exam
+    try:
+        output = await ingest_exam(client, req.text)
+        return {"problems": len(output.problems), "wiki_units": len(output.wiki_units)}
+    except (json.JSONDecodeError, ValueError) as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
+
+@app.post("/math-solve")
+async def math_solve(req: MathSolveRequest):
+    client = get_ai_client()
+    from app.math_wiki.pipeline import run_pipeline
+    try:
+        return await run_pipeline(client, req.question)
+    except (json.JSONDecodeError, ValueError) as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
+
+@app.post("/math-upload")
+async def math_upload(file: UploadFile = File(...)):
+    MAX_SIZE = 10 * 1024 * 1024  # 10MB
+    content = await file.read(MAX_SIZE + 1)
+    if len(content) > MAX_SIZE:
+        raise HTTPException(status_code=413, detail="File too large (max 10MB)")
+
+    filename = file.filename or ""
+    if filename.lower().endswith(".pdf"):
+        try:
+            from pypdf import PdfReader
+        except ImportError:
+            raise HTTPException(status_code=501, detail="pypdf not installed")
+        reader = PdfReader(io.BytesIO(content))
+        pages = [p.extract_text() or "" for p in reader.pages]
+        raw_text = "\n\n".join(p.strip() for p in pages if p.strip())
+    else:
+        raw_text = content.decode("utf-8", errors="replace")
+
+    chunk_size = 3000
+    chunks = [raw_text[i:i + chunk_size] for i in range(0, len(raw_text), chunk_size)] if raw_text else []
+
+    client = get_ai_client()
+    from app.math_wiki.agents.ingest import ingest_exam
+    total_problems = total_wiki = 0
+    try:
+        for chunk in chunks:
+            output = await ingest_exam(client, chunk)
+            total_problems += len(output.problems)
+            total_wiki += len(output.wiki_units)
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
+    return {"chunks_ingested": len(chunks), "problems": total_problems, "wiki_units": total_wiki}
+
+
+@app.get("/math-stats")
+async def math_stats():
+    from app.math_wiki.storage.db import count_problems, count_wiki_units, count_wiki_units_by_topic
+    return {
+        "problems": count_problems(),
+        "wiki_units": count_wiki_units(),
+        "topics": count_wiki_units_by_topic(),
+    }

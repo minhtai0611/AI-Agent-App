@@ -4,8 +4,8 @@ import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { scoreExam } from '../engine/scoringEngine.js'
 import { analyzeResult } from '../engine/aiEngine.js'
-import { loadSchools } from '../api/index.js'
-import { analyzeResult as aiAnalyzeResult } from '../api/aiClient.js'
+import { loadSchools, buildStudyPlanPayload } from '../api/index.js'
+import { analyzeResult as aiAnalyzeResult, generateStudyPlan } from '../api/aiClient.js'
 import TopicBreakdownChart from '../components/TopicBreakdownChart.jsx'
 import AIInsights from '../components/AIInsights.jsx'
 import TutorChat from '../components/TutorChat.jsx'
@@ -45,6 +45,7 @@ export default function Results() {
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState(false)
   const [tutorOpen, setTutorOpen] = useState(false)
+  const [planReady, setPlanReady] = useState(false)
 
   const isCurrent = !resultId || resultId === 'current'
 
@@ -67,6 +68,24 @@ export default function Results() {
   useEffect(() => {
     if (!result) return
     const allPast = results.filter(r => r.id !== result.id)
+    const planCacheKey = `study-plan-data-${result.id}`
+
+    // Prefetch study plan in background if not already cached.
+    // Guard flag prevents double-fetch in React StrictMode dev (effects fire twice).
+    const planCached = localStorage.getItem(planCacheKey)
+    const prefetchFlag = `_prefetching-${result.id}`
+    if (planCached) {
+      setPlanReady(true)
+    } else if (!window[prefetchFlag]) {
+      window[prefetchFlag] = true
+      generateStudyPlan(buildStudyPlanPayload(result, allPast)).then(({ data }) => {
+        delete window[prefetchFlag]
+        if (data) {
+          localStorage.setItem(planCacheKey, JSON.stringify(data))
+          setPlanReady(true)
+        }
+      })
+    }
 
     // Return cached AI analysis immediately if available
     const cacheKey = `ai-analysis-${result.id}`
@@ -235,9 +254,16 @@ export default function Results() {
         <div className="flex gap-3">
           <button
             onClick={() => navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })}
-            className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-semibold text-[#F8FAFC] border border-[#1E2A44] bg-[#0D1221] hover:border-[#F2A20C] hover:text-[#F2A20C] transition"
+            className={`flex-1 py-3 rounded-xl font-jakarta text-[13px] font-semibold border bg-[#0D1221] border-[#1E2A44] transition flex items-center justify-center gap-2 ${
+              planReady
+                ? 'text-[#F8FAFC] hover:border-[#F2A20C] hover:text-[#F2A20C]'
+                : 'text-[#475569]'
+            }`}
           >
-            Tạo Kế Hoạch Học Tập
+            {!planReady && (
+              <span className="w-3.5 h-3.5 rounded-full border border-[#2A3A50] border-t-[#F2A20C] animate-spin flex-shrink-0" />
+            )}
+            {planReady ? 'Tạo Kế Hoạch Học Tập' : 'Đang chuẩn bị kế hoạch…'}
           </button>
           <button
             onClick={() => setTutorOpen(true)}

@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     anthropic_default_hint_model: str = "claude-haiku-4.5"
 
     allowed_origins: str = "http://localhost:5173"
+    math_wiki_db_path: str = "./math_wiki.db"
 
     @property
     def allowed_origins_list(self) -> list[str]:
