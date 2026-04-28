@@ -17,7 +17,7 @@ def _get_local_model():
     global _local_model
     if _local_model is None:
         from sentence_transformers import SentenceTransformer
-        _local_model = SentenceTransformer("all-MiniLM-L6-v2")
+        _local_model = SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
     return _local_model
 
 

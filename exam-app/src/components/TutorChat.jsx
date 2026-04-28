@@ -13,13 +13,15 @@ const STORAGE_KEY = 'tutor-panel-width'
 
 export default function TutorChat({ open, onClose, examContext }) {
   const [messages, setMessages] = useState([])
-  const [input, setInput] = useState('')
+  const [hasText, setHasText] = useState(false)
   const [loading, setLoading] = useState(false)
   const [panelWidth, setPanelWidth] = useState(
     () => Number(localStorage.getItem(STORAGE_KEY)) || DEFAULT_WIDTH
   )
   const isDragging = useRef(false)
   const bottomRef = useRef(null)
+  const inputRef = useRef(null)
+  const isComposing = useRef(false)
 
   // Send greeting on first open
   useEffect(() => {
@@ -47,11 +49,12 @@ export default function TutorChat({ open, onClose, examContext }) {
   }
 
   async function handleSend() {
-    const text = input.trim()
+    const text = (inputRef.current?.value || '').trim()
     if (!text || loading) return
+    if (inputRef.current) inputRef.current.value = ''
+    setHasText(false)
     const newMessages = [...messages, { role: 'user', content: text }]
     setMessages(newMessages)
-    setInput('')
     setLoading(true)
     const { data, error } = await sendTutorMessage({ messages: newMessages, exam_context: examContext })
     setLoading(false)
@@ -63,7 +66,7 @@ export default function TutorChat({ open, onClose, examContext }) {
   }
 
   function handleKeyDown(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !isComposing.current) {
       e.preventDefault()
       handleSend()
     }
@@ -198,8 +201,13 @@ export default function TutorChat({ open, onClose, examContext }) {
         {/* Input */}
         <div className="px-4 py-3 border-t border-[#1E2A44] flex gap-2">
           <textarea
-            value={input}
-            onChange={e => setInput(e.target.value)}
+            ref={inputRef}
+            onInput={e => setHasText(e.target.value.trim().length > 0)}
+            onCompositionStart={() => { isComposing.current = true }}
+            onCompositionEnd={e => {
+              isComposing.current = false
+              setHasText(e.target.value.trim().length > 0)
+            }}
             onKeyDown={handleKeyDown}
             placeholder="Hỏi gia sư..."
             rows={1}
@@ -208,7 +216,7 @@ export default function TutorChat({ open, onClose, examContext }) {
           />
           <button
             onClick={handleSend}
-            disabled={loading || !input.trim()}
+            disabled={loading || !hasText}
             className="px-4 py-2 rounded-xl font-jakarta text-[12px] font-bold text-[#0A0E1A] disabled:opacity-40 transition"
             style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
           >

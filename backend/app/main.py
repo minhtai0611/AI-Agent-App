@@ -1,3 +1,4 @@
+import asyncio
 import io
 import json
 import logging
@@ -18,12 +19,12 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        from app.math_wiki.storage.vectors import _get_local_model
-        logger.info("Pre-warming sentence-transformers embedding model...")
-        _get_local_model()
-        logger.info("Embedding model ready.")
+        from app.math_wiki.pipeline import _ensure_indexes
+        logger.warning("Building math wiki indexes at startup (this may take a minute on first run)...")
+        await asyncio.get_event_loop().run_in_executor(None, _ensure_indexes)
+        logger.warning("Math wiki indexes ready — first request will be fast.")
     except Exception as exc:
-        logger.warning("Math wiki embedding model unavailable (math features degraded): %s", exc)
+        logger.warning("Math wiki index build failed (math features degraded): %s", exc)
     yield
 
 
@@ -124,6 +125,17 @@ class MathIngestRequest(BaseModel):
 
 class MathSolveRequest(BaseModel):
     question: str
+
+
+class MathSolveResponse(BaseModel):
+    label: str | None = None
+    answer: dict | None = None
+    validation: dict | None = None
+    retrieved_ids: list[str] = []
+    enriched: int | None = None
+    enriched_topics: list[str] = []
+    error: str | None = None
+    wiki_assisted: bool = True
 
 
 # ── Existing routes ──────────────────────────────────────────────────────────
@@ -245,14 +257,22 @@ async def math_ingest(req: MathIngestRequest):
         raise HTTPException(status_code=502, detail=str(exc))
 
 
-@app.post("/math-solve")
+@app.post("/math-solve", response_model=MathSolveResponse)
 async def math_solve(req: MathSolveRequest):
     client = get_ai_client()
     from app.math_wiki.pipeline import run_pipeline
-    try:
-        return await run_pipeline(client, req.question)
-    except (json.JSONDecodeError, ValueError) as exc:
-        raise HTTPException(status_code=502, detail=str(exc))
+    # Two attempts: first may be slow (index build); second benefits from warm cache.
+    # 55 s × 2 = 110 s worst case, within the frontend's 130 s axios timeout.
+    for attempt in range(2):
+        try:
+            return await asyncio.wait_for(run_pipeline(client, req.question), timeout=55)
+        except asyncio.TimeoutError:
+            if attempt == 0:
+                logger.warning("math-solve attempt 1 timed out, retrying with warm cache")
+                continue
+            raise HTTPException(status_code=504, detail="Pipeline timed out — try again")
+        except (json.JSONDecodeError, ValueError) as exc:
+            raise HTTPException(status_code=502, detail=str(exc))
 
 
 @app.post("/math-upload")
