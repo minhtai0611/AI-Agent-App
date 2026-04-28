@@ -1,0 +1,59 @@
+import { useState } from 'react'
+import { SYMBOL_GROUPS } from '../data/symbolGroups'
+
+export default function SymbolPalette({ onInsert }) {
+  const [activeGroup, setActiveGroup] = useState(0)
+  const [open, setOpen] = useState(() => window.innerWidth >= 640)
+
+  return (
+    <div className="border-t border-[#2A3A5E] bg-[#0A0E1A]">
+      {/* Mobile toggle */}
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="sm:hidden w-full flex items-center justify-between px-4 py-2 font-jakarta text-[12px] text-[#475569] hover:text-[#94A3B8] transition"
+      >
+        <span>Ký hiệu</span>
+        <span>{open ? '▴' : '▾'}</span>
+      </button>
+
+      {open && (
+        <div>
+          {/* Tab bar */}
+          <div className="flex gap-0 overflow-x-auto scrollbar-none border-b border-[#2A3A5E]">
+            {SYMBOL_GROUPS.map((group, i) => (
+              <button
+                key={group.name}
+                type="button"
+                onClick={() => setActiveGroup(i)}
+                className={`shrink-0 px-3 py-1.5 font-jakarta text-[11px] transition whitespace-nowrap
+                  ${activeGroup === i
+                    ? 'border-b-2 border-[#6366F1] text-[#6366F1]'
+                    : 'text-[#475569] hover:text-[#94A3B8]'
+                  }`}
+              >
+                {group.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Symbol grid */}
+          <div className="flex flex-wrap gap-1 p-2">
+            {SYMBOL_GROUPS[activeGroup].symbols.map(sym => (
+              <button
+                key={sym.insert}
+                type="button"
+                title={sym.title}
+                onClick={() => onInsert(sym.insert)}
+                className="w-8 h-8 flex items-center justify-center font-jakarta text-[13px] text-[#94A3B8]
+                  rounded hover:bg-[#1E293B] hover:text-[#E2E8F0] transition"
+              >
+                {sym.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

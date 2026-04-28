@@ -8,8 +8,8 @@ import { loadSchools, buildStudyPlanPayload } from '../api/index.js'
 import { analyzeResult as aiAnalyzeResult, generateStudyPlan } from '../api/aiClient.js'
 import TopicBreakdownChart from '../components/TopicBreakdownChart.jsx'
 import AIInsights from '../components/AIInsights.jsx'
-import TutorChat from '../components/TutorChat.jsx'
 import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
+import SchoolList from '../components/SchoolList.jsx'
 
 const TOPIC_LABELS = { algebra: 'Đại số', geometry: 'Hình học', statistics: 'Thống kê', combinatorics: 'Tổ hợp' }
 const TOPIC_COLORS = { algebra: '#10B981', geometry: '#FBBF24', statistics: '#FB7185', combinatorics: '#10B981' }
@@ -42,9 +42,9 @@ export default function Results() {
   const { results, addResult } = useHistory()
   const [result, setResult] = useState(null)
   const [analysis, setAnalysis] = useState(null)
+  const [schoolRecs, setSchoolRecs] = useState([])
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState(false)
-  const [tutorOpen, setTutorOpen] = useState(false)
   const [planReady, setPlanReady] = useState(false)
 
   const isCurrent = !resultId || resultId === 'current'
@@ -87,6 +87,11 @@ export default function Results() {
       })
     }
 
+    // School recommendations — always computed locally, independent of AI
+    const schools = loadSchools()
+    const localAnalysis = analyzeResult(result, allPast, schools)
+    setSchoolRecs(localAnalysis.recommendations)
+
     // Return cached AI analysis immediately if available
     const cacheKey = `ai-analysis-${result.id}`
     const cached = localStorage.getItem(cacheKey)
@@ -96,8 +101,7 @@ export default function Results() {
     }
 
     // Local fallback while AI loads
-    const schools = loadSchools()
-    setAnalysis(analyzeResult(result, allPast, schools))
+    setAnalysis(localAnalysis)
 
     setAiLoading(true)
     setAiError(false)
@@ -137,7 +141,6 @@ export default function Results() {
   const { score, accuracy, timeSpent, topicBreakdown, examId } = result
   const topics = Object.entries(topicBreakdown)
   const weakTopics = analysis?._source === 'ai' ? (analysis.weak_topics || []) : (analysis?.weakTopics || [])
-  const examContext = { examId, topicBreakdown, weakTopics }
 
   return (
     <div className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden">
@@ -250,6 +253,29 @@ export default function Results() {
           </AIErrorBoundary>
         </div>
 
+        {/* School recommendations */}
+        {schoolRecs.length > 0 && (
+          <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-[#10B981] text-[16px]">🏫</span>
+                <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Gợi ý trường phù hợp</span>
+              </div>
+              <span className="font-jakarta text-[11px] text-[#475569]">Điểm Toán của bạn: <span className="text-[#F2A20C] font-bold">{score}/10</span></span>
+            </div>
+            <p className="font-jakarta text-[12px] text-[#475569] leading-relaxed">
+              Dựa trên điểm thi thử này so với điểm chuẩn môn Toán năm 2024.
+              <span className="text-[#10B981]"> An toàn</span> — trên ngưỡng,{' '}
+              <span className="text-[#F59E0B]">Phù hợp</span> — trong tầm,{' '}
+              <span className="text-[#FB7185]">Thách thức</span> — cần cố gắng thêm.
+            </p>
+            <SchoolList recommendations={schoolRecs} />
+            <p className="font-jakarta text-[10px] text-[#2A3A50] leading-relaxed">
+              ↑ điểm chuẩn tăng dần · ↓ điểm chuẩn giảm dần · → ổn định
+            </p>
+          </div>
+        )}
+
         {/* Action buttons */}
         <div className="flex gap-3">
           <button
@@ -265,19 +291,9 @@ export default function Results() {
             )}
             {planReady ? 'Tạo Kế Hoạch Học Tập' : 'Đang chuẩn bị kế hoạch…'}
           </button>
-          <button
-            onClick={() => setTutorOpen(true)}
-            className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-semibold text-[#0A0E1A] hover:opacity-90 transition"
-            style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
-          >
-            Hỏi AI Gia Sư
-          </button>
         </div>
 
       </div>
-
-      {/* Tutor chat drawer */}
-      <TutorChat open={tutorOpen} onClose={() => setTutorOpen(false)} examContext={examContext} />
     </div>
   )
 }

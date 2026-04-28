@@ -1,5 +1,8 @@
+import os
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 class Settings(BaseSettings):
@@ -14,7 +17,7 @@ class Settings(BaseSettings):
     anthropic_default_hint_model: str = "claude-haiku-4.5"
 
     allowed_origins: str = "http://localhost:5173"
-    math_wiki_db_path: str = "./math_wiki.db"
+    math_wiki_db_path: str = os.path.join(_PROJECT_ROOT, "math_wiki.db")
 
     @property
     def allowed_origins_list(self) -> list[str]:

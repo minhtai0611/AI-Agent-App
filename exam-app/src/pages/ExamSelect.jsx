@@ -42,9 +42,9 @@ export default function ExamSelect() {
       <div className="flex flex-col gap-6 p-10">
         <h1 className="font-fraunces text-[36px] font-bold text-[#F8FAFC]">Chọn đề thi</h1>
         <div className="flex flex-col gap-3">
-          {exams.map((exam, idx) => (
+          {exams.map((exam) => (
             <div key={exam.id} className="bg-[#0D1521] rounded-xl px-6 py-5 flex flex-col gap-3"
-              style={{ borderLeft: `3px solid ${idx === 0 ? '#F2A20C' : '#F2A20C99'}` }}>
+              style={{ borderLeft: '3px solid #F2A20C99' }}>
               <div className="flex items-start justify-between">
                 <div className="flex flex-col gap-1.5">
                   <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{exam.title}</span>
@@ -54,11 +54,7 @@ export default function ExamSelect() {
                   </span>
                 </div>
                 <button onClick={() => handleStart(exam)}
-                  className={`flex-shrink-0 px-5 py-2 rounded-md font-jakarta text-[13px] font-semibold transition ${
-                    idx === 0
-                      ? 'bg-[#F2A20C] text-[#0A0E1A] hover:opacity-90'
-                      : 'bg-[#1A2440] border border-[#F2A20C] text-[#F2A20C] hover:bg-[#F2A20C]/10'
-                  }`}>
+                  className="flex-shrink-0 px-5 py-2 rounded-md font-jakarta text-[13px] font-semibold transition bg-[#1A2440] border border-[#F2A20C] text-[#F2A20C] hover:bg-[#F2A20C]/10">
                   Bắt đầu
                 </button>
               </div>

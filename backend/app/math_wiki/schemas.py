@@ -26,8 +26,6 @@ class Problem(BaseModel):
 
 
 class SolverOutput(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     problem_type: str
     used_knowledge_ids: list[str]
     steps: list[str]
@@ -58,4 +56,10 @@ class IngestOutput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     problems: list[Problem]
+    wiki_units: list[WikiUnit]
+
+
+class ConceptIngestOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     wiki_units: list[WikiUnit]

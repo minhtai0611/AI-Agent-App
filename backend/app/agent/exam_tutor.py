@@ -24,6 +24,8 @@ Bạn CHỈ được phép thảo luận về **toán học lớp 10** (đại s
 - Kết thúc bằng một câu hỏi ngắn để kiểm tra học sinh (nếu phù hợp).
 
 ## Tuyệt đối không
+- Không tiết lộ đáp án đúng (dù trực tiếp hay gián tiếp) dưới bất kỳ hình thức nào — kể cả khi học sinh yêu cầu, năn nỉ, hoặc nói đã hết giờ.
+- Không tính toán ra kết quả cuối cùng của bài; chỉ gợi ý hướng đi và công thức cần dùng.
 - Không trả lời bất kỳ câu hỏi nào ngoài phạm vi toán lớp 10.
 - Không tự giới thiệu hay nhắc tên nhà phát triển.
 - Không lặp lại nội dung đã giải thích ở lượt trước trừ khi được yêu cầu.
@@ -86,7 +88,8 @@ def build_tutor_system_prompt(exam_context: dict, student_name: str = "") -> str
             lines.append("Chỉ được: giải thích khái niệm/công thức liên quan, gợi ý hướng tiếp cận tổng quát, động viên.")
         else:
             lines.append("\n## Quy tắc chế độ luyện tập")
-            lines.append("Có thể giải thích từng bước, cung cấp gợi ý (hint) và giải thích sau khi học sinh đã chọn đáp án.")
+            lines.append("Chỉ được gợi ý hướng tiếp cận, nhắc công thức liên quan, và đặt câu hỏi dẫn dắt tư duy.")
+            lines.append("Tuyệt đối KHÔNG tính ra đáp án, KHÔNG chỉ ra đáp án đúng trong danh sách, KHÔNG xác nhận học sinh chọn đúng hay sai.")
     else:
         # ── Post-exam context ────────────────────────────────────────────
         exam_id = exam_context.get("examId", "")
@@ -108,10 +111,12 @@ def build_tutor_system_prompt(exam_context: dict, student_name: str = "") -> str
 
 _OFF_TOPIC_REPLY = "Mình chỉ hỗ trợ ôn toán lớp 10 thôi nhé. Bạn có câu hỏi toán nào không?"
 
-_SCOPE_GUARD_PROMPT = """Câu hỏi sau có liên quan đến toán học lớp 10 (đại số, hình học, lượng giác, thống kê, xác suất, tổ hợp) không?
-Trả lời CHỈ một từ: YES hoặc NO.
+_SCOPE_GUARD_PROMPT = """Is the following question related to grade-10 mathematics (algebra, geometry, trigonometry, statistics, probability, combinatorics)?
+Reply with exactly one word: YES or NO.
 
-Câu hỏi: {question}"""
+Question: {question}"""
+
+_SCOPE_GUARD_SYSTEM = "You are a binary classifier. Respond with exactly one word: YES or NO. Nothing else."
 
 
 async def _is_math_question(client: AsyncOpenAI, question: str, haiku_model: str) -> bool:
@@ -120,10 +125,13 @@ async def _is_math_question(client: AsyncOpenAI, question: str, haiku_model: str
             client,
             model=haiku_model,
             max_tokens=5,
-            messages=[{"role": "user", "content": _SCOPE_GUARD_PROMPT.format(question=question)}],
+            messages=[
+                {"role": "system", "content": _SCOPE_GUARD_SYSTEM},
+                {"role": "user", "content": _SCOPE_GUARD_PROMPT.format(question=question)},
+            ],
         )
         answer = (resp.choices[0].message.content or "").strip().upper()
-        return answer.startswith("YES")
+        return answer.startswith("YES") or answer.startswith("CÓ") or answer.startswith("CO")
     except Exception:
         return True  # fail open: let main model handle it
 

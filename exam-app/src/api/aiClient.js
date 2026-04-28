@@ -7,7 +7,7 @@ const client = axios.create({
 
 const slowClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
-  timeout: 90000,
+  timeout: 130000,
 })
 
 function wrap(promise) {

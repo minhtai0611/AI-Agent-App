@@ -39,23 +39,33 @@ export function analyzeResult(result, allResults, schools) {
     : 50
 
   // School matching: use cutoffs[latestYear].math
-  const scored = schools
+  // safety = at or above cutoff; match = within 0.5 below; reach = more than 0.5 below
+  const allScored = schools
     .map(school => {
       const latestYear = getLatestYear(school.cutoffs)
       const cutoff = school.cutoffs[latestYear]?.math
       if (cutoff == null) return null
       const gap = cutoff - score
       let matchStrength
-      if (score >= cutoff - 0.3) matchStrength = 'safety'
-      else if (score >= cutoff - 0.6) matchStrength = 'match'
+      if (score >= cutoff) matchStrength = 'safety'
+      else if (score >= cutoff - 0.5) matchStrength = 'match'
       else matchStrength = 'reach'
       return { school, matchStrength, gap, cutoff }
     })
     .filter(Boolean)
     .sort((a, b) => Math.abs(a.gap) - Math.abs(b.gap))
-    .slice(0, 3)
 
-  const recommendations = scored.map(({ school, matchStrength, gap, cutoff }) => ({
+  // Pick up to 2 from each tier so students always see a balanced view
+  const pick = (strength, n) => allScored.filter(s => s.matchStrength === strength).slice(0, n)
+  const combined = [...pick('safety', 2), ...pick('match', 2), ...pick('reach', 2)]
+  // If a tier is empty fill from closest schools not already included
+  const ids = new Set(combined.map(s => s.school.id))
+  for (const s of allScored) {
+    if (combined.length >= 6) break
+    if (!ids.has(s.school.id)) { combined.push(s); ids.add(s.school.id) }
+  }
+
+  const recommendations = combined.map(({ school, matchStrength, gap, cutoff }) => ({
     school,
     matchStrength,
     gap: Math.round(gap * 100) / 100,

@@ -33,21 +33,26 @@ def _init_db(conn: sqlite3.Connection) -> None:
         );
     """)
     conn.commit()
+    # Migrate: add source column if absent (SQLite doesn't support IF NOT EXISTS on ADD COLUMN)
+    existing_cols = {row[1] for row in conn.execute("PRAGMA table_info(wiki_units)").fetchall()}
+    if "source" not in existing_cols:
+        conn.execute("ALTER TABLE wiki_units ADD COLUMN source TEXT NOT NULL DEFAULT 'manual'")
+        conn.commit()
 
 
 def _ensure_tables(conn: sqlite3.Connection) -> None:
     _init_db(conn)
 
 
-def upsert_wiki_unit(unit: WikiUnit) -> None:
+def upsert_wiki_unit(unit: WikiUnit, source: str = "manual") -> None:
     with _get_conn() as conn:
         _ensure_tables(conn)
         conn.execute(
             """INSERT OR REPLACE INTO wiki_units
-               (id, type, topic, subtopic, content, problem_ids)
-               VALUES (?, ?, ?, ?, ?, ?)""",
+               (id, type, topic, subtopic, content, problem_ids, source)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
             (unit.id, unit.type, unit.topic, unit.subtopic,
-             unit.content, json.dumps(unit.problem_ids)),
+             unit.content, json.dumps(unit.problem_ids), source),
         )
         conn.commit()
 
@@ -110,7 +115,8 @@ def get_wiki_units_by_ids(ids: list[str]) -> list[WikiUnit]:
         rows = conn.execute(
             f"SELECT * FROM wiki_units WHERE id IN ({placeholders})", ids
         ).fetchall()
-    return [_row_to_wiki_unit(r) for r in rows]
+    by_id = {r["id"]: _row_to_wiki_unit(r) for r in rows}
+    return [by_id[i] for i in ids if i in by_id]
 
 
 def _row_to_wiki_unit(row: sqlite3.Row) -> WikiUnit:

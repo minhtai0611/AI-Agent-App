@@ -212,22 +212,26 @@ export default function TestInterface() {
         </div>
       </div>
 
-      {/* Floating AI tutor button */}
-      <button
-        onClick={() => setTutorOpen(true)}
-        className="fixed bottom-6 right-6 z-30 flex items-center gap-2 px-4 py-2.5 rounded-full font-jakarta text-[13px] font-bold text-[#0A0E1A] shadow-lg hover:opacity-90 transition-all"
-        style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
-        aria-label="Hỏi AI Gia Sư"
-      >
-        <span>✦</span>
-        <span>AI Gia Sư</span>
-      </button>
+      {/* Floating AI tutor button — practice mode only */}
+      {isPractice && (
+        <>
+          <button
+            onClick={() => setTutorOpen(true)}
+            className="fixed bottom-6 right-6 z-30 flex items-center gap-2 px-4 py-2.5 rounded-full font-jakarta text-[13px] font-bold text-[#0A0E1A] shadow-lg hover:opacity-90 transition-all"
+            style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
+            aria-label="Hỏi AI Gia Sư"
+          >
+            <span>✦</span>
+            <span>AI Gia Sư</span>
+          </button>
 
-      <TutorChat
-        open={tutorOpen}
-        onClose={() => setTutorOpen(false)}
-        examContext={examContext}
-      />
+          <TutorChat
+            open={tutorOpen}
+            onClose={() => setTutorOpen(false)}
+            examContext={examContext}
+          />
+        </>
+      )}
     </div>
   )
 }

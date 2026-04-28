@@ -1,10 +1,13 @@
 import json
+import logging
 from openai import AsyncOpenAI
 from app.config import get_settings
 from app.agent.core import call_with_retry
 from app.math_wiki.prompts import MODE_PROMPTS
-from app.math_wiki.utils import _strip_code_fence
+from app.math_wiki.utils import _extract_json
 from app.math_wiki.schemas import WikiUnit
+
+logger = logging.getLogger(__name__)
 
 
 async def rerank(client: AsyncOpenAI, query: str, candidates: list[WikiUnit]) -> list[str]:
@@ -23,13 +26,18 @@ async def rerank(client: AsyncOpenAI, query: str, candidates: list[WikiUnit]) ->
         ],
         max_tokens=200,
     )
-    content = _strip_code_fence(response.choices[0].message.content or "{}")
-    parsed = json.loads(content)
+    content = _extract_json(response.choices[0].message.content or "{}")
+    try:
+        parsed = json.loads(content)
+    except json.JSONDecodeError:
+        parsed = {}
     top_ids: list[str] = parsed.get("top_ids", [])
 
     valid_ids = {u.id for u in candidates}
-    for uid in top_ids:
-        if uid not in valid_ids:
-            raise ValueError(f"Hallucinated ID from reranker: {uid!r}")
-
-    return top_ids[:5]
+    filtered = [uid for uid in top_ids if uid in valid_ids]
+    if len(filtered) < len(top_ids):
+        logger.warning(
+            "Reranker returned %d unknown ID(s), filtered out",
+            len(top_ids) - len(filtered),
+        )
+    return filtered[:5]
