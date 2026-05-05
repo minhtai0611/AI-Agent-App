@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, APIStatusError, APIConnectionError, RateLimitError
 from app.config import get_settings
 from app.dependencies import get_ai_client
 from app.middleware import RateLimitMiddleware
@@ -323,8 +323,18 @@ async def math_solve(req: MathSolveRequest):
                 logger.warning("math-solve attempt 1 timed out, retrying with warm cache")
                 continue
             raise HTTPException(status_code=504, detail="Pipeline timed out — try again")
+        except HTTPException:
+            raise
         except (json.JSONDecodeError, ValueError) as exc:
             raise HTTPException(status_code=502, detail=str(exc))
+        except RateLimitError as exc:
+            raise HTTPException(status_code=429, detail=f"AI service rate limit: {exc}")
+        except (APIStatusError, APIConnectionError) as exc:
+            logger.error("math-solve AI client error: %s", exc)
+            raise HTTPException(status_code=502, detail=f"AI service error: {exc}")
+        except Exception as exc:
+            logger.exception("math-solve unexpected error: %s", exc)
+            raise HTTPException(status_code=502, detail=f"Pipeline error: {exc}")
 
 
 @app.post("/math-upload")
