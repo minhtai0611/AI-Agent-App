@@ -12,23 +12,21 @@ from app.dependencies import get_ai_client
 from app.middleware import RateLimitMiddleware
 from app.agent.core import run_agent
 from app.agent.memory import compress_conversation
+from app.math_wiki.admin_router import router as admin_router
 
 logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    try:
-        from app.math_wiki.pipeline import _ensure_indexes
-        logger.warning("Building math wiki indexes at startup (this may take a minute on first run)...")
-        await asyncio.get_event_loop().run_in_executor(None, _ensure_indexes)
-        logger.warning("Math wiki indexes ready — first request will be fast.")
-    except Exception as exc:
-        logger.warning("Math wiki index build failed (math features degraded): %s", exc)
+    from app.math_wiki.pipeline import _wiki_status, _ensure_indexes
+    _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
+    asyncio.get_event_loop().run_in_executor(None, _ensure_indexes)
     yield
 
 
 app = FastAPI(title="AI Agent App", lifespan=lifespan)
+app.include_router(admin_router)
 
 settings = get_settings()
 app.add_middleware(RateLimitMiddleware)
@@ -132,8 +130,6 @@ class MathSolveResponse(BaseModel):
     answer: dict | None = None
     validation: dict | None = None
     retrieved_ids: list[str] = []
-    enriched: int | None = None
-    enriched_topics: list[str] = []
     error: str | None = None
     wiki_assisted: bool = True
 
@@ -143,6 +139,12 @@ class MathSolveResponse(BaseModel):
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/wiki/status")
+async def wiki_status():
+    from app.math_wiki.pipeline import get_wiki_status
+    return get_wiki_status()
 
 
 @app.post("/chat", response_model=ChatResponse)
@@ -309,6 +311,30 @@ async def math_upload(file: UploadFile = File(...)):
         raise HTTPException(status_code=502, detail=str(exc))
 
     return {"chunks_ingested": len(chunks), "problems": total_problems, "wiki_units": total_wiki}
+
+
+@app.get("/metrics")
+async def metrics(x_admin_key: str | None = None):
+    from app.metrics import get_metrics
+    settings = get_settings()
+    expected = getattr(settings, "admin_key", None)
+    if expected and x_admin_key != expected:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=401, detail="Invalid admin key")
+    return get_metrics()
+
+
+@app.get("/math-gaps")
+async def math_gaps(threshold: int = 5):
+    from app.math_wiki.storage.db import count_wiki_units_by_topic
+    from app.math_wiki.taxonomy import CANONICAL_TOPICS
+    topic_counts = count_wiki_units_by_topic()
+    gaps = [
+        {"topic": t, "count": topic_counts.get(t, 0)}
+        for t in CANONICAL_TOPICS
+        if topic_counts.get(t, 0) < threshold
+    ]
+    return sorted(gaps, key=lambda x: x["count"])
 
 
 @app.get("/math-stats")

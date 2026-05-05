@@ -5,7 +5,9 @@ import os
 import pickle
 import threading
 from openai import AsyncOpenAI
-from app.math_wiki.storage.db import get_all_wiki_units, get_wiki_units_by_ids, count_wiki_units
+from app.math_wiki.storage.db import get_all_wiki_units, get_wiki_units_by_ids, count_wiki_units, get_cached_figure, upsert_problem
+from app.math_wiki.storage.analytics import log_solution
+from app.metrics import record_validation, inc_bm25_rebuild
 from app.math_wiki.storage.bm25 import build_bm25_index, query_bm25
 from app.math_wiki.storage.vectors import build_vector_index, VectorIndex
 from app.math_wiki.storage.retriever import hybrid_retrieve
@@ -13,6 +15,8 @@ from app.math_wiki.agents.classifier import classify_problem
 from app.math_wiki.agents.reranker import rerank
 from app.math_wiki.agents.solver import solve
 from app.math_wiki.agents.validator import validate
+from app.math_wiki.schemas import ValidationResult, FigureOutput, Problem
+from app.math_wiki.figures import generate_figure
 from app.config import get_settings
 
 logger = logging.getLogger(__name__)
@@ -23,38 +27,11 @@ _bm25_id_map: list[str] = []
 _vector_index: VectorIndex | None = None
 _index_lock = threading.Lock()
 
-# Background enrichment: cooldown set (in-memory, per session) + semaphore
-_ENRICH_COOLDOWN: set[str] = set()
-_ENRICH_COOLDOWN_MAX = 500
-_enrich_semaphore: asyncio.Semaphore | None = None
+_wiki_status: dict = {"phase": "starting", "progress": 0, "error": None}
 
 
-def _get_enrich_semaphore() -> asyncio.Semaphore:
-    global _enrich_semaphore
-    if _enrich_semaphore is None:
-        _enrich_semaphore = asyncio.Semaphore(2)
-    return _enrich_semaphore
-
-
-async def _background_enrich(client: AsyncOpenAI, question: str) -> None:
-    from app.math_wiki.agents.auto_enricher import auto_enrich
-    key = hashlib.md5(question.encode()).hexdigest()
-    if key in _ENRICH_COOLDOWN:
-        logger.info("Enrichment skipped (cooldown): %s", question[:60])
-        return
-    if len(_ENRICH_COOLDOWN) >= _ENRICH_COOLDOWN_MAX:
-        _ENRICH_COOLDOWN.clear()
-    _ENRICH_COOLDOWN.add(key)
-    async with _get_enrich_semaphore():
-        try:
-            new_count, subtopics, new_units = await asyncio.wait_for(
-                auto_enrich(client, question), timeout=30
-            )
-            if new_units:
-                await asyncio.get_event_loop().run_in_executor(None, _append_to_indexes, new_units)
-            logger.info("Auto-enriched %d new unit(s) for: %s", new_count, question[:60])
-        except Exception as exc:
-            logger.warning("Background enrichment failed: %s", exc)
+def get_wiki_status() -> dict:
+    return dict(_wiki_status)
 
 
 def _cache_paths() -> tuple[str, str, str]:
@@ -109,25 +86,34 @@ def _save_cached_indexes(unit_count: int) -> None:
 def _ensure_indexes() -> None:
     global _bm25_index, _bm25_id_map, _vector_index
     if _vector_index is not None:
+        _wiki_status.update({"phase": "ready", "progress": 100, "error": None})
         return
-    with _index_lock:
-        if _vector_index is not None:
-            return
-        if _load_cached_indexes():
-            return
-        units = get_all_wiki_units()
-        _bm25_index, _bm25_id_map = build_bm25_index(units)
-        _vector_index = build_vector_index(units)
-        logger.info("Indexes built from scratch: %d units", len(units))
-        _save_cached_indexes(len(units))
+    try:
+        with _index_lock:
+            if _vector_index is not None:
+                _wiki_status.update({"phase": "ready", "progress": 100, "error": None})
+                return
+            _wiki_status.update({"phase": "checking_cache", "progress": 15, "error": None})
+            if _load_cached_indexes():
+                _wiki_status.update({"phase": "ready", "progress": 100, "error": None})
+                return
+            _wiki_status.update({"phase": "loading_units", "progress": 30, "error": None})
+            units = get_all_wiki_units()
+            _wiki_status.update({"phase": "building_bm25", "progress": 50, "error": None})
+            _bm25_index, _bm25_id_map = build_bm25_index(units)
+            _wiki_status.update({"phase": "building_vectors", "progress": 75, "error": None})
+            _vector_index = build_vector_index(units)
+            _wiki_status.update({"phase": "saving", "progress": 92, "error": None})
+            logger.info("Indexes built from scratch: %d units", len(units))
+            _save_cached_indexes(len(units))
+            _wiki_status.update({"phase": "ready", "progress": 100, "error": None})
+    except Exception as exc:
+        _wiki_status.update({"phase": "failed", "progress": 0, "error": str(exc)})
 
 
 def _append_to_indexes(new_units: list) -> None:
-    """Append new units to the live FAISS index. Thread-safe.
-    BM25 is NOT rebuilt here — new units are still found by vector search.
-    The full cache (including updated BM25) is written in a background thread.
-    """
-    global _vector_index
+    """Append new units to the live FAISS and BM25 indexes. Thread-safe."""
+    global _vector_index, _bm25_index, _bm25_id_map
     if not new_units:
         return
     import numpy as np
@@ -139,7 +125,12 @@ def _append_to_indexes(new_units: list) -> None:
         if _vector_index is not None and _vector_index.id_map:
             _vector_index.index.add(arr)
             _vector_index.id_map.extend([u.id for u in new_units])
-    # Persist updated cache in background so next server restart is fast
+        # Rebuild BM25 from DB so the hybrid retriever stays in sync
+        all_units = get_all_wiki_units()
+        import time as _time
+        _t0 = _time.monotonic()
+        _bm25_index, _bm25_id_map = build_bm25_index(all_units)
+        inc_bm25_rebuild(_time.monotonic() - _t0)
     unit_count = len(_vector_index.id_map) if _vector_index else 0
     threading.Thread(
         target=_save_cached_indexes, args=(unit_count,), daemon=True
@@ -162,6 +153,10 @@ async def _retrieve_rerank_context(client: AsyncOpenAI, question: str):
     return retrieved_ids, context
 
 
+def _problem_hash(question: str) -> str:
+    return hashlib.sha256(question.strip().lower().encode()).hexdigest()
+
+
 async def run_pipeline(client: AsyncOpenAI, question: str) -> dict:
     await asyncio.get_event_loop().run_in_executor(None, _ensure_indexes)
 
@@ -171,14 +166,70 @@ async def run_pipeline(client: AsyncOpenAI, question: str) -> dict:
     retrieved_ids, context = await _retrieve_rerank_context(client, question)
     logger.debug("Retrieved %d units: %s", len(retrieved_ids), retrieved_ids)
 
-    if not context:
-        asyncio.create_task(_background_enrich(client, question))
-
-    solver_output = await solve(client, question, context)
+    solver_output = await solve(client, question, context, label=label)
     logger.debug("Solver confidence: %s", solver_output.confidence)
 
-    validation = await validate(client, solver_output, context)
-    logger.debug("Validation: valid=%s issues=%s", validation.valid, validation.issues)
+    # Figure generation (concurrent with validation, skipped on low confidence)
+    figure: FigureOutput | None = None
+    prob_hash = _problem_hash(question)
+
+    async def _figure_task():
+        nonlocal figure
+        if solver_output.confidence == "low":
+            logger.debug("Skipping figure: low confidence")
+            return
+        cached = get_cached_figure(prob_hash)
+        if cached is not None:
+            cached_data, cached_type = cached
+            logger.debug("Figure cache hit for hash %s (type=%s)", prob_hash[:8], cached_type)
+            figure = FigureOutput(type=cached_type, data=cached_data)
+            return
+        try:
+            figure = await generate_figure(client, question, label, solver_output)
+            if figure and figure.data:
+                stub = Problem(
+                    problem_id=prob_hash[:16],
+                    problem_text=question,
+                    topic=label,
+                    subtopic=label,
+                    difficulty="medium",
+                    problem_type=label,
+                )
+                upsert_problem(stub, figure_svg=figure.data, problem_hash=prob_hash, figure_type=figure.type)
+        except Exception as exc:
+            logger.warning("Figure generation failed (non-fatal): %s", exc)
+
+    if solver_output.confidence == "high":
+        validation = ValidationResult(valid=True, issues=[])
+        logger.debug("Skipping validation for high-confidence result")
+        await _figure_task()
+    else:
+        results = await asyncio.gather(
+            validate(client, solver_output, context),
+            _figure_task(),
+            return_exceptions=True,
+        )
+        val_result = results[0]
+        validation = val_result if isinstance(val_result, ValidationResult) else ValidationResult(valid=False, issues=["validation error"])
+        logger.debug("Validation: valid=%s issues=%s", validation.valid, validation.issues)
+
+    record_validation(validation.valid)
+
+    solver_output.figure = figure
+
+    try:
+        log_solution(
+            problem_text=question,
+            classified_topic=label,
+            retrieved_ids=retrieved_ids,
+            used_ids=solver_output.used_knowledge_ids,
+            confidence=solver_output.confidence,
+            valid=validation.valid,
+            issues=validation.issues,
+            wiki_assisted=bool(context),
+        )
+    except Exception as exc:
+        logger.warning("log_solution failed (non-fatal): %s", exc)
 
     return {
         "label": label,
