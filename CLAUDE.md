@@ -79,20 +79,22 @@ exam-app/src/
 
 ## Env vars
 
-**`.env` (backend root)**
-```
-ANTHROPIC_BASE_URL=https://ai-router.locdo.tech
-ANTHROPIC_AUTH_TOKEN=<token>
-ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-4.6
-ANTHROPIC_DEFAULT_SONNET_MODEL=claude-sonnet-4.6
-ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-haiku-4.5
-ALLOWED_ORIGINS=http://localhost:5173
-```
+**`backend/.env`** (copy from `backend/.env.example`, never commit)
 
-**`exam-app/.env`**
-```
-VITE_API_BASE_URL=http://localhost:8000
-```
+| Variable | Example value |
+|---|---|
+| `ANTHROPIC_BASE_URL` | `https://ai-router.locdo.tech` |
+| `ANTHROPIC_AUTH_TOKEN` | *(your token)* |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` | `claude-opus-4.6` |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL` | `claude-sonnet-4.6` |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `claude-haiku-4.5` |
+| `ALLOWED_ORIGINS` | `http://localhost:5173` |
+
+**`exam-app/.env`** (copy from `exam-app/.env.example`, never commit)
+
+| Variable | Example value |
+|---|---|
+| `VITE_API_BASE_URL` | `http://localhost:8000` |
 
 ## Key patterns
 
@@ -148,7 +150,7 @@ Indexed as **AI-Agent-App** — 109 nodes · 162 edges · 6 clusters · 6 execut
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **AI-Agent-App** (2578 symbols, 5773 relationships, 209 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **AI-Agent-App** (2520 symbols, 5650 relationships, 203 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
