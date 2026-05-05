@@ -59,3 +59,18 @@ test-results/
 .claude/
 docs/
 exam-app-plan.md
+
+# Kilo Code editor state
+.kilo/
+
+# Standalone agent framework (not integrated into the app)
+core/
+
+# Unused standalone validators (not imported by backend or exam-app)
+validators/
+
+# Empty local dev API response dumps
+response-*.json
+
+# Runtime caches
+scripts/.pauls_sentences_cache.json

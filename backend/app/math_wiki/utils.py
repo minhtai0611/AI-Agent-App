@@ -14,6 +14,13 @@ VALID_LABELS: frozenset[str] = frozenset({
     "trigonometry",
     "combinatorics",
     "number_theory",
+    "complex_numbers",
+    "sequences",
+    "vectors",
+    "functions",
+    "differential_equations",
+    "linear_algebra",
+    "multivariable_calculus",
 })
 
 VALID_CONFIDENCE: frozenset[str] = frozenset({"high", "medium", "low"})
@@ -28,10 +35,17 @@ def _strip_code_fence(text: str) -> str:
     return text.strip()
 
 
+def _fix_backslashes(text: str) -> str:
+    """Replace bare LaTeX backslashes (e.g. \frac) with escaped form so JSON parses."""
+    # Only fix backslashes that are NOT already valid JSON escape sequences
+    return re.sub(r'\\(?!["\\/bfnrtu])', r'\\\\', text)
+
+
 def _extract_json(text: str) -> str:
+    text = text.strip()
+    text = re.sub(r'^```(?:json)?\s*', '', text)
+    text = re.sub(r'\s*```$', '', text)
     match = re.search(r'\{.*\}', text, re.DOTALL)
     if match:
-        return match.group(0)
-    text = re.sub(r'^```(?:json)?\s*', '', text.strip())
-    text = re.sub(r'\s*```$', '', text)
-    return text.strip()
+        return _fix_backslashes(match.group(0))
+    return _fix_backslashes(text.strip())

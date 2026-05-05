@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class WikiUnit(BaseModel):
@@ -10,6 +10,13 @@ class WikiUnit(BaseModel):
     subtopic: str
     content: str
     problem_ids: list[str]
+
+    @field_validator("problem_ids", mode="before")
+    @classmethod
+    def coerce_problem_ids(cls, v: object) -> list[str]:
+        if isinstance(v, list):
+            return [str(x) for x in v]
+        return v
 
 
 class Problem(BaseModel):
@@ -23,6 +30,13 @@ class Problem(BaseModel):
     subtopic: str
     difficulty: str  # easy | medium | hard
     problem_type: str
+    figure_svg: str | None = None
+
+
+class FigureOutput(BaseModel):
+    type: str
+    data: str | None = None
+    error: str | None = None
 
 
 class SolverOutput(BaseModel):
@@ -31,6 +45,7 @@ class SolverOutput(BaseModel):
     steps: list[str]
     final_answer: str
     confidence: str  # high | medium | low
+    figure: "FigureOutput | None" = None
 
 
 class ValidationResult(BaseModel):
@@ -63,3 +78,25 @@ class ConceptIngestOutput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     wiki_units: list[WikiUnit]
+
+
+class StagedWikiUnit(BaseModel):
+    staged_id: str
+    id: str
+    type: str
+    topic: str
+    subtopic: str
+    content: str
+    problem_ids: list[str]
+    source: str = "manual"
+    source_url: str | None = None
+    status: str = "pending"
+    proposed_by: str = "system"
+    created_at: str = ""
+
+    @field_validator("problem_ids", mode="before")
+    @classmethod
+    def coerce_problem_ids(cls, v: object) -> list[str]:
+        if isinstance(v, list):
+            return [str(x) for x in v]
+        return v

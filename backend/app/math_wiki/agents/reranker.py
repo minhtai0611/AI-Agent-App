@@ -19,7 +19,7 @@ async def rerank(client: AsyncOpenAI, query: str, candidates: list[WikiUnit]) ->
     payload = json.dumps({"query": query, "candidates": candidate_input})
     response = await call_with_retry(
         client,
-        model=settings.default_model,
+        model=settings.haiku_model,
         messages=[
             {"role": "system", "content": MODE_PROMPTS["RERANK"]},
             {"role": "user", "content": payload},
