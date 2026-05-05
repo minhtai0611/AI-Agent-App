@@ -33,8 +33,8 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--sources",
-        default="aops,pauls",
-        help='Sources to crawl: "aops", "pauls", or "aops,pauls" (default: aops,pauls).',
+        default="aops,pauls,generic",
+        help='Comma-separated sources: "aops", "pauls", "generic" (default: aops,pauls,generic).',
     )
     parser.add_argument(
         "--limit",

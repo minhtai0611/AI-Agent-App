@@ -4,17 +4,18 @@ import logging
 import httpx
 from openai import AsyncOpenAI
 
-from crawl.topic_map import AOPS_QUERIES, PAULS_INDEX_URLS
+from crawl.topic_map import AOPS_QUERIES, AOPS_CATEGORIES, PAULS_INDEX_URLS, GENERIC_HTML_SOURCES
 from crawl.cleaner import html_to_chunks
-from crawl.progress import load_seen, mark_seen, reset
+from crawl.http_utils import close_client
+from crawl.progress import load_seen, mark_seen, flush_seen, reset
 from crawl.sources.aops import fetch_aops
 from crawl.sources.pauls import fetch_pauls
+from crawl.sources.generic_html import fetch_generic_html
 
 logger = logging.getLogger(__name__)
 
 
 async def fetch_gap_topics(api_base: str, limit: int) -> list[str]:
-    """GET /math-gaps → top topic labels. Fallback: all 8 labels."""
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             resp = await client.get(f"{api_base}/math-gaps")
@@ -35,7 +36,7 @@ async def fetch_gap_topics(api_base: str, limit: int) -> list[str]:
 async def crawl_and_ingest(
     client: AsyncOpenAI,
     topics: list[str],
-    sources: list[str] = ("aops", "pauls"),
+    sources: list[str] = ("aops", "pauls", "generic"),
     dry_run: bool = False,
     reset_progress: bool = False,
 ) -> dict[str, int]:
@@ -49,48 +50,77 @@ async def crawl_and_ingest(
         "topics": len(topics),
         "pages_fetched": 0,
         "chunks_sent": 0,
-        "wiki_units_added": 0,
+        "wiki_units_added": 0,  # LLM output count; may overcount on re-crawl due to DB upserts
         "skipped_seen": 0,
         "errors": 0,
     }
 
-    for topic in topics:
-        aops_pages: list[tuple[str, str]] = []
-        pauls_pages: list[tuple[str, str]] = []
+    try:
+        for topic in topics:
+            # Collect (url, html, source_tag) tuples from all enabled sources
+            all_pages: list[tuple[str, str, str]] = []
 
-        if "aops" in sources:
-            pages, skipped = await fetch_aops(AOPS_QUERIES.get(topic, []), seen)
-            aops_pages = pages
-            stats["skipped_seen"] += skipped
-        if "pauls" in sources:
-            pages, skipped = await fetch_pauls(PAULS_INDEX_URLS.get(topic), seen)
-            pauls_pages = pages
-            stats["skipped_seen"] += skipped
+            if "aops" in sources:
+                pages, skipped = await fetch_aops(
+                    AOPS_QUERIES.get(topic, []),
+                    seen,
+                    category=AOPS_CATEGORIES.get(topic),
+                )
+                all_pages += [(url, html, "aops") for url, html in pages]
+                stats["skipped_seen"] += skipped
 
-        all_pages = aops_pages + pauls_pages
-        topic_units = 0
+            if "pauls" in sources:
+                pages, skipped = await fetch_pauls(PAULS_INDEX_URLS.get(topic), seen)
+                all_pages += [(url, html, "pauls") for url, html in pages]
+                stats["skipped_seen"] += skipped
 
-        for url, html in all_pages:
-            chunks = html_to_chunks(html)
-            stats["pages_fetched"] += 1
-            for chunk in chunks:
-                stats["chunks_sent"] += 1
+            if "generic" in sources:
+                for source_cfg in GENERIC_HTML_SOURCES.get(topic, []):
+                    pages, skipped = await fetch_generic_html(
+                        index_url=source_cfg["index_url"],
+                        seen=seen,
+                        link_pattern=source_cfg["link_pattern"],
+                        max_pages=source_cfg.get("max_pages", 150),
+                    )
+                    tag = source_cfg["source_tag"]
+                    all_pages += [(url, html, tag) for url, html in pages]
+                    stats["skipped_seen"] += skipped
+
+            topic_units = 0
+
+            for page_idx, (url, html, page_source) in enumerate(all_pages, 1):
+                chunks = html_to_chunks(html, source=page_source)
+                stats["pages_fetched"] += 1
+                page_units = 0
+                print(f"  [{topic}/{page_source}] page {page_idx}/{len(all_pages)}: {url[:80]}", flush=True)
+                print(f"    chunks: {len(chunks)}", flush=True)
+                for chunk in chunks:
+                    stats["chunks_sent"] += 1
+                    if not dry_run:
+                        try:
+                            out = await concept_ingest(client, chunk, source=page_source, source_url=url, fallback_topic=topic)
+                            added = len(out.wiki_units)
+                            stats["wiki_units_added"] += added
+                            topic_units += added
+                            page_units += added
+                        except (ValueError, json.JSONDecodeError) as exc:
+                            logger.warning("concept_ingest error: %s", exc)
+                            stats["errors"] += 1
                 if not dry_run:
-                    try:
-                        out = await concept_ingest(client, chunk)
-                        added = len(out.wiki_units)
-                        stats["wiki_units_added"] += added
-                        topic_units += added
-                    except (ValueError, json.JSONDecodeError) as exc:
-                        logger.warning("concept_ingest error: %s", exc)
-                        stats["errors"] += 1
-            if not dry_run:
-                mark_seen(url)
-                seen.add(url)
+                    mark_seen(url)
+                    seen.add(url)
+                    print(f"    → {page_units} units added (total: {stats['wiki_units_added']})", flush=True)
 
-        print(
-            f"[{topic}] AoPS: {len(aops_pages)} pages | Paul's: {len(pauls_pages)} pages"
-            f" | units: {topic_units}"
-        )
+            if not dry_run:
+                flush_seen()
+
+            source_counts = {}
+            for _, _, tag in all_pages:
+                source_counts[tag] = source_counts.get(tag, 0) + 1
+            counts_str = " | ".join(f"{tag}: {n}" for tag, n in source_counts.items())
+            print(f"[{topic}] pages — {counts_str} | units: {topic_units}")
+
+    finally:
+        await close_client()
 
     return stats

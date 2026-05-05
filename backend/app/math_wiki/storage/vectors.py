@@ -9,7 +9,6 @@ from app.math_wiki.schemas import WikiUnit
 
 logger = logging.getLogger(__name__)
 
-_USE_LOCAL = False
 _local_model = None
 
 
@@ -24,11 +23,6 @@ def _get_local_model():
 def embed_texts(texts: list[str]) -> list[list[float]]:
     if not texts:
         return []
-    if _USE_LOCAL:
-        model = _get_local_model()
-        vecs = model.encode(texts, convert_to_numpy=True)
-        return vecs.tolist()
-    # Use sentence-transformers as local fallback by default (no API key required)
     model = _get_local_model()
     vecs = model.encode(texts, convert_to_numpy=True)
     return vecs.tolist()
