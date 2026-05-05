@@ -1,0 +1,50 @@
+# Python caches
+**/__pycache__/
+**/*.py[cod]
+**/*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+exam-app/
+
+# Env files (set secrets in Koyeb dashboard, not baked into image)
+.env
+*.env.local
+
+# Local wiki artifacts (rebuilt at runtime)
+math_wiki.db
+math_wiki.db-shm
+math_wiki.db-wal
+math_wiki.bm25.pkl
+math_wiki.faiss
+math_wiki.meta.pkl
+backend/math_wiki.db
+
+# Dev/test artifacts
+*.png
+*.pen
+test-results/
+tests/
+docs/
+scripts/
+core/
+validators/
+exam-app-plan.md
+response-*.json
+.gitnexus/
+.playwright-mcp/
+.claude/
+.kilo/
+playwright.config.js
+
+# Git
+.git/
+.gitignore

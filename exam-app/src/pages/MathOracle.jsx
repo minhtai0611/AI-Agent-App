@@ -1,0 +1,905 @@
+import { useState, useEffect, useRef, useCallback } from 'react'
+import DOMPurify from 'dompurify'
+import { useNavigate } from 'react-router-dom'
+import Markdown from 'react-markdown'
+import remarkMath from 'remark-math'
+import remarkGfm from 'remark-gfm'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
+import { solveMath, getMathStats, getWikiStatus } from '../api/aiClient'
+import SymbolPalette from '../components/SymbolPalette'
+
+// One level of nested braces — handles \frac{\sqrt{x}}{2} correctly
+const BARE_LATEX_RE = /\\[a-zA-Z]+(?:\{(?:[^{}]|\{[^{}]*\})*\}|\[[^\]]*\])*/g
+
+// Wraps bare LaTeX commands (no surrounding $) in $...$ so remark-math picks them up.
+// Safe to run on mixed prose+math strings: only the LaTeX tokens get wrapped.
+function normalizeMath(text) {
+  if (!text) return ''
+  if (text.includes('$')) return text       // already delimited — leave alone
+  if (!/\\[a-zA-Z]/.test(text)) return text // no LaTeX commands — plain text, leave alone
+  BARE_LATEX_RE.lastIndex = 0
+  return text.replace(BARE_LATEX_RE, m => `$${m}$`)
+}
+
+// ── Paste normalisation ──────────────────────────────────────────────────────
+// Converts clipboard text from external sources (PDFs, websites, Word/MathType)
+// into LaTeX that MathLive can render.
+
+const SUPERSCRIPT_MAP = {'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','ⁿ':'n','ⁱ':'i'}
+const SUBSCRIPT_MAP   = {'₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6','₇':'7','₈':'8','₉':'9'}
+const UNICODE_LATEX   = {
+  // Greek lowercase
+  'α':'\\alpha','β':'\\beta','γ':'\\gamma','δ':'\\delta','ε':'\\epsilon',
+  'ζ':'\\zeta','η':'\\eta','θ':'\\theta','ι':'\\iota','κ':'\\kappa',
+  'λ':'\\lambda','μ':'\\mu','ν':'\\nu','ξ':'\\xi','π':'\\pi',
+  'ρ':'\\rho','σ':'\\sigma','τ':'\\tau','υ':'\\upsilon','φ':'\\phi',
+  'χ':'\\chi','ψ':'\\psi','ω':'\\omega',
+  // Greek uppercase
+  'Γ':'\\Gamma','Δ':'\\Delta','Θ':'\\Theta','Λ':'\\Lambda','Ξ':'\\Xi',
+  'Π':'\\Pi','Σ':'\\Sigma','Υ':'\\Upsilon','Φ':'\\Phi','Ψ':'\\Psi','Ω':'\\Omega',
+  // Operators & relations
+  '√':'\\sqrt','∞':'\\infty','±':'\\pm','×':'\\times','÷':'\\div','·':'\\cdot',
+  '≤':'\\leq','≥':'\\geq','≠':'\\neq','≈':'\\approx','≡':'\\equiv',
+  '∈':'\\in','∉':'\\notin','⊂':'\\subset','⊆':'\\subseteq',
+  '∪':'\\cup','∩':'\\cap','∅':'\\emptyset',
+  '∑':'\\sum','∏':'\\prod','∫':'\\int','∂':'\\partial','∇':'\\nabla',
+  '→':'\\to','←':'\\leftarrow','↔':'\\leftrightarrow',
+  '⇒':'\\Rightarrow','⇔':'\\Leftrightarrow',
+  '∀':'\\forall','∃':'\\exists',
+  // Unicode fractions
+  '½':'\\frac{1}{2}','⅓':'\\frac{1}{3}','⅔':'\\frac{2}{3}',
+  '¼':'\\frac{1}{4}','¾':'\\frac{3}{4}',
+  // Misc
+  '…':'\\ldots','·':'\\cdot',
+}
+
+// Reverse of UNICODE_LATEX — only simple symbol commands, no structural ones.
+// Used to make pasted text display with real symbols instead of \ commands.
+const LATEX_UNICODE = {
+  // Relations
+  '\\geq':'≥','\\leq':'≤','\\neq':'≠','\\approx':'≈','\\equiv':'≡','\\sim':'∼',
+  '\\gg':'≫','\\ll':'≪','\\propto':'∝','\\perp':'⊥','\\parallel':'∥',
+  // Arithmetic
+  '\\pm':'±','\\mp':'∓','\\times':'×','\\div':'÷','\\cdot':'·',
+  // Greek lowercase
+  '\\alpha':'α','\\beta':'β','\\gamma':'γ','\\delta':'δ','\\epsilon':'ε','\\varepsilon':'ε',
+  '\\zeta':'ζ','\\eta':'η','\\theta':'θ','\\vartheta':'ϑ','\\iota':'ι','\\kappa':'κ',
+  '\\lambda':'λ','\\mu':'μ','\\nu':'ν','\\xi':'ξ','\\pi':'π','\\varpi':'ϖ',
+  '\\rho':'ρ','\\varrho':'ϱ','\\sigma':'σ','\\varsigma':'ς','\\tau':'τ',
+  '\\upsilon':'υ','\\phi':'φ','\\varphi':'φ','\\chi':'χ','\\psi':'ψ','\\omega':'ω',
+  // Greek uppercase
+  '\\Gamma':'Γ','\\Delta':'Δ','\\Theta':'Θ','\\Lambda':'Λ','\\Xi':'Ξ',
+  '\\Pi':'Π','\\Sigma':'Σ','\\Upsilon':'Υ','\\Phi':'Φ','\\Psi':'Ψ','\\Omega':'Ω',
+  // Sets & logic
+  '\\in':'∈','\\notin':'∉','\\subset':'⊂','\\subseteq':'⊆','\\supset':'⊃','\\supseteq':'⊇',
+  '\\cup':'∪','\\cap':'∩','\\emptyset':'∅','\\varnothing':'∅',
+  '\\forall':'∀','\\exists':'∃','\\nexists':'∄','\\neg':'¬',
+  // Arrows
+  '\\to':'→','\\leftarrow':'←','\\leftrightarrow':'↔',
+  '\\Rightarrow':'⇒','\\Leftarrow':'⇐','\\Leftrightarrow':'⇔',
+  '\\mapsto':'↦',
+  // Calculus / operators (no argument — just the symbol)
+  '\\infty':'∞','\\partial':'∂','\\nabla':'∇','\\sum':'∑','\\prod':'∏','\\int':'∫',
+  // Misc
+  '\\ldots':'…','\\cdots':'⋯','\\vdots':'⋮','\\ddots':'⋱',
+  '\\circ':'∘','\\bullet':'•','\\star':'⋆','\\dagger':'†',
+}
+
+// Build a regex that matches any of the above commands (longest first, word-boundary safe).
+const _LATEX_CMD_RE = new RegExp(
+  Object.keys(LATEX_UNICODE)
+    .sort((a, b) => b.length - a.length)         // longest first avoids prefix clashes
+    .map(k => k.replace(/\\/g, '\\\\'))           // escape the backslash for RegExp
+    .join('|')
+  + '(?![a-zA-Z])',                               // not followed by more letters
+  'g'
+)
+
+function latexCommandsToUnicode(text) {
+  return text.replace(_LATEX_CMD_RE, m => LATEX_UNICODE[m] ?? m)
+}
+
+function clipboardToLatex(raw) {
+  let text = raw.trim()
+
+  // Strip common LaTeX delimiters ($$…$$, $…$, \[…\], \(…\))
+  const delim = text.match(/^\$\$([^]*)\$\$$/)
+    || text.match(/^\$([^]*)\$$/)
+    || text.match(/^\\\[([^]*)\\\]$/)
+    || text.match(/^\\\(([^]*)\\\)$/)
+  if (delim) text = delim[1].trim()
+
+  // Unicode superscript/subscript digits → LaTeX exponents
+  text = text.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹ⁿⁱ]+/g,
+    m => `^{${[...m].map(c => SUPERSCRIPT_MAP[c] ?? c).join('')}}`)
+  text = text.replace(/[₀₁₂₃₄₅₆₇₈₉]+/g,
+    m => `_{${[...m].map(c => SUBSCRIPT_MAP[c] ?? c).join('')}}`)
+
+  // Unicode math symbols → LaTeX commands
+  text = text.replace(
+    /[αβγδεζηθικλμνξπρστυφχψωΓΔΘΛΞΠΣΥΦΨΩ√∞±×÷·≤≥≠≈≡∈∉⊂⊆∪∩∅∑∏∫∂∇→←↔⇒⇔∀∃½⅓⅔¼¾…]/g,
+    c => UNICODE_LATEX[c] ?? c,
+  )
+
+  // Unicode minus / en-dash → ASCII hyphen
+  text = text.replace(/[−–]/g, '-')
+
+  return text
+}
+
+// ── HTML clipboard → LaTeX reconstruction ───────────────────────────────────
+// KaTeX and MathJax embed the original LaTeX in <annotation encoding="application/x-tex">.
+// We parse the HTML, replace every math container with its delimited LaTeX source,
+// then extract the reconstructed text.
+function extractMathFromHtml(html) {
+  if (!html) return null
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(html, 'text/html')
+  let found = false
+
+  function replaceWithLatex(el, latex, display) {
+    el.replaceWith(doc.createTextNode(display ? `\n$$${latex}$$\n` : `$${latex}$`))
+    found = true
+  }
+
+  function latexFromAnnotation(el) {
+    return el.querySelector('annotation[encoding="application/x-tex"]')?.textContent?.trim() ?? null
+  }
+
+  // KaTeX display blocks first, then inline (order matters — display contains inline)
+  doc.querySelectorAll('.katex-display').forEach(el => {
+    const l = latexFromAnnotation(el); if (l) replaceWithLatex(el, l, true)
+  })
+  doc.querySelectorAll('.katex').forEach(el => {
+    const l = latexFromAnnotation(el); if (l) replaceWithLatex(el, l, false)
+  })
+
+  // MathJax v3
+  doc.querySelectorAll('mjx-container[display="true"]').forEach(el => {
+    const l = latexFromAnnotation(el); if (l) replaceWithLatex(el, l, true)
+  })
+  doc.querySelectorAll('mjx-container').forEach(el => {
+    const l = latexFromAnnotation(el); if (l) replaceWithLatex(el, l, false)
+  })
+
+  // Native MathML <math> elements (not already inside KaTeX/MathJax)
+  doc.querySelectorAll('math').forEach(el => {
+    if (el.closest('.katex, mjx-container')) return
+    const l = latexFromAnnotation(el); if (l) replaceWithLatex(el, l, el.getAttribute('display') === 'block')
+  })
+
+  // MathJax v2 script tags
+  doc.querySelectorAll('script[type="math/tex; mode=display"]').forEach(el => {
+    replaceWithLatex(el, el.textContent.trim(), true)
+  })
+  doc.querySelectorAll('script[type="math/tex"]').forEach(el => {
+    replaceWithLatex(el, el.textContent.trim(), false)
+  })
+
+  if (!found) return null
+
+  const text = (doc.body.innerText ?? doc.body.textContent ?? '')
+    .replace(/\n{3,}/g, '\n\n').trim()
+  return text || null
+}
+
+// ── Fragmented-math line rejoiner ────────────────────────────────────────────
+// CSS-based math renderers (fraction divs, superscript spans, etc.) produce one
+// DOM text node per visual token.  Copy-paste reads those in DOM order, giving
+// many short lines like: "x" / "2" / "+xy" / "+" / "y" / "\geq1".
+// Strategy: accumulate consecutive short non-Vietnamese lines into a single line;
+// flush them when a natural-language line or paragraph break appears.
+const VIET_CHAR_RE = /[àáảãạăắặẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđÀÁẢÃẠĂẮẶẲẴẶÂẤẦẨẪẬÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴĐ]/
+
+function rejoinFragmentedMath(text) {
+  // Only run when the text already contains LaTeX commands or unicode math chars —
+  // that signals the source has math content that may have fragmented on copy.
+  if (!/\\[a-zA-Z]|[⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉αβγδεζηθπρστφψωΣΔΩ∞±≤≥≠∈∑∏∫√]/.test(text)) {
+    return text
+  }
+
+  // A line is "natural language" (keep on its own line) if it is long,
+  // contains Vietnamese characters, or contains multiple English words.
+  function isNaturalLanguage(t) {
+    if (t.length > 30) return true
+    if (VIET_CHAR_RE.test(t)) return true
+    // Two or more separate alphabetic words = prose, not a math token
+    if (/[a-zA-Z]{2,}\s+[a-zA-Z]{2,}/.test(t)) return true
+    return false
+  }
+
+  const lines = text.split('\n')
+  const out = []
+  let buf = []   // accumulates math fragment tokens
+
+  function flush() {
+    if (buf.length) { out.push(buf.join(' ')); buf = [] }
+  }
+
+  for (const raw of lines) {
+    const t = raw.trim()
+    if (isNaturalLanguage(t)) {
+      flush()
+      out.push(raw)
+    } else if (!t) {
+      // Blank line: only output it if we're not mid-fragment-run
+      if (!buf.length) out.push('')
+    } else {
+      buf.push(t)
+    }
+  }
+  flush()
+
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim()
+}
+
+// remark-math v6 defaults singleDollarTextMath to false; force it on so
+// inline $…$ in mixed prose+math text renders instead of showing raw $ signs.
+const REMARK_MATH_OPTS = [remarkMath, { singleDollarTextMath: true }]
+
+function MathText({ children, inline = false }) {
+  const normalized = normalizeMath(children ?? '')
+  const pTag = inline
+    ? ({ children: c }) => <span>{c}</span>
+    : ({ children: c }) => <p className="mb-1 last:mb-0">{c}</p>
+  return (
+    <Markdown
+      remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]}
+      rehypePlugins={[rehypeKatex]}
+      components={{ p: pTag }}
+    >
+      {normalized}
+    </Markdown>
+  )
+}
+
+// Returns true when the text contains LaTeX that KaTeX can render.
+function hasMath(text) {
+  if (!text) return false
+  return text.includes('$') || /\\[a-zA-Z]/.test(text)
+}
+
+// Prepare text for display in the preview panel.
+// Lines that already have $…$ delimiters are left alone.
+// Lines containing bare \commands are wrapped in $$…$$ so KaTeX renders
+// them as a block instead of showing raw backslash tokens.
+// Plain-text lines (Vietnamese prose, numbers) pass through unchanged.
+function preparePreview(text) {
+  if (!text) return ''
+  if (text.includes('$')) return text
+  return text
+    .split('\n')
+    .map(line => (/\\[a-zA-Z]/.test(line) ? `$$${line.trim()}$$` : line))
+    .join('\n\n')
+}
+
+function MathPreview({ text }) {
+  if (!hasMath(text)) return null
+  const display = preparePreview(text)
+  return (
+    <div className="rounded-xl border border-[#1E2D45] bg-[#080D1A] px-4 py-3">
+      <p className="font-jakarta text-[10px] font-semibold text-[#334155] tracking-widest uppercase mb-2">
+        Xem trước
+      </p>
+      <div className="font-jakarta text-[15px] text-[#94A3B8] leading-relaxed overflow-x-auto">
+        <Markdown remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]} rehypePlugins={[rehypeKatex]}>
+          {display}
+        </Markdown>
+      </div>
+    </div>
+  )
+}
+
+const CONFIDENCE_COLOR = { high: '#10B981', medium: '#F2A20C', low: '#EF4444' }
+const CONFIDENCE_LABEL = { high: 'Chắc chắn', medium: 'Khả năng cao', low: 'Không chắc' }
+
+function StepList({ steps }) {
+  return (
+    <ol className="flex flex-col gap-3">
+      {steps.map((s, i) => (
+        <li key={i} className="flex gap-3 items-start">
+          <span className="shrink-0 w-6 h-6 rounded-full bg-[#F2A20C]/15 border border-[#F2A20C]/30 text-[#F2A20C] text-[11px] font-bold flex items-center justify-center mt-0.5">
+            {i + 1}
+          </span>
+          <div className="font-jakarta text-[15px] text-[#CBD5E1] leading-relaxed">
+            <MathText>{s}</MathText>
+          </div>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
+function StatsBadge({ stats }) {
+  if (!stats) return null
+  const total = stats.wiki_units || 0
+  const problems = stats.problems || 0
+  const topics = Object.keys(stats.topics || {}).length
+  return (
+    <div className="flex items-center gap-3 font-jakarta text-[12px] text-[#475569]">
+      <span className="flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+        {total.toLocaleString()} wiki units
+      </span>
+      <span>·</span>
+      <span>{problems.toLocaleString()} bài toán</span>
+      <span>·</span>
+      <span>{topics} chủ đề</span>
+    </div>
+  )
+}
+
+// Loads deployggb.js once and resolves when GGBApplet is available.
+let _ggbScriptPromise = null
+function loadGeoGebraScript() {
+  if (!_ggbScriptPromise) {
+    _ggbScriptPromise = new Promise((resolve, reject) => {
+      if (window.GGBApplet) { resolve(); return }
+      const s = document.createElement('script')
+      s.src = 'https://www.geogebra.org/apps/deployggb.js'
+      s.onload = resolve
+      s.onerror = reject
+      document.head.appendChild(s)
+    })
+  }
+  return _ggbScriptPromise
+}
+
+function GeoGebraEmbed({ commands }) {
+  const wrapRef = useRef(null)
+  const [status, setStatus] = useState('loading') // loading | ready | error
+
+  useEffect(() => {
+    if (!commands || !wrapRef.current) return
+    let cancelled = false
+
+    // Stable id required by GeoGebra — set on the wrapper div directly
+    const uid = `ggb-${Math.random().toString(36).slice(2, 8)}`
+    wrapRef.current.id = uid
+
+    loadGeoGebraScript()
+      .then(() => {
+        if (cancelled) return
+
+        // Poll getAppletObject() until GeoGebra exposes evalCommand.
+        // appletOnLoad string callbacks are unreliable for GeoGebra Classic;
+        // polling is robust across all app types and browser environments.
+        let appletRef = null
+        const tid = setInterval(() => {
+          if (cancelled) { clearInterval(tid); return }
+          const api = appletRef?.getAppletObject?.()
+          if (!api?.evalCommand) return
+          clearInterval(tid)
+          // Named-color → RGB for SetColor
+          const COLORS = {
+            steelblue:[70,130,180], orange:[255,165,0], red:[220,50,50],
+            green:[34,139,34], blue:[30,100,200], purple:[128,0,128],
+            gray:[128,128,128], black:[0,0,0],
+          }
+          commands.trim().split('\n').forEach(line => {
+            const cmd = line.trim()
+            if (!cmd) return
+            // Scripting commands must use the JS API, not evalCommand
+            let m
+            if ((m = cmd.match(/^HideObject\((\w+)\)$/i))) {
+              api.setVisible(m[1], false)
+            } else if ((m = cmd.match(/^ShowObject\((\w+)\)$/i))) {
+              api.setVisible(m[1], true)
+            } else if ((m = cmd.match(/^SetFilling\((\w+),\s*([\d.]+)\)$/i))) {
+              api.setFilling(m[1], parseFloat(m[2]))
+            } else if ((m = cmd.match(/^SetColor\((\w+),\s*"([^"]+)"\)$/i))) {
+              const rgb = COLORS[m[2].toLowerCase()] ?? [100,100,200]
+              api.setColor(m[1], ...rgb)
+            } else if (/^ZoomIn\(/i.test(cmd)) {
+              // ZoomIn(1) is a no-op; auto-fit instead via JS API below
+            } else {
+              api.evalCommand(cmd)
+            }
+          })
+          // Auto-fit viewport to all defined points
+          try {
+            const names = api.getAllObjectNames('point')
+            if (names && names.length > 0) {
+              let xMin = Infinity, xMax = -Infinity, yMin = Infinity, yMax = -Infinity
+              for (const n of names) {
+                if (n.startsWith('_aux_')) continue
+                const x = api.getXcoord(n), y = api.getYcoord(n)
+                if (isFinite(x) && isFinite(y)) {
+                  xMin = Math.min(xMin, x); xMax = Math.max(xMax, x)
+                  yMin = Math.min(yMin, y); yMax = Math.max(yMax, y)
+                }
+              }
+              if (isFinite(xMin)) {
+                const pad = Math.max((xMax - xMin) * 0.25, (yMax - yMin) * 0.25, 1.5)
+                api.setCoordSystem(xMin - pad, xMax + pad, yMin - pad, yMax + pad)
+              }
+            }
+          } catch (_) { /* ignore if API unavailable */ }
+          setStatus('ready')
+        }, 300)
+
+        const width = wrapRef.current.offsetWidth || 560
+        const params = {
+          appName: 'classic',
+          width,
+          height: 360,
+          showToolBar: false,
+          showAlgebraInput: false,
+          showMenuBar: false,
+          enableRightClick: false,
+          enableShiftDragZoom: true,
+          showResetIcon: true,
+          language: 'en',
+          errorDialogsActive: false,
+        }
+        appletRef = new window.GGBApplet(params, true)
+        appletRef.inject(uid)
+      })
+      .catch(() => { if (!cancelled) setStatus('error') })
+
+    return () => { cancelled = true }
+  }, [commands])
+
+  return (
+    <div className="relative rounded overflow-hidden bg-[#0F1726]" style={{ height: 360 }}>
+      {/* GeoGebra injects its iframe directly into this div */}
+      <div ref={wrapRef} style={{ width: '100%', height: '100%' }} />
+
+      {/* Loading overlay — sits on top until GeoGebra is ready */}
+      {status === 'loading' && (
+        <div className="absolute inset-0 flex items-center justify-center bg-[#0F1726]">
+          <span className="font-jakarta text-[12px] text-[#475569] animate-pulse">Đang tải GeoGebra…</span>
+        </div>
+      )}
+      {status === 'error' && (
+        <div className="absolute inset-0 flex items-center justify-center bg-[#0F1726]">
+          <span className="font-jakarta text-[12px] text-[#475569]">Không thể tải GeoGebra</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function FigureBlock({ figure }) {
+  if (!figure?.data) return null
+
+  return (
+    <div className="rounded-xl border border-[#2A3A5E] bg-[#0A0F1E] p-4 flex flex-col gap-3">
+      <p className="font-jakarta text-[10px] font-semibold text-[#334155] tracking-widest uppercase">
+        Hình minh họa
+      </p>
+
+      {figure.type === 'geogebra' ? (
+        <GeoGebraEmbed commands={figure.data} />
+      ) : (
+        <div
+          className="overflow-x-auto flex justify-center"
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(figure.data, { USE_PROFILES: { svg: true } }) }}
+        />
+      )}
+    </div>
+  )
+}
+
+function AnswerCard({ result, problem }) {
+  const answer = result.answer || {}
+  const validation = result.validation || {}
+  const confidence = answer.confidence || 'low'
+  const showUnverifiedWarning = confidence === 'low' && !validation.valid
+
+  return (
+    <div className="flex flex-col gap-5 animate-fade-in-up">
+      {/* Problem statement */}
+      {problem && (
+        <div className="rounded-xl border border-[#2A3A5E] bg-[#0A0F1E] px-5 py-4">
+          <p className="font-jakarta text-[10px] font-semibold text-[#334155] tracking-widest uppercase mb-2">
+            Bài toán
+          </p>
+          <div className="font-jakarta text-[15px] text-[#CBD5E1] leading-relaxed overflow-x-auto">
+            <Markdown remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]} rehypePlugins={[rehypeKatex]}>
+              {preparePreview(problem)}
+            </Markdown>
+          </div>
+        </div>
+      )}
+
+      {/* Figure (geometry diagram or function plot) */}
+      <FigureBlock figure={answer.figure} />
+
+      {/* Unverified warning banner */}
+      {showUnverifiedWarning && (
+        <div className="rounded-xl border border-[#F2A20C]/30 bg-[#F2A20C]/5 px-4 py-3 font-jakarta text-[13px] text-[#F2A20C]">
+          Kết quả chưa được xác minh — kiểm tra lại cẩn thận
+        </div>
+      )}
+
+      {/* Steps */}
+      {answer.steps?.length > 0 && (
+        <div className="rounded-xl border border-[#2A3A5E] bg-[#0F1726] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <p className="font-jakarta text-[11px] font-semibold text-[#475569] tracking-widest uppercase">Lời giải</p>
+            <div className="flex items-center gap-3">
+              {answer.problem_type && (
+                <span className="font-jakarta text-[11px] text-[#475569] capitalize">
+                  {answer.problem_type.replace(/_/g, ' ')}
+                </span>
+              )}
+              {!result.wiki_assisted && (
+                <span className="font-jakarta text-[11px] font-semibold tracking-widest uppercase"
+                  style={{ color: '#6366F1', opacity: 0.7 }}>
+                  AI trực tiếp
+                </span>
+              )}
+              <span className="font-jakarta text-[11px] font-semibold tracking-widest uppercase"
+                style={{ color: CONFIDENCE_COLOR[confidence] }}>
+                {CONFIDENCE_LABEL[confidence]}
+              </span>
+              {!validation.valid && validation.issues?.length > 0 && (
+                <span className="font-jakarta text-[11px] text-[#EF4444]">⚠ {validation.issues[0]}</span>
+              )}
+            </div>
+          </div>
+          <StepList steps={answer.steps} />
+        </div>
+      )}
+
+      {/* Enrichment badge */}
+      {result.enriched > 0 && (
+        <div className="flex items-center gap-2 font-jakarta text-[12px] text-[#10B981]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] shrink-0" />
+          Oracle đã học thêm {result.enriched} đơn vị tri thức mới
+          {result.enriched_topics?.length > 0 && ` (${result.enriched_topics.join(', ')})`}
+        </div>
+      )}
+
+      {/* Knowledge used */}
+      {result.retrieved_ids?.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {result.retrieved_ids.map(id => (
+            <span key={id} className="font-jakarta text-[11px] bg-[#141D2E] border border-[#2A3A5E] text-[#64748B] rounded-full px-3 py-1">
+              {id}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Insert text at the textarea cursor, preserving selection.
+function insertAtCursor(el, text) {
+  const start = el.selectionStart
+  const end = el.selectionEnd
+  const v = el.value
+  el.value = v.slice(0, start) + text + v.slice(end)
+  el.selectionStart = el.selectionEnd = start + text.length
+  el.dispatchEvent(new Event('input', { bubbles: true }))
+}
+
+// Auto-grow a textarea to fit its content.
+function autoResize(el) {
+  el.style.height = 'auto'
+  el.style.height = el.scrollHeight + 'px'
+}
+
+const PHASE_LABELS = {
+  starting: 'Đang khởi động…',
+  checking_cache: 'Đang kiểm tra bộ nhớ đệm…',
+  loading_units: 'Đang đọc kho tri thức…',
+  building_bm25: 'Đang xây dựng chỉ mục BM25…',
+  building_vectors: 'Đang xây dựng chỉ mục vector…',
+  saving: 'Đang lưu chỉ mục…',
+}
+
+function useWikiStatus() {
+  const [status, setStatus] = useState(null)
+  const [justBecameReady, setJustBecameReady] = useState(false)
+  const prevPhaseRef = useRef(null)
+  const doneRef = useRef(false)
+
+  useEffect(() => {
+    async function poll() {
+      if (doneRef.current) return
+      const { data } = await getWikiStatus()
+      if (!data) return
+      const prev = prevPhaseRef.current
+      prevPhaseRef.current = data.phase
+      setStatus(data)
+      if (data.phase === 'ready' || data.phase === 'failed') {
+        doneRef.current = true
+        if (data.phase === 'ready' && prev !== null && prev !== 'ready') {
+          setJustBecameReady(true)
+          setTimeout(() => setJustBecameReady(false), 4000)
+        }
+      }
+    }
+    poll()
+    const id = setInterval(poll, 2000)
+    return () => clearInterval(id)
+  }, [])
+
+  return { status, justBecameReady }
+}
+
+export default function MathOracle() {
+  const navigate = useNavigate()
+  const MAX_RETRIES = 2
+
+  const [question, setQuestion] = useState('')
+  const [result, setResult] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [stats, setStats] = useState(null)
+  const [retryAttempt, setRetryAttempt] = useState(0)
+  const [lastQuestion, setLastQuestion] = useState('')
+  const textareaRef = useRef(null)
+
+  const { status: wikiStatus, justBecameReady } = useWikiStatus()
+  const wikiReady  = wikiStatus?.phase === 'ready'
+  const wikiFailed = wikiStatus?.phase === 'failed'
+  const wikiLocked = wikiStatus !== null && !wikiReady
+
+  useEffect(() => {
+    getMathStats().then(({ data }) => { if (data) setStats(data) })
+  }, [])
+
+  const prevReadyRef = useRef(false)
+  useEffect(() => {
+    if (wikiReady && !prevReadyRef.current) {
+      getMathStats().then(({ data }) => { if (data) setStats(data) })
+    }
+    prevReadyRef.current = wikiReady
+  }, [wikiReady])
+
+  const handleChange = useCallback((e) => {
+    setQuestion(e.target.value)
+    autoResize(e.target)
+  }, [])
+
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault()
+      const text = textareaRef.current?.value.trim()
+      if (text && !loading && !wikiLocked) { setResult(null); setLastQuestion(text); doSolve(text) }
+    }
+  }, [loading, wikiLocked]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handlePaste = useCallback((e) => {
+    const html  = e.clipboardData?.getData('text/html')  ?? ''
+    const plain = e.clipboardData?.getData('text/plain') ?? ''
+    if (!plain && !html) return
+    e.preventDefault()
+
+    // 1. HTML path: extract LaTeX from KaTeX / MathJax / native MathML annotation tags.
+    // 2. Plain-text path: normalise unicode chars, rejoin CSS-renderer fragments.
+    // 3. Final pass: convert remaining \command tokens → real Unicode symbols (≥ not \geq).
+    const cleaned = latexCommandsToUnicode(
+      extractMathFromHtml(html) ?? rejoinFragmentedMath(clipboardToLatex(plain))
+    )
+
+    insertAtCursor(e.target, cleaned)
+    setQuestion(e.target.value)
+    autoResize(e.target)
+  }, [])
+
+  async function doSolve(text, attempt = 0) {
+    setLoading(true)
+    setError(null)
+    setRetryAttempt(attempt)
+    const { data, error: err } = await solveMath(text)
+    if (err) {
+      const isTimeout = /timed out|504|timeout|không kết nối|network error/i.test(err)
+      if (isTimeout && attempt < MAX_RETRIES) {
+        await new Promise(r => setTimeout(r, 1000))
+        return doSolve(text, attempt + 1)
+      }
+      setLoading(false)
+      setRetryAttempt(0)
+      setError(err)
+      return
+    }
+    setLoading(false)
+    setRetryAttempt(0)
+    setResult(data)
+  }
+
+  function handleSolve(e) {
+    e?.preventDefault()
+    const text = (textareaRef.current?.value || '').trim()
+    if (!text || loading) return
+    setResult(null)
+    setLastQuestion(text)
+    doSolve(text)
+  }
+
+  function handleInsert(s) {
+    const ta = textareaRef.current
+    if (!ta) return
+    // Strip MathLive placeholder pipes; insert plain LaTeX snippet
+    insertAtCursor(ta, s.replace(/\|/g, ''))
+    setQuestion(ta.value)
+    autoResize(ta)
+    ta.focus()
+  }
+
+  return (
+    <div className="min-h-screen relative overflow-hidden"
+      style={{ background: 'radial-gradient(ellipse 120% 80% at 50% 0%, #1B2B4B 0%, #0A0E1A 60%)' }}>
+
+      {/* Ambient glow */}
+      <div className="absolute pointer-events-none rounded-full opacity-40"
+        style={{ width: 600, height: 400, left: '50%', top: 0, transform: 'translateX(-50%)',
+          background: 'radial-gradient(circle, #6366F118 0%, transparent 70%)' }} />
+
+      <div className="relative z-10 max-w-2xl mx-auto px-6 py-12 flex flex-col gap-8">
+
+        {/* Back */}
+        <button onClick={() => navigate('/')}
+          className="self-start font-jakarta text-sm text-[#475569] hover:text-[#94A3B8] transition flex items-center gap-1.5">
+          ← Trang chủ
+        </button>
+
+        {/* Header */}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <span className="font-jakarta text-[10px] font-semibold text-[#6366F1] tracking-[3px] uppercase">
+              Experimental · AI Knowledge System
+            </span>
+          </div>
+          <h1 className="font-fraunces text-[52px] font-bold text-[#F8FAFC] leading-none tracking-tight">
+            Toán Oracle
+          </h1>
+          <p className="font-jakarta text-[15px] text-[#64748B] leading-relaxed max-w-[480px]">
+            Đặt câu hỏi toán — Oracle truy vấn kho tri thức và giải từng bước.
+          </p>
+          <StatsBadge stats={stats} />
+        </div>
+
+        {/* Wiki init banner */}
+        {wikiStatus !== null && !wikiReady && !wikiFailed && (
+          <div className="rounded-xl border border-[#6366F1]/30 bg-[#6366F1]/5 px-4 py-3 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="font-jakarta text-[13px] text-[#818CF8] animate-pulse">
+                {PHASE_LABELS[wikiStatus.phase] ?? wikiStatus.phase}
+              </span>
+              <span className="font-jakarta text-[12px] text-[#6366F1] font-semibold">
+                {wikiStatus.progress}%
+              </span>
+            </div>
+            <div className="h-1 w-full rounded-full bg-[#1E2D45] overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-700 ease-out"
+                style={{
+                  width: `${wikiStatus.progress}%`,
+                  background: 'linear-gradient(90deg, #6366F1, #818CF8)',
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Wiki failed banner */}
+        {wikiFailed && (
+          <div className="rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/5 px-4 py-3">
+            <p className="font-jakarta text-[13px] text-[#EF4444]">Không thể khởi động chỉ mục — Oracle hoạt động ở chế độ AI trực tiếp</p>
+            {wikiStatus.error && (
+              <p className="font-jakarta text-[11px] text-[#EF4444]/70 mt-1">{wikiStatus.error}</p>
+            )}
+          </div>
+        )}
+
+        {/* Input */}
+        <style>{`
+          .oracle-textarea::placeholder { color: #334155; }
+          .oracle-textarea { caret-color: #E2E8F0; }
+          @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
+        <form onSubmit={handleSolve} className="flex flex-col gap-3">
+          <div className="rounded-xl border border-[#2A3A5E] bg-[#0F1726] focus-within:border-[#6366F1] transition-colors overflow-hidden">
+            <textarea
+              ref={textareaRef}
+              value={question}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              onPaste={handlePaste}
+              disabled={wikiLocked}
+              placeholder={"Nhập bài toán… (hỗ trợ LaTeX, nhiều dòng, tiếng Việt)\nVD: Giải phương trình x² – 5x + 6 = 0"}
+              rows={3}
+              className={`oracle-textarea${wikiLocked ? ' opacity-60 cursor-not-allowed' : ''}`}
+              style={{
+                display: 'block', width: '100%', resize: 'none', overflow: 'hidden',
+                background: 'transparent', color: '#E2E8F0', fontSize: 15,
+                padding: '16px 20px 12px', boxSizing: 'border-box',
+                outline: 'none', border: 'none', lineHeight: 1.6,
+                fontFamily: "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif",
+              }}
+            />
+            <SymbolPalette onInsert={handleInsert} />
+            <div className="flex justify-end items-center gap-2 px-3 py-2 border-t border-[#2A3A5E]">
+              <span className="font-jakarta text-[11px] text-[#334155]">⌘ Enter</span>
+              <button type="submit" disabled={!question.trim() || loading || wikiLocked}
+                className="px-4 py-1.5 bg-[#6366F1] text-white font-jakarta font-semibold text-sm rounded-lg disabled:opacity-40 hover:bg-[#4F46E5] transition">
+                {loading ? 'Đang tính…' : 'Giải'}
+              </button>
+            </div>
+          </div>
+          <MathPreview text={question} />
+          {question.trim() === '' && (
+            <div className="flex flex-wrap gap-2">
+              {[
+                { insert: 'x^{2} - 5x + 6 = 0',              label: '$x^{2} - 5x + 6 = 0$' },
+                { insert: '\\frac{1}{x} + \\frac{1}{x+1} = 1', label: '$\\frac{1}{x} + \\frac{1}{x+1} = 1$' },
+                { insert: '\\sqrt{x+3} = x - 1',               label: '$\\sqrt{x+3} = x - 1$' },
+              ].map(eg => (
+                <button key={eg.insert} type="button"
+                  onClick={() => {
+                    const ta = textareaRef.current
+                    if (ta) { ta.value = eg.insert; autoResize(ta); ta.focus() }
+                    setQuestion(eg.insert)
+                  }}
+                  className="font-jakarta text-[12px] text-[#475569] border border-[#1E2D45] rounded-full px-3 py-1 hover:border-[#6366F1] hover:text-[#6366F1] transition">
+                  <MathText inline>{eg.label}</MathText>
+                </button>
+              ))}
+            </div>
+          )}
+        </form>
+
+        {/* Loading */}
+        {loading && (
+          <div className="flex items-center gap-3 font-jakarta text-[14px] text-[#475569] animate-pulse">
+            <span className="w-2 h-2 rounded-full bg-[#6366F1] animate-bounce" />
+            {retryAttempt > 0
+              ? `Đang thử lại sau timeout (lần ${retryAttempt + 1}/${MAX_RETRIES + 1})…`
+              : 'Oracle đang truy vấn tri thức…'
+            }
+          </div>
+        )}
+
+        {/* Error */}
+        {error && (
+          <div className="rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/5 p-4 font-jakarta text-sm text-[#EF4444] flex items-center justify-between gap-4">
+            <span>{error}</span>
+            {/timed out|timeout|không kết nối/i.test(error) && lastQuestion && (
+              <button
+                onClick={() => { setError(null); doSolve(lastQuestion) }}
+                className="shrink-0 px-3 py-1.5 bg-[#EF4444]/10 border border-[#EF4444]/30 rounded-lg text-[12px] font-semibold hover:bg-[#EF4444]/20 transition"
+              >
+                Thử lại
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Result */}
+        {result && <AnswerCard result={result} problem={lastQuestion} />}
+
+        {/* Ready toast */}
+        {justBecameReady && (
+          <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-[#10B981]/30 bg-[#0A1A14] px-5 py-4 shadow-lg"
+            style={{ animation: 'slideInUp 0.3s ease-out' }}>
+            <p className="font-jakarta text-[14px] font-semibold text-[#10B981]">Oracle sẵn sàng</p>
+            <p className="font-jakarta text-[12px] text-[#475569] mt-0.5">Hệ thống tri thức đã được khởi động</p>
+          </div>
+        )}
+
+        {/* Empty-DB notice when stats show 0 */}
+        {stats?.wiki_units === 0 && !loading && !result && (
+          <div className="rounded-xl border border-[#2A3A5E] bg-[#0F1726] p-5 flex items-start gap-4">
+            <span className="text-2xl">🌱</span>
+            <div>
+              <p className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Wiki còn trống</p>
+              <p className="font-jakarta text-[12px] text-[#475569] mt-0.5">
+                Chạy <code className="text-[#6366F1]">python scripts/crawl_wiki.py</code> để nạp tri thức vào Oracle.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
