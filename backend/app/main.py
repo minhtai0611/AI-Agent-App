@@ -16,12 +16,43 @@ from app.math_wiki.admin_router import router as admin_router
 
 logger = logging.getLogger(__name__)
 
+HF_DATASET_REPO = "MinhTai/ai-agent-app-storage"
+HF_DB_FILENAME  = "math_wiki.db"
+
+
+def _seed_db_if_empty() -> None:
+    """Download math_wiki.db from HF hub if the configured DB has no wiki units."""
+    import os, shutil, sqlite3
+    db_path = get_settings().math_wiki_db_path
+    os.makedirs(os.path.dirname(db_path) or ".", exist_ok=True)
+    empty = True
+    if os.path.exists(db_path):
+        try:
+            conn = sqlite3.connect(db_path)
+            empty = conn.execute("SELECT COUNT(*) FROM wiki_units WHERE deleted=0").fetchone()[0] == 0
+            conn.close()
+        except Exception:
+            pass
+    if not empty:
+        logger.info("DB already populated at %s — skipping download", db_path)
+        return
+    try:
+        from huggingface_hub import hf_hub_download
+        logger.info("DB empty — downloading from HF hub %s/%s", HF_DATASET_REPO, HF_DB_FILENAME)
+        src = hf_hub_download(repo_id=HF_DATASET_REPO, filename=HF_DB_FILENAME, repo_type="dataset")
+        shutil.copy2(src, db_path)
+        logger.info("DB seeded at %s", db_path)
+    except Exception as exc:
+        logger.warning("Could not seed DB from HF hub: %s", exc)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from app.math_wiki.pipeline import _wiki_status, _ensure_indexes
     _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
-    asyncio.get_event_loop().run_in_executor(None, _ensure_indexes)
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, _seed_db_if_empty)
+    loop.run_in_executor(None, _ensure_indexes)
     yield
 
 
