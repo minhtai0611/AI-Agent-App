@@ -20,28 +20,47 @@ HF_DATASET_REPO = "MinhTai/ai-agent-app-storage"
 HF_DB_FILENAME  = "math_wiki.db"
 
 
+def _db_unit_count(path: str) -> int | None:
+    """Return wiki_unit count for a DB file, or None if unreadable/malformed."""
+    import sqlite3
+    try:
+        conn = sqlite3.connect(path)
+        n = conn.execute("SELECT COUNT(*) FROM wiki_units WHERE deleted=0").fetchone()[0]
+        conn.close()
+        return n
+    except Exception:
+        return None
+
+
 def _seed_db_if_empty() -> None:
-    """Download math_wiki.db from HF hub if the configured DB has no wiki units."""
-    import os, shutil, sqlite3
+    """Download math_wiki.db from HF hub when the configured DB is empty or malformed."""
+    import os, shutil
     db_path = get_settings().math_wiki_db_path
     os.makedirs(os.path.dirname(db_path) or ".", exist_ok=True)
-    empty = True
-    if os.path.exists(db_path):
-        try:
-            conn = sqlite3.connect(db_path)
-            empty = conn.execute("SELECT COUNT(*) FROM wiki_units WHERE deleted=0").fetchone()[0] == 0
-            conn.close()
-        except Exception:
-            pass
-    if not empty:
-        logger.info("DB already populated at %s — skipping download", db_path)
+
+    count = _db_unit_count(db_path) if os.path.exists(db_path) else None
+    if count and count > 0:
+        logger.info("DB already populated (%d units) at %s — skipping download", count, db_path)
         return
+
+    reason = "malformed" if (count is None and os.path.exists(db_path)) else "empty/missing"
+    logger.info("DB %s — downloading from HF hub %s/%s", reason, HF_DATASET_REPO, HF_DB_FILENAME)
     try:
         from huggingface_hub import hf_hub_download
-        logger.info("DB empty — downloading from HF hub %s/%s", HF_DATASET_REPO, HF_DB_FILENAME)
-        src = hf_hub_download(repo_id=HF_DATASET_REPO, filename=HF_DB_FILENAME, repo_type="dataset")
-        shutil.copy2(src, db_path)
-        logger.info("DB seeded at %s", db_path)
+        # force_download bypasses the local cache in case a corrupt file was cached previously
+        tmp = hf_hub_download(
+            repo_id=HF_DATASET_REPO,
+            filename=HF_DB_FILENAME,
+            repo_type="dataset",
+            force_download=True,
+        )
+        # Verify before replacing
+        dl_count = _db_unit_count(tmp)
+        if not dl_count:
+            logger.warning("Downloaded DB is empty or malformed — aborting seed")
+            return
+        shutil.copy2(tmp, db_path)
+        logger.info("DB seeded at %s (%d units)", db_path, dl_count)
     except Exception as exc:
         logger.warning("Could not seed DB from HF hub: %s", exc)
 
