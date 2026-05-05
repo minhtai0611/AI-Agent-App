@@ -3,6 +3,7 @@
   publish = "exam-app/dist"
 
 [build.environment]
+  VITE_API_BASE_URL = "https://minhtai-ai-agent-app.hf.space"
   SECRETS_SCAN_OMIT_KEYS = "ANTHROPIC_BASE_URL,ANTHROPIC_DEFAULT_HAIKU_MODEL,ANTHROPIC_DEFAULT_OPUS_MODEL,ANTHROPIC_DEFAULT_SONNET_MODEL,VITE_API_BASE_URL"
 
 [[redirects]]
