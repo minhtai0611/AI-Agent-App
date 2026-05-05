@@ -13,7 +13,10 @@ const slowClient = axios.create({
 function wrap(promise) {
   return promise
     .then(res => ({ data: res.data, error: null }))
-    .catch(err => ({ data: null, error: err?.response?.data?.detail || err.message || 'Lỗi kết nối' }))
+    .catch(err => {
+      if (!err.response) return { data: null, error: 'Không kết nối được server — hãy kiểm tra backend đang chạy' }
+      return { data: null, error: err.response.data?.detail || err.message || 'Lỗi kết nối' }
+    })
 }
 
 export function analyzeResult(payload) {
@@ -42,4 +45,8 @@ export function solveMath(question) {
 
 export function getMathStats() {
   return wrap(client.get('/math-stats'))
+}
+
+export function getWikiStatus() {
+  return wrap(client.get('/wiki/status'))
 }
