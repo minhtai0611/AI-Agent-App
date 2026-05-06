@@ -464,3 +464,77 @@ def test_db_count_queries(tmp_path):
         topics = count_wiki_units_by_topic()
         assert topics["algebra"] == 1
         assert topics["geometry"] == 1
+
+
+# ── test_bge_m3 ───────────────────────────────────────────────────────────────
+
+def test_embed_dim():
+    """embed_texts returns 1024-dim vectors when BGEM3FlagModel is mocked."""
+    import numpy as np
+    mock_model = MagicMock()
+    mock_model.encode.return_value = {"dense_vecs": np.zeros((1, 1024), dtype=np.float32)}
+
+    with patch("app.math_wiki.storage.vectors._local_model", mock_model):
+        from app.math_wiki.storage.vectors import embed_texts
+        result = embed_texts(["test"])
+    assert len(result) == 1
+    assert len(result[0]) == 1024
+
+
+def test_prefix_distinction():
+    """query and passage prefixes produce different mock calls."""
+    import numpy as np
+    mock_model = MagicMock()
+
+    def _fake_encode(texts, **kwargs):
+        # Return distinct vectors based on prefix so we can detect the call
+        val = 1.0 if texts[0].startswith("query:") else 0.0
+        return {"dense_vecs": np.full((len(texts), 1024), val, dtype=np.float32)}
+
+    mock_model.encode.side_effect = _fake_encode
+
+    with patch("app.math_wiki.storage.vectors._local_model", mock_model):
+        from app.math_wiki.storage.vectors import embed_texts
+        q_vec = embed_texts(["x"], prefix="query")[0]
+        p_vec = embed_texts(["x"], prefix="passage")[0]
+    assert q_vec[0] != p_vec[0]
+
+
+def test_cache_bust_on_stale_meta(tmp_path):
+    """_load_cached_indexes returns False when cached dim/model don't match settings."""
+    import pickle
+    import numpy as np
+
+    bm25_path = tmp_path / "test.bm25.pkl"
+    faiss_path = tmp_path / "test.faiss"
+    meta_path = tmp_path / "test.meta.pkl"
+
+    # Write stale meta with wrong dim and model
+    bm25_path.write_bytes(pickle.dumps({"index": None, "id_map": []}))
+    faiss_path.write_bytes(b"")  # won't be read due to early return
+    meta_path.write_bytes(pickle.dumps({
+        "unit_count": 0,
+        "vector_id_map": [],
+        "dim": 384,
+        "embedding_model": "all-MiniLM-L6-v2",
+    }))
+
+    db_path = str(tmp_path / "test.db")
+
+    with patch("app.math_wiki.pipeline.get_settings") as mock_settings, \
+         patch("app.math_wiki.pipeline.count_wiki_units", return_value=0):
+        s = MagicMock()
+        s.math_wiki_db_path = db_path
+        s.embedding_model_name = "BAAI/bge-m3"
+        s.embedding_dim = 1024
+        mock_settings.return_value = s
+
+        from app.math_wiki import pipeline
+        orig_paths = pipeline._cache_paths
+
+        with patch.object(pipeline, "_cache_paths", return_value=(
+            str(bm25_path), str(faiss_path), str(meta_path)
+        )):
+            result = pipeline._load_cached_indexes()
+
+    assert result is False

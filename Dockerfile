@@ -10,9 +10,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Bake the sentence-transformers model into the image (~90 MB)
-# Avoids a slow download on first request in the Space
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+# Fix root→appuser cache path mismatch; must be set before bake AND kept for CMD
+ENV HF_HOME=/app/.cache/huggingface
+
+# Bake BGE-M3 into the image (~570 MB); avoids re-download on container start
+RUN python -c "from FlagEmbedding import BGEM3FlagModel; BGEM3FlagModel('BAAI/bge-m3', use_fp16=False)"
 
 COPY backend/ backend/
 
