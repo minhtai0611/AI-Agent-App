@@ -42,10 +42,35 @@ def _fix_backslashes(text: str) -> str:
 
 
 def _extract_json(text: str) -> str:
-    text = text.strip()
-    text = re.sub(r'^```(?:json)?\s*', '', text)
+    text = re.sub(r'^```(?:json)?\s*', '', text.strip())
     text = re.sub(r'\s*```$', '', text)
-    match = re.search(r'\{.*\}', text, re.DOTALL)
-    if match:
-        return _fix_backslashes(match.group(0))
+    # Walk characters to find the last well-formed top-level {…} span.
+    # Greedy regex would match first-{ to last-}, capturing invalid multi-object spans.
+    last_start = last_end = -1
+    depth = 0
+    in_string = False
+    escape = False
+    start = -1
+    for i, ch in enumerate(text):
+        if escape:
+            escape = False
+            continue
+        if ch == '\\' and in_string:
+            escape = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch == '{':
+            if depth == 0:
+                start = i
+            depth += 1
+        elif ch == '}':
+            depth -= 1
+            if depth == 0 and start != -1:
+                last_start, last_end = start, i + 1
+    if last_start != -1:
+        return _fix_backslashes(text[last_start:last_end])
     return _fix_backslashes(text.strip())
