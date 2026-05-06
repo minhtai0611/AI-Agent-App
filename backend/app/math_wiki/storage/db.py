@@ -1,14 +1,23 @@
 import sqlite3
 import json
+import threading
 from datetime import datetime
 from app.config import get_settings
 from app.math_wiki.schemas import WikiUnit, Problem
 
+_thread_local = threading.local()
+
 
 def _get_conn() -> sqlite3.Connection:
-    conn = sqlite3.connect(get_settings().math_wiki_db_path, check_same_thread=False)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.row_factory = sqlite3.Row
+    """Return a per-thread cached SQLite connection, creating it on first use."""
+    conn = getattr(_thread_local, "conn", None)
+    db_path = get_settings().math_wiki_db_path
+    if conn is None or getattr(_thread_local, "db_path", None) != db_path:
+        conn = sqlite3.connect(db_path, check_same_thread=False)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.row_factory = sqlite3.Row
+        _thread_local.conn = conn
+        _thread_local.db_path = db_path
     return conn
 
 

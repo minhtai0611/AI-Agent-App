@@ -56,6 +56,20 @@ def build_vector_index(units: list[WikiUnit]) -> VectorIndex:
     return VectorIndex(index=idx, id_map=[u.id for u in units], dim=dim)
 
 
+def is_near_duplicate(vi: VectorIndex, text: str, threshold: float = 0.92) -> bool:
+    """Return True if any unit in the index is semantically near-duplicate of text."""
+    if not vi.id_map:
+        return False
+    vecs = embed_texts([text], prefix="passage")
+    q = np.array(vecs[0], dtype=np.float32)
+    matches = vi.index.search(q, 1)
+    if not matches.keys or len(matches.keys) == 0:
+        return False
+    best_dist = float(matches.distances[0])
+    # usearch cosine distance = 1 - similarity; near-duplicate when similarity >= threshold
+    return best_dist <= (1.0 - threshold)
+
+
 def query_vector(vi: VectorIndex, query: str, top_k: int = 10, min_score: float = 0.55) -> list[str]:
     if not vi.id_map:
         return []

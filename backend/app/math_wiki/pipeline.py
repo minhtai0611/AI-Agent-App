@@ -3,6 +3,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 import threading
 from openai import AsyncOpenAI
 from app.math_wiki.storage.db import get_all_wiki_units, get_wiki_units_by_ids, count_wiki_units, get_cached_figure, upsert_problem
@@ -30,6 +31,11 @@ _wiki_status: dict = {"phase": "starting", "progress": 0, "error": None}
 
 def get_wiki_status() -> dict:
     return dict(_wiki_status)
+
+
+def get_vector_index():
+    """Return the live VectorIndex for semantic dedup checks, or None if not ready."""
+    return _vector_index
 
 
 def _cache_paths() -> tuple[str, str]:
@@ -123,7 +129,7 @@ def _append_to_indexes(new_units: list) -> None:
             new_keys = np.arange(start, start + len(new_units), dtype=np.uint64)
             _vector_index.index.add(new_keys, arr)
             _vector_index.id_map.extend([u.id for u in new_units])
-    unit_count = len(_vector_index.id_map) if _vector_index else 0
+        unit_count = len(_vector_index.id_map) if _vector_index else 0
     threading.Thread(
         target=_save_cached_index, args=(unit_count,), daemon=True
     ).start()
@@ -146,7 +152,8 @@ async def _retrieve_rerank_context(client: AsyncOpenAI, question: str):
 
 
 def _problem_hash(question: str) -> str:
-    return hashlib.sha256(question.strip().lower().encode()).hexdigest()
+    normalized = re.sub(r'\s+', ' ', question.strip().lower())
+    return hashlib.sha256(normalized.encode()).hexdigest()
 
 
 async def run_pipeline(client: AsyncOpenAI, question: str) -> dict:
