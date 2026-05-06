@@ -14,6 +14,8 @@ export default function TestInterface() {
   const session = useExam()
   const dispatch = useExamDispatch()
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [tutorOpen, setTutorOpen] = useState(false)
+  const [submitModal, setSubmitModal] = useState(false)
 
   useEffect(() => {
     if (session.status === 'idle' || !session.exam || session.exam.id !== examId) {
@@ -44,7 +46,8 @@ export default function TestInterface() {
   const isPractice = mode === 'practice'
   const progress = ((currentIndex + 1) / questions.length) * 100
 
-  const [tutorOpen, setTutorOpen] = useState(false)
+  const unanswered = questions.map((q, i) => ({ q, i })).filter(({ q }) => answers[q.id] === undefined)
+  const allAnswered = unanswered.length === 0
 
   // Build rich in-exam context for the tutor — recomputed on every relevant state change.
   const examContext = useMemo(() => {
@@ -83,6 +86,10 @@ export default function TestInterface() {
   }
 
   function handleSubmit() {
+    setSubmitModal(true)
+  }
+
+  function confirmSubmit() {
     dispatch({ type: 'SUBMIT' })
     navigate('/results/current', { replace: true })
   }
@@ -211,6 +218,73 @@ export default function TestInterface() {
           })}
         </div>
       </div>
+
+      {/* Submit confirmation modal */}
+      {submitModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(10,14,26,0.85)', backdropFilter: 'blur(6px)' }}
+        >
+          <div
+            className="relative w-full max-w-sm rounded-2xl border border-[#1E2A44] p-6 flex flex-col gap-5"
+            style={{ background: 'linear-gradient(180deg, #0F1628 0%, #0D1221 100%)' }}
+          >
+            {/* Header */}
+            <div className="flex flex-col gap-1">
+              {allAnswered ? (
+                <>
+                  <span className="font-fraunces text-[#F8FAFC] text-[18px] font-semibold">Nộp bài?</span>
+                  <span className="font-jakarta text-[#64748B] text-[13px]">
+                    Bạn đã trả lời đủ {questions.length}/{questions.length} câu.
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="font-fraunces text-[#F8FAFC] text-[18px] font-semibold">Còn câu chưa trả lời</span>
+                  <span className="font-jakarta text-[#94A3B8] text-[13px]">
+                    Bạn còn{' '}
+                    <span className="text-[#F2A20C] font-bold">{unanswered.length} câu</span>
+                    {' '}chưa trả lời. Nhấn vào ô để quay lại, hoặc vẫn nộp bài.
+                  </span>
+                </>
+              )}
+            </div>
+
+            {/* Unanswered dot grid */}
+            {!allAnswered && (
+              <div className="flex flex-wrap gap-2">
+                {unanswered.map(({ q, i }) => (
+                  <button
+                    key={q.id}
+                    onClick={() => { setCurrentIndex(i); setSubmitModal(false) }}
+                    className="w-8 h-8 rounded-lg font-jakarta text-[12px] font-bold border border-[#F2A20C44] text-[#F2A20C] hover:bg-[#F2A20C22] transition"
+                    style={{ background: '#F2A20C11' }}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex items-center gap-3 mt-1">
+              <button
+                onClick={() => setSubmitModal(false)}
+                className="flex-1 py-2.5 rounded-[10px] font-jakarta text-[13px] font-semibold text-[#94A3B8] bg-[#111827] border border-[#1E2A44] hover:bg-[#1E2A44] transition"
+              >
+                Làm tiếp
+              </button>
+              <button
+                onClick={confirmSubmit}
+                className="flex-1 py-2.5 rounded-[10px] font-jakarta text-[13px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
+                style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
+              >
+                Nộp bài
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Floating AI tutor button — practice mode only */}
       {isPractice && (
