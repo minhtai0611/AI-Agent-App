@@ -94,23 +94,20 @@ def test_bm25_ranking():
 
 # ── test_retriever ────────────────────────────────────────────────────────────
 
-def test_retriever_both_empty():
-    from app.math_wiki.storage.bm25 import build_bm25_index
+def test_retriever_empty():
     from app.math_wiki.storage.vectors import VectorIndex
-    from app.math_wiki.storage.retriever import hybrid_retrieve
-    import faiss
+    from app.math_wiki.storage.retriever import vector_retrieve
+    from usearch.index import Index
 
-    idx, id_map = build_bm25_index([])
-    vi = VectorIndex(index=faiss.IndexFlatL2(1), id_map=[], dim=1)
-    result = hybrid_retrieve("algebra", idx, id_map, vi)
+    vi = VectorIndex(index=Index(ndim=1, metric="cos"), id_map=[], dim=1)
+    result = vector_retrieve("algebra", vi)
     assert result == []
 
 
 def test_retriever_no_duplicates():
     from app.math_wiki.schemas import WikiUnit
-    from app.math_wiki.storage.bm25 import build_bm25_index
-    from app.math_wiki.storage.vectors import VectorIndex, build_vector_index
-    from app.math_wiki.storage.retriever import hybrid_retrieve
+    from app.math_wiki.storage.vectors import build_vector_index
+    from app.math_wiki.storage.retriever import vector_retrieve
 
     units = [
         WikiUnit(id="u1", type="concept", topic="algebra", subtopic="x",
@@ -122,10 +119,9 @@ def test_retriever_no_duplicates():
         mock_embed.return_value = [[0.1, 0.2], [0.3, 0.4]]
         vi = build_vector_index(units)
 
-    bm25_idx, bm25_id_map = build_bm25_index(units)
     with patch("app.math_wiki.storage.vectors.embed_texts") as mock_embed:
         mock_embed.return_value = [[0.1, 0.2]]
-        result = hybrid_retrieve("linear", bm25_idx, bm25_id_map, vi)
+        result = vector_retrieve("linear", vi)
     assert len(result) == len(set(result))  # no duplicates
 
 
@@ -501,17 +497,14 @@ def test_prefix_distinction():
 
 
 def test_cache_bust_on_stale_meta(tmp_path):
-    """_load_cached_indexes returns False when cached dim/model don't match settings."""
+    """_load_cached_index returns False when cached dim/model don't match settings."""
     import pickle
-    import numpy as np
 
-    bm25_path = tmp_path / "test.bm25.pkl"
-    faiss_path = tmp_path / "test.faiss"
+    usearch_path = tmp_path / "test.usearch"
     meta_path = tmp_path / "test.meta.pkl"
 
-    # Write stale meta with wrong dim and model
-    bm25_path.write_bytes(pickle.dumps({"index": None, "id_map": []}))
-    faiss_path.write_bytes(b"")  # won't be read due to early return
+    # Write stale meta with wrong dim and model; usearch file won't be read due to early return
+    usearch_path.write_bytes(b"")
     meta_path.write_bytes(pickle.dumps({
         "unit_count": 0,
         "vector_id_map": [],
@@ -530,11 +523,10 @@ def test_cache_bust_on_stale_meta(tmp_path):
         mock_settings.return_value = s
 
         from app.math_wiki import pipeline
-        orig_paths = pipeline._cache_paths
 
         with patch.object(pipeline, "_cache_paths", return_value=(
-            str(bm25_path), str(faiss_path), str(meta_path)
+            str(usearch_path), str(meta_path)
         )):
-            result = pipeline._load_cached_indexes()
+            result = pipeline._load_cached_index()
 
     assert result is False

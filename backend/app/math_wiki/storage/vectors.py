@@ -34,24 +34,25 @@ def embed_texts(texts: list[str], prefix: str = "passage") -> list[list[float]]:
 
 @dataclass
 class VectorIndex:
-    index: object  # faiss.IndexFlatL2
+    index: object  # usearch.index.Index
     id_map: list[str] = field(default_factory=list)
     dim: int = 0
 
 
 def build_vector_index(units: list[WikiUnit]) -> VectorIndex:
-    import faiss
+    from usearch.index import Index
 
     if not units:
-        dummy = faiss.IndexFlatL2(1)
+        dummy = Index(ndim=1, metric="cos")
         return VectorIndex(index=dummy, id_map=[], dim=1)
 
     texts = [u.content for u in units]
     vecs = embed_texts(texts, prefix="passage")
     arr = np.array(vecs, dtype=np.float32)
     dim = arr.shape[1]
-    idx = faiss.IndexFlatL2(dim)
-    idx.add(arr)
+    idx = Index(ndim=dim, metric="cos")
+    keys = np.arange(len(units), dtype=np.uint64)
+    idx.add(keys, arr)
     return VectorIndex(index=idx, id_map=[u.id for u in units], dim=dim)
 
 
@@ -59,7 +60,7 @@ def query_vector(vi: VectorIndex, query: str, top_k: int = 10) -> list[str]:
     if not vi.id_map:
         return []
     vecs = embed_texts([query], prefix="query")
-    q = np.array(vecs, dtype=np.float32)
+    q = np.array(vecs[0], dtype=np.float32)
     k = min(top_k, len(vi.id_map))
-    _, indices = vi.index.search(q, k)
-    return [vi.id_map[i] for i in indices[0] if i >= 0]
+    matches = vi.index.search(q, k)
+    return [vi.id_map[int(key)] for key in matches.keys]

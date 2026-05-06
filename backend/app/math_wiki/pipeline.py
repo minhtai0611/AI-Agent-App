@@ -34,7 +34,7 @@ def get_wiki_status() -> dict:
 def _cache_paths() -> tuple[str, str]:
     db_path = get_settings().math_wiki_db_path
     base = os.path.splitext(db_path)[0]
-    return base + ".faiss", base + ".meta.pkl"
+    return base + ".usearch", base + ".meta.pkl"
 
 
 def _load_cached_index() -> bool:
@@ -44,7 +44,7 @@ def _load_cached_index() -> bool:
     if not all(os.path.exists(p) for p in (faiss_path, meta_path)):
         return False
     try:
-        import faiss
+        from usearch.index import Index
         with open(meta_path, "rb") as f:
             meta = pickle.load(f)
         if meta.get("unit_count") != count_wiki_units():
@@ -53,7 +53,7 @@ def _load_cached_index() -> bool:
             return False  # model changed — rebuild
         if meta.get("dim") != get_settings().embedding_dim:
             return False  # dim mismatch — rebuild
-        raw = faiss.read_index(faiss_path)
+        raw = Index.restore(faiss_path)
         _vector_index = VectorIndex(index=raw, id_map=meta["vector_id_map"], dim=meta["dim"])
         logger.info("Loaded cached vector index (%d units)", meta["unit_count"])
         return True
@@ -65,8 +65,7 @@ def _load_cached_index() -> bool:
 def _save_cached_index(unit_count: int) -> None:
     faiss_path, meta_path = _cache_paths()
     try:
-        import faiss
-        faiss.write_index(_vector_index.index, faiss_path)
+        _vector_index.index.save(faiss_path)
         with open(meta_path, "wb") as f:
             pickle.dump({
                 "unit_count": unit_count,
@@ -119,7 +118,9 @@ def _append_to_indexes(new_units: list) -> None:
     arr = np.array(new_vecs, dtype=np.float32)
     with _index_lock:
         if _vector_index is not None and _vector_index.id_map:
-            _vector_index.index.add(arr)
+            start = np.uint64(len(_vector_index.id_map))
+            new_keys = np.arange(start, start + len(new_units), dtype=np.uint64)
+            _vector_index.index.add(new_keys, arr)
             _vector_index.id_map.extend([u.id for u in new_units])
     unit_count = len(_vector_index.id_map) if _vector_index else 0
     threading.Thread(
