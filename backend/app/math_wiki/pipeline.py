@@ -199,7 +199,7 @@ async def run_pipeline(client: AsyncOpenAI, question: str) -> dict:
     # Always validate — confidence is LLM self-reported and unreliable as a correctness signal.
     # Figure generation runs concurrently; low-confidence skips figure only.
     results = await asyncio.gather(
-        validate(client, solver_output, context),
+        validate(client, solver_output, context, problem_text=question),
         _figure_task(),
         return_exceptions=True,
     )
