@@ -17,6 +17,19 @@ _SLUG_RE = re.compile(r'^[\w-]+$')
 _EXPECTED_KEYS = {"problem_type", "steps", "final_answer", "confidence", "used_knowledge_ids"}
 
 
+def _safe_parse_literal(s: str):
+    """Parse a Python-style literal string using json.loads only (no ast.literal_eval).
+    Single quotes are normalized to double quotes as a best-effort step."""
+    try:
+        return json.loads(s)
+    except json.JSONDecodeError:
+        pass
+    try:
+        return json.loads(s.replace("'", '"'))
+    except json.JSONDecodeError:
+        return None
+
+
 def _normalize(parsed: dict, valid_ids: set[str], _label_hint: str = "") -> SolverOutput:
     """Map whatever JSON structure the model returns into SolverOutput fields."""
 
@@ -92,13 +105,9 @@ def _normalize(parsed: dict, valid_ids: set[str], _label_hint: str = "") -> Solv
         s = str(val)
         # Model returned a Python dict repr string like "{'x': 3, 'y': 2}"
         if s.startswith("{") and s.endswith("}"):
-            try:
-                import ast
-                parsed_val = ast.literal_eval(s)
-                if isinstance(parsed_val, dict):
-                    return _dict_to_str(parsed_val)
-            except (ValueError, SyntaxError):
-                pass
+            parsed_val = _safe_parse_literal(s)
+            if isinstance(parsed_val, dict):
+                return _dict_to_str(parsed_val)
         return s
 
     final_answer: str = ""
@@ -168,15 +177,7 @@ def _normalize(parsed: dict, valid_ids: set[str], _label_hint: str = "") -> Solv
     # Reformat as human-readable "x = a hoặc x = b" — the validator still flags
     # ODE cases where roots ≠ general solution.
     if final_answer and final_answer.lstrip().startswith('['):
-        parsed_fa = None
-        try:
-            parsed_fa = json.loads(final_answer)
-        except json.JSONDecodeError:
-            try:
-                import ast
-                parsed_fa = ast.literal_eval(final_answer)
-            except (ValueError, SyntaxError):
-                pass
+        parsed_fa = _safe_parse_literal(final_answer)
         if isinstance(parsed_fa, list) and parsed_fa:
             raw_items = [str(v) for v in parsed_fa]
 
