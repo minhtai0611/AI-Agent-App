@@ -1,8 +1,8 @@
 import asyncio
 import hashlib
+import json
 import logging
 import os
-import pickle
 import threading
 from openai import AsyncOpenAI
 from app.math_wiki.storage.db import get_all_wiki_units, get_wiki_units_by_ids, count_wiki_units, get_cached_figure, upsert_problem
@@ -35,26 +35,26 @@ def get_wiki_status() -> dict:
 def _cache_paths() -> tuple[str, str]:
     db_path = get_settings().math_wiki_db_path
     base = os.path.splitext(db_path)[0]
-    return base + ".usearch", base + ".meta.pkl"
+    return base + ".usearch", base + ".meta.json"
 
 
 def _load_cached_index() -> bool:
     """Return True if a valid cached vector index was loaded."""
     global _vector_index
-    faiss_path, meta_path = _cache_paths()
-    if not all(os.path.exists(p) for p in (faiss_path, meta_path)):
+    usearch_path, meta_path = _cache_paths()
+    if not all(os.path.exists(p) for p in (usearch_path, meta_path)):
         return False
     try:
         from usearch.index import Index
-        with open(meta_path, "rb") as f:
-            meta = pickle.load(f)
+        with open(meta_path, "r", encoding="utf-8") as f:
+            meta = json.load(f)
         if meta.get("unit_count") != count_wiki_units():
             return False  # DB changed — rebuild
         if meta.get("embedding_model") != get_settings().embedding_model_name:
             return False  # model changed — rebuild
         if meta.get("dim") != get_settings().embedding_dim:
             return False  # dim mismatch — rebuild
-        raw = Index.restore(faiss_path)
+        raw = Index.restore(usearch_path)
         _vector_index = VectorIndex(index=raw, id_map=meta["vector_id_map"], dim=meta["dim"])
         logger.info("Loaded cached vector index (%d units)", meta["unit_count"])
         return True
@@ -64,11 +64,11 @@ def _load_cached_index() -> bool:
 
 
 def _save_cached_index(unit_count: int) -> None:
-    faiss_path, meta_path = _cache_paths()
+    usearch_path, meta_path = _cache_paths()
     try:
-        _vector_index.index.save(faiss_path)
-        with open(meta_path, "wb") as f:
-            pickle.dump({
+        _vector_index.index.save(usearch_path)
+        with open(meta_path, "w", encoding="utf-8") as f:
+            json.dump({
                 "unit_count": unit_count,
                 "vector_id_map": _vector_index.id_map,
                 "dim": _vector_index.dim,

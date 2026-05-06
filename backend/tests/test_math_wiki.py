@@ -492,14 +492,14 @@ def test_prefix_distinction():
 
 def test_cache_bust_on_stale_meta(tmp_path):
     """_load_cached_index returns False when cached dim/model don't match settings."""
-    import pickle
+    import json as _json
 
     usearch_path = tmp_path / "test.usearch"
-    meta_path = tmp_path / "test.meta.pkl"
+    meta_path = tmp_path / "test.meta.json"
 
     # Write stale meta with wrong dim and model; usearch file won't be read due to early return
     usearch_path.write_bytes(b"")
-    meta_path.write_bytes(pickle.dumps({
+    meta_path.write_text(_json.dumps({
         "unit_count": 0,
         "vector_id_map": [],
         "dim": 384,
