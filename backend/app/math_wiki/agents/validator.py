@@ -28,5 +28,5 @@ async def validate(
     try:
         parsed = json.loads(content)
     except json.JSONDecodeError:
-        return ValidationResult(valid=True, issues=[])
+        return ValidationResult(valid=False, issues=["validation parse error"])
     return ValidationResult(**parsed)
