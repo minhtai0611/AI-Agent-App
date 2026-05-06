@@ -587,7 +587,6 @@ const PHASE_LABELS = {
   starting: 'Đang khởi động…',
   checking_cache: 'Đang kiểm tra bộ nhớ đệm…',
   loading_units: 'Đang đọc kho tri thức…',
-  building_bm25: 'Đang xây dựng chỉ mục BM25…',
   building_vectors: 'Đang xây dựng chỉ mục vector…',
   saving: 'Đang lưu chỉ mục…',
 }
@@ -638,10 +637,7 @@ export default function MathOracle() {
   const { status: wikiStatus, justBecameReady } = useWikiStatus()
   const wikiReady  = wikiStatus?.phase === 'ready'
   const wikiFailed = wikiStatus?.phase === 'failed'
-  // Lock only during the fast early phases (before BM25 is ready).
-  // building_vectors is a slow background step — queries work in BM25 mode.
-  const EARLY_PHASES = new Set(['starting', 'checking_cache', 'loading_units', 'building_bm25'])
-  const wikiLocked = wikiStatus !== null && EARLY_PHASES.has(wikiStatus?.phase)
+  const wikiLocked = wikiStatus !== null && !wikiReady && !wikiFailed
 
   useEffect(() => {
     getMathStats().then(({ data }) => { if (data) setStats(data) })
@@ -763,10 +759,8 @@ export default function MathOracle() {
         {wikiStatus !== null && !wikiReady && !wikiFailed && (
           <div className="rounded-xl border border-[#6366F1]/30 bg-[#6366F1]/5 px-4 py-3 flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <span className={`font-jakarta text-[13px] text-[#818CF8]${wikiLocked ? ' animate-pulse' : ''}`}>
-                {wikiStatus.phase === 'building_vectors'
-                  ? 'Đang xây dựng chỉ mục vector nền… Oracle đang hoạt động ở chế độ BM25'
-                  : (PHASE_LABELS[wikiStatus.phase] ?? wikiStatus.phase)}
+              <span className="font-jakarta text-[13px] text-[#818CF8] animate-pulse">
+                {PHASE_LABELS[wikiStatus.phase] ?? wikiStatus.phase}
               </span>
               <span className="font-jakarta text-[12px] text-[#6366F1] font-semibold">
                 {wikiStatus.progress}%
