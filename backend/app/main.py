@@ -21,12 +21,13 @@ HF_DB_FILENAME  = "math_wiki.db"
 
 
 def _db_healthy(path: str) -> int | None:
-    """Return wiki_unit count if all critical tables are readable, else None."""
+    """Return wiki_unit count if DB is healthy in WAL mode, else None."""
     import sqlite3
     try:
         conn = sqlite3.connect(path, timeout=10)
+        conn.execute("PRAGMA journal_mode=WAL")  # mirrors _get_conn; catches WAL-mode corruption
         n = conn.execute("SELECT COUNT(*) FROM wiki_units WHERE deleted=0").fetchone()[0]
-        conn.execute("SELECT COUNT(*) FROM problems").fetchone()  # catches problems-table corruption
+        conn.execute("SELECT COUNT(*) FROM problems").fetchone()
         conn.close()
         return n
     except Exception:
