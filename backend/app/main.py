@@ -21,14 +21,14 @@ HF_DB_FILENAME  = "math_wiki.db"
 
 
 def _db_healthy(path: str) -> int | None:
-    """Return wiki_unit count if the DB passes integrity_check, else None."""
+    """Return wiki_unit count if all critical tables are readable, else None."""
     import sqlite3
     try:
-        conn = sqlite3.connect(path)
-        ok = conn.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
-        n = conn.execute("SELECT COUNT(*) FROM wiki_units WHERE deleted=0").fetchone()[0] if ok else None
+        conn = sqlite3.connect(path, timeout=10)
+        n = conn.execute("SELECT COUNT(*) FROM wiki_units WHERE deleted=0").fetchone()[0]
+        conn.execute("SELECT COUNT(*) FROM problems").fetchone()  # catches problems-table corruption
         conn.close()
-        return n if ok else None
+        return n
     except Exception:
         return None
 
