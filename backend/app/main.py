@@ -62,6 +62,13 @@ def _seed_db_if_empty() -> None:
         # Atomic replace to avoid partial writes leaving a corrupt file
         tmp_dest = db_path + ".new"
         shutil.copy2(tmp, tmp_dest)
+        # Remove stale WAL/SHM sidecars before atomic replace — they corrupt a fresh DB
+        for suffix in ("-wal", "-shm"):
+            stale = db_path + suffix
+            try:
+                os.remove(stale)
+            except FileNotFoundError:
+                pass
         os.replace(tmp_dest, db_path)
         logger.info("DB seeded at %s (%d units)", db_path, dl_count)
     except Exception as exc:
