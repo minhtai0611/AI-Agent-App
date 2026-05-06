@@ -249,13 +249,32 @@ async def solve(client: AsyncOpenAI, problem_text: str, context: list[WikiUnit],
             {"role": "system", "content": MODE_PROMPTS["SOLVE"]},
             {"role": "user", "content": payload},
         ],
-        max_tokens=2500,
+        max_tokens=4096,
     )
     content = _extract_json(response.choices[0].message.content or "{}")
     try:
         parsed = json.loads(content)
     except json.JSONDecodeError:
-        raise InsufficientKnowledgeError("Malformed solver response")
+        # Truncated response — retry without context payload (shorter prompt, better chance)
+        logger.warning("Solver response truncated; retrying without context")
+        bare_payload = (
+            json.dumps({"problem": problem_text, "context": []})
+            + "\n\nRespond with ONLY a JSON object. No prose or markdown."
+        )
+        retry_response = await call_with_retry(
+            client,
+            model=settings.default_model,
+            messages=[
+                {"role": "system", "content": MODE_PROMPTS["SOLVE"]},
+                {"role": "user", "content": bare_payload},
+            ],
+            max_tokens=4096,
+        )
+        retry_content = _extract_json(retry_response.choices[0].message.content or "{}")
+        try:
+            parsed = json.loads(retry_content)
+        except json.JSONDecodeError:
+            raise InsufficientKnowledgeError("Malformed solver response")
     valid_ids = {u.id for u in context}
     result = _normalize(parsed, valid_ids, _label_hint=label)
 

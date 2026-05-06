@@ -196,19 +196,16 @@ async def run_pipeline(client: AsyncOpenAI, question: str) -> dict:
         except Exception as exc:
             logger.warning("Figure generation failed (non-fatal): %s", exc)
 
-    if solver_output.confidence == "high":
-        validation = ValidationResult(valid=True, issues=[])
-        logger.debug("Skipping validation for high-confidence result")
-        await _figure_task()
-    else:
-        results = await asyncio.gather(
-            validate(client, solver_output, context),
-            _figure_task(),
-            return_exceptions=True,
-        )
-        val_result = results[0]
-        validation = val_result if isinstance(val_result, ValidationResult) else ValidationResult(valid=False, issues=["validation error"])
-        logger.debug("Validation: valid=%s issues=%s", validation.valid, validation.issues)
+    # Always validate — confidence is LLM self-reported and unreliable as a correctness signal.
+    # Figure generation runs concurrently; low-confidence skips figure only.
+    results = await asyncio.gather(
+        validate(client, solver_output, context),
+        _figure_task(),
+        return_exceptions=True,
+    )
+    val_result = results[0]
+    validation = val_result if isinstance(val_result, ValidationResult) else ValidationResult(valid=False, issues=["validation error"])
+    logger.debug("Validation: valid=%s issues=%s", validation.valid, validation.issues)
 
     record_validation(validation.valid)
 
