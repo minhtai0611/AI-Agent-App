@@ -52,6 +52,10 @@ def _load_cached_indexes() -> bool:
             meta = pickle.load(f)
         if meta.get("unit_count") != count_wiki_units():
             return False  # DB changed — rebuild
+        if meta.get("embedding_model") != get_settings().embedding_model_name:
+            return False  # model changed — rebuild
+        if meta.get("dim") != get_settings().embedding_dim:
+            return False  # dim mismatch — rebuild
         with open(bm25_path, "rb") as f:
             bm25_data = pickle.load(f)
         _bm25_index = bm25_data["index"]
@@ -77,6 +81,7 @@ def _save_cached_indexes(unit_count: int) -> None:
                 "unit_count": unit_count,
                 "vector_id_map": _vector_index.id_map,
                 "dim": _vector_index.dim,
+                "embedding_model": get_settings().embedding_model_name,
             }, f)
         logger.info("Cached indexes saved (%d units)", unit_count)
     except Exception as exc:
@@ -119,7 +124,7 @@ def _append_to_indexes(new_units: list) -> None:
     import numpy as np
     from app.math_wiki.storage.vectors import embed_texts
     texts = [u.content for u in new_units]
-    new_vecs = embed_texts(texts)
+    new_vecs = embed_texts(texts, prefix="passage")
     arr = np.array(new_vecs, dtype=np.float32)
     with _index_lock:
         if _vector_index is not None and _vector_index.id_map:

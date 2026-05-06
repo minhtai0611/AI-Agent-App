@@ -74,42 +74,45 @@ def get_all_units() -> list[WikiUnit]:
     ]
 
 
+def _load_eval_model(model_name: str):
+    if model_name == "BAAI/bge-m3":
+        from FlagEmbedding import BGEM3FlagModel
+        return ("bge-m3", BGEM3FlagModel(model_name, use_fp16=False))
+    else:
+        from sentence_transformers import SentenceTransformer
+        return ("st", SentenceTransformer(model_name, device="cpu"))
+
+
+def _encode(model_tuple, texts, prefix="passage"):
+    kind, model = model_tuple
+    if kind == "bge-m3":
+        prefixed = [f"{prefix}: {t}" for t in texts]
+        return model.encode(prefixed, return_dense=True, return_sparse=False, return_colbert_vecs=False)["dense_vecs"]
+    return model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
+
+
 def evaluate_model(model_name: str, queries: list[dict], units: list[WikiUnit], top_k: int = 5) -> dict:
     """Evaluate an embedding model on retrieval effectiveness."""
     logger.info("Evaluating model: %s", model_name)
 
-    # Build index using all units
-    idx = build_vector_index(units)
-
-    # Override model name temporarily by reloading
-    from app.math_wiki import storage
-    # We'll use the model through embed_texts, which uses global _local_model
-    # To switch models, we need to reset the singleton. Simpler: run evaluation in subprocess.
-    # Instead, we'll rely on the model already loaded per config. We'll allow user to set env.
-    # For this script, we'll import fresh to reload if needed? Hard.
-    # Simpler: We'll compute embeddings directly using sentence_transformers.
-    from sentence_transformers import SentenceTransformer
     try:
-        model = SentenceTransformer(model_name, device="cpu")
+        model_tuple = _load_eval_model(model_name)
     except Exception as exc:
         logger.error("Failed to load model %s: %s", model_name, exc)
         return {"model": model_name, "error": str(exc)}
 
-    # Encode all unit contents
     unit_texts = [u.content for u in units]
-    unit_embeds = model.encode(unit_texts, convert_to_numpy=True, show_progress_bar=False)
+    unit_embeds = _encode(model_tuple, unit_texts, prefix="passage")
 
-    # Build FAISS-like search using numpy
     dim = unit_embeds.shape[1]
     import faiss
     index = faiss.IndexFlatL2(dim)
     index.add(unit_embeds.astype(np.float32))
     id_map = [u.id for u in units]
 
-    # Encode queries and search
     mrr_scores = []
     p_at_k_scores = []
-    query_embeds = model.encode([q["query"] for q in queries], convert_to_numpy=True, show_progress_bar=False)
+    query_embeds = _encode(model_tuple, [q["query"] for q in queries], prefix="query")
 
     for q_vec, query_data in zip(query_embeds, queries):
         q_vec_np = np.array([q_vec], dtype=np.float32)
@@ -157,10 +160,10 @@ def main():
     models_to_test = [
         args.model,
     ] if args.model else [
+        "BAAI/bge-m3",
         "all-MiniLM-L6-v2",
         "paraphrase-multilingual-MiniLM-L12-v2",
-        "sentence-transformers/msmarco-MiniLM-L6-en",
-        # "keepitreal/vietnamese-sbert",  # optional
+        "keepitreal/vietnamese-sbert",
     ]
 
     results = []

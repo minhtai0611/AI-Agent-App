@@ -18,6 +18,8 @@ class Settings(BaseSettings):
 
     allowed_origins: str = "http://localhost:5173"
     math_wiki_db_path: str = "/data/math_wiki.db" if os.path.isdir("/data") else os.path.join(_PROJECT_ROOT, "math_wiki.db")
+    embedding_model_name: str = "BAAI/bge-m3"
+    embedding_dim: int = 1024
 
     @property
     def allowed_origins_list(self) -> list[str]:
