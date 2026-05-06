@@ -286,6 +286,7 @@ export default function TestInterface() {
         </div>
       )}
 
+
       {/* Floating AI tutor button — practice mode only */}
       {isPractice && (
         <>
