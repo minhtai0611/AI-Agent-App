@@ -56,11 +56,18 @@ def build_vector_index(units: list[WikiUnit]) -> VectorIndex:
     return VectorIndex(index=idx, id_map=[u.id for u in units], dim=dim)
 
 
-def query_vector(vi: VectorIndex, query: str, top_k: int = 10) -> list[str]:
+def query_vector(vi: VectorIndex, query: str, top_k: int = 10, min_score: float = 0.55) -> list[str]:
     if not vi.id_map:
         return []
     vecs = embed_texts([query], prefix="query")
     q = np.array(vecs[0], dtype=np.float32)
     k = min(top_k, len(vi.id_map))
     matches = vi.index.search(q, k)
-    return [vi.id_map[int(key)] for key in matches.keys]
+    # usearch cosine metric stores 1 - cosine_similarity as distance.
+    # Filter out results below min_score to avoid injecting irrelevant context.
+    max_dist = 1.0 - min_score
+    return [
+        vi.id_map[int(key)]
+        for key, dist in zip(matches.keys, matches.distances)
+        if float(dist) <= max_dist
+    ]

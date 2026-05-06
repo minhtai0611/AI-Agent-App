@@ -19,7 +19,7 @@ async def classify_problem(client: AsyncOpenAI, problem_text: str) -> str:
     )
     response = await call_with_retry(
         client,
-        model=settings.haiku_model,
+        model=settings.default_model,
         messages=[
             {"role": "system", "content": MODE_PROMPTS["CLASSIFY"]},
             {"role": "user", "content": user_msg},
@@ -114,16 +114,22 @@ async def classify_problem(client: AsyncOpenAI, problem_text: str) -> str:
             ],
         }
 
-    # Always scan the question text — the model frequently mislabels calculus/trig as algebra.
-    # A keyword hit on the question overrides the model's label.
+    # Score every label by counting keyword hits. Highest score wins.
+    # First-match (next(...)) was order-dependent: "phương trình vi phân" matched
+    # algebra ("phương trình") before calculus, mis-classifying ODEs.
     question_lower = problem_text.lower()
-    keyword_label = next(
-        (lbl for lbl, kws in keyword_map.items() if any(kw in question_lower for kw in kws)),
-        None,
-    )
+    scores: dict[str, int] = {}
+    for lbl, kws in keyword_map.items():
+        count = sum(1 for kw in kws if kw in question_lower)
+        if count:
+            scores[lbl] = count
+    keyword_label = max(scores, key=scores.__getitem__) if scores else None
+
     if label not in VALID_LABELS:
         label = keyword_label or "algebra"
     elif keyword_label and keyword_label != label:
-        # Question text strongly signals a different category — trust the question.
-        label = keyword_label
+        # Keyword score beats LLM label only when it has strictly more hits.
+        # Tie means ambiguous — keep the LLM's more contextual judgement.
+        if scores.get(keyword_label, 0) > scores.get(label, 0):
+            label = keyword_label
     return label
