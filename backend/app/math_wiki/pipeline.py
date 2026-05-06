@@ -26,6 +26,8 @@ _bm25_index = None
 _bm25_id_map: list[str] = []
 _vector_index: VectorIndex | None = None
 _index_lock = threading.Lock()
+# Set as soon as BM25 is ready — allows queries before slow vector build completes
+_bm25_ready_event = threading.Event()
 
 _wiki_status: dict = {"phase": "starting", "progress": 0, "error": None}
 
@@ -90,29 +92,40 @@ def _save_cached_indexes(unit_count: int) -> None:
 
 def _ensure_indexes() -> None:
     global _bm25_index, _bm25_id_map, _vector_index
-    if _vector_index is not None:
+    if _bm25_ready_event.is_set() and _vector_index is not None:
         _wiki_status.update({"phase": "ready", "progress": 100, "error": None})
         return
     try:
         with _index_lock:
-            if _vector_index is not None:
+            if _bm25_ready_event.is_set() and _vector_index is not None:
                 _wiki_status.update({"phase": "ready", "progress": 100, "error": None})
                 return
             _wiki_status.update({"phase": "checking_cache", "progress": 15, "error": None})
             if _load_cached_indexes():
+                _bm25_ready_event.set()
                 _wiki_status.update({"phase": "ready", "progress": 100, "error": None})
                 return
             _wiki_status.update({"phase": "loading_units", "progress": 30, "error": None})
             units = get_all_wiki_units()
             _wiki_status.update({"phase": "building_bm25", "progress": 50, "error": None})
             _bm25_index, _bm25_id_map = build_bm25_index(units)
+            # BM25 ready — queries can proceed in BM25-only mode while vector builds
+            _bm25_ready_event.set()
             _wiki_status.update({"phase": "building_vectors", "progress": 75, "error": None})
-            _vector_index = build_vector_index(units)
+        # Release lock before the slow embedding step so queries aren't blocked
+        try:
+            vi = build_vector_index(units)
+            with _index_lock:
+                _vector_index = vi
             _wiki_status.update({"phase": "saving", "progress": 92, "error": None})
             logger.info("Indexes built from scratch: %d units", len(units))
             _save_cached_indexes(len(units))
             _wiki_status.update({"phase": "ready", "progress": 100, "error": None})
+        except Exception as exc:
+            logger.warning("Vector index build failed, running in BM25-only mode: %s", exc)
+            _wiki_status.update({"phase": "ready", "progress": 100, "error": f"vector_unavailable: {exc}"})
     except Exception as exc:
+        _bm25_ready_event.set()  # unblock waiting queries even on failure
         _wiki_status.update({"phase": "failed", "progress": 0, "error": str(exc)})
 
 
@@ -163,7 +176,10 @@ def _problem_hash(question: str) -> str:
 
 
 async def run_pipeline(client: AsyncOpenAI, question: str) -> dict:
-    await asyncio.get_event_loop().run_in_executor(None, _ensure_indexes)
+    # Wait only for BM25 (fast); vector index builds in background and is used when ready
+    await asyncio.get_event_loop().run_in_executor(
+        None, lambda: _bm25_ready_event.wait(timeout=120)
+    )
 
     label = await classify_problem(client, question)
     logger.debug("Classified as: %s", label)

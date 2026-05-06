@@ -7,11 +7,11 @@ def hybrid_retrieve(
     query: str,
     bm25_index: BM25Okapi | None,
     bm25_id_map: list[str],
-    vector_index: VectorIndex,
+    vector_index: VectorIndex | None,
     top_k: int = 15,
 ) -> list[str]:
     bm25_ids = query_bm25(bm25_index, bm25_id_map, query, top_k=top_k)
-    vec_ids = query_vector(vector_index, query, top_k=top_k)
+    vec_ids = query_vector(vector_index, query, top_k=top_k) if vector_index is not None else []
 
     if not bm25_ids and not vec_ids:
         return []
