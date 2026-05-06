@@ -137,12 +137,12 @@ async def test_classifier_valid_label():
 
 
 @pytest.mark.asyncio
-async def test_classifier_invalid_label_raises():
+async def test_classifier_invalid_label_falls_back():
     from app.math_wiki.agents.classifier import classify_problem
     with patch("app.math_wiki.agents.classifier.call_with_retry", new_callable=AsyncMock) as mock:
         mock.return_value = _mock_completion('{"label": "unknown_topic"}')
-        with pytest.raises(ValueError, match="Unknown label"):
-            await classify_problem(MagicMock(), "test problem")
+        result = await classify_problem(MagicMock(), "test problem")
+    assert result == "algebra"  # fallback when model returns unknown label and no keywords match
 
 
 # ── test_reranker ─────────────────────────────────────────────────────────────
@@ -166,7 +166,7 @@ async def test_reranker_returns_top5():
 
 
 @pytest.mark.asyncio
-async def test_reranker_hallucinated_id_raises():
+async def test_reranker_hallucinated_id_filtered():
     from app.math_wiki.schemas import WikiUnit
     from app.math_wiki.agents.reranker import rerank
 
@@ -176,8 +176,8 @@ async def test_reranker_hallucinated_id_raises():
     ]
     with patch("app.math_wiki.agents.reranker.call_with_retry", new_callable=AsyncMock) as mock:
         mock.return_value = _mock_completion(json.dumps({"top_ids": ["hallucinated_id"]}))
-        with pytest.raises(ValueError, match="Hallucinated ID"):
-            await rerank(MagicMock(), "query", candidates)
+        result = await rerank(MagicMock(), "query", candidates)
+    assert result == []  # hallucinated IDs are filtered out, empty list returned
 
 
 # ── test_solver ───────────────────────────────────────────────────────────────
@@ -218,7 +218,7 @@ async def test_solver_insufficient_knowledge():
 
 
 @pytest.mark.asyncio
-async def test_solver_hallucinated_knowledge_id():
+async def test_solver_hallucinated_knowledge_id_filtered():
     from app.math_wiki.schemas import WikiUnit
     from app.math_wiki.agents.solver import solve
 
@@ -233,8 +233,8 @@ async def test_solver_hallucinated_knowledge_id():
     }
     with patch("app.math_wiki.agents.solver.call_with_retry", new_callable=AsyncMock) as mock:
         mock.return_value = _mock_completion(json.dumps(output_data))
-        with pytest.raises(ValueError, match="Hallucinated knowledge ID"):
-            await solve(MagicMock(), "solve 2x=4", context)
+        result = await solve(MagicMock(), "solve 2x=4", context)
+    assert result.used_knowledge_ids == []  # hallucinated IDs filtered, not in valid_ids
 
 
 # ── test_validator ────────────────────────────────────────────────────────────
@@ -280,21 +280,19 @@ async def test_pipeline_end_to_end():
     from app.math_wiki.pipeline import run_pipeline
     import app.math_wiki.pipeline as pipeline_mod
 
-    pipeline_mod._vector_index = None  # reset indexes
+    pipeline_mod._vector_ready_event.set()  # skip index build wait
 
-    with patch("app.math_wiki.pipeline.get_all_wiki_units", return_value=[]), \
-         patch("app.math_wiki.pipeline.classify_problem", new_callable=AsyncMock, return_value="algebra"), \
-         patch("app.math_wiki.pipeline.hybrid_retrieve", return_value=[]), \
-         patch("app.math_wiki.pipeline.get_wiki_units_by_ids", return_value=[]), \
-         patch("app.math_wiki.pipeline.rerank", new_callable=AsyncMock, return_value=[]), \
+    with patch("app.math_wiki.pipeline.classify_problem", new_callable=AsyncMock, return_value="algebra"), \
+         patch("app.math_wiki.pipeline._retrieve_rerank_context", new_callable=AsyncMock, return_value=([], [])), \
          patch("app.math_wiki.pipeline.solve", new_callable=AsyncMock) as mock_solve, \
          patch("app.math_wiki.pipeline.validate", new_callable=AsyncMock) as mock_validate, \
-         patch("app.math_wiki.storage.vectors.embed_texts", return_value=[]):
+         patch("app.math_wiki.pipeline.generate_figure", new_callable=AsyncMock, return_value=None), \
+         patch("app.math_wiki.pipeline.log_solution"):
 
         from app.math_wiki.schemas import SolverOutput, ValidationResult
         mock_solve.return_value = SolverOutput(
             problem_type="linear", used_knowledge_ids=[],
-            steps=["step1"], final_answer="x=2", confidence="high"
+            steps=["step1"], final_answer="x=2", confidence="medium"
         )
         mock_validate.return_value = ValidationResult(valid=True, issues=[])
 
@@ -312,15 +310,11 @@ async def test_pipeline_insufficient_knowledge():
     from app.math_wiki.utils import InsufficientKnowledgeError
     import app.math_wiki.pipeline as pipeline_mod
 
-    pipeline_mod._vector_index = None
+    pipeline_mod._vector_ready_event.set()
 
-    with patch("app.math_wiki.pipeline.get_all_wiki_units", return_value=[]), \
-         patch("app.math_wiki.pipeline.classify_problem", new_callable=AsyncMock, return_value="algebra"), \
-         patch("app.math_wiki.pipeline.hybrid_retrieve", return_value=[]), \
-         patch("app.math_wiki.pipeline.get_wiki_units_by_ids", return_value=[]), \
-         patch("app.math_wiki.pipeline.rerank", new_callable=AsyncMock, return_value=[]), \
-         patch("app.math_wiki.pipeline.solve", new_callable=AsyncMock, side_effect=InsufficientKnowledgeError()), \
-         patch("app.math_wiki.storage.vectors.embed_texts", return_value=[]):
+    with patch("app.math_wiki.pipeline.classify_problem", new_callable=AsyncMock, return_value="algebra"), \
+         patch("app.math_wiki.pipeline._retrieve_rerank_context", new_callable=AsyncMock, return_value=([], [])), \
+         patch("app.math_wiki.pipeline.solve", new_callable=AsyncMock, side_effect=InsufficientKnowledgeError()):
 
         result = await run_pipeline(MagicMock(), "impossible problem")
 

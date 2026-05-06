@@ -217,6 +217,8 @@ def _normalize(parsed: dict, valid_ids: set[str], _label_hint: str = "") -> Solv
 
     if not final_answer:
         raise InsufficientKnowledgeError("Solver returned no answer")
+    if final_answer.strip().upper() == "INSUFFICIENT_KNOWLEDGE":
+        raise InsufficientKnowledgeError("Solver indicated insufficient knowledge")
 
     # Warn when final_answer is not mentioned in any step — likely a commit-before-compute error.
     if steps and not any(final_answer.lower()[:20] in s.lower() for s in steps):

@@ -14,6 +14,7 @@ from app.math_wiki.agents.reranker import rerank
 from app.math_wiki.agents.solver import solve
 from app.math_wiki.agents.validator import validate
 from app.math_wiki.schemas import ValidationResult, FigureOutput, Problem
+from app.math_wiki.utils import InsufficientKnowledgeError
 from app.math_wiki.figures import generate_figure
 from app.config import get_settings
 
@@ -159,7 +160,10 @@ async def run_pipeline(client: AsyncOpenAI, question: str) -> dict:
     retrieved_ids, context = await _retrieve_rerank_context(client, question)
     logger.debug("Retrieved %d units: %s", len(retrieved_ids), retrieved_ids)
 
-    solver_output = await solve(client, question, context, label=label)
+    try:
+        solver_output = await solve(client, question, context, label=label)
+    except InsufficientKnowledgeError:
+        return {"error": "INSUFFICIENT_KNOWLEDGE"}
     logger.debug("Solver confidence: %s", solver_output.confidence)
 
     # Figure generation (concurrent with validation, skipped on low confidence)
