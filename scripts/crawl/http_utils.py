@@ -67,10 +67,18 @@ def safe_text(resp: httpx.Response) -> str:
     return resp.content.decode(encoding, errors="replace")
 
 
-def safe_json(resp: httpx.Response) -> object:
-    """Parse JSON from response without raising on encoding errors."""
+def safe_json(resp: httpx.Response) -> dict:
+    """Parse JSON from response; returns {} on empty or invalid body."""
     import json
-    return json.loads(safe_text(resp))
+    text = safe_text(resp)
+    if not text.strip():
+        logger.warning("safe_json: empty body from %s", resp.url)
+        return {}
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as exc:
+        logger.warning("safe_json: invalid JSON from %s: %s", resp.url, exc)
+        return {}
 
 
 async def close_client() -> None:
