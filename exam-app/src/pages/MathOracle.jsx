@@ -893,7 +893,7 @@ export default function MathOracle() {
             <div>
               <p className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Wiki còn trống</p>
               <p className="font-jakarta text-[12px] text-[#475569] mt-0.5">
-                Chạy <code className="text-[#6366F1]">python scripts/crawl_wiki.py</code> để nạp tri thức vào Oracle.
+                Nạp đề thi qua <code className="text-[#6366F1]">POST /math-ingest</code> hoặc tải file lên <code className="text-[#6366F1]">POST /math-upload</code> để xây dựng kho tri thức.
               </p>
             </div>
           </div>
