@@ -36,7 +36,7 @@ async def upsert_wiki_unit(
     reason: str | None = None,
     embedding: list[float] | None = None,
 ) -> None:
-    now = datetime.now().isoformat()
+    now = datetime.now()
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
             "SELECT version, content, created_at FROM wiki_units WHERE id = $1", unit.id
@@ -218,7 +218,7 @@ async def get_wiki_unit_with_history(pool, unit_id: str) -> dict | None:
 
 
 async def soft_delete_wiki_unit(pool, unit_id: str, editor: str = "admin") -> bool:
-    now = datetime.now().isoformat()
+    now = datetime.now()
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
             "SELECT version, content FROM wiki_units WHERE id = $1 AND deleted = false", unit_id
@@ -238,7 +238,7 @@ async def soft_delete_wiki_unit(pool, unit_id: str, editor: str = "admin") -> bo
 
 
 async def restore_wiki_unit(pool, unit_id: str, version: int | None = None, editor: str = "admin") -> bool:
-    now = datetime.now().isoformat()
+    now = datetime.now()
     async with pool.acquire() as conn:
         row = await conn.fetchrow("SELECT id FROM wiki_units WHERE id = $1", unit_id)
         if not row:
@@ -308,7 +308,7 @@ async def get_staged_wiki_units(pool, status: str = "pending") -> list[dict]:
 
 
 async def approve_staged_wiki_unit(pool, staged_id: str) -> WikiUnit | None:
-    now = datetime.now().isoformat()
+    now = datetime.now()
     async with pool.acquire() as conn:
         async with conn.transaction():
             row = await conn.fetchrow(
@@ -417,7 +417,7 @@ async def review_draft(
         if edits:
             final_units = _apply_edits(proposed, edits)
 
-        now = datetime.now().isoformat()
+        now = datetime.now()
         if decision == "approve":
             for unit_data in final_units:
                 unit = WU(**unit_data)
