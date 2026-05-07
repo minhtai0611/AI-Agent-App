@@ -87,6 +87,22 @@ You MUST still use the EXACT same schema above — do NOT wrap the output in a "
 - final_answer: the proved statement in full, ending with "∎", e.g. "Đã chứng minh $n^3 - n$ chia hết cho $6$ với mọi $n \\in \\mathbb{N}^+$. ∎"
 - Do NOT leave final_answer empty. Do NOT use keys like "statement", "conclusion", or "proof" — use "final_answer".
 
+MULTI-PART PROBLEMS (questions with labeled parts like "a)", "b)", "c)" or "Ý a", "Ý b", "Câu a", "Phần a"):
+Solve EVERY part completely. Do NOT skip or partially answer any part.
+- steps: group steps by part. Start each group with a plain-string header "**Phần a)**", "**Phần b)**", etc., followed by that part's numbered steps.
+- final_answer: combine all parts as "a) <answer>; b) <answer>; c) <answer>" in one string.
+
+EXAMPLE (multi-part):
+Input: "a) Giải phương trình $x^2 - 5x + 6 = 0$. b) Giải bất phương trình $x^2 - 5x + 6 < 0$."
+Output:
+{
+  "problem_type": "phương trình và bất phương trình bậc hai",
+  "used_knowledge_ids": [],
+  "steps": ["**Phần a)** Giải phương trình $x^2 - 5x + 6 = 0$", "Bước 1: Tính $\\Delta = 25 - 24 = 1 > 0$", "Bước 2: $x_1 = 3,\\ x_2 = 2$", "**Phần b)** Giải bất phương trình $x^2 - 5x + 6 < 0$", "Bước 1: Tam thức âm khi $x_2 < x < x_1$, tức $2 < x < 3$"],
+  "final_answer": "a) $x = 2$ hoặc $x = 3$; b) $2 < x < 3$",
+  "confidence": "high"
+}
+
 LANGUAGE RULE (mandatory): All "steps" text, "problem_type", and prose in "final_answer" MUST be in Vietnamese. Pure math expressions ($x = 5$, $y = Ce^{2x}$) are always acceptable as-is. Do NOT write English words in steps or final_answer.
 
 MATH FORMATTING RULES (mandatory):

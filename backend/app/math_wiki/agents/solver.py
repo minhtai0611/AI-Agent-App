@@ -40,6 +40,30 @@ def _normalize(parsed: dict, valid_ids: set[str], _label_hint: str = "") -> Solv
         if isinstance(inner, dict):
             parsed = inner
 
+    # Multi-part problems: model may return {"parts": [{"label": "a", "steps": [...], "final_answer": "..."}]}
+    # Fold into the flat schema: part headers injected into steps, combined final_answer "a) X; b) Y".
+    raw_parts = parsed.get("parts")
+    if isinstance(raw_parts, list) and raw_parts and isinstance(raw_parts[0], dict):
+        combined_steps: list[str] = []
+        combined_answers: list[str] = []
+        for part in raw_parts:
+            label = str(part.get("label", "")).strip().rstrip(")")
+            header = f"**Phần {label})**" if label else None
+            if header:
+                combined_steps.append(header)
+            part_steps = part.get("steps", [])
+            if isinstance(part_steps, list):
+                combined_steps.extend(str(s) for s in part_steps if str(s).strip())
+            fa = str(part.get("final_answer", part.get("answer", ""))).strip()
+            if fa:
+                prefix = f"{label}) " if label else ""
+                combined_answers.append(f"{prefix}{fa}")
+        if combined_answers:
+            parsed = dict(parsed)
+            parsed["steps"] = combined_steps
+            parsed["final_answer"] = "; ".join(combined_answers)
+            parsed.pop("parts", None)
+
     # --- steps ---
     def _step_to_str(s) -> str:
         if isinstance(s, str):
@@ -222,7 +246,9 @@ def _normalize(parsed: dict, valid_ids: set[str], _label_hint: str = "") -> Solv
         raise InsufficientKnowledgeError("Solver indicated insufficient knowledge")
 
     # Warn when final_answer is not mentioned in any step — likely a commit-before-compute error.
-    if steps and not any(final_answer.lower()[:20] in s.lower() for s in steps):
+    # Skip for multi-part answers (format "a) X; b) Y") — the combined string won't appear verbatim.
+    _is_multipart = bool(re.match(r'^[a-dA-D]\)', final_answer.strip()))
+    if steps and not _is_multipart and not any(final_answer.lower()[:20] in s.lower() for s in steps):
         logger.warning(
             "final_answer %r not found in steps — possible answer/step mismatch", final_answer
         )
