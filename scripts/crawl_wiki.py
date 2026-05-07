@@ -48,6 +48,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Backend URL for gap fetch (default: http://localhost:8000).",
     )
     parser.add_argument(
+        "--database-url",
+        default=os.environ.get("DATABASE_URL", ""),
+        help="asyncpg-compatible Postgres URL (falls back to DATABASE_URL env var).",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Fetch and chunk, but skip concept_ingest and progress writes.",
@@ -61,6 +66,8 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 async def _main(args: argparse.Namespace) -> int:
+    import asyncpg
+    import pgvector.asyncpg
     from app.dependencies import get_ai_client
 
     prefix = "[DRY RUN] " if args.dry_run else ""
@@ -84,14 +91,28 @@ async def _main(args: argparse.Namespace) -> int:
     print(f"{prefix}Topics: {topics}")
     print(f"{prefix}Sources: {sources}")
 
+    pool = None
+    if args.database_url and not args.dry_run:
+        async def _init_conn(conn):
+            await pgvector.asyncpg.register_vector(conn)
+        pool = await asyncpg.create_pool(args.database_url, init=_init_conn)
+        print(f"Connected to Postgres ({args.database_url[:40]}…)")
+    elif not args.dry_run:
+        print("Warning: no DATABASE_URL — wiki units will NOT be saved to DB.", file=sys.stderr)
+
     client = get_ai_client()
-    stats = await crawl_and_ingest(
-        client,
-        topics=topics,
-        sources=sources,
-        dry_run=args.dry_run,
-        reset_progress=args.reset_progress,
-    )
+    try:
+        stats = await crawl_and_ingest(
+            client,
+            topics=topics,
+            sources=sources,
+            dry_run=args.dry_run,
+            reset_progress=args.reset_progress,
+            pool=pool,
+        )
+    finally:
+        if pool:
+            await pool.close()
 
     print(
         f"\n{prefix}Done.\n"
