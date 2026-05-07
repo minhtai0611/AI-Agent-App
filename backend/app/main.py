@@ -179,8 +179,10 @@ async def lifespan(app: FastAPI):
 
     _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
     asyncio.ensure_future(_ensure_bm25(app.state.pool))
-    if app.state.pool:
+    if app.state.pool and settings.crawl_auto_seed_enabled:
         asyncio.ensure_future(_auto_seed_wiki(app.state.pool, get_ai_client()))
+    elif app.state.pool:
+        logger.info("auto-seed disabled (CRAWL_AUTO_SEED_ENABLED=false)")
     yield
 
     if app.state.pool:

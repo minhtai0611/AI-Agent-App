@@ -16,6 +16,9 @@ class Settings(BaseSettings):
 
     allowed_origins: str = "http://localhost:5173"
     database_url: str = ""
+    # Set to "true" to run the background wiki crawl on startup.
+    # Keep "false" on HF Spaces until local testing is complete.
+    crawl_auto_seed_enabled: bool = False
     embedding_model_name: str = "BAAI/bge-m3"
     embedding_dim: int = 1024
 
