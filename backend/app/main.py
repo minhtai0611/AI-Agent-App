@@ -279,6 +279,10 @@ class MathSolveResponse(BaseModel):
     wiki_assisted: bool = True
 
 
+class MathOcrResponse(BaseModel):
+    text: str
+
+
 # ── Existing routes ──────────────────────────────────────────────────────────
 
 @app.api_route("/health", methods=["GET", "HEAD"])
@@ -404,6 +408,36 @@ async def math_ingest(req: MathIngestRequest, pool=Depends(get_pool)):
         raise HTTPException(status_code=502, detail=str(exc))
 
 
+_ACCEPTED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
+
+
+@app.post("/math-ocr", response_model=MathOcrResponse)
+async def math_ocr(file: UploadFile = File(...)):
+    content_type = file.content_type or ""
+    if content_type not in _ACCEPTED_IMAGE_TYPES:
+        raise HTTPException(
+            status_code=415,
+            detail=f"Unsupported media type: {content_type!r}. Accepted: image/jpeg, image/png, image/webp",
+        )
+
+    MAX_SIZE = 5 * 1024 * 1024  # 5 MB
+    content = await file.read(MAX_SIZE + 1)
+    if len(content) > MAX_SIZE:
+        raise HTTPException(status_code=413, detail="Image too large (max 5 MB)")
+
+    client = get_ai_client()
+    from app.math_wiki.agents.ocr import extract_math_from_image
+    try:
+        text = await extract_math_from_image(client, content, content_type)
+    except ValueError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+    except Exception as exc:
+        logger.error("math-ocr error: %s", exc)
+        raise HTTPException(status_code=502, detail=f"OCR failed: {exc}")
+
+    return MathOcrResponse(text=text)
+
+
 @app.post("/math-solve", response_model=MathSolveResponse)
 async def math_solve(req: MathSolveRequest, pool=Depends(get_pool)):
     client = get_ai_client()
@@ -438,7 +472,9 @@ async def math_upload(file: UploadFile = File(...), pool=Depends(get_pool)):
         raise HTTPException(status_code=413, detail="File too large (max 10MB)")
 
     filename = file.filename or ""
-    if filename.lower().endswith(".pdf"):
+    content_type = file.content_type or ""
+
+    if filename.lower().endswith(".pdf") or content_type == "application/pdf":
         try:
             from pypdf import PdfReader
         except ImportError:
@@ -446,8 +482,17 @@ async def math_upload(file: UploadFile = File(...), pool=Depends(get_pool)):
         reader = PdfReader(io.BytesIO(content))
         pages = [p.extract_text() or "" for p in reader.pages]
         raw_text = "\n\n".join(p.strip() for p in pages if p.strip())
-    else:
+    elif content_type in _ACCEPTED_IMAGE_TYPES:
+        upload_client = get_ai_client()
+        from app.math_wiki.agents.ocr import extract_math_from_image
+        try:
+            raw_text = await extract_math_from_image(upload_client, content, content_type)
+        except ValueError as exc:
+            raise HTTPException(status_code=502, detail=str(exc))
+    elif content_type.startswith("text/") or not content_type:
         raw_text = content.decode("utf-8", errors="replace")
+    else:
+        raise HTTPException(status_code=415, detail=f"Unsupported file type: {content_type!r}")
 
     chunk_size = 3000
     chunks = [raw_text[i:i + chunk_size] for i in range(0, len(raw_text), chunk_size)] if raw_text else []

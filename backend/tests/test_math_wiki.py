@@ -369,6 +369,27 @@ def test_math_upload_too_large():
     assert r.status_code == 413
 
 
+# ── test_math_ocr ──────────────────────────────────────────────────────────────
+
+def test_math_ocr_success():
+    with patch("app.math_wiki.agents.ocr.extract_math_from_image",
+               new_callable=AsyncMock, return_value="x^2 + 1 = 0"):
+        r = client.post("/math-ocr", files={"file": ("test.jpg", b"fakejpeg", "image/jpeg")})
+    assert r.status_code == 200
+    assert r.json()["text"] == "x^2 + 1 = 0"
+
+
+def test_math_ocr_too_large():
+    big = b"x" * (5 * 1024 * 1024 + 1)
+    r = client.post("/math-ocr", files={"file": ("big.jpg", big, "image/jpeg")})
+    assert r.status_code == 413
+
+
+def test_math_ocr_unsupported_type():
+    r = client.post("/math-ocr", files={"file": ("malware.exe", b"MZ", "application/octet-stream")})
+    assert r.status_code == 415
+
+
 # ── test_bge_m3 ───────────────────────────────────────────────────────────────
 
 def test_embed_dim():

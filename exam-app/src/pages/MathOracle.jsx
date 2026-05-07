@@ -6,7 +6,7 @@ import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
-import { solveMath, getMathStats, getWikiStatus } from '../api/aiClient'
+import { solveMath, getMathStats, getWikiStatus, ocrImage } from '../api/aiClient'
 import SymbolPalette from '../components/SymbolPalette'
 
 // One level of nested braces — handles \frac{\sqrt{x}}{2} correctly
@@ -647,7 +647,9 @@ export default function MathOracle() {
   const [stats, setStats] = useState(null)
   const [retryAttempt, setRetryAttempt] = useState(0)
   const [lastQuestion, setLastQuestion] = useState('')
+  const [ocring, setOcring] = useState(false)
   const textareaRef = useRef(null)
+  const fileInputRef = useRef(null)
 
   const { status: wikiStatus, justBecameReady } = useWikiStatus()
   const wikiReady  = wikiStatus?.phase === 'ready'
@@ -737,6 +739,21 @@ export default function MathOracle() {
     ta.focus()
   }
 
+  async function handleOcrFile(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+    setOcring(true)
+    setError(null)
+    const { data, error: err } = await ocrImage(file)
+    setOcring(false)
+    if (err) { setError(err); return }
+    const text = data?.text || ''
+    const ta = textareaRef.current
+    if (ta) { ta.value = text; autoResize(ta); ta.focus() }
+    setQuestion(text)
+  }
+
   return (
     <div className="min-h-screen relative overflow-hidden"
       style={{ background: 'radial-gradient(ellipse 120% 80% at 50% 0%, #1B2B4B 0%, #0A0E1A 60%)' }}>
@@ -811,6 +828,7 @@ export default function MathOracle() {
             from { opacity: 0; transform: translateY(12px); }
             to   { opacity: 1; transform: translateY(0); }
           }
+          @keyframes spin { to { transform: rotate(360deg); } }
         `}</style>
         <form onSubmit={handleSolve} className="flex flex-col gap-3">
           <div className="rounded-xl border border-[#2A3A5E] bg-[#0F1726] focus-within:border-[#6366F1] transition-colors overflow-hidden">
@@ -820,10 +838,10 @@ export default function MathOracle() {
               onChange={handleChange}
               onKeyDown={handleKeyDown}
               onPaste={handlePaste}
-              disabled={wikiLocked}
+              disabled={wikiLocked || ocring}
               placeholder={"Nhập bài toán… (hỗ trợ LaTeX, nhiều dòng, tiếng Việt)\nVD: Giải phương trình x² – 5x + 6 = 0"}
               rows={3}
-              className={`oracle-textarea${wikiLocked ? ' opacity-60 cursor-not-allowed' : ''}`}
+              className={`oracle-textarea${(wikiLocked || ocring) ? ' opacity-60 cursor-not-allowed' : ''}`}
               style={{
                 display: 'block', width: '100%', resize: 'none', overflow: 'hidden',
                 background: 'transparent', color: '#E2E8F0', fontSize: 15,
@@ -834,8 +852,22 @@ export default function MathOracle() {
             />
             <SymbolPalette onInsert={handleInsert} />
             <div className="flex justify-end items-center gap-2 px-3 py-2 border-t border-[#2A3A5E]">
+              {/* OCR image upload */}
+              <button
+                type="button"
+                title="Nhận diện ảnh"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={ocring || loading || wikiLocked}
+                className="p-1.5 text-[#475569] hover:text-[#94A3B8] disabled:opacity-40 transition"
+              >
+                {ocring
+                  ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid #475569', borderTopColor:'#94A3B8', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
+                  : <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                }
+              </button>
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleOcrFile} style={{ display: 'none' }} />
               <span className="font-jakarta text-[11px] text-[#334155]">⌘ Enter</span>
-              <button type="submit" disabled={!question.trim() || loading || wikiLocked}
+              <button type="submit" disabled={!question.trim() || loading || wikiLocked || ocring}
                 className="px-4 py-1.5 bg-[#6366F1] text-white font-jakarta font-semibold text-sm rounded-lg disabled:opacity-40 hover:bg-[#4F46E5] transition">
                 {loading ? 'Đang tính…' : 'Giải'}
               </button>
@@ -862,6 +894,14 @@ export default function MathOracle() {
             </div>
           )}
         </form>
+
+        {/* OCR loading */}
+        {ocring && (
+          <div className="flex items-center gap-3 font-jakarta text-[14px] text-[#475569] animate-pulse">
+            <span className="w-2 h-2 rounded-full bg-[#6366F1] animate-bounce" />
+            Đang nhận diện ảnh…
+          </div>
+        )}
 
         {/* Loading */}
         {loading && (

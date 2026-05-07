@@ -47,6 +47,12 @@ export function getMathStats() {
   return wrap(client.get('/math-stats'))
 }
 
+export function ocrImage(file) {
+  const form = new FormData()
+  form.append('file', file)
+  return wrap(slowClient.post('/math-ocr', form))
+}
+
 export function getWikiStatus() {
   return wrap(client.get('/wiki/status'))
 }
