@@ -105,5 +105,6 @@ CREATE INDEX IF NOT EXISTS problems_hash_idx ON problems (problem_hash);
 CREATE INDEX IF NOT EXISTS solution_logs_created_idx ON solution_logs (created_at);
 CREATE INDEX IF NOT EXISTS staged_wiki_units_status_idx ON staged_wiki_units (status);
 
--- HNSW index for vector similarity search (created separately; requires existing rows or can be added after data load)
+-- HNSW index for vector similarity search
+-- Note: cannot use CONCURRENTLY inside a transaction; plain CREATE INDEX IF NOT EXISTS is used here
 CREATE INDEX IF NOT EXISTS wiki_units_embedding_hnsw ON wiki_units USING hnsw (embedding vector_cosine_ops);

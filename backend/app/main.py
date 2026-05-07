@@ -18,8 +18,38 @@ logger = logging.getLogger(__name__)
 
 
 async def _register_codecs(conn) -> None:
+    # Create extension first so the vector type exists before codec registration
+    await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
     import pgvector.asyncpg
     await pgvector.asyncpg.register_vector(conn)
+
+
+async def _apply_schema(pool) -> None:
+    """Run DDL idempotently — CREATE IF NOT EXISTS is safe to call every startup.
+
+    Statements are executed one at a time so that CREATE INDEX (which cannot run
+    inside a transaction block) is issued as a standalone command.
+    """
+    import os, re
+    sql_path = os.path.normpath(os.path.join(
+        os.path.dirname(__file__),
+        "..", "..", "scripts", "migrations", "003_postgres_init.sql",
+    ))
+    try:
+        with open(sql_path, "r", encoding="utf-8") as f:
+            raw = f.read()
+        # Strip comments and split on semicolons
+        no_comments = re.sub(r"--[^\n]*", "", raw)
+        statements = [s.strip() for s in no_comments.split(";") if s.strip()]
+        async with pool.acquire() as conn:
+            for stmt in statements:
+                try:
+                    await conn.execute(stmt)
+                except Exception as exc:
+                    logger.warning("DDL statement skipped (%s): %.80s", exc, stmt)
+        logger.info("Schema applied from 003_postgres_init.sql (%d statements)", len(statements))
+    except Exception as exc:
+        logger.error("Schema apply failed: %s", exc)
 
 
 @asynccontextmanager
@@ -39,6 +69,7 @@ async def lifespan(app: FastAPI):
                 init=_register_codecs,
             )
             logger.info("asyncpg pool connected to Neon")
+            await _apply_schema(app.state.pool)
         except Exception as exc:
             logger.error("Failed to create asyncpg pool: %s", exc)
             app.state.pool = None
