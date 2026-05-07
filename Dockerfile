@@ -16,8 +16,9 @@ ENV HF_HOME=/app/.cache/huggingface
 RUN python -c "from FlagEmbedding import BGEM3FlagModel; BGEM3FlagModel('BAAI/bge-m3', use_fp16=False)"
 
 COPY backend/ backend/
+COPY scripts/ scripts/
 
-ENV PYTHONPATH=/app/backend
+ENV PYTHONPATH=/app/backend:/app/scripts
 
 # HF Spaces requires a non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser /app

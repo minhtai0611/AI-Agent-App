@@ -39,6 +39,7 @@ async def crawl_and_ingest(
     sources: list[str] = ("aops", "pauls", "generic"),
     dry_run: bool = False,
     reset_progress: bool = False,
+    pool=None,
 ) -> dict[str, int]:
     from app.math_wiki.agents.concept_ingest import concept_ingest
 
@@ -98,7 +99,7 @@ async def crawl_and_ingest(
                     stats["chunks_sent"] += 1
                     if not dry_run:
                         try:
-                            out = await concept_ingest(client, chunk, source=page_source, source_url=url, fallback_topic=topic)
+                            out = await concept_ingest(client, chunk, pool=pool, source=page_source, source_url=url, fallback_topic=topic)
                             added = len(out.wiki_units)
                             stats["wiki_units_added"] += added
                             topic_units += added

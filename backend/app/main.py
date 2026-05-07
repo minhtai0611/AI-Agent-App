@@ -100,6 +100,47 @@ _SCHEMA_DDL = [
 ]
 
 
+async def _auto_seed_wiki(pool, client) -> None:
+    """Crawl and ingest wiki content at startup if the wiki_units table is empty."""
+    from app.math_wiki.storage import pg_db
+    try:
+        count = await pg_db.count_wiki_units(pool)
+    except Exception as exc:
+        logger.warning("auto-seed: could not count wiki_units: %s", exc)
+        return
+    if count > 0:
+        logger.info("auto-seed: wiki already has %d units, skipping", count)
+        return
+
+    logger.info("auto-seed: wiki is empty — starting background crawl")
+    try:
+        from crawl.runner import crawl_and_ingest
+        from crawl.topic_map import AOPS_QUERIES
+    except ImportError as exc:
+        logger.warning("auto-seed: crawl module not available (%s), skipping", exc)
+        return
+
+    topics = list(AOPS_QUERIES.keys())
+    for topic in topics:
+        try:
+            stats = await crawl_and_ingest(
+                client, topics=[topic], sources=["aops"], pool=pool
+            )
+            logger.info(
+                "auto-seed [%s]: pages=%d units=%d errors=%d",
+                topic, stats["pages_fetched"], stats["wiki_units_added"], stats["errors"],
+            )
+        except Exception as exc:
+            logger.error("auto-seed [%s] failed: %s", topic, exc)
+        await asyncio.sleep(2)
+
+    try:
+        final = await pg_db.count_wiki_units(pool)
+        logger.info("auto-seed complete: %d wiki units in DB", final)
+    except Exception:
+        pass
+
+
 async def _apply_schema(pool) -> None:
     """Run DDL idempotently on every startup — all statements are CREATE IF NOT EXISTS."""
     async with pool.acquire() as conn:
@@ -138,6 +179,8 @@ async def lifespan(app: FastAPI):
 
     _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
     asyncio.ensure_future(_ensure_bm25(app.state.pool))
+    if app.state.pool:
+        asyncio.ensure_future(_auto_seed_wiki(app.state.pool, get_ai_client()))
     yield
 
     if app.state.pool:
