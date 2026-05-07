@@ -6,14 +6,15 @@ from app.agent.core import call_with_retry
 from app.math_wiki.prompts import MODE_PROMPTS
 from app.math_wiki.utils import _extract_json
 from app.math_wiki.schemas import IngestOutput
-from app.math_wiki.storage.db import upsert_problem, upsert_wiki_unit, get_all_content_hashes
-from app.math_wiki.storage.vectors import is_near_duplicate
+from app.math_wiki.storage import pg_db
+from app.math_wiki.storage.pg_vectors import is_near_duplicate_pg
 from app.metrics import inc_wiki_units_added
 
 
 async def ingest_exam(
     client: AsyncOpenAI,
     raw_text: str,
+    pool=None,
     source: str = "exam_upload",
     source_url: str | None = None,
 ) -> IngestOutput:
@@ -43,22 +44,19 @@ async def ingest_exam(
                 f"Problem {problem.problem_id} has fewer than 2 wiki units"
             )
 
-    # Dedup wiki units by content hash, then semantic similarity
-    from app.math_wiki.pipeline import get_vector_index
-    existing_hashes = get_all_content_hashes()
-    vi = get_vector_index()
+    if pool:
+        existing_hashes = await pg_db.get_all_content_hashes(pool)
+        for unit in output.wiki_units:
+            content_hash = hashlib.md5(unit.content.encode()).hexdigest()
+            if content_hash in existing_hashes:
+                continue
+            if await is_near_duplicate_pg(pool, unit.content):
+                continue
+            await pg_db.upsert_wiki_unit(pool, unit, source=source, source_url=source_url)
+            existing_hashes.add(content_hash)
+            inc_wiki_units_added()
 
-    for unit in output.wiki_units:
-        content_hash = hashlib.md5(unit.content.encode()).hexdigest()
-        if content_hash in existing_hashes:
-            continue
-        if vi is not None and is_near_duplicate(vi, unit.content):
-            continue
-        upsert_wiki_unit(unit, source=source, source_url=source_url)
-        existing_hashes.add(content_hash)
-        inc_wiki_units_added()
-
-    for problem in output.problems:
-        upsert_problem(problem)
+        for problem in output.problems:
+            await pg_db.upsert_problem(pool, problem)
 
     return output

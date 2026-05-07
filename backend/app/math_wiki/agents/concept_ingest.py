@@ -6,8 +6,8 @@ from app.agent.core import call_with_retry
 from app.math_wiki.prompts import MODE_PROMPTS
 from app.math_wiki.utils import _extract_json
 from app.math_wiki.schemas import ConceptIngestOutput
-from app.math_wiki.storage.db import upsert_wiki_unit, get_all_content_hashes
-from app.math_wiki.storage.vectors import is_near_duplicate
+from app.math_wiki.storage import pg_db
+from app.math_wiki.storage.pg_vectors import is_near_duplicate_pg
 from app.metrics import inc_wiki_units_added
 from app.math_wiki.taxonomy import CANONICAL_TOPICS, TOPIC_MAP, CANONICAL_TYPES, TYPE_MAP
 
@@ -27,7 +27,6 @@ _JSON_REMINDER = (
 
 
 def _normalize_unit(unit, fallback_topic: str | None) -> None:
-    """Remap non-canonical topic/type slugs in-place; apply fallback_topic if still invalid."""
     topic = unit.topic
     if topic not in CANONICAL_TOPICS:
         topic = TOPIC_MAP.get(topic) or TOPIC_MAP.get(topic.lower().replace(" ", "_"))
@@ -44,6 +43,7 @@ def _normalize_unit(unit, fallback_topic: str | None) -> None:
 async def concept_ingest(
     client: AsyncOpenAI,
     raw_text: str,
+    pool=None,
     source: str = "manual",
     source_url: str | None = None,
     fallback_topic: str | None = None,
@@ -62,21 +62,19 @@ async def concept_ingest(
     parsed = json.loads(content)
     output = ConceptIngestOutput(**parsed)
 
-    from app.math_wiki.pipeline import get_vector_index
-    existing_hashes = get_all_content_hashes()
-    vi = get_vector_index()
-
-    for unit in output.wiki_units:
-        _normalize_unit(unit, fallback_topic)
-        if unit.topic not in CANONICAL_TOPICS:
-            continue  # still invalid after remapping — skip rather than pollute taxonomy
-        content_hash = hashlib.md5(unit.content.encode()).hexdigest()
-        if content_hash in existing_hashes:
-            continue
-        if vi is not None and is_near_duplicate(vi, unit.content):
-            continue
-        upsert_wiki_unit(unit, source=source, source_url=source_url)
-        existing_hashes.add(content_hash)
-        inc_wiki_units_added()
+    if pool:
+        existing_hashes = await pg_db.get_all_content_hashes(pool)
+        for unit in output.wiki_units:
+            _normalize_unit(unit, fallback_topic)
+            if unit.topic not in CANONICAL_TOPICS:
+                continue
+            content_hash = hashlib.md5(unit.content.encode()).hexdigest()
+            if content_hash in existing_hashes:
+                continue
+            if await is_near_duplicate_pg(pool, unit.content):
+                continue
+            await pg_db.upsert_wiki_unit(pool, unit, source=source, source_url=source_url)
+            existing_hashes.add(content_hash)
+            inc_wiki_units_added()
 
     return output

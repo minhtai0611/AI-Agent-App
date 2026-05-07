@@ -2,8 +2,6 @@ import os
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
@@ -17,7 +15,7 @@ class Settings(BaseSettings):
     anthropic_default_hint_model: str = "claude-haiku-4.5"
 
     allowed_origins: str = "http://localhost:5173"
-    math_wiki_db_path: str = "/data/math_wiki.db" if os.path.isdir("/data") else os.path.join(_PROJECT_ROOT, "math_wiki.db")
+    database_url: str = ""
     embedding_model_name: str = "BAAI/bge-m3"
     embedding_dim: int = 1024
 

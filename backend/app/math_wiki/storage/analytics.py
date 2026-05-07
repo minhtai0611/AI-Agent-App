@@ -3,12 +3,12 @@ import json
 import logging
 from datetime import datetime, timedelta
 from typing import Optional
-from app.math_wiki.storage.db import _get_conn, _ensure_tables
 
 logger = logging.getLogger(__name__)
 
 
-def log_solution(
+async def log_solution(
+    pool,
     problem_text: str,
     classified_topic: str,
     retrieved_ids: list[str],
@@ -18,19 +18,19 @@ def log_solution(
     issues: Optional[list[str]],
     wiki_assisted: bool,
 ) -> int:
-    """Log a solved problem for analytics. Returns the log ID."""
+    """Log a solved problem for analytics. Returns the log ID. Non-fatal: all exceptions are caught."""
     problem_hash = hashlib.md5(problem_text.encode()).hexdigest()
-    with _get_conn() as conn:
-        _ensure_tables(conn)
-        cursor = conn.execute(
-            """
-            INSERT INTO solution_logs
-                (problem_text, problem_hash, classified_topic, retrieved_ids,
-                 used_knowledge_ids, solver_confidence, validation_valid,
-                 validation_issues, wiki_assisted)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
+    try:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                INSERT INTO solution_logs
+                    (problem_text, problem_hash, classified_topic, retrieved_ids,
+                     used_knowledge_ids, solver_confidence, validation_valid,
+                     validation_issues, wiki_assisted)
+                VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+                RETURNING id
+                """,
                 problem_text,
                 problem_hash,
                 classified_topic,
@@ -40,31 +40,29 @@ def log_solution(
                 valid,
                 json.dumps(issues or []),
                 wiki_assisted,
-            ),
-        )
-        conn.commit()
-        return cursor.lastrowid
+            )
+            return row["id"]
+    except Exception as exc:
+        logger.warning("log_solution failed (non-fatal): %s", exc)
+        return -1
 
 
-def get_unit_usage_stats(days: int = 30) -> list[dict]:
-    """Return usage stats for each wiki unit over the last N days."""
-    cutoff = datetime.now() - timedelta(days=days)
-    with _get_conn() as conn:
-        _ensure_tables(conn)
-        rows = conn.execute(
-            """
-            SELECT
-                used_knowledge_ids,
-                solver_confidence,
-                validation_valid,
-                created_at
-            FROM solution_logs
-            WHERE created_at >= ?
-            """,
-            (cutoff.isoformat(),),
-        ).fetchall()
+async def get_unit_usage_stats(pool, days: int = 30) -> list[dict]:
+    cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT used_knowledge_ids, solver_confidence, validation_valid
+                FROM solution_logs
+                WHERE created_at >= $1
+                """,
+                cutoff,
+            )
+    except Exception as exc:
+        logger.warning("get_unit_usage_stats failed: %s", exc)
+        return []
 
-    # Aggregate by unit ID
     stats: dict[str, dict] = {}
     for row in rows:
         used_ids = json.loads(row["used_knowledge_ids"])
@@ -89,25 +87,27 @@ def get_unit_usage_stats(days: int = 30) -> list[dict]:
     return sorted(result, key=lambda x: x["times_used"], reverse=True)
 
 
-def get_retrieval_effectiveness(days: int = 30) -> dict:
-    """System-wide effectiveness metrics."""
-    cutoff = datetime.now() - timedelta(days=days)
-    with _get_conn() as conn:
-        _ensure_tables(conn)
-        row = conn.execute(
-            """
-            SELECT
-                COUNT(*) as total_solutions,
-                AVG(CASE WHEN wiki_assisted THEN 1 ELSE 0 END) as wiki_assisted_rate,
-                AVG(CASE WHEN validation_valid THEN 1 ELSE 0 END) as validation_rate,
-                COUNT(DISTINCT used_knowledge_ids) as unique_units_used
-            FROM solution_logs
-            WHERE created_at >= ?
-            """,
-            (cutoff.isoformat(),),
-        ).fetchone()
+async def get_retrieval_effectiveness(pool, days: int = 30) -> dict:
+    cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+    try:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT
+                    COUNT(*) AS total_solutions,
+                    AVG(CASE WHEN wiki_assisted THEN 1.0 ELSE 0.0 END) AS wiki_assisted_rate,
+                    AVG(CASE WHEN validation_valid THEN 1.0 ELSE 0.0 END) AS validation_rate,
+                    COUNT(DISTINCT used_knowledge_ids) AS unique_units_used
+                FROM solution_logs
+                WHERE created_at >= $1
+                """,
+                cutoff,
+            )
+    except Exception as exc:
+        logger.warning("get_retrieval_effectiveness failed: %s", exc)
+        return {"error": str(exc)}
 
-    if row["total_solutions"] == 0:
+    if not row or row["total_solutions"] == 0:
         return {"error": "no data"}
 
     return {
@@ -118,17 +118,14 @@ def get_retrieval_effectiveness(days: int = 30) -> dict:
     }
 
 
-def get_top_units_by_usage(limit: int = 10, days: int = 30) -> list[dict]:
-    stats = get_unit_usage_stats(days)
-    return stats[:limit]
-
-
-def get_flagged_count(days: int = 7) -> int:
-    cutoff = datetime.now() - timedelta(days=days)
-    with _get_conn() as conn:
-        _ensure_tables(conn)
-        row = conn.execute(
-            "SELECT COUNT(*) FROM flagged_solutions WHERE reviewed = 0 AND flagged_at >= ?",
-            (cutoff.isoformat(),),
-        ).fetchone()
-    return row[0]
+async def get_flagged_count(pool, days: int = 7) -> int:
+    cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+    try:
+        async with pool.acquire() as conn:
+            return await conn.fetchval(
+                "SELECT COUNT(*) FROM flagged_solutions WHERE reviewed = false AND flagged_at >= $1",
+                cutoff,
+            )
+    except Exception as exc:
+        logger.warning("get_flagged_count failed: %s", exc)
+        return 0

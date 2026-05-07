@@ -1,7 +1,5 @@
 """Tests for math wiki system — storage, agents, pipeline, routes."""
 import json
-import os
-import tempfile
 from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
@@ -20,46 +18,6 @@ def _mock_completion(content: str):
     response = MagicMock()
     response.choices = [choice]
     return response
-
-
-# ── test_db ───────────────────────────────────────────────────────────────────
-
-def test_db_upsert_and_retrieve(tmp_path):
-    db_path = str(tmp_path / "test.db")
-    with patch("app.math_wiki.storage.db.get_settings") as mock_settings:
-        mock_settings.return_value.math_wiki_db_path = db_path
-        from app.math_wiki.storage.db import upsert_wiki_unit, upsert_problem, get_all_wiki_units, get_wiki_units_by_ids
-        from app.math_wiki.schemas import WikiUnit, Problem
-
-        unit = WikiUnit(
-            id="u1", type="concept", topic="algebra", subtopic="linear",
-            content="Content about linear equations", problem_ids=["p1"]
-        )
-        upsert_wiki_unit(unit)
-        units = get_all_wiki_units()
-        assert len(units) == 1
-        assert units[0].id == "u1"
-
-        by_ids = get_wiki_units_by_ids(["u1"])
-        assert len(by_ids) == 1
-        assert by_ids[0].content == unit.content
-
-
-def test_db_upsert_no_duplicate(tmp_path):
-    db_path = str(tmp_path / "test.db")
-    with patch("app.math_wiki.storage.db.get_settings") as mock_settings:
-        mock_settings.return_value.math_wiki_db_path = db_path
-        from app.math_wiki.storage.db import upsert_wiki_unit, get_all_wiki_units
-        from app.math_wiki.schemas import WikiUnit
-
-        unit = WikiUnit(
-            id="u1", type="concept", topic="algebra", subtopic="linear",
-            content="Content", problem_ids=["p1"]
-        )
-        upsert_wiki_unit(unit)
-        upsert_wiki_unit(unit)  # duplicate
-        units = get_all_wiki_units()
-        assert len(units) == 1
 
 
 # ── test_bm25 ─────────────────────────────────────────────────────────────────
@@ -94,35 +52,22 @@ def test_bm25_ranking():
 
 # ── test_retriever ────────────────────────────────────────────────────────────
 
-def test_retriever_empty():
-    from app.math_wiki.storage.vectors import VectorIndex
+@pytest.mark.asyncio
+async def test_retriever_no_pool_returns_empty():
     from app.math_wiki.storage.retriever import vector_retrieve
-    from usearch.index import Index
-
-    vi = VectorIndex(index=Index(ndim=1, metric="cos"), id_map=[], dim=1)
-    result = vector_retrieve("algebra", vi)
+    result = await vector_retrieve(None, "algebra")
     assert result == []
 
 
-def test_retriever_no_duplicates():
-    from app.math_wiki.schemas import WikiUnit
-    from app.math_wiki.storage.vectors import build_vector_index
+@pytest.mark.asyncio
+async def test_retriever_with_pool():
     from app.math_wiki.storage.retriever import vector_retrieve
-
-    units = [
-        WikiUnit(id="u1", type="concept", topic="algebra", subtopic="x",
-                 content="linear equation", problem_ids=[]),
-        WikiUnit(id="u2", type="concept", topic="geometry", subtopic="y",
-                 content="triangle geometry", problem_ids=[]),
-    ]
-    with patch("app.math_wiki.storage.vectors.embed_texts") as mock_embed:
-        mock_embed.return_value = [[0.1, 0.2], [0.3, 0.4]]
-        vi = build_vector_index(units)
-
-    with patch("app.math_wiki.storage.vectors.embed_texts") as mock_embed:
-        mock_embed.return_value = [[0.1, 0.2]]
-        result = vector_retrieve("linear", vi)
-    assert len(result) == len(set(result))  # no duplicates
+    mock_pool = MagicMock()
+    with patch("app.math_wiki.storage.retriever.query_pgvector", new_callable=AsyncMock,
+               return_value=["u1", "u2"]) as mock_qpg:
+        result = await vector_retrieve(mock_pool, "algebra", top_k=5)
+    assert result == ["u1", "u2"]
+    mock_qpg.assert_called_once_with(mock_pool, "algebra", top_k=5)
 
 
 # ── test_classifier ───────────────────────────────────────────────────────────
@@ -142,7 +87,7 @@ async def test_classifier_invalid_label_falls_back():
     with patch("app.math_wiki.agents.classifier.call_with_retry", new_callable=AsyncMock) as mock:
         mock.return_value = _mock_completion('{"label": "unknown_topic"}')
         result = await classify_problem(MagicMock(), "test problem")
-    assert result == "algebra"  # fallback when model returns unknown label and no keywords match
+    assert result == "algebra"
 
 
 # ── test_reranker ─────────────────────────────────────────────────────────────
@@ -177,7 +122,7 @@ async def test_reranker_hallucinated_id_filtered():
     with patch("app.math_wiki.agents.reranker.call_with_retry", new_callable=AsyncMock) as mock:
         mock.return_value = _mock_completion(json.dumps({"top_ids": ["hallucinated_id"]}))
         result = await rerank(MagicMock(), "query", candidates)
-    assert result == []  # hallucinated IDs are filtered out, empty list returned
+    assert result == []
 
 
 # ── test_solver ───────────────────────────────────────────────────────────────
@@ -234,41 +179,39 @@ async def test_solver_hallucinated_knowledge_id_filtered():
     with patch("app.math_wiki.agents.solver.call_with_retry", new_callable=AsyncMock) as mock:
         mock.return_value = _mock_completion(json.dumps(output_data))
         result = await solve(MagicMock(), "solve 2x=4", context)
-    assert result.used_knowledge_ids == []  # hallucinated IDs filtered, not in valid_ids
+    assert result.used_knowledge_ids == []
 
 
 # ── test_validator ────────────────────────────────────────────────────────────
 
 @pytest.mark.asyncio
 async def test_validator_valid():
-    from app.math_wiki.schemas import WikiUnit, SolverOutput
+    from app.math_wiki.schemas import SolverOutput
     from app.math_wiki.agents.validator import validate
 
     solver_out = SolverOutput(
         problem_type="linear", used_knowledge_ids=[], steps=["step1"],
         final_answer="x=2", confidence="high"
     )
-    context = []
     with patch("app.math_wiki.agents.validator.call_with_retry", new_callable=AsyncMock) as mock:
         mock.return_value = _mock_completion('{"valid": true, "issues": []}')
-        result = await validate(MagicMock(), solver_out, context)
+        result = await validate(MagicMock(), solver_out, [])
     assert result.valid is True
     assert result.issues == []
 
 
 @pytest.mark.asyncio
 async def test_validator_invalid():
-    from app.math_wiki.schemas import WikiUnit, SolverOutput
+    from app.math_wiki.schemas import SolverOutput
     from app.math_wiki.agents.validator import validate
 
     solver_out = SolverOutput(
         problem_type="linear", used_knowledge_ids=[], steps=["step1"],
         final_answer="wrong", confidence="low"
     )
-    context = []
     with patch("app.math_wiki.agents.validator.call_with_retry", new_callable=AsyncMock) as mock:
         mock.return_value = _mock_completion('{"valid": false, "issues": ["Wrong answer"]}')
-        result = await validate(MagicMock(), solver_out, context)
+        result = await validate(MagicMock(), solver_out, [])
     assert result.valid is False
     assert len(result.issues) > 0
 
@@ -280,14 +223,14 @@ async def test_pipeline_end_to_end():
     from app.math_wiki.pipeline import run_pipeline
     import app.math_wiki.pipeline as pipeline_mod
 
-    pipeline_mod._vector_ready_event.set()  # skip index build wait
+    pipeline_mod._bm25_ready_event.set()
 
     with patch("app.math_wiki.pipeline.classify_problem", new_callable=AsyncMock, return_value="algebra"), \
          patch("app.math_wiki.pipeline._retrieve_rerank_context", new_callable=AsyncMock, return_value=([], [])), \
          patch("app.math_wiki.pipeline.solve", new_callable=AsyncMock) as mock_solve, \
          patch("app.math_wiki.pipeline.validate", new_callable=AsyncMock) as mock_validate, \
          patch("app.math_wiki.pipeline.generate_figure", new_callable=AsyncMock, return_value=None), \
-         patch("app.math_wiki.pipeline.log_solution"):
+         patch("app.math_wiki.pipeline.log_solution", new_callable=AsyncMock):
 
         from app.math_wiki.schemas import SolverOutput, ValidationResult
         mock_solve.return_value = SolverOutput(
@@ -296,7 +239,7 @@ async def test_pipeline_end_to_end():
         )
         mock_validate.return_value = ValidationResult(valid=True, issues=[])
 
-        result = await run_pipeline(MagicMock(), "solve 2x=4")
+        result = await run_pipeline(MagicMock(), MagicMock(), "solve 2x=4")
 
     assert "label" in result
     assert "answer" in result
@@ -310,13 +253,13 @@ async def test_pipeline_insufficient_knowledge():
     from app.math_wiki.utils import InsufficientKnowledgeError
     import app.math_wiki.pipeline as pipeline_mod
 
-    pipeline_mod._vector_ready_event.set()
+    pipeline_mod._bm25_ready_event.set()
 
     with patch("app.math_wiki.pipeline.classify_problem", new_callable=AsyncMock, return_value="algebra"), \
          patch("app.math_wiki.pipeline._retrieve_rerank_context", new_callable=AsyncMock, return_value=([], [])), \
          patch("app.math_wiki.pipeline.solve", new_callable=AsyncMock, side_effect=InsufficientKnowledgeError()):
 
-        result = await run_pipeline(MagicMock(), "impossible problem")
+        result = await run_pipeline(MagicMock(), MagicMock(), "impossible problem")
 
     assert result == {"error": "INSUFFICIENT_KNOWLEDGE"}
 
@@ -338,8 +281,7 @@ def test_math_ingest_happy_path():
                      content="solving steps", problem_ids=["p1"]),
         ],
     )
-    with patch("app.math_wiki.agents.ingest.call_with_retry", new_callable=AsyncMock), \
-         patch("app.math_wiki.agents.ingest.ingest_exam", new_callable=AsyncMock, return_value=output):
+    with patch("app.math_wiki.agents.ingest.ingest_exam", new_callable=AsyncMock, return_value=output):
         r = client.post("/math-ingest", json={"text": "Solve 2x=4"})
     assert r.status_code == 200
     body = r.json()
@@ -373,9 +315,9 @@ def test_math_solve_insufficient_knowledge():
 # ── test_stats ─────────────────────────────────────────────────────────────────
 
 def test_math_stats_empty():
-    with patch("app.math_wiki.storage.db.count_problems", return_value=0), \
-         patch("app.math_wiki.storage.db.count_wiki_units", return_value=0), \
-         patch("app.math_wiki.storage.db.count_wiki_units_by_topic", return_value={}):
+    with patch("app.math_wiki.storage.pg_db.count_problems", new_callable=AsyncMock, return_value=0), \
+         patch("app.math_wiki.storage.pg_db.count_wiki_units", new_callable=AsyncMock, return_value=0), \
+         patch("app.math_wiki.storage.pg_db.count_wiki_units_by_topic", new_callable=AsyncMock, return_value={}):
         r = client.get("/math-stats")
     assert r.status_code == 200
     body = r.json()
@@ -385,9 +327,10 @@ def test_math_stats_empty():
 
 
 def test_math_stats_with_data():
-    with patch("app.math_wiki.storage.db.count_problems", return_value=10), \
-         patch("app.math_wiki.storage.db.count_wiki_units", return_value=25), \
-         patch("app.math_wiki.storage.db.count_wiki_units_by_topic", return_value={"algebra": 15, "geometry": 10}):
+    with patch("app.math_wiki.storage.pg_db.count_problems", new_callable=AsyncMock, return_value=10), \
+         patch("app.math_wiki.storage.pg_db.count_wiki_units", new_callable=AsyncMock, return_value=25), \
+         patch("app.math_wiki.storage.pg_db.count_wiki_units_by_topic", new_callable=AsyncMock,
+               return_value={"algebra": 15, "geometry": 10}):
         r = client.get("/math-stats")
     assert r.status_code == 200
     body = r.json()
@@ -426,40 +369,9 @@ def test_math_upload_too_large():
     assert r.status_code == 413
 
 
-# ── test_db_counts ─────────────────────────────────────────────────────────────
-
-def test_db_count_queries(tmp_path):
-    db_path = str(tmp_path / "test.db")
-    with patch("app.math_wiki.storage.db.get_settings") as mock_settings:
-        mock_settings.return_value.math_wiki_db_path = db_path
-        from app.math_wiki.storage.db import (
-            count_problems, count_wiki_units, count_wiki_units_by_topic,
-            upsert_problem, upsert_wiki_unit,
-        )
-        from app.math_wiki.schemas import WikiUnit, Problem
-
-        assert count_problems() == 0
-        assert count_wiki_units() == 0
-        assert count_wiki_units_by_topic() == {}
-
-        upsert_wiki_unit(WikiUnit(id="u1", type="concept", topic="algebra",
-                                  subtopic="x", content="c", problem_ids=[]))
-        upsert_wiki_unit(WikiUnit(id="u2", type="concept", topic="geometry",
-                                  subtopic="y", content="c2", problem_ids=[]))
-        upsert_problem(Problem(problem_id="p1", problem_text="q", topic="algebra",
-                               subtopic="x", difficulty="easy", problem_type="equation"))
-
-        assert count_problems() == 1
-        assert count_wiki_units() == 2
-        topics = count_wiki_units_by_topic()
-        assert topics["algebra"] == 1
-        assert topics["geometry"] == 1
-
-
 # ── test_bge_m3 ───────────────────────────────────────────────────────────────
 
 def test_embed_dim():
-    """embed_texts returns 1024-dim vectors when BGEM3FlagModel is mocked."""
     import numpy as np
     mock_model = MagicMock()
     mock_model.encode.return_value = {"dense_vecs": np.zeros((1, 1024), dtype=np.float32)}
@@ -472,12 +384,10 @@ def test_embed_dim():
 
 
 def test_prefix_distinction():
-    """query and passage prefixes produce different mock calls."""
     import numpy as np
     mock_model = MagicMock()
 
     def _fake_encode(texts, **kwargs):
-        # Return distinct vectors based on prefix so we can detect the call
         val = 1.0 if texts[0].startswith("query:") else 0.0
         return {"dense_vecs": np.full((len(texts), 1024), val, dtype=np.float32)}
 
@@ -488,39 +398,3 @@ def test_prefix_distinction():
         q_vec = embed_texts(["x"], prefix="query")[0]
         p_vec = embed_texts(["x"], prefix="passage")[0]
     assert q_vec[0] != p_vec[0]
-
-
-def test_cache_bust_on_stale_meta(tmp_path):
-    """_load_cached_index returns False when cached dim/model don't match settings."""
-    import json as _json
-
-    usearch_path = tmp_path / "test.usearch"
-    meta_path = tmp_path / "test.meta.json"
-
-    # Write stale meta with wrong dim and model; usearch file won't be read due to early return
-    usearch_path.write_bytes(b"")
-    meta_path.write_text(_json.dumps({
-        "unit_count": 0,
-        "vector_id_map": [],
-        "dim": 384,
-        "embedding_model": "all-MiniLM-L6-v2",
-    }))
-
-    db_path = str(tmp_path / "test.db")
-
-    with patch("app.math_wiki.pipeline.get_settings") as mock_settings, \
-         patch("app.math_wiki.pipeline.count_wiki_units", return_value=0):
-        s = MagicMock()
-        s.math_wiki_db_path = db_path
-        s.embedding_model_name = "BAAI/bge-m3"
-        s.embedding_dim = 1024
-        mock_settings.return_value = s
-
-        from app.math_wiki import pipeline
-
-        with patch.object(pipeline, "_cache_paths", return_value=(
-            str(usearch_path), str(meta_path)
-        )):
-            result = pipeline._load_cached_index()
-
-    assert result is False

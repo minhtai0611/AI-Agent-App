@@ -16,73 +16,46 @@ from app.math_wiki.admin_router import router as admin_router
 
 logger = logging.getLogger(__name__)
 
-HF_DATASET_REPO = "MinhTai/ai-agent-app-storage"
-HF_DB_FILENAME  = "math_wiki.db"
 
-
-def _db_healthy(path: str) -> int | None:
-    """Return wiki_unit count if DB is healthy in WAL mode, else None."""
-    import sqlite3
-    try:
-        conn = sqlite3.connect(path, timeout=10)
-        conn.execute("PRAGMA journal_mode=WAL")  # mirrors _get_conn; catches WAL-mode corruption
-        n = conn.execute("SELECT COUNT(*) FROM wiki_units WHERE deleted=0").fetchone()[0]
-        conn.execute("SELECT COUNT(*) FROM problems").fetchone()
-        conn.close()
-        return n
-    except Exception:
-        return None
-
-
-def _seed_db_if_empty() -> None:
-    """Download math_wiki.db from HF hub when the configured DB is empty, missing, or corrupt."""
-    import os, shutil
-    db_path = get_settings().math_wiki_db_path
-    os.makedirs(os.path.dirname(db_path) or ".", exist_ok=True)
-
-    count = _db_healthy(db_path) if os.path.exists(db_path) else None
-    if count and count > 0:
-        logger.info("DB healthy (%d units) at %s — skipping download", count, db_path)
-        return
-
-    reason = "corrupt" if (count is None and os.path.exists(db_path)) else "empty/missing"
-    logger.info("DB %s — downloading from HF hub %s/%s", reason, HF_DATASET_REPO, HF_DB_FILENAME)
-    try:
-        from huggingface_hub import hf_hub_download
-        tmp = hf_hub_download(
-            repo_id=HF_DATASET_REPO,
-            filename=HF_DB_FILENAME,
-            repo_type="dataset",
-            force_download=True,
-        )
-        dl_count = _db_healthy(tmp)
-        if not dl_count:
-            logger.warning("Downloaded DB is empty or corrupt — aborting seed")
-            return
-        # Atomic replace to avoid partial writes leaving a corrupt file
-        tmp_dest = db_path + ".new"
-        shutil.copy2(tmp, tmp_dest)
-        # Remove stale WAL/SHM sidecars before atomic replace — they corrupt a fresh DB
-        for suffix in ("-wal", "-shm"):
-            stale = db_path + suffix
-            try:
-                os.remove(stale)
-            except FileNotFoundError:
-                pass
-        os.replace(tmp_dest, db_path)
-        logger.info("DB seeded at %s (%d units)", db_path, dl_count)
-    except Exception as exc:
-        logger.warning("Could not seed DB from HF hub: %s", exc)
+async def _register_codecs(conn) -> None:
+    import pgvector.asyncpg
+    await pgvector.asyncpg.register_vector(conn)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    from app.math_wiki.pipeline import _wiki_status, _ensure_indexes
+    import asyncpg
+    from app.math_wiki.pipeline import _wiki_status, _ensure_bm25
+
+    settings = get_settings()
+    if settings.database_url:
+        try:
+            app.state.pool = await asyncpg.create_pool(
+                settings.database_url,
+                min_size=1,
+                max_size=5,
+                statement_cache_size=0,
+                max_inactive_connection_lifetime=240,
+                init=_register_codecs,
+            )
+            logger.info("asyncpg pool connected to Neon")
+        except Exception as exc:
+            logger.error("Failed to create asyncpg pool: %s", exc)
+            app.state.pool = None
+    else:
+        logger.warning("DATABASE_URL not set — running without PostgreSQL pool")
+        app.state.pool = None
+
     _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
-    loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, _seed_db_if_empty)
-    loop.run_in_executor(None, _ensure_indexes)
+    asyncio.ensure_future(_ensure_bm25(app.state.pool))
     yield
+
+    if app.state.pool:
+        await app.state.pool.close()
+
+
+def get_pool(request: Request):
+    return getattr(request.app.state, "pool", None)
 
 
 app = FastAPI(title="AI Agent App", lifespan=lifespan)
@@ -309,28 +282,26 @@ async def study_plan(
 
 
 @app.post("/math-ingest")
-async def math_ingest(req: MathIngestRequest):
+async def math_ingest(req: MathIngestRequest, pool=Depends(get_pool)):
     client = get_ai_client()
     from app.math_wiki.agents.ingest import ingest_exam
     try:
-        output = await ingest_exam(client, req.text)
+        output = await ingest_exam(client, req.text, pool=pool)
         return {"problems": len(output.problems), "wiki_units": len(output.wiki_units)}
     except (json.JSONDecodeError, ValueError) as exc:
         raise HTTPException(status_code=502, detail=str(exc))
 
 
 @app.post("/math-solve", response_model=MathSolveResponse)
-async def math_solve(req: MathSolveRequest):
+async def math_solve(req: MathSolveRequest, pool=Depends(get_pool)):
     client = get_ai_client()
     from app.math_wiki.pipeline import run_pipeline
-    # Two attempts: first may be slow (index build); second benefits from warm cache.
-    # 55 s × 2 = 110 s worst case, within the frontend's 130 s axios timeout.
     for attempt in range(2):
         try:
-            return await asyncio.wait_for(run_pipeline(client, req.question), timeout=55)
+            return await asyncio.wait_for(run_pipeline(pool, client, req.question), timeout=55)
         except asyncio.TimeoutError:
             if attempt == 0:
-                logger.warning("math-solve attempt 1 timed out, retrying with warm cache")
+                logger.warning("math-solve attempt 1 timed out, retrying")
                 continue
             raise HTTPException(status_code=504, detail="Pipeline timed out — try again")
         except HTTPException:
@@ -348,7 +319,7 @@ async def math_solve(req: MathSolveRequest):
 
 
 @app.post("/math-upload")
-async def math_upload(file: UploadFile = File(...)):
+async def math_upload(file: UploadFile = File(...), pool=Depends(get_pool)):
     MAX_SIZE = 10 * 1024 * 1024  # 10MB
     content = await file.read(MAX_SIZE + 1)
     if len(content) > MAX_SIZE:
@@ -374,7 +345,7 @@ async def math_upload(file: UploadFile = File(...)):
     total_problems = total_wiki = 0
     try:
         for chunk in chunks:
-            output = await ingest_exam(client, chunk)
+            output = await ingest_exam(client, chunk, pool=pool)
             total_problems += len(output.problems)
             total_wiki += len(output.wiki_units)
     except (ValueError, json.JSONDecodeError) as exc:
@@ -384,21 +355,33 @@ async def math_upload(file: UploadFile = File(...)):
 
 
 @app.get("/metrics")
-async def metrics(x_admin_key: str | None = None):
+async def metrics(x_admin_key: str | None = None, pool=Depends(get_pool)):
     from app.metrics import get_metrics
+    from app.math_wiki.storage.analytics import get_unit_usage_stats
     settings = get_settings()
     expected = getattr(settings, "admin_key", None)
     if expected and x_admin_key != expected:
-        from fastapi import HTTPException
         raise HTTPException(status_code=401, detail="Invalid admin key")
-    return get_metrics()
+    data = get_metrics()
+    if pool:
+        try:
+            async with pool.acquire() as conn:
+                db_size = await conn.fetchval("SELECT pg_database_size(current_database())")
+                data["pg_database_size_bytes"] = db_size
+        except Exception:
+            pass
+        try:
+            data["top_units"] = await get_unit_usage_stats(pool, days=30)
+        except Exception:
+            pass
+    return data
 
 
 @app.get("/math-gaps")
-async def math_gaps(threshold: int = 5):
-    from app.math_wiki.storage.db import count_wiki_units_by_topic
+async def math_gaps(threshold: int = 5, pool=Depends(get_pool)):
+    from app.math_wiki.storage import pg_db
     from app.math_wiki.taxonomy import CANONICAL_TOPICS
-    topic_counts = count_wiki_units_by_topic()
+    topic_counts = await pg_db.count_wiki_units_by_topic(pool)
     gaps = [
         {"topic": t, "count": topic_counts.get(t, 0)}
         for t in CANONICAL_TOPICS
@@ -408,10 +391,10 @@ async def math_gaps(threshold: int = 5):
 
 
 @app.get("/math-stats")
-async def math_stats():
-    from app.math_wiki.storage.db import count_problems, count_wiki_units, count_wiki_units_by_topic
+async def math_stats(pool=Depends(get_pool)):
+    from app.math_wiki.storage import pg_db
     return {
-        "problems": count_problems(),
-        "wiki_units": count_wiki_units(),
-        "topics": count_wiki_units_by_topic(),
+        "problems": await pg_db.count_problems(pool),
+        "wiki_units": await pg_db.count_wiki_units(pool),
+        "topics": await pg_db.count_wiki_units_by_topic(pool),
     }

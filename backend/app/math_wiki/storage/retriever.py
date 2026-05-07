@@ -1,11 +1,7 @@
-from app.math_wiki.storage.vectors import VectorIndex, query_vector
+from app.math_wiki.storage.pg_vectors import query_pgvector
 
 
-def vector_retrieve(
-    query: str,
-    vector_index: VectorIndex | None,
-    top_k: int = 15,
-) -> list[str]:
-    if vector_index is None:
+async def vector_retrieve(pool, query: str, top_k: int = 15) -> list[str]:
+    if pool is None:
         return []
-    return query_vector(vector_index, query, top_k=top_k)
+    return await query_pgvector(pool, query, top_k=top_k)
