@@ -162,28 +162,6 @@ app.add_middleware(
 
 # ── Models ───────────────────────────────────────────────────────────────────
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    from app.math_wiki.pipeline import _wiki_status, _ensure_indexes
-    _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
-    asyncio.get_event_loop().run_in_executor(None, _ensure_indexes)
-    yield
-
-
-app = FastAPI(title="AI Agent App", lifespan=lifespan)
-app.include_router(admin_router)
-
-settings = get_settings()
-app.add_middleware(RateLimitMiddleware)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.allowed_origins_list,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# ── Existing models ──────────────────────────────────────────────────────────
-
 class ChatRequest(BaseModel):
     messages: list[dict]
     customer_name: str = ""
