@@ -100,31 +100,70 @@ _SCHEMA_DDL = [
 ]
 
 
-async def _auto_seed_wiki(pool, client) -> None:
-    """Crawl and ingest wiki content at startup if the wiki_units table is empty."""
-    from app.math_wiki.storage import pg_db
+async def _hf_set_space_variable(key: str, value: str) -> None:
+    """Update a HF Space variable via the Hub API (no-op outside HF Spaces)."""
+    import os
+    space_id = os.environ.get("SPACE_ID")
+    hf_token = os.environ.get("HF_TOKEN")
+    if not space_id or not hf_token:
+        return
     try:
-        count = await pg_db.count_wiki_units(pool)
+        from huggingface_hub import HfApi
+        HfApi(token=hf_token).add_space_variable(space_id, key, value)
+        logger.info("HF Space variable %s set to %r", key, value)
     except Exception as exc:
-        logger.warning("auto-seed: could not count wiki_units: %s", exc)
-        return
-    if count > 0:
-        logger.info("auto-seed: wiki already has %d units, skipping", count)
-        return
+        logger.warning("Could not update HF Space variable %s: %s", key, exc)
 
-    logger.info("auto-seed: wiki is empty — starting background crawl")
+
+async def _auto_seed_wiki(pool, client) -> None:
+    """Crawl and ingest wiki content on startup.
+
+    Normal mode (CRAWL_AUTO_SEED_ENABLED=true): only runs when wiki_units is empty.
+    Force-reseed mode (CRAWL_FORCE_RESEED=true): truncates wiki_units, resets the
+    crawl-progress cache, then runs a full crawl regardless of existing data.
+    After a successful forced reseed the app self-disables the flag via the HF API.
+    """
+    from app.math_wiki.storage import pg_db
+    settings = get_settings()
+    force = settings.crawl_force_reseed
+
+    if force:
+        logger.info("auto-seed: CRAWL_FORCE_RESEED=true — wiping wiki_units for fresh crawl")
+        try:
+            async with pool.acquire() as conn:
+                await conn.execute("TRUNCATE TABLE wiki_units")
+        except Exception as exc:
+            logger.error("auto-seed: truncate failed: %s — aborting reseed", exc)
+            return
+    else:
+        try:
+            count = await pg_db.count_wiki_units(pool)
+        except Exception as exc:
+            logger.warning("auto-seed: could not count wiki_units: %s", exc)
+            return
+        if count > 0:
+            logger.info("auto-seed: wiki already has %d units, skipping", count)
+            return
+
     try:
         from crawl.runner import crawl_and_ingest
         from crawl.topic_map import AOPS_QUERIES
+        from crawl.progress import reset as reset_crawl_progress
     except ImportError as exc:
         logger.warning("auto-seed: crawl module not available (%s), skipping", exc)
         return
 
+    if force:
+        reset_crawl_progress()
+
+    logger.info("auto-seed: starting background crawl (%s)", "force-reseed" if force else "empty wiki")
+
     topics = list(AOPS_QUERIES.keys())
+    crawl_ok = True
     for topic in topics:
         try:
             stats = await crawl_and_ingest(
-                client, topics=[topic], sources=["aops"], pool=pool
+                client, topics=[topic], sources=["aops", "pauls", "generic"], pool=pool
             )
             logger.info(
                 "auto-seed [%s]: pages=%d units=%d errors=%d",
@@ -132,13 +171,17 @@ async def _auto_seed_wiki(pool, client) -> None:
             )
         except Exception as exc:
             logger.error("auto-seed [%s] failed: %s", topic, exc)
-        await asyncio.sleep(2)
+            crawl_ok = False
+        await asyncio.sleep(3)
 
     try:
         final = await pg_db.count_wiki_units(pool)
         logger.info("auto-seed complete: %d wiki units in DB", final)
     except Exception:
         pass
+
+    if force and crawl_ok:
+        await _hf_set_space_variable("CRAWL_FORCE_RESEED", "false")
 
 
 async def _apply_schema(pool) -> None:
@@ -179,10 +222,10 @@ async def lifespan(app: FastAPI):
 
     _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
     asyncio.ensure_future(_ensure_bm25(app.state.pool))
-    if app.state.pool and settings.crawl_auto_seed_enabled:
+    if app.state.pool and (settings.crawl_auto_seed_enabled or settings.crawl_force_reseed):
         asyncio.ensure_future(_auto_seed_wiki(app.state.pool, get_ai_client()))
     elif app.state.pool:
-        logger.info("auto-seed disabled (CRAWL_AUTO_SEED_ENABLED=false)")
+        logger.info("auto-seed disabled (set CRAWL_AUTO_SEED_ENABLED or CRAWL_FORCE_RESEED to enable)")
     yield
 
     if app.state.pool:

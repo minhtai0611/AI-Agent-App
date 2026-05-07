@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     # Set to "true" to run the background wiki crawl on startup.
     # Keep "false" on HF Spaces until local testing is complete.
     crawl_auto_seed_enabled: bool = False
+    # Set to "true" to wipe wiki_units and re-crawl everything from scratch.
+    # The app self-disables this flag via the HF Spaces API after one successful run.
+    crawl_force_reseed: bool = False
     embedding_model_name: str = "BAAI/bge-m3"
     embedding_dim: int = 1024
 
