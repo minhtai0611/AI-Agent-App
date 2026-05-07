@@ -294,19 +294,34 @@ function MathPreview({ text }) {
 const CONFIDENCE_COLOR = { high: '#10B981', medium: '#F2A20C', low: '#EF4444' }
 const CONFIDENCE_LABEL = { high: 'Chắc chắn', medium: 'Khả năng cao', low: 'Không chắc' }
 
+const PART_HEADER_RE = /^\*\*Phần\s+[a-dA-D]\w*\)\*\*$/
+
 function StepList({ steps }) {
+  let stepCounter = 0
   return (
     <ol className="flex flex-col gap-3">
-      {steps.map((s, i) => (
-        <li key={i} className="flex gap-3 items-start">
-          <span className="shrink-0 w-6 h-6 rounded-full bg-[#F2A20C]/15 border border-[#F2A20C]/30 text-[#F2A20C] text-[11px] font-bold flex items-center justify-center mt-0.5">
-            {i + 1}
-          </span>
-          <div className="font-jakarta text-[15px] text-[#CBD5E1] leading-relaxed">
-            <MathText>{s}</MathText>
-          </div>
-        </li>
-      ))}
+      {steps.map((s, i) => {
+        if (PART_HEADER_RE.test(s.trim())) {
+          return (
+            <li key={i} className="mt-2 mb-1">
+              <span className="font-jakarta text-[11px] font-semibold text-[#F2A20C] tracking-widest uppercase">
+                {s.replace(/\*\*/g, '')}
+              </span>
+            </li>
+          )
+        }
+        stepCounter++
+        return (
+          <li key={i} className="flex gap-3 items-start">
+            <span className="shrink-0 w-6 h-6 rounded-full bg-[#F2A20C]/15 border border-[#F2A20C]/30 text-[#F2A20C] text-[11px] font-bold flex items-center justify-center mt-0.5">
+              {stepCounter}
+            </span>
+            <div className="font-jakarta text-[15px] text-[#CBD5E1] leading-relaxed">
+              <MathText>{s}</MathText>
+            </div>
+          </li>
+        )
+      })}
     </ol>
   )
 }

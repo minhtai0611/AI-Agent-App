@@ -247,6 +247,10 @@ def sympy_verify(
         if _should_skip(problem_type):
             return None, []
 
+        # Multi-part answer ("a) X; b) Y") — can't verify symbolically without splitting the problem
+        if re.match(r'^[a-dA-D]\)', final_answer.strip()):
+            return None, []
+
         # ODE path: problem_type contains "vi phân" or "ode" and answer has y =
         is_ode = any(k in problem_type.lower() for k in ("vi phân", "ode", "differential"))
         if is_ode or "y = " in final_answer.lower():

@@ -132,6 +132,11 @@ PROOF PROBLEMS (problem_type contains "chứng minh", "chứng tỏ", or "proof"
 - For rule 2: verify only that the final conclusion follows logically from the last proof step; the exact wording need not match.
 - Focus rule 1 on logical validity: each step must follow from prior steps or known theorems.
 
+MULTI-PART PROBLEMS (final_answer starts with "a)" or steps contain "**Phần"):
+- Validate each part's steps independently in order.
+- For rule 2: check that the last step of each part's group is consistent with that part's sub-answer in final_answer (e.g. the "a)" portion for part a). Do NOT try to match the entire combined final_answer against a single step.
+- For rule 3: apply substitution only to parts that are equations or inequalities, using that part's sub-problem text and sub-answer. Do NOT substitute the combined "a) X; b) Y" string into any equation.
+
 Return JSON: {"valid": true|false, "issues": ["brief description of each specific error"]}
 If valid, issues must be []. No other text."""
 
