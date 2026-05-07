@@ -34,7 +34,6 @@ backend/math_wiki.db
 test-results/
 tests/
 docs/
-scripts/
 core/
 validators/
 exam-app-plan.md
