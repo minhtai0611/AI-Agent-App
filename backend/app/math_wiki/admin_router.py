@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Header, Query, Request
 from pydantic import BaseModel
 from openai import AsyncOpenAI
@@ -12,6 +13,20 @@ import asyncio
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/admin", tags=["admin"])
+
+# ── Crawl job state (in-process singleton, one crawl at a time) ───────────────
+
+_crawl: dict = {
+    "running": False,
+    "started_at": None,
+    "finished_at": None,
+    "topics": [],
+    "sources": [],
+    "dry_run": False,
+    "stats": {},
+    "current_topic": None,
+    "error": None,
+}
 
 
 def _check_admin_key(x_admin_key: str = Header(...)):
@@ -284,3 +299,108 @@ async def admin_unit_analytics(
     if not unit_stats:
         return {"unit_id": unit_id, "times_used": 0, "message": "no data"}
     return unit_stats
+
+
+# ── Crawl trigger ─────────────────────────────────────────────────────────────
+
+class CrawlRequest(BaseModel):
+    gap_threshold: int = 50          # crawl topics with fewer units than this
+    sources: list[str] = ["aops", "pauls", "generic"]
+    dry_run: bool = False
+
+
+async def _run_crawl(client, pool, topics: list[str], sources: list[str], dry_run: bool) -> None:
+    from crawl.runner import crawl_and_ingest
+
+    _crawl["current_topic"] = None
+    combined: dict = {
+        "topics": len(topics),
+        "pages_fetched": 0,
+        "chunks_sent": 0,
+        "wiki_units_added": 0,
+        "skipped_seen": 0,
+        "errors": 0,
+    }
+    try:
+        for topic in topics:
+            _crawl["current_topic"] = topic
+            stats = await crawl_and_ingest(
+                client, topics=[topic], sources=sources, dry_run=dry_run, pool=pool
+            )
+            for k in ("pages_fetched", "chunks_sent", "wiki_units_added", "skipped_seen", "errors"):
+                combined[k] = combined.get(k, 0) + stats.get(k, 0)
+            _crawl["stats"] = dict(combined)
+            logger.info("crawl [%s]: %s", topic, stats)
+            await asyncio.sleep(3)   # inter-topic pause
+    except Exception as exc:
+        _crawl["error"] = str(exc)
+        logger.error("admin crawl failed: %s", exc)
+    finally:
+        _crawl["running"] = False
+        _crawl["finished_at"] = datetime.now(timezone.utc).isoformat()
+        _crawl["current_topic"] = None
+        _crawl["stats"] = dict(combined)
+
+
+@router.post("/crawl")
+async def admin_trigger_crawl(
+    req: CrawlRequest,
+    request: Request,
+    client: AsyncOpenAI = Depends(get_ai_client),
+    _: None = Depends(_check_admin_key),
+    pool=Depends(_get_pool),
+):
+    if _crawl["running"]:
+        return {
+            "status": "already_running",
+            "started_at": _crawl["started_at"],
+            "current_topic": _crawl["current_topic"],
+        }
+
+    from app.math_wiki.taxonomy import CANONICAL_TOPICS
+
+    topic_counts = await pg_db.count_wiki_units_by_topic(pool)
+    gap_topics = [
+        t for t in CANONICAL_TOPICS
+        if topic_counts.get(t, 0) < req.gap_threshold
+    ]
+
+    if not gap_topics:
+        return {"status": "no_gaps", "message": f"All topics have ≥ {req.gap_threshold} units"}
+
+    _crawl.update({
+        "running": True,
+        "started_at": datetime.now(timezone.utc).isoformat(),
+        "finished_at": None,
+        "topics": gap_topics,
+        "sources": req.sources,
+        "dry_run": req.dry_run,
+        "stats": {},
+        "current_topic": None,
+        "error": None,
+    })
+
+    asyncio.ensure_future(_run_crawl(client, pool, gap_topics, req.sources, req.dry_run))
+
+    return {
+        "status": "started",
+        "topics": gap_topics,
+        "gap_threshold": req.gap_threshold,
+        "sources": req.sources,
+        "dry_run": req.dry_run,
+    }
+
+
+@router.get("/crawl/status")
+async def admin_crawl_status(_: None = Depends(_check_admin_key)):
+    return {
+        "running": _crawl["running"],
+        "started_at": _crawl["started_at"],
+        "finished_at": _crawl["finished_at"],
+        "topics_queued": _crawl["topics"],
+        "current_topic": _crawl["current_topic"],
+        "sources": _crawl["sources"],
+        "dry_run": _crawl["dry_run"],
+        "stats": _crawl["stats"],
+        "error": _crawl["error"],
+    }
