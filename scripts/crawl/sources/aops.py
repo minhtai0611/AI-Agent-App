@@ -1,6 +1,6 @@
 import logging
 import httpx
-from crawl.http_utils import fetch_with_retry
+from crawl.http_utils import fetch_with_retry, safe_json
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ async def _fetch_category_titles(category: str, seen_pageids: set[int]) -> list[
     while True:
         try:
             resp = await fetch_with_retry(_API_URL, params=params)
-            data = resp.json()
+            data = safe_json(resp)
             for item in data.get("query", {}).get("categorymembers", []):
                 title = item["title"]
                 pageid = item["pageid"]
@@ -83,7 +83,7 @@ async def fetch_aops(
                     "format": "json",
                 },
             )
-            data = resp.json()
+            data = safe_json(resp)
             for item in data.get("query", {}).get("search", []):
                 pageid = item["pageid"]
                 title = item["title"]
@@ -120,7 +120,7 @@ async def fetch_aops(
                     "redirects": "1",
                 },
             )
-            html = resp.json().get("parse", {}).get("text", {}).get("*", "")
+            html = safe_json(resp).get("parse", {}).get("text", {}).get("*", "")
             if html:
                 results.append((canonical_url, html))
         except (httpx.HTTPStatusError, httpx.RequestError) as exc:

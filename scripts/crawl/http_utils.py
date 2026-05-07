@@ -67,6 +67,12 @@ def safe_text(resp: httpx.Response) -> str:
     return resp.content.decode(encoding, errors="replace")
 
 
+def safe_json(resp: httpx.Response) -> object:
+    """Parse JSON from response without raising on encoding errors."""
+    import json
+    return json.loads(safe_text(resp))
+
+
 async def close_client() -> None:
     global _client
     if _client and not _client.is_closed:
