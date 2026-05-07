@@ -3,7 +3,7 @@ import re
 from urllib.parse import urljoin, urlparse
 import httpx
 from bs4 import BeautifulSoup
-from crawl.http_utils import fetch_with_retry
+from crawl.http_utils import fetch_with_retry, safe_text
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ async def fetch_generic_html(
         logger.warning("Generic index fetch failed for %r: %s", index_url, exc)
         return [], 0
 
-    soup = BeautifulSoup(index_resp.text, "html.parser")
+    soup = BeautifulSoup(safe_text(index_resp), "html.parser")
     pattern = re.compile(link_pattern)
     index_bare = index_url.split("#")[0]
 
@@ -53,7 +53,7 @@ async def fetch_generic_html(
             continue
         try:
             page_resp = await fetch_with_retry(url)
-            results.append((url, page_resp.text))
+            results.append((url, safe_text(page_resp)))
         except (httpx.HTTPStatusError, httpx.RequestError) as exc:
             logger.warning("Generic page fetch failed for %r: %s", url, exc)
 

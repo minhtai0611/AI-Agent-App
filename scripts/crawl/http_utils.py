@@ -61,6 +61,12 @@ def get_client() -> httpx.AsyncClient:
     return _client
 
 
+def safe_text(resp: httpx.Response) -> str:
+    """Decode response body, replacing un-decodable bytes instead of raising."""
+    encoding = resp.encoding or "utf-8"
+    return resp.content.decode(encoding, errors="replace")
+
+
 async def close_client() -> None:
     global _client
     if _client and not _client.is_closed:
