@@ -6,7 +6,9 @@ const STORAGE_KEY = 'exam_history'
 
 function load() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
+    const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
+    const seen = new Set()
+    return arr.filter(r => r?.id && !seen.has(r.id) && seen.add(r.id))
   } catch {
     return []
   }
@@ -19,7 +21,7 @@ function save(results) {
 function reducer(state, action) {
   switch (action.type) {
     case 'ADD': {
-      const next = [action.result, ...state]
+      const next = [action.result, ...state.filter(r => r.id !== action.result.id)]
       save(next)
       return next
     }
