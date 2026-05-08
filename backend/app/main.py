@@ -349,6 +349,21 @@ class MathOcrResponse(BaseModel):
     text: str
 
 
+class MathReviewRequest(BaseModel):
+    problem: str
+    solution: str
+
+
+class MathReviewResponse(BaseModel):
+    verdict: str
+    score: str
+    correct_steps: list[str]
+    errors: list[str]
+    feedback: str
+    correct_approach: str = ""
+    retrieved_ids: list[str] = []
+
+
 # ── Existing routes ──────────────────────────────────────────────────────────
 
 @app.api_route("/health", methods=["GET", "HEAD"])
@@ -528,6 +543,30 @@ async def math_solve(req: MathSolveRequest, pool=Depends(get_pool)):
         except Exception as exc:
             logger.exception("math-solve unexpected error: %s", exc)
             raise HTTPException(status_code=502, detail=f"Pipeline error: {exc}")
+
+
+@app.post("/math-review", response_model=MathReviewResponse)
+async def math_review(req: MathReviewRequest, pool=Depends(get_pool)):
+    client = get_ai_client()
+    from app.math_wiki.agents.reviewer import review_solution
+    from app.math_wiki.pipeline import _retrieve_rerank_context
+    retrieved_ids, context = await _retrieve_rerank_context(pool, client, req.problem)
+    try:
+        result = await review_solution(client, req.problem, req.solution, context)
+    except ValueError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+    except Exception as exc:
+        logger.error("math-review error: %s", exc)
+        raise HTTPException(status_code=502, detail=f"Review failed: {exc}")
+    return MathReviewResponse(
+        verdict=result.verdict,
+        score=result.score,
+        correct_steps=result.correct_steps,
+        errors=result.errors,
+        feedback=result.feedback,
+        correct_approach=result.correct_approach,
+        retrieved_ids=retrieved_ids,
+    )
 
 
 @app.post("/math-upload")

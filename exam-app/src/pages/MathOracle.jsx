@@ -6,7 +6,7 @@ import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
-import { solveMath, getMathStats, getWikiStatus, ocrImage } from '../api/aiClient'
+import { solveMath, getMathStats, getWikiStatus, ocrImage, reviewMath } from '../api/aiClient'
 import SymbolPalette from '../components/SymbolPalette'
 
 // One level of nested braces — handles \frac{\sqrt{x}}{2} correctly
@@ -582,6 +582,100 @@ function AnswerCard({ result, problem }) {
   )
 }
 
+const VERDICT_COLOR  = { correct: '#10B981', partial: '#F2A20C', incorrect: '#EF4444' }
+const VERDICT_LABEL  = { correct: 'Đúng',   partial: 'Một phần', incorrect: 'Sai' }
+
+function ReviewCard({ result, problem, solution }) {
+  const verdictColor = VERDICT_COLOR[result.verdict] || '#94A3B8'
+  const verdictLabel = VERDICT_LABEL[result.verdict] || result.verdict
+
+  return (
+    <div className="flex flex-col gap-5 animate-fade-in-up">
+      {/* Problem */}
+      {problem && (
+        <div className="rounded-xl border border-[#2A3A5E] bg-[#0A0F1E] px-5 py-4">
+          <p className="font-jakarta text-[10px] font-semibold text-[#334155] tracking-widest uppercase mb-2">Bài toán</p>
+          <div className="font-jakarta text-[15px] text-[#CBD5E1] leading-relaxed overflow-x-auto">
+            <Markdown remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]} rehypePlugins={[rehypeKatex]}>
+              {preparePreview(problem)}
+            </Markdown>
+          </div>
+        </div>
+      )}
+
+      {/* Solution submitted */}
+      {solution && (
+        <div className="rounded-xl border border-[#2A3A5E] bg-[#0A0F1E] px-5 py-4">
+          <p className="font-jakarta text-[10px] font-semibold text-[#334155] tracking-widest uppercase mb-2">Lời giải đã nộp</p>
+          <div className="font-jakarta text-[15px] text-[#94A3B8] leading-relaxed overflow-x-auto">
+            <Markdown remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]} rehypePlugins={[rehypeKatex]}>
+              {preparePreview(solution)}
+            </Markdown>
+          </div>
+        </div>
+      )}
+
+      {/* Verdict banner */}
+      <div className="rounded-xl border px-5 py-4 flex items-center justify-between"
+        style={{ borderColor: `${verdictColor}40`, background: `${verdictColor}08` }}>
+        <div className="flex items-center gap-3">
+          <span className="w-2.5 h-2.5 rounded-full" style={{ background: verdictColor }} />
+          <span className="font-jakarta text-[15px] font-semibold" style={{ color: verdictColor }}>{verdictLabel}</span>
+          <span className="font-jakarta text-[22px] font-bold" style={{ color: verdictColor }}>{result.score}</span>
+        </div>
+      </div>
+
+      {/* Feedback */}
+      {result.feedback && (
+        <div className="rounded-xl border border-[#2A3A5E] bg-[#0F1726] px-5 py-4">
+          <p className="font-jakarta text-[10px] font-semibold text-[#475569] tracking-widest uppercase mb-2">Nhận xét</p>
+          <div className="font-jakarta text-[14px] text-[#CBD5E1] leading-relaxed">
+            <MathText>{result.feedback}</MathText>
+          </div>
+        </div>
+      )}
+
+      {/* Correct steps */}
+      {result.correct_steps?.length > 0 && (
+        <div className="rounded-xl border border-[#10B981]/20 bg-[#10B981]/5 px-5 py-4">
+          <p className="font-jakarta text-[10px] font-semibold text-[#10B981] tracking-widest uppercase mb-3">Các bước đúng</p>
+          <ol className="flex flex-col gap-2">
+            {result.correct_steps.map((s, i) => (
+              <li key={i} className="flex gap-3 items-start">
+                <span className="shrink-0 w-5 h-5 rounded-full bg-[#10B981]/20 border border-[#10B981]/30 text-[#10B981] text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                <div className="font-jakarta text-[14px] text-[#94A3B8] leading-relaxed"><MathText>{s}</MathText></div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
+      {/* Errors */}
+      {result.errors?.length > 0 && (
+        <div className="rounded-xl border border-[#EF4444]/20 bg-[#EF4444]/5 px-5 py-4">
+          <p className="font-jakarta text-[10px] font-semibold text-[#EF4444] tracking-widest uppercase mb-3">Lỗi phát hiện</p>
+          <ul className="flex flex-col gap-2">
+            {result.errors.map((e, i) => (
+              <li key={i} className="flex gap-2 items-start">
+                <span className="shrink-0 text-[#EF4444] text-[12px] mt-0.5">✕</span>
+                <div className="font-jakarta text-[14px] text-[#94A3B8] leading-relaxed"><MathText>{e}</MathText></div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Correct approach */}
+      {result.correct_approach && (
+        <div className="rounded-xl border border-[#6366F1]/20 bg-[#6366F1]/5 px-5 py-4">
+          <p className="font-jakarta text-[10px] font-semibold text-[#6366F1] tracking-widest uppercase mb-2">Phương pháp đúng</p>
+          <div className="font-jakarta text-[14px] text-[#94A3B8] leading-relaxed"><MathText>{result.correct_approach}</MathText></div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // Insert text at the textarea cursor, preserving selection.
 function insertAtCursor(el, text) {
   const start = el.selectionStart
@@ -640,16 +734,22 @@ export default function MathOracle() {
   const navigate = useNavigate()
   const MAX_RETRIES = 2
 
+  const [mode, setMode] = useState('solve')   // 'solve' | 'review'
   const [question, setQuestion] = useState('')
+  const [solution, setSolution] = useState('')
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [stats, setStats] = useState(null)
   const [retryAttempt, setRetryAttempt] = useState(0)
   const [lastQuestion, setLastQuestion] = useState('')
+  const [lastSolution, setLastSolution] = useState('')
   const [ocring, setOcring] = useState(false)
+  const [ocringS, setOcringS] = useState(false)
   const textareaRef = useRef(null)
+  const solutionRef = useRef(null)
   const fileInputRef = useRef(null)
+  const solutionFileInputRef = useRef(null)
 
   const { status: wikiStatus, justBecameReady } = useWikiStatus()
   const wikiReady  = wikiStatus?.phase === 'ready'
@@ -677,9 +777,15 @@ export default function MathOracle() {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault()
       const text = textareaRef.current?.value.trim()
-      if (text && !loading && !wikiLocked) { setResult(null); setLastQuestion(text); doSolve(text) }
+      if (!text || loading || wikiLocked) return
+      if (mode === 'review') {
+        const sol = solutionRef.current?.value.trim() || ''
+        setResult(null); setLastQuestion(text); setLastSolution(sol); doReview(text, sol)
+      } else {
+        setResult(null); setLastQuestion(text); doSolve(text)
+      }
     }
-  }, [loading, wikiLocked]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loading, wikiLocked, mode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePaste = useCallback((e) => {
     const html  = e.clipboardData?.getData('text/html')  ?? ''
@@ -720,13 +826,28 @@ export default function MathOracle() {
     setResult(data)
   }
 
+  async function doReview(problem, sol) {
+    setLoading(true)
+    setError(null)
+    const { data, error: err } = await reviewMath(problem, sol)
+    setLoading(false)
+    if (err) { setError(err); return }
+    setResult({ _type: 'review', ...data })
+  }
+
   function handleSolve(e) {
     e?.preventDefault()
     const text = (textareaRef.current?.value || '').trim()
     if (!text || loading) return
     setResult(null)
     setLastQuestion(text)
-    doSolve(text)
+    if (mode === 'review') {
+      const sol = (solutionRef.current?.value || '').trim()
+      setLastSolution(sol)
+      doReview(text, sol)
+    } else {
+      doSolve(text)
+    }
   }
 
   function handleInsert(s) {
@@ -752,6 +873,21 @@ export default function MathOracle() {
     const ta = textareaRef.current
     if (ta) { ta.value = text; autoResize(ta); ta.focus() }
     setQuestion(text)
+  }
+
+  async function handleOcrSolution(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+    setOcringS(true)
+    setError(null)
+    const { data, error: err } = await ocrImage(file)
+    setOcringS(false)
+    if (err) { setError(err); return }
+    const text = data?.text || ''
+    const ta = solutionRef.current
+    if (ta) { ta.value = text; autoResize(ta); ta.focus() }
+    setSolution(text)
   }
 
   return (
@@ -785,6 +921,20 @@ export default function MathOracle() {
             Đặt câu hỏi toán — Oracle truy vấn kho tri thức và giải từng bước.
           </p>
           <StatsBadge stats={stats} />
+        </div>
+
+        {/* Mode toggle */}
+        <div className="flex gap-2 self-start">
+          {[['solve', 'Giải bài'], ['review', 'Chấm bài']].map(([m, label]) => (
+            <button key={m} type="button"
+              onClick={() => { setMode(m); setResult(null); setError(null) }}
+              className="font-jakarta text-[12px] font-semibold px-4 py-1.5 rounded-full transition"
+              style={mode === m
+                ? { background: '#6366F1', color: '#fff' }
+                : { background: 'transparent', border: '1px solid #2A3A5E', color: '#475569' }}>
+              {label}
+            </button>
+          ))}
         </div>
 
         {/* Wiki init banner */}
@@ -867,13 +1017,49 @@ export default function MathOracle() {
               </button>
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleOcrFile} style={{ display: 'none' }} />
               <span className="font-jakarta text-[11px] text-[#334155]">⌘ Enter</span>
-              <button type="submit" disabled={!question.trim() || loading || wikiLocked || ocring}
+              <button type="submit" disabled={!question.trim() || loading || wikiLocked || ocring || ocringS}
                 className="px-4 py-1.5 bg-[#6366F1] text-white font-jakarta font-semibold text-sm rounded-lg disabled:opacity-40 hover:bg-[#4F46E5] transition">
-                {loading ? 'Đang tính…' : 'Giải'}
+                {loading ? (mode === 'review' ? 'Đang chấm…' : 'Đang tính…') : (mode === 'review' ? 'Chấm bài' : 'Giải')}
               </button>
             </div>
           </div>
           <MathPreview text={question} />
+
+          {/* Solution textarea — only in review mode */}
+          {mode === 'review' && (
+            <div className="rounded-xl border border-[#2A3A5E] bg-[#0F1726] focus-within:border-[#6366F1] transition-colors overflow-hidden">
+              <textarea
+                ref={solutionRef}
+                value={solution}
+                onChange={(e) => { setSolution(e.target.value); autoResize(e.target) }}
+                disabled={loading || ocringS}
+                placeholder="Nhập hoặc chụp lời giải cần chấm…"
+                rows={3}
+                className={`oracle-textarea${(loading || ocringS) ? ' opacity-60 cursor-not-allowed' : ''}`}
+                style={{
+                  display: 'block', width: '100%', resize: 'none', overflow: 'hidden',
+                  background: 'transparent', color: '#E2E8F0', fontSize: 15,
+                  padding: '16px 20px 12px', boxSizing: 'border-box',
+                  outline: 'none', border: 'none', lineHeight: 1.6,
+                  fontFamily: "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif",
+                }}
+              />
+              <div className="flex justify-end items-center gap-2 px-3 py-2 border-t border-[#2A3A5E]">
+                <button type="button" title="Chụp ảnh lời giải"
+                  onClick={() => solutionFileInputRef.current?.click()}
+                  disabled={ocringS || loading}
+                  className="p-1.5 text-[#475569] hover:text-[#94A3B8] disabled:opacity-40 transition">
+                  {ocringS
+                    ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid #475569', borderTopColor:'#94A3B8', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
+                    : <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  }
+                </button>
+                <input ref={solutionFileInputRef} type="file" accept="image/*" onChange={handleOcrSolution} style={{ display: 'none' }} />
+                <span className="font-jakarta text-[11px] text-[#334155]">Lời giải</span>
+              </div>
+            </div>
+          )}
+
           {question.trim() === '' && (
             <div className="flex flex-wrap gap-2">
               {[
@@ -896,10 +1082,10 @@ export default function MathOracle() {
         </form>
 
         {/* OCR loading */}
-        {ocring && (
+        {(ocring || ocringS) && (
           <div className="flex items-center gap-3 font-jakarta text-[14px] text-[#475569] animate-pulse">
             <span className="w-2 h-2 rounded-full bg-[#6366F1] animate-bounce" />
-            Đang nhận diện ảnh…
+            {ocringS ? 'Đang nhận diện ảnh lời giải…' : 'Đang nhận diện ảnh…'}
           </div>
         )}
 
@@ -930,7 +1116,11 @@ export default function MathOracle() {
         )}
 
         {/* Result */}
-        {result && <AnswerCard result={result} problem={lastQuestion} />}
+        {result && (
+          result._type === 'review'
+            ? <ReviewCard result={result} problem={lastQuestion} solution={lastSolution} />
+            : <AnswerCard result={result} problem={lastQuestion} />
+        )}
 
         {/* Ready toast */}
         {justBecameReady && (

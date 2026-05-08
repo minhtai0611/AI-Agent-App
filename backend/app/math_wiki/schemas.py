@@ -80,6 +80,17 @@ class ConceptIngestOutput(BaseModel):
     wiki_units: list[WikiUnit]
 
 
+class ReviewOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    verdict: str          # correct | partial | incorrect
+    score: str            # "X/10"
+    correct_steps: list[str]
+    errors: list[str]
+    feedback: str
+    correct_approach: str = ""
+
+
 class StagedWikiUnit(BaseModel):
     staged_id: str
     id: str

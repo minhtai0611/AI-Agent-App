@@ -47,6 +47,10 @@ export function getMathStats() {
   return wrap(client.get('/math-stats'))
 }
 
+export function reviewMath(problem, solution) {
+  return wrap(slowClient.post('/math-review', { problem, solution }))
+}
+
 export function ocrImage(file) {
   const form = new FormData()
   form.append('file', file)

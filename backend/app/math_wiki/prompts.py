@@ -80,12 +80,28 @@ Output:
   NOT the characteristic roots. Characteristic roots are intermediate work only.
 - confidence: MUST be exactly one of: "high", "medium", "low".
 
+MULTIPLE-CHOICE PROBLEMS (options labeled A/B/C/D, or "Đáp án A", "A.", "A)" etc.):
+- Solve the problem completely using standard methods, treating the options as unknown at first.
+- Match your computed result against the listed options.
+- In final_answer: state the selected letter and value, e.g. "Chọn B: $x = 3$"
+- If no option matches, write "Không có đáp án phù hợp, kết quả tính được: <value>"
+- problem_type: prepend "trắc nghiệm" + topic, e.g. "trắc nghiệm đại số"
+
+ESSAY / OPEN-ENDED PROBLEMS (asks to explain, discuss, describe, compare — no labeled answer choices):
+- Use the same schema; write every reasoning step in full sentences
+- final_answer: state the main conclusion concisely in Vietnamese
+
 PROOF PROBLEMS (questions containing "prove", "show that", "chứng minh", "chứng tỏ", "cm rằng", "demonstrate", "verify that"):
 You MUST still use the EXACT same schema above — do NOT wrap the output in a "proof" key or any other wrapper.
 - problem_type: "chứng minh" + brief method, e.g. "chứng minh quy nạp", "chứng minh hình học", "chứng minh bất đẳng thức"
 - steps: each proof step as a plain string in Vietnamese, e.g. ["Bước 1: Phân tích...", "Bước 2: Xét..."]
 - final_answer: the proved statement in full, ending with "∎", e.g. "Đã chứng minh $n^3 - n$ chia hết cho $6$ với mọi $n \\in \\mathbb{N}^+$. ∎"
 - Do NOT leave final_answer empty. Do NOT use keys like "statement", "conclusion", or "proof" — use "final_answer".
+
+PROBLEMS WITH VISUAL DESCRIPTIONS (extracted from images — contain phrases like "Tam giác ABC", "đồ thị hàm số qua điểm", "hình vẽ cho thấy"):
+- Treat the visual description exactly as you would an explicit numeric problem
+- Extract all dimensions, labels, and relationships from the description before solving
+- Include a step confirming which values were read from the description
 
 MULTI-PART PROBLEMS (questions with labeled parts like "a)", "b)", "c)" or "Ý a", "Ý b", "Câu a", "Phần a"):
 Solve EVERY part completely. Do NOT skip or partially answer any part.
@@ -127,6 +143,11 @@ Given a solver_output (problem_type, steps, final_answer) and context wiki units
 4. Check for extraneous roots: if the original problem contains a square root, absolute value, or logarithm, verify no extraneous solutions are included in final_answer.
 5. If the context array is empty, verify correctness by: (1) checking each step follows logically from the previous, (2) substituting the final answer back into the original equation/expression, (3) checking for extraneous roots. Do not penalise for absent wiki units.
 
+MULTIPLE-CHOICE PROBLEMS (final_answer starts with "Chọn"):
+- Extract the selected letter (A/B/C/D) and the computed value from final_answer.
+- Verify the computed value by substitution as in rule 3.
+- Verify the chosen letter matches that value in the problem's option list; if it doesn't, add "Đáp án đã chọn không khớp với kết quả tính được" to issues and set valid=false.
+
 PROOF PROBLEMS (problem_type contains "chứng minh", "chứng tỏ", or "proof"):
 - Skip rules 3 and 4 entirely — substitution and extraneous-root checks do not apply to proofs.
 - For rule 2: verify only that the final conclusion follows logically from the last proof step; the exact wording need not match.
@@ -157,6 +178,39 @@ For each wiki unit identify:
 Extract 2-6 units per excerpt. Prefer concrete procedures and patterns over vague definitions.
 Return JSON: {"wiki_units": [...]}. No other text."""
 
+PROMPT_REVIEW = """You are a Vietnamese math solution reviewer and grader.
+You will receive a JSON object with:
+- "problem": the math problem text
+- "solution": a student's solution attempt (may be transcribed from a handwritten image)
+- "context": optional wiki knowledge units for reference
+
+Evaluate the solution systematically:
+1. Identify the correct approach and expected answer for the problem.
+2. Trace the student's steps one by one; flag the first error and all subsequent errors.
+3. Assess how much of the reasoning is correct.
+
+EXACT output schema — respond with ONLY this JSON object, no prose:
+{
+  "verdict": "correct" | "partial" | "incorrect",
+  "score": "X/10",
+  "correct_steps": ["each step or portion of the solution that is right"],
+  "errors": ["specific description of each error, including where in the solution it occurs"],
+  "feedback": "concise overall feedback in Vietnamese — positive first, then what to fix",
+  "correct_approach": "brief description of the correct method if the student used the wrong one; empty string if approach was right"
+}
+
+Scoring guide:
+- "correct" (8–10): all steps and final answer are right; minor arithmetic slips get 9
+- "partial" (4–7): right approach, wrong calculation or incomplete; shows understanding
+- "incorrect" (0–3): fundamental error in method, or no meaningful mathematical work shown
+
+Rules:
+- Write feedback and correct_approach in Vietnamese
+- Be specific: "Bước 2: sai vì ..." not just "có lỗi"
+- For proofs: judge logical validity, not exact wording
+- For multiple-choice: check if the selected option matches the computed result
+- Output ONLY the JSON object. No other text."""
+
 MODE_PROMPTS: dict[str, str] = {
     "INGEST": PROMPT_INGEST,
     "CLASSIFY": PROMPT_CLASSIFY,
@@ -164,4 +218,5 @@ MODE_PROMPTS: dict[str, str] = {
     "SOLVE": PROMPT_SOLVE,
     "VALIDATE": PROMPT_VALIDATE,
     "CONCEPT_INGEST": PROMPT_CONCEPT_INGEST,
+    "REVIEW": PROMPT_REVIEW,
 }
