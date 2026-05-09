@@ -6,6 +6,9 @@ _MATH_KEYWORDS = frozenset({
     "equation", "formula", "theorem", "proof", "solve", "function",
     "derivative", "integral", "probability", "matrix", "angle", "triangle",
     "polynomial", "prime", "modulo", "combination", "permutation",
+    # gap-fill topics
+    "radical", "inequality", "absolute value", "simplif", "parabola",
+    "linear function", "factoring", "remainder theorem", "nonlinear",
     # statistics
     "distribution", "variance", "deviation", "regression", "hypothesis",
     "correlation", "confidence", "sample", "statistic", "population",

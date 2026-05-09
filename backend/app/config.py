@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     # Set to "true" to wipe wiki_units and re-crawl everything from scratch.
     # The app self-disables this flag via the HF Spaces API after one successful run.
     crawl_force_reseed: bool = False
+    # Set to "true" to crawl only topics that have zero wiki units (gap-fill).
+    # Idempotent: re-runs are safe — the zero-unit check is the gate.
+    crawl_gap_fill_enabled: bool = False
     embedding_model_name: str = "BAAI/bge-m3"
     embedding_dim: int = 1024
 

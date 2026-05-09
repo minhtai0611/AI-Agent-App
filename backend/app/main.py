@@ -121,29 +121,13 @@ async def _auto_seed_wiki(pool, client) -> None:
     Normal mode (CRAWL_AUTO_SEED_ENABLED=true): only runs when wiki_units is empty.
     Force-reseed mode (CRAWL_FORCE_RESEED=true): truncates wiki_units, resets the
     crawl-progress cache, then runs a full crawl regardless of existing data.
+    Gap-fill mode (CRAWL_GAP_FILL_ENABLED=true): crawls only topics with zero units.
     After a successful forced reseed the app self-disables the flag via the HF API.
     """
     from app.math_wiki.storage import pg_db
     settings = get_settings()
     force = settings.crawl_force_reseed
-
-    if force:
-        logger.info("auto-seed: CRAWL_FORCE_RESEED=true — wiping wiki_units for fresh crawl")
-        try:
-            async with pool.acquire() as conn:
-                await conn.execute("TRUNCATE TABLE wiki_units")
-        except Exception as exc:
-            logger.error("auto-seed: truncate failed: %s — aborting reseed", exc)
-            return
-    else:
-        try:
-            count = await pg_db.count_wiki_units(pool)
-        except Exception as exc:
-            logger.warning("auto-seed: could not count wiki_units: %s", exc)
-            return
-        if count > 0:
-            logger.info("auto-seed: wiki already has %d units, skipping", count)
-            return
+    gap_fill = settings.crawl_gap_fill_enabled
 
     try:
         from crawl.runner import crawl_and_ingest
@@ -154,11 +138,40 @@ async def _auto_seed_wiki(pool, client) -> None:
         return
 
     if force:
+        logger.info("auto-seed: CRAWL_FORCE_RESEED=true — wiping wiki_units for fresh crawl")
+        try:
+            async with pool.acquire() as conn:
+                await conn.execute("TRUNCATE TABLE wiki_units")
+        except Exception as exc:
+            logger.error("auto-seed: truncate failed: %s — aborting reseed", exc)
+            return
         reset_crawl_progress()
+        topics = list(AOPS_QUERIES.keys())
+    elif gap_fill:
+        try:
+            topic_counts = await pg_db.count_wiki_units_by_topic(pool)
+        except Exception as exc:
+            logger.warning("auto-seed: could not count wiki_units by topic: %s", exc)
+            return
+        topics = [t for t in AOPS_QUERIES.keys() if topic_counts.get(t, 0) == 0]
+        if not topics:
+            logger.info("auto-seed: gap-fill — no zero-unit topics found, skipping")
+            return
+        logger.info("auto-seed: gap-fill — crawling %d zero-unit topics: %s", len(topics), topics)
+    else:
+        try:
+            count = await pg_db.count_wiki_units(pool)
+        except Exception as exc:
+            logger.warning("auto-seed: could not count wiki_units: %s", exc)
+            return
+        if count > 0:
+            logger.info("auto-seed: wiki already has %d units, skipping", count)
+            return
+        topics = list(AOPS_QUERIES.keys())
 
-    logger.info("auto-seed: starting background crawl (%s)", "force-reseed" if force else "empty wiki")
+    logger.info("auto-seed: starting background crawl (%s)",
+                "force-reseed" if force else ("gap-fill" if gap_fill else "empty wiki"))
 
-    topics = list(AOPS_QUERIES.keys())
     crawl_ok = True
     for topic in topics:
         try:
@@ -222,10 +235,10 @@ async def lifespan(app: FastAPI):
 
     _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
     asyncio.ensure_future(_ensure_bm25(app.state.pool))
-    if app.state.pool and (settings.crawl_auto_seed_enabled or settings.crawl_force_reseed):
+    if app.state.pool and (settings.crawl_auto_seed_enabled or settings.crawl_force_reseed or settings.crawl_gap_fill_enabled):
         asyncio.ensure_future(_auto_seed_wiki(app.state.pool, get_ai_client()))
     elif app.state.pool:
-        logger.info("auto-seed disabled (set CRAWL_AUTO_SEED_ENABLED or CRAWL_FORCE_RESEED to enable)")
+        logger.info("auto-seed disabled (set CRAWL_AUTO_SEED_ENABLED, CRAWL_FORCE_RESEED, or CRAWL_GAP_FILL_ENABLED to enable)")
     yield
 
     if app.state.pool:

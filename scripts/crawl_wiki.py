@@ -62,6 +62,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Clear crawl_progress.json before starting.",
     )
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Alias for --reset-progress: clear crawl_progress.json before starting (for local dev).",
+    )
     return parser
 
 
@@ -99,6 +104,10 @@ async def _main(args: argparse.Namespace) -> int:
         print(f"Connected to Postgres ({args.database_url[:40]}…)")
     elif not args.dry_run:
         print("Warning: no DATABASE_URL — wiki units will NOT be saved to DB.", file=sys.stderr)
+
+    if args.reset and not args.reset_progress:
+        from crawl.progress import reset as _reset_progress
+        _reset_progress()
 
     client = get_ai_client()
     try:

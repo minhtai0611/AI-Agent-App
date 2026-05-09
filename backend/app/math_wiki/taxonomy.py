@@ -12,6 +12,13 @@ CANONICAL_TOPICS: frozenset[str] = frozenset({
     "differential_equations",
     "linear_algebra",
     "multivariable_calculus",
+    # gap-fill additions
+    "radical_expressions",
+    "functions_and_graphs",
+    "inequalities_optimization",
+    "absolute_value",
+    "nonlinear_systems",
+    "polynomial_techniques",
 })
 
 # Maps every known non-canonical slug → canonical topic.
@@ -77,6 +84,16 @@ TOPIC_MAP: dict[str, str] = {
     "inferential_statistics": "statistics",
     "bayesian statistics": "statistics",
     "bayesian_statistics": "statistics",
+    # gap-fill topic aliases
+    "radicals": "radical_expressions",
+    "radical": "radical_expressions",
+    "inequalities": "inequalities_optimization",
+    "optimization": "inequalities_optimization",
+    "functions": "functions_and_graphs",
+    "graphing": "functions_and_graphs",
+    "absolute-value": "absolute_value",
+    "nonlinear": "nonlinear_systems",
+    "polynomials": "polynomial_techniques",
     # probability family
     "stochastic processes": "probability",
     "stochastic_processes": "probability",

@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import re
 from urllib.parse import urljoin, urlparse
@@ -13,6 +14,7 @@ async def fetch_generic_html(
     seen: set[str],
     link_pattern: str = r".*",
     max_pages: int = 150,
+    crawl_delay: float = 0.0,
 ) -> tuple[list[tuple[str, str]], int]:
     """Fetch index_url, follow links matching link_pattern, return (pages, skipped_count).
 
@@ -51,6 +53,8 @@ async def fetch_generic_html(
         if url in seen:
             skipped += 1
             continue
+        if crawl_delay:
+            await asyncio.sleep(crawl_delay)
         try:
             page_resp = await fetch_with_retry(url)
             results.append((url, safe_text(page_resp)))

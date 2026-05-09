@@ -82,6 +82,7 @@ async def crawl_and_ingest(
                         seen=seen,
                         link_pattern=source_cfg["link_pattern"],
                         max_pages=source_cfg.get("max_pages", 150),
+                        crawl_delay=source_cfg.get("crawl_delay_seconds", 0.0),
                     )
                     tag = source_cfg["source_tag"]
                     all_pages += [(url, html, tag) for url, html in pages]
