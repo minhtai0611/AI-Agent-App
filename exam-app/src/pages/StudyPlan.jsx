@@ -438,8 +438,9 @@ export default function StudyPlan() {
                   {/* Divider */}
                   <div className="mt-6 border-t border-[#1E2A44]" />
 
-                  {/* Per-week quiz */}
+                  {/* Per-week quiz — key forces remount on week change so state doesn't bleed */}
                   <WeekQuiz
+                    key={activeWeek}
                     resultId={resultId}
                     weekIndex={activeWeek}
                     weekFocus={w.focus}
