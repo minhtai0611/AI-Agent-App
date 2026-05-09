@@ -60,3 +60,7 @@ export function ocrImage(file) {
 export function getWikiStatus() {
   return wrap(client.get('/wiki/status'))
 }
+
+export function generateWeekQuiz(payload) {
+  return wrap(slowClient.post('/study-plan-quiz', payload))
+}

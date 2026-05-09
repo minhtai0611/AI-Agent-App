@@ -364,6 +364,16 @@ class MathReviewResponse(BaseModel):
     retrieved_ids: list[str] = []
 
 
+class WeekQuizRequest(BaseModel):
+    week_focus: str
+    week_tasks: list[str]
+    n: int = 4
+
+
+class WeekQuizResponse(BaseModel):
+    questions: list[dict]
+
+
 # ── Existing routes ──────────────────────────────────────────────────────────
 
 @app.api_route("/health", methods=["GET", "HEAD"])
@@ -476,6 +486,21 @@ async def study_plan(
         plan=data.get("plan", ""),
         weekly_schedule=data.get("weekly_schedule", []),
     )
+
+
+@app.post("/study-plan-quiz", response_model=WeekQuizResponse)
+async def study_plan_quiz(
+    req: WeekQuizRequest,
+    client: AsyncOpenAI = Depends(get_ai_client),
+    pool=Depends(get_pool),
+):
+    from app.math_wiki.agents.quiz_generator import generate_week_quiz
+    n = max(1, min(req.n, 6))
+    try:
+        questions = await generate_week_quiz(client, pool, req.week_focus, req.week_tasks, n)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Quiz generation failed: {exc}")
+    return WeekQuizResponse(questions=questions)
 
 
 @app.post("/math-ingest")

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useExam, useExamDispatch, useHints } from '../context/ExamContext.jsx'
+import { useExam, useExamDispatch, useHints, useFlags } from '../context/ExamContext.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import Timer from '../components/Timer.jsx'
 import TutorChat from '../components/TutorChat.jsx'
@@ -39,6 +39,7 @@ export default function TestInterface() {
   if (session.status === 'idle' || !session.exam) return null
 
   const { hints, setHint } = useHints()
+  const { flags, toggleFlag } = useFlags()
   const { questions, answers, mode, timeLeft, exam } = session
   const question = questions[currentIndex]
   const chosen = answers[question?.id] ?? null
@@ -46,6 +47,8 @@ export default function TestInterface() {
   const isPractice = mode === 'practice'
   const progress = ((currentIndex + 1) / questions.length) * 100
 
+  const isFlagged = flags[question?.id] ?? false
+  const flagged = questions.map((q, i) => ({ q, i })).filter(({ q }) => flags[q.id])
   const unanswered = questions.map((q, i) => ({ q, i })).filter(({ q }) => answers[q.id] === undefined)
   const allAnswered = unanswered.length === 0
 
@@ -152,6 +155,21 @@ export default function TestInterface() {
           <span className="px-2.5 py-1 bg-[#1B2540] border border-[#2A3A60] text-[#64748B] font-jakarta text-[11px] font-medium rounded-md">
             {DIFF_LABELS[question?.difficulty] ?? 'Trung bình'}
           </span>
+          <button
+            onClick={() => toggleFlag(question.id)}
+            title={isFlagged ? 'Bỏ đánh dấu' : 'Đánh dấu câu này'}
+            className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-md font-jakarta text-[11px] font-semibold transition"
+            style={{
+              background: isFlagged ? '#EF444422' : '#1B2540',
+              border: `1px solid ${isFlagged ? '#EF4444' : '#2A3A60'}`,
+              color: isFlagged ? '#EF4444' : '#64748B',
+            }}
+          >
+            <svg width="11" height="13" viewBox="0 0 11 13" fill="none">
+              <path d="M1 1v11M1 1h7.5l-2 3.5 2 3.5H1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            {isFlagged ? 'Đã đánh dấu' : 'Đánh dấu'}
+          </button>
         </div>
 
         {/* Question card */}
@@ -203,16 +221,18 @@ export default function TestInterface() {
         <div className="flex items-center justify-center gap-1.5 flex-wrap">
           {questions.map((q, i) => {
             const answered = answers[q.id] !== undefined
+            const isQFlagged = flags[q.id]
             const isCurrent = i === currentIndex
+            let bg = '#1E2A44'
+            if (isCurrent) bg = '#F2A20C'
+            else if (isQFlagged) bg = '#EF4444'
+            else if (answered) bg = '#10B981'
             return (
               <button
                 key={i}
                 onClick={() => setCurrentIndex(i)}
                 className="rounded-[2px] h-1 transition-all"
-                style={{
-                  width: isCurrent ? 24 : 8,
-                  background: isCurrent ? '#F2A20C' : answered ? '#10B981' : '#1E2A44',
-                }}
+                style={{ width: isCurrent ? 24 : 8, background: bg }}
               />
             )
           })}
@@ -263,6 +283,30 @@ export default function TestInterface() {
                     {i + 1}
                   </button>
                 ))}
+              </div>
+            )}
+
+            {/* Flagged questions */}
+            {flagged.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <span className="font-jakarta text-[#EF4444] text-[12px] font-semibold flex items-center gap-1.5">
+                  <svg width="10" height="12" viewBox="0 0 11 13" fill="none">
+                    <path d="M1 1v11M1 1h7.5l-2 3.5 2 3.5H1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  {flagged.length} câu đã đánh dấu — nhấn để xem lại
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {flagged.map(({ q, i }) => (
+                    <button
+                      key={q.id}
+                      onClick={() => { setCurrentIndex(i); setSubmitModal(false) }}
+                      className="w-8 h-8 rounded-lg font-jakarta text-[12px] font-bold transition hover:opacity-80"
+                      style={{ background: '#EF444422', border: '1px solid #EF4444', color: '#EF4444' }}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 

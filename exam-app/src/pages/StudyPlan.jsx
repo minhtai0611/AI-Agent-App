@@ -1,11 +1,33 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
+import Markdown from 'react-markdown'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 import { useHistory } from '../context/HistoryContext.jsx'
-import { generateStudyPlan } from '../api/aiClient.js'
+import { generateStudyPlan, generateWeekQuiz } from '../api/aiClient.js'
 import { buildStudyPlanPayload } from '../api/index.js'
 
-const STORAGE_KEY = (resultId) => `study-plan-progress-${resultId}`
-const PLAN_CACHE_KEY = (resultId) => `study-plan-data-${resultId}`
+const STORAGE_KEY      = (id) => `study-plan-progress-${id}`
+const PLAN_CACHE_KEY   = (id) => `study-plan-data-${id}`
+const QUIZ_CACHE_KEY   = (id, w) => `study-plan-quiz-${id}-${w}`
+
+const REMARK_MATH_OPTS = [remarkMath, { singleDollarTextMath: true }]
+
+const DIFF_COLOR = { easy: '#10B981', medium: '#F2A20C', hard: '#EF4444' }
+const DIFF_LABEL = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
+
+function MathText({ children }) {
+  return (
+    <Markdown
+      remarkPlugins={[REMARK_MATH_OPTS]}
+      rehypePlugins={[rehypeKatex]}
+      components={{ p: ({ children: c }) => <span>{c}</span> }}
+    >
+      {children ?? ''}
+    </Markdown>
+  )
+}
 
 function ProgressDots({ tasks, checked, onToggle }) {
   return (
@@ -27,6 +49,243 @@ function ProgressDots({ tasks, checked, onToggle }) {
   )
 }
 
+// ── Quiz components ──────────────────────────────────────────────────────────
+
+function QuizQuestion({ q, index, chosen, submitted, onChoose }) {
+  const correct = q.correct_index
+  return (
+    <div className="flex flex-col gap-3">
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <span className="font-jakarta text-[11px] font-semibold text-[#475569]">Câu {index + 1}</span>
+        {q.difficulty && (
+          <span
+            className="font-jakarta text-[10px] font-semibold px-2 py-0.5 rounded-full"
+            style={{ color: DIFF_COLOR[q.difficulty], background: `${DIFF_COLOR[q.difficulty]}18` }}
+          >
+            {DIFF_LABEL[q.difficulty] ?? q.difficulty}
+          </span>
+        )}
+      </div>
+
+      {/* Stem */}
+      <div className="font-jakarta text-[14px] text-[#CBD5E1] leading-relaxed">
+        <MathText>{q.stem}</MathText>
+      </div>
+
+      {/* Choices */}
+      <div className="flex flex-col gap-2">
+        {q.choices.map((choice, ci) => {
+          const isChosen  = chosen === ci
+          const isCorrect = ci === correct
+          let bg = '#111827'
+          let border = '#1E2A44'
+          let textColor = '#94A3B8'
+
+          if (submitted) {
+            if (isCorrect)       { bg = '#10B98118'; border = '#10B981'; textColor = '#10B981' }
+            else if (isChosen)   { bg = '#EF444418'; border = '#EF4444'; textColor = '#EF4444' }
+          } else if (isChosen) {
+            bg = '#6366F118'; border = '#6366F1'; textColor = '#A5B4FC'
+          }
+
+          return (
+            <button
+              key={ci}
+              type="button"
+              disabled={submitted}
+              onClick={() => onChoose(ci)}
+              className="w-full text-left px-4 py-2.5 rounded-lg border font-jakarta text-[13px] transition-all"
+              style={{ background: bg, borderColor: border, color: textColor }}
+            >
+              <MathText>{choice}</MathText>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Explanation after submit */}
+      {submitted && q.explanation && (
+        <div className="rounded-lg border border-[#2A3A5E] bg-[#0A0F1E] px-4 py-3 font-jakarta text-[12px] text-[#64748B] leading-relaxed">
+          <span className="text-[#475569] font-semibold">Giải thích: </span>
+          <MathText>{q.explanation}</MathText>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function WeekQuiz({ resultId, weekIndex, weekFocus, weekTasks }) {
+  const cacheKey = QUIZ_CACHE_KEY(resultId, weekIndex)
+
+  const [open, setOpen]       = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError]     = useState(null)
+  const [questions, setQuestions] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(cacheKey) || 'null') } catch { return null }
+  })
+  const [answers, setAnswers]     = useState({})   // { qIndex: choiceIndex }
+  const [submitted, setSubmitted] = useState(false)
+
+  async function fetchQuiz() {
+    setLoading(true)
+    setError(null)
+    const { data, error: err } = await generateWeekQuiz({
+      week_focus: weekFocus,
+      week_tasks: weekTasks,
+      n: 4,
+    })
+    setLoading(false)
+    if (err) { setError(err); return }
+    const qs = data?.questions ?? []
+    localStorage.setItem(cacheKey, JSON.stringify(qs))
+    setQuestions(qs)
+    setAnswers({})
+    setSubmitted(false)
+  }
+
+  function handleOpen() {
+    setOpen(true)
+    if (!questions) fetchQuiz()
+  }
+
+  function handleReset() {
+    localStorage.removeItem(cacheKey)
+    setQuestions(null)
+    setAnswers({})
+    setSubmitted(false)
+    fetchQuiz()
+  }
+
+  const allAnswered = questions && Object.keys(answers).length === questions.length
+  const score = submitted
+    ? questions.filter((q, i) => answers[i] === q.correct_index).length
+    : 0
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={handleOpen}
+        className="mt-5 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#2A3A5E] font-jakarta text-[13px] font-semibold text-[#6366F1] hover:bg-[#6366F108] transition"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        Kiểm tra kiến thức tuần này
+      </button>
+    )
+  }
+
+  return (
+    <div className="mt-5 flex flex-col gap-4">
+      {/* Quiz header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="font-fraunces text-[14px] font-semibold text-[#F8FAFC]">Kiểm tra nhanh</span>
+          <span className="font-jakarta text-[11px] text-[#475569] px-2 py-0.5 rounded-full bg-[#111827] border border-[#1E2A44]">
+            Không dùng máy tính
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="font-jakarta text-[12px] text-[#475569] hover:text-[#94A3B8] transition"
+        >
+          Thu gọn
+        </button>
+      </div>
+
+      {/* Loading */}
+      {loading && (
+        <div className="flex items-center gap-2 py-6 justify-center font-jakarta text-[13px] text-[#475569] animate-pulse">
+          <span className="w-2 h-2 rounded-full bg-[#6366F1] animate-bounce" />
+          Oracle đang tạo câu hỏi…
+        </div>
+      )}
+
+      {/* Error */}
+      {error && !loading && (
+        <div className="rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/5 px-4 py-3 flex items-center justify-between gap-4">
+          <span className="font-jakarta text-[13px] text-[#EF4444]">{error}</span>
+          <button
+            type="button"
+            onClick={fetchQuiz}
+            className="shrink-0 px-3 py-1.5 rounded-lg font-jakarta text-[12px] font-semibold text-[#EF4444] border border-[#EF4444]/30 hover:bg-[#EF4444]/10 transition"
+          >
+            Thử lại
+          </button>
+        </div>
+      )}
+
+      {/* Questions */}
+      {questions && !loading && (
+        <>
+          <div className="flex flex-col gap-6">
+            {questions.map((q, i) => (
+              <div key={i} className="rounded-xl border border-[#1E2A44] bg-[#0A0F1E] p-4">
+                <QuizQuestion
+                  q={q}
+                  index={i}
+                  chosen={answers[i] ?? null}
+                  submitted={submitted}
+                  onChoose={(ci) => !submitted && setAnswers(a => ({ ...a, [i]: ci }))}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Score banner */}
+          {submitted && (
+            <div
+              className="rounded-xl px-5 py-4 flex items-center justify-between"
+              style={{
+                border: `1px solid ${score === questions.length ? '#10B98140' : score >= questions.length / 2 ? '#F2A20C40' : '#EF444440'}`,
+                background: score === questions.length ? '#10B98108' : score >= questions.length / 2 ? '#F2A20C08' : '#EF444408',
+              }}
+            >
+              <div className="flex flex-col gap-0.5">
+                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">
+                  {score}/{questions.length} câu đúng
+                </span>
+                <span className="font-jakarta text-[12px] text-[#64748B]">
+                  {score === questions.length
+                    ? 'Xuất sắc! Bạn đã nắm vững kiến thức tuần này.'
+                    : score >= questions.length / 2
+                    ? 'Khá tốt! Ôn lại những câu chưa đúng.'
+                    : 'Cần ôn thêm — xem giải thích từng câu bên trên.'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="font-jakarta text-[12px] font-semibold text-[#6366F1] hover:underline transition"
+              >
+                Làm lại
+              </button>
+            </div>
+          )}
+
+          {/* Submit / next */}
+          {!submitted && (
+            <button
+              type="button"
+              disabled={!allAnswered}
+              onClick={() => setSubmitted(true)}
+              className="w-full py-2.5 rounded-xl font-jakarta text-[13px] font-bold disabled:opacity-40 transition"
+              style={{ background: allAnswered ? 'linear-gradient(180deg,#6366F1 0%,#4F46E5 100%)' : '#111827', color: allAnswered ? '#fff' : '#475569', border: allAnswered ? 'none' : '1px solid #1E2A44' }}
+            >
+              {allAnswered ? 'Nộp bài kiểm tra' : `Còn ${questions.length - Object.keys(answers).length} câu chưa trả lời`}
+            </button>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+// ── Page skeleton ────────────────────────────────────────────────────────────
+
 function Skeleton() {
   return (
     <div className="flex flex-col gap-5 animate-pulse">
@@ -39,18 +298,20 @@ function Skeleton() {
   )
 }
 
+// ── Page ─────────────────────────────────────────────────────────────────────
+
 export default function StudyPlan() {
   const navigate = useNavigate()
   const { resultId } = useParams()
   const location = useLocation()
   const { results } = useHistory()
-  const [plan, setPlan] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
+  const [plan, setPlan]         = useState(null)
+  const [loading, setLoading]   = useState(true)
+  const [error, setError]       = useState(false)
   const [activeWeek, setActiveWeek] = useState(0)
-  const [progress, setProgress] = useState({}) // { weekIndex: { taskIndex: bool } }
+  const [progress, setProgress] = useState({})
 
-  const result = location.state?.result || results.find(r => r.id === resultId)
+  const result  = location.state?.result  || results.find(r => r.id === resultId)
   const history = location.state?.history || results.filter(r => r.id !== resultId)
 
   useEffect(() => {
@@ -60,34 +321,20 @@ export default function StudyPlan() {
 
   useEffect(() => {
     if (!result) return
-
-    // Return cached plan immediately if available
     const cacheKey = PLAN_CACHE_KEY(resultId)
     const cached = localStorage.getItem(cacheKey)
-    if (cached) {
-      setPlan(JSON.parse(cached))
-      setLoading(false)
-      return
-    }
-
+    if (cached) { setPlan(JSON.parse(cached)); setLoading(false); return }
     setLoading(true)
     generateStudyPlan(buildStudyPlanPayload(result, history)).then(({ data, error: err }) => {
       setLoading(false)
-      if (data) {
-        localStorage.setItem(cacheKey, JSON.stringify(data))
-        setPlan(data)
-      } else {
-        setError(true)
-      }
+      if (data) { localStorage.setItem(cacheKey, JSON.stringify(data)); setPlan(data) }
+      else setError(true)
     })
   }, [resultId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function toggleTask(weekIdx, taskIdx) {
     setProgress(prev => {
-      const next = {
-        ...prev,
-        [weekIdx]: { ...prev[weekIdx], [taskIdx]: !prev[weekIdx]?.[taskIdx] },
-      }
+      const next = { ...prev, [weekIdx]: { ...prev[weekIdx], [taskIdx]: !prev[weekIdx]?.[taskIdx] } }
       localStorage.setItem(STORAGE_KEY(resultId), JSON.stringify(next))
       return next
     })
@@ -106,12 +353,8 @@ export default function StudyPlan() {
 
   return (
     <div className="min-h-screen bg-[#0A0E1A] flex flex-col">
-      {/* NavBar */}
       <nav className="flex items-center justify-between px-8 bg-[#0D1221] border-b border-[#1E2A44]" style={{ height: 64 }}>
-        <button
-          onClick={() => navigate(-1)}
-          className="font-jakarta text-[13px] text-[#94A3B8] hover:text-[#F8FAFC] transition"
-        >
+        <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-[#94A3B8] hover:text-[#F8FAFC] transition">
           ← Quay lại
         </button>
         <span className="font-jakarta text-[14px] font-semibold text-[#F8FAFC]">Kế hoạch học tập</span>
@@ -125,7 +368,13 @@ export default function StudyPlan() {
           <div className="flex flex-col items-center gap-4 py-16">
             <p className="font-jakarta text-[#94A3B8]">Không thể tạo kế hoạch học tập</p>
             <button
-              onClick={() => { setError(false); setLoading(true); generateStudyPlan(buildStudyPlanPayload(result, history)).then(({ data }) => { setLoading(false); if (data) setPlan(data); else setError(true) }) }}
+              onClick={() => {
+                setError(false); setLoading(true)
+                generateStudyPlan(buildStudyPlanPayload(result, history)).then(({ data }) => {
+                  setLoading(false)
+                  if (data) setPlan(data); else setError(true)
+                })
+              }}
               className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold text-[#0A0E1A]"
               style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
             >
@@ -152,9 +401,7 @@ export default function StudyPlan() {
                   key={i}
                   onClick={() => setActiveWeek(i)}
                   className={`px-4 py-2 rounded-lg font-jakarta text-[12px] font-semibold transition ${
-                    activeWeek === i
-                      ? 'text-[#0A0E1A]'
-                      : 'bg-[#111827] border border-[#1E2A44] text-[#94A3B8] hover:text-[#F8FAFC]'
+                    activeWeek === i ? 'text-[#0A0E1A]' : 'bg-[#111827] border border-[#1E2A44] text-[#94A3B8] hover:text-[#F8FAFC]'
                   }`}
                   style={activeWeek === i ? { background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' } : {}}
                 >
@@ -186,6 +433,17 @@ export default function StudyPlan() {
                     tasks={w.tasks}
                     checked={weekProgress}
                     onToggle={(taskIdx) => toggleTask(activeWeek, taskIdx)}
+                  />
+
+                  {/* Divider */}
+                  <div className="mt-6 border-t border-[#1E2A44]" />
+
+                  {/* Per-week quiz */}
+                  <WeekQuiz
+                    resultId={resultId}
+                    weekIndex={activeWeek}
+                    weekFocus={w.focus}
+                    weekTasks={w.tasks}
                   />
                 </div>
               )

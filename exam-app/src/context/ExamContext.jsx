@@ -9,6 +9,7 @@ const initialState = {
   questions: [],
   answers: {},
   hints: {},
+  flags: {},
   mode: 'timed',
   timeLeft: null,
   status: 'idle', // idle | active | timeout | submitted
@@ -38,6 +39,14 @@ function reducer(state, action) {
         },
       }
     }
+    case 'TOGGLE_FLAG':
+      return {
+        ...state,
+        flags: {
+          ...state.flags,
+          [action.questionId]: !state.flags[action.questionId],
+        },
+      }
     case 'TICK':
       return tick(state)
     case 'SUBMIT':
@@ -74,4 +83,11 @@ export function useHints() {
   const setHint = (questionId, count, text) =>
     dispatch({ type: 'SET_HINT', questionId, count, text })
   return { hints, setHint }
+}
+
+export function useFlags() {
+  const { flags } = useContext(ExamContext)
+  const dispatch = useContext(ExamDispatch)
+  const toggleFlag = (questionId) => dispatch({ type: 'TOGGLE_FLAG', questionId })
+  return { flags, toggleFlag }
 }

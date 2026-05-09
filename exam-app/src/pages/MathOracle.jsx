@@ -746,10 +746,13 @@ export default function MathOracle() {
   const [lastSolution, setLastSolution] = useState('')
   const [ocring, setOcring] = useState(false)
   const [ocringS, setOcringS] = useState(false)
+  const [cameraMenu, setCameraMenu] = useState(null) // null | 'question' | 'solution'
   const textareaRef = useRef(null)
   const solutionRef = useRef(null)
   const fileInputRef = useRef(null)
+  const cameraInputRef = useRef(null)
   const solutionFileInputRef = useRef(null)
+  const solutionCameraInputRef = useRef(null)
 
   const { status: wikiStatus, justBecameReady } = useWikiStatus()
   const wikiReady  = wikiStatus?.phase === 'ready'
@@ -1002,20 +1005,42 @@ export default function MathOracle() {
             />
             <SymbolPalette onInsert={handleInsert} />
             <div className="flex justify-end items-center gap-2 px-3 py-2 border-t border-[#2A3A5E]">
-              {/* OCR image upload */}
-              <button
-                type="button"
-                title="Nhận diện ảnh"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={ocring || loading || wikiLocked}
-                className="p-1.5 text-[#475569] hover:text-[#94A3B8] disabled:opacity-40 transition"
-              >
-                {ocring
-                  ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid #475569', borderTopColor:'#94A3B8', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
-                  : <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                }
-              </button>
+              {/* OCR image upload / camera capture */}
+              <div className="relative">
+                <button
+                  type="button"
+                  title="Nhận diện ảnh"
+                  onClick={() => setCameraMenu(m => m === 'question' ? null : 'question')}
+                  disabled={ocring || loading || wikiLocked}
+                  className="p-1.5 text-[#475569] hover:text-[#94A3B8] disabled:opacity-40 transition"
+                >
+                  {ocring
+                    ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid #475569', borderTopColor:'#94A3B8', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
+                    : <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  }
+                </button>
+                {cameraMenu === 'question' && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setCameraMenu(null)} />
+                    <div className="absolute bottom-full right-0 mb-1 z-20 rounded-lg border border-[#2A3A5E] bg-[#0F1726] shadow-xl overflow-hidden" style={{ minWidth: 160 }}>
+                      <button type="button"
+                        onClick={() => { setCameraMenu(null); fileInputRef.current?.click() }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 font-jakarta text-[13px] text-[#94A3B8] hover:bg-[#1E2D45] transition text-left">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Tải ảnh lên
+                      </button>
+                      <button type="button"
+                        onClick={() => { setCameraMenu(null); cameraInputRef.current?.click() }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 font-jakarta text-[13px] text-[#94A3B8] hover:bg-[#1E2D45] transition text-left border-t border-[#1E2D45]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        Chụp ảnh
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleOcrFile} style={{ display: 'none' }} />
+              <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleOcrFile} style={{ display: 'none' }} />
               <span className="font-jakarta text-[11px] text-[#334155]">⌘ Enter</span>
               <button type="submit" disabled={!question.trim() || loading || wikiLocked || ocring || ocringS}
                 className="px-4 py-1.5 bg-[#6366F1] text-white font-jakarta font-semibold text-sm rounded-lg disabled:opacity-40 hover:bg-[#4F46E5] transition">
@@ -1045,16 +1070,38 @@ export default function MathOracle() {
                 }}
               />
               <div className="flex justify-end items-center gap-2 px-3 py-2 border-t border-[#2A3A5E]">
-                <button type="button" title="Chụp ảnh lời giải"
-                  onClick={() => solutionFileInputRef.current?.click()}
-                  disabled={ocringS || loading}
-                  className="p-1.5 text-[#475569] hover:text-[#94A3B8] disabled:opacity-40 transition">
-                  {ocringS
-                    ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid #475569', borderTopColor:'#94A3B8', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
-                    : <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                  }
-                </button>
+                <div className="relative">
+                  <button type="button" title="Nhận diện ảnh lời giải"
+                    onClick={() => setCameraMenu(m => m === 'solution' ? null : 'solution')}
+                    disabled={ocringS || loading}
+                    className="p-1.5 text-[#475569] hover:text-[#94A3B8] disabled:opacity-40 transition">
+                    {ocringS
+                      ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid #475569', borderTopColor:'#94A3B8', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
+                      : <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    }
+                  </button>
+                  {cameraMenu === 'solution' && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setCameraMenu(null)} />
+                      <div className="absolute bottom-full right-0 mb-1 z-20 rounded-lg border border-[#2A3A5E] bg-[#0F1726] shadow-xl overflow-hidden" style={{ minWidth: 160 }}>
+                        <button type="button"
+                          onClick={() => { setCameraMenu(null); solutionFileInputRef.current?.click() }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 font-jakarta text-[13px] text-[#94A3B8] hover:bg-[#1E2D45] transition text-left">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                          Tải ảnh lên
+                        </button>
+                        <button type="button"
+                          onClick={() => { setCameraMenu(null); solutionCameraInputRef.current?.click() }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 font-jakarta text-[13px] text-[#94A3B8] hover:bg-[#1E2D45] transition text-left border-t border-[#1E2D45]">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                          Chụp ảnh
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
                 <input ref={solutionFileInputRef} type="file" accept="image/*" onChange={handleOcrSolution} style={{ display: 'none' }} />
+                <input ref={solutionCameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleOcrSolution} style={{ display: 'none' }} />
                 <span className="font-jakarta text-[11px] text-[#334155]">Lời giải</span>
               </div>
             </div>
