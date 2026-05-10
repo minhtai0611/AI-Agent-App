@@ -98,6 +98,18 @@ function ProgressDots({ tasks, checked, onToggle }) {
 
 // ── Quiz components ──────────────────────────────────────────────────────────
 
+// Strips taxonomy bracket labels, promotes the correct-answer line to a header,
+// and inserts paragraph breaks + bold before each trap.
+function formatExplanation(raw) {
+  if (!raw) return raw
+  return raw
+    .replace(/\s*\[[A-Z_]+\]/g, '')                        // remove [TAXONOMY_LABEL]
+    .replace(/\s+:/g, ':')                                  // fix "Bẫy B :" → "Bẫy B:"
+    .replace(/^Đáp án đúng\s*:\s*/i, '')                   // strip prefix (shown in header)
+    .replace(/(\.?\s*)(Bẫy\s+[A-D]\s*:)/g, '\n\n**$2**')  // paragraph + bold each trap
+    .trim()
+}
+
 function QuizQuestion({ q, index, chosen, submitted, onChoose }) {
   const correct = q.correct_index
   return (
@@ -153,9 +165,20 @@ function QuizQuestion({ q, index, chosen, submitted, onChoose }) {
 
       {/* Explanation after submit */}
       {submitted && q.explanation && (
-        <div className="rounded-lg border border-[#2A3A5E] bg-[#0A0F1E] px-4 py-3 font-jakarta text-[12px] text-[#64748B] leading-relaxed">
-          <span className="text-[#475569] font-semibold block mb-1">Giải thích:</span>
-          <MathBlock>{q.explanation}</MathBlock>
+        <div className="rounded-lg border border-[#2A3A5E] bg-[#0A0F1E] px-4 py-3 font-jakarta text-[12px] leading-relaxed">
+          {/* Correct answer header */}
+          <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#1E2A44]">
+            <span className="text-[10px] font-bold text-[#10B981] px-1.5 py-0.5 rounded bg-[#10B98118] border border-[#10B98140]">
+              Đáp án {String.fromCharCode(65 + correct)}
+            </span>
+            <span className="text-[#94A3B8] text-[11px]">
+              <MathText>{q.choices[correct]?.replace(/^[A-D]\.\s*/, '')}</MathText>
+            </span>
+          </div>
+          {/* Step-by-step + trap breakdown */}
+          <div className="text-[#64748B]">
+            <MathBlock>{formatExplanation(q.explanation)}</MathBlock>
+          </div>
         </div>
       )}
     </div>
