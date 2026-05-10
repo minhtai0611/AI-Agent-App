@@ -35,7 +35,8 @@ async def validate(
     try:
         parsed = json.loads(content)
     except json.JSONDecodeError:
-        return ValidationResult(valid=False, issues=["validation parse error"])
+        logger.warning("Validator returned malformed JSON — skipping UI issue")
+        return ValidationResult(valid=False, issues=[])
     llm_result = ValidationResult(**parsed)
 
     # Deterministic override: if SymPy confirms the answer is wrong, trust it over LLM.

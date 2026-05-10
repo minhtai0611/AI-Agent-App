@@ -2,6 +2,18 @@ import base64
 from openai import AsyncOpenAI
 from app.config import get_settings
 
+# Phrases Claude returns when image content was stripped by the proxy
+_NO_IMAGE_PHRASES = (
+    "chưa đính kèm hình ảnh",
+    "không thấy hình ảnh",
+    "không có hình ảnh",
+    "vui lòng tải lên hình ảnh",
+    "vui lòng gửi hình ảnh",
+    "no image attached",
+    "no image provided",
+    "i don't see any image",
+)
+
 _SYSTEM_PROMPT = (
     "You are a Vietnamese math OCR assistant. Extract all text, mathematical content, and visual elements from the image.\n"
     "Rules:\n"
@@ -47,4 +59,8 @@ async def extract_math_from_image(
     text = (response.choices[0].message.content or "").strip()
     if not text:
         raise ValueError("Claude Vision returned empty response")
+    if any(phrase in text.lower() for phrase in _NO_IMAGE_PHRASES):
+        raise ValueError(
+            "Vision API not supported by this AI router — please type the problem manually."
+        )
     return text

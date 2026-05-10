@@ -390,6 +390,87 @@ def test_math_ocr_unsupported_type():
     assert r.status_code == 415
 
 
+def test_math_ocr_no_image_response_raises_502():
+    """Router that strips image content causes model to reply 'no image' — must surface as 502."""
+    no_image_reply = "Bạn chưa đính kèm hình ảnh nào. Vui lòng gửi hình ảnh để tôi có thể trích xuất nội dung toán học."
+    with patch("app.math_wiki.agents.ocr.extract_math_from_image",
+               new_callable=AsyncMock, side_effect=ValueError(no_image_reply)):
+        r = client.post("/math-ocr", files={"file": ("test.jpg", b"fakejpeg", "image/jpeg")})
+    assert r.status_code == 502
+
+
+def test_math_ocr_vision_unsupported_detected():
+    """extract_math_from_image raises ValueError when model says it sees no image."""
+    import asyncio
+    from unittest.mock import AsyncMock, patch
+    from app.math_wiki.agents.ocr import extract_math_from_image
+
+    no_image_text = "Tôi không thấy hình ảnh nào được đính kèm trong tin nhắn của bạn."
+    mock_client = MagicMock()
+    mock_client.chat = MagicMock()
+    mock_client.chat.completions = MagicMock()
+    mock_client.chat.completions.create = AsyncMock(return_value=_mock_completion(no_image_text))
+
+    with pytest.raises(ValueError, match="Vision"):
+        asyncio.get_event_loop().run_until_complete(
+            extract_math_from_image(mock_client, b"fakejpeg", "image/jpeg")
+        )
+
+
+def test_reviewer_inconsistent_response_retries():
+    """Reviewer retries once when model returns non-correct verdict with empty errors+feedback."""
+    import asyncio
+    from app.math_wiki.agents.reviewer import review_solution
+    from app.math_wiki.schemas import WikiUnit
+
+    empty_verdict = json.dumps({"verdict": "incorrect", "score": "0/10",
+                                "correct_steps": [], "errors": [], "feedback": "",
+                                "correct_approach": ""})
+    good_verdict = json.dumps({"verdict": "correct", "score": "9/10",
+                               "correct_steps": ["(x-2)(x-3)=0", "x=2 or x=3"],
+                               "errors": [], "feedback": "Đúng rồi.", "correct_approach": ""})
+
+    mock_client = MagicMock()
+    mock_client.chat = MagicMock()
+    mock_client.chat.completions = MagicMock()
+    mock_client.chat.completions.create = AsyncMock(
+        side_effect=[_mock_completion(empty_verdict), _mock_completion(good_verdict)]
+    )
+
+    result = asyncio.get_event_loop().run_until_complete(
+        review_solution(mock_client, "x^2 - 5x + 6 = 0", "(x-2)(x-3)=0 nên x=2 hoặc x=3", [])
+    )
+    assert result.verdict == "correct"
+    assert result.score == "9/10"
+    assert mock_client.chat.completions.create.call_count == 2
+
+
+def test_validator_parse_error_hides_from_ui():
+    """JSON parse failure in validator must not surface 'validation parse error' to users."""
+    import asyncio
+    from app.math_wiki.agents.validator import validate
+    from app.math_wiki.agents.solver import SolverOutput
+
+    bad_json = "```json\n{invalid json\n```"
+    mock_client = MagicMock()
+    mock_client.chat = MagicMock()
+    mock_client.chat.completions = MagicMock()
+    mock_client.chat.completions.create = AsyncMock(return_value=_mock_completion(bad_json))
+
+    solver_out = SolverOutput(
+        problem_type="algebra",
+        used_knowledge_ids=[],
+        steps=["x=2 or x=3"],
+        final_answer="x=2 or x=3",
+        confidence="high",
+    )
+    result = asyncio.get_event_loop().run_until_complete(
+        validate(mock_client, solver_out, [], problem_text="x^2 - 5x + 6 = 0")
+    )
+    assert result.valid is False
+    assert result.issues == []
+
+
 # ── test_bge_m3 ───────────────────────────────────────────────────────────────
 
 def test_embed_dim():
