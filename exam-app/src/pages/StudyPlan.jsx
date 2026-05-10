@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import Markdown from 'react-markdown'
 import remarkMath from 'remark-math'
+import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 import { useHistory } from '../context/HistoryContext.jsx'
@@ -17,12 +18,44 @@ const REMARK_MATH_OPTS = [remarkMath, { singleDollarTextMath: true }]
 const DIFF_COLOR = { easy: '#10B981', medium: '#F2A20C', hard: '#EF4444' }
 const DIFF_LABEL = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
 
+// Inline context: stem, choices, tasks — wraps paragraphs in <span> to avoid block gaps
 function MathText({ children }) {
   return (
     <Markdown
       remarkPlugins={[REMARK_MATH_OPTS]}
       rehypePlugins={[rehypeKatex]}
       components={{ p: ({ children: c }) => <span>{c}</span> }}
+    >
+      {children ?? ''}
+    </Markdown>
+  )
+}
+
+// Block context: plan overview, explanations — preserves paragraph breaks and renders tables
+function MathBlock({ children }) {
+  return (
+    <Markdown
+      remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]}
+      rehypePlugins={[rehypeKatex]}
+      components={{
+        p:      ({ children: c }) => <p className="mb-2 last:mb-0">{c}</p>,
+        strong: ({ children: c }) => <strong className="font-semibold text-[#CBD5E1]">{c}</strong>,
+        em:     ({ children: c }) => <em className="italic">{c}</em>,
+        ul:     ({ children: c }) => <ul className="list-disc pl-5 space-y-1">{c}</ul>,
+        ol:     ({ children: c }) => <ol className="list-decimal pl-5 space-y-1">{c}</ol>,
+        li:     ({ children: c }) => <li className="leading-relaxed">{c}</li>,
+        table:  ({ children: c }) => (
+          <div className="overflow-x-auto my-2">
+            <table className="border-collapse text-[12px] w-full">{c}</table>
+          </div>
+        ),
+        th: ({ children: c }) => (
+          <th className="border border-[#2A3A5E] px-3 py-1.5 font-semibold text-[#CBD5E1] text-left bg-[#111827]">{c}</th>
+        ),
+        td: ({ children: c }) => (
+          <td className="border border-[#2A3A5E] px-3 py-1.5 text-[#94A3B8]">{c}</td>
+        ),
+      }}
     >
       {children ?? ''}
     </Markdown>
@@ -41,7 +74,7 @@ function ProgressDots({ tasks, checked, onToggle }) {
             className="mt-0.5 flex-shrink-0 accent-[#F2A20C]"
           />
           <span className={`font-jakarta text-[13px] leading-relaxed transition ${checked[i] ? 'line-through text-[#475569]' : 'text-[#94A3B8] group-hover:text-[#F8FAFC]'}`}>
-            {task}
+            <MathText>{task}</MathText>
           </span>
         </label>
       ))}
@@ -107,8 +140,8 @@ function QuizQuestion({ q, index, chosen, submitted, onChoose }) {
       {/* Explanation after submit */}
       {submitted && q.explanation && (
         <div className="rounded-lg border border-[#2A3A5E] bg-[#0A0F1E] px-4 py-3 font-jakarta text-[12px] text-[#64748B] leading-relaxed">
-          <span className="text-[#475569] font-semibold">Giải thích: </span>
-          <MathText>{q.explanation}</MathText>
+          <span className="text-[#475569] font-semibold block mb-1">Giải thích:</span>
+          <MathBlock>{q.explanation}</MathBlock>
         </div>
       )}
     </div>
@@ -389,8 +422,8 @@ export default function StudyPlan() {
                 <span className="text-[#F2A20C]">✦</span>
                 <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Tổng quan</span>
               </div>
-              <div className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed whitespace-pre-wrap">
-                {plan.plan}
+              <div className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">
+                <MathBlock>{plan.plan}</MathBlock>
               </div>
             </div>
 
@@ -419,7 +452,7 @@ export default function StudyPlan() {
                 <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">
-                      Tuần {w.week}: {w.focus}
+                      Tuần {w.week}: <MathText>{w.focus}</MathText>
                     </span>
                     <span className="font-jakarta text-[12px] text-[#475569]">{done}/{w.tasks.length}</span>
                   </div>
