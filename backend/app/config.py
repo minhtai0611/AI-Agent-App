@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     # Set to "true" to crawl only topics that have zero wiki units (gap-fill).
     # Idempotent: re-runs are safe — the zero-unit check is the gate.
     crawl_gap_fill_enabled: bool = False
+    # Set to "true" to fix non-canonical topic/type labels and remove content duplicates on startup.
+    # Self-disables via HF Spaces API after one successful run.
+    wiki_sanitize_enabled: bool = False
     embedding_model_name: str = "BAAI/bge-m3"
     embedding_dim: int = 1024
 

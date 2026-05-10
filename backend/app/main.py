@@ -197,6 +197,22 @@ async def _auto_seed_wiki(pool, client) -> None:
         await _hf_set_space_variable("CRAWL_FORCE_RESEED", "false")
 
 
+async def _sanitize_wiki(pool) -> None:
+    """Fix non-canonical labels and remove content duplicates; self-disables after success."""
+    from app.math_wiki.storage.sanitizer import run_all
+    try:
+        report = await run_all(pool)
+        logger.info(
+            "wiki-sanitize complete: topic_remaps=%d topic_deletes=%d "
+            "type_remaps=%d duplicates_removed=%d",
+            report["topic_remaps"], report["topic_deletes"],
+            report["type_remaps"], report["duplicates_removed"],
+        )
+        await _hf_set_space_variable("WIKI_SANITIZE_ENABLED", "false")
+    except Exception as exc:
+        logger.error("wiki-sanitize failed: %s", exc)
+
+
 async def _apply_schema(pool) -> None:
     """Run DDL idempotently on every startup — all statements are CREATE IF NOT EXISTS."""
     async with pool.acquire() as conn:
@@ -239,6 +255,8 @@ async def lifespan(app: FastAPI):
         asyncio.ensure_future(_auto_seed_wiki(app.state.pool, get_ai_client()))
     elif app.state.pool:
         logger.info("auto-seed disabled (set CRAWL_AUTO_SEED_ENABLED, CRAWL_FORCE_RESEED, or CRAWL_GAP_FILL_ENABLED to enable)")
+    if app.state.pool and settings.wiki_sanitize_enabled:
+        asyncio.ensure_future(_sanitize_wiki(app.state.pool))
     yield
 
     if app.state.pool:

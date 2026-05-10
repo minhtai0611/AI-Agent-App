@@ -404,3 +404,17 @@ async def admin_crawl_status(_: None = Depends(_check_admin_key)):
         "stats": _crawl["stats"],
         "error": _crawl["error"],
     }
+
+
+# ── Sanitize ──────────────────────────────────────────────────────────────────
+
+@router.post("/sanitize")
+async def admin_sanitize(
+    dry_run: bool = Query(False, description="Report changes without applying them"),
+    _: None = Depends(_check_admin_key),
+    pool=Depends(_get_pool),
+):
+    """Fix non-canonical topic/type labels and remove content-duplicate wiki units."""
+    from app.math_wiki.storage.sanitizer import run_all
+    report = await run_all(pool, dry_run=dry_run)
+    return report
