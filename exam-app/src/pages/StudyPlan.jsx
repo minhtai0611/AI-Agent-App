@@ -98,6 +98,27 @@ function ProgressDots({ tasks, checked, onToggle }) {
 
 // ── Quiz components ──────────────────────────────────────────────────────────
 
+// Pre-render guard: verifies every required field before a question reaches the DOM.
+// Returns { valid: boolean, issues: string[] }. Hard failures drop the question;
+// soft mismatches are logged but still render (math was validated server-side).
+function validateQuestion(q) {
+  const issues = []
+  if (!q || typeof q !== 'object') return { valid: false, issues: ['not an object'] }
+  if (typeof q.correct_index !== 'number' || q.correct_index < 0 || q.correct_index > 3)
+    issues.push(`correct_index out of range: ${q.correct_index}`)
+  if (!Array.isArray(q.choices) || q.choices.length !== 4)
+    issues.push(`expected 4 choices, got ${Array.isArray(q.choices) ? q.choices.length : typeof q.choices}`)
+  else if (!q.choices.every(c => typeof c === 'string' && c.trim()))
+    issues.push('one or more choices are empty')
+  if (!q.stem || typeof q.stem !== 'string' || !q.stem.trim())
+    issues.push('stem is empty')
+  if (!q.explanation || typeof q.explanation !== 'string' || !q.explanation.trim())
+    issues.push('explanation is missing')
+  else if (!q.explanation.includes('Đáp án đúng'))
+    issues.push('explanation missing "Đáp án đúng" section')
+  return { valid: issues.length === 0, issues }
+}
+
 // Formats explanation: removes any [bracket labels], bolds "Đáp án đúng:" so the
 // correct answer is clearly stated, and splits each trap into its own paragraph.
 function formatExplanation(raw) {
@@ -207,7 +228,12 @@ function WeekQuiz({ resultId, weekIndex, weekFocus, weekTasks }) {
     })
     setLoading(false)
     if (err) { setError(err); return }
-    const qs = data?.questions ?? []
+    const raw = data?.questions ?? []
+    const qs = raw.filter(q => {
+      const { valid, issues } = validateQuestion(q)
+      if (!valid) console.warn('[quiz-validate] dropped question:', issues, q)
+      return valid
+    })
     localStorage.setItem(cacheKey, JSON.stringify(qs))
     setQuestions(qs)
     setAnswers({})

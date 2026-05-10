@@ -323,6 +323,65 @@ def _extract_json(text: str) -> str:
     return fixed
 
 
+def _validate_structure(questions: list[dict]) -> list[dict]:
+    """Deterministic post-generation guard before questions reach the UI.
+
+    Hard drops (structural):
+      - correct_index not an int 0-3
+      - choices count != 4
+      - any choice is empty/missing
+      - stem is empty
+
+    Soft warns (content consistency — LLM reviewer already validated the math):
+      - explanation missing "Đáp án đúng" section
+      - choices[correct_index] value not found in explanation answer section
+    """
+    valid: list[dict] = []
+    for i, q in enumerate(questions):
+        ci = q.get("correct_index")
+        choices = q.get("choices") or []
+        stem = (q.get("stem") or "").strip()
+        explanation = (q.get("explanation") or "").strip()
+
+        # ── Hard structural checks ──────────────────────────────────────────
+        if not isinstance(ci, int) or not (0 <= ci <= 3):
+            logger.warning("quiz_validate: q%d dropped — invalid correct_index %r", i, ci)
+            continue
+        if len(choices) != 4:
+            logger.warning("quiz_validate: q%d dropped — expected 4 choices, got %d", i, len(choices))
+            continue
+        if not all(isinstance(c, str) and c.strip() for c in choices):
+            logger.warning("quiz_validate: q%d dropped — empty or non-string choice", i)
+            continue
+        if not stem:
+            logger.warning("quiz_validate: q%d dropped — empty stem", i)
+            continue
+
+        # ── Soft content-consistency checks (warn only) ─────────────────────
+        if not explanation:
+            logger.warning("quiz_validate: q%d has no explanation", i)
+        elif "Đáp án đúng" not in explanation:
+            logger.warning("quiz_validate: q%d explanation missing 'Đáp án đúng' section", i)
+        else:
+            # Extract correct choice value (strip "A. " label and LaTeX $ markers + whitespace)
+            correct_body = re.sub(r'^[A-D]\.\s*', '', choices[ci]).strip()
+            # Get answer section (text before first "Bẫy" label)
+            ans_section = re.split(r'\bBẫy\s+[A-D]\b', explanation, maxsplit=1)[0]
+
+            def _norm(s: str) -> str:
+                return re.sub(r'[\s$]', '', s)
+
+            if correct_body and _norm(correct_body) not in _norm(ans_section):
+                logger.warning(
+                    "quiz_validate: q%d explanation/answer mismatch — "
+                    "choice[%d]=%r not found in answer section %r",
+                    i, ci, correct_body[:50], ans_section[:100],
+                )
+
+        valid.append(q)
+    return valid
+
+
 def _shuffle_answer_position(questions: list[dict]) -> list[dict]:
     """Randomly redistribute the correct answer across A/B/C/D positions.
 
@@ -404,6 +463,7 @@ async def generate_week_quiz(
             and isinstance(q.get("correct_index"), int)
         ]
         questions = await _review_and_patch(client, questions, settings)
+        questions = _validate_structure(questions)
         questions = _shuffle_answer_position(questions)
         return questions
     except Exception as exc:
