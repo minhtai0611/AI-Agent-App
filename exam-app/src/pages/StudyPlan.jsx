@@ -18,13 +18,27 @@ const REMARK_MATH_OPTS = [remarkMath, { singleDollarTextMath: true }]
 const DIFF_COLOR = { easy: '#10B981', medium: '#F2A20C', hard: '#EF4444' }
 const DIFF_LABEL = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
 
-// Inline context: stem, choices, tasks — wraps paragraphs in <span> to avoid block gaps
+// Inline context: stem, choices, tasks — wraps paragraphs in <span> to avoid block gaps.
+// GFM enabled so markdown tables inside stems render instead of showing raw pipe characters.
 function MathText({ children }) {
   return (
     <Markdown
-      remarkPlugins={[REMARK_MATH_OPTS]}
+      remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]}
       rehypePlugins={[rehypeKatex]}
-      components={{ p: ({ children: c }) => <span>{c}</span> }}
+      components={{
+        p:     ({ children: c }) => <span>{c}</span>,
+        table: ({ children: c }) => (
+          <div className="overflow-x-auto my-2">
+            <table className="border-collapse text-[12px] w-full">{c}</table>
+          </div>
+        ),
+        th: ({ children: c }) => (
+          <th className="border border-[#2A3A5E] px-3 py-1.5 font-semibold text-[#CBD5E1] text-left bg-[#111827]">{c}</th>
+        ),
+        td: ({ children: c }) => (
+          <td className="border border-[#2A3A5E] px-3 py-1.5 text-[#94A3B8]">{c}</td>
+        ),
+      }}
     >
       {children ?? ''}
     </Markdown>
