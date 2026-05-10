@@ -1,5 +1,6 @@
 import json
 import logging
+import random
 import re
 from openai import AsyncOpenAI
 from app.config import get_settings
@@ -189,6 +190,7 @@ YÊU CẦU BẮT BUỘC cho mỗi câu:
 2. Đảm bảo nguyên tắc LOOKALIKE: 4 phương án cùng dạng ký hiệu, giá trị gần nhau.
 3. Ba bẫy từ ba loại lỗi KHÁC NHAU trong taxonomy.
 4. Explanation nêu rõ: tính toán đáp án đúng + tên loại lỗi + cơ chế sai của từng bẫy.
+5. PHÂN BỐ correct_index: trong {n} câu, đáp án đúng phải rải đều A/B/C/D — KHÔNG được tập trung vào một vị trí. Đặt đáp án đúng vào vị trí bất kỳ (0, 1, 2, hoặc 3) sau khi sắp xếp choices.
 
 Trả về JSON hợp lệ, không có text nào ngoài JSON:
 {{
@@ -196,10 +198,10 @@ Trả về JSON hợp lệ, không có text nào ngoài JSON:
     {{
       "stem": "Nội dung câu hỏi (tiếng Việt, LaTeX $...$)",
       "choices": ["A. ...", "B. ...", "C. ...", "D. ..."],
-      "correct_index": 0,
-      "difficulty": "easy",
-      "bloom_level": "remember",
-      "explanation": "Đáp án đúng: <lời giải từng bước>. Bẫy B [LOẠI_LỖI]: <cơ chế sai cụ thể>. Bẫy C [LOẠI_LỖI]: <cơ chế sai cụ thể>. Bẫy D [LOẠI_LỖI]: <cơ chế sai cụ thể>."
+      "correct_index": "<số nguyên 0-3, phân bố đều giữa các câu — KHÔNG luôn là 0>",
+      "difficulty": "easy|medium|hard",
+      "bloom_level": "remember|understand|apply|analyze",
+      "explanation": "Đáp án đúng: <lời giải từng bước>. Bẫy <tên PA sai 1> [LOẠI_LỖI]: <cơ chế>. Bẫy <tên PA sai 2> [LOẠI_LỖI]: <cơ chế>. Bẫy <tên PA sai 3> [LOẠI_LỖI]: <cơ chế>."
     }}
   ]
 }}"""
@@ -308,6 +310,31 @@ def _extract_json(text: str) -> str:
     return fixed
 
 
+def _shuffle_answer_position(questions: list[dict]) -> list[dict]:
+    """Randomly redistribute the correct answer across A/B/C/D positions.
+
+    LLMs have a strong bias toward correct_index=0. This post-processor
+    reassigns each question's correct answer to a random position so the
+    distribution is uniform regardless of what the model output.
+    """
+    result = []
+    for q in questions:
+        old_idx = q["correct_index"]
+        choices = list(q["choices"])
+        new_idx = random.randint(0, 3)
+        if new_idx != old_idx:
+            choices[old_idx], choices[new_idx] = choices[new_idx], choices[old_idx]
+            # Re-label A/B/C/D to match new positions
+            relabeled = []
+            for i, c in enumerate(choices):
+                label = chr(65 + i) + ". "
+                body = re.sub(r'^[A-D]\.\s*', '', c)
+                relabeled.append(label + body)
+            q = dict(q, choices=relabeled, correct_index=new_idx)
+        result.append(q)
+    return result
+
+
 async def generate_week_quiz(
     client: AsyncOpenAI,
     pool,
@@ -364,6 +391,7 @@ async def generate_week_quiz(
             and isinstance(q.get("correct_index"), int)
         ]
         questions = await _review_and_patch(client, questions, settings)
+        questions = _shuffle_answer_position(questions)
         return questions
     except Exception as exc:
         logger.error("quiz_generator: generation failed: %s", exc)

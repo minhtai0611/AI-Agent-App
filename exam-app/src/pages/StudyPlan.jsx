@@ -98,15 +98,15 @@ function ProgressDots({ tasks, checked, onToggle }) {
 
 // ── Quiz components ──────────────────────────────────────────────────────────
 
-// Strips taxonomy bracket labels, promotes the correct-answer line to a header,
-// and inserts paragraph breaks + bold before each trap.
+// Formats explanation: removes any [bracket labels], bolds "Đáp án đúng:" so the
+// correct answer is clearly stated, and splits each trap into its own paragraph.
 function formatExplanation(raw) {
   if (!raw) return raw
   return raw
-    .replace(/\s*\[[A-Z_]+\]/g, '')                        // remove [TAXONOMY_LABEL]
-    .replace(/\s+:/g, ':')                                  // fix "Bẫy B :" → "Bẫy B:"
-    .replace(/^Đáp án đúng\s*:\s*/i, '')                   // strip prefix (shown in header)
-    .replace(/(\.?\s*)(Bẫy\s+[A-D]\s*:)/g, '\n\n**$2**')  // paragraph + bold each trap
+    .replace(/\s*\[[^\]]+\]/g, '')                                  // remove any [bracket content]
+    .replace(/\s+:/g, ':')                                           // fix "Bẫy B :" → "Bẫy B:"
+    .replace(/Đáp án đúng\s*:\s*/gi, '**Đáp án đúng:** ')          // bold label, keep visible anywhere
+    .replace(/(\.?\s*)(Bẫy\s+[A-D]\s*:)/g, '\n\n**$2**')           // separate paragraph + bold each trap
     .trim()
 }
 
