@@ -11,6 +11,7 @@ Nguyên tắc bắt buộc:
 - Mỗi nhiệm vụ trong tuần phải liên hệ trực tiếp đến loại bài mà học sinh đã sai — không thêm nội dung ngoài phạm vi các câu sai đã cho.
 - Ưu tiên các lỗ hổng xuất hiện nhiều lần hoặc thuộc câu khó.
 - Viết nhiệm vụ như hướng dẫn cụ thể cho học sinh, không phải nhận xét chung.
+- LATEX BẮT BUỘC: Mọi ký hiệu toán học trong "tasks" và "focus" PHẢI được bọc trong $...$. Ví dụ: $x_1+x_2=-b/a$, $\Delta>0$, $x_1^2+x_2^2$, $|x_1-x_2|$. Không được viết ký hiệu toán dưới dạng plain text (x1+x2, delta, x^2).
 Trả lời bằng tiếng Việt. Luôn trả về JSON hợp lệ, không có text ngoài JSON."""
 
 
