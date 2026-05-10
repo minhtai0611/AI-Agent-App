@@ -4,7 +4,6 @@
     "year": 2022,
     "title": "AMC 8 — Competition Math (MAA)",
     "duration": 40,
-    "mode": "thithu",
     "source": "Mathematical Association of America",
     "questionIds": [
       "q_amc8_001",
@@ -25,7 +24,6 @@
     "year": 2023,
     "title": "AMC 10 — Advanced Problem Solving (MAA)",
     "duration": 40,
-    "mode": "thithu",
     "source": "Mathematical Association of America",
     "questionIds": [
       "q_amc10_001",
@@ -46,7 +44,6 @@
     "year": 2023,
     "title": "GCSE Higher Mathematics (AQA / Edexcel, UK)",
     "duration": 40,
-    "mode": "thithu",
     "source": "AQA / Edexcel",
     "questionIds": [
       "q_gcse_001",
