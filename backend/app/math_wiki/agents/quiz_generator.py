@@ -154,24 +154,28 @@ Bước 5 — Kiểm tra: Đọc từng bẫy và tự hỏi "Học sinh nào s�
 
 Sau khi tạo xong từng câu, thực hiện kiểm tra sau — nếu không qua thì viết lại câu đó:
 
-CHK-1  TOÁN HỌC CHÍNH XÁC
-  → Tính lại đáp án đúng từ đầu, độc lập với lời giải đã viết.
-  → Xác nhận choices[correct_index] = kết quả tính lại.
-  → Xác nhận 3 phương án còn lại đều SAI (không có phương án sai nào vô tình đúng).
+CHK-1  TOÁN HỌC CHÍNH XÁC — GIẢI TRƯỚC KHI ĐẶT correct_index
+  → Viết lời giải tự luận đầy đủ từng bước số học cụ thể.
+  → Ghi kết quả cuối: "Đáp án đúng = <giá trị>".
+  → Tìm phần tử trong choices khớp giá trị đó → đó là correct_index.
+  → Xác nhận 3 phương án còn lại đều SAI.
+  → KHÔNG được gán correct_index trước rồi mới giải — luôn giải trước, gán sau.
 
 CHK-2  NHẤT QUÁN GIẢI THÍCH — ĐÁP ÁN
-  → Đọc phần "Đáp án đúng:" trong explanation.
-  → Đọc nội dung choices[correct_index].
-  → Hai nội dung PHẢI KHỚP VỀ GIÁ TRỊ SỐ VÀ HÌNH THỨC BIỂU DIỄN.
-  → Nếu explanation nói "x = 5" nhưng choices[correct_index] ghi "$x = 3$" → viết lại.
+  → Nội dung "Đáp án đúng:" trong explanation PHẢI KHỚP giá trị số với choices[correct_index].
+  → Nếu không khớp → viết lại câu từ đầu.
 
 CHK-3  NHẤT QUÁN BẪY — EXPLANATION
   → Với mỗi bẫy (phương án sai), explanation phải ghi đúng tên loại lỗi và cơ chế sai khớp với giá trị trong choices.
-  → Ví dụ: nếu Bẫy B là "$x = -5$", explanation phải giải thích cụ thể TẠI SAO học sinh ra $-5$ (qua loại lỗi nào).
 
 CHK-4  LOOKALIKE ĐỦ ĐIỀU KIỆN
   → Tất cả 4 phương án cùng dạng ký hiệu và cấu trúc.
   → Không có phương án nào quá dài/ngắn hoặc phức tạp khác biệt rõ ràng so với các phương án khác.
+
+CHK-5  EXPLANATION NGẮN GỌN — KHÔNG BIỆN HỘ SAU
+  → Explanation CHỈ được giải bài toán GỐC trong stem — KHÔNG được thử nghiệm thay đổi đề bài.
+  → Nếu tính toán cho kết quả không khớp choices nào → viết lại câu hỏi để sửa, KHÔNG viết dài thêm để biện hộ.
+  → Giới hạn: phần "Đáp án đúng:" tối đa 4 câu/bước; mỗi bẫy tối đa 1 câu ngắn.
 
 QUAN TRỌNG: correct_index trong JSON PHẢI trỏ đúng vào phương án chứa đáp án đã tính ở CHK-1.
 Đây là điều kiện tối thiểu — sai ở đây là lỗi nghiêm trọng nhất."""
@@ -208,21 +212,30 @@ Trả về JSON hợp lệ, không có text nào ngoài JSON:
 
 
 # Reviewer prompt: independent mathematical validation of each generated question.
-# Grounded in:
-#   - NAACL 2024: explicit error-mechanism labeling correlates with higher distractor quality
-#   - INFORMS 2022: answer-key accuracy is the single largest driver of perceived MCQ quality
-#   - NYSED item-writing guide §4: each item must have one and only one defensible correct answer
-_REVIEWER_SYSTEM = r"""Bạn là giáo viên Toán kiểm duyệt đề thi lớp 9. Nhiệm vụ: kiểm tra từng câu trắc nghiệm về HAI khía cạnh:
+# Uses default_model (sonnet) because haiku cannot reliably verify multi-step algebra
+# (Vieta, completing the square, optimization with constraints, etc.).
+_REVIEWER_SYSTEM = r"""Bạn là giáo viên Toán lớp 9 kiểm duyệt độc lập. Với MỖI câu hỏi:
 
-1. ĐÚNG TOÁN HỌC: Tính lại từ đầu. Xác nhận choices[correct_index] là đáp án toán học đúng.
-2. NHẤT QUÁN: Nội dung phần "Đáp án đúng:" trong explanation phải khớp với choices[correct_index].
+BƯỚC 1 — GIẢI ĐỘC LẬP (bắt buộc, không đọc explanation trước):
+  Đọc "stem". Tính kết quả đúng từ đầu theo từng bước số học cụ thể.
+  Ghi kết quả tính được: result = <giá trị cụ thể>.
 
-Với mỗi câu trong mảng "questions", trả về một phần tử trong mảng "results":
-- Nếu hợp lệ: {"index": <i>, "valid": true}
-- Nếu có vấn đề: {"index": <i>, "valid": false, "issues": ["<mô tả ngắn>"], "corrected_correct_index": <j hoặc null>}
+BƯỚC 2 — ĐỐI CHIẾU VỚI CHOICES:
+  Tìm phần tử trong "choices" chứa giá trị = result ở Bước 1.
+  Đó là correct_index thực sự (0=A, 1=B, 2=C, 3=D).
 
-Chỉ trả về JSON thuần (không có text ngoài):
-{"results": [...]}"""
+BƯỚC 3 — SO SÁNH VỚI correct_index ĐÃ CHO:
+  Nếu correct_index đã cho = correct_index thực sự → valid: true.
+  Nếu khác → valid: false, báo corrected_correct_index = correct_index thực sự.
+  Nếu không có choice nào khớp result → valid: false, corrected_correct_index: null (bỏ câu).
+
+QUY TẮC QUAN TRỌNG:
+- KHÔNG được tin vào explanation — nó có thể sai hoặc cố tình biện hộ cho đáp án sai.
+- KHÔNG được chấp nhận lý luận dài dòng thay đổi đề bài. Chỉ kiểm tra stem gốc.
+- Nếu explanation mâu thuẫn với kết quả tính ở Bước 1 → luôn tin vào tính toán, không tin explanation.
+
+Trả về JSON thuần (không có text ngoài):
+{"results": [{"index": <i>, "valid": true|false, "corrected_correct_index": <j|null>}]}"""
 
 
 async def _review_and_patch(
@@ -238,8 +251,8 @@ async def _review_and_patch(
     try:
         response = await call_with_retry(
             client,
-            model=settings.haiku_model,
-            max_tokens=1024,
+            model=settings.default_model,
+            max_tokens=3000,
             messages=[
                 {"role": "system", "content": _REVIEWER_SYSTEM},
                 {"role": "user", "content": payload},
