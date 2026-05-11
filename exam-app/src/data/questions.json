@@ -5,8 +5,13 @@
     "year": 2022,
     "topic": "algebra",
     "difficulty": "easy",
-    "question": "If $2x + 3 = 11$, what is the value of $4x + 6$?",
-    "choices": ["$22$", "$8$", "$14$", "$16$"],
+    "question": "Nếu $2x + 3 = 11$, giá trị của $4x + 6$ là bao nhiêu?",
+    "choices": [
+      "$22$",
+      "$8$",
+      "$14$",
+      "$16$"
+    ],
     "correct": 0,
     "explanation": "$4x + 6 = 2(2x + 3) = 2 \\times 11 = 22$."
   },
@@ -16,10 +21,15 @@
     "year": 2022,
     "topic": "number_theory",
     "difficulty": "easy",
-    "question": "What is the largest prime factor of $120$?",
-    "choices": ["$5$", "$2$", "$3$", "$7$"],
+    "question": "Ước nguyên tố lớn nhất của $120$ là bao nhiêu?",
+    "choices": [
+      "$5$",
+      "$2$",
+      "$3$",
+      "$7$"
+    ],
     "correct": 0,
-    "explanation": "$120 = 2^3 \\times 3 \\times 5$. The largest prime factor is $5$."
+    "explanation": "$120 = 2^3 \\times 3 \\times 5$. Ước nguyên tố lớn nhất là $5$."
   },
   {
     "id": "q_amc8_003",
@@ -27,10 +37,15 @@
     "year": 2022,
     "topic": "algebra",
     "difficulty": "easy",
-    "question": "The sum of three consecutive integers is $45$. What is the largest of the three?",
-    "choices": ["$16$", "$14$", "$15$", "$17$"],
+    "question": "Tổng của ba số nguyên liên tiếp là $45$. Số lớn nhất trong ba số đó là bao nhiêu?",
+    "choices": [
+      "$16$",
+      "$14$",
+      "$15$",
+      "$17$"
+    ],
     "correct": 0,
-    "explanation": "Let the integers be $n-1, n, n+1$. Then $3n = 45 \\Rightarrow n = 15$, so the largest is $16$."
+    "explanation": "Gọi các số là $n-1, n, n+1$. Khi đó $3n = 45 \\Rightarrow n = 15$, nên số lớn nhất là $16$."
   },
   {
     "id": "q_amc8_004",
@@ -38,10 +53,15 @@
     "year": 2022,
     "topic": "geometry",
     "difficulty": "easy",
-    "question": "A rectangle has perimeter $28$ cm and length $8$ cm. What is its area?",
-    "choices": ["$48$ cm²", "$56$ cm²", "$36$ cm²", "$64$ cm²"],
+    "question": "Một hình chữ nhật có chu vi $28$ cm và chiều dài $8$ cm. Diện tích của nó là bao nhiêu?",
+    "choices": [
+      "$48$ cm²",
+      "$56$ cm²",
+      "$36$ cm²",
+      "$64$ cm²"
+    ],
     "correct": 0,
-    "explanation": "Width $= (28 - 2 \\times 8)/2 = 6$ cm. Area $= 8 \\times 6 = 48$ cm²."
+    "explanation": "Chiều rộng $= (28 - 2 \\times 8)/2 = 6$ cm. Diện tích $= 8 \\times 6 = 48$ cm²."
   },
   {
     "id": "q_amc8_005",
@@ -49,10 +69,15 @@
     "year": 2022,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "If $x^2 - 7x + 12 = 0$, what is the sum of the squares of its roots?",
-    "choices": ["$25$", "$13$", "$49$", "$1$"],
+    "question": "Nếu $x^2 - 7x + 12 = 0$, tổng bình phương các nghiệm của nó là bao nhiêu?",
+    "choices": [
+      "$25$",
+      "$13$",
+      "$49$",
+      "$1$"
+    ],
     "correct": 0,
-    "explanation": "By Vieta's formulas, $x_1 + x_2 = 7$ and $x_1 x_2 = 12$. So $x_1^2 + x_2^2 = (x_1+x_2)^2 - 2x_1x_2 = 49 - 24 = 25$."
+    "explanation": "Theo định lý Vieta, $x_1 + x_2 = 7$ và $x_1 x_2 = 12$. Vậy $x_1^2 + x_2^2 = (x_1+x_2)^2 - 2x_1x_2 = 49 - 24 = 25$."
   },
   {
     "id": "q_amc8_006",
@@ -60,10 +85,15 @@
     "year": 2022,
     "topic": "statistics",
     "difficulty": "easy",
-    "question": "The average of five numbers is $12$. Four of the numbers are $10, 11, 13, 14$. What is the fifth number?",
-    "choices": ["$12$", "$11$", "$13$", "$10$"],
+    "question": "Trung bình cộng của năm số là $12$. Bốn số trong đó là $10, 11, 13, 14$. Số thứ năm là bao nhiêu?",
+    "choices": [
+      "$12$",
+      "$11$",
+      "$13$",
+      "$10$"
+    ],
     "correct": 0,
-    "explanation": "Total sum $= 5 \\times 12 = 60$. Sum of four numbers $= 10+11+13+14 = 48$. Fifth $= 60 - 48 = 12$."
+    "explanation": "Tổng $= 5 \\times 12 = 60$. Tổng bốn số $= 10+11+13+14 = 48$. Số thứ năm $= 60 - 48 = 12$."
   },
   {
     "id": "q_amc8_007",
@@ -71,8 +101,13 @@
     "year": 2022,
     "topic": "geometry",
     "difficulty": "easy",
-    "question": "A right triangle has legs of length $5$ and $12$. What is the length of the hypotenuse?",
-    "choices": ["$13$", "$17$", "$11$", "$15$"],
+    "question": "Một tam giác vuông có hai cạnh góc vuông dài $5$ và $12$. Cạnh huyền dài bao nhiêu?",
+    "choices": [
+      "$13$",
+      "$17$",
+      "$11$",
+      "$15$"
+    ],
     "correct": 0,
     "explanation": "$c = \\sqrt{5^2 + 12^2} = \\sqrt{25 + 144} = \\sqrt{169} = 13$."
   },
@@ -82,10 +117,15 @@
     "year": 2022,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "What is the value of $\\sqrt{75} - \\sqrt{48}$?",
-    "choices": ["$\\sqrt{3}$", "$2\\sqrt{3}$", "$3\\sqrt{3}$", "$\\sqrt{27}$"],
+    "question": "Giá trị của $\\sqrt{75} - \\sqrt{48}$ là bao nhiêu?",
+    "choices": [
+      "$\\sqrt{3}$",
+      "$2\\sqrt{3}$",
+      "$3\\sqrt{3}$",
+      "$\\sqrt{27}$"
+    ],
     "correct": 0,
-    "explanation": "$\\sqrt{75} = 5\\sqrt{3}$ and $\\sqrt{48} = 4\\sqrt{3}$, so $\\sqrt{75} - \\sqrt{48} = \\sqrt{3}$."
+    "explanation": "$\\sqrt{75} = 5\\sqrt{3}$ và $\\sqrt{48} = 4\\sqrt{3}$, nên $\\sqrt{75} - \\sqrt{48} = \\sqrt{3}$."
   },
   {
     "id": "q_amc8_009",
@@ -93,10 +133,15 @@
     "year": 2022,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Two positive integers differ by $5$ and their product is $84$. What is the larger integer?",
-    "choices": ["$12$", "$14$", "$10$", "$9$"],
+    "question": "Hai số nguyên dương khác nhau $5$ và tích của chúng là $84$. Số lớn hơn là bao nhiêu?",
+    "choices": [
+      "$12$",
+      "$14$",
+      "$10$",
+      "$9$"
+    ],
     "correct": 0,
-    "explanation": "Let $x - y = 5$ and $xy = 84$. Then $y^2 + 5y - 84 = 0 \\Rightarrow (y+12)(y-7) = 0 \\Rightarrow y = 7$, so $x = 12$."
+    "explanation": "Gọi $x - y = 5$ và $xy = 84$. Khi đó $y^2 + 5y - 84 = 0 \\Rightarrow (y+12)(y-7) = 0 \\Rightarrow y = 7$, nên $x = 12$."
   },
   {
     "id": "q_amc8_010",
@@ -104,10 +149,15 @@
     "year": 2022,
     "topic": "number_theory",
     "difficulty": "medium",
-    "question": "What is the remainder when $2^{10}$ is divided by $7$?",
-    "choices": ["$2$", "$1$", "$4$", "$6$"],
+    "question": "Dư số khi chia $2^{10}$ cho $7$ là bao nhiêu?",
+    "choices": [
+      "$2$",
+      "$1$",
+      "$4$",
+      "$6$"
+    ],
     "correct": 0,
-    "explanation": "$2^3 = 8 \\equiv 1 \\pmod{7}$, so $2^{10} = (2^3)^3 \\cdot 2 \\equiv 1 \\cdot 2 = 2 \\pmod{7}$."
+    "explanation": "$2^3 = 8 \\equiv 1 \\pmod{7}$, nên $2^{10} = (2^3)^3 \\cdot 2 \\equiv 1 \\cdot 2 = 2 \\pmod{7}$."
   },
   {
     "id": "q_amc8_011",
@@ -115,10 +165,15 @@
     "year": 2022,
     "topic": "combinatorics",
     "difficulty": "easy",
-    "question": "In how many ways can you arrange the letters in the word MATH?",
-    "choices": ["$24$", "$12$", "$6$", "$48$"],
+    "question": "Có bao nhiêu cách để sắp xếp các chữ cái trong từ MATH?",
+    "choices": [
+      "$24$",
+      "$12$",
+      "$6$",
+      "$48$"
+    ],
     "correct": 0,
-    "explanation": "All 4 letters are distinct, so there are $4! = 24$ arrangements."
+    "explanation": "Tất cả 4 chữ cái đều khác nhau, vì vậy có $4! = 24$ cách sắp xếp."
   },
   {
     "id": "q_amc8_012",
@@ -126,10 +181,15 @@
     "year": 2022,
     "topic": "statistics",
     "difficulty": "easy",
-    "question": "What is the mode of the data set $\\{3, 5, 3, 7, 5, 3, 8\\}$?",
-    "choices": ["$3$", "$5$", "$7$", "$8$"],
+    "question": "Mốt của tập dữ liệu $\\{3, 5, 3, 7, 5, 3, 8\\}$ là bao nhiêu?",
+    "choices": [
+      "$3$",
+      "$5$",
+      "$7$",
+      "$8$"
+    ],
     "correct": 0,
-    "explanation": "$3$ appears three times — more than any other value — so the mode is $3$."
+    "explanation": "$3$ xuất hiện ba lần — nhiều hơn bất kỳ giá trị nào khác — vì vậy mốt là $3$."
   },
   {
     "id": "q_amc8_013",
@@ -137,10 +197,15 @@
     "year": 2022,
     "topic": "geometry",
     "difficulty": "easy",
-    "question": "What is the area of a triangle with base $10$ cm and height $6$ cm?",
-    "choices": ["$30$ cm²", "$60$ cm²", "$20$ cm²", "$40$ cm²"],
+    "question": "Diện tích của một tam giác có đáy $10$ cm và chiều cao $6$ cm là bao nhiêu?",
+    "choices": [
+      "$30$ cm²",
+      "$60$ cm²",
+      "$20$ cm²",
+      "$40$ cm²"
+    ],
     "correct": 0,
-    "explanation": "Area $= \\tfrac{1}{2} \\times 10 \\times 6 = 30$ cm²."
+    "explanation": "Diện tích $= \\tfrac{1}{2} \\times 10 \\times 6 = 30$ cm²."
   },
   {
     "id": "q_amc8_014",
@@ -148,8 +213,13 @@
     "year": 2022,
     "topic": "algebra",
     "difficulty": "easy",
-    "question": "If $3x - 5 = 16$, what is $x$?",
-    "choices": ["$7$", "$\\dfrac{11}{3}$", "$3$", "$5$"],
+    "question": "Nếu $3x - 5 = 16$, thì $x$ bằng bao nhiêu?",
+    "choices": [
+      "$7$",
+      "$\\dfrac{11}{3}$",
+      "$3$",
+      "$5$"
+    ],
     "correct": 0,
     "explanation": "$3x = 21 \\Rightarrow x = 7$."
   },
@@ -159,10 +229,15 @@
     "year": 2022,
     "topic": "number_theory",
     "difficulty": "easy",
-    "question": "Which of the following is divisible by both $3$ and $4$?",
-    "choices": ["$48$", "$14$", "$22$", "$34$"],
+    "question": "Số nào sau đây chia hết cho cả $3$ và $4$?",
+    "choices": [
+      "$48$",
+      "$14$",
+      "$22$",
+      "$34$"
+    ],
     "correct": 0,
-    "explanation": "$48 = 3 \\times 16 = 4 \\times 12$, so it is divisible by both $3$ and $4$."
+    "explanation": "$48 = 3 \\times 16 = 4 \\times 12$, vì vậy nó chia hết cho cả $3$ và $4$."
   },
   {
     "id": "q_amc8_016",
@@ -170,10 +245,15 @@
     "year": 2022,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "The product of two positive integers is $72$ and their sum is $17$. What is the larger integer?",
-    "choices": ["$9$", "$8$", "$12$", "$6$"],
+    "question": "Tích của hai số nguyên dương là $72$ và tổng của chúng là $17$. Số nguyên lớn hơn là bao nhiêu?",
+    "choices": [
+      "$9$",
+      "$8$",
+      "$12$",
+      "$6$"
+    ],
     "correct": 0,
-    "explanation": "The integers satisfy $t^2 - 17t + 72 = 0 \\Rightarrow (t-8)(t-9) = 0$. The larger is $9$."
+    "explanation": "Các số nguyên thỏa mãn $t^2 - 17t + 72 = 0 \\Rightarrow (t-8)(t-9) = 0$. Số lớn hơn là $9$."
   },
   {
     "id": "q_amc8_017",
@@ -181,10 +261,15 @@
     "year": 2022,
     "topic": "geometry",
     "difficulty": "medium",
-    "question": "A square has a diagonal of length $10$. What is the area of the square?",
-    "choices": ["$50$", "$25$", "$100$", "$40$"],
+    "question": "Một hình vuông có đường chéo dài $10$. Diện tích của hình vuông là bao nhiêu?",
+    "choices": [
+      "$50$",
+      "$25$",
+      "$100$",
+      "$40$"
+    ],
     "correct": 0,
-    "explanation": "Side $s = \\dfrac{10}{\\sqrt{2}} = 5\\sqrt{2}$. Area $= s^2 = 50$."
+    "explanation": "Cạnh $s = \\dfrac{10}{\\sqrt{2}} = 5\\sqrt{2}$. Diện tích $= s^2 = 50$."
   },
   {
     "id": "q_amc8_018",
@@ -192,10 +277,15 @@
     "year": 2022,
     "topic": "statistics",
     "difficulty": "easy",
-    "question": "What is the range of the data set $\\{4, 8, 2, 11, 5, 3\\}$?",
-    "choices": ["$9$", "$11$", "$6$", "$7$"],
+    "question": "Khoảng biến thiên của tập dữ liệu $\\{4, 8, 2, 11, 5, 3\\}$ là bao nhiêu?",
+    "choices": [
+      "$9$",
+      "$11$",
+      "$6$",
+      "$7$"
+    ],
     "correct": 0,
-    "explanation": "Range $= 11 - 2 = 9$."
+    "explanation": "Khoảng biến thiên $= 11 - 2 = 9$."
   },
   {
     "id": "q_amc8_019",
@@ -203,10 +293,15 @@
     "year": 2022,
     "topic": "number_theory",
     "difficulty": "medium",
-    "question": "What is the least common multiple (LCM) of $12$ and $18$?",
-    "choices": ["$36$", "$6$", "$72$", "$216$"],
+    "question": "Bội số chung nhỏ nhất (BCNN) của $12$ và $18$ là bao nhiêu?",
+    "choices": [
+      "$36$",
+      "$6$",
+      "$72$",
+      "$216$"
+    ],
     "correct": 0,
-    "explanation": "$12 = 2^2 \\times 3$; $18 = 2 \\times 3^2$. LCM $= 2^2 \\times 3^2 = 36$."
+    "explanation": "$12 = 2^2 \\times 3$; $18 = 2 \\times 3^2$. BCNN $= 2^2 \\times 3^2 = 36$."
   },
   {
     "id": "q_amc8_020",
@@ -214,10 +309,15 @@
     "year": 2022,
     "topic": "statistics",
     "difficulty": "easy",
-    "question": "A bag contains $4$ red and $6$ blue marbles. What is the probability of drawing a red marble at random?",
-    "choices": ["$\\dfrac{2}{5}$", "$\\dfrac{3}{5}$", "$\\dfrac{1}{2}$", "$\\dfrac{2}{3}$"],
+    "question": "Một túi chứa $4$ viên bi đỏ và $6$ viên bi xanh. Xác suất rút được một viên bi đỏ ngẫu nhiên là bao nhiêu?",
+    "choices": [
+      "$\\dfrac{2}{5}$",
+      "$\\dfrac{3}{5}$",
+      "$\\dfrac{1}{2}$",
+      "$\\dfrac{2}{3}$"
+    ],
     "correct": 0,
-    "explanation": "$P(\\text{red}) = \\dfrac{4}{10} = \\dfrac{2}{5}$."
+    "explanation": "$P(\\text{đỏ}) = \\dfrac{4}{10} = \\dfrac{2}{5}$."
   },
   {
     "id": "q_amc10_001",
@@ -225,10 +325,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "If $\\dfrac{x}{y} = \\dfrac{3}{4}$ and $x + y = 35$, what is the value of $x$?",
-    "choices": ["$15$", "$20$", "$12$", "$18$"],
+    "question": "Nếu $\\dfrac{x}{y} = \\dfrac{3}{4}$ và $x + y = 35$, giá trị của $x$ là bao nhiêu?",
+    "choices": [
+      "$15$",
+      "$20$",
+      "$12$",
+      "$18$"
+    ],
     "correct": 0,
-    "explanation": "Let $x = 3k, y = 4k$. Then $7k = 35 \\Rightarrow k = 5$, so $x = 15$."
+    "explanation": "Đặt $x = 3k, y = 4k$. Khi đó $7k = 35 \\Rightarrow k = 5$, nên $x = 15$."
   },
   {
     "id": "q_amc10_002",
@@ -236,10 +341,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "medium",
-    "question": "Two parallel lines are cut by a transversal. A pair of co-interior (same-side interior) angles measures $3x + 15°$ and $2x + 25°$. What is $x$?",
-    "choices": ["$28$", "$25$", "$32$", "$20$"],
+    "question": "Hai đường thẳng song song bị cắt bởi một đường ngang. Một cặp góc trong cùng phía có số đo là $3x + 15°$ và $2x + 25°$. Giá trị của $x$ là bao nhiêu?",
+    "choices": [
+      "$28$",
+      "$25$",
+      "$32$",
+      "$20$"
+    ],
     "correct": 0,
-    "explanation": "Co-interior angles are supplementary: $3x+15+2x+25 = 180 \\Rightarrow 5x = 140 \\Rightarrow x = 28$."
+    "explanation": "Các góc trong cùng phía bù nhau: $3x+15+2x+25 = 180 \\Rightarrow 5x = 140 \\Rightarrow x = 28$."
   },
   {
     "id": "q_amc10_003",
@@ -247,10 +357,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "hard",
-    "question": "For how many integer values of $k$ does $x^2 - kx + 16 = 0$ have two real integer solutions?",
-    "choices": ["$6$", "$4$", "$8$", "$5$"],
+    "question": "Có bao nhiêu giá trị nguyên của $k$ để phương trình $x^2 - kx + 16 = 0$ có hai nghiệm nguyên thực?",
+    "choices": [
+      "$6$",
+      "$4$",
+      "$8$",
+      "$5$"
+    ],
     "correct": 0,
-    "explanation": "Integer pairs $(r,s)$ with $rs = 16$: $(1,16),(2,8),(4,4),(-1,-16),(-2,-8),(-4,-4)$, giving $k \\in \\{17,10,8,-17,-10,-8\\}$ — 6 values."
+    "explanation": "Các cặp nguyên $(r,s)$ với $rs = 16$: $(1,16),(2,8),(4,4),(-1,-16),(-2,-8),(-4,-4)$, cho $k \\in \\{17,10,8,-17,-10,-8\\}$ — 6 giá trị."
   },
   {
     "id": "q_amc10_004",
@@ -258,10 +373,15 @@
     "year": 2023,
     "topic": "functions",
     "difficulty": "medium",
-    "question": "The parabola $y = ax^2 + bx + c$ passes through $(0, 3)$, $(1, 0)$, and $(-1, 8)$. What is $a + b + c$?",
-    "choices": ["$0$", "$3$", "$-1$", "$2$"],
+    "question": "Parabol $y = ax^2 + bx + c$ đi qua $(0, 3)$, $(1, 0)$, và $(-1, 8)$. Giá trị của $a + b + c$ là bao nhiêu?",
+    "choices": [
+      "$0$",
+      "$3$",
+      "$-1$",
+      "$2$"
+    ],
     "correct": 0,
-    "explanation": "$a + b + c = f(1) = 0$, since the parabola passes through $(1, 0)$."
+    "explanation": "$a + b + c = f(1) = 0$, vì parabol đi qua $(1, 0)$."
   },
   {
     "id": "q_amc10_005",
@@ -269,10 +389,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "medium",
-    "question": "In a circle of radius $10$, a chord is $16$ cm long. What is the perpendicular distance from the center to the chord?",
-    "choices": ["$6$", "$8$", "$4$", "$7$"],
+    "question": "Trong một hình tròn có bán kính $10$, một dây cung dài $16$ cm. Khoảng cách vuông góc từ tâm đến dây cung là bao nhiêu?",
+    "choices": [
+      "$6$",
+      "$8$",
+      "$4$",
+      "$7$"
+    ],
     "correct": 0,
-    "explanation": "The perpendicular from the center bisects the chord. Half-chord $= 8$, so $d = \\sqrt{10^2 - 8^2} = \\sqrt{36} = 6$."
+    "explanation": "Đường vuông góc từ tâm chia đôi dây cung. Nửa dây $= 8$, nên $d = \\sqrt{10^2 - 8^2} = \\sqrt{36} = 6$."
   },
   {
     "id": "q_amc10_006",
@@ -280,8 +405,13 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "If $a + b = 5$ and $a^2 + b^2 = 17$, what is $ab$?",
-    "choices": ["$4$", "$8$", "$3$", "$6$"],
+    "question": "Nếu $a + b = 5$ và $a^2 + b^2 = 17$, giá trị của $ab$ là bao nhiêu?",
+    "choices": [
+      "$4$",
+      "$8$",
+      "$3$",
+      "$6$"
+    ],
     "correct": 0,
     "explanation": "$(a+b)^2 = a^2 + 2ab + b^2 \\Rightarrow 25 = 17 + 2ab \\Rightarrow ab = 4$."
   },
@@ -291,10 +421,15 @@
     "year": 2023,
     "topic": "statistics",
     "difficulty": "medium",
-    "question": "The mean and median of five numbers are both $10$. Four of the numbers are $6, 9, 12, 13$. What is the fifth number?",
-    "choices": ["$10$", "$11$", "$9$", "$12$"],
+    "question": "Trung bình cộng và trung vị của năm số đều bằng $10$. Bốn số là $6, 9, 12, 13$. Số thứ năm là bao nhiêu?",
+    "choices": [
+      "$10$",
+      "$11$",
+      "$9$",
+      "$12$"
+    ],
     "correct": 0,
-    "explanation": "Sum must equal $50$; four numbers sum to $40$, so fifth $= 10$. Sorted: $6, 9, 10, 12, 13$ — median $= 10$. ✓"
+    "explanation": "Tổng phải bằng $50$; bốn số có tổng $40$, nên số thứ năm $= 10$. Sắp xếp: $6, 9, 10, 12, 13$ — trung vị $= 10$. ✓"
   },
   {
     "id": "q_amc10_008",
@@ -302,10 +437,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "hard",
-    "question": "Two sides of a triangle are $7$ and $10$, with an included angle of $60°$. What is the length of the third side?",
-    "choices": ["$\\sqrt{79}$", "$\\sqrt{129}$", "$\\sqrt{69}$", "$3\\sqrt{7}$"],
+    "question": "Hai cạnh của một tam giác là $7$ và $10$, với góc xen giữa là $60°$. Độ dài cạnh thứ ba là bao nhiêu?",
+    "choices": [
+      "$\\sqrt{79}$",
+      "$\\sqrt{129}$",
+      "$\\sqrt{69}$",
+      "$3\\sqrt{7}$"
+    ],
     "correct": 0,
-    "explanation": "Law of cosines: $c^2 = 49 + 100 - 2(7)(10)\\cos 60° = 149 - 70 = 79$, so $c = \\sqrt{79}$."
+    "explanation": "Định lý cosin: $c^2 = 49 + 100 - 2(7)(10)\\cos 60° = 149 - 70 = 79$, nên $c = \\sqrt{79}$."
   },
   {
     "id": "q_amc10_009",
@@ -313,8 +453,13 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Solve for $x$: $\\dfrac{2x+1}{x-1} = 3$",
-    "choices": ["$4$", "$3$", "$2$", "$5$"],
+    "question": "Giải $x$: $\\dfrac{2x+1}{x-1} = 3$",
+    "choices": [
+      "$4$",
+      "$3$",
+      "$2$",
+      "$5$"
+    ],
     "correct": 0,
     "explanation": "$2x+1 = 3(x-1) = 3x-3 \\Rightarrow x = 4$."
   },
@@ -324,10 +469,15 @@
     "year": 2023,
     "topic": "functions",
     "difficulty": "medium",
-    "question": "What is the minimum value of $f(x) = 2x^2 - 4x + 5$?",
-    "choices": ["$3$", "$5$", "$1$", "$2$"],
+    "question": "Giá trị nhỏ nhất của $f(x) = 2x^2 - 4x + 5$ là bao nhiêu?",
+    "choices": [
+      "$3$",
+      "$5$",
+      "$1$",
+      "$2$"
+    ],
     "correct": 0,
-    "explanation": "$f(x) = 2(x-1)^2 + 3$, so the minimum value is $3$ at $x = 1$."
+    "explanation": "$f(x) = 2(x-1)^2 + 3$, nên giá trị nhỏ nhất là $3$ tại $x = 1$."
   },
   {
     "id": "q_amc10_011",
@@ -335,8 +485,13 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "If $\\log_2 x = 3$, what is $x$?",
-    "choices": ["$8$", "$6$", "$4$", "$16$"],
+    "question": "Nếu $\\log_2 x = 3$, thì $x$ bằng bao nhiêu?",
+    "choices": [
+      "$8$",
+      "$6$",
+      "$4$",
+      "$16$"
+    ],
     "correct": 0,
     "explanation": "$x = 2^3 = 8$."
   },
@@ -346,8 +501,13 @@
     "year": 2023,
     "topic": "combinatorics",
     "difficulty": "medium",
-    "question": "In how many ways can $5$ students be chosen from a group of $8$?",
-    "choices": ["$56$", "$40$", "$112$", "$28$"],
+    "question": "Có bao nhiêu cách chọn $5$ học sinh từ một nhóm $8$ học sinh?",
+    "choices": [
+      "$56$",
+      "$40$",
+      "$112$",
+      "$28$"
+    ],
     "correct": 0,
     "explanation": "$\\binom{8}{5} = \\binom{8}{3} = \\dfrac{8 \\times 7 \\times 6}{3!} = 56$."
   },
@@ -357,8 +517,13 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "An arithmetic sequence has first term $2$, common difference $2$, and the sum of its first $n$ terms is $90$. What is $n$?",
-    "choices": ["$9$", "$10$", "$8$", "$12$"],
+    "question": "Một cấp số cộng có số hạng đầu $2$, công sai $2$, và tổng của $n$ số hạng đầu là $90$. Tìm $n$?",
+    "choices": [
+      "$9$",
+      "$10$",
+      "$8$",
+      "$12$"
+    ],
     "correct": 0,
     "explanation": "$S_n = \\dfrac{n}{2}(4 + (n-1) \\cdot 2) = n(n+1) = 90 \\Rightarrow n^2 + n - 90 = 0 \\Rightarrow (n-9)(n+10) = 0 \\Rightarrow n = 9$."
   },
@@ -368,10 +533,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "hard",
-    "question": "The diagonals of a rhombus have lengths $10$ and $24$. What is the perimeter of the rhombus?",
-    "choices": ["$52$", "$48$", "$26$", "$60$"],
+    "question": "Các đường chéo của một hình thoi có độ dài $10$ và $24$. Chu vi của hình thoi là bao nhiêu?",
+    "choices": [
+      "$52$",
+      "$48$",
+      "$26$",
+      "$60$"
+    ],
     "correct": 0,
-    "explanation": "Each side $= \\sqrt{5^2 + 12^2} = \\sqrt{169} = 13$. Perimeter $= 4 \\times 13 = 52$."
+    "explanation": "Mỗi cạnh $= \\sqrt{5^2 + 12^2} = \\sqrt{169} = 13$. Chu vi $= 4 \\times 13 = 52$."
   },
   {
     "id": "q_amc10_015",
@@ -379,8 +549,13 @@
     "year": 2023,
     "topic": "functions",
     "difficulty": "medium",
-    "question": "If $f(x) = x^2 + 1$ and $g(x) = 2x - 3$, what is $f(g(2))$?",
-    "choices": ["$2$", "$5$", "$3$", "$4$"],
+    "question": "Nếu $f(x) = x^2 + 1$ và $g(x) = 2x - 3$, thì $f(g(2))$ bằng bao nhiêu?",
+    "choices": [
+      "$2$",
+      "$5$",
+      "$3$",
+      "$4$"
+    ],
     "correct": 0,
     "explanation": "$g(2) = 4 - 3 = 1$. $f(1) = 1 + 1 = 2$."
   },
@@ -390,10 +565,15 @@
     "year": 2023,
     "topic": "number_theory",
     "difficulty": "medium",
-    "question": "What is the sum of all positive divisors of $28$?",
-    "choices": ["$56$", "$28$", "$42$", "$40$"],
+    "question": "Tổng của tất cả các ước dương của $28$ là bao nhiêu?",
+    "choices": [
+      "$56$",
+      "$28$",
+      "$42$",
+      "$40$"
+    ],
     "correct": 0,
-    "explanation": "Divisors of $28$: $1, 2, 4, 7, 14, 28$. Sum $= 1+2+4+7+14+28 = 56$."
+    "explanation": "Các ước của $28$: $1, 2, 4, 7, 14, 28$. Tổng $= 1+2+4+7+14+28 = 56$."
   },
   {
     "id": "q_amc10_017",
@@ -401,10 +581,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "If $3^{2x} = 81$, what is $x$?",
-    "choices": ["$2$", "$4$", "$3$", "$1$"],
+    "question": "Nếu $3^{2x} = 81$, thì $x$ bằng bao nhiêu?",
+    "choices": [
+      "$2$",
+      "$4$",
+      "$3$",
+      "$1$"
+    ],
     "correct": 0,
-    "explanation": "$81 = 3^4$, so $2x = 4 \\Rightarrow x = 2$."
+    "explanation": "$81 = 3^4$, vì vậy $2x = 4 \\Rightarrow x = 2$."
   },
   {
     "id": "q_amc10_018",
@@ -412,10 +597,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "medium",
-    "question": "Find the area of a trapezoid with parallel sides $8$ and $12$ and height $5$.",
-    "choices": ["$50$", "$40$", "$60$", "$100$"],
+    "question": "Tìm diện tích của một hình thang có các cạnh song song $8$ và $12$ và chiều cao $5$.",
+    "choices": [
+      "$50$",
+      "$40$",
+      "$60$",
+      "$100$"
+    ],
     "correct": 0,
-    "explanation": "Area $= \\dfrac{1}{2}(8 + 12) \\times 5 = \\dfrac{1}{2} \\times 20 \\times 5 = 50$."
+    "explanation": "Diện tích $= \\dfrac{1}{2}(8 + 12) \\times 5 = \\dfrac{1}{2} \\times 20 \\times 5 = 50$."
   },
   {
     "id": "q_amc10_019",
@@ -423,10 +613,15 @@
     "year": 2023,
     "topic": "statistics",
     "difficulty": "medium",
-    "question": "In a class of $30$ students, $18$ passed Math and $15$ passed Science. If $8$ passed both subjects, how many students passed at least one subject?",
-    "choices": ["$25$", "$33$", "$23$", "$30$"],
+    "question": "Trong một lớp có $30$ học sinh, $18$ học sinh đạt Toán và $15$ học sinh đạt Khoa học. Nếu $8$ học sinh đạt cả hai môn, thì bao nhiêu học sinh đạt ít nhất một môn?",
+    "choices": [
+      "$25$",
+      "$33$",
+      "$23$",
+      "$30$"
+    ],
     "correct": 0,
-    "explanation": "By inclusion-exclusion: $|M \\cup S| = 18 + 15 - 8 = 25$."
+    "explanation": "Theo nguyên lý bao hàm-loại trừ: $|M \\cup S| = 18 + 15 - 8 = 25$."
   },
   {
     "id": "q_amc10_020",
@@ -434,10 +629,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "hard",
-    "question": "The polynomial $p(x) = x^3 - 6x^2 + 11x - 6$ has roots $a, b, c$. What is $a^2 + b^2 + c^2$?",
-    "choices": ["$14$", "$11$", "$22$", "$25$"],
+    "question": "Đa thức $p(x) = x^3 - 6x^2 + 11x - 6$ có các nghiệm $a, b, c$. Tìm $a^2 + b^2 + c^2$?",
+    "choices": [
+      "$14$",
+      "$11$",
+      "$22$",
+      "$25$"
+    ],
     "correct": 0,
-    "explanation": "By Vieta's: $a+b+c = 6$, $ab+bc+ca = 11$. So $a^2+b^2+c^2 = (a+b+c)^2 - 2(ab+bc+ca) = 36 - 22 = 14$."
+    "explanation": "Theo Vieta: $a+b+c = 6$, $ab+bc+ca = 11$. Vì vậy $a^2+b^2+c^2 = (a+b+c)^2 - 2(ab+bc+ca) = 36 - 22 = 14$."
   },
   {
     "id": "q_gcse_001",
@@ -445,10 +645,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "medium",
-    "question": "A circle has equation $x^2 + y^2 = 25$. Which statement is correct about the point $(3, 4)$?",
-    "choices": ["It lies on the circle", "It lies inside the circle", "It lies outside the circle", "It is the centre of the circle"],
+    "question": "Một đường tròn có phương trình $x^2 + y^2 = 25$. Phát biểu nào là đúng về điểm $(3, 4)$?",
+    "choices": [
+      "Nó nằm trên đường tròn",
+      "Nó nằm bên trong đường tròn",
+      "Nó nằm bên ngoài đường tròn",
+      "Nó là tâm của đường tròn"
+    ],
     "correct": 0,
-    "explanation": "$3^2 + 4^2 = 9 + 16 = 25 = r^2$, so the point lies on the circle."
+    "explanation": "$3^2 + 4^2 = 9 + 16 = 25 = r^2$, vì vậy điểm nằm trên đường tròn."
   },
   {
     "id": "q_gcse_002",
@@ -456,8 +661,13 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Expand and simplify $(x + 3)^2 - (x - 1)^2$.",
-    "choices": ["$8x + 8$", "$8x + 10$", "$8x - 8$", "$2x + 8$"],
+    "question": "Khai triển và rút gọn $(x + 3)^2 - (x - 1)^2$.",
+    "choices": [
+      "$8x + 8$",
+      "$8x + 10$",
+      "$8x - 8$",
+      "$2x + 8$"
+    ],
     "correct": 0,
     "explanation": "$(x^2+6x+9)-(x^2-2x+1) = 8x+8$."
   },
@@ -467,10 +677,15 @@
     "year": 2023,
     "topic": "statistics",
     "difficulty": "easy",
-    "question": "Events $A$ and $B$ are mutually exclusive with $P(A) = 0.35$ and $P(B) = 0.60$. What is $P(A \\text{ or } B)$?",
-    "choices": ["$0.95$", "$0.21$", "$0.25$", "$1.00$"],
+    "question": "Các biến cố $A$ và $B$ là xung khắc với $P(A) = 0.35$ và $P(B) = 0.60$. $P(A \\text{ hoặc } B)$ bằng bao nhiêu?",
+    "choices": [
+      "$0.95$",
+      "$0.21$",
+      "$0.25$",
+      "$1.00$"
+    ],
     "correct": 0,
-    "explanation": "For mutually exclusive events, $P(A \\cup B) = 0.35 + 0.60 = 0.95$."
+    "explanation": "Đối với các biến cố xung khắc, $P(A \\cup B) = 0.35 + 0.60 = 0.95$."
   },
   {
     "id": "q_gcse_004",
@@ -478,10 +693,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "medium",
-    "question": "The interior angle of a regular polygon is $150°$. How many sides does the polygon have?",
-    "choices": ["$12$", "$10$", "$15$", "$9$"],
+    "question": "Góc trong của một đa giác đều là $150°$. Đa giác này có bao nhiêu cạnh?",
+    "choices": [
+      "$12$",
+      "$10$",
+      "$15$",
+      "$9$"
+    ],
     "correct": 0,
-    "explanation": "Exterior angle $= 180° - 150° = 30°$. Number of sides $= 360° \\div 30° = 12$."
+    "explanation": "Góc ngoài $= 180° - 150° = 30°$. Số cạnh $= 360° \\div 30° = 12$."
   },
   {
     "id": "q_gcse_005",
@@ -489,10 +709,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Solve simultaneously: $2x + 3y = 12$ and $x - y = 1$.",
-    "choices": ["$x = 3,\\ y = 2$", "$x = 2,\\ y = 3$", "$x = 4,\\ y = 1$", "$x = 1,\\ y = 4$"],
+    "question": "Giải hệ phương trình: $2x + 3y = 12$ và $x - y = 1$.",
+    "choices": [
+      "$x = 3,\\ y = 2$",
+      "$x = 2,\\ y = 3$",
+      "$x = 4,\\ y = 1$",
+      "$x = 1,\\ y = 4$"
+    ],
     "correct": 0,
-    "explanation": "From $x = y+1$: $2(y+1)+3y = 12 \\Rightarrow 5y = 10 \\Rightarrow y = 2$, $x = 3$."
+    "explanation": "Từ $x = y+1$: $2(y+1)+3y = 12 \\Rightarrow 5y = 10 \\Rightarrow y = 2$, $x = 3$."
   },
   {
     "id": "q_gcse_006",
@@ -500,8 +725,13 @@
     "year": 2023,
     "topic": "functions",
     "difficulty": "easy",
-    "question": "If $f(x) = 3x - 2$, what is $f^{-1}(7)$?",
-    "choices": ["$3$", "$7$", "$19$", "$1$"],
+    "question": "Nếu $f(x) = 3x - 2$, $f^{-1}(7)$ bằng bao nhiêu?",
+    "choices": [
+      "$3$",
+      "$7$",
+      "$19$",
+      "$1$"
+    ],
     "correct": 0,
     "explanation": "$3x - 2 = 7 \\Rightarrow x = 3$."
   },
@@ -511,10 +741,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Solve $x^2 - 3x - 10 = 0$.",
-    "choices": ["$x = 5$ or $x = -2$", "$x = -5$ or $x = 2$", "$x = 5$ or $x = 2$", "$x = 10$ or $x = -1$"],
+    "question": "Giải $x^2 - 3x - 10 = 0$.",
+    "choices": [
+      "$x = 5$ hoặc $x = -2$",
+      "$x = -5$ hoặc $x = 2$",
+      "$x = 5$ hoặc $x = 2$",
+      "$x = 10$ hoặc $x = -1$"
+    ],
     "correct": 0,
-    "explanation": "$(x-5)(x+2) = 0 \\Rightarrow x = 5$ or $x = -2$."
+    "explanation": "$(x-5)(x+2) = 0 \\Rightarrow x = 5$ hoặc $x = -2$."
   },
   {
     "id": "q_gcse_008",
@@ -522,8 +757,13 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "easy",
-    "question": "A line has gradient $2$ and passes through $(1, 3)$. What is its equation?",
-    "choices": ["$y = 2x + 1$", "$y = 2x - 1$", "$y = 2x + 3$", "$y = x + 2$"],
+    "question": "Một đường thẳng có hệ số góc $2$ và đi qua $(1, 3)$. Phương trình của nó là gì?",
+    "choices": [
+      "$y = 2x + 1$",
+      "$y = 2x - 1$",
+      "$y = 2x + 3$",
+      "$y = x + 2$"
+    ],
     "correct": 0,
     "explanation": "$y - 3 = 2(x-1) \\Rightarrow y = 2x + 1$."
   },
@@ -533,10 +773,15 @@
     "year": 2023,
     "topic": "number_theory",
     "difficulty": "easy",
-    "question": "What is the HCF (GCD) of $84$ and $126$?",
-    "choices": ["$42$", "$21$", "$14$", "$28$"],
+    "question": "ƯCLN của $84$ và $126$ là bao nhiêu?",
+    "choices": [
+      "$42$",
+      "$21$",
+      "$14$",
+      "$28$"
+    ],
     "correct": 0,
-    "explanation": "$84 = 2^2 \\times 3 \\times 7$; $126 = 2 \\times 3^2 \\times 7$. HCF $= 2 \\times 3 \\times 7 = 42$."
+    "explanation": "$84 = 2^2 \\times 3 \\times 7$; $126 = 2 \\times 3^2 \\times 7$. ƯCLN $= 2 \\times 3 \\times 7 = 42$."
   },
   {
     "id": "q_gcse_010",
@@ -544,10 +789,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "hard",
-    "question": "A sector of a circle has radius $8$ cm and arc length $6\\pi$ cm. What is the central angle in degrees?",
-    "choices": ["$135°$", "$120°$", "$150°$", "$90°$"],
+    "question": "Một hình quạt của một đường tròn có bán kính $8$ cm và độ dài cung $6\\pi$ cm. Góc ở tâm bằng bao nhiêu độ?",
+    "choices": [
+      "$135°$",
+      "$120°$",
+      "$150°$",
+      "$90°$"
+    ],
     "correct": 0,
-    "explanation": "Arc length $= r\\theta \\Rightarrow \\theta = 6\\pi / 8 = 3\\pi/4$ rad $= 135°$."
+    "explanation": "Độ dài cung $= r\\theta \\Rightarrow \\theta = 6\\pi / 8 = 3\\pi/4$ rad $= 135°$."
   },
   {
     "id": "q_gcse_011",
@@ -555,8 +805,13 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Factorise completely: $6x^2 + 9x$.",
-    "choices": ["$3x(2x + 3)$", "$x(6x + 9)$", "$3(2x^2 + 3x)$", "$3x(2x - 3)$"],
+    "question": "Phân tích hoàn toàn: $6x^2 + 9x$.",
+    "choices": [
+      "$3x(2x + 3)$",
+      "$x(6x + 9)$",
+      "$3(2x^2 + 3x)$",
+      "$3x(2x - 3)$"
+    ],
     "correct": 0,
     "explanation": "$6x^2 + 9x = 3x(2x + 3)$."
   },
@@ -566,8 +821,13 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "medium",
-    "question": "What is the volume of a cylinder with radius $3$ cm and height $7$ cm? (Leave your answer in terms of $\\pi$.)",
-    "choices": ["$63\\pi$ cm³", "$21\\pi$ cm³", "$42\\pi$ cm³", "$126\\pi$ cm³"],
+    "question": "Thể tích của một hình trụ có bán kính $3$ cm và chiều cao $7$ cm là bao nhiêu? (Để lại câu trả lời của bạn dưới dạng $\\pi$.)",
+    "choices": [
+      "$63\\pi$ cm³",
+      "$21\\pi$ cm³",
+      "$42\\pi$ cm³",
+      "$126\\pi$ cm³"
+    ],
     "correct": 0,
     "explanation": "$V = \\pi r^2 h = \\pi \\times 9 \\times 7 = 63\\pi$ cm³."
   },
@@ -577,10 +837,15 @@
     "year": 2023,
     "topic": "statistics",
     "difficulty": "medium",
-    "question": "Events $A$ and $B$ are independent with $P(A) = 0.4$ and $P(B) = 0.3$. What is $P(A \\text{ and } B)$?",
-    "choices": ["$0.12$", "$0.70$", "$0.28$", "$0.58$"],
+    "question": "Các sự kiện $A$ và $B$ độc lập với $P(A) = 0.4$ và $P(B) = 0.3$. $P(A \\text{ và } B)$ là bao nhiêu?",
+    "choices": [
+      "$0.12$",
+      "$0.70$",
+      "$0.28$",
+      "$0.58$"
+    ],
     "correct": 0,
-    "explanation": "For independent events, $P(A \\cap B) = P(A) \\times P(B) = 0.4 \\times 0.3 = 0.12$."
+    "explanation": "Đối với các sự kiện độc lập, $P(A \\cap B) = P(A) \\times P(B) = 0.4 \\times 0.3 = 0.12$."
   },
   {
     "id": "q_gcse_014",
@@ -588,10 +853,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "hard",
-    "question": "Solve: $2x^2 + 5x - 3 = 0$.",
-    "choices": ["$x = \\dfrac{1}{2}$ or $x = -3$", "$x = -\\dfrac{1}{2}$ or $x = 3$", "$x = 1$ or $x = -\\dfrac{3}{2}$", "$x = 3$ or $x = -\\dfrac{1}{2}$"],
+    "question": "Giải: $2x^2 + 5x - 3 = 0$.",
+    "choices": [
+      "$x = \\dfrac{1}{2}$ hoặc $x = -3$",
+      "$x = -\\dfrac{1}{2}$ hoặc $x = 3$",
+      "$x = 1$ hoặc $x = -\\dfrac{3}{2}$",
+      "$x = 3$ hoặc $x = -\\dfrac{1}{2}$"
+    ],
     "correct": 0,
-    "explanation": "Using the quadratic formula: $x = \\dfrac{-5 \\pm \\sqrt{25+24}}{4} = \\dfrac{-5 \\pm 7}{4}$. So $x = \\dfrac{1}{2}$ or $x = -3$."
+    "explanation": "Sử dụng công thức bậc hai: $x = \\dfrac{-5 \\pm \\sqrt{25+24}}{4} = \\dfrac{-5 \\pm 7}{4}$. Vì vậy $x = \\dfrac{1}{2}$ hoặc $x = -3$."
   },
   {
     "id": "q_gcse_015",
@@ -599,10 +869,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "easy",
-    "question": "What is the sum of interior angles of a regular hexagon?",
-    "choices": ["$720°$", "$540°$", "$1080°$", "$360°$"],
+    "question": "Tổng các góc trong của một hình lục giác đều là bao nhiêu?",
+    "choices": [
+      "$720°$",
+      "$540°$",
+      "$1080°$",
+      "$360°$"
+    ],
     "correct": 0,
-    "explanation": "Sum of interior angles $= (n-2) \\times 180° = (6-2) \\times 180° = 720°$."
+    "explanation": "Tổng các góc trong $= (n-2) \\times 180° = (6-2) \\times 180° = 720°$."
   },
   {
     "id": "q_gcse_016",
@@ -610,10 +885,15 @@
     "year": 2023,
     "topic": "functions",
     "difficulty": "medium",
-    "question": "For what values of $x$ is $f(x) = 0$ if $f(x) = x^2 - 4x + 3$?",
-    "choices": ["$x = 1$ or $x = 3$", "$x = -1$ or $x = -3$", "$x = 2$ or $x = 3$", "$x = 1$ or $x = 4$"],
+    "question": "Với những giá trị nào của $x$ thì $f(x) = 0$ nếu $f(x) = x^2 - 4x + 3$?",
+    "choices": [
+      "$x = 1$ hoặc $x = 3$",
+      "$x = -1$ hoặc $x = -3$",
+      "$x = 2$ hoặc $x = 3$",
+      "$x = 1$ hoặc $x = 4$"
+    ],
     "correct": 0,
-    "explanation": "$x^2 - 4x + 3 = (x-1)(x-3) = 0 \\Rightarrow x = 1$ or $x = 3$."
+    "explanation": "$x^2 - 4x + 3 = (x-1)(x-3) = 0 \\Rightarrow x = 1$ hoặc $x = 3$."
   },
   {
     "id": "q_gcse_017",
@@ -621,10 +901,15 @@
     "year": 2023,
     "topic": "number_theory",
     "difficulty": "medium",
-    "question": "Express $0.\\overline{3}$ as a fraction in its simplest form.",
-    "choices": ["$\\dfrac{1}{3}$", "$\\dfrac{1}{4}$", "$\\dfrac{3}{10}$", "$\\dfrac{3}{100}$"],
+    "question": "Biểu diễn $0.\\overline{3}$ dưới dạng phân số ở dạng tối giản.",
+    "choices": [
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{1}{4}$",
+      "$\\dfrac{3}{10}$",
+      "$\\dfrac{3}{100}$"
+    ],
     "correct": 0,
-    "explanation": "Let $x = 0.333\\ldots$. Then $10x = 3.333\\ldots$, so $9x = 3 \\Rightarrow x = \\dfrac{1}{3}$."
+    "explanation": "Gọi $x = 0.333\\ldots$. Khi đó $10x = 3.333\\ldots$, nên $9x = 3 \\Rightarrow x = \\dfrac{1}{3}$."
   },
   {
     "id": "q_gcse_018",
@@ -632,10 +917,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Simplify: $(2x^3 y^2)(3x^2 y)$.",
-    "choices": ["$6x^5 y^3$", "$5x^5 y^3$", "$6x^6 y^2$", "$6x^5 y^2$"],
+    "question": "Rút gọn: $(2x^3 y^2)(3x^2 y)$.",
+    "choices": [
+      "$6x^5 y^3$",
+      "$5x^5 y^3$",
+      "$6x^6 y^2$",
+      "$6x^5 y^2$"
+    ],
     "correct": 0,
-    "explanation": "$2 \\times 3 = 6$; $x^3 \\times x^2 = x^5$; $y^2 \\times y = y^3$. Result: $6x^5 y^3$."
+    "explanation": "$2 \\times 3 = 6$; $x^3 \\times x^2 = x^5$; $y^2 \\times y = y^3$. Kết quả: $6x^5 y^3$."
   },
   {
     "id": "q_gcse_019",
@@ -643,8 +933,13 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "easy",
-    "question": "In triangle $ABC$, angle $A = 40°$ and angle $B = 75°$. What is angle $C$?",
-    "choices": ["$65°$", "$70°$", "$60°$", "$75°$"],
+    "question": "Trong tam giác $ABC$, góc $A = 40°$ và góc $B = 75°$. Góc $C$ là bao nhiêu?",
+    "choices": [
+      "$65°$",
+      "$70°$",
+      "$60°$",
+      "$75°$"
+    ],
     "correct": 0,
     "explanation": "$C = 180° - 40° - 75° = 65°$."
   },
@@ -654,10 +949,15 @@
     "year": 2023,
     "topic": "statistics",
     "difficulty": "medium",
-    "question": "A fair die is rolled twice. What is the probability that the two numbers sum to $7$?",
-    "choices": ["$\\dfrac{1}{6}$", "$\\dfrac{1}{4}$", "$\\dfrac{5}{36}$", "$\\dfrac{1}{3}$"],
+    "question": "Một con xúc xắc công bằng được tung hai lần. Xác suất để hai số cộng lại bằng $7$ là bao nhiêu?",
+    "choices": [
+      "$\\dfrac{1}{6}$",
+      "$\\dfrac{1}{4}$",
+      "$\\dfrac{5}{36}$",
+      "$\\dfrac{1}{3}$"
+    ],
     "correct": 0,
-    "explanation": "Favourable pairs: $(1,6),(2,5),(3,4),(4,3),(5,2),(6,1)$ — that is 6 out of 36. $P = \\dfrac{6}{36} = \\dfrac{1}{6}$."
+    "explanation": "Các cặp thuận lợi: $(1,6),(2,5),(3,4),(4,3),(5,2),(6,1)$ — tức là 6 trong 36. $P = \\dfrac{6}{36} = \\dfrac{1}{6}$."
   },
   {
     "id": "q_sgol_001",
@@ -665,10 +965,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Simplify: $\\dfrac{x^2 - 9}{x - 3}$.",
-    "choices": ["$x + 3$", "$x - 3$", "$x^2 - 9$", "$x + 9$"],
+    "question": "Rút gọn: $\\dfrac{x^2 - 9}{x - 3}$.",
+    "choices": [
+      "$x + 3$",
+      "$x - 3$",
+      "$x^2 - 9$",
+      "$x + 9$"
+    ],
     "correct": 0,
-    "explanation": "$\\dfrac{x^2-9}{x-3} = \\dfrac{(x+3)(x-3)}{x-3} = x + 3$ (for $x \\neq 3$)."
+    "explanation": "$\\dfrac{x^2-9}{x-3} = \\dfrac{(x+3)(x-3)}{x-3} = x + 3$ (với $x \\neq 3$)."
   },
   {
     "id": "q_sgol_002",
@@ -676,10 +981,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "medium",
-    "question": "Triangle $PQR$ has $PQ = 7$, $QR = 24$, $PR = 25$. What type of triangle is it?",
-    "choices": ["Right triangle", "Acute triangle", "Obtuse triangle", "Equilateral triangle"],
+    "question": "Tam giác $PQR$ có $PQ = 7$, $QR = 24$, $PR = 25$. Tam giác này là loại gì?",
+    "choices": [
+      "Tam giác vuông",
+      "Tam giác nhọn",
+      "Tam giác tù",
+      "Tam giác đều"
+    ],
     "correct": 0,
-    "explanation": "$7^2 + 24^2 = 49 + 576 = 625 = 25^2$. Since it satisfies the Pythagorean theorem, it is a right triangle."
+    "explanation": "$7^2 + 24^2 = 49 + 576 = 625 = 25^2$. Vì nó thỏa mãn định lý Pythagorean, nó là tam giác vuông."
   },
   {
     "id": "q_sgol_003",
@@ -687,8 +997,13 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "easy",
-    "question": "If $p = 2$ and $q = -3$, find the value of $p^2 - pq + q^2$.",
-    "choices": ["$19$", "$7$", "$1$", "$25$"],
+    "question": "Nếu $p = 2$ và $q = -3$, tìm giá trị của $p^2 - pq + q^2$.",
+    "choices": [
+      "$19$",
+      "$7$",
+      "$1$",
+      "$25$"
+    ],
     "correct": 0,
     "explanation": "$p^2 - pq + q^2 = 4 - (2)(-3) + 9 = 4 + 6 + 9 = 19$."
   },
@@ -698,8 +1013,13 @@
     "year": 2023,
     "topic": "number_theory",
     "difficulty": "easy",
-    "question": "Write $3.6 \\times 10^{-2}$ as an ordinary number.",
-    "choices": ["$0.036$", "$0.36$", "$36$", "$360$"],
+    "question": "Viết $3.6 \\times 10^{-2}$ dưới dạng số thông thường.",
+    "choices": [
+      "$0.036$",
+      "$0.36$",
+      "$36$",
+      "$360$"
+    ],
     "correct": 0,
     "explanation": "$3.6 \\times 10^{-2} = 0.036$."
   },
@@ -709,7 +1029,7 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Make $r$ the subject of the formula $V = \\dfrac{4}{3}\\pi r^3$.",
+    "question": "Biểu diễn $r$ theo các biến khác trong công thức $V = \\dfrac{4}{3}\\pi r^3$.",
     "choices": [
       "$r = \\sqrt[3]{\\dfrac{3V}{4\\pi}}$",
       "$r = \\sqrt{\\dfrac{3V}{4\\pi}}$",
@@ -725,10 +1045,15 @@
     "year": 2023,
     "topic": "functions",
     "difficulty": "medium",
-    "question": "The graph of $y = ax^2 + b$ passes through $(0, 5)$ and $(2, 1)$. What is the value of $a$?",
-    "choices": ["$-1$", "$1$", "$-2$", "$2$"],
+    "question": "Đồ thị của $y = ax^2 + b$ đi qua $(0, 5)$ và $(2, 1)$. Giá trị của $a$ là bao nhiêu?",
+    "choices": [
+      "$-1$",
+      "$1$",
+      "$-2$",
+      "$2$"
+    ],
     "correct": 0,
-    "explanation": "From $(0,5)$: $b = 5$. From $(2,1)$: $4a + 5 = 1 \\Rightarrow a = -1$."
+    "explanation": "Từ $(0,5)$: $b = 5$. Từ $(2,1)$: $4a + 5 = 1 \\Rightarrow a = -1$."
   },
   {
     "id": "q_sgol_007",
@@ -736,10 +1061,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "easy",
-    "question": "Two parallel lines are cut by a transversal. If one angle is $115°$, what is its corresponding angle?",
-    "choices": ["$115°$", "$65°$", "$45°$", "$75°$"],
+    "question": "Hai đường thẳng song song bị cắt bởi một đường ngang. Nếu một góc là $115°$, góc tương ứng của nó là bao nhiêu?",
+    "choices": [
+      "$115°$",
+      "$65°$",
+      "$45°$",
+      "$75°$"
+    ],
     "correct": 0,
-    "explanation": "Corresponding angles are equal when lines are parallel, so the corresponding angle is also $115°$."
+    "explanation": "Các góc tương ứng bằng nhau khi các đường thẳng song song, vì vậy góc tương ứng cũng là $115°$."
   },
   {
     "id": "q_sgol_008",
@@ -747,10 +1077,15 @@
     "year": 2023,
     "topic": "statistics",
     "difficulty": "medium",
-    "question": "The mean of $8$ numbers is $14$. When a $9$th number is added, the mean becomes $13$. What is the $9$th number?",
-    "choices": ["$5$", "$9$", "$13$", "$1$"],
+    "question": "Trung bình cộng của $8$ số là $14$. Khi thêm số thứ $9$, trung bình cộng trở thành $13$. Số thứ $9$ là bao nhiêu?",
+    "choices": [
+      "$5$",
+      "$9$",
+      "$13$",
+      "$1$"
+    ],
     "correct": 0,
-    "explanation": "Sum of 8 numbers $= 8 \\times 14 = 112$. New sum $= 9 \\times 13 = 117$. 9th number $= 117 - 112 = 5$."
+    "explanation": "Tổng của 8 số $= 8 \\times 14 = 112$. Tổng mới $= 9 \\times 13 = 117$. Số thứ 9 $= 117 - 112 = 5$."
   },
   {
     "id": "q_sgol_009",
@@ -758,10 +1093,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "hard",
-    "question": "Solve the inequality: $2x - 3 > 5x + 9$.",
-    "choices": ["$x < -4$", "$x > -4$", "$x < 4$", "$x > 4$"],
+    "question": "Giải bất phương trình: $2x - 3 > 5x + 9$.",
+    "choices": [
+      "$x < -4$",
+      "$x > -4$",
+      "$x < 4$",
+      "$x > 4$"
+    ],
     "correct": 0,
-    "explanation": "$2x - 5x > 9 + 3 \\Rightarrow -3x > 12 \\Rightarrow x < -4$ (inequality reverses when dividing by a negative)."
+    "explanation": "$2x - 5x > 9 + 3 \\Rightarrow -3x > 12 \\Rightarrow x < -4$ (bất phương trình đảo chiều khi chia cho số âm)."
   },
   {
     "id": "q_sgol_010",
@@ -769,10 +1109,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "medium",
-    "question": "A cone has base radius $5$ cm and slant height $13$ cm. What is its curved surface area? (Leave in terms of $\\pi$.)",
-    "choices": ["$65\\pi$ cm²", "$25\\pi$ cm²", "$130\\pi$ cm²", "$60\\pi$ cm²"],
+    "question": "Một hình nón có bán kính đáy $5$ cm và độ dài đường sinh $13$ cm. Diện tích xung quanh của nó là bao nhiêu? (Để lại theo $\\pi$.)",
+    "choices": [
+      "$65\\pi$ cm²",
+      "$25\\pi$ cm²",
+      "$130\\pi$ cm²",
+      "$60\\pi$ cm²"
+    ],
     "correct": 0,
-    "explanation": "Curved surface area $= \\pi r l = \\pi \\times 5 \\times 13 = 65\\pi$ cm²."
+    "explanation": "Diện tích xung quanh $= \\pi r l = \\pi \\times 5 \\times 13 = 65\\pi$ cm²."
   },
   {
     "id": "q_sgol_011",
@@ -780,8 +1125,13 @@
     "year": 2023,
     "topic": "number_theory",
     "difficulty": "easy",
-    "question": "What is $15\\%$ of $240$?",
-    "choices": ["$36$", "$24$", "$48$", "$40$"],
+    "question": "$15\\%$ của $240$ là bao nhiêu?",
+    "choices": [
+      "$36$",
+      "$24$",
+      "$48$",
+      "$40$"
+    ],
     "correct": 0,
     "explanation": "$15\\% \\times 240 = 0.15 \\times 240 = 36$."
   },
@@ -791,8 +1141,13 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Expand and simplify $(2x - 3)(x + 4)$.",
-    "choices": ["$2x^2 + 5x - 12$", "$2x^2 - 5x - 12$", "$2x^2 + 5x + 12$", "$2x^2 + 12x - 12$"],
+    "question": "Khai triển và rút gọn $(2x - 3)(x + 4)$.",
+    "choices": [
+      "$2x^2 + 5x - 12$",
+      "$2x^2 - 5x - 12$",
+      "$2x^2 + 5x + 12$",
+      "$2x^2 + 12x - 12$"
+    ],
     "correct": 0,
     "explanation": "$(2x-3)(x+4) = 2x^2 + 8x - 3x - 12 = 2x^2 + 5x - 12$."
   },
@@ -802,10 +1157,15 @@
     "year": 2023,
     "topic": "statistics",
     "difficulty": "easy",
-    "question": "What is the median of $\\{3, 7, 1, 9, 4, 6, 2\\}$?",
-    "choices": ["$4$", "$3$", "$6$", "$5$"],
+    "question": "Trung vị của $\\{3, 7, 1, 9, 4, 6, 2\\}$ là bao nhiêu?",
+    "choices": [
+      "$4$",
+      "$3$",
+      "$6$",
+      "$5$"
+    ],
     "correct": 0,
-    "explanation": "Sorted: $1, 2, 3, 4, 6, 7, 9$. The middle value (4th of 7) is $4$."
+    "explanation": "Sắp xếp: $1, 2, 3, 4, 6, 7, 9$. Giá trị ở giữa (thứ 4 của 7) là $4$."
   },
   {
     "id": "q_sgol_014",
@@ -813,10 +1173,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "hard",
-    "question": "A rectangle has length $(x + 3)$ cm and width $(x - 1)$ cm. Its area is $21$ cm². What is the value of $x$?",
-    "choices": ["$4$", "$3$", "$5$", "$6$"],
+    "question": "Một hình chữ nhật có chiều dài $(x + 3)$ cm và chiều rộng $(x - 1)$ cm. Diện tích của nó là $21$ cm². Giá trị của $x$ là bao nhiêu?",
+    "choices": [
+      "$4$",
+      "$3$",
+      "$5$",
+      "$6$"
+    ],
     "correct": 0,
-    "explanation": "$(x+3)(x-1) = 21 \\Rightarrow x^2 + 2x - 3 = 21 \\Rightarrow x^2 + 2x - 24 = 0 \\Rightarrow (x+6)(x-4) = 0$. Since $x > 1$, $x = 4$."
+    "explanation": "$(x+3)(x-1) = 21 \\Rightarrow x^2 + 2x - 3 = 21 \\Rightarrow x^2 + 2x - 24 = 0 \\Rightarrow (x+6)(x-4) = 0$. Vì $x > 1$, nên $x = 4$."
   },
   {
     "id": "q_sgol_015",
@@ -824,8 +1189,13 @@
     "year": 2023,
     "topic": "functions",
     "difficulty": "medium",
-    "question": "Given $f(x) = 5 - 2x$, what is $f^{-1}(3)$?",
-    "choices": ["$1$", "$3$", "$-1$", "$2$"],
+    "question": "Cho $f(x) = 5 - 2x$, $f^{-1}(3)$ bằng bao nhiêu?",
+    "choices": [
+      "$1$",
+      "$3$",
+      "$-1$",
+      "$2$"
+    ],
     "correct": 0,
     "explanation": "$5 - 2x = 3 \\Rightarrow 2x = 2 \\Rightarrow x = 1$."
   },
@@ -835,10 +1205,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Simplify: $\\dfrac{2x^2 - 8}{x - 2}$.",
-    "choices": ["$2(x + 2)$", "$2(x - 2)$", "$x + 2$", "$2x - 4$"],
+    "question": "Rút gọn: $\\dfrac{2x^2 - 8}{x - 2}$.",
+    "choices": [
+      "$2(x + 2)$",
+      "$2(x - 2)$",
+      "$x + 2$",
+      "$2x - 4$"
+    ],
     "correct": 0,
-    "explanation": "$\\dfrac{2(x^2-4)}{x-2} = \\dfrac{2(x+2)(x-2)}{x-2} = 2(x+2)$ (for $x \\neq 2$)."
+    "explanation": "$\\dfrac{2(x^2-4)}{x-2} = \\dfrac{2(x+2)(x-2)}{x-2} = 2(x+2)$ (với $x \\neq 2$)."
   },
   {
     "id": "q_sgol_017",
@@ -846,10 +1221,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "easy",
-    "question": "The bearing of point $B$ from point $A$ is $060°$. What is the bearing of $A$ from $B$?",
-    "choices": ["$240°$", "$060°$", "$120°$", "$300°$"],
+    "question": "Phương vị của điểm $B$ từ điểm $A$ là $060°$. Phương vị của $A$ từ $B$ là bao nhiêu?",
+    "choices": [
+      "$240°$",
+      "$060°$",
+      "$120°$",
+      "$300°$"
+    ],
     "correct": 0,
-    "explanation": "The back bearing $= 060° + 180° = 240°$."
+    "explanation": "Phương vị ngược $= 060° + 180° = 240°$."
   },
   {
     "id": "q_sgol_018",
@@ -857,10 +1237,15 @@
     "year": 2023,
     "topic": "number_theory",
     "difficulty": "easy",
-    "question": "Round $3.4762$ to $3$ significant figures.",
-    "choices": ["$3.48$", "$3.47$", "$3.476$", "$3.5$"],
+    "question": "Làm tròn $3.4762$ đến $3$ chữ số có nghĩa.",
+    "choices": [
+      "$3.48$",
+      "$3.47$",
+      "$3.476$",
+      "$3.5$"
+    ],
     "correct": 0,
-    "explanation": "The first three significant figures are $3$, $4$, $7$. The next digit is $6 \\geq 5$, so round up: $3.48$."
+    "explanation": "Ba chữ số có nghĩa đầu tiên là $3$, $4$, $7$. Chữ số tiếp theo là $6 \\geq 5$, nên làm tròn lên: $3.48$."
   },
   {
     "id": "q_sgol_019",
@@ -868,10 +1253,15 @@
     "year": 2023,
     "topic": "statistics",
     "difficulty": "medium",
-    "question": "A bag contains $5$ red, $3$ blue, and $2$ green balls. A ball is drawn at random. What is the probability that it is not red?",
-    "choices": ["$\\dfrac{1}{2}$", "$\\dfrac{1}{5}$", "$\\dfrac{2}{5}$", "$\\dfrac{1}{3}$"],
+    "question": "Một túi chứa $5$ quả bóng đỏ, $3$ quả bóng xanh, và $2$ quả bóng xanh lá. Rút một quả bóng ngẫu nhiên. Xác suất nó không phải màu đỏ là bao nhiêu?",
+    "choices": [
+      "$\\dfrac{1}{2}$",
+      "$\\dfrac{1}{5}$",
+      "$\\dfrac{2}{5}$",
+      "$\\dfrac{1}{3}$"
+    ],
     "correct": 0,
-    "explanation": "$P(\\text{not red}) = \\dfrac{3+2}{10} = \\dfrac{5}{10} = \\dfrac{1}{2}$."
+    "explanation": "$P(\\text{không đỏ}) = \\dfrac{3+2}{10} = \\dfrac{5}{10} = \\dfrac{1}{2}$."
   },
   {
     "id": "q_sgol_020",
@@ -879,10 +1269,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "hard",
-    "question": "The equation $2x^2 - kx + 8 = 0$ has equal roots. What is the positive value of $k$?",
-    "choices": ["$8$", "$4$", "$16$", "$2$"],
+    "question": "Phương trình $2x^2 - kx + 8 = 0$ có hai nghiệm bằng nhau. Giá trị dương của $k$ là bao nhiêu?",
+    "choices": [
+      "$8$",
+      "$4$",
+      "$16$",
+      "$2$"
+    ],
     "correct": 0,
-    "explanation": "For equal roots, the discriminant $= 0$: $k^2 - 4 \\times 2 \\times 8 = 0 \\Rightarrow k^2 = 64 \\Rightarrow k = 8$ (positive)."
+    "explanation": "Để có hai nghiệm bằng nhau, biệt thức $= 0$: $k^2 - 4 \\times 2 \\times 8 = 0 \\Rightarrow k^2 = 64 \\Rightarrow k = 8$ (dương)."
   },
   {
     "id": "q_amc_au_001",
@@ -890,8 +1285,13 @@
     "year": 2023,
     "topic": "number_theory",
     "difficulty": "easy",
-    "question": "What is $25\\%$ of $80$?",
-    "choices": ["$20$", "$25$", "$40$", "$15$"],
+    "question": "$25\\%$ của $80$ là bao nhiêu?",
+    "choices": [
+      "$20$",
+      "$25$",
+      "$40$",
+      "$15$"
+    ],
     "correct": 0,
     "explanation": "$25\\% \\times 80 = 0.25 \\times 80 = 20$."
   },
@@ -901,8 +1301,13 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "easy",
-    "question": "If $5x = 3x + 12$, what is $x$?",
-    "choices": ["$6$", "$12$", "$3$", "$4$"],
+    "question": "Nếu $5x = 3x + 12$, thì $x$ bằng bao nhiêu?",
+    "choices": [
+      "$6$",
+      "$12$",
+      "$3$",
+      "$4$"
+    ],
     "correct": 0,
     "explanation": "$5x - 3x = 12 \\Rightarrow 2x = 12 \\Rightarrow x = 6$."
   },
@@ -912,10 +1317,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "easy",
-    "question": "What is the area of a circle with diameter $10$ cm? (Leave in terms of $\\pi$.)",
-    "choices": ["$25\\pi$ cm²", "$100\\pi$ cm²", "$10\\pi$ cm²", "$50\\pi$ cm²"],
+    "question": "Diện tích của hình tròn có đường kính $10$ cm là bao nhiêu? (Để kết quả dưới dạng $\\pi$.)",
+    "choices": [
+      "$25\\pi$ cm²",
+      "$100\\pi$ cm²",
+      "$10\\pi$ cm²",
+      "$50\\pi$ cm²"
+    ],
     "correct": 0,
-    "explanation": "Radius $= 5$ cm. Area $= \\pi r^2 = 25\\pi$ cm²."
+    "explanation": "Bán kính $= 5$ cm. Diện tích $= \\pi r^2 = 25\\pi$ cm²."
   },
   {
     "id": "q_amc_au_004",
@@ -923,10 +1333,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Factorise: $x^2 - 5x + 6$.",
-    "choices": ["$(x-2)(x-3)$", "$(x+2)(x+3)$", "$(x-1)(x-6)$", "$(x+6)(x-1)$"],
+    "question": "Phân tích: $x^2 - 5x + 6$.",
+    "choices": [
+      "$(x-2)(x-3)$",
+      "$(x+2)(x+3)$",
+      "$(x-1)(x-6)$",
+      "$(x+6)(x-1)$"
+    ],
     "correct": 0,
-    "explanation": "We need two numbers that multiply to $6$ and add to $-5$: they are $-2$ and $-3$. So $x^2-5x+6 = (x-2)(x-3)$."
+    "explanation": "Ta cần hai số nhân với nhau bằng $6$ và cộng với nhau bằng $-5$: đó là $-2$ và $-3$. Vậy $x^2-5x+6 = (x-2)(x-3)$."
   },
   {
     "id": "q_amc_au_005",
@@ -934,10 +1349,15 @@
     "year": 2023,
     "topic": "statistics",
     "difficulty": "easy",
-    "question": "What is the mean of the numbers $2, 5, 7, 8, 3$?",
-    "choices": ["$5$", "$6$", "$7$", "$4$"],
+    "question": "Trung bình cộng của các số $2, 5, 7, 8, 3$ là bao nhiêu?",
+    "choices": [
+      "$5$",
+      "$6$",
+      "$7$",
+      "$4$"
+    ],
     "correct": 0,
-    "explanation": "Mean $= \\dfrac{2+5+7+8+3}{5} = \\dfrac{25}{5} = 5$."
+    "explanation": "Trung bình cộng $= \\dfrac{2+5+7+8+3}{5} = \\dfrac{25}{5} = 5$."
   },
   {
     "id": "q_amc_au_006",
@@ -945,10 +1365,15 @@
     "year": 2023,
     "topic": "combinatorics",
     "difficulty": "medium",
-    "question": "A restaurant offers $4$ starters, $5$ main courses, and $3$ desserts. How many different three-course meals can be ordered?",
-    "choices": ["$60$", "$12$", "$25$", "$120$"],
+    "question": "Một nhà hàng cung cấp $4$ món khai vị, $5$ món chính và $3$ món tráng miệng. Có bao nhiêu bữa ăn ba món khác nhau có thể được đặt hàng?",
+    "choices": [
+      "$60$",
+      "$12$",
+      "$25$",
+      "$120$"
+    ],
     "correct": 0,
-    "explanation": "By the multiplication principle: $4 \\times 5 \\times 3 = 60$."
+    "explanation": "Theo nguyên lý nhân: $4 \\times 5 \\times 3 = 60$."
   },
   {
     "id": "q_amc_au_007",
@@ -956,10 +1381,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "medium",
-    "question": "In a right triangle, one leg is $9$ and the hypotenuse is $15$. What is the length of the other leg?",
-    "choices": ["$12$", "$6$", "$10$", "$11$"],
+    "question": "Trong một tam giác vuông, một cạnh góc vuông bằng $9$ và cạnh huyền bằng $15$. Độ dài của cạnh góc vuông kia là bao nhiêu?",
+    "choices": [
+      "$12$",
+      "$6$",
+      "$10$",
+      "$11$"
+    ],
     "correct": 0,
-    "explanation": "Other leg $= \\sqrt{15^2 - 9^2} = \\sqrt{225 - 81} = \\sqrt{144} = 12$."
+    "explanation": "Cạnh góc vuông kia $= \\sqrt{15^2 - 9^2} = \\sqrt{225 - 81} = \\sqrt{144} = 12$."
   },
   {
     "id": "q_amc_au_008",
@@ -967,8 +1397,13 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "What is the value of $\\dfrac{3^4 \\times 3^2}{3^5}$?",
-    "choices": ["$3$", "$9$", "$27$", "$1$"],
+    "question": "Giá trị của $\\dfrac{3^4 \\times 3^2}{3^5}$ là bao nhiêu?",
+    "choices": [
+      "$3$",
+      "$9$",
+      "$27$",
+      "$1$"
+    ],
     "correct": 0,
     "explanation": "$\\dfrac{3^4 \\times 3^2}{3^5} = 3^{4+2-5} = 3^1 = 3$."
   },
@@ -978,10 +1413,15 @@
     "year": 2023,
     "topic": "number_theory",
     "difficulty": "medium",
-    "question": "What is the next prime number after $29$?",
-    "choices": ["$31$", "$30$", "$33$", "$37$"],
+    "question": "Số nguyên tố tiếp theo sau $29$ là bao nhiêu?",
+    "choices": [
+      "$31$",
+      "$30$",
+      "$33$",
+      "$37$"
+    ],
     "correct": 0,
-    "explanation": "$30$ is even, $31$ is prime (not divisible by $2, 3, 5$)."
+    "explanation": "$30$ là số chẵn, $31$ là số nguyên tố (không chia hết cho $2, 3, 5$)."
   },
   {
     "id": "q_amc_au_010",
@@ -989,10 +1429,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "medium",
-    "question": "What is the surface area of a cube with side length $4$ cm?",
-    "choices": ["$96$ cm²", "$64$ cm²", "$24$ cm²", "$48$ cm²"],
+    "question": "Diện tích bề mặt của một hình lập phương có cạnh dài $4$ cm là bao nhiêu?",
+    "choices": [
+      "$96$ cm²",
+      "$64$ cm²",
+      "$24$ cm²",
+      "$48$ cm²"
+    ],
     "correct": 0,
-    "explanation": "Surface area $= 6s^2 = 6 \\times 4^2 = 6 \\times 16 = 96$ cm²."
+    "explanation": "Diện tích bề mặt $= 6s^2 = 6 \\times 4^2 = 6 \\times 16 = 96$ cm²."
   },
   {
     "id": "q_amc_au_011",
@@ -1000,10 +1445,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "hard",
-    "question": "If $\\left(x + \\dfrac{1}{x}\\right)^2 = 7$, what is $x^2 + \\dfrac{1}{x^2}$?",
-    "choices": ["$5$", "$7$", "$9$", "$3$"],
+    "question": "Nếu $\\left(x + \\dfrac{1}{x}\\right)^2 = 7$, thì $x^2 + \\dfrac{1}{x^2}$ bằng bao nhiêu?",
+    "choices": [
+      "$5$",
+      "$7$",
+      "$9$",
+      "$3$"
+    ],
     "correct": 0,
-    "explanation": "$\\left(x + \\dfrac{1}{x}\\right)^2 = x^2 + 2 + \\dfrac{1}{x^2} = 7$, so $x^2 + \\dfrac{1}{x^2} = 5$."
+    "explanation": "$\\left(x + \\dfrac{1}{x}\\right)^2 = x^2 + 2 + \\dfrac{1}{x^2} = 7$, nên $x^2 + \\dfrac{1}{x^2} = 5$."
   },
   {
     "id": "q_amc_au_012",
@@ -1011,10 +1461,15 @@
     "year": 2023,
     "topic": "statistics",
     "difficulty": "medium",
-    "question": "A teacher records the following test scores: $45, 60, 72, 80, 55, 72, 68, 72$. What is the mode?",
-    "choices": ["$72$", "$68$", "$60$", "$80$"],
+    "question": "Một giáo viên ghi lại các điểm kiểm tra sau: $45, 60, 72, 80, 55, 72, 68, 72$. Mode là bao nhiêu?",
+    "choices": [
+      "$72$",
+      "$68$",
+      "$60$",
+      "$80$"
+    ],
     "correct": 0,
-    "explanation": "$72$ appears $3$ times, which is more than any other value."
+    "explanation": "$72$ xuất hiện $3$ lần, nhiều hơn bất kỳ giá trị nào khác."
   },
   {
     "id": "q_amc_au_013",
@@ -1022,10 +1477,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "medium",
-    "question": "The angles of a triangle are in the ratio $2:3:4$. What is the largest angle?",
-    "choices": ["$80°$", "$60°$", "$90°$", "$70°$"],
+    "question": "Các góc của một tam giác có tỉ lệ $2:3:4$. Góc lớn nhất là bao nhiêu?",
+    "choices": [
+      "$80°$",
+      "$60°$",
+      "$90°$",
+      "$70°$"
+    ],
     "correct": 0,
-    "explanation": "Total ratio parts $= 9$, so one part $= 180° \\div 9 = 20°$. Largest angle $= 4 \\times 20° = 80°$."
+    "explanation": "Tổng các phần tỉ lệ $= 9$, nên một phần $= 180° \\div 9 = 20°$. Góc lớn nhất $= 4 \\times 20° = 80°$."
   },
   {
     "id": "q_amc_au_014",
@@ -1033,10 +1493,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Solve the simultaneous equations: $y = 3x - 2$ and $y = x + 4$.",
-    "choices": ["$x = 3,\\ y = 7$", "$x = 2,\\ y = 6$", "$x = 4,\\ y = 8$", "$x = 1,\\ y = 5$"],
+    "question": "Giải hệ phương trình: $y = 3x - 2$ và $y = x + 4$.",
+    "choices": [
+      "$x = 3,\\ y = 7$",
+      "$x = 2,\\ y = 6$",
+      "$x = 4,\\ y = 8$",
+      "$x = 1,\\ y = 5$"
+    ],
     "correct": 0,
-    "explanation": "$3x - 2 = x + 4 \\Rightarrow 2x = 6 \\Rightarrow x = 3$. Then $y = 3 + 4 = 7$."
+    "explanation": "$3x - 2 = x + 4 \\Rightarrow 2x = 6 \\Rightarrow x = 3$. Khi đó $y = 3 + 4 = 7$."
   },
   {
     "id": "q_amc_au_015",
@@ -1044,8 +1509,13 @@
     "year": 2023,
     "topic": "number_theory",
     "difficulty": "easy",
-    "question": "What is the value of $2^8 \\div 2^5$?",
-    "choices": ["$8$", "$4$", "$16$", "$2$"],
+    "question": "Giá trị của $2^8 \\div 2^5$ là bao nhiêu?",
+    "choices": [
+      "$8$",
+      "$4$",
+      "$16$",
+      "$2$"
+    ],
     "correct": 0,
     "explanation": "$2^8 \\div 2^5 = 2^{8-5} = 2^3 = 8$."
   },
@@ -1055,10 +1525,15 @@
     "year": 2023,
     "topic": "combinatorics",
     "difficulty": "medium",
-    "question": "From a group of $6$ people, in how many ways can a president and a secretary be chosen (they must be different people)?",
-    "choices": ["$30$", "$12$", "$15$", "$36$"],
+    "question": "Từ một nhóm $6$ người, có bao nhiêu cách chọn một chủ tịch và một thư ký (họ phải là những người khác nhau)?",
+    "choices": [
+      "$30$",
+      "$12$",
+      "$15$",
+      "$36$"
+    ],
     "correct": 0,
-    "explanation": "President can be chosen in $6$ ways, secretary in $5$ ways: $6 \\times 5 = 30$ ordered selections."
+    "explanation": "Chủ tịch có thể được chọn theo $6$ cách, thư ký theo $5$ cách: $6 \\times 5 = 30$ cách chọn có thứ tự."
   },
   {
     "id": "q_amc_au_017",
@@ -1066,10 +1541,15 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Solve for $x$: $|2x - 3| = 7$.",
-    "choices": ["$x = 5$ or $x = -2$", "$x = 5$ only", "$x = -2$ only", "$x = 2$ or $x = 5$"],
+    "question": "Giải $x$: $|2x - 3| = 7$.",
+    "choices": [
+      "$x = 5$ hoặc $x = -2$",
+      "$x = 5$ chỉ",
+      "$x = -2$ chỉ",
+      "$x = 2$ hoặc $x = 5$"
+    ],
     "correct": 0,
-    "explanation": "$2x - 3 = 7 \\Rightarrow x = 5$ or $2x - 3 = -7 \\Rightarrow x = -2$."
+    "explanation": "$2x - 3 = 7 \\Rightarrow x = 5$ hoặc $2x - 3 = -7 \\Rightarrow x = -2$."
   },
   {
     "id": "q_amc_au_018",
@@ -1077,10 +1557,15 @@
     "year": 2023,
     "topic": "geometry",
     "difficulty": "easy",
-    "question": "What is the volume of a rectangular prism with dimensions $5$ cm $\\times$ $4$ cm $\\times$ $3$ cm?",
-    "choices": ["$60$ cm³", "$47$ cm³", "$94$ cm³", "$120$ cm³"],
+    "question": "Thể tích của một hình hộp chữ nhật có các kích thước $5$ cm $\\times$ $4$ cm $\\times$ $3$ cm là bao nhiêu?",
+    "choices": [
+      "$60$ cm³",
+      "$47$ cm³",
+      "$94$ cm³",
+      "$120$ cm³"
+    ],
     "correct": 0,
-    "explanation": "Volume $= 5 \\times 4 \\times 3 = 60$ cm³."
+    "explanation": "Thể tích $= 5 \\times 4 \\times 3 = 60$ cm³."
   },
   {
     "id": "q_amc_au_019",
@@ -1088,8 +1573,13 @@
     "year": 2023,
     "topic": "algebra",
     "difficulty": "medium",
-    "question": "Solve for $x$: $\\sqrt{x + 4} = 3$.",
-    "choices": ["$5$", "$4$", "$13$", "$7$"],
+    "question": "Giải $x$: $\\sqrt{x + 4} = 3$.",
+    "choices": [
+      "$5$",
+      "$4$",
+      "$13$",
+      "$7$"
+    ],
     "correct": 0,
     "explanation": "$x + 4 = 3^2 = 9 \\Rightarrow x = 5$."
   },
@@ -1099,609 +1589,1614 @@
     "year": 2023,
     "topic": "statistics",
     "difficulty": "hard",
-    "question": "A data set has a mean of $20$ and a standard deviation of $4$. If every value in the data set is increased by $3$, what are the new mean and standard deviation?",
-    "choices": ["Mean $23$, SD $4$", "Mean $23$, SD $7$", "Mean $20$, SD $4$", "Mean $23$, SD $12$"],
+    "question": "Một tập dữ liệu có trung bình là $20$ và độ lệch chuẩn là $4$. Nếu mỗi giá trị trong tập dữ liệu được tăng thêm $3$, thì trung bình và độ lệch chuẩn mới là bao nhiêu?",
+    "choices": [
+      "Trung bình $23$, ĐLC $4$",
+      "Trung bình $23$, ĐLC $7$",
+      "Trung bình $20$, ĐLC $4$",
+      "Trung bình $23$, ĐLC $12$"
+    ],
     "correct": 0,
-    "explanation": "Adding a constant to every value shifts the mean by that constant (new mean $= 23$) but does not change the spread, so the standard deviation remains $4$."
+    "explanation": "Cộng một hằng số vào mỗi giá trị sẽ dịch chuyển trung bình bởi hằng số đó (trung bình mới $= 23$) nhưng không thay đổi độ phân tán, nên độ lệch chuẩn vẫn là $4$."
   },
-
-  { "id": "q_vn_hn_001", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "number_theory", "difficulty": "easy",
+  {
+    "id": "q_vn_hn_001",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "number_theory",
+    "difficulty": "easy",
     "question": "Tính $\\sqrt{12} + \\sqrt{27} - \\sqrt{3}$.",
-    "choices": ["$4\\sqrt{3}$", "$3\\sqrt{3}$", "$5\\sqrt{3}$", "$2\\sqrt{3}$"],
+    "choices": [
+      "$4\\sqrt{3}$",
+      "$3\\sqrt{3}$",
+      "$5\\sqrt{3}$",
+      "$2\\sqrt{3}$"
+    ],
     "correct": 0,
-    "explanation": "$\\sqrt{12} + \\sqrt{27} - \\sqrt{3} = 2\\sqrt{3} + 3\\sqrt{3} - \\sqrt{3} = 4\\sqrt{3}$." },
-
-  { "id": "q_vn_hn_002", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$\\sqrt{12} + \\sqrt{27} - \\sqrt{3} = 2\\sqrt{3} + 3\\sqrt{3} - \\sqrt{3} = 4\\sqrt{3}$."
+  },
+  {
+    "id": "q_vn_hn_002",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Giải phương trình $2x^2 - 5x + 3 = 0$.",
-    "choices": ["$x = 1$ hoặc $x = \\dfrac{3}{2}$", "$x = -1$ hoặc $x = \\dfrac{3}{2}$", "$x = 1$ hoặc $x = -\\dfrac{3}{2}$", "$x = 2$ hoặc $x = 3$"],
+    "choices": [
+      "$x = 1$ hoặc $x = \\dfrac{3}{2}$",
+      "$x = -1$ hoặc $x = \\dfrac{3}{2}$",
+      "$x = 1$ hoặc $x = -\\dfrac{3}{2}$",
+      "$x = 2$ hoặc $x = 3$"
+    ],
     "correct": 0,
-    "explanation": "$\\Delta = 25 - 24 = 1$. $x = \\dfrac{5 \\pm 1}{4}$, suy ra $x = \\dfrac{3}{2}$ hoặc $x = 1$." },
-
-  { "id": "q_vn_hn_003", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "functions", "difficulty": "easy",
+    "explanation": "$\\Delta = 25 - 24 = 1$. $x = \\dfrac{5 \\pm 1}{4}$, suy ra $x = \\dfrac{3}{2}$ hoặc $x = 1$."
+  },
+  {
+    "id": "q_vn_hn_003",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "easy",
     "question": "Hàm số $y = (m-1)x + 3$ đồng biến trên $\\mathbb{R}$ khi:",
-    "choices": ["$m > 1$", "$m < 1$", "$m = 1$", "$m \\geq 1$"],
+    "choices": [
+      "$m > 1$",
+      "$m < 1$",
+      "$m = 1$",
+      "$m \\geq 1$"
+    ],
     "correct": 0,
-    "explanation": "Hàm bậc nhất $y = ax + b$ đồng biến khi $a > 0$, tức $m - 1 > 0 \\Leftrightarrow m > 1$." },
-
-  { "id": "q_vn_hn_004", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "number_theory", "difficulty": "easy",
+    "explanation": "Hàm bậc nhất $y = ax + b$ đồng biến khi $a > 0$, tức $m - 1 > 0 \\Leftrightarrow m > 1$."
+  },
+  {
+    "id": "q_vn_hn_004",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "number_theory",
+    "difficulty": "easy",
     "question": "Tính $(\\sqrt{5} + 1)(\\sqrt{5} - 1)$.",
-    "choices": ["$4$", "$5$", "$6$", "$2\\sqrt{5}$"],
+    "choices": [
+      "$4$",
+      "$5$",
+      "$6$",
+      "$2\\sqrt{5}$"
+    ],
     "correct": 0,
-    "explanation": "$(\\sqrt{5}+1)(\\sqrt{5}-1) = 5 - 1 = 4$." },
-
-  { "id": "q_vn_hn_005", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$(\\sqrt{5}+1)(\\sqrt{5}-1) = 5 - 1 = 4$."
+  },
+  {
+    "id": "q_vn_hn_005",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Giải hệ phương trình $\\begin{cases}2x + y = 5 \\\\ x - y = 1\\end{cases}$.",
-    "choices": ["$x = 2,\\ y = 1$", "$x = 3,\\ y = -1$", "$x = 1,\\ y = 3$", "$x = 2,\\ y = 3$"],
+    "choices": [
+      "$x = 2,\\ y = 1$",
+      "$x = 3,\\ y = -1$",
+      "$x = 1,\\ y = 3$",
+      "$x = 2,\\ y = 3$"
+    ],
     "correct": 0,
-    "explanation": "Cộng hai phương trình: $3x = 6 \\Rightarrow x = 2$. Thay vào: $y = x - 1 = 1$." },
-
-  { "id": "q_vn_hn_006", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "Cộng hai phương trình: $3x = 6 \\Rightarrow x = 2$. Thay vào: $y = x - 1 = 1$."
+  },
+  {
+    "id": "q_vn_hn_006",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Phương trình $x^2 - 4x + m = 0$ có hai nghiệm phân biệt khi:",
-    "choices": ["$m < 4$", "$m > 4$", "$m \\leq 4$", "$m = 4$"],
+    "choices": [
+      "$m < 4$",
+      "$m > 4$",
+      "$m \\leq 4$",
+      "$m = 4$"
+    ],
     "correct": 0,
-    "explanation": "$\\Delta = 16 - 4m > 0 \\Rightarrow m < 4$." },
-
-  { "id": "q_vn_hn_007", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "functions", "difficulty": "easy",
+    "explanation": "$\\Delta = 16 - 4m > 0 \\Rightarrow m < 4$."
+  },
+  {
+    "id": "q_vn_hn_007",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "easy",
     "question": "Điểm nào sau đây thuộc đồ thị hàm số $y = 2x - 3$?",
-    "choices": ["$(2;\\ 1)$", "$(1;\\ 2)$", "$(0;\\ 3)$", "$(-1;\\ -1)$"],
+    "choices": [
+      "$(2;\\ 1)$",
+      "$(1;\\ 2)$",
+      "$(0;\\ 3)$",
+      "$(-1;\\ -1)$"
+    ],
     "correct": 0,
-    "explanation": "$y(2) = 2 \\cdot 2 - 3 = 1$. Vậy $(2;\\ 1)$ thuộc đồ thị." },
-
-  { "id": "q_vn_hn_008", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "algebra", "difficulty": "easy",
+    "explanation": "$y(2) = 2 \\cdot 2 - 3 = 1$. Vậy $(2;\\ 1)$ thuộc đồ thị."
+  },
+  {
+    "id": "q_vn_hn_008",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
     "question": "Rút gọn $\\dfrac{x^2 - 9}{x + 3}$ với $x \\neq -3$.",
-    "choices": ["$x - 3$", "$x + 3$", "$x^2 - 3$", "$(x-3)(x+3)$"],
+    "choices": [
+      "$x - 3$",
+      "$x + 3$",
+      "$x^2 - 3$",
+      "$(x-3)(x+3)$"
+    ],
     "correct": 0,
-    "explanation": "$\\dfrac{(x-3)(x+3)}{x+3} = x - 3$." },
-
-  { "id": "q_vn_hn_009", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "geometry", "difficulty": "easy",
+    "explanation": "$\\dfrac{(x-3)(x+3)}{x+3} = x - 3$."
+  },
+  {
+    "id": "q_vn_hn_009",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
     "question": "Tam giác $ABC$ vuông tại $A$, $AB = 6$ cm, $BC = 10$ cm. Tính $AC$.",
-    "choices": ["$8$ cm", "$4$ cm", "$6$ cm", "$7$ cm"],
+    "choices": [
+      "$8$ cm",
+      "$4$ cm",
+      "$6$ cm",
+      "$7$ cm"
+    ],
     "correct": 0,
-    "explanation": "$AC = \\sqrt{BC^2 - AB^2} = \\sqrt{100 - 36} = \\sqrt{64} = 8$ cm." },
-
-  { "id": "q_vn_hn_010", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$AC = \\sqrt{BC^2 - AB^2} = \\sqrt{100 - 36} = \\sqrt{64} = 8$ cm."
+  },
+  {
+    "id": "q_vn_hn_010",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Giá trị nhỏ nhất của biểu thức $A = x^2 - 4x + 5$ là:",
-    "choices": ["$1$", "$4$", "$5$", "$0$"],
+    "choices": [
+      "$1$",
+      "$4$",
+      "$5$",
+      "$0$"
+    ],
     "correct": 0,
-    "explanation": "$A = (x-2)^2 + 1 \\geq 1$. Đẳng thức khi $x = 2$." },
-
-  { "id": "q_vn_hn_011", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$A = (x-2)^2 + 1 \\geq 1$. Đẳng thức khi $x = 2$."
+  },
+  {
+    "id": "q_vn_hn_011",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Tổng hai nghiệm của phương trình $3x^2 - 6x + 2 = 0$ là:",
-    "choices": ["$2$", "$-2$", "$6$", "$-6$"],
+    "choices": [
+      "$2$",
+      "$-2$",
+      "$6$",
+      "$-6$"
+    ],
     "correct": 0,
-    "explanation": "Theo Vi-ét: $x_1 + x_2 = \\dfrac{6}{3} = 2$." },
-
-  { "id": "q_vn_hn_012", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "geometry", "difficulty": "easy",
+    "explanation": "Theo Vi-ét: $x_1 + x_2 = \\dfrac{6}{3} = 2$."
+  },
+  {
+    "id": "q_vn_hn_012",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
     "question": "Hình thang $ABCD$ có $AB \\parallel CD$, $AB = 8$ cm, $CD = 4$ cm, chiều cao $h = 5$ cm. Diện tích hình thang là:",
-    "choices": ["$30$ cm²", "$20$ cm²", "$40$ cm²", "$60$ cm²"],
+    "choices": [
+      "$30$ cm²",
+      "$20$ cm²",
+      "$40$ cm²",
+      "$60$ cm²"
+    ],
     "correct": 0,
-    "explanation": "$S = \\dfrac{(AB + CD)}{2} \\cdot h = \\dfrac{(8+4)}{2} \\cdot 5 = 30$ cm²." },
-
-  { "id": "q_vn_hn_013", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "number_theory", "difficulty": "easy",
+    "explanation": "$S = \\dfrac{(AB + CD)}{2} \\cdot h = \\dfrac{(8+4)}{2} \\cdot 5 = 30$ cm²."
+  },
+  {
+    "id": "q_vn_hn_013",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "number_theory",
+    "difficulty": "easy",
     "question": "Rút gọn $\\sqrt{4x^2}$ với $x > 0$.",
-    "choices": ["$2x$", "$-2x$", "$2x^2$", "$4x$"],
+    "choices": [
+      "$2x$",
+      "$-2x$",
+      "$2x^2$",
+      "$4x$"
+    ],
     "correct": 0,
-    "explanation": "$\\sqrt{4x^2} = 2|x| = 2x$ vì $x > 0$." },
-
-  { "id": "q_vn_hn_014", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "functions", "difficulty": "easy",
+    "explanation": "$\\sqrt{4x^2} = 2|x| = 2x$ vì $x > 0$."
+  },
+  {
+    "id": "q_vn_hn_014",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "easy",
     "question": "Đường thẳng $y = 2x + b$ đi qua điểm $(1;\\ 5)$. Giá trị $b$ là:",
-    "choices": ["$3$", "$7$", "$-3$", "$1$"],
+    "choices": [
+      "$3$",
+      "$7$",
+      "$-3$",
+      "$1$"
+    ],
     "correct": 0,
-    "explanation": "$5 = 2 \\cdot 1 + b \\Rightarrow b = 3$." },
-
-  { "id": "q_vn_hn_015", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "algebra", "difficulty": "easy",
+    "explanation": "$5 = 2 \\cdot 1 + b \\Rightarrow b = 3$."
+  },
+  {
+    "id": "q_vn_hn_015",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
     "question": "Giải bất phương trình $3x - 6 > 0$.",
-    "choices": ["$x > 2$", "$x < 2$", "$x \\geq 2$", "$x \\leq 2$"],
+    "choices": [
+      "$x > 2$",
+      "$x < 2$",
+      "$x \\geq 2$",
+      "$x \\leq 2$"
+    ],
     "correct": 0,
-    "explanation": "$3x > 6 \\Rightarrow x > 2$." },
-
-  { "id": "q_vn_hn_016", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "geometry", "difficulty": "medium",
+    "explanation": "$3x > 6 \\Rightarrow x > 2$."
+  },
+  {
+    "id": "q_vn_hn_016",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Đường tròn tâm $O$ bán kính $R = 5$ cm, dây $AB = 8$ cm. Khoảng cách từ $O$ đến $AB$ là:",
-    "choices": ["$3$ cm", "$4$ cm", "$2$ cm", "$5$ cm"],
+    "choices": [
+      "$3$ cm",
+      "$4$ cm",
+      "$2$ cm",
+      "$5$ cm"
+    ],
     "correct": 0,
-    "explanation": "$d = \\sqrt{R^2 - \\left(\\tfrac{AB}{2}\\right)^2} = \\sqrt{25 - 16} = 3$ cm." },
-
-  { "id": "q_vn_hn_017", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "algebra", "difficulty": "easy",
+    "explanation": "$d = \\sqrt{R^2 - \\left(\\tfrac{AB}{2}\\right)^2} = \\sqrt{25 - 16} = 3$ cm."
+  },
+  {
+    "id": "q_vn_hn_017",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
     "question": "Tích hai nghiệm của phương trình $x^2 - 5x + 6 = 0$ là:",
-    "choices": ["$6$", "$5$", "$-5$", "$-6$"],
+    "choices": [
+      "$6$",
+      "$5$",
+      "$-5$",
+      "$-6$"
+    ],
     "correct": 0,
-    "explanation": "Theo Vi-ét: $x_1 \\cdot x_2 = \\dfrac{c}{a} = 6$." },
-
-  { "id": "q_vn_hn_018", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "number_theory", "difficulty": "medium",
+    "explanation": "Theo Vi-ét: $x_1 \\cdot x_2 = \\dfrac{c}{a} = 6$."
+  },
+  {
+    "id": "q_vn_hn_018",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "number_theory",
+    "difficulty": "medium",
     "question": "Tính $\\sqrt{2 + \\sqrt{3}} \\cdot \\sqrt{2 - \\sqrt{3}}$.",
-    "choices": ["$1$", "$\\sqrt{3}$", "$2$", "$\\sqrt{5}$"],
+    "choices": [
+      "$1$",
+      "$\\sqrt{3}$",
+      "$2$",
+      "$\\sqrt{5}$"
+    ],
     "correct": 0,
-    "explanation": "$\\sqrt{(2+\\sqrt{3})(2-\\sqrt{3})} = \\sqrt{4-3} = \\sqrt{1} = 1$." },
-
-  { "id": "q_vn_hn_019", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "functions", "difficulty": "easy",
+    "explanation": "$\\sqrt{(2+\\sqrt{3})(2-\\sqrt{3})} = \\sqrt{4-3} = \\sqrt{1} = 1$."
+  },
+  {
+    "id": "q_vn_hn_019",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "easy",
     "question": "Đồ thị hàm số $y = ax^2$ ($a \\neq 0$) có dạng:",
-    "choices": ["Parabol", "Đường thẳng", "Đường tròn", "Hyperbol"],
+    "choices": [
+      "Parabol",
+      "Đường thẳng",
+      "Đường tròn",
+      "Hyperbol"
+    ],
     "correct": 0,
-    "explanation": "Hàm số bậc hai $y = ax^2$ có đồ thị là một parabol có đỉnh tại gốc tọa độ." },
-
-  { "id": "q_vn_hn_020", "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội", "year": 2024, "topic": "geometry", "difficulty": "medium",
+    "explanation": "Hàm số bậc hai $y = ax^2$ có đồ thị là một parabol có đỉnh tại gốc tọa độ."
+  },
+  {
+    "id": "q_vn_hn_020",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT Hà Nội",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Tam giác đều cạnh $a$. Diện tích tam giác đều là:",
-    "choices": ["$\\dfrac{a^2\\sqrt{3}}{4}$", "$\\dfrac{a^2}{2}$", "$a^2\\sqrt{3}$", "$\\dfrac{a\\sqrt{3}}{2}$"],
+    "choices": [
+      "$\\dfrac{a^2\\sqrt{3}}{4}$",
+      "$\\dfrac{a^2}{2}$",
+      "$a^2\\sqrt{3}$",
+      "$\\dfrac{a\\sqrt{3}}{2}$"
+    ],
     "correct": 0,
-    "explanation": "$S = \\dfrac{1}{2} \\cdot a \\cdot h = \\dfrac{1}{2} \\cdot a \\cdot \\dfrac{a\\sqrt{3}}{2} = \\dfrac{a^2\\sqrt{3}}{4}$." },
-
-  { "id": "q_vn_hcmc_001", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "number_theory", "difficulty": "easy",
+    "explanation": "$S = \\dfrac{1}{2} \\cdot a \\cdot h = \\dfrac{1}{2} \\cdot a \\cdot \\dfrac{a\\sqrt{3}}{2} = \\dfrac{a^2\\sqrt{3}}{4}$."
+  },
+  {
+    "id": "q_vn_hcmc_001",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "number_theory",
+    "difficulty": "easy",
     "question": "Tính $\\sqrt{50} - \\sqrt{18} + \\sqrt{8}$.",
-    "choices": ["$4\\sqrt{2}$", "$3\\sqrt{2}$", "$5\\sqrt{2}$", "$6\\sqrt{2}$"],
+    "choices": [
+      "$4\\sqrt{2}$",
+      "$3\\sqrt{2}$",
+      "$5\\sqrt{2}$",
+      "$6\\sqrt{2}$"
+    ],
     "correct": 0,
-    "explanation": "$5\\sqrt{2} - 3\\sqrt{2} + 2\\sqrt{2} = 4\\sqrt{2}$." },
-
-  { "id": "q_vn_hcmc_002", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$5\\sqrt{2} - 3\\sqrt{2} + 2\\sqrt{2} = 4\\sqrt{2}$."
+  },
+  {
+    "id": "q_vn_hcmc_002",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Phương trình $x^2 - 2x - 8 = 0$ có nghiệm:",
-    "choices": ["$x = 4$ hoặc $x = -2$", "$x = 4$ hoặc $x = 2$", "$x = -4$ hoặc $x = 2$", "$x = -4$ hoặc $x = -2$"],
+    "choices": [
+      "$x = 4$ hoặc $x = -2$",
+      "$x = 4$ hoặc $x = 2$",
+      "$x = -4$ hoặc $x = 2$",
+      "$x = -4$ hoặc $x = -2$"
+    ],
     "correct": 0,
-    "explanation": "$(x-4)(x+2) = 0 \\Rightarrow x = 4$ hoặc $x = -2$." },
-
-  { "id": "q_vn_hcmc_003", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$(x-4)(x+2) = 0 \\Rightarrow x = 4$ hoặc $x = -2$."
+  },
+  {
+    "id": "q_vn_hcmc_003",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Giải hệ phương trình $\\begin{cases}3x - 2y = 7 \\\\ x + 2y = 5\\end{cases}$.",
-    "choices": ["$x = 3,\\ y = 1$", "$x = 2,\\ y = 1$", "$x = 3,\\ y = 2$", "$x = 1,\\ y = 2$"],
+    "choices": [
+      "$x = 3,\\ y = 1$",
+      "$x = 2,\\ y = 1$",
+      "$x = 3,\\ y = 2$",
+      "$x = 1,\\ y = 2$"
+    ],
     "correct": 0,
-    "explanation": "Cộng hai phương trình: $4x = 12 \\Rightarrow x = 3$. Thay vào: $3 + 2y = 5 \\Rightarrow y = 1$." },
-
-  { "id": "q_vn_hcmc_004", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "functions", "difficulty": "easy",
+    "explanation": "Cộng hai phương trình: $4x = 12 \\Rightarrow x = 3$. Thay vào: $3 + 2y = 5 \\Rightarrow y = 1$."
+  },
+  {
+    "id": "q_vn_hcmc_004",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "easy",
     "question": "Cho $f(x) = x^2 - 3x + 2$. Tính $f(2)$.",
-    "choices": ["$0$", "$1$", "$2$", "$-1$"],
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$-1$"
+    ],
     "correct": 0,
-    "explanation": "$f(2) = 4 - 6 + 2 = 0$." },
-
-  { "id": "q_vn_hcmc_005", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "functions", "difficulty": "easy",
+    "explanation": "$f(2) = 4 - 6 + 2 = 0$."
+  },
+  {
+    "id": "q_vn_hcmc_005",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "easy",
     "question": "Đường thẳng $y = kx + 2$ đi qua $A(1;\\ 5)$. Giá trị $k$ là:",
-    "choices": ["$3$", "$2$", "$7$", "$-3$"],
+    "choices": [
+      "$3$",
+      "$2$",
+      "$7$",
+      "$-3$"
+    ],
     "correct": 0,
-    "explanation": "$5 = k \\cdot 1 + 2 \\Rightarrow k = 3$." },
-
-  { "id": "q_vn_hcmc_006", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "geometry", "difficulty": "medium",
+    "explanation": "$5 = k \\cdot 1 + 2 \\Rightarrow k = 3$."
+  },
+  {
+    "id": "q_vn_hcmc_006",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Tam giác $ABC$ cân tại $A$, $AB = AC = 5$ cm, $BC = 6$ cm. Chiều cao $AH$ từ $A$ xuống $BC$ bằng:",
-    "choices": ["$4$ cm", "$3$ cm", "$5$ cm", "$2$ cm"],
+    "choices": [
+      "$4$ cm",
+      "$3$ cm",
+      "$5$ cm",
+      "$2$ cm"
+    ],
     "correct": 0,
-    "explanation": "$H$ là trung điểm $BC$ nên $BH = 3$. $AH = \\sqrt{AB^2 - BH^2} = \\sqrt{25-9} = 4$ cm." },
-
-  { "id": "q_vn_hcmc_007", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "number_theory", "difficulty": "medium",
+    "explanation": "$H$ là trung điểm $BC$ nên $BH = 3$. $AH = \\sqrt{AB^2 - BH^2} = \\sqrt{25-9} = 4$ cm."
+  },
+  {
+    "id": "q_vn_hcmc_007",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "number_theory",
+    "difficulty": "medium",
     "question": "Tính $\\sqrt{3 - \\sqrt{5}} \\cdot \\sqrt{3 + \\sqrt{5}}$.",
-    "choices": ["$2$", "$\\sqrt{5}$", "$4$", "$\\sqrt{3}$"],
+    "choices": [
+      "$2$",
+      "$\\sqrt{5}$",
+      "$4$",
+      "$\\sqrt{3}$"
+    ],
     "correct": 0,
-    "explanation": "$\\sqrt{(3-\\sqrt{5})(3+\\sqrt{5})} = \\sqrt{9-5} = \\sqrt{4} = 2$." },
-
-  { "id": "q_vn_hcmc_008", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "algebra", "difficulty": "easy",
+    "explanation": "$\\sqrt{(3-\\sqrt{5})(3+\\sqrt{5})} = \\sqrt{9-5} = \\sqrt{4} = 2$."
+  },
+  {
+    "id": "q_vn_hcmc_008",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
     "question": "Rút gọn $(a - b)^2 + 4ab$.",
-    "choices": ["$(a+b)^2$", "$a^2 + b^2$", "$2(a^2+b^2)$", "$(a-b)^2$"],
+    "choices": [
+      "$(a+b)^2$",
+      "$a^2 + b^2$",
+      "$2(a^2+b^2)$",
+      "$(a-b)^2$"
+    ],
     "correct": 0,
-    "explanation": "$(a-b)^2 + 4ab = a^2 - 2ab + b^2 + 4ab = a^2 + 2ab + b^2 = (a+b)^2$." },
-
-  { "id": "q_vn_hcmc_009", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "geometry", "difficulty": "easy",
+    "explanation": "$(a-b)^2 + 4ab = a^2 - 2ab + b^2 + 4ab = a^2 + 2ab + b^2 = (a+b)^2$."
+  },
+  {
+    "id": "q_vn_hcmc_009",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
     "question": "Cho đường tròn $(O;\\ R)$ và điểm $A$ với $OA = 13$, $R = 5$. Điểm $A$ nằm:",
-    "choices": ["Ngoài đường tròn", "Trên đường tròn", "Trong đường tròn", "Tại tâm"],
+    "choices": [
+      "Ngoài đường tròn",
+      "Trên đường tròn",
+      "Trong đường tròn",
+      "Tại tâm"
+    ],
     "correct": 0,
-    "explanation": "$OA = 13 > R = 5$ nên $A$ nằm ngoài đường tròn." },
-
-  { "id": "q_vn_hcmc_010", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$OA = 13 > R = 5$ nên $A$ nằm ngoài đường tròn."
+  },
+  {
+    "id": "q_vn_hcmc_010",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Phương trình $3x^2 - 12 = 0$ có nghiệm:",
-    "choices": ["$x = \\pm 2$", "$x = \\pm 4$", "$x = \\pm 12$", "$x = \\pm 3$"],
+    "choices": [
+      "$x = \\pm 2$",
+      "$x = \\pm 4$",
+      "$x = \\pm 12$",
+      "$x = \\pm 3$"
+    ],
     "correct": 0,
-    "explanation": "$x^2 = 4 \\Rightarrow x = \\pm 2$." },
-
-  { "id": "q_vn_hcmc_011", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$x^2 = 4 \\Rightarrow x = \\pm 2$."
+  },
+  {
+    "id": "q_vn_hcmc_011",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Giá trị nhỏ nhất của biểu thức $B = 4x^2 + 4x + 5$ là:",
-    "choices": ["$4$", "$5$", "$1$", "$0$"],
+    "choices": [
+      "$4$",
+      "$5$",
+      "$1$",
+      "$0$"
+    ],
     "correct": 0,
-    "explanation": "$B = 4\\left(x + \\dfrac{1}{2}\\right)^2 + 4 \\geq 4$. Đẳng thức khi $x = -\\dfrac{1}{2}$." },
-
-  { "id": "q_vn_hcmc_012", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "number_theory", "difficulty": "medium",
+    "explanation": "$B = 4\\left(x + \\dfrac{1}{2}\\right)^2 + 4 \\geq 4$. Đẳng thức khi $x = -\\dfrac{1}{2}$."
+  },
+  {
+    "id": "q_vn_hcmc_012",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "number_theory",
+    "difficulty": "medium",
     "question": "Tính $(\\sqrt{6} + \\sqrt{2})^2 - 2\\sqrt{12}$.",
-    "choices": ["$8$", "$4$", "$12$", "$6$"],
+    "choices": [
+      "$8$",
+      "$4$",
+      "$12$",
+      "$6$"
+    ],
     "correct": 0,
-    "explanation": "$(\\sqrt{6}+\\sqrt{2})^2 = 6 + 2\\sqrt{12} + 2 = 8 + 2\\sqrt{12}$. Trừ đi $2\\sqrt{12}$ còn $8$." },
-
-  { "id": "q_vn_hcmc_013", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "geometry", "difficulty": "medium",
+    "explanation": "$(\\sqrt{6}+\\sqrt{2})^2 = 6 + 2\\sqrt{12} + 2 = 8 + 2\\sqrt{12}$. Trừ đi $2\\sqrt{12}$ còn $8$."
+  },
+  {
+    "id": "q_vn_hcmc_013",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Góc nội tiếp chắn cung $120°$ có số đo:",
-    "choices": ["$60°$", "$120°$", "$240°$", "$30°$"],
+    "choices": [
+      "$60°$",
+      "$120°$",
+      "$240°$",
+      "$30°$"
+    ],
     "correct": 0,
-    "explanation": "Góc nội tiếp bằng nửa góc ở tâm cùng chắn một cung: $\\dfrac{120°}{2} = 60°$." },
-
-  { "id": "q_vn_hcmc_014", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "Góc nội tiếp bằng nửa góc ở tâm cùng chắn một cung: $\\dfrac{120°}{2} = 60°$."
+  },
+  {
+    "id": "q_vn_hcmc_014",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Giải phương trình $\\sqrt{x - 1} = 3$.",
-    "choices": ["$x = 10$", "$x = 4$", "$x = 2$", "$x = 9$"],
+    "choices": [
+      "$x = 10$",
+      "$x = 4$",
+      "$x = 2$",
+      "$x = 9$"
+    ],
     "correct": 0,
-    "explanation": "$x - 1 = 9 \\Rightarrow x = 10$. Kiểm tra: $\\sqrt{10-1} = 3$ ✓." },
-
-  { "id": "q_vn_hcmc_015", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$x - 1 = 9 \\Rightarrow x = 10$. Kiểm tra: $\\sqrt{10-1} = 3$ ✓."
+  },
+  {
+    "id": "q_vn_hcmc_015",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Giải hệ phương trình $\\begin{cases}2x + y = 3 \\\\ x - y = 0\\end{cases}$.",
-    "choices": ["$x = 1,\\ y = 1$", "$x = 0,\\ y = 3$", "$x = 2,\\ y = -1$", "$x = 1,\\ y = 2$"],
+    "choices": [
+      "$x = 1,\\ y = 1$",
+      "$x = 0,\\ y = 3$",
+      "$x = 2,\\ y = -1$",
+      "$x = 1,\\ y = 2$"
+    ],
     "correct": 0,
-    "explanation": "Từ PT2: $x = y$. Thay vào PT1: $3x = 3 \\Rightarrow x = 1$, $y = 1$." },
-
-  { "id": "q_vn_hcmc_016", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "algebra", "difficulty": "easy",
+    "explanation": "Từ PT2: $x = y$. Thay vào PT1: $3x = 3 \\Rightarrow x = 1$, $y = 1$."
+  },
+  {
+    "id": "q_vn_hcmc_016",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
     "question": "Số nào sau đây là nghiệm của phương trình $x^2 + x - 6 = 0$?",
-    "choices": ["$x = 2$", "$x = 3$", "$x = 1$", "$x = -2$"],
+    "choices": [
+      "$x = 2$",
+      "$x = 3$",
+      "$x = 1$",
+      "$x = -2$"
+    ],
     "correct": 0,
-    "explanation": "$2^2 + 2 - 6 = 4 + 2 - 6 = 0$ ✓. Vậy $x = 2$ là nghiệm." },
-
-  { "id": "q_vn_hcmc_017", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "functions", "difficulty": "easy",
+    "explanation": "$2^2 + 2 - 6 = 4 + 2 - 6 = 0$ ✓. Vậy $x = 2$ là nghiệm."
+  },
+  {
+    "id": "q_vn_hcmc_017",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "easy",
     "question": "Đường thẳng song song với $y = 3x - 1$ và đi qua gốc tọa độ $O(0;\\ 0)$ có phương trình:",
-    "choices": ["$y = 3x$", "$y = -3x$", "$y = x - 1$", "$y = 3x + 1$"],
+    "choices": [
+      "$y = 3x$",
+      "$y = -3x$",
+      "$y = x - 1$",
+      "$y = 3x + 1$"
+    ],
     "correct": 0,
-    "explanation": "Song song khi cùng hệ số góc $k = 3$, qua gốc tọa độ nên $b = 0$: $y = 3x$." },
-
-  { "id": "q_vn_hcmc_018", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "geometry", "difficulty": "hard",
+    "explanation": "Song song khi cùng hệ số góc $k = 3$, qua gốc tọa độ nên $b = 0$: $y = 3x$."
+  },
+  {
+    "id": "q_vn_hcmc_018",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "hard",
     "question": "Tam giác $ABC$ vuông tại $C$, $\\sin B = \\dfrac{3}{5}$. Giá trị $\\cos B$ là:",
-    "choices": ["$\\dfrac{4}{5}$", "$\\dfrac{3}{5}$", "$\\dfrac{5}{4}$", "$\\dfrac{5}{3}$"],
+    "choices": [
+      "$\\dfrac{4}{5}$",
+      "$\\dfrac{3}{5}$",
+      "$\\dfrac{5}{4}$",
+      "$\\dfrac{5}{3}$"
+    ],
     "correct": 0,
-    "explanation": "$\\cos^2 B = 1 - \\sin^2 B = 1 - \\dfrac{9}{25} = \\dfrac{16}{25}$, suy ra $\\cos B = \\dfrac{4}{5}$." },
-
-  { "id": "q_vn_hcmc_019", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "geometry", "difficulty": "medium",
+    "explanation": "$\\cos^2 B = 1 - \\sin^2 B = 1 - \\dfrac{9}{25} = \\dfrac{16}{25}$, suy ra $\\cos B = \\dfrac{4}{5}$."
+  },
+  {
+    "id": "q_vn_hcmc_019",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Trong tam giác $ABC$, biết $\\hat{A} = 90°$, $AB = 3$, $AC = 4$. Giá trị $\\tan B$ là:",
-    "choices": ["$\\dfrac{4}{3}$", "$\\dfrac{3}{4}$", "$\\dfrac{3}{5}$", "$\\dfrac{4}{5}$"],
+    "choices": [
+      "$\\dfrac{4}{3}$",
+      "$\\dfrac{3}{4}$",
+      "$\\dfrac{3}{5}$",
+      "$\\dfrac{4}{5}$"
+    ],
     "correct": 0,
-    "explanation": "$\\tan B = \\dfrac{AC}{AB} = \\dfrac{4}{3}$." },
-
-  { "id": "q_vn_hcmc_020", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh", "year": 2024, "topic": "algebra", "difficulty": "hard",
+    "explanation": "$\\tan B = \\dfrac{AC}{AB} = \\dfrac{4}{3}$."
+  },
+  {
+    "id": "q_vn_hcmc_020",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
     "question": "Tìm $m$ để phương trình $x^2 - 2mx + m + 2 = 0$ có hai nghiệm dương phân biệt.",
-    "choices": ["$m > 2$", "$m < 2$", "$0 < m < 2$", "$m \\geq 2$"],
+    "choices": [
+      "$m > 2$",
+      "$m < 2$",
+      "$0 < m < 2$",
+      "$m \\geq 2$"
+    ],
     "correct": 0,
-    "explanation": "Cần: $\\Delta' > 0$: $m^2 - m - 2 > 0 \\Rightarrow m > 2$ hoặc $m < -1$; tổng nghiệm $2m > 0 \\Rightarrow m > 0$; tích nghiệm $m+2 > 0 \\Rightarrow m > -2$. Giao: $m > 2$." },
-
-  { "id": "q_vn_dn_001", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "number_theory", "difficulty": "easy",
+    "explanation": "Cần: $\\Delta' > 0$: $m^2 - m - 2 > 0 \\Rightarrow m > 2$ hoặc $m < -1$; tổng nghiệm $2m > 0 \\Rightarrow m > 0$; tích nghiệm $m+2 > 0 \\Rightarrow m > -2$. Giao: $m > 2$."
+  },
+  {
+    "id": "q_vn_dn_001",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "number_theory",
+    "difficulty": "easy",
     "question": "Tính $3\\sqrt{5} + 2\\sqrt{5} - \\sqrt{20}$.",
-    "choices": ["$3\\sqrt{5}$", "$4\\sqrt{5}$", "$5\\sqrt{5}$", "$\\sqrt{5}$"],
+    "choices": [
+      "$3\\sqrt{5}$",
+      "$4\\sqrt{5}$",
+      "$5\\sqrt{5}$",
+      "$\\sqrt{5}$"
+    ],
     "correct": 0,
-    "explanation": "$3\\sqrt{5} + 2\\sqrt{5} - 2\\sqrt{5} = 3\\sqrt{5}$ (vì $\\sqrt{20} = 2\\sqrt{5}$)." },
-
-  { "id": "q_vn_dn_002", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$3\\sqrt{5} + 2\\sqrt{5} - 2\\sqrt{5} = 3\\sqrt{5}$ (vì $\\sqrt{20} = 2\\sqrt{5}$)."
+  },
+  {
+    "id": "q_vn_dn_002",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Phương trình $4x^2 - 25 = 0$ có nghiệm:",
-    "choices": ["$x = \\pm\\dfrac{5}{2}$", "$x = \\pm 5$", "$x = \\pm\\dfrac{4}{5}$", "$x = \\pm\\dfrac{25}{4}$"],
+    "choices": [
+      "$x = \\pm\\dfrac{5}{2}$",
+      "$x = \\pm 5$",
+      "$x = \\pm\\dfrac{4}{5}$",
+      "$x = \\pm\\dfrac{25}{4}$"
+    ],
     "correct": 0,
-    "explanation": "$x^2 = \\dfrac{25}{4} \\Rightarrow x = \\pm\\dfrac{5}{2}$." },
-
-  { "id": "q_vn_dn_003", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "algebra", "difficulty": "hard",
+    "explanation": "$x^2 = \\dfrac{25}{4} \\Rightarrow x = \\pm\\dfrac{5}{2}$."
+  },
+  {
+    "id": "q_vn_dn_003",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
     "question": "Tìm $m$ để phương trình $x^2 - (m+1)x + m = 0$ có nghiệm kép.",
-    "choices": ["$m = 1$", "$m = 0$", "$m = -1$", "$m = 2$"],
+    "choices": [
+      "$m = 1$",
+      "$m = 0$",
+      "$m = -1$",
+      "$m = 2$"
+    ],
     "correct": 0,
-    "explanation": "$\\Delta = (m+1)^2 - 4m = (m-1)^2 = 0 \\Rightarrow m = 1$." },
-
-  { "id": "q_vn_dn_004", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "geometry", "difficulty": "medium",
+    "explanation": "$\\Delta = (m+1)^2 - 4m = (m-1)^2 = 0 \\Rightarrow m = 1$."
+  },
+  {
+    "id": "q_vn_dn_004",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Tam giác cân $ABC$ có $AB = AC = 10$ cm, $BC = 12$ cm. Chiều cao từ $A$ xuống $BC$ bằng:",
-    "choices": ["$8$ cm", "$6$ cm", "$9$ cm", "$4$ cm"],
+    "choices": [
+      "$8$ cm",
+      "$6$ cm",
+      "$9$ cm",
+      "$4$ cm"
+    ],
     "correct": 0,
-    "explanation": "$AH = \\sqrt{AB^2 - BH^2} = \\sqrt{100 - 36} = \\sqrt{64} = 8$ cm, với $BH = 6$ cm." },
-
-  { "id": "q_vn_dn_005", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "number_theory", "difficulty": "medium",
+    "explanation": "$AH = \\sqrt{AB^2 - BH^2} = \\sqrt{100 - 36} = \\sqrt{64} = 8$ cm, với $BH = 6$ cm."
+  },
+  {
+    "id": "q_vn_dn_005",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "number_theory",
+    "difficulty": "medium",
     "question": "Rút gọn $\\sqrt{a^2 b}$ với $a < 0$, $b \\geq 0$.",
-    "choices": ["$-a\\sqrt{b}$", "$a\\sqrt{b}$", "$a^2\\sqrt{b}$", "$|a|b$"],
+    "choices": [
+      "$-a\\sqrt{b}$",
+      "$a\\sqrt{b}$",
+      "$a^2\\sqrt{b}$",
+      "$|a|b$"
+    ],
     "correct": 0,
-    "explanation": "$\\sqrt{a^2 b} = |a|\\sqrt{b} = -a\\sqrt{b}$ vì $a < 0$." },
-
-  { "id": "q_vn_dn_006", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "functions", "difficulty": "easy",
+    "explanation": "$\\sqrt{a^2 b} = |a|\\sqrt{b} = -a\\sqrt{b}$ vì $a < 0$."
+  },
+  {
+    "id": "q_vn_dn_006",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "easy",
     "question": "Hai đường thẳng $y = 2x + 1$ và $y = 2x - 3$ quan hệ với nhau như thế nào?",
-    "choices": ["Song song", "Cắt nhau", "Trùng nhau", "Vuông góc"],
+    "choices": [
+      "Song song",
+      "Cắt nhau",
+      "Trùng nhau",
+      "Vuông góc"
+    ],
     "correct": 0,
-    "explanation": "Cùng hệ số góc $k = 2$ nhưng tung độ gốc khác nhau ($1 \\neq -3$) nên song song." },
-
-  { "id": "q_vn_dn_007", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "Cùng hệ số góc $k = 2$ nhưng tung độ gốc khác nhau ($1 \\neq -3$) nên song song."
+  },
+  {
+    "id": "q_vn_dn_007",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Giải phương trình $|x - 3| = 5$.",
-    "choices": ["$x = 8$ hoặc $x = -2$", "$x = 8$ hoặc $x = 2$", "$x = -8$ hoặc $x = 2$", "$x = -8$ hoặc $x = -2$"],
+    "choices": [
+      "$x = 8$ hoặc $x = -2$",
+      "$x = 8$ hoặc $x = 2$",
+      "$x = -8$ hoặc $x = 2$",
+      "$x = -8$ hoặc $x = -2$"
+    ],
     "correct": 0,
-    "explanation": "$x - 3 = 5 \\Rightarrow x = 8$; hoặc $x - 3 = -5 \\Rightarrow x = -2$." },
-
-  { "id": "q_vn_dn_008", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "geometry", "difficulty": "medium",
+    "explanation": "$x - 3 = 5 \\Rightarrow x = 8$; hoặc $x - 3 = -5 \\Rightarrow x = -2$."
+  },
+  {
+    "id": "q_vn_dn_008",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Tính diện tích hình tròn có chu vi $12\\pi$ cm.",
-    "choices": ["$36\\pi$ cm²", "$6\\pi$ cm²", "$144\\pi$ cm²", "$12\\pi$ cm²"],
+    "choices": [
+      "$36\\pi$ cm²",
+      "$6\\pi$ cm²",
+      "$144\\pi$ cm²",
+      "$12\\pi$ cm²"
+    ],
     "correct": 0,
-    "explanation": "$C = 2\\pi r = 12\\pi \\Rightarrow r = 6$. $S = \\pi r^2 = 36\\pi$ cm²." },
-
-  { "id": "q_vn_dn_009", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "geometry", "difficulty": "hard",
+    "explanation": "$C = 2\\pi r = 12\\pi \\Rightarrow r = 6$. $S = \\pi r^2 = 36\\pi$ cm²."
+  },
+  {
+    "id": "q_vn_dn_009",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "hard",
     "question": "Trong tam giác $ABC$, biết $AB = 5$, $AC = 7$, $BC = 8$. $\\cos A$ bằng:",
-    "choices": ["$\\dfrac{1}{7}$", "$\\dfrac{1}{5}$", "$\\dfrac{2}{7}$", "$\\dfrac{3}{7}$"],
+    "choices": [
+      "$\\dfrac{1}{7}$",
+      "$\\dfrac{1}{5}$",
+      "$\\dfrac{2}{7}$",
+      "$\\dfrac{3}{7}$"
+    ],
     "correct": 0,
-    "explanation": "$\\cos A = \\dfrac{AB^2 + AC^2 - BC^2}{2 \\cdot AB \\cdot AC} = \\dfrac{25+49-64}{70} = \\dfrac{10}{70} = \\dfrac{1}{7}$." },
-
-  { "id": "q_vn_dn_010", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "algebra", "difficulty": "hard",
+    "explanation": "$\\cos A = \\dfrac{AB^2 + AC^2 - BC^2}{2 \\cdot AB \\cdot AC} = \\dfrac{25+49-64}{70} = \\dfrac{10}{70} = \\dfrac{1}{7}$."
+  },
+  {
+    "id": "q_vn_dn_010",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
     "question": "Giải hệ phương trình $\\begin{cases}\\dfrac{x}{2} + \\dfrac{y}{3} = 1 \\\\[4pt] \\dfrac{x}{3} + \\dfrac{y}{2} = 1\\end{cases}$.",
-    "choices": ["$x = \\dfrac{6}{5},\\ y = \\dfrac{6}{5}$", "$x = 1,\\ y = 1$", "$x = 2,\\ y = 0$", "$x = 0,\\ y = 2$"],
+    "choices": [
+      "$x = \\dfrac{6}{5},\\ y = \\dfrac{6}{5}$",
+      "$x = 1,\\ y = 1$",
+      "$x = 2,\\ y = 0$",
+      "$x = 0,\\ y = 2$"
+    ],
     "correct": 0,
-    "explanation": "Nhân lần lượt với 6: $3x+2y=6$ và $2x+3y=6$. Cộng: $5(x+y)=12$; trừ: $x-y=0$. Suy ra $x=y=\\dfrac{6}{5}$." },
-
-  { "id": "q_vn_dn_011", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "functions", "difficulty": "medium",
+    "explanation": "Nhân lần lượt với 6: $3x+2y=6$ và $2x+3y=6$. Cộng: $5(x+y)=12$; trừ: $x-y=0$. Suy ra $x=y=\\dfrac{6}{5}$."
+  },
+  {
+    "id": "q_vn_dn_011",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
     "question": "Đồ thị $y = x^2 - 2x - 3$ cắt trục $Ox$ tại những điểm:",
-    "choices": ["$(3;\\ 0)$ và $(-1;\\ 0)$", "$(3;\\ 0)$ và $(1;\\ 0)$", "$(-3;\\ 0)$ và $(1;\\ 0)$", "$(-3;\\ 0)$ và $(-1;\\ 0)$"],
+    "choices": [
+      "$(3;\\ 0)$ và $(-1;\\ 0)$",
+      "$(3;\\ 0)$ và $(1;\\ 0)$",
+      "$(-3;\\ 0)$ và $(1;\\ 0)$",
+      "$(-3;\\ 0)$ và $(-1;\\ 0)$"
+    ],
     "correct": 0,
-    "explanation": "$x^2 - 2x - 3 = (x-3)(x+1) = 0 \\Rightarrow x = 3$ hoặc $x = -1$." },
-
-  { "id": "q_vn_dn_012", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "number_theory", "difficulty": "hard",
+    "explanation": "$x^2 - 2x - 3 = (x-3)(x+1) = 0 \\Rightarrow x = 3$ hoặc $x = -1$."
+  },
+  {
+    "id": "q_vn_dn_012",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "number_theory",
+    "difficulty": "hard",
     "question": "Rút gọn $\\dfrac{2 + \\sqrt{3}}{2 - \\sqrt{3}}$.",
-    "choices": ["$7 + 4\\sqrt{3}$", "$7 - 4\\sqrt{3}$", "$4 + \\sqrt{3}$", "$2 + \\sqrt{3}$"],
+    "choices": [
+      "$7 + 4\\sqrt{3}$",
+      "$7 - 4\\sqrt{3}$",
+      "$4 + \\sqrt{3}$",
+      "$2 + \\sqrt{3}$"
+    ],
     "correct": 0,
-    "explanation": "$\\dfrac{(2+\\sqrt{3})^2}{(2-\\sqrt{3})(2+\\sqrt{3})} = \\dfrac{4+4\\sqrt{3}+3}{1} = 7 + 4\\sqrt{3}$." },
-
-  { "id": "q_vn_dn_013", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "geometry", "difficulty": "easy",
+    "explanation": "$\\dfrac{(2+\\sqrt{3})^2}{(2-\\sqrt{3})(2+\\sqrt{3})} = \\dfrac{4+4\\sqrt{3}+3}{1} = 7 + 4\\sqrt{3}$."
+  },
+  {
+    "id": "q_vn_dn_013",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
     "question": "Góc ở tâm và góc nội tiếp cùng chắn một cung thì:",
-    "choices": ["Góc ở tâm gấp đôi góc nội tiếp", "Góc ở tâm bằng góc nội tiếp", "Góc ở tâm bằng nửa góc nội tiếp", "Không liên quan"],
+    "choices": [
+      "Góc ở tâm gấp đôi góc nội tiếp",
+      "Góc ở tâm bằng góc nội tiếp",
+      "Góc ở tâm bằng nửa góc nội tiếp",
+      "Không liên quan"
+    ],
     "correct": 0,
-    "explanation": "Định lý: Góc ở tâm bằng hai lần góc nội tiếp cùng chắn một cung." },
-
-  { "id": "q_vn_dn_014", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "Định lý: Góc ở tâm bằng hai lần góc nội tiếp cùng chắn một cung."
+  },
+  {
+    "id": "q_vn_dn_014",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Giải phương trình $\\sqrt{2x + 1} = 3$.",
-    "choices": ["$x = 4$", "$x = 3$", "$x = 5$", "$x = 8$"],
+    "choices": [
+      "$x = 4$",
+      "$x = 3$",
+      "$x = 5$",
+      "$x = 8$"
+    ],
     "correct": 0,
-    "explanation": "$2x + 1 = 9 \\Rightarrow x = 4$. Kiểm tra: $\\sqrt{9} = 3$ ✓." },
-
-  { "id": "q_vn_dn_015", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$2x + 1 = 9 \\Rightarrow x = 4$. Kiểm tra: $\\sqrt{9} = 3$ ✓."
+  },
+  {
+    "id": "q_vn_dn_015",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Tổng và tích các nghiệm của phương trình $2x^2 - 7x + 5 = 0$ lần lượt là:",
-    "choices": ["$\\dfrac{7}{2}$ và $\\dfrac{5}{2}$", "$7$ và $5$", "$-\\dfrac{7}{2}$ và $\\dfrac{5}{2}$", "$\\dfrac{7}{2}$ và $-\\dfrac{5}{2}$"],
+    "choices": [
+      "$\\dfrac{7}{2}$ và $\\dfrac{5}{2}$",
+      "$7$ và $5$",
+      "$-\\dfrac{7}{2}$ và $\\dfrac{5}{2}$",
+      "$\\dfrac{7}{2}$ và $-\\dfrac{5}{2}$"
+    ],
     "correct": 0,
-    "explanation": "Theo Vi-ét: $x_1+x_2 = \\dfrac{7}{2}$; $x_1 x_2 = \\dfrac{5}{2}$." },
-
-  { "id": "q_vn_dn_016", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "geometry", "difficulty": "medium",
+    "explanation": "Theo Vi-ét: $x_1+x_2 = \\dfrac{7}{2}$; $x_1 x_2 = \\dfrac{5}{2}$."
+  },
+  {
+    "id": "q_vn_dn_016",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Trong tam giác $ABC$ vuông tại $A$, $\\tan B = \\dfrac{3}{4}$. Giá trị $\\sin B$ là:",
-    "choices": ["$\\dfrac{3}{5}$", "$\\dfrac{4}{5}$", "$\\dfrac{3}{4}$", "$\\dfrac{4}{3}$"],
+    "choices": [
+      "$\\dfrac{3}{5}$",
+      "$\\dfrac{4}{5}$",
+      "$\\dfrac{3}{4}$",
+      "$\\dfrac{4}{3}$"
+    ],
     "correct": 0,
-    "explanation": "$\\tan B = \\dfrac{3}{4}$: cạnh đối $= 3$, cạnh kề $= 4$, cạnh huyền $= 5$. $\\sin B = \\dfrac{3}{5}$." },
-
-  { "id": "q_vn_dn_017", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "functions", "difficulty": "medium",
+    "explanation": "$\\tan B = \\dfrac{3}{4}$: cạnh đối $= 3$, cạnh kề $= 4$, cạnh huyền $= 5$. $\\sin B = \\dfrac{3}{5}$."
+  },
+  {
+    "id": "q_vn_dn_017",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
     "question": "Hàm số $y = x^2 - 4x + 3$ đạt giá trị nhỏ nhất tại $x$ bằng:",
-    "choices": ["$2$", "$3$", "$1$", "$4$"],
+    "choices": [
+      "$2$",
+      "$3$",
+      "$1$",
+      "$4$"
+    ],
     "correct": 0,
-    "explanation": "$y = (x-2)^2 - 1$, đỉnh parabol tại $x = 2$." },
-
-  { "id": "q_vn_dn_018", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "algebra", "difficulty": "easy",
+    "explanation": "$y = (x-2)^2 - 1$, đỉnh parabol tại $x = 2$."
+  },
+  {
+    "id": "q_vn_dn_018",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
     "question": "Nếu $a > b$ và $c > 0$ thì bất đẳng thức nào sau đây luôn đúng?",
-    "choices": ["$ac > bc$", "$ac < bc$", "$a - c > b - c$", "$\\dfrac{a}{c} < \\dfrac{b}{c}$"],
+    "choices": [
+      "$ac > bc$",
+      "$ac < bc$",
+      "$a - c > b - c$",
+      "$\\dfrac{a}{c} < \\dfrac{b}{c}$"
+    ],
     "correct": 0,
-    "explanation": "Nhân hai vế bất đẳng thức với $c > 0$ thì chiều không đổi: $ac > bc$." },
-
-  { "id": "q_vn_dn_019", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "Nhân hai vế bất đẳng thức với $c > 0$ thì chiều không đổi: $ac > bc$."
+  },
+  {
+    "id": "q_vn_dn_019",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Phương trình $x^2 + (m-1)x - m = 0$ luôn có hai nghiệm phân biệt với mọi $m$ vì:",
-    "choices": ["$\\Delta = (m+1)^2 > 0\\ \\forall m$", "$\\Delta = m^2 > 0\\ \\forall m$", "$\\Delta = (m-1)^2 > 0\\ \\forall m$", "$\\Delta = m^2 + 1 > 0\\ \\forall m$"],
+    "choices": [
+      "$\\Delta = (m+1)^2 > 0\\ \\forall m$",
+      "$\\Delta = m^2 > 0\\ \\forall m$",
+      "$\\Delta = (m-1)^2 > 0\\ \\forall m$",
+      "$\\Delta = m^2 + 1 > 0\\ \\forall m$"
+    ],
     "correct": 0,
-    "explanation": "$\\Delta = (m-1)^2 + 4m = m^2 - 2m + 1 + 4m = m^2 + 2m + 1 = (m+1)^2 \\geq 0$. Bằng $0$ khi $m=-1$, nên $\\Delta > 0$ khi $m \\neq -1$; nhưng ở đây $\\Delta = (m+1)^2$ đúng với mọi $m$." },
-
-  { "id": "q_vn_dn_020", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng", "year": 2024, "topic": "geometry", "difficulty": "easy",
+    "explanation": "$\\Delta = (m-1)^2 + 4m = m^2 - 2m + 1 + 4m = m^2 + 2m + 1 = (m+1)^2 \\geq 0$. Bằng $0$ khi $m=-1$, nên $\\Delta > 0$ khi $m \\neq -1$; nhưng ở đây $\\Delta = (m+1)^2$ đúng với mọi $m$."
+  },
+  {
+    "id": "q_vn_dn_020",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Đà Nẵng",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
     "question": "Chu vi hình thang cân $ABCD$: $AB \\parallel CD$, $AB = 10$ cm, $CD = 6$ cm, cạnh bên $= 5$ cm. Chu vi là:",
-    "choices": ["$26$ cm", "$21$ cm", "$30$ cm", "$16$ cm"],
+    "choices": [
+      "$26$ cm",
+      "$21$ cm",
+      "$30$ cm",
+      "$16$ cm"
+    ],
     "correct": 0,
-    "explanation": "Chu vi $= AB + CD + 2 \\times$ cạnh bên $= 10 + 6 + 10 = 26$ cm." },
-
-  { "id": "q_vn_hp_001", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "number_theory", "difficulty": "easy",
+    "explanation": "Chu vi $= AB + CD + 2 \\times$ cạnh bên $= 10 + 6 + 10 = 26$ cm."
+  },
+  {
+    "id": "q_vn_hp_001",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "number_theory",
+    "difficulty": "easy",
     "question": "Tính $\\sqrt{75} - \\sqrt{48} + \\sqrt{27}$.",
-    "choices": ["$4\\sqrt{3}$", "$3\\sqrt{3}$", "$5\\sqrt{3}$", "$2\\sqrt{3}$"],
+    "choices": [
+      "$4\\sqrt{3}$",
+      "$3\\sqrt{3}$",
+      "$5\\sqrt{3}$",
+      "$2\\sqrt{3}$"
+    ],
     "correct": 0,
-    "explanation": "$5\\sqrt{3} - 4\\sqrt{3} + 3\\sqrt{3} = 4\\sqrt{3}$." },
-
-  { "id": "q_vn_hp_002", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "algebra", "difficulty": "easy",
+    "explanation": "$5\\sqrt{3} - 4\\sqrt{3} + 3\\sqrt{3} = 4\\sqrt{3}$."
+  },
+  {
+    "id": "q_vn_hp_002",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
     "question": "Phương trình $(x-1)(x+2) = 0$ có tập nghiệm là:",
-    "choices": ["$\\{1;\\ -2\\}$", "$\\{-1;\\ 2\\}$", "$\\{1;\\ 2\\}$", "$\\{-1;\\ -2\\}$"],
+    "choices": [
+      "$\\{1;\\ -2\\}$",
+      "$\\{-1;\\ 2\\}$",
+      "$\\{1;\\ 2\\}$",
+      "$\\{-1;\\ -2\\}$"
+    ],
     "correct": 0,
-    "explanation": "$(x-1)(x+2)=0 \\Rightarrow x=1$ hoặc $x=-2$." },
-
-  { "id": "q_vn_hp_003", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "functions", "difficulty": "easy",
+    "explanation": "$(x-1)(x+2)=0 \\Rightarrow x=1$ hoặc $x=-2$."
+  },
+  {
+    "id": "q_vn_hp_003",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "easy",
     "question": "Đồ thị hàm số $y = -2x + 4$ cắt trục $Oy$ tại điểm:",
-    "choices": ["$(0;\\ 4)$", "$(0;\\ -4)$", "$(2;\\ 0)$", "$(4;\\ 0)$"],
+    "choices": [
+      "$(0;\\ 4)$",
+      "$(0;\\ -4)$",
+      "$(2;\\ 0)$",
+      "$(4;\\ 0)$"
+    ],
     "correct": 0,
-    "explanation": "Cho $x = 0$: $y = 4$. Điểm cắt trục $Oy$ là $(0;\\ 4)$." },
-
-  { "id": "q_vn_hp_004", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "geometry", "difficulty": "medium",
+    "explanation": "Cho $x = 0$: $y = 4$. Điểm cắt trục $Oy$ là $(0;\\ 4)$."
+  },
+  {
+    "id": "q_vn_hp_004",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Tam giác $ABC$ có $AB = 7$, $BC = 24$, $AC = 25$. Tam giác đó là:",
-    "choices": ["Vuông tại $B$", "Vuông tại $A$", "Nhọn", "Tù"],
+    "choices": [
+      "Vuông tại $B$",
+      "Vuông tại $A$",
+      "Nhọn",
+      "Tù"
+    ],
     "correct": 0,
-    "explanation": "$AB^2 + BC^2 = 49 + 576 = 625 = AC^2$. Theo định lý Py-ta-go, tam giác vuông tại $B$." },
-
-  { "id": "q_vn_hp_005", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "number_theory", "difficulty": "medium",
+    "explanation": "$AB^2 + BC^2 = 49 + 576 = 625 = AC^2$. Theo định lý Py-ta-go, tam giác vuông tại $B$."
+  },
+  {
+    "id": "q_vn_hp_005",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "number_theory",
+    "difficulty": "medium",
     "question": "Rút gọn $(\\sqrt{a} - \\sqrt{b})^2 + 4\\sqrt{ab}$ với $a,\\ b \\geq 0$.",
-    "choices": ["$(\\sqrt{a}+\\sqrt{b})^2$", "$a + b$", "$(a-b)^2$", "$4\\sqrt{ab}$"],
+    "choices": [
+      "$(\\sqrt{a}+\\sqrt{b})^2$",
+      "$a + b$",
+      "$(a-b)^2$",
+      "$4\\sqrt{ab}$"
+    ],
     "correct": 0,
-    "explanation": "$(\\sqrt{a}-\\sqrt{b})^2 + 4\\sqrt{ab} = a - 2\\sqrt{ab} + b + 4\\sqrt{ab} = a + 2\\sqrt{ab} + b = (\\sqrt{a}+\\sqrt{b})^2$." },
-
-  { "id": "q_vn_hp_006", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "functions", "difficulty": "medium",
+    "explanation": "$(\\sqrt{a}-\\sqrt{b})^2 + 4\\sqrt{ab} = a - 2\\sqrt{ab} + b + 4\\sqrt{ab} = a + 2\\sqrt{ab} + b = (\\sqrt{a}+\\sqrt{b})^2$."
+  },
+  {
+    "id": "q_vn_hp_006",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
     "question": "Tìm $k$ để hai đường thẳng $y = kx + 1$ và $y = 2x + 3$ song song nhau.",
-    "choices": ["$k = 2$", "$k = -2$", "$k = 1$", "$k = 3$"],
+    "choices": [
+      "$k = 2$",
+      "$k = -2$",
+      "$k = 1$",
+      "$k = 3$"
+    ],
     "correct": 0,
-    "explanation": "Song song khi cùng hệ số góc: $k = 2$. Tung độ gốc khác nhau ($1 \\neq 3$) ✓." },
-
-  { "id": "q_vn_hp_007", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "Song song khi cùng hệ số góc: $k = 2$. Tung độ gốc khác nhau ($1 \\neq 3$) ✓."
+  },
+  {
+    "id": "q_vn_hp_007",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Giải phương trình $x^2 + 5x + 6 = 0$.",
-    "choices": ["$x = -2$ hoặc $x = -3$", "$x = 2$ hoặc $x = 3$", "$x = -2$ hoặc $x = 3$", "$x = 2$ hoặc $x = -3$"],
+    "choices": [
+      "$x = -2$ hoặc $x = -3$",
+      "$x = 2$ hoặc $x = 3$",
+      "$x = -2$ hoặc $x = 3$",
+      "$x = 2$ hoặc $x = -3$"
+    ],
     "correct": 0,
-    "explanation": "$(x+2)(x+3) = 0 \\Rightarrow x = -2$ hoặc $x = -3$." },
-
-  { "id": "q_vn_hp_008", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "functions", "difficulty": "medium",
+    "explanation": "$(x+2)(x+3) = 0 \\Rightarrow x = -2$ hoặc $x = -3$."
+  },
+  {
+    "id": "q_vn_hp_008",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
     "question": "Giá trị lớn nhất của hàm số $y = 5 - (x-2)^2$ là:",
-    "choices": ["$5$", "$-5$", "$2$", "$0$"],
+    "choices": [
+      "$5$",
+      "$-5$",
+      "$2$",
+      "$0$"
+    ],
     "correct": 0,
-    "explanation": "$(x-2)^2 \\geq 0$ nên $y \\leq 5$. Đạt giá trị lớn nhất $= 5$ khi $x = 2$." },
-
-  { "id": "q_vn_hp_009", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "geometry", "difficulty": "medium",
+    "explanation": "$(x-2)^2 \\geq 0$ nên $y \\leq 5$. Đạt giá trị lớn nhất $= 5$ khi $x = 2$."
+  },
+  {
+    "id": "q_vn_hp_009",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Độ dài cung tròn bán kính $6$ cm ứng với góc ở tâm $90°$ là:",
-    "choices": ["$3\\pi$ cm", "$6\\pi$ cm", "$9\\pi$ cm", "$12\\pi$ cm"],
+    "choices": [
+      "$3\\pi$ cm",
+      "$6\\pi$ cm",
+      "$9\\pi$ cm",
+      "$12\\pi$ cm"
+    ],
     "correct": 0,
-    "explanation": "$l = r\\theta = 6 \\times \\dfrac{\\pi}{2} = 3\\pi$ cm." },
-
-  { "id": "q_vn_hp_010", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$l = r\\theta = 6 \\times \\dfrac{\\pi}{2} = 3\\pi$ cm."
+  },
+  {
+    "id": "q_vn_hp_010",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Rút gọn $\\dfrac{x^3 - 1}{x - 1}$ với $x \\neq 1$.",
-    "choices": ["$x^2 + x + 1$", "$x^2 - x + 1$", "$x^2 + 1$", "$x^2 - 1$"],
+    "choices": [
+      "$x^2 + x + 1$",
+      "$x^2 - x + 1$",
+      "$x^2 + 1$",
+      "$x^2 - 1$"
+    ],
     "correct": 0,
-    "explanation": "$x^3 - 1 = (x-1)(x^2+x+1)$, chia cho $(x-1)$ được $x^2+x+1$." },
-
-  { "id": "q_vn_hp_011", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$x^3 - 1 = (x-1)(x^2+x+1)$, chia cho $(x-1)$ được $x^2+x+1$."
+  },
+  {
+    "id": "q_vn_hp_011",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Giải hệ phương trình $\\begin{cases}2x + 3y = 12 \\\\ 3x - y = 7\\end{cases}$.",
-    "choices": ["$x = 3,\\ y = 2$", "$x = 2,\\ y = 3$", "$x = 3,\\ y = -2$", "$x = 1,\\ y = 2$"],
+    "choices": [
+      "$x = 3,\\ y = 2$",
+      "$x = 2,\\ y = 3$",
+      "$x = 3,\\ y = -2$",
+      "$x = 1,\\ y = 2$"
+    ],
     "correct": 0,
-    "explanation": "Từ PT2: $y = 3x-7$. Thay vào PT1: $11x = 33 \\Rightarrow x = 3$, $y = 2$." },
-
-  { "id": "q_vn_hp_012", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "geometry", "difficulty": "easy",
+    "explanation": "Từ PT2: $y = 3x-7$. Thay vào PT1: $11x = 33 \\Rightarrow x = 3$, $y = 2$."
+  },
+  {
+    "id": "q_vn_hp_012",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
     "question": "Diện tích hình thoi có hai đường chéo $10$ cm và $8$ cm là:",
-    "choices": ["$40$ cm²", "$80$ cm²", "$20$ cm²", "$18$ cm²"],
+    "choices": [
+      "$40$ cm²",
+      "$80$ cm²",
+      "$20$ cm²",
+      "$18$ cm²"
+    ],
     "correct": 0,
-    "explanation": "$S = \\dfrac{d_1 \\cdot d_2}{2} = \\dfrac{10 \\times 8}{2} = 40$ cm²." },
-
-  { "id": "q_vn_hp_013", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "geometry", "difficulty": "medium",
+    "explanation": "$S = \\dfrac{d_1 \\cdot d_2}{2} = \\dfrac{10 \\times 8}{2} = 40$ cm²."
+  },
+  {
+    "id": "q_vn_hp_013",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Tam giác $ABC$ có $AB = 3$, $AC = 4$, $BC = 5$. Giá trị $\\cos A$ bằng:",
-    "choices": ["$0$", "$1$", "$\\dfrac{3}{5}$", "$\\dfrac{4}{5}$"],
+    "choices": [
+      "$0$",
+      "$1$",
+      "$\\dfrac{3}{5}$",
+      "$\\dfrac{4}{5}$"
+    ],
     "correct": 0,
-    "explanation": "$AB^2 + AC^2 = 9 + 16 = 25 = BC^2$: tam giác vuông tại $A$, nên $\\cos A = 0$." },
-
-  { "id": "q_vn_hp_014", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "algebra", "difficulty": "easy",
+    "explanation": "$AB^2 + AC^2 = 9 + 16 = 25 = BC^2$: tam giác vuông tại $A$, nên $\\cos A = 0$."
+  },
+  {
+    "id": "q_vn_hp_014",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
     "question": "Giải bất phương trình $-2x + 3 > 7$.",
-    "choices": ["$x < -2$", "$x > -2$", "$x < 2$", "$x > 2$"],
+    "choices": [
+      "$x < -2$",
+      "$x > -2$",
+      "$x < 2$",
+      "$x > 2$"
+    ],
     "correct": 0,
-    "explanation": "$-2x > 4 \\Rightarrow x < -2$ (đổi chiều khi chia cho số âm)." },
-
-  { "id": "q_vn_hp_015", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "number_theory", "difficulty": "medium",
+    "explanation": "$-2x > 4 \\Rightarrow x < -2$ (đổi chiều khi chia cho số âm)."
+  },
+  {
+    "id": "q_vn_hp_015",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "number_theory",
+    "difficulty": "medium",
     "question": "Tính $(1 + \\sqrt{2})^2 - 2\\sqrt{2}$.",
-    "choices": ["$3$", "$1$", "$2 + \\sqrt{2}$", "$2$"],
+    "choices": [
+      "$3$",
+      "$1$",
+      "$2 + \\sqrt{2}$",
+      "$2$"
+    ],
     "correct": 0,
-    "explanation": "$(1+\\sqrt{2})^2 = 1 + 2\\sqrt{2} + 2 = 3 + 2\\sqrt{2}$. Trừ $2\\sqrt{2}$ còn $3$." },
-
-  { "id": "q_vn_hp_016", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "geometry", "difficulty": "easy",
+    "explanation": "$(1+\\sqrt{2})^2 = 1 + 2\\sqrt{2} + 2 = 3 + 2\\sqrt{2}$. Trừ $2\\sqrt{2}$ còn $3$."
+  },
+  {
+    "id": "q_vn_hp_016",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
     "question": "Điểm $A$ cách tâm $O$ đúng bằng bán kính $R$ của đường tròn $(O;\\ R)$. Điểm $A$:",
-    "choices": ["Nằm trên đường tròn", "Nằm trong đường tròn", "Nằm ngoài đường tròn", "Là tâm"],
+    "choices": [
+      "Nằm trên đường tròn",
+      "Nằm trong đường tròn",
+      "Nằm ngoài đường tròn",
+      "Là tâm"
+    ],
     "correct": 0,
-    "explanation": "$OA = R$ nên $A$ nằm trên đường tròn theo định nghĩa." },
-
-  { "id": "q_vn_hp_017", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "geometry", "difficulty": "hard",
+    "explanation": "$OA = R$ nên $A$ nằm trên đường tròn theo định nghĩa."
+  },
+  {
+    "id": "q_vn_hp_017",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "hard",
     "question": "Bán kính đường tròn ngoại tiếp tam giác đều cạnh $6$ là:",
-    "choices": ["$2\\sqrt{3}$", "$3\\sqrt{3}$", "$3$", "$6$"],
+    "choices": [
+      "$2\\sqrt{3}$",
+      "$3\\sqrt{3}$",
+      "$3$",
+      "$6$"
+    ],
     "correct": 0,
-    "explanation": "$R = \\dfrac{a}{\\sqrt{3}} = \\dfrac{6}{\\sqrt{3}} = 2\\sqrt{3}$." },
-
-  { "id": "q_vn_hp_018", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "algebra", "difficulty": "medium",
+    "explanation": "$R = \\dfrac{a}{\\sqrt{3}} = \\dfrac{6}{\\sqrt{3}} = 2\\sqrt{3}$."
+  },
+  {
+    "id": "q_vn_hp_018",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Giải phương trình $\\dfrac{x}{x-2} = 3$ (với $x \\neq 2$).",
-    "choices": ["$x = 3$", "$x = 6$", "$x = 2$", "$x = -3$"],
+    "choices": [
+      "$x = 3$",
+      "$x = 6$",
+      "$x = 2$",
+      "$x = -3$"
+    ],
     "correct": 0,
-    "explanation": "$x = 3(x-2) = 3x - 6 \\Rightarrow -2x = -6 \\Rightarrow x = 3$." },
-
-  { "id": "q_vn_hp_019", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "algebra", "difficulty": "hard",
+    "explanation": "$x = 3(x-2) = 3x - 6 \\Rightarrow -2x = -6 \\Rightarrow x = 3$."
+  },
+  {
+    "id": "q_vn_hp_019",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
     "question": "Nghiệm của phương trình $\\sqrt{3 - x} = x - 1$ là:",
-    "choices": ["$x = 2$", "$x = -1$", "$x = 2$ hoặc $x = -1$", "Vô nghiệm"],
+    "choices": [
+      "$x = 2$",
+      "$x = -1$",
+      "$x = 2$ hoặc $x = -1$",
+      "Vô nghiệm"
+    ],
     "correct": 0,
-    "explanation": "Bình phương: $(x-1)^2 = 3-x \\Rightarrow x^2-x-2=0 \\Rightarrow x=2$ hoặc $x=-1$. Kiểm tra: $x=2$ ✓; $x=-1$: vế phải $=-2<0$, loại." },
-
-  { "id": "q_vn_hp_020", "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng", "year": 2024, "topic": "geometry", "difficulty": "easy",
+    "explanation": "Bình phương: $(x-1)^2 = 3-x \\Rightarrow x^2-x-2=0 \\Rightarrow x=2$ hoặc $x=-1$. Kiểm tra: $x=2$ ✓; $x=-1$: vế phải $=-2<0$, loại."
+  },
+  {
+    "id": "q_vn_hp_020",
+    "source": "Đề thi vào lớp 10 — Sở GD&ĐT TP. Hải Phòng",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
     "question": "Hình vuông cạnh $a$. Độ dài đường chéo là:",
-    "choices": ["$a\\sqrt{2}$", "$\\dfrac{a}{\\sqrt{2}}$", "$2a$", "$a^2$"],
+    "choices": [
+      "$a\\sqrt{2}$",
+      "$\\dfrac{a}{\\sqrt{2}}$",
+      "$2a$",
+      "$a^2$"
+    ],
     "correct": 0,
-    "explanation": "Đường chéo $= \\sqrt{a^2+a^2} = a\\sqrt{2}$." },
-
-  { "id": "q_vn_bgd_001", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "functions", "difficulty": "easy",
+    "explanation": "Đường chéo $= \\sqrt{a^2+a^2} = a\\sqrt{2}$."
+  },
+  {
+    "id": "q_vn_bgd_001",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "easy",
     "question": "Tập xác định của hàm số $y = \\sqrt{x - 2}$ là:",
-    "choices": ["$[2;\\ +\\infty)$", "$(2;\\ +\\infty)$", "$(-\\infty;\\ 2)$", "$\\mathbb{R}$"],
+    "choices": [
+      "$[2;\\ +\\infty)$",
+      "$(2;\\ +\\infty)$",
+      "$(-\\infty;\\ 2)$",
+      "$\\mathbb{R}$"
+    ],
     "correct": 0,
-    "explanation": "Cần $x - 2 \\geq 0 \\Rightarrow x \\geq 2$. Tập xác định: $[2;\\ +\\infty)$." },
-
-  { "id": "q_vn_bgd_002", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "functions", "difficulty": "easy",
+    "explanation": "Cần $x - 2 \\geq 0 \\Rightarrow x \\geq 2$. Tập xác định: $[2;\\ +\\infty)$."
+  },
+  {
+    "id": "q_vn_bgd_002",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "easy",
     "question": "Tính $f(1)$ với $f(x) = 2x^2 - 3x + 1$.",
-    "choices": ["$0$", "$1$", "$-1$", "$2$"],
+    "choices": [
+      "$0$",
+      "$1$",
+      "$-1$",
+      "$2$"
+    ],
     "correct": 0,
-    "explanation": "$f(1) = 2 - 3 + 1 = 0$." },
-
-  { "id": "q_vn_bgd_003", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "algebra", "difficulty": "easy",
+    "explanation": "$f(1) = 2 - 3 + 1 = 0$."
+  },
+  {
+    "id": "q_vn_bgd_003",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "easy",
     "question": "Hệ số tự do của đa thức $3x^3 - 2x^2 + 5x - 7$ là:",
-    "choices": ["$-7$", "$3$", "$5$", "$-2$"],
+    "choices": [
+      "$-7$",
+      "$3$",
+      "$5$",
+      "$-2$"
+    ],
     "correct": 0,
-    "explanation": "Hệ số tự do là hệ số của $x^0$, tức số hạng không chứa $x$: $-7$." },
-
-  { "id": "q_vn_bgd_004", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "geometry", "difficulty": "medium",
+    "explanation": "Hệ số tự do là hệ số của $x^0$, tức số hạng không chứa $x$: $-7$."
+  },
+  {
+    "id": "q_vn_bgd_004",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Hai tam giác đồng dạng $\\triangle ABC \\sim \\triangle DEF$ với tỉ số $k = 2$. Nếu $AB = 4$ thì $DE$ bằng:",
-    "choices": ["$2$", "$8$", "$6$", "$4$"],
+    "choices": [
+      "$2$",
+      "$8$",
+      "$6$",
+      "$4$"
+    ],
     "correct": 0,
-    "explanation": "$\\dfrac{AB}{DE} = k = 2 \\Rightarrow DE = \\dfrac{AB}{k} = \\dfrac{4}{2} = 2$." },
-
-  { "id": "q_vn_bgd_005", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "algebra", "difficulty": "easy",
+    "explanation": "$\\dfrac{AB}{DE} = k = 2 \\Rightarrow DE = \\dfrac{AB}{k} = \\dfrac{4}{2} = 2$."
+  },
+  {
+    "id": "q_vn_bgd_005",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "easy",
     "question": "Điều kiện để phương trình bậc hai $ax^2 + bx + c = 0$ ($a \\neq 0$) có nghiệm kép là:",
-    "choices": ["$\\Delta = 0$", "$\\Delta > 0$", "$\\Delta < 0$", "$a = 0$"],
+    "choices": [
+      "$\\Delta = 0$",
+      "$\\Delta > 0$",
+      "$\\Delta < 0$",
+      "$a = 0$"
+    ],
     "correct": 0,
-    "explanation": "Phương trình có nghiệm kép khi và chỉ khi $\\Delta = b^2 - 4ac = 0$." },
-
-  { "id": "q_vn_bgd_006", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "geometry", "difficulty": "easy",
+    "explanation": "Phương trình có nghiệm kép khi và chỉ khi $\\Delta = b^2 - 4ac = 0$."
+  },
+  {
+    "id": "q_vn_bgd_006",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "easy",
     "question": "Góc giữa bán kính $OA$ và tiếp tuyến tại $A$ của đường tròn $(O;\\ r)$ là:",
-    "choices": ["$90°$", "$45°$", "$60°$", "$0°$"],
+    "choices": [
+      "$90°$",
+      "$45°$",
+      "$60°$",
+      "$0°$"
+    ],
     "correct": 0,
-    "explanation": "Tiếp tuyến tại một điểm vuông góc với bán kính tại điểm đó." },
-
-  { "id": "q_vn_bgd_007", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "number_theory", "difficulty": "easy",
+    "explanation": "Tiếp tuyến tại một điểm vuông góc với bán kính tại điểm đó."
+  },
+  {
+    "id": "q_vn_bgd_007",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "number_theory",
+    "difficulty": "easy",
     "question": "Tính $2^{10} \\div 2^7$.",
-    "choices": ["$8$", "$2$", "$4$", "$16$"],
+    "choices": [
+      "$8$",
+      "$2$",
+      "$4$",
+      "$16$"
+    ],
     "correct": 0,
-    "explanation": "$2^{10} \\div 2^7 = 2^{10-7} = 2^3 = 8$." },
-
-  { "id": "q_vn_bgd_008", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "number_theory", "difficulty": "easy",
+    "explanation": "$2^{10} \\div 2^7 = 2^{10-7} = 2^3 = 8$."
+  },
+  {
+    "id": "q_vn_bgd_008",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "number_theory",
+    "difficulty": "easy",
     "question": "Tìm $x$ biết $2^x = 16$.",
-    "choices": ["$x = 4$", "$x = 2$", "$x = 8$", "$x = 3$"],
+    "choices": [
+      "$x = 4$",
+      "$x = 2$",
+      "$x = 8$",
+      "$x = 3$"
+    ],
     "correct": 0,
-    "explanation": "$16 = 2^4$, suy ra $x = 4$." },
-
-  { "id": "q_vn_bgd_009", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "number_theory", "difficulty": "easy",
+    "explanation": "$16 = 2^4$, suy ra $x = 4$."
+  },
+  {
+    "id": "q_vn_bgd_009",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "number_theory",
+    "difficulty": "easy",
     "question": "Căn bậc ba của $27$ là:",
-    "choices": ["$3$", "$9$", "$\\sqrt{27}$", "$6$"],
+    "choices": [
+      "$3$",
+      "$9$",
+      "$\\sqrt{27}$",
+      "$6$"
+    ],
     "correct": 0,
-    "explanation": "$3^3 = 27$, nên $\\sqrt[3]{27} = 3$." },
-
-  { "id": "q_vn_bgd_010", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "geometry", "difficulty": "easy",
+    "explanation": "$3^3 = 27$, nên $\\sqrt[3]{27} = 3$."
+  },
+  {
+    "id": "q_vn_bgd_010",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "easy",
     "question": "Tam giác có ba góc theo tỉ lệ $1:2:3$. Góc lớn nhất bằng:",
-    "choices": ["$90°$", "$60°$", "$120°$", "$45°$"],
+    "choices": [
+      "$90°$",
+      "$60°$",
+      "$120°$",
+      "$45°$"
+    ],
     "correct": 0,
-    "explanation": "Tổng: $1+2+3 = 6$ phần. Mỗi phần $= 30°$. Góc lớn nhất $= 3 \\times 30° = 90°$." },
-
-  { "id": "q_vn_bgd_011", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "functions", "difficulty": "medium",
+    "explanation": "Tổng: $1+2+3 = 6$ phần. Mỗi phần $= 30°$. Góc lớn nhất $= 3 \\times 30° = 90°$."
+  },
+  {
+    "id": "q_vn_bgd_011",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "medium",
     "question": "Tọa độ đỉnh của parabol $y = x^2 - 6x + 8$ là:",
-    "choices": ["$(3;\\ -1)$", "$(-3;\\ -1)$", "$(3;\\ 1)$", "$(-3;\\ 1)$"],
+    "choices": [
+      "$(3;\\ -1)$",
+      "$(-3;\\ -1)$",
+      "$(3;\\ 1)$",
+      "$(-3;\\ 1)$"
+    ],
     "correct": 0,
-    "explanation": "$x_{\\text{đỉnh}} = \\dfrac{6}{2} = 3$; $y_{\\text{đỉnh}} = 9 - 18 + 8 = -1$. Đỉnh: $(3;\\ -1)$." },
-
-  { "id": "q_vn_bgd_012", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "algebra", "difficulty": "hard",
+    "explanation": "$x_{\\text{đỉnh}} = \\dfrac{6}{2} = 3$; $y_{\\text{đỉnh}} = 9 - 18 + 8 = -1$. Đỉnh: $(3;\\ -1)$."
+  },
+  {
+    "id": "q_vn_bgd_012",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "hard",
     "question": "Giải hệ $\\begin{cases}x + y = 10 \\\\ xy = 21\\end{cases}$.",
-    "choices": ["$x = 3,\\ y = 7$ (hoặc ngược lại)", "$x = 2,\\ y = 8$", "$x = 4,\\ y = 6$", "$x = 5,\\ y = 5$"],
+    "choices": [
+      "$x = 3,\\ y = 7$ (hoặc ngược lại)",
+      "$x = 2,\\ y = 8$",
+      "$x = 4,\\ y = 6$",
+      "$x = 5,\\ y = 5$"
+    ],
     "correct": 0,
-    "explanation": "$x$ và $y$ là nghiệm của $t^2 - 10t + 21 = 0 \\Rightarrow (t-3)(t-7) = 0$." },
-
-  { "id": "q_vn_bgd_013", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "geometry", "difficulty": "medium",
+    "explanation": "$x$ và $y$ là nghiệm của $t^2 - 10t + 21 = 0 \\Rightarrow (t-3)(t-7) = 0$."
+  },
+  {
+    "id": "q_vn_bgd_013",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Tứ giác nội tiếp đường tròn có tính chất:",
-    "choices": ["Tổng hai góc đối nhau bằng $180°$", "Tổng bốn góc bằng $360°$", "Các đường chéo bằng nhau", "Các cạnh bằng nhau"],
+    "choices": [
+      "Tổng hai góc đối nhau bằng $180°$",
+      "Tổng bốn góc bằng $360°$",
+      "Các đường chéo bằng nhau",
+      "Các cạnh bằng nhau"
+    ],
     "correct": 0,
-    "explanation": "Định lý tứ giác nội tiếp: hai góc đối nhau bù nhau (tổng bằng $180°$)." },
-
-  { "id": "q_vn_bgd_014", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "algebra", "difficulty": "medium",
+    "explanation": "Định lý tứ giác nội tiếp: hai góc đối nhau bù nhau (tổng bằng $180°$)."
+  },
+  {
+    "id": "q_vn_bgd_014",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Nghiệm nguyên dương nhỏ nhất của bất phương trình $3x - 7 > 2$ là:",
-    "choices": ["$4$", "$3$", "$2$", "$5$"],
+    "choices": [
+      "$4$",
+      "$3$",
+      "$2$",
+      "$5$"
+    ],
     "correct": 0,
-    "explanation": "$3x > 9 \\Rightarrow x > 3$. Nghiệm nguyên dương nhỏ nhất là $x = 4$." },
-
-  { "id": "q_vn_bgd_015", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "geometry", "difficulty": "hard",
+    "explanation": "$3x > 9 \\Rightarrow x > 3$. Nghiệm nguyên dương nhỏ nhất là $x = 4$."
+  },
+  {
+    "id": "q_vn_bgd_015",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "hard",
     "question": "Hình bình hành $ABCD$ có $AB = 5$, $BC = 3$, $\\widehat{ABC} = 60°$. Diện tích hình bình hành là:",
-    "choices": ["$\\dfrac{15\\sqrt{3}}{2}$", "$15\\sqrt{3}$", "$15$", "$30$"],
+    "choices": [
+      "$\\dfrac{15\\sqrt{3}}{2}$",
+      "$15\\sqrt{3}$",
+      "$15$",
+      "$30$"
+    ],
     "correct": 0,
-    "explanation": "$S = AB \\cdot BC \\cdot \\sin(\\widehat{ABC}) = 5 \\times 3 \\times \\dfrac{\\sqrt{3}}{2} = \\dfrac{15\\sqrt{3}}{2}$." },
-
-  { "id": "q_vn_bgd_016", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "number_theory", "difficulty": "medium",
+    "explanation": "$S = AB \\cdot BC \\cdot \\sin(\\widehat{ABC}) = 5 \\times 3 \\times \\dfrac{\\sqrt{3}}{2} = \\dfrac{15\\sqrt{3}}{2}$."
+  },
+  {
+    "id": "q_vn_bgd_016",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "number_theory",
+    "difficulty": "medium",
     "question": "Tính $(\\sqrt{5}+\\sqrt{3})^2 + (\\sqrt{5}-\\sqrt{3})^2$.",
-    "choices": ["$16$", "$4\\sqrt{15}$", "$8$", "$2(\\sqrt{5}+\\sqrt{3})$"],
+    "choices": [
+      "$16$",
+      "$4\\sqrt{15}$",
+      "$8$",
+      "$2(\\sqrt{5}+\\sqrt{3})$"
+    ],
     "correct": 0,
-    "explanation": "$(5+2\\sqrt{15}+3)+(5-2\\sqrt{15}+3) = 8+8 = 16$." },
-
-  { "id": "q_vn_bgd_017", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "algebra", "difficulty": "hard",
+    "explanation": "$(5+2\\sqrt{15}+3)+(5-2\\sqrt{15}+3) = 8+8 = 16$."
+  },
+  {
+    "id": "q_vn_bgd_017",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "hard",
     "question": "Phương trình $x^2 + 2(m+1)x + m^2 = 0$ có hai nghiệm thực khi:",
-    "choices": ["$m \\geq -\\dfrac{1}{2}$", "$m > -\\dfrac{1}{2}$", "$m \\leq -\\dfrac{1}{2}$", "$m < -\\dfrac{1}{2}$"],
+    "choices": [
+      "$m \\geq -\\dfrac{1}{2}$",
+      "$m > -\\dfrac{1}{2}$",
+      "$m \\leq -\\dfrac{1}{2}$",
+      "$m < -\\dfrac{1}{2}$"
+    ],
     "correct": 0,
-    "explanation": "$\\Delta' = (m+1)^2 - m^2 = 2m + 1 \\geq 0 \\Rightarrow m \\geq -\\dfrac{1}{2}$." },
-
-  { "id": "q_vn_bgd_018", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "geometry", "difficulty": "medium",
+    "explanation": "$\\Delta' = (m+1)^2 - m^2 = 2m + 1 \\geq 0 \\Rightarrow m \\geq -\\dfrac{1}{2}$."
+  },
+  {
+    "id": "q_vn_bgd_018",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "medium",
     "question": "Diện tích tam giác đều cạnh $4$ cm là:",
-    "choices": ["$4\\sqrt{3}$ cm²", "$8\\sqrt{3}$ cm²", "$2\\sqrt{3}$ cm²", "$16\\sqrt{3}$ cm²"],
+    "choices": [
+      "$4\\sqrt{3}$ cm²",
+      "$8\\sqrt{3}$ cm²",
+      "$2\\sqrt{3}$ cm²",
+      "$16\\sqrt{3}$ cm²"
+    ],
     "correct": 0,
-    "explanation": "$S = \\dfrac{a^2\\sqrt{3}}{4} = \\dfrac{16\\sqrt{3}}{4} = 4\\sqrt{3}$ cm²." },
-
-  { "id": "q_vn_bgd_019", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "geometry", "difficulty": "easy",
+    "explanation": "$S = \\dfrac{a^2\\sqrt{3}}{4} = \\dfrac{16\\sqrt{3}}{4} = 4\\sqrt{3}$ cm²."
+  },
+  {
+    "id": "q_vn_bgd_019",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "easy",
     "question": "Dây cung đi qua tâm của đường tròn được gọi là:",
-    "choices": ["Đường kính", "Bán kính", "Tiếp tuyến", "Cát tuyến"],
+    "choices": [
+      "Đường kính",
+      "Bán kính",
+      "Tiếp tuyến",
+      "Cát tuyến"
+    ],
     "correct": 0,
-    "explanation": "Đường kính là dây cung lớn nhất, đi qua tâm đường tròn." },
-
-  { "id": "q_vn_bgd_020", "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo", "year": 2025, "topic": "algebra", "difficulty": "medium",
+    "explanation": "Đường kính là dây cung lớn nhất, đi qua tâm đường tròn."
+  },
+  {
+    "id": "q_vn_bgd_020",
+    "source": "Đề minh họa thi vào lớp 10 — Bộ Giáo dục và Đào tạo",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
     "question": "Phương trình $|2x - 4| = 6$ có nghiệm:",
-    "choices": ["$x = 5$ hoặc $x = -1$", "$x = 5$ hoặc $x = 1$", "$x = -5$ hoặc $x = 1$", "$x = -5$ hoặc $x = -1$"],
+    "choices": [
+      "$x = 5$ hoặc $x = -1$",
+      "$x = 5$ hoặc $x = 1$",
+      "$x = -5$ hoặc $x = 1$",
+      "$x = -5$ hoặc $x = -1$"
+    ],
     "correct": 0,
-    "explanation": "$2x-4=6 \\Rightarrow x=5$; hoặc $2x-4=-6 \\Rightarrow x=-1$." }
+    "explanation": "$2x-4=6 \\Rightarrow x=5$; hoặc $2x-4=-6 \\Rightarrow x=-1$."
+  }
 ]

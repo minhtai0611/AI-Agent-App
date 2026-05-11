@@ -1,6 +1,25 @@
 import { useState, useEffect, useRef } from 'react'
+import Markdown from 'react-markdown'
+import remarkMath from 'remark-math'
+import remarkGfm from 'remark-gfm'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 import { getHint, getExplanation } from '../api/aiClient.js'
 import { sanitizeSvg } from '../utils/sanitizeSvg.js'
+
+function MathText({ children, className, style }) {
+  return (
+    <Markdown
+      className={className}
+      style={style}
+      remarkPlugins={[remarkMath, remarkGfm]}
+      rehypePlugins={[rehypeKatex]}
+      components={{ p: ({ children }) => <span>{children}</span> }}
+    >
+      {children}
+    </Markdown>
+  )
+}
 
 const LABELS = ['A', 'B', 'C', 'D']
 const MAX_HINTS = 3
@@ -81,9 +100,9 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
           dangerouslySetInnerHTML={{ __html: sanitizeSvg(question.figure.data) }}
         />
       )}
-      <p className="font-fraunces text-[20px] text-[#F0F4FF] leading-relaxed mb-5 whitespace-pre-wrap">
+      <MathText className="font-fraunces text-[20px] text-[#F0F4FF] leading-relaxed mb-5 whitespace-pre-wrap">
         {question.question}
-      </p>
+      </MathText>
       <div className="flex flex-col gap-2.5">
         {question.choices.map((choice, i) => {
           const s = choiceStyle(i, chosen, aiCorrect, showFeedback)
@@ -101,9 +120,9 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
               >
                 {LABELS[i]}
               </span>
-              <span className="font-jakarta text-[15px] font-medium" style={{ color: s.text }}>
+              <MathText className="font-jakarta text-[15px] font-medium" style={{ color: s.text }}>
                 {choice}
-              </span>
+              </MathText>
             </button>
           )
         })}
@@ -136,12 +155,12 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
                     Đáp án đúng: {LABELS[aiCorrect] ?? '?'}
                   </p>
                 )}
-                <p
+                <MathText
                   className="font-jakarta text-[13px] leading-relaxed"
                   style={{ color: isCorrect ? '#6EE7B7' : '#FCA5A5' }}
                 >
                   {aiResult.explanation}
-                </p>
+                </MathText>
               </div>
             </>
           )}
@@ -183,7 +202,7 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
           )}
           {hintTexts.map((text, i) => (
             <div key={i} className="p-3.5 rounded-xl border border-[#2A3A60] bg-[#111827]">
-              <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{text}</p>
+              <MathText className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{text}</MathText>
               <span className="font-jakarta text-[11px] text-[#475569]">Gợi ý {i + 1}/{MAX_HINTS}</span>
             </div>
           ))}
