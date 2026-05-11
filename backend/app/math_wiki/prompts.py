@@ -21,6 +21,8 @@ For each wiki unit, identify:
 
 Each problem must have at least 2 wiki units associated with it.
 
+LANGUAGE RULE: Write all "content" fields in Vietnamese. Math expressions may use standard notation.
+
 Return a JSON object with keys "problems" and "wiki_units". No other text."""
 
 PROMPT_CLASSIFY = """You are a math problem classifier.

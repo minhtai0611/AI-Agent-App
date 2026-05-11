@@ -126,7 +126,7 @@ function formatExplanation(raw) {
   return raw
     .replace(/\s*\[[^\]]+\]/g, '')                                  // remove any [bracket content]
     .replace(/\s+:/g, ':')                                           // fix "Bẫy B :" → "Bẫy B:"
-    .replace(/Đáp án đúng\s*:\s*/gi, '**Đáp án đúng:** ')          // bold label, keep visible anywhere
+    .replace(/Đáp án đúng\s*:\s*[A-D]\.?\s*/gi, '')                // strip "Đáp án đúng: X." — header badge already shows it
     .replace(/(\.?\s*)(Bẫy\s+[A-D]\s*:)/g, '\n\n**$2**')           // separate paragraph + bold each trap
     .trim()
 }
