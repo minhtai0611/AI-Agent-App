@@ -14,7 +14,6 @@ export function loadThiThuExams() {
   return examsData
     .filter(e => e.mode === 'thithu')
     .sort((a, b) => b.year - a.year)
-    .slice(0, 3)
 }
 
 export function loadSchools() {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useExamDispatch } from '../context/ExamContext.jsx'
 import { loadExams, loadThiThuExams, loadQuestionsByIds } from '../api/index.js'
@@ -12,7 +12,7 @@ export default function ExamSelect() {
 
   function handleStart(exam) {
     const questions = loadQuestionsByIds(exam.questionIds)
-    dispatch({ type: 'START_EXAM', exam, questions, mode })
+    dispatch({ type: 'START_EXAM', exam, questions, mode: mode === 'timed' ? 'timed' : 'practice' })
     navigate(`/test/${exam.id}`)
   }
 
@@ -23,7 +23,6 @@ export default function ExamSelect() {
         <button onClick={() => navigate('/')} className="font-jakarta text-sm text-[#64748B] hover:text-[#94A3B8] transition">
           ← Trang chủ
         </button>
-        {/* Mode toggle */}
         <div className="flex items-center gap-1 bg-[#1A2440] rounded-full p-1">
           {[
             { value: 'timed', label: 'Có thời gian' },

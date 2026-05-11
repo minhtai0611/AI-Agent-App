@@ -1,62 +1,157 @@
 [
   {
+    "id": "vn_hanoi_2024",
+    "mode": "thithu",
+    "year": 2024,
+    "title": "Đề thi vào lớp 10 Hà Nội",
+    "duration": 90,
+    "source": "Sở GD&ĐT Hà Nội",
+    "questionIds": [
+      "q_vn_hn_001", "q_vn_hn_002", "q_vn_hn_003", "q_vn_hn_004",
+      "q_vn_hn_005", "q_vn_hn_006", "q_vn_hn_007", "q_vn_hn_008",
+      "q_vn_hn_009", "q_vn_hn_010", "q_vn_hn_011", "q_vn_hn_012",
+      "q_vn_hn_013", "q_vn_hn_014", "q_vn_hn_015", "q_vn_hn_016",
+      "q_vn_hn_017", "q_vn_hn_018", "q_vn_hn_019", "q_vn_hn_020"
+    ],
+    "totalQuestions": 20
+  },
+  {
+    "id": "vn_hcmc_2024",
+    "mode": "thithu",
+    "year": 2024,
+    "title": "Đề thi vào lớp 10 TP. Hồ Chí Minh",
+    "duration": 90,
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh",
+    "questionIds": [
+      "q_vn_hcmc_001", "q_vn_hcmc_002", "q_vn_hcmc_003", "q_vn_hcmc_004",
+      "q_vn_hcmc_005", "q_vn_hcmc_006", "q_vn_hcmc_007", "q_vn_hcmc_008",
+      "q_vn_hcmc_009", "q_vn_hcmc_010", "q_vn_hcmc_011", "q_vn_hcmc_012",
+      "q_vn_hcmc_013", "q_vn_hcmc_014", "q_vn_hcmc_015", "q_vn_hcmc_016",
+      "q_vn_hcmc_017", "q_vn_hcmc_018", "q_vn_hcmc_019", "q_vn_hcmc_020"
+    ],
+    "totalQuestions": 20
+  },
+  {
+    "id": "vn_danang_2024",
+    "mode": "thithu",
+    "year": 2024,
+    "title": "Đề thi vào lớp 10 Đà Nẵng",
+    "duration": 90,
+    "source": "Sở GD&ĐT TP. Đà Nẵng",
+    "questionIds": [
+      "q_vn_dn_001", "q_vn_dn_002", "q_vn_dn_003", "q_vn_dn_004",
+      "q_vn_dn_005", "q_vn_dn_006", "q_vn_dn_007", "q_vn_dn_008",
+      "q_vn_dn_009", "q_vn_dn_010", "q_vn_dn_011", "q_vn_dn_012",
+      "q_vn_dn_013", "q_vn_dn_014", "q_vn_dn_015", "q_vn_dn_016",
+      "q_vn_dn_017", "q_vn_dn_018", "q_vn_dn_019", "q_vn_dn_020"
+    ],
+    "totalQuestions": 20
+  },
+  {
+    "id": "vn_haiphong_2024",
+    "mode": "thithu",
+    "year": 2024,
+    "title": "Đề thi vào lớp 10 Hải Phòng",
+    "duration": 90,
+    "source": "Sở GD&ĐT TP. Hải Phòng",
+    "questionIds": [
+      "q_vn_hp_001", "q_vn_hp_002", "q_vn_hp_003", "q_vn_hp_004",
+      "q_vn_hp_005", "q_vn_hp_006", "q_vn_hp_007", "q_vn_hp_008",
+      "q_vn_hp_009", "q_vn_hp_010", "q_vn_hp_011", "q_vn_hp_012",
+      "q_vn_hp_013", "q_vn_hp_014", "q_vn_hp_015", "q_vn_hp_016",
+      "q_vn_hp_017", "q_vn_hp_018", "q_vn_hp_019", "q_vn_hp_020"
+    ],
+    "totalQuestions": 20
+  },
+  {
+    "id": "vn_bgddt_2025",
+    "mode": "thithu",
+    "year": 2025,
+    "title": "Đề minh họa vào lớp 10 — Bộ GD&ĐT",
+    "duration": 90,
+    "source": "Bộ Giáo dục và Đào tạo",
+    "questionIds": [
+      "q_vn_bgd_001", "q_vn_bgd_002", "q_vn_bgd_003", "q_vn_bgd_004",
+      "q_vn_bgd_005", "q_vn_bgd_006", "q_vn_bgd_007", "q_vn_bgd_008",
+      "q_vn_bgd_009", "q_vn_bgd_010", "q_vn_bgd_011", "q_vn_bgd_012",
+      "q_vn_bgd_013", "q_vn_bgd_014", "q_vn_bgd_015", "q_vn_bgd_016",
+      "q_vn_bgd_017", "q_vn_bgd_018", "q_vn_bgd_019", "q_vn_bgd_020"
+    ],
+    "totalQuestions": 20
+  },
+  {
     "id": "intl_amc8_2022",
     "year": 2022,
     "title": "AMC 8 — Competition Math (MAA)",
-    "duration": 40,
+    "duration": 60,
     "source": "Mathematical Association of America",
     "questionIds": [
-      "q_amc8_001",
-      "q_amc8_002",
-      "q_amc8_003",
-      "q_amc8_004",
-      "q_amc8_005",
-      "q_amc8_006",
-      "q_amc8_007",
-      "q_amc8_008",
-      "q_amc8_009",
-      "q_amc8_010"
+      "q_amc8_001", "q_amc8_002", "q_amc8_003", "q_amc8_004",
+      "q_amc8_005", "q_amc8_006", "q_amc8_007", "q_amc8_008",
+      "q_amc8_009", "q_amc8_010", "q_amc8_011", "q_amc8_012",
+      "q_amc8_013", "q_amc8_014", "q_amc8_015", "q_amc8_016",
+      "q_amc8_017", "q_amc8_018", "q_amc8_019", "q_amc8_020"
     ],
-    "totalQuestions": 10
+    "totalQuestions": 20
   },
   {
     "id": "intl_amc10_2023",
     "year": 2023,
     "title": "AMC 10 — Advanced Problem Solving (MAA)",
-    "duration": 40,
+    "duration": 60,
     "source": "Mathematical Association of America",
     "questionIds": [
-      "q_amc10_001",
-      "q_amc10_002",
-      "q_amc10_003",
-      "q_amc10_004",
-      "q_amc10_005",
-      "q_amc10_006",
-      "q_amc10_007",
-      "q_amc10_008",
-      "q_amc10_009",
-      "q_amc10_010"
+      "q_amc10_001", "q_amc10_002", "q_amc10_003", "q_amc10_004",
+      "q_amc10_005", "q_amc10_006", "q_amc10_007", "q_amc10_008",
+      "q_amc10_009", "q_amc10_010", "q_amc10_011", "q_amc10_012",
+      "q_amc10_013", "q_amc10_014", "q_amc10_015", "q_amc10_016",
+      "q_amc10_017", "q_amc10_018", "q_amc10_019", "q_amc10_020"
     ],
-    "totalQuestions": 10
+    "totalQuestions": 20
   },
   {
     "id": "intl_gcse_2023",
     "year": 2023,
     "title": "GCSE Higher Mathematics (AQA / Edexcel, UK)",
-    "duration": 40,
+    "duration": 60,
     "source": "AQA / Edexcel",
     "questionIds": [
-      "q_gcse_001",
-      "q_gcse_002",
-      "q_gcse_003",
-      "q_gcse_004",
-      "q_gcse_005",
-      "q_gcse_006",
-      "q_gcse_007",
-      "q_gcse_008",
-      "q_gcse_009",
-      "q_gcse_010"
+      "q_gcse_001", "q_gcse_002", "q_gcse_003", "q_gcse_004",
+      "q_gcse_005", "q_gcse_006", "q_gcse_007", "q_gcse_008",
+      "q_gcse_009", "q_gcse_010", "q_gcse_011", "q_gcse_012",
+      "q_gcse_013", "q_gcse_014", "q_gcse_015", "q_gcse_016",
+      "q_gcse_017", "q_gcse_018", "q_gcse_019", "q_gcse_020"
     ],
-    "totalQuestions": 10
+    "totalQuestions": 20
+  },
+  {
+    "id": "intl_sgol_2023",
+    "year": 2023,
+    "title": "O-Level Mathematics (Singapore MOE)",
+    "duration": 60,
+    "source": "Singapore Ministry of Education",
+    "questionIds": [
+      "q_sgol_001", "q_sgol_002", "q_sgol_003", "q_sgol_004",
+      "q_sgol_005", "q_sgol_006", "q_sgol_007", "q_sgol_008",
+      "q_sgol_009", "q_sgol_010", "q_sgol_011", "q_sgol_012",
+      "q_sgol_013", "q_sgol_014", "q_sgol_015", "q_sgol_016",
+      "q_sgol_017", "q_sgol_018", "q_sgol_019", "q_sgol_020"
+    ],
+    "totalQuestions": 20
+  },
+  {
+    "id": "intl_amc_au_2023",
+    "year": 2023,
+    "title": "Australian Mathematics Competition — Intermediate",
+    "duration": 60,
+    "source": "Australian Mathematics Trust",
+    "questionIds": [
+      "q_amc_au_001", "q_amc_au_002", "q_amc_au_003", "q_amc_au_004",
+      "q_amc_au_005", "q_amc_au_006", "q_amc_au_007", "q_amc_au_008",
+      "q_amc_au_009", "q_amc_au_010", "q_amc_au_011", "q_amc_au_012",
+      "q_amc_au_013", "q_amc_au_014", "q_amc_au_015", "q_amc_au_016",
+      "q_amc_au_017", "q_amc_au_018", "q_amc_au_019", "q_amc_au_020"
+    ],
+    "totalQuestions": 20
   }
 ]
