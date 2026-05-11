@@ -44,7 +44,7 @@ async def _translate(client, content: str, settings) -> str:
     from app.agent.core import call_with_retry
     response = await call_with_retry(
         client,
-        model=settings.haiku_model,
+        model=settings.opus_model,
         messages=[
             {"role": "system", "content": _TRANSLATE_SYSTEM},
             {"role": "user", "content": content},
@@ -104,7 +104,7 @@ async def main(dry_run: bool, limit: int | None, source_filter: str) -> None:
         uid = r["id"]
         original = r["content"]
         try:
-            translated = await _translate(client, original, settings)
+            translated = await _translate(client, original, settings)  # uses opus_model
             unit = WikiUnit(
                 id=uid,
                 type=r["type"],

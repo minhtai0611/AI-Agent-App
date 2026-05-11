@@ -255,7 +255,7 @@ async def _fix_english_wiki_units(pool, client) -> None:
             try:
                 resp = await call_with_retry(
                     client,
-                    model=settings.haiku_model,
+                    model=settings.opus_model,
                     messages=[
                         {"role": "system", "content": _TRANSLATE_SYSTEM},
                         {"role": "user", "content": r["content"]},
