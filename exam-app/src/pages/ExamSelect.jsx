@@ -2,6 +2,16 @@ import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useExamDispatch } from '../context/ExamContext.jsx'
 import { loadExams, loadThiThuExams, loadQuestionsByIds } from '../api/index.js'
+import { motion } from 'framer-motion'
+
+const listVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+}
+const cardVariants = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+}
 
 export default function ExamSelect() {
   const navigate = useNavigate()
@@ -40,10 +50,21 @@ export default function ExamSelect() {
       {/* Content */}
       <div className="flex flex-col gap-6 p-10">
         <h1 className="font-fraunces text-[36px] font-bold text-[#F8FAFC]">Chọn đề thi</h1>
-        <div className="flex flex-col gap-3">
+        <motion.div
+          className="flex flex-col gap-3"
+          variants={listVariants}
+          initial="hidden"
+          animate="show"
+          key={mode}
+        >
           {exams.map((exam) => (
-            <div key={exam.id} className="bg-[#0D1521] rounded-xl px-6 py-5 flex flex-col gap-3"
-              style={{ borderLeft: '3px solid #F2A20C99' }}>
+            <motion.div
+              key={exam.id}
+              variants={cardVariants}
+              whileHover={{ scale: 1.015 }}
+              className="bg-[#0D1521] rounded-xl px-6 py-5 flex flex-col gap-3"
+              style={{ borderLeft: '3px solid #F2A20C99' }}
+            >
               <div className="flex items-start justify-between">
                 <div className="flex flex-col gap-1.5">
                   <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{exam.title}</span>
@@ -57,9 +78,9 @@ export default function ExamSelect() {
                   Bắt đầu
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </div>
   )

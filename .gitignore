@@ -29,6 +29,9 @@ exam-app/dist/
 exam-app/scripts/ingest/state.json
 backend/scripts/ingest/ingest_state.json
 
+# Cloudflare Pages / Wrangler local state
+.wrangler/
+
 # Misc
 *.pen
 .DS_Store

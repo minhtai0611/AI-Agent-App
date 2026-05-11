@@ -1,4 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
+import { motion } from 'framer-motion'
+import CountUp from 'react-countup'
+import ReactCanvasConfetti from 'react-canvas-confetti'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
@@ -48,6 +51,8 @@ export default function Results() {
   const [planReady, setPlanReady] = useState(false)
 
   const isCurrent = !resultId || resultId === 'current'
+  const fireConfetti = useRef(null)
+  const onConfettiInit = useCallback(({ confetti }) => { fireConfetti.current = confetti }, [])
 
   useEffect(() => {
     if (isCurrent) {
@@ -64,6 +69,20 @@ export default function Results() {
       if (found) setResult(found)
     }
   }, [resultId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!result) return
+    if (result.score >= 8 && fireConfetti.current) {
+      setTimeout(() => {
+        fireConfetti.current({
+          particleCount: 140,
+          spread: 80,
+          origin: { y: 0.45 },
+          colors: ['#F2A20C', '#6366F1', '#10B981', '#F8FAFC'],
+        })
+      }, 600)
+    }
+  }, [result?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!result) return
@@ -144,6 +163,10 @@ export default function Results() {
 
   return (
     <div className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden">
+      <ReactCanvasConfetti
+        onInit={onConfettiInit}
+        style={{ position: 'fixed', pointerEvents: 'none', top: 0, left: 0, width: '100%', height: '100%', zIndex: 100 }}
+      />
       {/* Background glows */}
       <div className="absolute pointer-events-none rounded-full"
         style={{ width: 700, height: 700, right: -200, top: -100,
@@ -186,7 +209,9 @@ export default function Results() {
         <div className="flex items-center gap-10 bg-[#0D1221] border border-[#1E2A44] rounded-2xl px-10 py-9">
           <div className="flex-shrink-0 w-[120px] h-[120px] rounded-full border-2 border-[#F2A20C] flex items-center justify-center"
             style={{ background: 'radial-gradient(circle, #1E2A44 0%, #0D1221 100%)' }}>
-            <span className="font-fraunces text-[38px] font-bold text-[#F2A20C]">{score}</span>
+            <span className="font-fraunces text-[38px] font-bold text-[#F2A20C]">
+              <CountUp end={score} duration={1.5} decimals={1} />
+            </span>
           </div>
           <div className="flex flex-col gap-3">
             <span className="font-fraunces text-[28px] font-bold text-[#F8FAFC]">{scoreLabel(score)}</span>
@@ -230,7 +255,16 @@ export default function Results() {
                     </span>
                   </div>
                 </div>
-                {i < topics.length - 1 && <div className="h-px bg-[#1E2A44]" />}
+                <div className="h-1 rounded-full bg-[#1E2A44] overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: color }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.round(tb.accuracy * 100)}%` }}
+                    transition={{ duration: 0.7, ease: 'easeOut', delay: i * 0.1 }}
+                  />
+                </div>
+                {i < topics.length - 1 && <div className="h-px bg-[#1E2A44] mt-3" />}
               </div>
             )
           })}

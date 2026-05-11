@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useExam, useExamDispatch, useHints, useFlags } from '../context/ExamContext.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
@@ -14,6 +15,7 @@ export default function TestInterface() {
   const session = useExam()
   const dispatch = useExamDispatch()
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [direction, setDirection] = useState(1)
   const [tutorOpen, setTutorOpen] = useState(false)
   const [submitModal, setSubmitModal] = useState(false)
 
@@ -85,7 +87,16 @@ export default function TestInterface() {
   }
 
   function handleNext() {
-    if (currentIndex < questions.length - 1) setCurrentIndex(i => i + 1)
+    if (currentIndex < questions.length - 1) { setDirection(1); setCurrentIndex(i => i + 1) }
+  }
+
+  function handlePrev() {
+    if (currentIndex > 0) { setDirection(-1); setCurrentIndex(i => i - 1) }
+  }
+
+  function jumpTo(i) {
+    setDirection(i > currentIndex ? 1 : -1)
+    setCurrentIndex(i)
   }
 
   function handleSubmit() {
@@ -137,9 +148,11 @@ export default function TestInterface() {
 
       {/* Progress bar */}
       <div className="relative z-10 h-1 bg-[#1E2A44]">
-        <div
-          className="h-full transition-all duration-300"
-          style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #F2A20C 0%, #F59E0B 100%)' }}
+        <motion.div
+          className="h-full"
+          style={{ background: 'linear-gradient(90deg, #F2A20C 0%, #F59E0B 100%)' }}
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
         />
       </div>
 
@@ -173,23 +186,33 @@ export default function TestInterface() {
         </div>
 
         {/* Question card */}
-        {question && (
-          <QuestionCard
-            key={question.id}
-            question={question}
-            chosen={chosen}
-            onAnswer={handleAnswer}
-            practiceMode={isPractice}
-            submitted={session.status === 'submitted'}
-            hintState={hints[question.id]}
-            onHint={setHint}
-          />
-        )}
+        <AnimatePresence mode="wait" custom={direction}>
+          {question && (
+            <motion.div
+              key={question.id}
+              custom={direction}
+              initial={d => ({ opacity: 0, x: d * 40 })}
+              animate={{ opacity: 1, x: 0 }}
+              exit={d => ({ opacity: 0, x: d * -40 })}
+              transition={{ duration: 0.22, ease: 'easeInOut' }}
+            >
+              <QuestionCard
+                question={question}
+                chosen={chosen}
+                onAnswer={handleAnswer}
+                practiceMode={isPractice}
+                submitted={session.status === 'submitted'}
+                hintState={hints[question.id]}
+                onHint={setHint}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Nav row */}
         <div className="flex items-center justify-between">
           <button
-            onClick={() => setCurrentIndex(i => Math.max(0, i - 1))}
+            onClick={handlePrev}
             disabled={currentIndex === 0}
             className="flex items-center gap-1.5 px-4 py-2.5 bg-[#111827] border border-[#1E2A44] rounded-[10px] font-jakarta text-[13px] text-[#94A3B8] font-medium disabled:opacity-40 hover:bg-[#1E2A44] transition"
           >
@@ -230,7 +253,7 @@ export default function TestInterface() {
             return (
               <button
                 key={i}
-                onClick={() => setCurrentIndex(i)}
+                onClick={() => jumpTo(i)}
                 className="rounded-[2px] h-1 transition-all"
                 style={{ width: isCurrent ? 24 : 8, background: bg }}
               />
@@ -276,7 +299,7 @@ export default function TestInterface() {
                 {unanswered.map(({ q, i }) => (
                   <button
                     key={q.id}
-                    onClick={() => { setCurrentIndex(i); setSubmitModal(false) }}
+                    onClick={() => { jumpTo(i); setSubmitModal(false) }}
                     className="w-8 h-8 rounded-lg font-jakarta text-[12px] font-bold border border-[#F2A20C44] text-[#F2A20C] hover:bg-[#F2A20C22] transition"
                     style={{ background: '#F2A20C11' }}
                   >
@@ -299,7 +322,7 @@ export default function TestInterface() {
                   {flagged.map(({ q, i }) => (
                     <button
                       key={q.id}
-                      onClick={() => { setCurrentIndex(i); setSubmitModal(false) }}
+                      onClick={() => { jumpTo(i); setSubmitModal(false) }}
                       className="w-8 h-8 rounded-lg font-jakarta text-[12px] font-bold transition hover:opacity-80"
                       style={{ background: '#EF444422', border: '1px solid #EF4444', color: '#EF4444' }}
                     >

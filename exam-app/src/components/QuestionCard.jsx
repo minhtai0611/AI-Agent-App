@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { motion } from 'framer-motion'
 import Markdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
@@ -106,9 +107,16 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
       <div className="flex flex-col gap-2.5">
         {question.choices.map((choice, i) => {
           const s = choiceStyle(i, chosen, aiCorrect, showFeedback)
+          const isChosen = i === chosen
+          const feedbackAnim = aiResult !== null && isChosen
+            ? isCorrect
+              ? { scale: [1, 1.04, 1], transition: { duration: 0.35 } }
+              : { x: [-7, 7, -7, 7, 0], transition: { duration: 0.4 } }
+            : {}
           return (
-            <button
+            <motion.button
               key={i}
+              animate={feedbackAnim}
               className="w-full text-left flex items-center gap-3.5 px-[18px] py-3.5 rounded-xl transition-all"
               style={{ background: s.bg, border: `${s.bw} solid ${s.border}` }}
               onClick={() => !showFeedback && !submitted && onAnswer(i)}
@@ -123,7 +131,7 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
               <MathText className="font-jakarta text-[15px] font-medium" style={{ color: s.text }}>
                 {choice}
               </MathText>
-            </button>
+            </motion.button>
           )
         })}
       </div>
