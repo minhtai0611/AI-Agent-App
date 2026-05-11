@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     # Set to "true" to fix non-canonical topic/type labels and remove content duplicates on startup.
     # Self-disables via HF Spaces API after one successful run.
     wiki_sanitize_enabled: bool = False
+    # Set to "true" to translate English wiki units (exam_upload source) to Vietnamese.
+    # Self-disables via HF Spaces API after one successful run.
+    wiki_fix_english_enabled: bool = False
     embedding_model_name: str = "BAAI/bge-m3"
     embedding_dim: int = 1024
 

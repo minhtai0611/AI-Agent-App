@@ -213,6 +213,84 @@ async def _sanitize_wiki(pool) -> None:
         logger.error("wiki-sanitize failed: %s", exc)
 
 
+_VI_RE = __import__("re").compile(
+    r"[àáảãạăắặẳẵằâấầẩẫậđèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵ"
+    r"ÀÁẢÃẠĂẮẶẲẴẰÂẤẦẨẪẬĐÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴ]"
+)
+
+_TRANSLATE_SYSTEM = (
+    "You are a Vietnamese math translator. Translate the given English math knowledge unit "
+    "into Vietnamese.\n\n"
+    "Rules:\n"
+    "- Output ONLY the translated content string — no JSON, no labels, no explanation.\n"
+    "- Preserve ALL math expressions exactly: keep $...$ and $$...$$ delimiters, LaTeX commands, "
+    "and variable names unchanged.\n"
+    "- Write all prose, procedure names, and explanations in Vietnamese.\n"
+    "- Keep the same structure and level of detail as the original.\n"
+    "- Do NOT add any introductory phrase like \"Dưới đây là...\" — start the content directly."
+)
+
+
+async def _fix_english_wiki_units(pool, client) -> None:
+    """Translate English wiki units (exam_upload source) to Vietnamese; self-disables after success."""
+    import json as _json
+    from app.config import get_settings as _gs
+    from app.math_wiki.storage import pg_db
+    from app.math_wiki.schemas import WikiUnit
+    from app.agent.core import call_with_retry
+
+    settings = _gs()
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT id, type, topic, subtopic, content, problem_ids, source, source_url "
+                "FROM wiki_units WHERE deleted = false AND source = 'exam_upload'"
+            )
+
+        english = [r for r in rows if not _VI_RE.search(r["content"])]
+        logger.info("fix-english-wiki: %d exam_upload units, %d need translation", len(rows), len(english))
+
+        ok = failed = 0
+        for r in english:
+            try:
+                resp = await call_with_retry(
+                    client,
+                    model=settings.haiku_model,
+                    messages=[
+                        {"role": "system", "content": _TRANSLATE_SYSTEM},
+                        {"role": "user", "content": r["content"]},
+                    ],
+                    max_tokens=1024,
+                )
+                translated = (resp.choices[0].message.content or "").strip()
+                if not translated:
+                    raise ValueError("empty response")
+                unit = WikiUnit(
+                    id=r["id"], type=r["type"], topic=r["topic"],
+                    subtopic=r["subtopic"] or "",
+                    content=translated,
+                    problem_ids=[] if r["problem_ids"] is None else _json.loads(r["problem_ids"]),
+                )
+                await pg_db.upsert_wiki_unit(
+                    pool, unit,
+                    source=r["source"], source_url=r["source_url"],
+                    editor="fix_english_wiki_units",
+                    reason="Translated English content to Vietnamese (PROMPT_INGEST language rule was missing)",
+                )
+                ok += 1
+            except Exception as exc:
+                logger.warning("fix-english-wiki: failed %s — %s", r["id"], exc)
+                failed += 1
+
+        logger.info("fix-english-wiki complete: translated=%d failed=%d", ok, failed)
+        if failed == 0:
+            await _hf_set_space_variable("WIKI_FIX_ENGLISH_ENABLED", "false")
+        else:
+            logger.warning("fix-english-wiki: %d failures — flag not auto-disabled", failed)
+    except Exception as exc:
+        logger.error("fix-english-wiki failed: %s", exc)
+
+
 async def _apply_schema(pool) -> None:
     """Run DDL idempotently on every startup — all statements are CREATE IF NOT EXISTS."""
     async with pool.acquire() as conn:
@@ -257,6 +335,8 @@ async def lifespan(app: FastAPI):
         logger.info("auto-seed disabled (set CRAWL_AUTO_SEED_ENABLED, CRAWL_FORCE_RESEED, or CRAWL_GAP_FILL_ENABLED to enable)")
     if app.state.pool and settings.wiki_sanitize_enabled:
         asyncio.ensure_future(_sanitize_wiki(app.state.pool))
+    if app.state.pool and settings.wiki_fix_english_enabled:
+        asyncio.ensure_future(_fix_english_wiki_units(app.state.pool, get_ai_client()))
     yield
 
     if app.state.pool:
