@@ -36,6 +36,13 @@ class Settings(BaseSettings):
     # Self-disables via HF Spaces API after one successful run.
     wiki_fix_english_enabled: bool = False
     embedding_model_name: str = "BAAI/bge-m3"
+    google_client_id: str = ""
+    jwt_secret: str = ""
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        if not self.jwt_secret:
+            raise RuntimeError("JWT_SECRET must be set in environment variables")
     embedding_dim: int = 1024
 
     @property

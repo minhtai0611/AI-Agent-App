@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
+import { useAuth } from '../context/AuthContext.jsx'
 import { motion } from 'framer-motion'
 import CountUp from 'react-countup'
 import ReactCanvasConfetti from 'react-canvas-confetti'
@@ -37,12 +38,14 @@ function formatTime(seconds) {
   return `${m} phút ${s} giây`
 }
 
-export default function Results() {
+export default function Results({ onOpenAuth }) {
   const navigate = useNavigate()
   const { resultId } = useParams()
   const session = useExam()
   const dispatch = useExamDispatch()
   const { results, addResult } = useHistory()
+  const { user } = useAuth()
+  const [nudgeDismissed, setNudgeDismissed] = useState(false)
   const [result, setResult] = useState(null)
   const [analysis, setAnalysis] = useState(null)
   const [schoolRecs, setSchoolRecs] = useState([])
@@ -232,6 +235,24 @@ export default function Results() {
             </div>
           </div>
         </div>
+
+        {/* Sign-in nudge */}
+        {!user && !nudgeDismissed && (
+          <div className="flex items-center justify-between gap-3 px-5 py-3 rounded-xl"
+            style={{ background: '#0D1221', border: '1px solid #F2A20C44' }}>
+            <button
+              onClick={onOpenAuth}
+              className="font-jakarta text-[13px] text-amber-400 hover:text-amber-300 transition-colors text-left"
+            >
+              Đăng nhập để lưu kết quả vào tài khoản của bạn →
+            </button>
+            <button
+              onClick={() => setNudgeDismissed(true)}
+              className="text-gray-500 hover:text-gray-300 text-lg leading-none flex-shrink-0"
+              aria-label="Đóng"
+            >×</button>
+          </div>
+        )}
 
         {/* Topic breakdown */}
         <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">

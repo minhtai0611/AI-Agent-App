@@ -1,14 +1,33 @@
 import axios from 'axios'
 
-const client = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
-  timeout: 30000,
-})
+const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
-const slowClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
-  timeout: 130000,
-})
+const client = axios.create({ baseURL: BASE, timeout: 30000 })
+const slowClient = axios.create({ baseURL: BASE, timeout: 130000 })
+
+let _logoutRef = null
+export function setLogoutRef(fn) { _logoutRef = fn }
+
+function _attachInterceptors(instance) {
+  instance.interceptors.request.use(config => {
+    const token = localStorage.getItem('auth_token')
+    if (token) config.headers.Authorization = `Bearer ${token}`
+    return config
+  })
+  instance.interceptors.response.use(
+    res => res,
+    err => {
+      if (err.response?.status === 401) {
+        localStorage.removeItem('auth_token')
+        _logoutRef?.()
+      }
+      return Promise.reject(err)
+    }
+  )
+}
+
+_attachInterceptors(client)
+_attachInterceptors(slowClient)
 
 function wrap(promise) {
   return promise
@@ -63,4 +82,20 @@ export function getWikiStatus() {
 
 export function generateWeekQuiz(payload) {
   return wrap(slowClient.post('/study-plan-quiz', payload))
+}
+
+export function googleSignIn(idToken) {
+  return wrap(client.post('/auth/google', { id_token: idToken }))
+}
+
+export function getMe() {
+  return wrap(client.get('/users/me'))
+}
+
+export function postHistory(entries) {
+  return wrap(client.post('/users/me/history', entries))
+}
+
+export function getHistory() {
+  return wrap(client.get('/users/me/history'))
 }

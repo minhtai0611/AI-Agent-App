@@ -1,10 +1,12 @@
-import { createContext, useContext, useReducer } from 'react'
+import { createContext, useContext, useEffect, useReducer, useRef, useState } from 'react'
+import { useAuth } from './AuthContext'
+import { getHistory, postHistory } from '../api/aiClient'
 
 const HistoryContext = createContext(null)
 
 const STORAGE_KEY = 'exam_history'
 
-function load() {
+function loadLocal() {
   try {
     const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
     const seen = new Set()
@@ -14,7 +16,7 @@ function load() {
   }
 }
 
-function save(results) {
+function saveLocal(results) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(results))
 }
 
@@ -22,7 +24,7 @@ function reducer(state, action) {
   switch (action.type) {
     case 'ADD': {
       const next = [action.result, ...state.filter(r => r.id !== action.result.id)]
-      save(next)
+      if (!action.serverMode) saveLocal(next)
       return next
     }
     case 'LOAD':
@@ -33,12 +35,57 @@ function reducer(state, action) {
 }
 
 export function HistoryProvider({ children }) {
-  // Lazy initializer: load from localStorage synchronously on first render
-  // so results are available before any child effects fire.
-  const [results, dispatch] = useReducer(reducer, undefined, load)
+  const { user, registerResetToLocal } = useAuth()
+  const [serverMode, setServerMode] = useState(!!user)
+  const serverModeRef = useRef(serverMode)
 
-  function addResult(result) {
-    dispatch({ type: 'ADD', result })
+  const [results, dispatch] = useReducer(reducer, undefined, loadLocal)
+
+  // Keep ref in sync so addResult closure always has the current value
+  useEffect(() => { serverModeRef.current = serverMode }, [serverMode])
+
+  // Register callback so AuthContext can flip server mode on login/logout
+  useEffect(() => {
+    registerResetToLocal?.((useLocal) => {
+      setServerMode(!useLocal)
+      if (useLocal) {
+        // Revert to localStorage snapshot
+        dispatch({ type: 'LOAD', results: loadLocal() })
+      }
+    })
+  }, [registerResetToLocal])
+
+  // When user becomes authenticated, fetch history from server
+  useEffect(() => {
+    if (!user) return
+    setServerMode(true)
+    getHistory().then(({ data }) => {
+      if (!data) return
+      // Map server shape (result_id, payload) → local shape (id, ...)
+      const mapped = data.map(r => ({
+        id: r.result_id,
+        examId: r.exam_id,
+        score: r.score,
+        createdAt: r.created_at,
+        ...(r.payload || {}),
+      }))
+      dispatch({ type: 'LOAD', results: mapped })
+    })
+  }, [user])
+
+  async function addResult(result) {
+    const isServer = serverModeRef.current
+    dispatch({ type: 'ADD', result, serverMode: isServer })
+    if (isServer) {
+      // Fire-and-forget; failure is silent (result is already in local state)
+      postHistory([{
+        result_id: result.id,
+        exam_id: result.examId ?? null,
+        score: result.score ?? null,
+        payload: result,
+        created_at: result.createdAt ?? null,
+      }])
+    }
     return result.id
   }
 

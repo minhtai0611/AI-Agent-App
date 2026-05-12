@@ -8,11 +8,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import AsyncOpenAI, APIStatusError, APIConnectionError, RateLimitError
 from app.config import get_settings
-from app.dependencies import get_ai_client
+from app.dependencies import get_ai_client, get_current_user, CurrentUser
 from app.middleware import RateLimitMiddleware
 from app.agent.core import run_agent
 from app.agent.memory import compress_conversation
 from app.math_wiki.admin_router import router as admin_router
+from app.auth import verify_google_token, create_jwt
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +98,23 @@ _SCHEMA_DDL = [
     "CREATE INDEX IF NOT EXISTS solution_logs_created_idx ON solution_logs (created_at)",
     "CREATE INDEX IF NOT EXISTS staged_wiki_units_status_idx ON staged_wiki_units (status)",
     "CREATE INDEX IF NOT EXISTS wiki_units_embedding_hnsw ON wiki_units USING hnsw (embedding vector_cosine_ops)",
+    """CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        google_sub TEXT UNIQUE NOT NULL,
+        email TEXT NOT NULL,
+        display_name TEXT,
+        avatar_url TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+    )""",
+    """CREATE TABLE IF NOT EXISTS exam_results (
+        result_id TEXT PRIMARY KEY,
+        user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        exam_id TEXT,
+        score FLOAT,
+        payload JSONB,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+    )""",
 ]
 
 
@@ -796,3 +814,118 @@ async def math_stats(pool=Depends(get_pool)):
         "wiki_units": await pg_db.count_wiki_units(pool),
         "topics": await pg_db.count_wiki_units_by_topic(pool),
     }
+
+
+# ── Auth endpoints ────────────────────────────────────────────────────────────
+
+class GoogleAuthRequest(BaseModel):
+    id_token: str
+
+
+@app.post("/auth/google")
+async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
+    try:
+        google_payload = await verify_google_token(body.id_token)
+    except ValueError as exc:
+        raise HTTPException(status_code=401, detail="Invalid or expired Google token") from exc
+
+    google_sub = google_payload["sub"]
+    email = google_payload.get("email", "")
+    display_name = google_payload.get("name")
+    avatar_url = google_payload.get("picture")
+
+    row = await pool.fetchrow(
+        """
+        INSERT INTO users (google_sub, email, display_name, avatar_url, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, NOW(), NOW())
+        ON CONFLICT (google_sub) DO UPDATE
+          SET display_name = EXCLUDED.display_name,
+              avatar_url = EXCLUDED.avatar_url,
+              updated_at = NOW()
+        RETURNING id, email, display_name, avatar_url
+        """,
+        google_sub, email, display_name, avatar_url,
+    )
+
+    token = create_jwt(row["id"])
+    return {
+        "access_token": token,
+        "user": {
+            "id": row["id"],
+            "email": row["email"],
+            "display_name": row["display_name"],
+            "avatar_url": row["avatar_url"],
+        },
+    }
+
+
+# ── User endpoints ────────────────────────────────────────────────────────────
+
+@app.get("/users/me")
+async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Depends(get_pool)):
+    row = await pool.fetchrow(
+        "SELECT id, email, display_name, avatar_url FROM users WHERE id = $1",
+        current_user.user_id,
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="User not found")
+    return dict(row)
+
+
+class HistoryEntry(BaseModel):
+    result_id: str
+    exam_id: str | None = None
+    score: float | None = None
+    payload: dict | None = None
+    created_at: str | None = None
+
+
+@app.post("/users/me/history", status_code=204)
+async def post_history(
+    entries: list[HistoryEntry],
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    if not entries:
+        return
+    async with pool.acquire() as conn:
+        for entry in entries:
+            await conn.execute(
+                """
+                INSERT INTO exam_results (result_id, user_id, exam_id, score, payload, created_at)
+                VALUES ($1, $2, $3, $4, $5::jsonb, COALESCE($6::timestamptz, NOW()))
+                ON CONFLICT (result_id) DO NOTHING
+                """,
+                entry.result_id,
+                current_user.user_id,
+                entry.exam_id,
+                entry.score,
+                json.dumps(entry.payload) if entry.payload is not None else None,
+                entry.created_at,
+            )
+
+
+@app.get("/users/me/history")
+async def get_history(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    rows = await pool.fetch(
+        """
+        SELECT result_id, exam_id, score, payload, created_at
+        FROM exam_results
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        """,
+        current_user.user_id,
+    )
+    return [
+        {
+            "result_id": r["result_id"],
+            "exam_id": r["exam_id"],
+            "score": r["score"],
+            "payload": r["payload"],
+            "created_at": r["created_at"].isoformat() if r["created_at"] else None,
+        }
+        for r in rows
+    ]
