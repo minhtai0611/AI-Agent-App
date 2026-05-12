@@ -73,9 +73,9 @@ def _normalize(parsed: dict, valid_ids: set[str], _label_hint: str = "") -> Solv
             return s
         if isinstance(s, dict):
             # Model returned {"step": N, "description"/"action"/"detail": "...", "result": "..."}
-            desc = (s.get("description") or s.get("action") or s.get("statement")
+            desc = str(s.get("description") or s.get("action") or s.get("statement")
                     or s.get("detail") or s.get("work") or s.get("explanation") or "")
-            result = s.get("result") or ""
+            result = str(s.get("result") or "")
             if not desc:
                 # Collect string values; for nested dicts, recurse one level deep
                 parts = []
