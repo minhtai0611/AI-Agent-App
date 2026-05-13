@@ -162,6 +162,7 @@ class AsyncSQLitePool:
     async def acquire(self) -> AsyncGenerator[_Connection, None]:
         async with aiosqlite.connect(self._path) as conn:
             await conn.execute("PRAGMA foreign_keys = ON")
+            await conn.execute("PRAGMA busy_timeout = 30000")
             yield _Connection(conn)
 
     # Shortcut methods (asyncpg pools expose these directly)

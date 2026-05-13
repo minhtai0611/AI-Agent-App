@@ -37,14 +37,23 @@ async def upsert_wiki_unit(
     embedding: list[float] | None = None,
 ) -> None:
     now = datetime.now()
+
+    # Read current state without holding a connection open.
+    row = await pool.fetchrow(
+        "SELECT version, content, created_at FROM wiki_units WHERE id = $1", unit.id
+    )
+
+    # Compute embedding outside any connection so the connection is not held
+    # open during ML inference (which can take seconds and allows concurrent
+    # writers to corrupt the SQLite WAL).
+    if row is None:
+        if embedding is None:
+            embedding = await _compute_embedding(unit.content)
+    elif embedding is None and row["content"] != unit.content:
+        embedding = await _compute_embedding(unit.content)
+
     async with pool.acquire() as conn:
-        row = await conn.fetchrow(
-            "SELECT version, content, created_at FROM wiki_units WHERE id = $1", unit.id
-        )
         if row:
-            # Recompute embedding only if content changed
-            if embedding is None and row["content"] != unit.content:
-                embedding = await _compute_embedding(unit.content)
             await conn.execute(
                 """INSERT INTO wiki_unit_history (unit_id, version, content, edited_by, reason)
                    VALUES ($1, $2, $3, $4, $5)""",
@@ -72,9 +81,6 @@ async def upsert_wiki_unit(
                     row["version"] + 1, editor, now, unit.id,
                 )
         else:
-            # Always compute embedding on insert
-            if embedding is None:
-                embedding = await _compute_embedding(unit.content)
             await conn.execute(
                 """INSERT INTO wiki_units
                    (id, type, topic, subtopic, content, problem_ids, source, source_url,
