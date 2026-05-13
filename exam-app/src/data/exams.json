@@ -153,5 +153,217 @@
       "q_amc_au_017", "q_amc_au_018", "q_amc_au_019", "q_amc_au_020"
     ],
     "totalQuestions": 20
+  },
+  {
+    "id": "thpt_2024",
+    "mode": "thithu",
+    "year": 2024,
+    "title": "Đề thi THPT Quốc gia 2024 — Môn Toán",
+    "duration": 90,
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "questionIds": [
+      "q_thpt24_001", "q_thpt24_002", "q_thpt24_003", "q_thpt24_004",
+      "q_thpt24_005", "q_thpt24_006", "q_thpt24_007", "q_thpt24_008",
+      "q_thpt24_009", "q_thpt24_010", "q_thpt24_011", "q_thpt24_012",
+      "q_thpt24_013", "q_thpt24_014", "q_thpt24_015", "q_thpt24_016",
+      "q_thpt24_017", "q_thpt24_018", "q_thpt24_019", "q_thpt24_020",
+      "q_thpt24_021", "q_thpt24_022", "q_thpt24_023", "q_thpt24_024",
+      "q_thpt24_025", "q_thpt24_026", "q_thpt24_027", "q_thpt24_028",
+      "q_thpt24_029", "q_thpt24_030", "q_thpt24_031", "q_thpt24_032",
+      "q_thpt24_033", "q_thpt24_034", "q_thpt24_035", "q_thpt24_036",
+      "q_thpt24_037", "q_thpt24_038", "q_thpt24_039", "q_thpt24_040",
+      "q_thpt24_041", "q_thpt24_042", "q_thpt24_043", "q_thpt24_044",
+      "q_thpt24_045", "q_thpt24_046", "q_thpt24_047", "q_thpt24_048",
+      "q_thpt24_049", "q_thpt24_050"
+    ],
+    "totalQuestions": 50
+  },
+  {
+    "id": "thpt_2023",
+    "mode": "thithu",
+    "year": 2023,
+    "title": "Đề thi THPT Quốc gia 2023 — Môn Toán",
+    "duration": 90,
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "questionIds": [
+      "q_thpt23_001", "q_thpt23_002", "q_thpt23_003", "q_thpt23_004",
+      "q_thpt23_005", "q_thpt23_006", "q_thpt23_007", "q_thpt23_008",
+      "q_thpt23_009", "q_thpt23_010", "q_thpt23_011", "q_thpt23_012",
+      "q_thpt23_013", "q_thpt23_014", "q_thpt23_015", "q_thpt23_016",
+      "q_thpt23_017", "q_thpt23_018", "q_thpt23_019", "q_thpt23_020",
+      "q_thpt23_021", "q_thpt23_022", "q_thpt23_023", "q_thpt23_024",
+      "q_thpt23_025", "q_thpt23_026", "q_thpt23_027", "q_thpt23_028",
+      "q_thpt23_029", "q_thpt23_030", "q_thpt23_031", "q_thpt23_032",
+      "q_thpt23_033", "q_thpt23_034", "q_thpt23_035", "q_thpt23_036",
+      "q_thpt23_037", "q_thpt23_038", "q_thpt23_039", "q_thpt23_040",
+      "q_thpt23_041", "q_thpt23_042", "q_thpt23_043", "q_thpt23_044",
+      "q_thpt23_045", "q_thpt23_046", "q_thpt23_047", "q_thpt23_048",
+      "q_thpt23_049", "q_thpt23_050"
+    ],
+    "totalQuestions": 50
+  },
+  {
+    "id": "thpt_2022",
+    "mode": "thithu",
+    "year": 2022,
+    "title": "Đề thi THPT Quốc gia 2022 — Môn Toán",
+    "duration": 90,
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "questionIds": [
+      "q_thpt22_001", "q_thpt22_002", "q_thpt22_003", "q_thpt22_004",
+      "q_thpt22_005", "q_thpt22_006", "q_thpt22_007", "q_thpt22_008",
+      "q_thpt22_009", "q_thpt22_010", "q_thpt22_011", "q_thpt22_012",
+      "q_thpt22_013", "q_thpt22_014", "q_thpt22_015", "q_thpt22_016",
+      "q_thpt22_017", "q_thpt22_018", "q_thpt22_019", "q_thpt22_020",
+      "q_thpt22_021", "q_thpt22_022", "q_thpt22_023", "q_thpt22_024",
+      "q_thpt22_025", "q_thpt22_026", "q_thpt22_027", "q_thpt22_028",
+      "q_thpt22_029", "q_thpt22_030", "q_thpt22_031", "q_thpt22_032",
+      "q_thpt22_033", "q_thpt22_034", "q_thpt22_035", "q_thpt22_036",
+      "q_thpt22_037", "q_thpt22_038", "q_thpt22_039", "q_thpt22_040",
+      "q_thpt22_041", "q_thpt22_042", "q_thpt22_043", "q_thpt22_044",
+      "q_thpt22_045", "q_thpt22_046", "q_thpt22_047", "q_thpt22_048",
+      "q_thpt22_049", "q_thpt22_050"
+    ],
+    "totalQuestions": 50
+  },
+  {
+    "id": "thithu_hn24",
+    "mode": "thithu",
+    "year": 2024,
+    "title": "Đề thi thử THPT 2024 — Sở GD&ĐT Hà Nội",
+    "duration": 90,
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "questionIds": [
+      "q_thithu_hn24_001", "q_thithu_hn24_002", "q_thithu_hn24_003", "q_thithu_hn24_004",
+      "q_thithu_hn24_005", "q_thithu_hn24_006", "q_thithu_hn24_007", "q_thithu_hn24_008",
+      "q_thithu_hn24_009", "q_thithu_hn24_010", "q_thithu_hn24_011", "q_thithu_hn24_012",
+      "q_thithu_hn24_013", "q_thithu_hn24_014", "q_thithu_hn24_015", "q_thithu_hn24_016",
+      "q_thithu_hn24_017", "q_thithu_hn24_018", "q_thithu_hn24_019", "q_thithu_hn24_020",
+      "q_thithu_hn24_021", "q_thithu_hn24_022", "q_thithu_hn24_023", "q_thithu_hn24_024",
+      "q_thithu_hn24_025", "q_thithu_hn24_026", "q_thithu_hn24_027", "q_thithu_hn24_028",
+      "q_thithu_hn24_029", "q_thithu_hn24_030", "q_thithu_hn24_031", "q_thithu_hn24_032",
+      "q_thithu_hn24_033", "q_thithu_hn24_034", "q_thithu_hn24_035", "q_thithu_hn24_036",
+      "q_thithu_hn24_037", "q_thithu_hn24_038", "q_thithu_hn24_039", "q_thithu_hn24_040",
+      "q_thithu_hn24_041", "q_thithu_hn24_042", "q_thithu_hn24_043", "q_thithu_hn24_044",
+      "q_thithu_hn24_045", "q_thithu_hn24_046", "q_thithu_hn24_047", "q_thithu_hn24_048",
+      "q_thithu_hn24_049", "q_thithu_hn24_050"
+    ],
+    "totalQuestions": 50
+  },
+  {
+    "id": "thithu_hcm24",
+    "mode": "thithu",
+    "year": 2024,
+    "title": "Đề thi thử THPT 2024 — Sở GD&ĐT TP. Hồ Chí Minh",
+    "duration": 90,
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "questionIds": [
+      "q_thithu_hcm24_001", "q_thithu_hcm24_002", "q_thithu_hcm24_003", "q_thithu_hcm24_004",
+      "q_thithu_hcm24_005", "q_thithu_hcm24_006", "q_thithu_hcm24_007", "q_thithu_hcm24_008",
+      "q_thithu_hcm24_009", "q_thithu_hcm24_010", "q_thithu_hcm24_011", "q_thithu_hcm24_012",
+      "q_thithu_hcm24_013", "q_thithu_hcm24_014", "q_thithu_hcm24_015", "q_thithu_hcm24_016",
+      "q_thithu_hcm24_017", "q_thithu_hcm24_018", "q_thithu_hcm24_019", "q_thithu_hcm24_020",
+      "q_thithu_hcm24_021", "q_thithu_hcm24_022", "q_thithu_hcm24_023", "q_thithu_hcm24_024",
+      "q_thithu_hcm24_025", "q_thithu_hcm24_026", "q_thithu_hcm24_027", "q_thithu_hcm24_028",
+      "q_thithu_hcm24_029", "q_thithu_hcm24_030", "q_thithu_hcm24_031", "q_thithu_hcm24_032",
+      "q_thithu_hcm24_033", "q_thithu_hcm24_034", "q_thithu_hcm24_035", "q_thithu_hcm24_036",
+      "q_thithu_hcm24_037", "q_thithu_hcm24_038", "q_thithu_hcm24_039", "q_thithu_hcm24_040",
+      "q_thithu_hcm24_041", "q_thithu_hcm24_042", "q_thithu_hcm24_043", "q_thithu_hcm24_044",
+      "q_thithu_hcm24_045", "q_thithu_hcm24_046", "q_thithu_hcm24_047", "q_thithu_hcm24_048",
+      "q_thithu_hcm24_049", "q_thithu_hcm24_050"
+    ],
+    "totalQuestions": 50
+  },
+  {
+    "id": "intl_sat_2024",
+    "year": 2024,
+    "title": "SAT Math Practice — College Board (USA)",
+    "duration": 70,
+    "source": "College Board, USA",
+    "questionIds": [
+      "q_sat_001", "q_sat_002", "q_sat_003", "q_sat_004",
+      "q_sat_005", "q_sat_006", "q_sat_007", "q_sat_008",
+      "q_sat_009", "q_sat_010", "q_sat_011", "q_sat_012",
+      "q_sat_013", "q_sat_014", "q_sat_015", "q_sat_016",
+      "q_sat_017", "q_sat_018", "q_sat_019", "q_sat_020",
+      "q_sat_021", "q_sat_022", "q_sat_023", "q_sat_024",
+      "q_sat_025", "q_sat_026", "q_sat_027", "q_sat_028",
+      "q_sat_029", "q_sat_030", "q_sat_031", "q_sat_032",
+      "q_sat_033", "q_sat_034", "q_sat_035", "q_sat_036",
+      "q_sat_037", "q_sat_038", "q_sat_039", "q_sat_040",
+      "q_sat_041", "q_sat_042", "q_sat_043", "q_sat_044"
+    ],
+    "totalQuestions": 44
+  },
+  {
+    "id": "intl_gauss_2023",
+    "year": 2023,
+    "title": "Canadian Gauss Mathematics Contest — University of Waterloo",
+    "duration": 60,
+    "source": "Centre for Education in Mathematics and Computing, Canada",
+    "questionIds": [
+      "q_gauss_001", "q_gauss_002", "q_gauss_003", "q_gauss_004",
+      "q_gauss_005", "q_gauss_006", "q_gauss_007", "q_gauss_008",
+      "q_gauss_009", "q_gauss_010", "q_gauss_011", "q_gauss_012",
+      "q_gauss_013", "q_gauss_014", "q_gauss_015", "q_gauss_016",
+      "q_gauss_017", "q_gauss_018", "q_gauss_019", "q_gauss_020",
+      "q_gauss_021", "q_gauss_022", "q_gauss_023", "q_gauss_024",
+      "q_gauss_025"
+    ],
+    "totalQuestions": 25
+  },
+  {
+    "id": "intl_ib_sl_2023",
+    "year": 2023,
+    "title": "IB Mathematics Standard Level — International Baccalaureate",
+    "duration": 90,
+    "source": "International Baccalaureate Organization",
+    "questionIds": [
+      "q_ib_sl_001", "q_ib_sl_002", "q_ib_sl_003", "q_ib_sl_004",
+      "q_ib_sl_005", "q_ib_sl_006", "q_ib_sl_007", "q_ib_sl_008",
+      "q_ib_sl_009", "q_ib_sl_010", "q_ib_sl_011", "q_ib_sl_012",
+      "q_ib_sl_013", "q_ib_sl_014", "q_ib_sl_015", "q_ib_sl_016",
+      "q_ib_sl_017", "q_ib_sl_018", "q_ib_sl_019", "q_ib_sl_020",
+      "q_ib_sl_021", "q_ib_sl_022", "q_ib_sl_023", "q_ib_sl_024",
+      "q_ib_sl_025", "q_ib_sl_026", "q_ib_sl_027", "q_ib_sl_028",
+      "q_ib_sl_029", "q_ib_sl_030"
+    ],
+    "totalQuestions": 30
+  },
+  {
+    "id": "intl_ksat_2023",
+    "year": 2023,
+    "title": "Korean CSAT (수능) Mathematics — KICE, South Korea",
+    "duration": 100,
+    "source": "Korea Institute for Curriculum and Evaluation (KICE)",
+    "questionIds": [
+      "q_ksat_001", "q_ksat_002", "q_ksat_003", "q_ksat_004",
+      "q_ksat_005", "q_ksat_006", "q_ksat_007", "q_ksat_008",
+      "q_ksat_009", "q_ksat_010", "q_ksat_011", "q_ksat_012",
+      "q_ksat_013", "q_ksat_014", "q_ksat_015", "q_ksat_016",
+      "q_ksat_017", "q_ksat_018", "q_ksat_019", "q_ksat_020",
+      "q_ksat_021", "q_ksat_022", "q_ksat_023", "q_ksat_024",
+      "q_ksat_025", "q_ksat_026", "q_ksat_027", "q_ksat_028",
+      "q_ksat_029", "q_ksat_030"
+    ],
+    "totalQuestions": 30
+  },
+  {
+    "id": "intl_jee_2024",
+    "year": 2024,
+    "title": "JEE Main Mathematics — National Testing Agency (India)",
+    "duration": 60,
+    "source": "National Testing Agency (NTA), India",
+    "questionIds": [
+      "q_jee_001", "q_jee_002", "q_jee_003", "q_jee_004",
+      "q_jee_005", "q_jee_006", "q_jee_007", "q_jee_008",
+      "q_jee_009", "q_jee_010", "q_jee_011", "q_jee_012",
+      "q_jee_013", "q_jee_014", "q_jee_015", "q_jee_016",
+      "q_jee_017", "q_jee_018", "q_jee_019", "q_jee_020",
+      "q_jee_021", "q_jee_022", "q_jee_023", "q_jee_024",
+      "q_jee_025", "q_jee_026", "q_jee_027", "q_jee_028",
+      "q_jee_029", "q_jee_030"
+    ],
+    "totalQuestions": 30
   }
 ]

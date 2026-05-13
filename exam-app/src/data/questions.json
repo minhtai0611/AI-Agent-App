@@ -3198,5 +3198,4174 @@
     ],
     "correct": 0,
     "explanation": "$2x-4=6 \\Rightarrow x=5$; hoặc $2x-4=-6 \\Rightarrow x=-1$."
-  }
+  },
+  {
+    "id": "q_thpt24_001",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y = x^3 - 3x^2 + 2$ có bao nhiêu điểm cực trị?",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$3$"
+    ],
+    "correct": 2,
+    "explanation": "$y' = 3x^2 - 6x = 3x(x-2)$, $y'=0$ tại $x=0$ và $x=2$. Vì $y''(0) = -6 < 0$ (cực đại) và $y''(2) = 6 > 0$ (cực tiểu), hàm có 2 điểm cực trị."
+  },
+  {
+    "id": "q_thpt24_002",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Giá trị của $\\log_2 8 + \\log_2 \\dfrac{1}{4}$ bằng",
+    "choices": [
+      "$5$",
+      "$3$",
+      "$1$",
+      "$-1$"
+    ],
+    "correct": 2,
+    "explanation": "$\\log_2 8 = 3$ và $\\log_2 \\frac{1}{4} = -2$. Vậy $\\log_2 8 + \\log_2 \\frac{1}{4} = 3 + (-2) = 1$."
+  },
+  {
+    "id": "q_thpt24_003",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Tính $\\displaystyle\\int_0^1 (2x+1)\\,dx$",
+    "choices": [
+      "$1$",
+      "$2$",
+      "$3$",
+      "$4$"
+    ],
+    "correct": 1,
+    "explanation": "$\\int_0^1 (2x+1)\\,dx = \\left[x^2 + x\\right]_0^1 = (1+1) - 0 = 2$."
+  },
+  {
+    "id": "q_thpt24_004",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cho số phức $z = 3 + 4i$. Môđun của $z$ bằng",
+    "choices": [
+      "$3$",
+      "$4$",
+      "$5$",
+      "$7$"
+    ],
+    "correct": 2,
+    "explanation": "$|z| = \\sqrt{3^2 + 4^2} = \\sqrt{9+16} = \\sqrt{25} = 5$."
+  },
+  {
+    "id": "q_thpt24_005",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Một túi có 3 bi đỏ và 2 bi xanh. Lấy ngẫu nhiên 2 bi. Xác suất để cả hai bi đều đỏ là",
+    "choices": [
+      "$\\dfrac{3}{10}$",
+      "$\\dfrac{1}{2}$",
+      "$\\dfrac{2}{5}$",
+      "$\\dfrac{3}{5}$"
+    ],
+    "correct": 0,
+    "explanation": "$P = \\dfrac{C_3^2}{C_5^2} = \\dfrac{3}{10}$."
+  },
+  {
+    "id": "q_thpt24_006",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Cho cấp số cộng $(u_n)$ với $u_1 = 2$ và công sai $d = 3$. Giá trị của $u_5$ là",
+    "choices": [
+      "$12$",
+      "$14$",
+      "$15$",
+      "$17$"
+    ],
+    "correct": 1,
+    "explanation": "$u_5 = u_1 + 4d = 2 + 4 \\times 3 = 14$."
+  },
+  {
+    "id": "q_thpt24_007",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "trigonometry",
+    "difficulty": "medium",
+    "question": "Số nghiệm của phương trình $\\sin x = \\dfrac{\\sqrt{2}}{2}$ trong đoạn $[0;\\, 2\\pi]$ là",
+    "choices": [
+      "$1$",
+      "$2$",
+      "$3$",
+      "$4$"
+    ],
+    "correct": 1,
+    "explanation": "$\\sin x = \\dfrac{\\sqrt{2}}{2}$ cho $x = \\dfrac{\\pi}{4}$ và $x = \\dfrac{3\\pi}{4}$ trong $[0;\\,2\\pi]$, tổng cộng 2 nghiệm."
+  },
+  {
+    "id": "q_thpt24_008",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Hàm số $y = \\dfrac{x^2-1}{x-2}$ có tiệm cận đứng là đường thẳng",
+    "choices": [
+      "$x = 1$",
+      "$x = -1$",
+      "$x = 2$",
+      "$y = x + 2$"
+    ],
+    "correct": 2,
+    "explanation": "Tiệm cận đứng xảy ra khi mẫu số bằng 0 và tử số khác 0. Tại $x=2$: mẫu $=0$, tử $= 4-1 = 3 \\neq 0$. Vậy tiệm cận đứng là $x=2$."
+  },
+  {
+    "id": "q_thpt24_009",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Diện tích hình phẳng giới hạn bởi $y = x^2$ và $y = x$ bằng",
+    "choices": [
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{1}{6}$",
+      "$\\dfrac{1}{2}$",
+      "$\\dfrac{1}{4}$"
+    ],
+    "correct": 1,
+    "explanation": "Giao điểm: $x^2=x \\Rightarrow x=0,\\, x=1$. $S = \\int_0^1 (x-x^2)\\,dx = \\left[\\dfrac{x^2}{2} - \\dfrac{x^3}{3}\\right]_0^1 = \\dfrac{1}{2} - \\dfrac{1}{3} = \\dfrac{1}{6}$."
+  },
+  {
+    "id": "q_thpt24_010",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Phương trình $2^{x+1} = 8$ có nghiệm là",
+    "choices": [
+      "$x = 1$",
+      "$x = 2$",
+      "$x = 3$",
+      "$x = 4$"
+    ],
+    "correct": 1,
+    "explanation": "$2^{x+1} = 2^3 \\Rightarrow x+1 = 3 \\Rightarrow x = 2$."
+  },
+  {
+    "id": "q_thpt24_011",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Phương trình $\\log_3(x^2 - 2x + 3) = 1$ có bao nhiêu nghiệm?",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$3$"
+    ],
+    "correct": 2,
+    "explanation": "$x^2-2x+3=3 \\Rightarrow x(x-2)=0$. Hai nghiệm $x=0$ và $x=2$ đều thỏa mãn điều kiện xác định."
+  },
+  {
+    "id": "q_thpt24_012",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình vuông cạnh $a$, $SA \\perp$ đáy và $SA = a$. Thể tích hình chóp là",
+    "choices": [
+      "$\\dfrac{a^3}{3}$",
+      "$\\dfrac{a^3}{4}$",
+      "$\\dfrac{a^3}{6}$",
+      "$\\dfrac{a^3}{2}$"
+    ],
+    "correct": 0,
+    "explanation": "$V = \\dfrac{1}{3} \\cdot S_{ABCD} \\cdot SA = \\dfrac{1}{3} \\cdot a^2 \\cdot a = \\dfrac{a^3}{3}$."
+  },
+  {
+    "id": "q_thpt24_013",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho hai vectơ $\\vec{a} = (1;\\, 2)$ và $\\vec{b} = (3;\\, -1)$. Tích vô hướng $\\vec{a} \\cdot \\vec{b}$ bằng",
+    "choices": [
+      "$1$",
+      "$5$",
+      "$-1$",
+      "$3$"
+    ],
+    "correct": 0,
+    "explanation": "$\\vec{a} \\cdot \\vec{b} = 1 \\times 3 + 2 \\times (-1) = 3 - 2 = 1$."
+  },
+  {
+    "id": "q_thpt24_014",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "easy",
+    "question": "Số trung bình cộng của mẫu số liệu $2;\\, 4;\\, 6;\\, 8;\\, 10$ là",
+    "choices": [
+      "$5$",
+      "$6$",
+      "$7$",
+      "$8$"
+    ],
+    "correct": 1,
+    "explanation": "$\\bar{x} = \\dfrac{2+4+6+8+10}{5} = \\dfrac{30}{5} = 6$."
+  },
+  {
+    "id": "q_thpt24_015",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "trigonometry",
+    "difficulty": "medium",
+    "question": "Hàm số $y = \\sin(2x) + \\cos(2x)$ có chu kỳ là",
+    "choices": [
+      "$\\dfrac{\\pi}{2}$",
+      "$\\pi$",
+      "$2\\pi$",
+      "$4\\pi$"
+    ],
+    "correct": 1,
+    "explanation": "Cả $\\sin(2x)$ và $\\cos(2x)$ đều có chu kỳ $T = \\dfrac{2\\pi}{2} = \\pi$."
+  },
+  {
+    "id": "q_thpt24_016",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Tổng tất cả các nghiệm thực của phương trình $x^4 - 5x^2 + 4 = 0$ là",
+    "choices": [
+      "$0$",
+      "$4$",
+      "$-4$",
+      "$2$"
+    ],
+    "correct": 0,
+    "explanation": "$(x^2-1)(x^2-4)=0 \\Rightarrow x = \\pm 1, \\pm 2$. Tổng các nghiệm $= 1+(-1)+2+(-2)=0$."
+  },
+  {
+    "id": "q_thpt24_017",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Gửi tiết kiệm 100 triệu đồng với lãi suất $6\\%$/năm (lãi kép). Sau 2 năm số tiền nhận được là",
+    "choices": [
+      "$112{,}00$ triệu",
+      "$112{,}36$ triệu",
+      "$110{,}00$ triệu",
+      "$106{,}00$ triệu"
+    ],
+    "correct": 1,
+    "explanation": "$A = 100 \\times (1 + 0{,}06)^2 = 100 \\times 1{,}1236 = 112{,}36$ triệu đồng."
+  },
+  {
+    "id": "q_thpt24_018",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Trong không gian $Oxyz$, cho $A(1;\\, 2;\\, 3)$ và $B(3;\\, 4;\\, 5)$. Độ dài $AB$ bằng",
+    "choices": [
+      "$2$",
+      "$2\\sqrt{2}$",
+      "$2\\sqrt{3}$",
+      "$4$"
+    ],
+    "correct": 2,
+    "explanation": "$AB = \\sqrt{(3-1)^2+(4-2)^2+(5-3)^2} = \\sqrt{4+4+4} = \\sqrt{12} = 2\\sqrt{3}$."
+  },
+  {
+    "id": "q_thpt24_019",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Giá trị cực đại của hàm số $f(x) = x^3 - 3x$ là",
+    "choices": [
+      "$-2$",
+      "$2$",
+      "$1$",
+      "$-1$"
+    ],
+    "correct": 1,
+    "explanation": "$f'(x) = 3x^2-3=0 \\Rightarrow x=\\pm 1$. $f(-1) = -1+3 = 2$ là cực đại, $f(1) = 1-3 = -2$ là cực tiểu."
+  },
+  {
+    "id": "q_thpt24_020",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Nghiệm của hệ phương trình $\\begin{cases} x + y = 5 \\\\ x - y = 1 \\end{cases}$ là",
+    "choices": [
+      "$(3;\\, 2)$",
+      "$(2;\\, 3)$",
+      "$(4;\\, 1)$",
+      "$(1;\\, 4)$"
+    ],
+    "correct": 0,
+    "explanation": "Cộng hai phương trình: $2x = 6 \\Rightarrow x = 3$. Thay vào: $y = 5 - 3 = 2$."
+  },
+  {
+    "id": "q_thpt24_021",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Đạo hàm của hàm số $f(x) = \\sin(2x)$ là",
+    "choices": [
+      "$\\cos(2x)$",
+      "$2\\cos(2x)$",
+      "$-2\\cos(2x)$",
+      "$-\\cos(2x)$"
+    ],
+    "correct": 1,
+    "explanation": "$f'(x) = \\cos(2x) \\cdot (2x)' = 2\\cos(2x)$."
+  },
+  {
+    "id": "q_thpt24_022",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tổng của cấp số nhân lùi vô hạn có $u_1 = 3$ và công bội $q = \\dfrac{1}{2}$ là",
+    "choices": [
+      "$4$",
+      "$5$",
+      "$6$",
+      "$7$"
+    ],
+    "correct": 2,
+    "explanation": "$S = \\dfrac{u_1}{1-q} = \\dfrac{3}{1 - \\frac{1}{2}} = 6$."
+  },
+  {
+    "id": "q_thpt24_023",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "combinatorics",
+    "difficulty": "easy",
+    "question": "Số cách xếp 5 học sinh vào 5 chỗ ngồi khác nhau là",
+    "choices": [
+      "$25$",
+      "$60$",
+      "$120$",
+      "$240$"
+    ],
+    "correct": 2,
+    "explanation": "$P_5 = 5! = 120$."
+  },
+  {
+    "id": "q_thpt24_024",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Tập giá trị của hàm số $y = 1 - \\cos^2 x$ là",
+    "choices": [
+      "$[0;\\, 1]$",
+      "$[-1;\\, 1]$",
+      "$(0;\\, 1)$",
+      "$[0;\\, 2]$"
+    ],
+    "correct": 0,
+    "explanation": "$y = 1 - \\cos^2 x = \\sin^2 x \\in [0;\\, 1]$."
+  },
+  {
+    "id": "q_thpt24_025",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trong không gian $Oxyz$, khoảng cách từ điểm $M(2;\\, 3;\\, -1)$ đến mặt phẳng $(Oxy)$ là",
+    "choices": [
+      "$1$",
+      "$2$",
+      "$3$",
+      "$\\sqrt{14}$"
+    ],
+    "correct": 0,
+    "explanation": "Khoảng cách từ một điểm đến mặt phẳng $(Oxy)$ bằng $|z|$. Vậy $d = |-1| = 1$."
+  },
+  {
+    "id": "q_thpt24_026",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "combinatorics",
+    "difficulty": "medium",
+    "question": "Giá trị của $C_8^3$ bằng",
+    "choices": [
+      "$24$",
+      "$56$",
+      "$112$",
+      "$168$"
+    ],
+    "correct": 1,
+    "explanation": "$C_8^3 = \\dfrac{8 \\times 7 \\times 6}{3!} = 56$."
+  },
+  {
+    "id": "q_thpt24_027",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Tập xác định của hàm số $y = \\sqrt{4 - x^2}$ là",
+    "choices": [
+      "$(-2;\\, 2)$",
+      "$[-2;\\, 2]$",
+      "$[2;\\, +\\infty)$",
+      "$(-\\infty;\\, 2]$"
+    ],
+    "correct": 1,
+    "explanation": "Điều kiện: $4 - x^2 \\geq 0 \\Rightarrow x^2 \\leq 4 \\Rightarrow -2 \\leq x \\leq 2$."
+  },
+  {
+    "id": "q_thpt24_028",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Phương trình đường thẳng qua $A(2;\\, 3)$ và $B(4;\\, 7)$ là",
+    "choices": [
+      "$y = x + 1$",
+      "$y = 2x - 1$",
+      "$y = 2x + 1$",
+      "$y = x - 1$"
+    ],
+    "correct": 1,
+    "explanation": "Hệ số góc $k = \\dfrac{7-3}{4-2} = 2$. Phương trình: $y - 3 = 2(x-2) \\Rightarrow y = 2x - 1$."
+  },
+  {
+    "id": "q_thpt24_029",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Cho $A(1;\\, 2;\\, 3)$ và $B(3;\\, 4;\\, 5)$. Tọa độ trung điểm $M$ của $AB$ là",
+    "choices": [
+      "$(1;\\, 2;\\, 3)$",
+      "$(2;\\, 3;\\, 4)$",
+      "$(2;\\, 2;\\, 4)$",
+      "$(1;\\, 3;\\, 4)$"
+    ],
+    "correct": 1,
+    "explanation": "$M = \\left(\\dfrac{1+3}{2};\\, \\dfrac{2+4}{2};\\, \\dfrac{3+5}{2}\\right) = (2;\\, 3;\\, 4)$."
+  },
+  {
+    "id": "q_thpt24_030",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Đạo hàm của hàm số $f(x) = x^n$ ($n \\in \\mathbb{N}^*$) là",
+    "choices": [
+      "$x^{n-1}$",
+      "$nx^{n-1}$",
+      "$(n-1)x^n$",
+      "$nx^n$"
+    ],
+    "correct": 1,
+    "explanation": "$f'(x) = nx^{n-1}$."
+  },
+  {
+    "id": "q_thpt24_031",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Tính $\\displaystyle\\int_{-1}^{1} (x^2 - 1)\\,dx$",
+    "choices": [
+      "$0$",
+      "$-\\dfrac{4}{3}$",
+      "$\\dfrac{4}{3}$",
+      "$-\\dfrac{2}{3}$"
+    ],
+    "correct": 1,
+    "explanation": "$\\left[\\dfrac{x^3}{3} - x\\right]_{-1}^{1} = \\left(\\dfrac{1}{3}-1\\right) - \\left(-\\dfrac{1}{3}+1\\right) = -\\dfrac{2}{3} - \\dfrac{2}{3} = -\\dfrac{4}{3}$."
+  },
+  {
+    "id": "q_thpt24_032",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cho $z_1 = 2 + 3i$ và $z_2 = 1 - 2i$. Tích $z_1 \\cdot z_2$ bằng",
+    "choices": [
+      "$2 - i$",
+      "$8 + i$",
+      "$8 - i$",
+      "$-i$"
+    ],
+    "correct": 2,
+    "explanation": "$(2+3i)(1-2i) = 2 - 4i + 3i - 6i^2 = 2 - i + 6 = 8 - i$."
+  },
+  {
+    "id": "q_thpt24_033",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cho cấp số nhân $(u_n)$ có $u_1 = 2$ và $q = -\\dfrac{1}{2}$. Số hạng $u_5$ bằng",
+    "choices": [
+      "$-\\dfrac{1}{8}$",
+      "$\\dfrac{1}{8}$",
+      "$\\dfrac{1}{4}$",
+      "$-\\dfrac{1}{4}$"
+    ],
+    "correct": 1,
+    "explanation": "$u_5 = u_1 \\cdot q^4 = 2 \\times \\left(-\\dfrac{1}{2}\\right)^4 = 2 \\times \\dfrac{1}{16} = \\dfrac{1}{8}$."
+  },
+  {
+    "id": "q_thpt24_034",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Tập nghiệm của bất phương trình $\\log_2(x-1) > 3$ là",
+    "choices": [
+      "$x > 8$",
+      "$x > 9$",
+      "$x < 9$",
+      "$1 < x < 9$"
+    ],
+    "correct": 1,
+    "explanation": "Điều kiện $x > 1$. $\\log_2(x-1) > 3 \\Rightarrow x-1 > 2^3 = 8 \\Rightarrow x > 9$."
+  },
+  {
+    "id": "q_thpt24_035",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Đường tròn $(x-2)^2 + (y+3)^2 = 25$ có tâm $I$ và bán kính $R$ là",
+    "choices": [
+      "$I(2;\\,3),\\, R=5$",
+      "$I(-2;\\,3),\\, R=5$",
+      "$I(2;\\,-3),\\, R=5$",
+      "$I(2;\\,-3),\\, R=25$"
+    ],
+    "correct": 2,
+    "explanation": "Dạng chuẩn $(x-a)^2+(y-b)^2=R^2$ cho $I(2;\\,-3)$ và $R=\\sqrt{25}=5$."
+  },
+  {
+    "id": "q_thpt24_036",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Giá trị của $3^{\\log_3 8}$ bằng",
+    "choices": [
+      "$3$",
+      "$6$",
+      "$8$",
+      "$24$"
+    ],
+    "correct": 2,
+    "explanation": "Theo tính chất $a^{\\log_a b} = b$, ta có $3^{\\log_3 8} = 8$."
+  },
+  {
+    "id": "q_thpt24_037",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tập nghiệm của phương trình $|3x - 6| = 9$ là",
+    "choices": [
+      "$\\{-1;\\, 5\\}$",
+      "$\\{1;\\, -5\\}$",
+      "$\\{5;\\, 3\\}$",
+      "$\\{-1;\\, 3\\}$"
+    ],
+    "correct": 0,
+    "explanation": "$3x-6=9 \\Rightarrow x=5$; $3x-6=-9 \\Rightarrow x=-1$. Tập nghiệm $\\{-1;\\, 5\\}$."
+  },
+  {
+    "id": "q_thpt24_038",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Đạo hàm của hàm số $f(x) = x^2 \\ln x$ là",
+    "choices": [
+      "$2x \\ln x$",
+      "$x(2\\ln x + 1)$",
+      "$2/x$",
+      "$\\ln x + 1$"
+    ],
+    "correct": 1,
+    "explanation": "$f'(x) = 2x \\cdot \\ln x + x^2 \\cdot \\dfrac{1}{x} = 2x\\ln x + x = x(2\\ln x + 1)$."
+  },
+  {
+    "id": "q_thpt24_039",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Tổng các nghiệm của phương trình $2^x + 2^{-x} = \\dfrac{5}{2}$ là",
+    "choices": [
+      "$-1$",
+      "$0$",
+      "$1$",
+      "$2$"
+    ],
+    "correct": 1,
+    "explanation": "Đặt $t = 2^x$: $t + \\frac{1}{t} = \\frac{5}{2} \\Rightarrow 2t^2-5t+2=0 \\Rightarrow t=2$ hoặc $t=\\frac{1}{2}$. Nghiệm $x=1$ và $x=-1$, tổng $=0$."
+  },
+  {
+    "id": "q_thpt24_040",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Thể tích hình cầu bán kính $R = 6$ là",
+    "choices": [
+      "$36\\pi$",
+      "$72\\pi$",
+      "$144\\pi$",
+      "$288\\pi$"
+    ],
+    "correct": 3,
+    "explanation": "$V = \\dfrac{4}{3}\\pi R^3 = \\dfrac{4}{3}\\pi \\times 216 = 288\\pi$."
+  },
+  {
+    "id": "q_thpt24_041",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "easy",
+    "question": "Gieo một xúc xắc cân đối. Xác suất để xuất hiện số chia hết cho 3 là",
+    "choices": [
+      "$\\dfrac{1}{6}$",
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{1}{2}$",
+      "$\\dfrac{2}{3}$"
+    ],
+    "correct": 1,
+    "explanation": "Các số chia hết cho 3 trong $\\{1,\\ldots,6\\}$: 3 và 6. $P = \\dfrac{2}{6} = \\dfrac{1}{3}$."
+  },
+  {
+    "id": "q_thpt24_042",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Giá trị của $\\ln(e^2)$ bằng",
+    "choices": [
+      "$e^2$",
+      "$2$",
+      "$2e$",
+      "$1$"
+    ],
+    "correct": 1,
+    "explanation": "$\\ln(e^2) = 2\\ln e = 2 \\times 1 = 2$."
+  },
+  {
+    "id": "q_thpt24_043",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Hàm số $y = \\dfrac{x}{x+1}$ có tiệm cận ngang là đường thẳng",
+    "choices": [
+      "$y = 0$",
+      "$y = 1$",
+      "$y = -1$",
+      "$y = 2$"
+    ],
+    "correct": 1,
+    "explanation": "$\\lim_{x \\to \\pm\\infty} \\dfrac{x}{x+1} = 1$. Tiệm cận ngang: $y = 1$."
+  },
+  {
+    "id": "q_thpt24_044",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tổng $S = 1 + 2 + 3 + \\ldots + 100$ bằng",
+    "choices": [
+      "$4950$",
+      "$5000$",
+      "$5050$",
+      "$5100$"
+    ],
+    "correct": 2,
+    "explanation": "$S = \\dfrac{100 \\times 101}{2} = 5050$."
+  },
+  {
+    "id": "q_thpt24_045",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Đỉnh của parabol $y = x^2 - 4x + 3$ là",
+    "choices": [
+      "$(2;\\, 1)$",
+      "$(2;\\, -1)$",
+      "$(-2;\\, 1)$",
+      "$(0;\\, 3)$"
+    ],
+    "correct": 1,
+    "explanation": "$x_V = \\dfrac{4}{2} = 2$; $y_V = 4 - 8 + 3 = -1$. Đỉnh $(2;\\, -1)$."
+  },
+  {
+    "id": "q_thpt24_046",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Trong không gian $Oxyz$, cho mặt phẳng $(P): x + 2y - 2z = 6$. Khoảng cách từ gốc $O$ đến $(P)$ là",
+    "choices": [
+      "$1$",
+      "$2$",
+      "$3$",
+      "$6$"
+    ],
+    "correct": 1,
+    "explanation": "$d = \\dfrac{|0+0-0-6|}{\\sqrt{1+4+4}} = \\dfrac{6}{3} = 2$."
+  },
+  {
+    "id": "q_thpt24_047",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Cho $A(1;\\, 3)$ và $B(5;\\, 6)$. Độ dài $AB$ bằng",
+    "choices": [
+      "$4$",
+      "$5$",
+      "$\\sqrt{41}$",
+      "$7$"
+    ],
+    "correct": 1,
+    "explanation": "$AB = \\sqrt{(5-1)^2+(6-3)^2} = \\sqrt{16+9} = \\sqrt{25} = 5$."
+  },
+  {
+    "id": "q_thpt24_048",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Họ nguyên hàm của $f(x) = e^{3x}$ là",
+    "choices": [
+      "$e^{3x} + C$",
+      "$3e^{3x} + C$",
+      "$\\dfrac{1}{3}e^{3x} + C$",
+      "$\\dfrac{e^{3x}}{3x} + C$"
+    ],
+    "correct": 2,
+    "explanation": "$\\int e^{3x}\\,dx = \\dfrac{1}{3}e^{3x} + C$."
+  },
+  {
+    "id": "q_thpt24_049",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Nghiệm của hệ phương trình $\\begin{cases} 2x + 3y = 7 \\\\ x - y = 1 \\end{cases}$ là",
+    "choices": [
+      "$(1;\\, 2)$",
+      "$(2;\\, 1)$",
+      "$(3;\\, 0)$",
+      "$(0;\\, 7/3)$"
+    ],
+    "correct": 1,
+    "explanation": "$x = y+1$. Thay vào: $2(y+1)+3y=7 \\Rightarrow 5y=5 \\Rightarrow y=1,\\, x=2$."
+  },
+  {
+    "id": "q_thpt24_050",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Hàm số $y = x^4 - 8x^2 + 3$ có bao nhiêu điểm cực trị?",
+    "choices": [
+      "$1$",
+      "$2$",
+      "$3$",
+      "$4$"
+    ],
+    "correct": 2,
+    "explanation": "$y' = 4x^3 - 16x = 4x(x-2)(x+2) = 0 \\Rightarrow x=0,\\, \\pm 2$. $y''(0) < 0$ (cực đại), $y''(\\pm 2) > 0$ (cực tiểu). Có 3 điểm cực trị."
+  },
+  {
+    "id": "q_thpt23_001",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Tập xác định của hàm số $y = \\sqrt{x-1}$ là",
+    "choices": [
+      "$[1;\\, +\\infty)$",
+      "$(1;\\, +\\infty)$",
+      "$(-\\infty;\\, 1]$",
+      "$\\mathbb{R}$"
+    ],
+    "correct": 0,
+    "explanation": "Điều kiện: $x - 1 \\geq 0 \\Rightarrow x \\geq 1$. Tập xác định là $[1;\\, +\\infty)$."
+  },
+  {
+    "id": "q_thpt23_002",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Giá trị của $\\log_5 25 + \\log_5 \\dfrac{1}{5}$ bằng",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$3$"
+    ],
+    "correct": 1,
+    "explanation": "$\\log_5 25 = 2$ và $\\log_5 \\frac{1}{5} = -1$. Tổng $= 2 + (-1) = 1$."
+  },
+  {
+    "id": "q_thpt23_003",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Tính $\\displaystyle\\int_1^2 \\dfrac{1}{x}\\,dx$",
+    "choices": [
+      "$\\ln 3$",
+      "$2\\ln 2$",
+      "$\\ln 2$",
+      "$\\ln\\dfrac{1}{2}$"
+    ],
+    "correct": 2,
+    "explanation": "$\\int_1^2 \\frac{1}{x}\\,dx = [\\ln x]_1^2 = \\ln 2 - \\ln 1 = \\ln 2$."
+  },
+  {
+    "id": "q_thpt23_004",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cho $z_1 = 1 + 2i$ và $z_2 = 2 - i$. Tổng $z_1 + z_2$ bằng",
+    "choices": [
+      "$3 + i$",
+      "$3 - i$",
+      "$1 + i$",
+      "$-1 + 3i$"
+    ],
+    "correct": 0,
+    "explanation": "$z_1 + z_2 = (1+2) + (2-1)i = 3 + i$."
+  },
+  {
+    "id": "q_thpt23_005",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Hình trụ có bán kính đáy $r = 2$ và chiều cao $h = 5$. Thể tích là",
+    "choices": [
+      "$10\\pi$",
+      "$20\\pi$",
+      "$40\\pi$",
+      "$5\\pi$"
+    ],
+    "correct": 1,
+    "explanation": "$V = \\pi r^2 h = \\pi \\times 4 \\times 5 = 20\\pi$."
+  },
+  {
+    "id": "q_thpt23_006",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Gieo một xúc xắc cân đối 2 lần. Xác suất để tổng hai mặt bằng 7 là",
+    "choices": [
+      "$\\dfrac{1}{6}$",
+      "$\\dfrac{1}{12}$",
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{1}{4}$"
+    ],
+    "correct": 0,
+    "explanation": "Có 6 cặp có tổng bằng 7 trên $6^2 = 36$ khả năng. $P = \\dfrac{6}{36} = \\dfrac{1}{6}$."
+  },
+  {
+    "id": "q_thpt23_007",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cho cấp số nhân $(u_n)$ với $u_1 = 2$ và công bội $q = 3$. Giá trị của $u_4$ là",
+    "choices": [
+      "$18$",
+      "$27$",
+      "$54$",
+      "$162$"
+    ],
+    "correct": 2,
+    "explanation": "$u_4 = u_1 \\cdot q^3 = 2 \\times 3^3 = 54$."
+  },
+  {
+    "id": "q_thpt23_008",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Hàm số $y = -x^3 + 3x + 1$ đồng biến trên khoảng nào?",
+    "choices": [
+      "$(-\\infty;\\, -1)$",
+      "$(-1;\\, 1)$",
+      "$(1;\\, +\\infty)$",
+      "$(-\\infty;\\, 0)$"
+    ],
+    "correct": 1,
+    "explanation": "$y' = -3x^2+3 = -3(x-1)(x+1) > 0 \\Leftrightarrow -1 < x < 1$."
+  },
+  {
+    "id": "q_thpt23_009",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "trigonometry",
+    "difficulty": "easy",
+    "question": "Giá trị của $\\cos 60° + \\sin 30°$ bằng",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$\\dfrac{\\sqrt{3}}{2}$",
+      "$\\sqrt{3}$"
+    ],
+    "correct": 1,
+    "explanation": "$\\cos 60° + \\sin 30° = \\dfrac{1}{2} + \\dfrac{1}{2} = 1$."
+  },
+  {
+    "id": "q_thpt23_010",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Nghiệm của phương trình $4^x - 2^{x+1} - 8 = 0$ là",
+    "choices": [
+      "$x = 1$",
+      "$x = 2$",
+      "$x = 3$",
+      "$x = 0$"
+    ],
+    "correct": 1,
+    "explanation": "Đặt $t = 2^x > 0$: $t^2 - 2t - 8 = 0 \\Rightarrow (t-4)(t+2)=0 \\Rightarrow t=4$. Vậy $2^x=4 \\Rightarrow x=2$."
+  },
+  {
+    "id": "q_thpt23_011",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Giá trị cực tiểu của hàm số $f(x) = 2x^3 - 3x^2 - 12x + 1$ là",
+    "choices": [
+      "$-19$",
+      "$8$",
+      "$-12$",
+      "$1$"
+    ],
+    "correct": 0,
+    "explanation": "$f'(x) = 6(x-2)(x+1) = 0 \\Rightarrow x=2$ là điểm cực tiểu. $f(2) = 16-12-24+1 = -19$."
+  },
+  {
+    "id": "q_thpt23_012",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Trong không gian $Oxyz$, phương trình mặt phẳng qua $A(1;\\, 0;\\, 0)$, $B(0;\\, 2;\\, 0)$, $C(0;\\, 0;\\, 3)$ là",
+    "choices": [
+      "$x + 2y + 3z = 6$",
+      "$6x + 3y + 2z = 6$",
+      "$x + y + z = 6$",
+      "$2x + 3y + z = 6$"
+    ],
+    "correct": 1,
+    "explanation": "Dạng mặt phẳng chắn: $\\dfrac{x}{1}+\\dfrac{y}{2}+\\dfrac{z}{3}=1 \\Rightarrow 6x+3y+2z=6$."
+  },
+  {
+    "id": "q_thpt23_013",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho $A(1;\\, 2)$ và $B(4;\\, 6)$. Tọa độ của $\\overrightarrow{AB}$ là",
+    "choices": [
+      "$(3;\\, 4)$",
+      "$(-3;\\, -4)$",
+      "$(5;\\, 8)$",
+      "$(2;\\, 4)$"
+    ],
+    "correct": 0,
+    "explanation": "$\\overrightarrow{AB} = (4-1;\\, 6-2) = (3;\\, 4)$."
+  },
+  {
+    "id": "q_thpt23_014",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Phương sai của mẫu số liệu $\\{1;\\, 2;\\, 3;\\, 4;\\, 5\\}$ là",
+    "choices": [
+      "$1$",
+      "$2$",
+      "$3$",
+      "$4$"
+    ],
+    "correct": 1,
+    "explanation": "$\\bar{x}=3$. $s^2 = \\dfrac{(1-3)^2+(2-3)^2+(3-3)^2+(4-3)^2+(5-3)^2}{5} = \\dfrac{10}{5} = 2$."
+  },
+  {
+    "id": "q_thpt23_015",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Phương trình $x^2 + 2x + 3 = 0$ có bao nhiêu nghiệm thực?",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$3$"
+    ],
+    "correct": 0,
+    "explanation": "$\\Delta = 2^2 - 4 \\times 3 = 4 - 12 = -8 < 0$. Phương trình vô nghiệm thực."
+  },
+  {
+    "id": "q_thpt23_016",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho tam giác $ABC$ với $AB = 3$, $AC = 4$, $BC = 5$. Góc $A$ bằng",
+    "choices": [
+      "$45°$",
+      "$60°$",
+      "$90°$",
+      "$120°$"
+    ],
+    "correct": 2,
+    "explanation": "Vì $BC^2 = AB^2 + AC^2$ ($25 = 9+16$), tam giác $ABC$ vuông tại $A$, suy ra $\\widehat{A} = 90°$."
+  },
+  {
+    "id": "q_thpt23_017",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Vay 200 triệu đồng với lãi suất $8\\%$/năm (lãi kép) trong 3 năm. Tổng tiền phải trả là",
+    "choices": [
+      "$248{,}00$ triệu",
+      "$251{,}94$ triệu",
+      "$259{,}20$ triệu",
+      "$244{,}80$ triệu"
+    ],
+    "correct": 1,
+    "explanation": "$A = 200 \\times (1{,}08)^3 = 200 \\times 1{,}259712 \\approx 251{,}94$ triệu đồng."
+  },
+  {
+    "id": "q_thpt23_018",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Đồ thị hàm số $y = \\dfrac{x-1}{x+1}$ có tiệm cận ngang là đường thẳng",
+    "choices": [
+      "$y = 0$",
+      "$y = 1$",
+      "$y = -1$",
+      "$y = 2$"
+    ],
+    "correct": 1,
+    "explanation": "$\\lim_{x\\to\\pm\\infty} \\dfrac{x-1}{x+1} = 1$. Tiệm cận ngang $y=1$."
+  },
+  {
+    "id": "q_thpt23_019",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "trigonometry",
+    "difficulty": "hard",
+    "question": "Số nghiệm của phương trình $2\\sin^2 x - 3\\sin x + 1 = 0$ trong $[0;\\, 2\\pi]$ là",
+    "choices": [
+      "$2$",
+      "$3$",
+      "$4$",
+      "$1$"
+    ],
+    "correct": 1,
+    "explanation": "$(2\\sin x - 1)(\\sin x - 1) = 0 \\Rightarrow \\sin x = \\frac{1}{2}$ (cho $x = \\frac{\\pi}{6}, \\frac{5\\pi}{6}$) hoặc $\\sin x = 1$ (cho $x = \\frac{\\pi}{2}$). Tổng cộng 3 nghiệm."
+  },
+  {
+    "id": "q_thpt23_020",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Tập nghiệm của bất phương trình $\\log_2(x+1) + \\log_2(x-1) \\geq 3$ là",
+    "choices": [
+      "$x \\geq 3$",
+      "$x > 1$",
+      "$x \\geq 2$",
+      "$1 < x < 3$"
+    ],
+    "correct": 0,
+    "explanation": "Điều kiện $x>1$. $\\log_2(x^2-1) \\geq 3 \\Rightarrow x^2-1 \\geq 8 \\Rightarrow x^2 \\geq 9 \\Rightarrow x \\geq 3$ (kết hợp điều kiện)."
+  },
+  {
+    "id": "q_thpt23_021",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Đạo hàm của hàm số $f(x) = \\cos(3x)$ là",
+    "choices": [
+      "$-\\sin(3x)$",
+      "$3\\sin(3x)$",
+      "$-3\\sin(3x)$",
+      "$3\\cos(3x)$"
+    ],
+    "correct": 2,
+    "explanation": "$f'(x) = -\\sin(3x) \\cdot (3x)' = -3\\sin(3x)$."
+  },
+  {
+    "id": "q_thpt23_022",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tổng của cấp số nhân lùi vô hạn có $u_1 = 4$, $q = \\dfrac{1}{2}$ là",
+    "choices": [
+      "$6$",
+      "$7$",
+      "$8$",
+      "$9$"
+    ],
+    "correct": 2,
+    "explanation": "$S = \\dfrac{4}{1 - \\frac{1}{2}} = 8$."
+  },
+  {
+    "id": "q_thpt23_023",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "combinatorics",
+    "difficulty": "easy",
+    "question": "Giá trị của $C_7^2$ bằng",
+    "choices": [
+      "$14$",
+      "$21$",
+      "$35$",
+      "$42$"
+    ],
+    "correct": 1,
+    "explanation": "$C_7^2 = \\dfrac{7 \\times 6}{2} = 21$."
+  },
+  {
+    "id": "q_thpt23_024",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Tập xác định của hàm số $y = \\ln(x - 2)$ là",
+    "choices": [
+      "$[2;\\, +\\infty)$",
+      "$(2;\\, +\\infty)$",
+      "$(-\\infty;\\, 2)$",
+      "$(-2;\\, 2)$"
+    ],
+    "correct": 1,
+    "explanation": "Điều kiện: $x - 2 > 0 \\Rightarrow x > 2$. TXĐ: $(2;\\, +\\infty)$."
+  },
+  {
+    "id": "q_thpt23_025",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trong không gian $Oxyz$, khoảng cách từ $M(1;\\, -2;\\, 3)$ đến mặt phẳng $(Oyz)$ là",
+    "choices": [
+      "$1$",
+      "$2$",
+      "$3$",
+      "$\\sqrt{14}$"
+    ],
+    "correct": 0,
+    "explanation": "Khoảng cách đến $(Oyz)$ bằng $|x| = |1| = 1$."
+  },
+  {
+    "id": "q_thpt23_026",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "combinatorics",
+    "difficulty": "medium",
+    "question": "Giá trị của $A_6^2$ bằng",
+    "choices": [
+      "$12$",
+      "$20$",
+      "$30$",
+      "$36$"
+    ],
+    "correct": 2,
+    "explanation": "$A_6^2 = 6 \\times 5 = 30$."
+  },
+  {
+    "id": "q_thpt23_027",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Tập xác định của hàm số $y = \\dfrac{1}{x^2 - 4}$ là",
+    "choices": [
+      "$\\mathbb{R} \\setminus \\{-2;\\, 2\\}$",
+      "$(-2;\\, 2)$",
+      "$(-\\infty;\\, 2)$",
+      "$\\mathbb{R} \\setminus \\{2\\}$"
+    ],
+    "correct": 0,
+    "explanation": "$x^2 - 4 \\neq 0 \\Rightarrow x \\neq \\pm 2$. TXĐ: $\\mathbb{R} \\setminus \\{-2;\\, 2\\}$."
+  },
+  {
+    "id": "q_thpt23_028",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Cho $A(0;\\, 0)$ và $B(3;\\, 4)$. Độ dài $AB$ bằng",
+    "choices": [
+      "$3$",
+      "$4$",
+      "$5$",
+      "$7$"
+    ],
+    "correct": 2,
+    "explanation": "$AB = \\sqrt{3^2 + 4^2} = \\sqrt{25} = 5$."
+  },
+  {
+    "id": "q_thpt23_029",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trung điểm $M$ của đoạn $AB$ với $A(1;\\, 3)$, $B(5;\\, 7)$ là",
+    "choices": [
+      "$(2;\\, 4)$",
+      "$(3;\\, 5)$",
+      "$(4;\\, 6)$",
+      "$(6;\\, 10)$"
+    ],
+    "correct": 1,
+    "explanation": "$M = \\left(\\dfrac{1+5}{2};\\, \\dfrac{3+7}{2}\\right) = (3;\\, 5)$."
+  },
+  {
+    "id": "q_thpt23_030",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Đạo hàm của hàm số $f(x) = \\tan x$ là",
+    "choices": [
+      "$\\dfrac{1}{\\sin^2 x}$",
+      "$-\\dfrac{1}{\\sin^2 x}$",
+      "$\\dfrac{1}{\\cos^2 x}$",
+      "$-\\dfrac{1}{\\cos^2 x}$"
+    ],
+    "correct": 2,
+    "explanation": "$f'(x) = \\dfrac{1}{\\cos^2 x} = \\sec^2 x$."
+  },
+  {
+    "id": "q_thpt23_031",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Tính $\\displaystyle\\int_0^{\\pi/2} \\cos x\\,dx$",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$\\dfrac{\\pi}{2}$"
+    ],
+    "correct": 1,
+    "explanation": "$[\\sin x]_0^{\\pi/2} = \\sin\\dfrac{\\pi}{2} - \\sin 0 = 1 - 0 = 1$."
+  },
+  {
+    "id": "q_thpt23_032",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cho $z_1 = 3 - 2i$ và $z_2 = 1 + i$. Tổng $z_1 + z_2$ bằng",
+    "choices": [
+      "$4 - i$",
+      "$4 + i$",
+      "$3 + i$",
+      "$2 - i$"
+    ],
+    "correct": 0,
+    "explanation": "$z_1 + z_2 = (3+1) + (-2+1)i = 4 - i$."
+  },
+  {
+    "id": "q_thpt23_033",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cho cấp số cộng $(u_n)$ có $u_1 = 5$, $d = -3$. Giá trị $u_4$ bằng",
+    "choices": [
+      "$-4$",
+      "$-5$",
+      "$2$",
+      "$-6$"
+    ],
+    "correct": 0,
+    "explanation": "$u_4 = u_1 + 3d = 5 + 3 \\times (-3) = 5 - 9 = -4$."
+  },
+  {
+    "id": "q_thpt23_034",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Nghiệm của phương trình $\\log_3(2x - 1) = 2$ là",
+    "choices": [
+      "$x = 4$",
+      "$x = 5$",
+      "$x = 8$",
+      "$x = 9$"
+    ],
+    "correct": 1,
+    "explanation": "$2x - 1 = 3^2 = 9 \\Rightarrow x = 5$."
+  },
+  {
+    "id": "q_thpt23_035",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Đường tròn $(x+1)^2 + (y-2)^2 = 16$ có tâm $I$ và bán kính $R$ là",
+    "choices": [
+      "$I(1;\\,-2),\\, R=4$",
+      "$I(-1;\\,2),\\, R=4$",
+      "$I(-1;\\,2),\\, R=16$",
+      "$I(1;\\,2),\\, R=4$"
+    ],
+    "correct": 1,
+    "explanation": "Tâm $I(-1;\\, 2)$ và bán kính $R = \\sqrt{16} = 4$."
+  },
+  {
+    "id": "q_thpt23_036",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Giá trị của $4^{\\log_4 5}$ bằng",
+    "choices": [
+      "$4$",
+      "$5$",
+      "$20$",
+      "$25$"
+    ],
+    "correct": 1,
+    "explanation": "Theo tính chất $a^{\\log_a b} = b$, ta có $4^{\\log_4 5} = 5$."
+  },
+  {
+    "id": "q_thpt23_037",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tập nghiệm của phương trình $|2x + 1| = 5$ là",
+    "choices": [
+      "$\\{-3;\\, 2\\}$",
+      "$\\{3;\\, -2\\}$",
+      "$\\{-2;\\, 3\\}$",
+      "$\\{2;\\, 3\\}$"
+    ],
+    "correct": 0,
+    "explanation": "$2x+1=5 \\Rightarrow x=2$; $2x+1=-5 \\Rightarrow x=-3$. Tập $\\{-3;\\, 2\\}$."
+  },
+  {
+    "id": "q_thpt23_038",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Tiệm cận ngang của đồ thị hàm số $y = \\dfrac{3x - 1}{x + 2}$ là đường thẳng",
+    "choices": [
+      "$y = 0$",
+      "$y = -\\dfrac{1}{2}$",
+      "$y = 3$",
+      "$y = -3$"
+    ],
+    "correct": 2,
+    "explanation": "$\\lim_{x \\to \\pm\\infty} \\dfrac{3x-1}{x+2} = 3$. Tiệm cận ngang: $y = 3$."
+  },
+  {
+    "id": "q_thpt23_039",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Đạo hàm của hàm số $y = x^2 \\ln x$ tại $x = e$ bằng",
+    "choices": [
+      "$2e$",
+      "$3e$",
+      "$e^2$",
+      "$2e + 1$"
+    ],
+    "correct": 1,
+    "explanation": "$y' = x(2\\ln x + 1)$. $y'(e) = e(2\\ln e + 1) = e(2+1) = 3e$."
+  },
+  {
+    "id": "q_thpt23_040",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Thể tích hình trụ có bán kính $r = 2$, chiều cao $h = 10$ là",
+    "choices": [
+      "$20\\pi$",
+      "$40\\pi$",
+      "$80\\pi$",
+      "$4\\pi$"
+    ],
+    "correct": 1,
+    "explanation": "$V = \\pi r^2 h = \\pi \\times 4 \\times 10 = 40\\pi$."
+  },
+  {
+    "id": "q_thpt23_041",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "easy",
+    "question": "Gieo một xúc xắc cân đối 2 lần. Xác suất để tổng hai mặt bằng 2 là",
+    "choices": [
+      "$\\dfrac{1}{36}$",
+      "$\\dfrac{1}{18}$",
+      "$\\dfrac{1}{6}$",
+      "$\\dfrac{1}{12}$"
+    ],
+    "correct": 0,
+    "explanation": "Chỉ có cặp $(1;\\, 1)$ có tổng bằng 2. $P = \\dfrac{1}{36}$."
+  },
+  {
+    "id": "q_thpt23_042",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Giá trị của $\\ln\\left(\\dfrac{1}{e}\\right)$ bằng",
+    "choices": [
+      "$e$",
+      "$1$",
+      "$0$",
+      "$-1$"
+    ],
+    "correct": 3,
+    "explanation": "$\\ln\\left(\\dfrac{1}{e}\\right) = \\ln(e^{-1}) = -1$."
+  },
+  {
+    "id": "q_thpt23_043",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y = e^{2x}$ là hàm số",
+    "choices": [
+      "Nghịch biến trên $\\mathbb{R}$",
+      "Đồng biến trên $\\mathbb{R}$",
+      "Đồng biến trên $(0;\\, +\\infty)$",
+      "Nghịch biến trên $(0;\\, +\\infty)$"
+    ],
+    "correct": 1,
+    "explanation": "$y' = 2e^{2x} > 0$ với mọi $x$. Hàm đồng biến trên $\\mathbb{R}$."
+  },
+  {
+    "id": "q_thpt23_044",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tổng các số nguyên $n$ thỏa $1 \\leq n \\leq 100$ và $n$ chia hết cho 5 là",
+    "choices": [
+      "$500$",
+      "$750$",
+      "$1000$",
+      "$1050$"
+    ],
+    "correct": 3,
+    "explanation": "$5+10+\\ldots+100 = 5(1+2+\\ldots+20) = 5 \\times 210 = 1050$."
+  },
+  {
+    "id": "q_thpt23_045",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Đỉnh của parabol $y = -x^2 + 6x - 5$ là",
+    "choices": [
+      "$(3;\\, -4)$",
+      "$(-3;\\, 4)$",
+      "$(3;\\, 4)$",
+      "$(6;\\, -5)$"
+    ],
+    "correct": 2,
+    "explanation": "$x_V = \\dfrac{6}{2} = 3$; $y_V = -9+18-5 = 4$. Đỉnh $(3;\\, 4)$."
+  },
+  {
+    "id": "q_thpt23_046",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Trong không gian $Oxyz$, cho mặt phẳng $(P): 3x - y + 2z = 6$. Khoảng cách từ gốc $O$ đến $(P)$ là",
+    "choices": [
+      "$6$",
+      "$\\dfrac{6}{\\sqrt{14}}$",
+      "$\\dfrac{\\sqrt{14}}{6}$",
+      "$3$"
+    ],
+    "correct": 1,
+    "explanation": "$d = \\dfrac{|0-0+0-6|}{\\sqrt{9+1+4}} = \\dfrac{6}{\\sqrt{14}}$."
+  },
+  {
+    "id": "q_thpt23_047",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Cho $A(2;\\, 1)$ và $B(5;\\, 5)$. Độ dài $AB$ bằng",
+    "choices": [
+      "$3$",
+      "$4$",
+      "$5$",
+      "$6$"
+    ],
+    "correct": 2,
+    "explanation": "$AB = \\sqrt{(5-2)^2+(5-1)^2} = \\sqrt{9+16} = 5$."
+  },
+  {
+    "id": "q_thpt23_048",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Họ nguyên hàm của $f(x) = \\sin x$ là",
+    "choices": [
+      "$\\cos x + C$",
+      "$-\\cos x + C$",
+      "$\\sin x + C$",
+      "$-\\sin x + C$"
+    ],
+    "correct": 1,
+    "explanation": "$\\int \\sin x\\,dx = -\\cos x + C$."
+  },
+  {
+    "id": "q_thpt23_049",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Nghiệm của hệ phương trình $\\begin{cases} x + 2y = 5 \\\\ 2x - y = 5 \\end{cases}$ là",
+    "choices": [
+      "$(3;\\, 1)$",
+      "$(1;\\, 3)$",
+      "$(2;\\, 2)$",
+      "$(5;\\, 0)$"
+    ],
+    "correct": 0,
+    "explanation": "Từ PT2: $y = 2x-5$. PT1: $x+2(2x-5)=5 \\Rightarrow 5x=15 \\Rightarrow x=3,\\, y=1$."
+  },
+  {
+    "id": "q_thpt23_050",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2023",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Diện tích hình vuông nội tiếp đường tròn bán kính $R = 3$ là",
+    "choices": [
+      "$9$",
+      "$12$",
+      "$18$",
+      "$36$"
+    ],
+    "correct": 2,
+    "explanation": "Cạnh hình vuông $= R\\sqrt{2}$. Diện tích $= 2R^2 = 2 \\times 9 = 18$."
+  },
+  {
+    "id": "q_thpt22_001",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y = x^4 - 2x^2 + 1$ là hàm số",
+    "choices": [
+      "Hàm chẵn",
+      "Hàm lẻ",
+      "Vừa chẵn vừa lẻ",
+      "Không chẵn không lẻ"
+    ],
+    "correct": 0,
+    "explanation": "$f(-x) = (-x)^4 - 2(-x)^2 + 1 = x^4 - 2x^2 + 1 = f(x)$. Vậy đây là hàm số chẵn."
+  },
+  {
+    "id": "q_thpt22_002",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Giá trị của $2^{\\log_2 5}$ bằng",
+    "choices": [
+      "$2$",
+      "$5$",
+      "$10$",
+      "$25$"
+    ],
+    "correct": 1,
+    "explanation": "Theo tính chất $a^{\\log_a b} = b$, ta có $2^{\\log_2 5} = 5$."
+  },
+  {
+    "id": "q_thpt22_003",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Họ nguyên hàm của $f(x) = 3x^2 + 2x - 1$ là",
+    "choices": [
+      "$x^3 + x^2 - x + C$",
+      "$6x + 2 + C$",
+      "$x^3 + x - 1 + C$",
+      "$3x^3 + x^2 - 1 + C$"
+    ],
+    "correct": 0,
+    "explanation": "$\\int(3x^2+2x-1)\\,dx = x^3 + x^2 - x + C$."
+  },
+  {
+    "id": "q_thpt22_004",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Cho $z = \\dfrac{2+i}{1-i}$. Phần thực của $z$ là",
+    "choices": [
+      "$\\dfrac{1}{2}$",
+      "$2$",
+      "$1$",
+      "$\\dfrac{3}{2}$"
+    ],
+    "correct": 0,
+    "explanation": "$z = \\dfrac{(2+i)(1+i)}{(1-i)(1+i)} = \\dfrac{2+2i+i-1}{2} = \\dfrac{1+3i}{2}$. Phần thực là $\\dfrac{1}{2}$."
+  },
+  {
+    "id": "q_thpt22_005",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Hình nón có bán kính đáy $r = 3$ và chiều cao $h = 4$. Thể tích là",
+    "choices": [
+      "$12\\pi$",
+      "$9\\pi$",
+      "$36\\pi$",
+      "$24\\pi$"
+    ],
+    "correct": 0,
+    "explanation": "$V = \\dfrac{1}{3}\\pi r^2 h = \\dfrac{1}{3}\\pi \\times 9 \\times 4 = 12\\pi$."
+  },
+  {
+    "id": "q_thpt22_006",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Một túi có 4 bi đỏ và 6 bi xanh. Lấy ngẫu nhiên 2 bi. Xác suất để lấy được 2 bi cùng màu là",
+    "choices": [
+      "$\\dfrac{7}{15}$",
+      "$\\dfrac{8}{15}$",
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{2}{5}$"
+    ],
+    "correct": 0,
+    "explanation": "$P = \\dfrac{C_4^2 + C_6^2}{C_{10}^2} = \\dfrac{6+15}{45} = \\dfrac{21}{45} = \\dfrac{7}{15}$."
+  },
+  {
+    "id": "q_thpt22_007",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Tổng 10 số hạng đầu của cấp số cộng với $u_1 = 3$ và $d = 2$ là",
+    "choices": [
+      "$100$",
+      "$110$",
+      "$120$",
+      "$130$"
+    ],
+    "correct": 2,
+    "explanation": "$S_{10} = \\dfrac{10}{2}(2u_1 + 9d) = 5(6+18) = 120$."
+  },
+  {
+    "id": "q_thpt22_008",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "trigonometry",
+    "difficulty": "medium",
+    "question": "Giá trị của $\\sin^2 30° + \\cos^2 60°$ bằng",
+    "choices": [
+      "$1$",
+      "$\\dfrac{1}{2}$",
+      "$\\dfrac{\\sqrt{3}}{2}$",
+      "$\\dfrac{3}{4}$"
+    ],
+    "correct": 1,
+    "explanation": "$\\sin^2 30° + \\cos^2 60° = \\left(\\frac{1}{2}\\right)^2 + \\left(\\frac{1}{2}\\right)^2 = \\frac{1}{4} + \\frac{1}{4} = \\frac{1}{2}$."
+  },
+  {
+    "id": "q_thpt22_009",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Hàm số $y = x^3 - 3x$ có bao nhiêu điểm cực trị?",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$3$"
+    ],
+    "correct": 2,
+    "explanation": "$y' = 3x^2 - 3 = 3(x-1)(x+1) = 0 \\Rightarrow x = \\pm 1$. Hàm số có 2 điểm cực trị."
+  },
+  {
+    "id": "q_thpt22_010",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Tính $\\displaystyle\\int_0^{\\pi/2} \\sin x\\,dx$",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$-1$",
+      "$\\dfrac{\\pi}{2}$"
+    ],
+    "correct": 1,
+    "explanation": "$\\int_0^{\\pi/2} \\sin x\\,dx = [-\\cos x]_0^{\\pi/2} = -\\cos\\frac{\\pi}{2} + \\cos 0 = 0 + 1 = 1$."
+  },
+  {
+    "id": "q_thpt22_011",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Nghiệm của phương trình $\\log_3(x+1) = 2$ là",
+    "choices": [
+      "$x = 8$",
+      "$x = 6$",
+      "$x = 3$",
+      "$x = 9$"
+    ],
+    "correct": 0,
+    "explanation": "$\\log_3(x+1) = 2 \\Rightarrow x+1 = 9 \\Rightarrow x = 8$."
+  },
+  {
+    "id": "q_thpt22_012",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Trong không gian $Oxyz$, cho $A(1;\\, 2;\\, 3)$ và $B(4;\\, 6;\\, 3)$. Khoảng cách $AB$ bằng",
+    "choices": [
+      "$5$",
+      "$7$",
+      "$3$",
+      "$\\sqrt{30}$"
+    ],
+    "correct": 0,
+    "explanation": "$AB = \\sqrt{(4-1)^2+(6-2)^2+(3-3)^2} = \\sqrt{9+16} = \\sqrt{25} = 5$."
+  },
+  {
+    "id": "q_thpt22_013",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Số nghiệm nguyên của bất phương trình $|x - 3| \\leq 2$ là bao nhiêu?",
+    "choices": [
+      "$3$",
+      "$4$",
+      "$5$",
+      "$6$"
+    ],
+    "correct": 2,
+    "explanation": "$|x-3| \\leq 2 \\Rightarrow 1 \\leq x \\leq 5$. Nghiệm nguyên: $\\{1,2,3,4,5\\}$, có 5 nghiệm."
+  },
+  {
+    "id": "q_thpt22_014",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Cho tam giác $ABC$ với $AB = 5$, $BC = 7$, $\\widehat{B} = 60°$. Độ dài $AC$ bằng",
+    "choices": [
+      "$\\sqrt{21}$",
+      "$\\sqrt{39}$",
+      "$7$",
+      "$\\sqrt{61}$"
+    ],
+    "correct": 1,
+    "explanation": "$AC^2 = AB^2+BC^2-2 \\cdot AB \\cdot BC \\cos B = 25+49-35 = 39$, suy ra $AC = \\sqrt{39}$."
+  },
+  {
+    "id": "q_thpt22_015",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "statistics",
+    "difficulty": "easy",
+    "question": "Trung vị của mẫu số liệu $\\{2;\\, 5;\\, 7;\\, 8;\\, 12\\}$ là",
+    "choices": [
+      "$5$",
+      "$7$",
+      "$8$",
+      "$6{,}8$"
+    ],
+    "correct": 1,
+    "explanation": "Mẫu đã sắp xếp, $n=5$. Trung vị là phần tử thứ 3 (= 7)."
+  },
+  {
+    "id": "q_thpt22_016",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Gửi tiết kiệm 50 triệu đồng với lãi suất đơn $5\\%$/năm trong 4 năm. Tiền lãi nhận được là",
+    "choices": [
+      "$8$ triệu",
+      "$10$ triệu",
+      "$12$ triệu",
+      "$2{,}5$ triệu"
+    ],
+    "correct": 1,
+    "explanation": "Lãi $= P \\times r \\times t = 50 \\times 0{,}05 \\times 4 = 10$ triệu đồng."
+  },
+  {
+    "id": "q_thpt22_017",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Trong không gian $Oxyz$, cho mặt phẳng $(P): 2x + y - 2z + 3 = 0$. Khoảng cách từ gốc $O$ đến $(P)$ là",
+    "choices": [
+      "$1$",
+      "$3$",
+      "$\\dfrac{1}{3}$",
+      "$\\sqrt{9}$"
+    ],
+    "correct": 0,
+    "explanation": "$d = \\dfrac{|2 \\cdot 0 + 0 - 0 + 3|}{\\sqrt{4+1+4}} = \\dfrac{3}{\\sqrt{9}} = \\dfrac{3}{3} = 1$."
+  },
+  {
+    "id": "q_thpt22_018",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Số phức liên hợp của $z = 3 - 5i$ là",
+    "choices": [
+      "$-3 + 5i$",
+      "$3 + 5i$",
+      "$-3 - 5i$",
+      "$5 + 3i$"
+    ],
+    "correct": 1,
+    "explanation": "Số phức liên hợp của $a + bi$ là $a - bi$. Vậy liên hợp của $3 - 5i$ là $3 + 5i$."
+  },
+  {
+    "id": "q_thpt22_019",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Tổng các nghiệm của phương trình $x^3 - 6x^2 + 11x - 6 = 0$ là",
+    "choices": [
+      "$6$",
+      "$-6$",
+      "$11$",
+      "$-11$"
+    ],
+    "correct": 0,
+    "explanation": "Theo hệ thức Vieta, tổng ba nghiệm $= 6$ (nghiệm là $1, 2, 3$)."
+  },
+  {
+    "id": "q_thpt22_020",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Trong tam giác đều cạnh $a$, đường cao $h$ bằng",
+    "choices": [
+      "$\\dfrac{a\\sqrt{3}}{2}$",
+      "$\\dfrac{a\\sqrt{2}}{2}$",
+      "$a$",
+      "$\\dfrac{a}{2}$"
+    ],
+    "correct": 0,
+    "explanation": "Trong tam giác đều cạnh $a$: $h = a \\sin 60° = \\dfrac{a\\sqrt{3}}{2}$."
+  },
+  {
+    "id": "q_thpt22_021",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Đạo hàm của hàm số $f(x) = \\sqrt{x}$ là",
+    "choices": [
+      "$\\dfrac{1}{2\\sqrt{x}}$",
+      "$\\dfrac{\\sqrt{x}}{2}$",
+      "$2\\sqrt{x}$",
+      "$-\\dfrac{1}{2\\sqrt{x}}$"
+    ],
+    "correct": 0,
+    "explanation": "$f'(x) = \\dfrac{1}{2\\sqrt{x}}$."
+  },
+  {
+    "id": "q_thpt22_022",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tổng của cấp số nhân lùi vô hạn có $u_1 = 1$, $q = \\dfrac{1}{4}$ là",
+    "choices": [
+      "$\\dfrac{2}{3}$",
+      "$\\dfrac{4}{3}$",
+      "$2$",
+      "$4$"
+    ],
+    "correct": 1,
+    "explanation": "$S = \\dfrac{1}{1 - \\frac{1}{4}} = \\dfrac{1}{\\frac{3}{4}} = \\dfrac{4}{3}$."
+  },
+  {
+    "id": "q_thpt22_023",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "combinatorics",
+    "difficulty": "medium",
+    "question": "Giá trị của $A_6^3$ bằng",
+    "choices": [
+      "$20$",
+      "$60$",
+      "$120$",
+      "$360$"
+    ],
+    "correct": 2,
+    "explanation": "$A_6^3 = 6 \\times 5 \\times 4 = 120$."
+  },
+  {
+    "id": "q_thpt22_024",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Tập xác định của hàm số $y = \\dfrac{\\sqrt{x+3}}{x-1}$ là",
+    "choices": [
+      "$(-3;\\, +\\infty)$",
+      "$[-3;\\, +\\infty) \\setminus \\{1\\}$",
+      "$(1;\\, +\\infty)$",
+      "$[-3;\\, 1)$"
+    ],
+    "correct": 1,
+    "explanation": "Điều kiện: $x+3 \\geq 0$ và $x \\neq 1$, tức $x \\geq -3$ và $x \\neq 1$. TXĐ: $[-3;\\, +\\infty) \\setminus \\{1\\}$."
+  },
+  {
+    "id": "q_thpt22_025",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trong không gian $Oxyz$, khoảng cách từ điểm $M(3;\\, 4;\\, -5)$ đến mặt phẳng $(Oxz)$ là",
+    "choices": [
+      "$3$",
+      "$4$",
+      "$5$",
+      "$\\sqrt{50}$"
+    ],
+    "correct": 1,
+    "explanation": "Khoảng cách đến $(Oxz)$ bằng $|y| = |4| = 4$."
+  },
+  {
+    "id": "q_thpt22_026",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "combinatorics",
+    "difficulty": "medium",
+    "question": "Giá trị của $C_9^4$ bằng",
+    "choices": [
+      "$84$",
+      "$126$",
+      "$252$",
+      "$504$"
+    ],
+    "correct": 1,
+    "explanation": "$C_9^4 = \\dfrac{9 \\times 8 \\times 7 \\times 6}{4!} = 126$."
+  },
+  {
+    "id": "q_thpt22_027",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Tập xác định của hàm số $y = \\dfrac{x-1}{x+1}$ là",
+    "choices": [
+      "$\\mathbb{R} \\setminus \\{1\\}$",
+      "$\\mathbb{R} \\setminus \\{-1\\}$",
+      "$(-1;\\, +\\infty)$",
+      "$\\mathbb{R}$"
+    ],
+    "correct": 1,
+    "explanation": "$x + 1 \\neq 0 \\Rightarrow x \\neq -1$. TXĐ: $\\mathbb{R} \\setminus \\{-1\\}$."
+  },
+  {
+    "id": "q_thpt22_028",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Cho $A(-2;\\, 3)$ và $B(4;\\, 3)$. Trung điểm $M$ của $AB$ là",
+    "choices": [
+      "$(1;\\, 3)$",
+      "$(2;\\, 6)$",
+      "$(1;\\, 0)$",
+      "$(3;\\, 3)$"
+    ],
+    "correct": 0,
+    "explanation": "$M = \\left(\\dfrac{-2+4}{2};\\, \\dfrac{3+3}{2}\\right) = (1;\\, 3)$."
+  },
+  {
+    "id": "q_thpt22_029",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trong không gian $Oxyz$, hình chiếu của điểm $B(3;\\, 1;\\, -2)$ lên trục $Ox$ là",
+    "choices": [
+      "$(0;\\, 1;\\, -2)$",
+      "$(3;\\, 0;\\, 0)$",
+      "$(0;\\, 1;\\, 0)$",
+      "$(3;\\, 1;\\, 0)$"
+    ],
+    "correct": 1,
+    "explanation": "Hình chiếu lên $Ox$ có tọa độ $(x;\\, 0;\\, 0) = (3;\\, 0;\\, 0)$."
+  },
+  {
+    "id": "q_thpt22_030",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Đạo hàm của hàm số $f(x) = \\dfrac{1}{x}$ ($x \\neq 0$) là",
+    "choices": [
+      "$\\dfrac{1}{x^2}$",
+      "$-\\dfrac{1}{x^2}$",
+      "$\\dfrac{1}{2x}$",
+      "$\\ln|x|$"
+    ],
+    "correct": 1,
+    "explanation": "$f'(x) = -\\dfrac{1}{x^2}$."
+  },
+  {
+    "id": "q_thpt22_031",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Tính $\\displaystyle\\int_1^4 \\dfrac{1}{2\\sqrt{x}}\\,dx$",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$4$"
+    ],
+    "correct": 1,
+    "explanation": "$\\int \\dfrac{1}{2\\sqrt{x}}\\,dx = \\sqrt{x} + C$. $[\\sqrt{x}]_1^4 = 2 - 1 = 1$."
+  },
+  {
+    "id": "q_thpt22_032",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tích $(1+i)(1-i)$ bằng",
+    "choices": [
+      "$0$",
+      "$2$",
+      "$2i$",
+      "$1 + i$"
+    ],
+    "correct": 1,
+    "explanation": "$(1+i)(1-i) = 1 - i^2 = 1 + 1 = 2$."
+  },
+  {
+    "id": "q_thpt22_033",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Cho cấp số cộng $(u_n)$ có $u_5 = 15$ và $u_8 = 24$. Giá trị $u_1$ bằng",
+    "choices": [
+      "$1$",
+      "$2$",
+      "$3$",
+      "$4$"
+    ],
+    "correct": 2,
+    "explanation": "$d = \\dfrac{u_8 - u_5}{3} = 3$. $u_1 = u_5 - 4d = 15 - 12 = 3$."
+  },
+  {
+    "id": "q_thpt22_034",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Nghiệm của phương trình $\\log_2(x + 3) = 4$ là",
+    "choices": [
+      "$x = 11$",
+      "$x = 12$",
+      "$x = 13$",
+      "$x = 14$"
+    ],
+    "correct": 2,
+    "explanation": "$x + 3 = 2^4 = 16 \\Rightarrow x = 13$."
+  },
+  {
+    "id": "q_thpt22_035",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Đường tròn $x^2 + y^2 - 4x + 6y - 3 = 0$ có tâm $I$ và bán kính $R$ là",
+    "choices": [
+      "$I(2;\\,-3),\\, R=4$",
+      "$I(-2;\\,3),\\, R=4$",
+      "$I(2;\\,3),\\, R=4$",
+      "$I(2;\\,-3),\\, R=16$"
+    ],
+    "correct": 0,
+    "explanation": "Hoàn chỉnh: $(x-2)^2+(y+3)^2 = 3+4+9 = 16$. Tâm $I(2;\\,-3)$, $R=4$."
+  },
+  {
+    "id": "q_thpt22_036",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Giá trị của $e^{\\ln 5}$ bằng",
+    "choices": [
+      "$e$",
+      "$5$",
+      "$\\ln 5$",
+      "$5e$"
+    ],
+    "correct": 1,
+    "explanation": "$e^{\\ln 5} = 5$."
+  },
+  {
+    "id": "q_thpt22_037",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tập nghiệm của bất phương trình $|5x - 10| \\leq 5$ là",
+    "choices": [
+      "$x \\in [1;\\, 3]$",
+      "$x \\in (0;\\, 4)$",
+      "$x \\in [-1;\\, 3]$",
+      "$x \\in [1;\\, 5]$"
+    ],
+    "correct": 0,
+    "explanation": "$-5 \\leq 5x-10 \\leq 5 \\Rightarrow 5 \\leq 5x \\leq 15 \\Rightarrow 1 \\leq x \\leq 3$."
+  },
+  {
+    "id": "q_thpt22_038",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Đạo hàm của hàm số $y = x^2 - 2x$ tại $x = 3$ bằng",
+    "choices": [
+      "$4$",
+      "$6$",
+      "$7$",
+      "$3$"
+    ],
+    "correct": 0,
+    "explanation": "$y' = 2x - 2$. $y'(3) = 6 - 2 = 4$."
+  },
+  {
+    "id": "q_thpt22_039",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Đạo hàm của hàm số $y = \\ln(x^2 + 1)$ là",
+    "choices": [
+      "$\\dfrac{1}{x^2+1}$",
+      "$\\dfrac{2x}{x^2+1}$",
+      "$\\dfrac{x}{x^2+1}$",
+      "$\\dfrac{2}{x^2+1}$"
+    ],
+    "correct": 1,
+    "explanation": "$y' = \\dfrac{(x^2+1)'}{x^2+1} = \\dfrac{2x}{x^2+1}$."
+  },
+  {
+    "id": "q_thpt22_040",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Thể tích hình nón có bán kính đáy $r = 4$ và chiều cao $h = 3$ là",
+    "choices": [
+      "$12\\pi$",
+      "$16\\pi$",
+      "$48\\pi$",
+      "$64\\pi$"
+    ],
+    "correct": 1,
+    "explanation": "$V = \\dfrac{1}{3}\\pi r^2 h = \\dfrac{1}{3}\\pi \\times 16 \\times 3 = 16\\pi$."
+  },
+  {
+    "id": "q_thpt22_041",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "statistics",
+    "difficulty": "easy",
+    "question": "Lớp có 20 học sinh nam và 15 học sinh nữ. Chọn ngẫu nhiên 1 học sinh. Xác suất chọn được học sinh nữ là",
+    "choices": [
+      "$\\dfrac{1}{2}$",
+      "$\\dfrac{3}{7}$",
+      "$\\dfrac{4}{7}$",
+      "$\\dfrac{15}{20}$"
+    ],
+    "correct": 1,
+    "explanation": "$P = \\dfrac{15}{20+15} = \\dfrac{15}{35} = \\dfrac{3}{7}$."
+  },
+  {
+    "id": "q_thpt22_042",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Giá trị của $\\log_2 1$ bằng",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$-1$"
+    ],
+    "correct": 0,
+    "explanation": "$\\log_2 1 = 0$ vì $2^0 = 1$."
+  },
+  {
+    "id": "q_thpt22_043",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Đồ thị hàm số $y = |x - 2|$ cắt trục tung tại điểm",
+    "choices": [
+      "$(0;\\, 1)$",
+      "$(0;\\, 2)$",
+      "$(2;\\, 0)$",
+      "$(0;\\, -2)$"
+    ],
+    "correct": 1,
+    "explanation": "Tại $x=0$: $y = |0-2| = 2$. Điểm $(0;\\, 2)$."
+  },
+  {
+    "id": "q_thpt22_044",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Giá trị của $1^2 + 2^2 + 3^2 + \\ldots + 10^2$ bằng",
+    "choices": [
+      "$275$",
+      "$385$",
+      "$450$",
+      "$550$"
+    ],
+    "correct": 1,
+    "explanation": "$\\sum_{k=1}^{10} k^2 = \\dfrac{10 \\times 11 \\times 21}{6} = 385$."
+  },
+  {
+    "id": "q_thpt22_045",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Đỉnh của parabol $y = 2x^2 - 8x + 3$ là",
+    "choices": [
+      "$(2;\\, -5)$",
+      "$(-2;\\, 5)$",
+      "$(4;\\, 3)$",
+      "$(2;\\, 5)$"
+    ],
+    "correct": 0,
+    "explanation": "$x_V = \\dfrac{8}{4} = 2$; $y_V = 8-16+3 = -5$. Đỉnh $(2;\\, -5)$."
+  },
+  {
+    "id": "q_thpt22_046",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Trong không gian $Oxyz$, cho mặt phẳng $(P): 2x + 2y - z = 9$. Khoảng cách từ gốc $O$ đến $(P)$ là",
+    "choices": [
+      "$1$",
+      "$3$",
+      "$9$",
+      "$3\\sqrt{3}$"
+    ],
+    "correct": 1,
+    "explanation": "$d = \\dfrac{|0+0-0-9|}{\\sqrt{4+4+1}} = \\dfrac{9}{3} = 3$."
+  },
+  {
+    "id": "q_thpt22_047",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho $A(1;\\, -1;\\, 2)$ và $B(3;\\, 1;\\, 4)$. Khoảng cách $AB$ bằng",
+    "choices": [
+      "$2$",
+      "$2\\sqrt{3}$",
+      "$4$",
+      "$\\sqrt{8}$"
+    ],
+    "correct": 1,
+    "explanation": "$AB = \\sqrt{(3-1)^2+(1-(-1))^2+(4-2)^2} = \\sqrt{4+4+4} = 2\\sqrt{3}$."
+  },
+  {
+    "id": "q_thpt22_048",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Họ nguyên hàm của $f(x) = \\dfrac{1}{x^2}$ ($x \\neq 0$) là",
+    "choices": [
+      "$\\dfrac{2}{x^3} + C$",
+      "$-\\dfrac{1}{x} + C$",
+      "$\\ln|x| + C$",
+      "$\\dfrac{1}{x} + C$"
+    ],
+    "correct": 1,
+    "explanation": "$\\int x^{-2}\\,dx = \\dfrac{x^{-1}}{-1} + C = -\\dfrac{1}{x} + C$."
+  },
+  {
+    "id": "q_thpt22_049",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Nghiệm của hệ phương trình $\\begin{cases} x + 2y = 4 \\\\ 3x - y = 5 \\end{cases}$ là",
+    "choices": [
+      "$(2;\\, 1)$",
+      "$(1;\\, 2)$",
+      "$(3;\\, -1)$",
+      "$(-1;\\, 3)$"
+    ],
+    "correct": 0,
+    "explanation": "Từ PT2: $y = 3x-5$. PT1: $x+2(3x-5)=4 \\Rightarrow 7x=14 \\Rightarrow x=2,\\, y=1$."
+  },
+  {
+    "id": "q_thpt22_050",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2022",
+    "year": 2022,
+    "topic": "trigonometry",
+    "difficulty": "easy",
+    "question": "Giá trị của $\\sin\\dfrac{\\pi}{6} + \\cos\\dfrac{\\pi}{3}$ bằng",
+    "choices": [
+      "$\\dfrac{\\sqrt{2}}{2}$",
+      "$1$",
+      "$\\dfrac{\\sqrt{3}}{2}$",
+      "$0$"
+    ],
+    "correct": 1,
+    "explanation": "$\\sin\\dfrac{\\pi}{6} + \\cos\\dfrac{\\pi}{3} = \\dfrac{1}{2} + \\dfrac{1}{2} = 1$."
+  },
+  {
+    "id": "q_thithu_hn24_001",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Tập xác định của hàm số $y = \\dfrac{1}{x^2-1}$ là",
+    "choices": [
+      "$\\mathbb{R} \\setminus \\{1\\}$",
+      "$\\mathbb{R} \\setminus \\{-1;\\, 1\\}$",
+      "$(-1;\\, 1)$",
+      "$\\mathbb{R}$"
+    ],
+    "correct": 1,
+    "explanation": "Điều kiện $x^2-1 \\neq 0 \\Rightarrow x \\neq \\pm 1$. TXĐ: $\\mathbb{R} \\setminus \\{-1;\\, 1\\}$."
+  },
+  {
+    "id": "q_thithu_hn24_002",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Rút gọn $a^{2/3} \\cdot a^{4/3}$ (với $a > 0$)",
+    "choices": [
+      "$a^2$",
+      "$a^{8/9}$",
+      "$a^3$",
+      "$a^{6/9}$"
+    ],
+    "correct": 0,
+    "explanation": "$a^{2/3} \\cdot a^{4/3} = a^{2/3+4/3} = a^{6/3} = a^2$."
+  },
+  {
+    "id": "q_thithu_hn24_003",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Tính $\\displaystyle\\int (3x^2 + 2)\\,dx$",
+    "choices": [
+      "$x^3 + 2 + C$",
+      "$x^3 + 2x + C$",
+      "$6x + C$",
+      "$3x^3 + 2x + C$"
+    ],
+    "correct": 1,
+    "explanation": "$\\int(3x^2+2)\\,dx = x^3 + 2x + C$."
+  },
+  {
+    "id": "q_thithu_hn24_004",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cho $z = (1+i)^2$. Giá trị của $z$ là",
+    "choices": [
+      "$2i$",
+      "$2$",
+      "$-2$",
+      "$1+2i$"
+    ],
+    "correct": 0,
+    "explanation": "$(1+i)^2 = 1 + 2i + i^2 = 1 + 2i - 1 = 2i$."
+  },
+  {
+    "id": "q_thithu_hn24_005",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Hình cầu có bán kính $R = 3$. Diện tích mặt cầu là",
+    "choices": [
+      "$12\\pi$",
+      "$36\\pi$",
+      "$9\\pi$",
+      "$4\\pi$"
+    ],
+    "correct": 1,
+    "explanation": "$S = 4\\pi R^2 = 4\\pi \\times 9 = 36\\pi$."
+  },
+  {
+    "id": "q_thithu_hn24_006",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Tung ngẫu nhiên 3 đồng xu cân đối. Xác suất để cả 3 mặt đều ngửa là",
+    "choices": [
+      "$\\dfrac{1}{8}$",
+      "$\\dfrac{1}{4}$",
+      "$\\dfrac{3}{8}$",
+      "$\\dfrac{1}{2}$"
+    ],
+    "correct": 0,
+    "explanation": "$P = \\left(\\dfrac{1}{2}\\right)^3 = \\dfrac{1}{8}$."
+  },
+  {
+    "id": "q_thithu_hn24_007",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cho cấp số cộng $(u_n)$ với $u_1 = 1$ và $d = 2$. Giá trị $S_5$ bằng",
+    "choices": [
+      "$16$",
+      "$20$",
+      "$25$",
+      "$30$"
+    ],
+    "correct": 2,
+    "explanation": "$S_5 = \\dfrac{5}{2}(2 \\times 1 + 4 \\times 2) = \\dfrac{5}{2} \\times 10 = 25$."
+  },
+  {
+    "id": "q_thithu_hn24_008",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "trigonometry",
+    "difficulty": "hard",
+    "question": "Giá trị của $\\sin 75°$ bằng",
+    "choices": [
+      "$\\dfrac{\\sqrt{6}+\\sqrt{2}}{4}$",
+      "$\\dfrac{\\sqrt{6}-\\sqrt{2}}{4}$",
+      "$\\dfrac{\\sqrt{3}}{2}$",
+      "$\\dfrac{\\sqrt{3}+1}{2}$"
+    ],
+    "correct": 0,
+    "explanation": "$\\sin 75° = \\sin(45°+30°) = \\sin 45° \\cos 30° + \\cos 45° \\sin 30° = \\dfrac{\\sqrt{6}+\\sqrt{2}}{4}$."
+  },
+  {
+    "id": "q_thithu_hn24_009",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Giá trị nhỏ nhất của hàm số $f(x) = x^2 - 4x + 7$ là",
+    "choices": [
+      "$3$",
+      "$7$",
+      "$-3$",
+      "$0$"
+    ],
+    "correct": 0,
+    "explanation": "$f(x) = (x-2)^2 + 3 \\geq 3$, dấu bằng khi $x=2$."
+  },
+  {
+    "id": "q_thithu_hn24_010",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Nghiệm của phương trình $\\ln(x+1) - \\ln(x-1) = \\ln 3$ là",
+    "choices": [
+      "$x = 2$",
+      "$x = 3$",
+      "$x = 4$",
+      "$x = 1$"
+    ],
+    "correct": 0,
+    "explanation": "$\\ln\\dfrac{x+1}{x-1} = \\ln 3 \\Rightarrow \\dfrac{x+1}{x-1}=3 \\Rightarrow x+1=3x-3 \\Rightarrow x=2$."
+  },
+  {
+    "id": "q_thithu_hn24_011",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Tính $\\displaystyle\\int_0^{\\pi} \\cos x\\,dx$",
+    "choices": [
+      "$2$",
+      "$-2$",
+      "$0$",
+      "$\\pi$"
+    ],
+    "correct": 2,
+    "explanation": "$\\int_0^\\pi \\cos x\\,dx = [\\sin x]_0^\\pi = \\sin\\pi - \\sin 0 = 0$."
+  },
+  {
+    "id": "q_thithu_hn24_012",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Hình lăng trụ đứng có đáy là hình vuông cạnh $2$ cm và chiều cao $3$ cm. Thể tích là",
+    "choices": [
+      "$6$ cm³",
+      "$12$ cm³",
+      "$24$ cm³",
+      "$9$ cm³"
+    ],
+    "correct": 1,
+    "explanation": "$V = S_{\\text{đáy}} \\times h = 2^2 \\times 3 = 12$ cm$^3$."
+  },
+  {
+    "id": "q_thithu_hn24_013",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Tập nghiệm của bất phương trình $2x - 3 > x + 1$ là",
+    "choices": [
+      "$(4;\\, +\\infty)$",
+      "$(-\\infty;\\, 4)$",
+      "$(-4;\\, +\\infty)$",
+      "$[4;\\, +\\infty)$"
+    ],
+    "correct": 0,
+    "explanation": "$2x-3 > x+1 \\Rightarrow x > 4$. Tập nghiệm: $(4;+\\infty)$."
+  },
+  {
+    "id": "q_thithu_hn24_014",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Diện tích tam giác đều cạnh $a$ là",
+    "choices": [
+      "$\\dfrac{\\sqrt{3}}{4}a^2$",
+      "$\\dfrac{\\sqrt{2}}{4}a^2$",
+      "$\\dfrac{a^2}{2}$",
+      "$\\sqrt{3}a^2$"
+    ],
+    "correct": 0,
+    "explanation": "$S = \\dfrac{\\sqrt{3}}{4}a^2$."
+  },
+  {
+    "id": "q_thithu_hn24_015",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Độ lệch chuẩn của mẫu $\\{3;\\, 5;\\, 7;\\, 9;\\, 11\\}$ là",
+    "choices": [
+      "$2$",
+      "$2\\sqrt{2}$",
+      "$4$",
+      "$\\sqrt{5}$"
+    ],
+    "correct": 1,
+    "explanation": "$\\bar{x}=7$, $s^2=\\dfrac{16+4+0+4+16}{5}=8$, $s = \\sqrt{8} = 2\\sqrt{2}$."
+  },
+  {
+    "id": "q_thithu_hn24_016",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y = 2^x$ là hàm số",
+    "choices": [
+      "Nghịch biến trên $\\mathbb{R}$",
+      "Đồng biến trên $\\mathbb{R}$",
+      "Đồng biến trên $(0;\\, +\\infty)$",
+      "Nghịch biến trên $(-\\infty;\\, 0)$"
+    ],
+    "correct": 1,
+    "explanation": "Vì cơ số $2 > 1$, hàm số $y=2^x$ đồng biến trên $\\mathbb{R}$."
+  },
+  {
+    "id": "q_thithu_hn24_017",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Vay 500 triệu đồng với lãi suất $10\\%$/năm (lãi kép), trả sau 5 năm. Tổng số tiền phải trả là",
+    "choices": [
+      "$750$ triệu",
+      "$800$ triệu",
+      "$805{,}26$ triệu",
+      "$810$ triệu"
+    ],
+    "correct": 2,
+    "explanation": "$A = 500 \\times (1{,}1)^5 = 500 \\times 1{,}61051 \\approx 805{,}26$ triệu đồng."
+  },
+  {
+    "id": "q_thithu_hn24_018",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Đạo hàm của hàm số $f(x) = e^x$ là",
+    "choices": [
+      "$e^x$",
+      "$xe^{x-1}$",
+      "$e^{x+1}$",
+      "$\\dfrac{1}{e^x}$"
+    ],
+    "correct": 0,
+    "explanation": "$f'(x) = (e^x)' = e^x$."
+  },
+  {
+    "id": "q_thithu_hn24_019",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Trong tam giác $ABC$ có $a = 5$, $b = 7$, $c = 8$. $\\cos C$ bằng",
+    "choices": [
+      "$\\dfrac{1}{7}$",
+      "$\\dfrac{2}{7}$",
+      "$\\dfrac{3}{7}$",
+      "$\\dfrac{4}{7}$"
+    ],
+    "correct": 0,
+    "explanation": "$\\cos C = \\dfrac{a^2+b^2-c^2}{2ab} = \\dfrac{25+49-64}{2 \\times 5 \\times 7} = \\dfrac{10}{70} = \\dfrac{1}{7}$."
+  },
+  {
+    "id": "q_thithu_hn24_020",
+    "source": "Sở GD&ĐT Hà Nội — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Giá trị lớn nhất của hàm số $f(x) = -x^2 + 4x - 1$ trên $[0;\\, 3]$ là",
+    "choices": [
+      "$2$",
+      "$3$",
+      "$-1$",
+      "$4$"
+    ],
+    "correct": 1,
+    "explanation": "$f'(x)=0 \\Rightarrow x=2$. $f(0)=-1$, $f(2)=-4+8-1=3$, $f(3)=-9+12-1=2$. Giá trị lớn nhất là $3$."
+  },
+  {
+    "id": "q_thithu_hn24_021",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Đạo hàm của hàm số $f(x) = x^2 \\sin x$ là:",
+    "choices": [
+      "$2x \\sin x + x^2 \\cos x$",
+      "$2x \\cos x$",
+      "$x^2 \\cos x$",
+      "$2x \\sin x - x^2 \\cos x$"
+    ],
+    "correct": 0,
+    "explanation": "Dùng quy tắc tích: $(x^2)' \\sin x + x^2 (\\sin x)' = 2x \\sin x + x^2 \\cos x$."
+  },
+  {
+    "id": "q_thithu_hn24_022",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cấp số nhân có $u_1 = 6$, công bội $q = \\frac{2}{3}$. Tổng vô hạn của cấp số nhân là:",
+    "choices": [
+      "18",
+      "12",
+      "9",
+      "6"
+    ],
+    "correct": 0,
+    "explanation": "$S = \\frac{u_1}{1-q} = \\frac{6}{1 - 2/3} = \\frac{6}{1/3} = 18$."
+  },
+  {
+    "id": "q_thithu_hn24_023",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "combinatorics",
+    "difficulty": "easy",
+    "question": "Giá trị của $C_{10}^{3}$ bằng:",
+    "choices": [
+      "120",
+      "720",
+      "210",
+      "45"
+    ],
+    "correct": 0,
+    "explanation": "$C_{10}^3 = \\frac{10!}{3! \\cdot 7!} = \\frac{10 \\cdot 9 \\cdot 8}{6} = 120$."
+  },
+  {
+    "id": "q_thithu_hn24_024",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tập xác định của hàm số $y = \\log(x^2 - x)$ là:",
+    "choices": [
+      "$(-\\infty; 0) \\cup (1; +\\infty)$",
+      "$(0; 1)$",
+      "$\\mathbb{R} \\setminus \\{0; 1\\}$",
+      "$(1; +\\infty)$"
+    ],
+    "correct": 0,
+    "explanation": "$x^2 - x > 0 \\Leftrightarrow x(x-1) > 0 \\Leftrightarrow x < 0$ hoặc $x > 1$."
+  },
+  {
+    "id": "q_thithu_hn24_025",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Trong không gian $Oxyz$, khoảng cách từ điểm $M(3; 4; 5)$ đến trục $Oz$ là:",
+    "choices": [
+      "5",
+      "$\\sqrt{50}$",
+      "$\\sqrt{41}$",
+      "4"
+    ],
+    "correct": 0,
+    "explanation": "Khoảng cách từ $M(3,4,5)$ đến trục $Oz$ bằng $\\sqrt{3^2 + 4^2} = \\sqrt{25} = 5$."
+  },
+  {
+    "id": "q_thithu_hn24_026",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "combinatorics",
+    "difficulty": "medium",
+    "question": "Số chỉnh hợp $A_8^3$ bằng:",
+    "choices": [
+      "336",
+      "56",
+      "512",
+      "24"
+    ],
+    "correct": 0,
+    "explanation": "$A_8^3 = 8 \\cdot 7 \\cdot 6 = 336$."
+  },
+  {
+    "id": "q_thithu_hn24_027",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Tập xác định của hàm số $y = \\sqrt{2x - 1}$ là:",
+    "choices": [
+      "$\\left[\\frac{1}{2}; +\\infty\\right)$",
+      "$(\\frac{1}{2}; +\\infty)$",
+      "$(-\\infty; \\frac{1}{2}]$",
+      "$\\mathbb{R}$"
+    ],
+    "correct": 0,
+    "explanation": "$2x - 1 \\geq 0 \\Rightarrow x \\geq \\frac{1}{2}$, vậy tập xác định là $\\left[\\frac{1}{2}; +\\infty\\right)$."
+  },
+  {
+    "id": "q_thithu_hn24_028",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trung điểm của đoạn thẳng $AB$ với $A(2; 4)$, $B(6; 8)$ là:",
+    "choices": [
+      "$(4; 6)$",
+      "$(8; 12)$",
+      "$(2; 2)$",
+      "$(3; 5)$"
+    ],
+    "correct": 0,
+    "explanation": "Trung điểm $M = \\left(\\frac{2+6}{2}; \\frac{4+8}{2}\\right) = (4; 6)$."
+  },
+  {
+    "id": "q_thithu_hn24_029",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Hình chiếu của điểm $M(2; 3; 5)$ lên mặt phẳng $Oxz$ là điểm:",
+    "choices": [
+      "$(2; 0; 5)$",
+      "$(2; 3; 0)$",
+      "$(0; 3; 5)$",
+      "$(2; 3; 5)$"
+    ],
+    "correct": 0,
+    "explanation": "Chiếu lên $Oxz$ tức là cho $y = 0$: hình chiếu là $(2; 0; 5)$."
+  },
+  {
+    "id": "q_thithu_hn24_030",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Đạo hàm của hàm số $y = 3^x$ là:",
+    "choices": [
+      "$3^x \\ln 3$",
+      "$x \\cdot 3^{x-1}$",
+      "$3^x$",
+      "$3^x \\log_3 e$"
+    ],
+    "correct": 0,
+    "explanation": "$(a^x)' = a^x \\ln a$, suy ra $(3^x)' = 3^x \\ln 3$."
+  },
+  {
+    "id": "q_thithu_hn24_031",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Tích phân $\\int_{-2}^{2} x^3 \\, dx$ bằng:",
+    "choices": [
+      "0",
+      "8",
+      "16",
+      "$-8$"
+    ],
+    "correct": 0,
+    "explanation": "$x^3$ là hàm lẻ nên $\\int_{-a}^{a} x^3 \\, dx = 0$."
+  },
+  {
+    "id": "q_thithu_hn24_032",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Số phức $z = (2 + 3i)^2$ có phần thực là:",
+    "choices": [
+      "$-5$",
+      "5",
+      "13",
+      "$-13$"
+    ],
+    "correct": 0,
+    "explanation": "$(2+3i)^2 = 4 + 12i + 9i^2 = 4 + 12i - 9 = -5 + 12i$. Phần thực là $-5$."
+  },
+  {
+    "id": "q_thithu_hn24_033",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cấp số cộng có $u_1 = 3$, công sai $d = 4$. Số hạng thứ 10 là:",
+    "choices": [
+      "39",
+      "43",
+      "35",
+      "47"
+    ],
+    "correct": 0,
+    "explanation": "$u_{10} = u_1 + 9d = 3 + 9 \\cdot 4 = 39$."
+  },
+  {
+    "id": "q_thithu_hn24_034",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Nghiệm của phương trình $4^x = 8$ là:",
+    "choices": [
+      "$x = \\frac{3}{2}$",
+      "$x = 2$",
+      "$x = \\frac{1}{2}$",
+      "$x = 3$"
+    ],
+    "correct": 0,
+    "explanation": "$4^x = 8 \\Rightarrow 2^{2x} = 2^3 \\Rightarrow 2x = 3 \\Rightarrow x = \\frac{3}{2}$."
+  },
+  {
+    "id": "q_thithu_hn24_035",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Đường tròn $(x-1)^2 + (y+2)^2 = 9$ có tâm và bán kính là:",
+    "choices": [
+      "Tâm $(1; -2)$, $R = 3$",
+      "Tâm $(-1; 2)$, $R = 3$",
+      "Tâm $(1; -2)$, $R = 9$",
+      "Tâm $(1; 2)$, $R = 3$"
+    ],
+    "correct": 0,
+    "explanation": "Dạng chuẩn $(x-a)^2 + (y-b)^2 = R^2$: tâm $(1; -2)$, $R = \\sqrt{9} = 3$."
+  },
+  {
+    "id": "q_thithu_hn24_036",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "$\\log_{10} 100$ bằng:",
+    "choices": [
+      "2",
+      "10",
+      "$\\frac{1}{2}$",
+      "100"
+    ],
+    "correct": 0,
+    "explanation": "$\\log_{10} 100 = \\log_{10} 10^2 = 2$."
+  },
+  {
+    "id": "q_thithu_hn24_037",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Phương trình $|2x - 1| = 5$ có nghiệm là:",
+    "choices": [
+      "$x = 3$ hoặc $x = -2$",
+      "$x = 3$",
+      "$x = -2$",
+      "$x = 2$ hoặc $x = -3$"
+    ],
+    "correct": 0,
+    "explanation": "$|2x-1| = 5 \\Rightarrow 2x-1 = 5$ hoặc $2x-1 = -5 \\Rightarrow x = 3$ hoặc $x = -2$."
+  },
+  {
+    "id": "q_thithu_hn24_038",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Hàm số $f(x) = x^3 - 3x^2 + 1$ đạt cực tiểu tại:",
+    "choices": [
+      "$x = 2$",
+      "$x = 0$",
+      "$x = -2$",
+      "$x = 1$"
+    ],
+    "correct": 0,
+    "explanation": "$f'(x) = 3x^2 - 6x = 3x(x-2) = 0 \\Rightarrow x = 0$ hoặc $x = 2$. $f''(2) = 6 > 0$ nên cực tiểu tại $x = 2$."
+  },
+  {
+    "id": "q_thithu_hn24_039",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Đạo hàm của $y = x \\ln x$ là:",
+    "choices": [
+      "$\\ln x + 1$",
+      "$\\frac{1}{x}$",
+      "$\\ln x$",
+      "$x + \\ln x$"
+    ],
+    "correct": 0,
+    "explanation": "$y' = (x)' \\ln x + x (\\ln x)' = \\ln x + x \\cdot \\frac{1}{x} = \\ln x + 1$."
+  },
+  {
+    "id": "q_thithu_hn24_040",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Thể tích của hình cầu bán kính $R = 3$ là:",
+    "choices": [
+      "$36\\pi$",
+      "$12\\pi$",
+      "$\\frac{4}{3}\\pi$",
+      "$9\\pi$"
+    ],
+    "correct": 0,
+    "explanation": "$V = \\frac{4}{3}\\pi R^3 = \\frac{4}{3}\\pi \\cdot 27 = 36\\pi$."
+  },
+  {
+    "id": "q_thithu_hn24_041",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "easy",
+    "question": "Tung một đồng xu cân đối 3 lần. Xác suất thu được đúng 2 mặt sấp là:",
+    "choices": [
+      "$\\frac{3}{8}$",
+      "$\\frac{1}{4}$",
+      "$\\frac{1}{2}$",
+      "$\\frac{1}{8}$"
+    ],
+    "correct": 0,
+    "explanation": "$P = C_3^2 \\cdot \\left(\\frac{1}{2}\\right)^2 \\cdot \\frac{1}{2} = 3 \\cdot \\frac{1}{8} = \\frac{3}{8}$."
+  },
+  {
+    "id": "q_thithu_hn24_042",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "$\\log_{10} 1000$ bằng:",
+    "choices": [
+      "3",
+      "100",
+      "$\\frac{1}{3}$",
+      "10"
+    ],
+    "correct": 0,
+    "explanation": "$\\log_{10} 1000 = \\log_{10} 10^3 = 3$."
+  },
+  {
+    "id": "q_thithu_hn24_043",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Hàm số nào sau đây là hàm số giảm trên $\\mathbb{R}$?",
+    "choices": [
+      "$y = \\left(\\frac{1}{3}\\right)^x$",
+      "$y = 3^x$",
+      "$y = x^2$",
+      "$y = \\log_3 x$"
+    ],
+    "correct": 0,
+    "explanation": "Hàm số $y = a^x$ giảm khi $0 < a < 1$. Vậy $y = (1/3)^x$ giảm trên $\\mathbb{R}$."
+  },
+  {
+    "id": "q_thithu_hn24_044",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tổng 20 số hạng đầu của cấp số cộng $1, 4, 7, \\ldots$ là:",
+    "choices": [
+      "590",
+      "400",
+      "610",
+      "380"
+    ],
+    "correct": 0,
+    "explanation": "$d = 3$, $u_1 = 1$. $S_{20} = \\frac{20}{2}(2 \\cdot 1 + 19 \\cdot 3) = 10 \\cdot 59 = 590$."
+  },
+  {
+    "id": "q_thithu_hn24_045",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Đỉnh của parabol $y = x^2 - 4x + 5$ là:",
+    "choices": [
+      "$(2; 1)$",
+      "$(-2; 17)$",
+      "$(0; 5)$",
+      "$(4; 5)$"
+    ],
+    "correct": 0,
+    "explanation": "$x_{\\text{đỉnh}} = -\\frac{b}{2a} = \\frac{4}{2} = 2$. $y(2) = 4 - 8 + 5 = 1$. Đỉnh $(2; 1)$."
+  },
+  {
+    "id": "q_thithu_hn24_046",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Trong không gian $Oxyz$, khoảng cách từ điểm $A(1; 2; 4)$ đến mặt phẳng $2x - y + 2z - 6 = 0$ là:",
+    "choices": [
+      "$\\frac{2}{3}$",
+      "1",
+      "2",
+      "3"
+    ],
+    "correct": 0,
+    "explanation": "$d = \\frac{|2 \\cdot 1 - 2 + 2 \\cdot 4 - 6|}{\\sqrt{4+1+4}} = \\frac{|2-2+8-6|}{3} = \\frac{2}{3}$."
+  },
+  {
+    "id": "q_thithu_hn24_047",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Khoảng cách giữa hai điểm $A(1; 2; 3)$ và $B(4; 6; 3)$ trong không gian là:",
+    "choices": [
+      "5",
+      "$\\sqrt{34}$",
+      "$\\sqrt{26}$",
+      "7"
+    ],
+    "correct": 0,
+    "explanation": "$d = \\sqrt{(4-1)^2+(6-2)^2+(3-3)^2} = \\sqrt{9+16} = 5$."
+  },
+  {
+    "id": "q_thithu_hn24_048",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "$\\int \\cos x \\, dx$ bằng:",
+    "choices": [
+      "$\\sin x + C$",
+      "$-\\sin x + C$",
+      "$\\cos x + C$",
+      "$\\tan x + C$"
+    ],
+    "correct": 0,
+    "explanation": "$\\int \\cos x \\, dx = \\sin x + C$."
+  },
+  {
+    "id": "q_thithu_hn24_049",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Hệ phương trình $\\begin{cases} x + y = 5 \\\\ 2x - y = 1 \\end{cases}$ có nghiệm là:",
+    "choices": [
+      "$(2; 3)$",
+      "$(3; 2)$",
+      "$(1; 4)$",
+      "$(4; 1)$"
+    ],
+    "correct": 0,
+    "explanation": "Cộng hai phương trình: $3x = 6 \\Rightarrow x = 2$; $y = 5 - 2 = 3$. Nghiệm $(2; 3)$."
+  },
+  {
+    "id": "q_thithu_hn24_050",
+    "source": "thithu_hn24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Tam giác có ba cạnh $3, 4, 5$ là:",
+    "choices": [
+      "Tam giác vuông",
+      "Tam giác đều",
+      "Tam giác tù",
+      "Tam giác nhọn"
+    ],
+    "correct": 0,
+    "explanation": "$3^2 + 4^2 = 9 + 16 = 25 = 5^2$, thỏa định lý Pythagore, đây là tam giác vuông."
+  },
+  {
+    "id": "q_thithu_hcm24_001",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Phương trình $x^2 - 5x + 4 = 0$ có bao nhiêu nghiệm thực?",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$3$"
+    ],
+    "correct": 2,
+    "explanation": "$\\Delta = 25 - 16 = 9 > 0$. Phương trình có 2 nghiệm thực phân biệt: $x=1$ và $x=4$."
+  },
+  {
+    "id": "q_thithu_hcm24_002",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Giá trị của $\\log_4 16$ bằng",
+    "choices": [
+      "$4$",
+      "$2$",
+      "$8$",
+      "$\\dfrac{1}{2}$"
+    ],
+    "correct": 1,
+    "explanation": "$\\log_4 16 = \\log_4 4^2 = 2$."
+  },
+  {
+    "id": "q_thithu_hcm24_003",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Tính $\\displaystyle\\int_1^e \\dfrac{1}{x}\\,dx$",
+    "choices": [
+      "$e$",
+      "$1$",
+      "$\\ln 2$",
+      "$0$"
+    ],
+    "correct": 1,
+    "explanation": "$\\int_1^e \\frac{1}{x}\\,dx = [\\ln x]_1^e = 1 - 0 = 1$."
+  },
+  {
+    "id": "q_thithu_hcm24_004",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tính $|3 + 4i|$",
+    "choices": [
+      "$3$",
+      "$4$",
+      "$5$",
+      "$7$"
+    ],
+    "correct": 2,
+    "explanation": "$|3+4i| = \\sqrt{3^2+4^2} = \\sqrt{25} = 5$."
+  },
+  {
+    "id": "q_thithu_hcm24_005",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Hình hộp chữ nhật có ba kích thước $2$, $3$, $4$. Thể tích là",
+    "choices": [
+      "$12$",
+      "$20$",
+      "$24$",
+      "$36$"
+    ],
+    "correct": 2,
+    "explanation": "$V = 2 \\times 3 \\times 4 = 24$."
+  },
+  {
+    "id": "q_thithu_hcm24_006",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Tung 2 xúc xắc cân đối. Xác suất để tổng hai mặt bằng 8 là",
+    "choices": [
+      "$\\dfrac{1}{6}$",
+      "$\\dfrac{5}{36}$",
+      "$\\dfrac{1}{9}$",
+      "$\\dfrac{7}{36}$"
+    ],
+    "correct": 1,
+    "explanation": "Các cặp có tổng 8: $(2,6),(3,5),(4,4),(5,3),(6,2)$, có 5 cặp. $P = \\dfrac{5}{36}$."
+  },
+  {
+    "id": "q_thithu_hcm24_007",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Cho cấp số nhân $(u_n)$ với $u_1 = 1$, $q = 2$. Tổng $S_8$ bằng",
+    "choices": [
+      "$255$",
+      "$256$",
+      "$128$",
+      "$127$"
+    ],
+    "correct": 0,
+    "explanation": "$S_8 = u_1 \\cdot \\dfrac{q^8-1}{q-1} = \\dfrac{2^8-1}{1} = 255$."
+  },
+  {
+    "id": "q_thithu_hcm24_008",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Hàm số $y = x^3 - 3x^2$ nghịch biến trên khoảng nào?",
+    "choices": [
+      "$(-\\infty;\\, 0)$",
+      "$(0;\\, 2)$",
+      "$(2;\\, +\\infty)$",
+      "$(-\\infty;\\, 2)$"
+    ],
+    "correct": 1,
+    "explanation": "$y' = 3x^2-6x = 3x(x-2) < 0 \\Leftrightarrow 0 < x < 2$."
+  },
+  {
+    "id": "q_thithu_hcm24_009",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "trigonometry",
+    "difficulty": "medium",
+    "question": "Nghiệm của phương trình $\\cos x = 0$ trong $[0;\\, 2\\pi]$ là",
+    "choices": [
+      "$x = \\dfrac{\\pi}{2}$ hoặc $x = \\dfrac{3\\pi}{2}$",
+      "$x = 0$ hoặc $x = \\pi$",
+      "$x = \\dfrac{\\pi}{4}$ hoặc $x = \\dfrac{3\\pi}{4}$",
+      "$x = \\dfrac{\\pi}{2}$ (chỉ một nghiệm)"
+    ],
+    "correct": 0,
+    "explanation": "$\\cos x = 0 \\Rightarrow x = \\dfrac{\\pi}{2} + k\\pi$. Trong $[0;2\\pi]$: $x = \\dfrac{\\pi}{2}$ hoặc $x = \\dfrac{3\\pi}{2}$."
+  },
+  {
+    "id": "q_thithu_hcm24_010",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Tập nghiệm của bất phương trình $\\left(\\dfrac{1}{2}\\right)^x < 4$ là",
+    "choices": [
+      "$x > -2$",
+      "$x < -2$",
+      "$x > 2$",
+      "$x < 2$"
+    ],
+    "correct": 0,
+    "explanation": "$\\left(\\dfrac{1}{2}\\right)^x < \\left(\\dfrac{1}{2}\\right)^{-2}$. Vì cơ số $\\dfrac{1}{2} < 1$, bất phương trình đổi chiều: $x > -2$."
+  },
+  {
+    "id": "q_thithu_hcm24_011",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Điểm uốn của đồ thị hàm số $y = (x-1)^3$ là",
+    "choices": [
+      "$(0;\\, -1)$",
+      "$(1;\\, 0)$",
+      "$(-1;\\, -8)$",
+      "$(2;\\, 1)$"
+    ],
+    "correct": 1,
+    "explanation": "$y'' = 6(x-1) = 0 \\Rightarrow x=1$. Tại $x=1$: $y=0$. Điểm uốn là $(1;\\, 0)$."
+  },
+  {
+    "id": "q_thithu_hcm24_012",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Hình chóp đều $S.ABCD$ có đáy $ABCD$ là hình vuông cạnh $6$ cm và chiều cao $SO = 4$ cm. Thể tích là",
+    "choices": [
+      "$36$ cm³",
+      "$48$ cm³",
+      "$72$ cm³",
+      "$24$ cm³"
+    ],
+    "correct": 1,
+    "explanation": "$V = \\dfrac{1}{3} \\times 6^2 \\times 4 = \\dfrac{1}{3} \\times 36 \\times 4 = 48$ cm$^3$."
+  },
+  {
+    "id": "q_thithu_hcm24_013",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho $\\vec{u} = (2;\\, 3;\\, 1)$ và $\\vec{v} = (1;\\, -1;\\, 2)$. Tích vô hướng $\\vec{u} \\cdot \\vec{v}$ bằng",
+    "choices": [
+      "$1$",
+      "$-1$",
+      "$3$",
+      "$5$"
+    ],
+    "correct": 0,
+    "explanation": "$\\vec{u} \\cdot \\vec{v} = 2 \\times 1 + 3 \\times (-1) + 1 \\times 2 = 2 - 3 + 2 = 1$."
+  },
+  {
+    "id": "q_thithu_hcm24_014",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Tổng các giá trị nguyên của $x$ thỏa $|x^2 - x - 6| \\leq 0$ là",
+    "choices": [
+      "$1$",
+      "$5$",
+      "$-1$",
+      "$3$"
+    ],
+    "correct": 0,
+    "explanation": "$|x^2-x-6| = 0 \\Rightarrow x^2-x-6=0 \\Rightarrow x=3$ hoặc $x=-2$. Tổng $= 3+(-2)=1$."
+  },
+  {
+    "id": "q_thithu_hcm24_015",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "easy",
+    "question": "Mốt (mode) của mẫu số liệu $\\{3;\\, 5;\\, 5;\\, 7;\\, 8;\\, 8;\\, 8;\\, 9\\}$ là",
+    "choices": [
+      "$5$",
+      "$7$",
+      "$8$",
+      "$9$"
+    ],
+    "correct": 2,
+    "explanation": "Giá trị 8 xuất hiện nhiều nhất (3 lần). Mốt là 8."
+  },
+  {
+    "id": "q_thithu_hcm24_016",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Tiệm cận đứng của đồ thị hàm số $y = \\dfrac{x+2}{x-1}$ là đường thẳng",
+    "choices": [
+      "$y = 1$",
+      "$x = -2$",
+      "$x = 1$",
+      "$y = -2$"
+    ],
+    "correct": 2,
+    "explanation": "Mẫu bằng 0 tại $x=1$, tử $= 3 \\neq 0$. Tiệm cận đứng: $x=1$."
+  },
+  {
+    "id": "q_thithu_hcm24_017",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Gửi cuối mỗi tháng 2 triệu đồng trong 12 tháng với lãi suất $1\\%$/tháng. Tổng tiền cuối kỳ (xấp xỉ) là",
+    "choices": [
+      "$24{,}00$ triệu",
+      "$25{,}37$ triệu",
+      "$26{,}00$ triệu",
+      "$24{,}60$ triệu"
+    ],
+    "correct": 1,
+    "explanation": "$S = 2 \\times \\dfrac{(1{,}01)^{12}-1}{0{,}01} \\approx 2 \\times 12{,}68 \\approx 25{,}37$ triệu đồng."
+  },
+  {
+    "id": "q_thithu_hcm24_018",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Nghiệm của phương trình $2\\log_2 x - \\log_2(x-1) = 2$ là",
+    "choices": [
+      "$x = 1$",
+      "$x = 2$",
+      "$x = 4$",
+      "$x = 3$"
+    ],
+    "correct": 1,
+    "explanation": "$\\log_2\\dfrac{x^2}{x-1}=2 \\Rightarrow x^2=4(x-1) \\Rightarrow (x-2)^2=0 \\Rightarrow x=2$."
+  },
+  {
+    "id": "q_thithu_hcm24_019",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "trigonometry",
+    "difficulty": "medium",
+    "question": "Giá trị của $\\sin^2\\alpha + \\cos^2\\alpha + \\tan^2\\alpha - \\sec^2\\alpha$ bằng",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$-1$"
+    ],
+    "correct": 0,
+    "explanation": "$\\sin^2\\alpha+\\cos^2\\alpha=1$ và $\\tan^2\\alpha - \\sec^2\\alpha = \\tan^2\\alpha - (1+\\tan^2\\alpha) = -1$. Tổng $= 1 + (-1) = 0$."
+  },
+  {
+    "id": "q_thithu_hcm24_020",
+    "source": "Sở GD&ĐT TP. Hồ Chí Minh — Đề thi thử 2024",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Giá trị lớn nhất của hàm số $g(x) = -(x-3)^2 + 4$ là",
+    "choices": [
+      "$3$",
+      "$4$",
+      "$-4$",
+      "$0$"
+    ],
+    "correct": 1,
+    "explanation": "$g(x) = -(x-3)^2 + 4 \\leq 4$, dấu bằng khi $x=3$. Giá trị lớn nhất là 4."
+  },
+  {
+    "id": "q_thithu_hcm24_021",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Đạo hàm của hàm số $f(x) = (x^2 + 1)^3$ là:",
+    "choices": [
+      "$6x(x^2+1)^2$",
+      "$3(x^2+1)^2$",
+      "$6x^2(x^2+1)^2$",
+      "$(x^2+1)^3$"
+    ],
+    "correct": 0,
+    "explanation": "Dùng quy tắc dây chuyền: $f'(x) = 3(x^2+1)^2 \\cdot 2x = 6x(x^2+1)^2$."
+  },
+  {
+    "id": "q_thithu_hcm24_022",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cấp số nhân lùi vô hạn có $u_1 = 5$, $q = \\frac{1}{5}$. Tổng của cấp số nhân là:",
+    "choices": [
+      "$\\frac{25}{4}$",
+      "5",
+      "$\\frac{5}{4}$",
+      "25"
+    ],
+    "correct": 0,
+    "explanation": "$S = \\frac{u_1}{1-q} = \\frac{5}{1-1/5} = \\frac{5}{4/5} = \\frac{25}{4}$."
+  },
+  {
+    "id": "q_thithu_hcm24_023",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "combinatorics",
+    "difficulty": "easy",
+    "question": "Giá trị của $C_6^0 + C_6^6$ bằng:",
+    "choices": [
+      "2",
+      "1",
+      "12",
+      "6"
+    ],
+    "correct": 0,
+    "explanation": "$C_6^0 = 1$ và $C_6^6 = 1$, nên $C_6^0 + C_6^6 = 2$."
+  },
+  {
+    "id": "q_thithu_hcm24_024",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tập xác định của hàm số $y = \\sqrt{x+2} + \\sqrt{3-x}$ là:",
+    "choices": [
+      "$[-2; 3]$",
+      "$(-2; 3)$",
+      "$[-2; +\\infty)$",
+      "$(-\\infty; 3]$"
+    ],
+    "correct": 0,
+    "explanation": "Cần $x+2 \\geq 0$ và $3-x \\geq 0$, tức $-2 \\leq x \\leq 3$. Tập xác định: $[-2; 3]$."
+  },
+  {
+    "id": "q_thithu_hcm24_025",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Trong không gian $Oxyz$, khoảng cách từ điểm $A(1; 2; 3)$ đến gốc tọa độ $O$ là:",
+    "choices": [
+      "$\\sqrt{14}$",
+      "$\\sqrt{6}$",
+      "$\\sqrt{13}$",
+      "6"
+    ],
+    "correct": 0,
+    "explanation": "$d = \\sqrt{1^2 + 2^2 + 3^2} = \\sqrt{1+4+9} = \\sqrt{14}$."
+  },
+  {
+    "id": "q_thithu_hcm24_026",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "combinatorics",
+    "difficulty": "medium",
+    "question": "Số hoán vị của 5 phần tử $P_5$ bằng:",
+    "choices": [
+      "120",
+      "20",
+      "60",
+      "24"
+    ],
+    "correct": 0,
+    "explanation": "$P_5 = 5! = 120$."
+  },
+  {
+    "id": "q_thithu_hcm24_027",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Tập xác định của hàm số $y = \\ln(3x - 6)$ là:",
+    "choices": [
+      "$(2; +\\infty)$",
+      "$[2; +\\infty)$",
+      "$(-\\infty; 2)$",
+      "$\\mathbb{R}$"
+    ],
+    "correct": 0,
+    "explanation": "$3x - 6 > 0 \\Rightarrow x > 2$. Tập xác định là $(2; +\\infty)$."
+  },
+  {
+    "id": "q_thithu_hcm24_028",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trung điểm $M$ của đoạn $AB$ với $A(-1; 3)$, $B(5; -1)$ là:",
+    "choices": [
+      "$(2; 1)$",
+      "$(4; -2)$",
+      "$(3; 2)$",
+      "$(1; 3)$"
+    ],
+    "correct": 0,
+    "explanation": "$M = \\left(\\frac{-1+5}{2}; \\frac{3+(-1)}{2}\\right) = (2; 1)$."
+  },
+  {
+    "id": "q_thithu_hcm24_029",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Hình chiếu của điểm $N(3; 5; 7)$ lên mặt phẳng $Oxy$ là điểm:",
+    "choices": [
+      "$(3; 5; 0)$",
+      "$(3; 0; 7)$",
+      "$(0; 5; 7)$",
+      "$(3; 5; 7)$"
+    ],
+    "correct": 0,
+    "explanation": "Chiếu lên $Oxy$ tức là cho $z = 0$: hình chiếu là $(3; 5; 0)$."
+  },
+  {
+    "id": "q_thithu_hcm24_030",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Đạo hàm của hàm số $y = \\log_a x$ ($a > 0$, $a \\neq 1$) là:",
+    "choices": [
+      "$\\frac{1}{x \\ln a}$",
+      "$\\frac{\\ln a}{x}$",
+      "$\\frac{1}{x}$",
+      "$a^x \\ln a$"
+    ],
+    "correct": 0,
+    "explanation": "$(\\log_a x)' = \\frac{1}{x \\ln a}$."
+  },
+  {
+    "id": "q_thithu_hcm24_031",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "$\\int e^x \\, dx$ bằng:",
+    "choices": [
+      "$e^x + C$",
+      "$e^x \\cdot x + C$",
+      "$\\frac{e^x}{x} + C$",
+      "$xe^{x-1} + C$"
+    ],
+    "correct": 0,
+    "explanation": "$\\int e^x \\, dx = e^x + C$."
+  },
+  {
+    "id": "q_thithu_hcm24_032",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tích của hai số phức $(1 + 2i)(3 - i)$ là:",
+    "choices": [
+      "$5 + 5i$",
+      "$3 - 2i$",
+      "$1 + 7i$",
+      "$5 - 5i$"
+    ],
+    "correct": 0,
+    "explanation": "$(1+2i)(3-i) = 3 - i + 6i - 2i^2 = 3 + 5i + 2 = 5 + 5i$."
+  },
+  {
+    "id": "q_thithu_hcm24_033",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cấp số nhân $2, 6, 18, \\ldots$ có số hạng thứ 5 là:",
+    "choices": [
+      "162",
+      "54",
+      "486",
+      "18"
+    ],
+    "correct": 0,
+    "explanation": "$q = 3$, $u_1 = 2$. $u_5 = 2 \\cdot 3^4 = 2 \\cdot 81 = 162$."
+  },
+  {
+    "id": "q_thithu_hcm24_034",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Nghiệm của phương trình $9^x = 27$ là:",
+    "choices": [
+      "$x = \\frac{3}{2}$",
+      "$x = 2$",
+      "$x = \\frac{2}{3}$",
+      "$x = 3$"
+    ],
+    "correct": 0,
+    "explanation": "$9^x = 27 \\Rightarrow 3^{2x} = 3^3 \\Rightarrow 2x = 3 \\Rightarrow x = \\frac{3}{2}$."
+  },
+  {
+    "id": "q_thithu_hcm24_035",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Phương trình đường tròn tâm $I(2; -3)$, bán kính $R = 4$ là:",
+    "choices": [
+      "$(x-2)^2 + (y+3)^2 = 16$",
+      "$(x+2)^2 + (y-3)^2 = 16$",
+      "$(x-2)^2 + (y-3)^2 = 4$",
+      "$(x-2)^2 + (y+3)^2 = 4$"
+    ],
+    "correct": 0,
+    "explanation": "Phương trình đường tròn: $(x-2)^2 + (y+3)^2 = 4^2 = 16$."
+  },
+  {
+    "id": "q_thithu_hcm24_036",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "$\\ln e^7$ bằng:",
+    "choices": [
+      "7",
+      "$e^7$",
+      "$7e$",
+      "1"
+    ],
+    "correct": 0,
+    "explanation": "$\\ln e^7 = 7 \\ln e = 7 \\cdot 1 = 7$."
+  },
+  {
+    "id": "q_thithu_hcm24_037",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Bất phương trình $|x - 3| < 2$ có nghiệm là:",
+    "choices": [
+      "$1 < x < 5$",
+      "$x < 1$ hoặc $x > 5$",
+      "$-1 < x < 5$",
+      "$1 \\leq x \\leq 5$"
+    ],
+    "correct": 0,
+    "explanation": "$|x-3| < 2 \\Leftrightarrow -2 < x - 3 < 2 \\Leftrightarrow 1 < x < 5$."
+  },
+  {
+    "id": "q_thithu_hcm24_038",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Hàm số $f(x) = -x^3 + 3x - 2$ đạt cực tiểu tại:",
+    "choices": [
+      "$x = -1$",
+      "$x = 1$",
+      "$x = 0$",
+      "$x = 2$"
+    ],
+    "correct": 0,
+    "explanation": "$f'(x) = -3x^2 + 3 = 0 \\Rightarrow x = \\pm 1$. $f''(x) = -6x$. $f''(-1) = 6 > 0$ nên cực tiểu tại $x = -1$."
+  },
+  {
+    "id": "q_thithu_hcm24_039",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Đạo hàm của $y = x e^x$ là:",
+    "choices": [
+      "$(1+x)e^x$",
+      "$e^x$",
+      "$xe^x$",
+      "$(x-1)e^x$"
+    ],
+    "correct": 0,
+    "explanation": "$y' = (x)'e^x + x(e^x)' = e^x + xe^x = (1+x)e^x$."
+  },
+  {
+    "id": "q_thithu_hcm24_040",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích của hình lập phương có cạnh $a = 3$ là:",
+    "choices": [
+      "27",
+      "9",
+      "18",
+      "81"
+    ],
+    "correct": 0,
+    "explanation": "$V = a^3 = 3^3 = 27$."
+  },
+  {
+    "id": "q_thithu_hcm24_041",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "easy",
+    "question": "Rút ngẫu nhiên 1 lá bài từ bộ 52 lá. Xác suất rút được lá bài Át (A) là:",
+    "choices": [
+      "$\\frac{1}{13}$",
+      "$\\frac{1}{4}$",
+      "$\\frac{1}{52}$",
+      "$\\frac{4}{13}$"
+    ],
+    "correct": 0,
+    "explanation": "Có 4 lá Át trong 52 lá. $P = \\frac{4}{52} = \\frac{1}{13}$."
+  },
+  {
+    "id": "q_thithu_hcm24_042",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "$\\log_8 16$ bằng:",
+    "choices": [
+      "$\\frac{4}{3}$",
+      "2",
+      "$\\frac{3}{4}$",
+      "$\\frac{1}{2}$"
+    ],
+    "correct": 0,
+    "explanation": "$\\log_8 16 = \\frac{\\log 16}{\\log 8} = \\frac{4 \\log 2}{3 \\log 2} = \\frac{4}{3}$."
+  },
+  {
+    "id": "q_thithu_hcm24_043",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Hàm số $y = e^{-x}$ là hàm số:",
+    "choices": [
+      "Giảm trên $\\mathbb{R}$",
+      "Tăng trên $\\mathbb{R}$",
+      "Đồng biến khi $x > 0$",
+      "Nghịch biến khi $x < 0$"
+    ],
+    "correct": 0,
+    "explanation": "$y' = -e^{-x} < 0$ với mọi $x$, nên hàm giảm trên $\\mathbb{R}$."
+  },
+  {
+    "id": "q_thithu_hcm24_044",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tổng các số lẻ từ 1 đến 99 là:",
+    "choices": [
+      "2500",
+      "2499",
+      "2501",
+      "5000"
+    ],
+    "correct": 0,
+    "explanation": "Các số lẻ từ 1 đến 99: có 50 số. $S = \\frac{50(1+99)}{2} = 2500$."
+  },
+  {
+    "id": "q_thithu_hcm24_045",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Đỉnh của parabol $y = -x^2 + 6x - 5$ là:",
+    "choices": [
+      "$(3; 4)$",
+      "$(-3; -32)$",
+      "$(0; -5)$",
+      "$(6; -5)$"
+    ],
+    "correct": 0,
+    "explanation": "$x_{\\text{đỉnh}} = -\\frac{b}{2a} = -\\frac{6}{-2} = 3$. $y(3) = -9+18-5 = 4$. Đỉnh $(3; 4)$."
+  },
+  {
+    "id": "q_thithu_hcm24_046",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Khoảng cách từ điểm $B(2; 1; 3)$ đến mặt phẳng $x + 2y - 2z + 1 = 0$ là:",
+    "choices": [
+      "$\\frac{1}{3}$",
+      "1",
+      "2",
+      "$\\frac{2}{3}$"
+    ],
+    "correct": 0,
+    "explanation": "$d = \\frac{|2 + 2 \\cdot 1 - 2 \\cdot 3 + 1|}{\\sqrt{1+4+4}} = \\frac{|2+2-6+1|}{3} = \\frac{|-1|}{3} = \\frac{1}{3}$."
+  },
+  {
+    "id": "q_thithu_hcm24_047",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Khoảng cách giữa hai điểm $P(1; 1; 1)$ và $Q(4; 5; 1)$ trong không gian là:",
+    "choices": [
+      "5",
+      "$\\sqrt{41}$",
+      "$\\sqrt{26}$",
+      "$\\sqrt{17}$"
+    ],
+    "correct": 0,
+    "explanation": "$d = \\sqrt{(4-1)^2+(5-1)^2+(1-1)^2} = \\sqrt{9+16} = \\sqrt{25} = 5$."
+  },
+  {
+    "id": "q_thithu_hcm24_048",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "$\\int 2x \\, dx$ bằng:",
+    "choices": [
+      "$x^2 + C$",
+      "$2x^2 + C$",
+      "$x + C$",
+      "$\\frac{x^2}{2} + C$"
+    ],
+    "correct": 0,
+    "explanation": "$\\int 2x \\, dx = 2 \\cdot \\frac{x^2}{2} + C = x^2 + C$."
+  },
+  {
+    "id": "q_thithu_hcm24_049",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Hệ phương trình $\\begin{cases} 3x + 2y = 7 \\\\ x - y = 1 \\end{cases}$ có nghiệm là:",
+    "choices": [
+      "$(\\frac{9}{5}; \\frac{4}{5})$",
+      "$(2; 1)$",
+      "$(1; 2)$",
+      "$(3; 0)$"
+    ],
+    "correct": 0,
+    "explanation": "Từ PT2: $x = 1+y$. Thay vào PT1: $3(1+y)+2y=7 \\Rightarrow 5y=4 \\Rightarrow y=\\frac{4}{5}$, $x = \\frac{9}{5}$."
+  },
+  {
+    "id": "q_thithu_hcm24_050",
+    "source": "thithu_hcm24",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Hình chữ nhật có chiều dài 8, chiều rộng 6. Đường chéo của hình chữ nhật có độ dài là:",
+    "choices": [
+      "10",
+      "14",
+      "$\\sqrt{28}$",
+      "$\\sqrt{100}$"
+    ],
+    "correct": 0,
+    "explanation": "Đường chéo $d = \\sqrt{8^2 + 6^2} = \\sqrt{64+36} = \\sqrt{100} = 10$."
+  },
+
+  {"id":"q_sat_001","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"easy","question":"Nếu $3x + 7 = 22$, giá trị của $6x + 14$ là bao nhiêu?","choices":["$44$","$22$","$11$","$33$"],"correct":0,"explanation":"$6x + 14 = 2(3x + 7) = 2 \\times 22 = 44$."},
+  {"id":"q_sat_002","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"easy","question":"Một cửa hàng bán vở với giá $3$ USD/quyển và bút với giá $1{,}5$ USD/cái. Maria tiêu đúng $18$ USD và mua $4$ cái bút. Cô ấy mua bao nhiêu quyển vở?","choices":["$4$ quyển","$3$ quyển","$5$ quyển","$6$ quyển"],"correct":0,"explanation":"$4$ bút $= 4 \\times 1{,}5 = 6$ USD. Còn lại $18 - 6 = 12$ USD. Vở $= 12 \\div 3 = 4$ quyển."},
+  {"id":"q_sat_003","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"medium","question":"Phương trình $x^2 - 5x + 6 = 0$ có tổng các nghiệm bằng:","choices":["$5$","$6$","$-5$","$-1$"],"correct":0,"explanation":"Theo định lý Vieta, tổng hai nghiệm $= \\dfrac{5}{1} = 5$."},
+  {"id":"q_sat_004","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"functions","difficulty":"medium","question":"Cho $f(x) = 2x^2 - 3x + 1$. Giá trị $f(3)$ bằng:","choices":["$10$","$8$","$12$","$4$"],"correct":0,"explanation":"$f(3) = 2(9) - 3(3) + 1 = 18 - 9 + 1 = 10$."},
+  {"id":"q_sat_005","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"geometry","difficulty":"easy","question":"Tam giác vuông có hai cạnh góc vuông là $5$ và $12$. Cạnh huyền có độ dài:","choices":["$13$","$17$","$11$","$\\sqrt{17}$"],"correct":0,"explanation":"$c = \\sqrt{5^2 + 12^2} = \\sqrt{25 + 144} = \\sqrt{169} = 13$."},
+  {"id":"q_sat_006","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"easy","question":"Một chiếc áo khoác giá $80$ USD được giảm giá $25\\%$. Giá sau khi giảm là:","choices":["$60$ USD","$55$ USD","$65$ USD","$20$ USD"],"correct":0,"explanation":"Giá sau giảm $= 80 \\times (1 - 0{,}25) = 80 \\times 0{,}75 = 60$ USD."},
+  {"id":"q_sat_007","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"medium","question":"Nếu $x + y = 10$ và $x - y = 4$, tích $xy$ bằng:","choices":["$21$","$24$","$6$","$40$"],"correct":0,"explanation":"Giải hệ: $x = 7$, $y = 3$. Vậy $xy = 7 \\times 3 = 21$."},
+  {"id":"q_sat_008","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"statistics","difficulty":"easy","question":"Trung vị của tập $\\{3,\\, 7,\\, 5,\\, 9,\\, 1\\}$ là:","choices":["$5$","$7$","$3$","$25$"],"correct":0,"explanation":"Sắp xếp tăng dần: $1, 3, 5, 7, 9$. Trung vị là phần tử giữa: $5$."},
+  {"id":"q_sat_009","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"medium","question":"Nếu $2^x = 32$, giá trị $2^{x+2}$ là:","choices":["$128$","$64$","$34$","$36$"],"correct":0,"explanation":"$2^x = 32 = 2^5$, nên $x = 5$. Vậy $2^{x+2} = 2^7 = 128$."},
+  {"id":"q_sat_010","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"easy","question":"$4$ công nhân hoàn thành một công việc trong $6$ ngày. Nếu có $8$ công nhân, công việc hoàn thành trong bao nhiêu ngày?","choices":["$3$ ngày","$4$ ngày","$12$ ngày","$2$ ngày"],"correct":0,"explanation":"Tích số công nhân và số ngày là hằng số: $4 \\times 6 = 8 \\times d \\Rightarrow d = 3$ ngày."},
+  {"id":"q_sat_011","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"geometry","difficulty":"medium","question":"Một đường tròn có chu vi $12\\pi$. Diện tích của nó là:","choices":["$36\\pi$","$12\\pi$","$6\\pi$","$144\\pi$"],"correct":0,"explanation":"Chu vi $= 2\\pi r = 12\\pi \\Rightarrow r = 6$. Diện tích $= \\pi r^2 = 36\\pi$."},
+  {"id":"q_sat_012","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"medium","question":"Số nguyên lớn nhất thỏa mãn bất phương trình $3x - 5 < 10$ là:","choices":["$4$","$5$","$3$","$6$"],"correct":0,"explanation":"$3x - 5 < 10 \\Rightarrow 3x < 15 \\Rightarrow x < 5$. Số nguyên lớn nhất thỏa mãn là $4$."},
+  {"id":"q_sat_013","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"geometry","difficulty":"easy","question":"Hệ số góc của đường thẳng qua $(1,\\,3)$ và $(4,\\,9)$ là:","choices":["$2$","$3$","$1$","$\\dfrac{1}{2}$"],"correct":0,"explanation":"$k = \\dfrac{9 - 3}{4 - 1} = \\dfrac{6}{3} = 2$."},
+  {"id":"q_sat_014","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"probability","difficulty":"easy","question":"Túi có $3$ bi đỏ và $7$ bi xanh. Xác suất rút ngẫu nhiên được bi đỏ là:","choices":["$\\dfrac{3}{10}$","$\\dfrac{7}{10}$","$\\dfrac{3}{7}$","$\\dfrac{1}{3}$"],"correct":0,"explanation":"Xác suất $= \\dfrac{3}{3+7} = \\dfrac{3}{10}$."},
+  {"id":"q_sat_015","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"sequences","difficulty":"medium","question":"Số hạng thứ $10$ của dãy số $3, 6, 9, 12, \\ldots$ là:","choices":["$30$","$27$","$33$","$28$"],"correct":0,"explanation":"Dãy cấp số cộng với $d = 3$. Số hạng thứ $10$: $a_{10} = 3 + 9 \\times 3 = 30$."},
+  {"id":"q_sat_016","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"hard","question":"Nếu $(x + y)^2 = 25$ và $xy = 6$, giá trị $x^2 + y^2$ bằng:","choices":["$13$","$25$","$37$","$1$"],"correct":0,"explanation":"$x^2 + y^2 = (x+y)^2 - 2xy = 25 - 2(6) = 13$."},
+  {"id":"q_sat_017","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"medium","question":"Có bao nhiêu số nguyên $x$ thỏa mãn $|2x - 3| \\leq 5$?","choices":["$6$","$4$","$5$","$8$"],"correct":0,"explanation":"$|2x - 3| \\leq 5 \\Rightarrow -5 \\leq 2x-3 \\leq 5 \\Rightarrow -1 \\leq x \\leq 4$. Các số nguyên: $\\{-1, 0, 1, 2, 3, 4\\}$, có $6$ số."},
+  {"id":"q_sat_018","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"medium","question":"Nhân tử nào sau đây là nhân tử của $x^2 + 7x + 12$?","choices":["$(x + 3)$","$(x - 3)$","$(x + 6)$","$(x - 4)$"],"correct":0,"explanation":"$x^2 + 7x + 12 = (x+3)(x+4)$, vậy $(x+3)$ là nhân tử."},
+  {"id":"q_sat_019","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"geometry","difficulty":"easy","question":"Khối lập phương có cạnh $4$. Thể tích của nó là:","choices":["$64$","$16$","$12$","$48$"],"correct":0,"explanation":"Thể tích $= 4^3 = 64$."},
+  {"id":"q_sat_020","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"medium","question":"Trong một lớp học, tỉ lệ học sinh nam và nữ là $3:5$, tổng $40$ học sinh. Số học sinh nữ là:","choices":["$25$","$15$","$20$","$24$"],"correct":0,"explanation":"Học sinh nữ $= \\dfrac{5}{3+5} \\times 40 = \\dfrac{5}{8} \\times 40 = 25$."},
+
+  {"id":"q_gauss_001","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"arithmetic","difficulty":"easy","question":"Kết quả của $2 + 3 \\times 4 - 1$ là:","choices":["$13$","$19$","$11$","$20$"],"correct":0,"explanation":"Theo thứ tự phép tính: $2 + 12 - 1 = 13$."},
+  {"id":"q_gauss_002","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"geometry","difficulty":"easy","question":"Lục giác đều có cạnh $6$. Chu vi của nó là:","choices":["$36$","$30$","$42$","$24$"],"correct":0,"explanation":"Chu vi $= 6 \\times 6 = 36$."},
+  {"id":"q_gauss_003","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"number_theory","difficulty":"easy","question":"Có bao nhiêu số tự nhiên có hai chữ số chia hết cho $7$?","choices":["$13$","$12$","$14$","$11$"],"correct":0,"explanation":"Từ $14$ đến $98$: số lượng $= \\dfrac{98 - 14}{7} + 1 = 12 + 1 = 13$."},
+  {"id":"q_gauss_004","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"arithmetic","difficulty":"easy","question":"$\\dfrac{1}{2} + \\dfrac{1}{3} + \\dfrac{1}{6}$ bằng:","choices":["$1$","$\\dfrac{5}{6}$","$\\dfrac{7}{6}$","$\\dfrac{2}{3}$"],"correct":0,"explanation":"$\\dfrac{3}{6} + \\dfrac{2}{6} + \\dfrac{1}{6} = \\dfrac{6}{6} = 1$."},
+  {"id":"q_gauss_005","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"algebra","difficulty":"medium","question":"Nếu $2^a = 8$ và $3^b = 27$, giá trị $a + b$ là:","choices":["$6$","$5$","$7$","$4$"],"correct":0,"explanation":"$2^a = 8 = 2^3 \\Rightarrow a = 3$. $3^b = 27 = 3^3 \\Rightarrow b = 3$. Vậy $a + b = 6$."},
+  {"id":"q_gauss_006","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"geometry","difficulty":"easy","question":"Tam giác có đáy $8$ và chiều cao $5$. Diện tích là:","choices":["$20$","$40$","$13$","$10$"],"correct":0,"explanation":"Diện tích $= \\dfrac{1}{2} \\times 8 \\times 5 = 20$."},
+  {"id":"q_gauss_007","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"sequences","difficulty":"medium","question":"Tổng $100$ số lẻ dương đầu tiên $(1 + 3 + 5 + \\ldots)$ là:","choices":["$10000$","$5050$","$9999$","$10100$"],"correct":0,"explanation":"Tổng $n$ số lẻ dương đầu tiên $= n^2$. Với $n = 100$: tổng $= 100^2 = 10000$."},
+  {"id":"q_gauss_008","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"combinatorics","difficulty":"medium","question":"Có bao nhiêu cách sắp xếp $4$ chữ cái A, B, C, D thành một hàng?","choices":["$24$","$12$","$16$","$4$"],"correct":0,"explanation":"Số hoán vị: $4! = 4 \\times 3 \\times 2 \\times 1 = 24$."},
+  {"id":"q_gauss_009","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"number_theory","difficulty":"medium","question":"ƯCLN của $48$ và $36$ là:","choices":["$12$","$6$","$18$","$4$"],"correct":0,"explanation":"$48 = 2^4 \\times 3$, $36 = 2^2 \\times 3^2$. ƯCLN $= 2^2 \\times 3 = 12$."},
+  {"id":"q_gauss_010","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"arithmetic","difficulty":"easy","question":"$120\\%$ của $50$ bằng:","choices":["$60$","$50$","$70$","$6$"],"correct":0,"explanation":"$120\\% \\times 50 = 1{,}2 \\times 50 = 60$."},
+  {"id":"q_gauss_011","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"algebra","difficulty":"medium","question":"Giá trị $x$ thỏa mãn $\\dfrac{x}{3} + \\dfrac{x}{6} = 5$ là:","choices":["$10$","$5$","$15$","$20$"],"correct":0,"explanation":"$\\dfrac{2x}{6} + \\dfrac{x}{6} = \\dfrac{3x}{6} = \\dfrac{x}{2} = 5 \\Rightarrow x = 10$."},
+  {"id":"q_gauss_012","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"geometry","difficulty":"medium","question":"Các góc của một tam giác là $x$, $2x$, $3x$. Góc lớn nhất là:","choices":["$90°$","$60°$","$30°$","$120°$"],"correct":0,"explanation":"$x + 2x + 3x = 180° \\Rightarrow 6x = 180° \\Rightarrow x = 30°$. Góc lớn nhất $= 3x = 90°$."},
+  {"id":"q_gauss_013","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"probability","difficulty":"medium","question":"Tung một đồng xúc xắc hai lần. Xác suất để cả hai lần đều ra số chẵn là:","choices":["$\\dfrac{1}{4}$","$\\dfrac{1}{2}$","$\\dfrac{1}{6}$","$\\dfrac{1}{3}$"],"correct":0,"explanation":"P(chẵn) $= \\dfrac{3}{6} = \\dfrac{1}{2}$. Cả hai lần chẵn: $\\dfrac{1}{2} \\times \\dfrac{1}{2} = \\dfrac{1}{4}$."},
+  {"id":"q_gauss_014","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"sequences","difficulty":"medium","question":"Số hạng thứ $5$ của dãy $2, 6, 18, 54, \\ldots$ là:","choices":["$162$","$108$","$54$","$324$"],"correct":0,"explanation":"Cấp số nhân với $q = 3$. Số hạng thứ $5$: $a_5 = 2 \\times 3^4 = 2 \\times 81 = 162$."},
+  {"id":"q_gauss_015","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"geometry","difficulty":"medium","question":"Trung điểm của đoạn thẳng nối $(2,\\,4)$ và $(8,\\,10)$ là:","choices":["$(5,\\ 7)$","$(4,\\ 6)$","$(6,\\ 7)$","$(5,\\ 8)$"],"correct":0,"explanation":"Trung điểm $= \\left(\\dfrac{2+8}{2},\\ \\dfrac{4+10}{2}\\right) = (5, 7)$."},
+  {"id":"q_gauss_016","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"algebra","difficulty":"medium","question":"$(a + b)^2 - (a - b)^2$ bằng:","choices":["$4ab$","$2ab$","$4a^2$","$4b^2$"],"correct":0,"explanation":"$(a+b)^2 - (a-b)^2 = [(a+b)+(a-b)][(a+b)-(a-b)] = 2a \\cdot 2b = 4ab$."},
+  {"id":"q_gauss_017","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"algebra","difficulty":"medium","question":"Tổng của hai số bằng $30$, tích của chúng bằng $221$. Số lớn hơn là:","choices":["$17$","$13$","$15$","$18$"],"correct":0,"explanation":"Hai số là nghiệm của $n^2 - 30n + 221 = 0 \\Rightarrow (n-13)(n-17) = 0$. Số lớn hơn là $17$."},
+  {"id":"q_gauss_018","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"geometry","difficulty":"easy","question":"Nếu bán kính tăng gấp đôi, diện tích hình tròn tăng lên bao nhiêu lần?","choices":["$4$ lần","$2$ lần","$8$ lần","$6$ lần"],"correct":0,"explanation":"Diện tích $= \\pi r^2$. Khi $r \\to 2r$: diện tích $= \\pi(2r)^2 = 4\\pi r^2$. Tăng $4$ lần."},
+  {"id":"q_gauss_019","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"number_theory","difficulty":"hard","question":"Chữ số hàng đơn vị của $7^{50}$ là:","choices":["$9$","$7$","$3$","$1$"],"correct":0,"explanation":"Chu kỳ chữ số hàng đơn vị của $7^n$: $7, 9, 3, 1, 7, \\ldots$ (chu kỳ $4$). $50 \\div 4 = 12$ dư $2$. Chữ số hàng đơn vị là $9$."},
+  {"id":"q_gauss_020","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"algebra","difficulty":"hard","question":"Nếu $x + \\dfrac{1}{x} = 3$, giá trị $x^2 + \\dfrac{1}{x^2}$ là:","choices":["$7$","$9$","$5$","$11$"],"correct":0,"explanation":"$\\left(x + \\dfrac{1}{x}\\right)^2 = x^2 + 2 + \\dfrac{1}{x^2} = 9 \\Rightarrow x^2 + \\dfrac{1}{x^2} = 7$."},
+
+  {"id":"q_ib_sl_001","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"functions","difficulty":"easy","question":"Cho $f(x) = 3x - 2$. Giá trị $f(4)$ là:","choices":["$10$","$14$","$6$","$12$"],"correct":0,"explanation":"$f(4) = 3(4) - 2 = 12 - 2 = 10$."},
+  {"id":"q_ib_sl_002","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"sets","difficulty":"easy","question":"Cho $A = \\{1, 2, 3, 4, 5\\}$ và $B = \\{3, 4, 5, 6, 7\\}$. Số phần tử của $A \\cap B$ là:","choices":["$3$","$2$","$5$","$7$"],"correct":0,"explanation":"$A \\cap B = \\{3, 4, 5\\}$, có $3$ phần tử."},
+  {"id":"q_ib_sl_003","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"sequences","difficulty":"medium","question":"Cấp số cộng có số đầu $5$, công sai $3$. Số hạng thứ $20$ là:","choices":["$62$","$60$","$65$","$57$"],"correct":0,"explanation":"$a_{20} = a_1 + (20-1)d = 5 + 19 \\times 3 = 5 + 57 = 62$."},
+  {"id":"q_ib_sl_004","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"sequences","difficulty":"medium","question":"Cấp số nhân có số đầu $2$, công bội $3$. Tổng $5$ số hạng đầu tiên là:","choices":["$242$","$124$","$360$","$162$"],"correct":0,"explanation":"$S_5 = \\dfrac{2(3^5 - 1)}{3 - 1} = \\dfrac{2 \\times 242}{2} = 242$."},
+  {"id":"q_ib_sl_005","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"algebra","difficulty":"medium","question":"Hệ số của $x^3$ trong khai triển $(1 + x)^5$ là:","choices":["$10$","$5$","$15$","$3$"],"correct":0,"explanation":"$C_5^3 = \\dfrac{5!}{3!\\,2!} = 10$."},
+  {"id":"q_ib_sl_006","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"trigonometry","difficulty":"easy","question":"$\\sin 30° + \\cos 60°$ bằng:","choices":["$1$","$\\sqrt{3}$","$\\dfrac{\\sqrt{3}}{2}$","$\\dfrac{1}{2}$"],"correct":0,"explanation":"$\\sin 30° = \\dfrac{1}{2}$, $\\cos 60° = \\dfrac{1}{2}$. Tổng $= 1$."},
+  {"id":"q_ib_sl_007","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"algebra","difficulty":"medium","question":"$\\log_2 32$ bằng:","choices":["$5$","$4$","$6$","$16$"],"correct":0,"explanation":"$2^5 = 32$, nên $\\log_2 32 = 5$."},
+  {"id":"q_ib_sl_008","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"calculus","difficulty":"medium","question":"Cho $f(x) = x^3 - 4x + 7$. Giá trị $f'(2)$ là:","choices":["$8$","$7$","$11$","$4$"],"correct":0,"explanation":"$f'(x) = 3x^2 - 4$. $f'(2) = 3(4) - 4 = 12 - 4 = 8$."},
+  {"id":"q_ib_sl_009","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"probability","difficulty":"medium","question":"Cho $P(A) = 0{,}4$, $P(B) = 0{,}5$, $P(A \\cap B) = 0{,}2$. Giá trị $P(A \\cup B)$ là:","choices":["$0{,}7$","$0{,}9$","$0{,}3$","$0{,}6$"],"correct":0,"explanation":"$P(A \\cup B) = P(A) + P(B) - P(A \\cap B) = 0{,}4 + 0{,}5 - 0{,}2 = 0{,}7$."},
+  {"id":"q_ib_sl_010","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"vectors","difficulty":"easy","question":"Độ dài vectơ $\\vec{v} = (3,\\, 4)$ là:","choices":["$5$","$7$","$\\sqrt{7}$","$25$"],"correct":0,"explanation":"$|\\vec{v}| = \\sqrt{3^2 + 4^2} = \\sqrt{9 + 16} = \\sqrt{25} = 5$."},
+  {"id":"q_ib_sl_011","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"functions","difficulty":"medium","question":"Hàm ngược của $f(x) = 2x + 6$ là:","choices":["$\\dfrac{x-6}{2}$","$\\dfrac{x+6}{2}$","$2x-6$","$\\dfrac{1}{2x+6}$"],"correct":0,"explanation":"Đặt $y = 2x + 6 \\Rightarrow x = \\dfrac{y-6}{2}$. Vậy $f^{-1}(x) = \\dfrac{x-6}{2}$."},
+  {"id":"q_ib_sl_012","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"calculus","difficulty":"medium","question":"$\\displaystyle\\int_0^2 (2x + 3)\\,dx$ bằng:","choices":["$10$","$7$","$8$","$14$"],"correct":0,"explanation":"$\\left[x^2 + 3x\\right]_0^2 = (4 + 6) - 0 = 10$."},
+  {"id":"q_ib_sl_013","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"algebra","difficulty":"easy","question":"$e^{\\ln 5}$ bằng:","choices":["$5$","$1$","$e^5$","$\\ln 5$"],"correct":0,"explanation":"$e^{\\ln 5} = 5$ vì $e^{\\ln x} = x$."},
+  {"id":"q_ib_sl_014","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"trigonometry","difficulty":"medium","question":"Trong tam giác vuông có cạnh huyền $10$ và một góc nhọn $30°$. Cạnh đối diện với góc $30°$ là:","choices":["$5$","$5\\sqrt{3}$","$\\dfrac{10}{\\sqrt{3}}$","$10\\sqrt{3}$"],"correct":0,"explanation":"Cạnh đối $= 10 \\times \\sin 30° = 10 \\times \\dfrac{1}{2} = 5$."},
+  {"id":"q_ib_sl_015","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"statistics","difficulty":"medium","question":"Phương sai của tập dữ liệu $\\{2, 4, 6, 8, 10\\}$ là:","choices":["$8$","$4$","$16$","$6$"],"correct":0,"explanation":"Trung bình $\\mu = 6$. Phương sai $= \\dfrac{(-4)^2+(-2)^2+0^2+2^2+4^2}{5} = \\dfrac{40}{5} = 8$."},
+  {"id":"q_ib_sl_016","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"functions","difficulty":"medium","question":"Đỉnh của parabol $y = x^2 - 6x + 11$ là:","choices":["$(3,\\ 2)$","$(6,\\ 11)$","$(-3,\\ 2)$","$(3,\\ -2)$"],"correct":0,"explanation":"$x_{\\text{đỉnh}} = \\dfrac{6}{2} = 3$. $y = 9 - 18 + 11 = 2$. Đỉnh $(3, 2)$."},
+  {"id":"q_ib_sl_017","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"sequences","difficulty":"hard","question":"Tổng các số hạng của cấp số nhân $3 + 6 + 12 + \\ldots + 192$ là:","choices":["$381$","$384$","$192$","$765$"],"correct":0,"explanation":"Số hạng cuối $192 = 3 \\times 2^{n-1} \\Rightarrow n = 7$. Tổng $S_7 = \\dfrac{3(2^7-1)}{2-1} = 3 \\times 127 = 381$."},
+  {"id":"q_ib_sl_018","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"probability","difficulty":"hard","question":"Nếu $X \\sim B(4,\\, 0{,}5)$, xác suất $P(X \\geq 2)$ bằng:","choices":["$\\dfrac{11}{16}$","$\\dfrac{1}{2}$","$\\dfrac{3}{8}$","$\\dfrac{5}{8}$"],"correct":0,"explanation":"$P(X \\geq 2) = 1 - P(X=0) - P(X=1) = 1 - \\dfrac{1}{16} - \\dfrac{4}{16} = \\dfrac{11}{16}$."},
+  {"id":"q_ib_sl_019","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"calculus","difficulty":"hard","question":"Giá trị lớn nhất của $f(x) = -x^2 + 4x - 1$ là:","choices":["$3$","$4$","$2$","$1$"],"correct":0,"explanation":"$f'(x) = -2x + 4 = 0 \\Rightarrow x = 2$. $f(2) = -4 + 8 - 1 = 3$."},
+  {"id":"q_ib_sl_020","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"geometry","difficulty":"medium","question":"Khoảng cách từ gốc tọa độ đến điểm $(5,\\,-12)$ là:","choices":["$13$","$17$","$\\sqrt{7}$","$7$"],"correct":0,"explanation":"$d = \\sqrt{5^2 + (-12)^2} = \\sqrt{25 + 144} = \\sqrt{169} = 13$."},
+
+  {"id":"q_ksat_001","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"arithmetic","difficulty":"easy","question":"Giá trị của $|(-3)^2 - 4 \\times 2|$ là:","choices":["$1$","$9$","$17$","$0$"],"correct":0,"explanation":"$(-3)^2 = 9$. $4 \\times 2 = 8$. $|9 - 8| = 1$."},
+  {"id":"q_ksat_002","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"algebra","difficulty":"easy","question":"$(2^3)^2 \\div 2^4$ bằng:","choices":["$4$","$2$","$8$","$16$"],"correct":0,"explanation":"$(2^3)^2 = 2^6$. $2^6 \\div 2^4 = 2^2 = 4$."},
+  {"id":"q_ksat_003","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"algebra","difficulty":"medium","question":"$\\log_3 27 + \\log_3 \\dfrac{1}{3}$ bằng:","choices":["$2$","$4$","$3$","$1$"],"correct":0,"explanation":"$\\log_3 27 = 3$ và $\\log_3 \\dfrac{1}{3} = -1$. Tổng $= 3 + (-1) = 2$."},
+  {"id":"q_ksat_004","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"sequences","difficulty":"medium","question":"Tổng $n$ số hạng đầu tiên của một dãy số là $S_n = n^2 + 2n$. Số hạng thứ $5$ là:","choices":["$11$","$10$","$9$","$13$"],"correct":0,"explanation":"$a_5 = S_5 - S_4 = (25+10) - (16+8) = 35 - 24 = 11$."},
+  {"id":"q_ksat_005","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"functions","difficulty":"medium","question":"Cho $f(x) = x^2 - 3x + 2$. Giá trị $f(f(0))$ là:","choices":["$0$","$2$","$4$","$-2$"],"correct":0,"explanation":"$f(0) = 0 - 0 + 2 = 2$. $f(2) = 4 - 6 + 2 = 0$."},
+  {"id":"q_ksat_006","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"trigonometry","difficulty":"medium","question":"$\\cos(180° + \\theta)$ bằng:","choices":["$-\\cos\\theta$","$\\cos\\theta$","$-\\sin\\theta$","$\\sin\\theta$"],"correct":0,"explanation":"Công thức bổ trợ: $\\cos(180° + \\theta) = -\\cos\\theta$."},
+  {"id":"q_ksat_007","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"calculus","difficulty":"medium","question":"$\\displaystyle\\lim_{x \\to 2} \\dfrac{x^2 - 4}{x - 2}$ bằng:","choices":["$4$","$2$","$0$","$1$"],"correct":0,"explanation":"$\\dfrac{x^2-4}{x-2} = \\dfrac{(x-2)(x+2)}{x-2} = x+2$. Khi $x \\to 2$: giới hạn $= 4$."},
+  {"id":"q_ksat_008","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"calculus","difficulty":"medium","question":"Cho $f(x) = x^3 + 2x^2 - x$. Giá trị $f'(1)$ là:","choices":["$6$","$2$","$7$","$4$"],"correct":0,"explanation":"$f'(x) = 3x^2 + 4x - 1$. $f'(1) = 3 + 4 - 1 = 6$."},
+  {"id":"q_ksat_009","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"calculus","difficulty":"medium","question":"$\\displaystyle\\int_0^1 (3x^2 + 2)\\,dx$ bằng:","choices":["$3$","$5$","$2$","$1$"],"correct":0,"explanation":"$\\left[x^3 + 2x\\right]_0^1 = (1 + 2) - 0 = 3$."},
+  {"id":"q_ksat_010","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"probability","difficulty":"easy","question":"$4$ người ngồi vào $4$ ghế đã đánh số. Xác suất để người A ngồi vào ghế số $1$ là:","choices":["$\\dfrac{1}{4}$","$\\dfrac{1}{3}$","$\\dfrac{1}{2}$","$1$"],"correct":0,"explanation":"Có $4$ ghế và người A chỉ có $1$ ghế mong muốn. $P = \\dfrac{1}{4}$."},
+  {"id":"q_ksat_011","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"algebra","difficulty":"medium","question":"Cho ma trận $A = \\begin{pmatrix} 1 & 2 \\\\ 0 & 1 \\end{pmatrix}$. Định thức $\\det(A)$ là:","choices":["$1$","$0$","$2$","$-1$"],"correct":0,"explanation":"$\\det(A) = 1 \\times 1 - 2 \\times 0 = 1$."},
+  {"id":"q_ksat_012","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"vectors","difficulty":"medium","question":"Cho $\\vec{a} = (1, 2)$ và $\\vec{b} = (3, 4)$. Tích vô hướng $\\vec{a} \\cdot \\vec{b}$ là:","choices":["$11$","$7$","$4$","$2$"],"correct":0,"explanation":"$\\vec{a} \\cdot \\vec{b} = 1 \\times 3 + 2 \\times 4 = 3 + 8 = 11$."},
+  {"id":"q_ksat_013","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"geometry","difficulty":"medium","question":"Đường tròn tâm $(2,\\, 3)$, bán kính $5$. Điểm $(6,\\, 6)$ có nằm trên đường tròn không?","choices":["Có, điểm nằm trên đường tròn","Không, điểm nằm ngoài đường tròn","Không, điểm nằm trong đường tròn","Không thể xác định"],"correct":0,"explanation":"$d = \\sqrt{(6-2)^2+(6-3)^2} = \\sqrt{16+9} = \\sqrt{25} = 5 =$ bán kính. Điểm nằm trên đường tròn."},
+  {"id":"q_ksat_014","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"algebra","difficulty":"hard","question":"Nếu đa thức $P(x) = x^3 + ax + b$ chia hết cho $(x-1)$ và $(x+2)$, giá trị $a + b$ là:","choices":["$-1$","$1$","$5$","$-5$"],"correct":0,"explanation":"$P(1)=1+a+b=0$ và $P(-2)=-8-2a+b=0$. Giải hệ: $a=-3$, $b=2$. Vậy $a+b=-1$."},
+  {"id":"q_ksat_015","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"functions","difficulty":"hard","question":"Parabol $y = ax^2 + bx$ đi qua $(1,\\, 4)$ và $(2,\\, 6)$. Giá trị $a$ là:","choices":["$-1$","$1$","$2$","$-2$"],"correct":0,"explanation":"$a+b=4$ và $4a+2b=6$. Từ phương trình đầu: $b=4-a$. Thế vào: $4a+8-2a=6 \\Rightarrow a=-1$."},
+  {"id":"q_ksat_016","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"sequences","difficulty":"hard","question":"Tổng $\\displaystyle\\sum_{n=1}^{10} \\dfrac{n(n+1)}{2}$ bằng:","choices":["$220$","$110$","$385$","$165$"],"correct":0,"explanation":"$\\sum_{n=1}^{N}\\dfrac{n(n+1)}{2} = \\dfrac{N(N+1)(N+2)}{6}$. Với $N=10$: $\\dfrac{10 \\times 11 \\times 12}{6} = 220$."},
+  {"id":"q_ksat_017","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"calculus","difficulty":"hard","question":"Diện tích vùng giới hạn bởi $y = x^2$ và $y = 2x + 3$ là:","choices":["$\\dfrac{32}{3}$","$\\dfrac{16}{3}$","$8$","$\\dfrac{64}{3}$"],"correct":0,"explanation":"Giao điểm: $x^2=2x+3 \\Rightarrow x=-1, x=3$. Diện tích $= \\int_{-1}^{3}(2x+3-x^2)\\,dx = \\dfrac{32}{3}$."},
+  {"id":"q_ksat_018","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"trigonometry","difficulty":"hard","question":"Nếu $\\sin\\theta + \\cos\\theta = \\dfrac{\\sqrt{2}}{2}$, giá trị $\\sin 2\\theta$ là:","choices":["$-\\dfrac{1}{2}$","$\\dfrac{1}{2}$","$-1$","$1$"],"correct":0,"explanation":"$(\\sin\\theta+\\cos\\theta)^2 = 1 + \\sin 2\\theta = \\dfrac{1}{2}$. Vậy $\\sin 2\\theta = -\\dfrac{1}{2}$."},
+  {"id":"q_ksat_019","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"combinatorics","difficulty":"hard","question":"Từ tập $\\{1,2,3,4,5\\}$, lấy $3$ số khác nhau lập số có $3$ chữ số. Số lượng số có chữ số hàng trăm lớn hơn chữ số hàng chục là bao nhiêu?","choices":["$30$","$60$","$20$","$15$"],"correct":0,"explanation":"Tổng số hoán vị $3$ chữ số từ $5$ phần tử: $P_5^3=60$. Với mỗi cặp chữ số hàng trăm và hàng chục, đúng nửa số trường hợp có hàng trăm $>$ hàng chục. Vậy: $60 \\div 2 = 30$."},
+  {"id":"q_ksat_020","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"calculus","difficulty":"medium","question":"Giá trị $\\displaystyle\\lim_{n\\to\\infty}\\left(1 + \\dfrac{1}{n}\\right)^n$ là:","choices":["$e$","$1$","$\\infty$","$2$"],"correct":0,"explanation":"Đây là định nghĩa của số $e \\approx 2{,}718$, giới hạn quan trọng trong giải tích."},
+
+  {"id":"q_jee_001","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"algebra","difficulty":"easy","question":"Phương trình $x^2 - x - 6 = 0$ có tổng các nghiệm bằng:","choices":["$1$","$-1$","$6$","$-6$"],"correct":0,"explanation":"Theo định lý Vieta, tổng hai nghiệm $= \\dfrac{-(-1)}{1} = 1$."},
+  {"id":"q_jee_002","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"sets","difficulty":"easy","question":"Tập $A = \\{1, 2, 3\\}$ có bao nhiêu tập con?","choices":["$8$","$6$","$9$","$3$"],"correct":0,"explanation":"Số tập con của tập có $n$ phần tử là $2^n = 2^3 = 8$."},
+  {"id":"q_jee_003","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"algebra","difficulty":"easy","question":"Cho $z = 3 + 4i$. Mô-đun $|z|$ là:","choices":["$5$","$7$","$12$","$\\sqrt{7}$"],"correct":0,"explanation":"$|z| = \\sqrt{3^2 + 4^2} = \\sqrt{9 + 16} = \\sqrt{25} = 5$."},
+  {"id":"q_jee_004","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"algebra","difficulty":"medium","question":"Cho $A = \\begin{pmatrix} 2 & 1 \\\\ 1 & 2 \\end{pmatrix}$. Phần tử hàng $1$, cột $1$ của $A^2$ là:","choices":["$5$","$4$","$3$","$6$"],"correct":0,"explanation":"$[A^2]_{11} = 2 \\times 2 + 1 \\times 1 = 5$."},
+  {"id":"q_jee_005","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"algebra","difficulty":"medium","question":"Trong khai triển $(x + 2)^6$, hệ số của $x^4$ là:","choices":["$60$","$15$","$30$","$120$"],"correct":0,"explanation":"Hệ số $= C_6^2 \\times 2^2 = 15 \\times 4 = 60$."},
+  {"id":"q_jee_006","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"sequences","difficulty":"medium","question":"Nếu $a, 2, b$ là cấp số nhân và $a + b = 8$, giá trị nhỏ hơn trong hai số $a, b$ là:","choices":["$4 - 2\\sqrt{3}$","$4 + 2\\sqrt{3}$","$2$","$4$"],"correct":0,"explanation":"$ab = 2^2 = 4$. Kết hợp $a+b=8$: $a, b$ là nghiệm của $t^2-8t+4=0 \\Rightarrow t = 4 \\pm 2\\sqrt{3}$. Giá trị nhỏ hơn: $4-2\\sqrt{3}$."},
+  {"id":"q_jee_007","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"calculus","difficulty":"medium","question":"$\\displaystyle\\lim_{x \\to 0} \\dfrac{\\sin 2x}{3x}$ bằng:","choices":["$\\dfrac{2}{3}$","$\\dfrac{1}{3}$","$2$","$0$"],"correct":0,"explanation":"$\\lim_{x\\to 0}\\dfrac{\\sin 2x}{3x} = \\dfrac{2}{3}\\lim_{x\\to 0}\\dfrac{\\sin 2x}{2x} = \\dfrac{2}{3} \\times 1 = \\dfrac{2}{3}$."},
+  {"id":"q_jee_008","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"calculus","difficulty":"medium","question":"Đạo hàm của $\\ln(x^2 + 1)$ tại $x = 1$ là:","choices":["$1$","$2$","$\\dfrac{1}{2}$","$\\ln 2$"],"correct":0,"explanation":"$\\dfrac{d}{dx}\\ln(x^2+1) = \\dfrac{2x}{x^2+1}$. Tại $x=1$: $\\dfrac{2}{2} = 1$."},
+  {"id":"q_jee_009","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"calculus","difficulty":"medium","question":"$\\displaystyle\\int x\\,e^x\\,dx$ bằng:","choices":["$e^x(x-1)+C$","$xe^x+C$","$e^x(x+1)+C$","$\\dfrac{x^2}{2}e^x+C$"],"correct":0,"explanation":"Dùng tích phân từng phần: $\\int xe^x\\,dx = xe^x - \\int e^x\\,dx = xe^x - e^x + C = e^x(x-1)+C$."},
+  {"id":"q_jee_010","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"geometry","difficulty":"medium","question":"Đường tròn $x^2 + y^2 - 4x + 6y - 12 = 0$ có tâm là:","choices":["$(2,\\ -3)$","$(-2,\\ 3)$","$(2,\\ 3)$","$(-2,\\ -3)$"],"correct":0,"explanation":"$(x-2)^2 + (y+3)^2 = 4 + 9 + 12 = 25$. Tâm $(2,\\ -3)$, bán kính $5$."},
+  {"id":"q_jee_011","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"functions","difficulty":"medium","question":"Đỉnh của parabol $y = 2x^2 - 8x + 6$ là:","choices":["$(2,\\ -2)$","$(4,\\ 6)$","$(2,\\ 2)$","$(-2,\\ -2)$"],"correct":0,"explanation":"$x = -\\dfrac{-8}{2 \\times 2} = 2$. $y = 2(4)-8(2)+6 = 8-16+6 = -2$. Đỉnh $(2,\\ -2)$."},
+  {"id":"q_jee_012","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"vectors","difficulty":"medium","question":"Cho $|\\vec{a}| = 3$, $|\\vec{b}| = 4$ và góc giữa hai vectơ là $60°$. Tích vô hướng $\\vec{a} \\cdot \\vec{b}$ là:","choices":["$6$","$12$","$3$","$24$"],"correct":0,"explanation":"$\\vec{a} \\cdot \\vec{b} = |\\vec{a}||\\vec{b}|\\cos 60° = 3 \\times 4 \\times \\dfrac{1}{2} = 6$."},
+  {"id":"q_jee_013","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"geometry","difficulty":"easy","question":"Khoảng cách giữa hai điểm $(1,\\,2,\\,3)$ và $(4,\\,6,\\,3)$ là:","choices":["$5$","$\\sqrt{50}$","$7$","$3\\sqrt{2}$"],"correct":0,"explanation":"$d = \\sqrt{(4-1)^2+(6-2)^2+(3-3)^2} = \\sqrt{9+16+0} = \\sqrt{25} = 5$."},
+  {"id":"q_jee_014","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"probability","difficulty":"medium","question":"Cho $P(A) = 0{,}6$ và $P(B|A) = 0{,}5$. Giá trị $P(A \\cap B)$ là:","choices":["$0{,}3$","$0{,}6$","$0{,}5$","$0{,}1$"],"correct":0,"explanation":"$P(A \\cap B) = P(A) \\times P(B|A) = 0{,}6 \\times 0{,}5 = 0{,}3$."},
+  {"id":"q_jee_015","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"statistics","difficulty":"medium","question":"Phương sai của tập dữ liệu $\\{5, 10, 15, 20, 25\\}$ là:","choices":["$50$","$25$","$10$","$100$"],"correct":0,"explanation":"Trung bình $\\mu = 15$. Phương sai $= \\dfrac{100+25+0+25+100}{5} = \\dfrac{250}{5} = 50$."},
+  {"id":"q_jee_016","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"functions","difficulty":"medium","question":"Giá trị nhỏ nhất của $f(x) = |x - 2| + |x + 3|$ là:","choices":["$5$","$1$","$3$","$0$"],"correct":0,"explanation":"Với $-3 \\leq x \\leq 2$: $f(x) = -(x-2)+(x+3) = 5$ (hằng số). Giá trị nhỏ nhất là $5$."},
+  {"id":"q_jee_017","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"sequences","difficulty":"medium","question":"Tổng của cấp số nhân vô hạn $1 + \\dfrac{1}{3} + \\dfrac{1}{9} + \\ldots$ là:","choices":["$\\dfrac{3}{2}$","$3$","$\\dfrac{1}{2}$","$2$"],"correct":0,"explanation":"$S = \\dfrac{a}{1-q} = \\dfrac{1}{1 - \\frac{1}{3}} = \\dfrac{1}{\\frac{2}{3}} = \\dfrac{3}{2}$."},
+  {"id":"q_jee_018","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"calculus","difficulty":"hard","question":"Diện tích giới hạn bởi $y = x$ và $y = x^2$ từ $x = 0$ đến $x = 1$ là:","choices":["$\\dfrac{1}{6}$","$\\dfrac{1}{2}$","$\\dfrac{1}{3}$","$1$"],"correct":0,"explanation":"$\\int_0^1(x - x^2)\\,dx = \\left[\\dfrac{x^2}{2} - \\dfrac{x^3}{3}\\right]_0^1 = \\dfrac{1}{2} - \\dfrac{1}{3} = \\dfrac{1}{6}$."},
+  {"id":"q_jee_019","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"trigonometry","difficulty":"hard","question":"Nếu $\\sin(A+B) = \\dfrac{1}{2}$ và $\\sin(A-B) = \\dfrac{1}{3}$, giá trị $\\sin A \\cos B$ là:","choices":["$\\dfrac{5}{12}$","$\\dfrac{1}{6}$","$\\dfrac{1}{12}$","$\\dfrac{5}{6}$"],"correct":0,"explanation":"$\\sin A \\cos B = \\dfrac{\\sin(A+B)+\\sin(A-B)}{2} = \\dfrac{\\frac{1}{2}+\\frac{1}{3}}{2} = \\dfrac{\\frac{5}{6}}{2} = \\dfrac{5}{12}$."},
+  {"id":"q_jee_020","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"combinatorics","difficulty":"hard","question":"Số cách chọn $3$ phụ âm từ $5$ phụ âm và $2$ nguyên âm từ $4$ nguyên âm là:","choices":["$60$","$120$","$24$","$30$"],"correct":0,"explanation":"$C_5^3 \\times C_4^2 = 10 \\times 6 = 60$."},
+
+  {"id":"q_sat_021","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"functions","difficulty":"medium","question":"Cho $f(x) = x^2$ và $g(x) = x + 3$. Giá trị $f(g(2))$ là:","choices":["$25$","$7$","$13$","$22$"],"correct":0,"explanation":"$g(2) = 2 + 3 = 5$. $f(g(2)) = f(5) = 5^2 = 25$."},
+  {"id":"q_sat_022","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"statistics","difficulty":"medium","question":"Trung bình cộng của $4$ số là $15$. Một trong bốn số là $12$. Trung bình cộng của $3$ số còn lại là:","choices":["$16$","$15$","$18$","$14$"],"correct":0,"explanation":"Tổng $4$ số $= 4 \\times 15 = 60$. Tổng $3$ số còn lại $= 60 - 12 = 48$. Trung bình $= 48 \\div 3 = 16$."},
+  {"id":"q_sat_023","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"geometry","difficulty":"easy","question":"Hình vuông có diện tích $49$. Chu vi của nó là:","choices":["$28$","$14$","$196$","$7$"],"correct":0,"explanation":"Cạnh $= \\sqrt{49} = 7$. Chu vi $= 4 \\times 7 = 28$."},
+  {"id":"q_sat_024","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"medium","question":"Nếu $3(x - 2) = 2(x + 1)$, giá trị $x$ là:","choices":["$8$","$4$","$-8$","$2$"],"correct":0,"explanation":"$3x - 6 = 2x + 2 \\Rightarrow x = 8$."},
+  {"id":"q_sat_025","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"easy","question":"Một công thức cần $2$ cốc bột để làm $24$ chiếc bánh. Cần bao nhiêu cốc bột để làm $60$ chiếc bánh?","choices":["$5$ cốc","$3$ cốc","$4$ cốc","$6$ cốc"],"correct":0,"explanation":"Tỉ lệ: $\\dfrac{2}{24} = \\dfrac{x}{60} \\Rightarrow x = 5$ cốc."},
+  {"id":"q_sat_026","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"functions","difficulty":"medium","question":"Cho $f(x) = 3x + 1$ và $g(x) = x - 2$. Giá trị $f(g(5))$ là:","choices":["$10$","$14$","$7$","$16$"],"correct":0,"explanation":"$g(5) = 3$. $f(3) = 3(3) + 1 = 10$."},
+  {"id":"q_sat_027","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"statistics","difficulty":"easy","question":"Mode (yếu vị) của tập $\\{4, 7, 4, 5, 7, 7, 3\\}$ là:","choices":["$7$","$4$","$5$","$3$"],"correct":0,"explanation":"Số $7$ xuất hiện $3$ lần — nhiều nhất. Mode $= 7$."},
+  {"id":"q_sat_028","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"geometry","difficulty":"medium","question":"Hai góc phụ nhau theo tỉ lệ $2:3$. Góc lớn hơn bằng:","choices":["$54°$","$36°$","$60°$","$45°$"],"correct":0,"explanation":"$2x + 3x = 90° \\Rightarrow x = 18°$. Góc lớn hơn $= 3x = 54°$."},
+  {"id":"q_sat_029","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"hard","question":"Nếu $x^2 + y^2 = 29$ và $x + y = 7$, tích $xy$ bằng:","choices":["$10$","$7$","$22$","$29$"],"correct":0,"explanation":"$(x+y)^2 = x^2 + 2xy + y^2 \\Rightarrow 49 = 29 + 2xy \\Rightarrow xy = 10$."},
+  {"id":"q_sat_030","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"sequences","difficulty":"medium","question":"Tổng $20$ số nguyên dương đầu tiên $(1 + 2 + 3 + \\ldots + 20)$ là:","choices":["$210$","$200$","$220$","$190$"],"correct":0,"explanation":"$S = \\dfrac{20 \\times 21}{2} = 210$."},
+  {"id":"q_sat_031","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"medium","question":"Một chiếc áo sau khi giảm $10\\%$ còn $45$ USD. Giá gốc là:","choices":["$50$ USD","$40$ USD","$54$ USD","$55$ USD"],"correct":0,"explanation":"$45 = 0{,}9 \\times P \\Rightarrow P = 50$ USD."},
+  {"id":"q_sat_032","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"geometry","difficulty":"medium","question":"Hình thang có hai đáy $6$ và $10$, chiều cao $4$. Diện tích là:","choices":["$32$","$16$","$40$","$24$"],"correct":0,"explanation":"$S = \\dfrac{(6+10)}{2} \\times 4 = 8 \\times 4 = 32$."},
+  {"id":"q_sat_033","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"medium","question":"Nếu $|x + 2| = 7$, tổng các nghiệm bằng:","choices":["$-4$","$4$","$5$","$-9$"],"correct":0,"explanation":"$x + 2 = 7 \\Rightarrow x = 5$; $x + 2 = -7 \\Rightarrow x = -9$. Tổng $= 5 + (-9) = -4$."},
+  {"id":"q_sat_034","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"probability","difficulty":"medium","question":"Tung $3$ đồng xu. Xác suất để xuất hiện ít nhất một mặt ngửa là:","choices":["$\\dfrac{7}{8}$","$\\dfrac{1}{2}$","$\\dfrac{3}{4}$","$\\dfrac{1}{8}$"],"correct":0,"explanation":"$P(\\geq 1 \\text{ ngửa}) = 1 - P(\\text{tất cả sấp}) = 1 - \\dfrac{1}{8} = \\dfrac{7}{8}$."},
+  {"id":"q_sat_035","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"medium","question":"Cho $f(x) = 2^x$. Tổng $f(0) + f(1) + f(2) + f(3)$ bằng:","choices":["$15$","$8$","$16$","$14$"],"correct":0,"explanation":"$1 + 2 + 4 + 8 = 15$."},
+  {"id":"q_sat_036","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"geometry","difficulty":"hard","question":"Đường tròn tâm $(3,\\,4)$ đi qua gốc tọa độ. Bán kính của nó là:","choices":["$5$","$7$","$25$","$\\sqrt{7}$"],"correct":0,"explanation":"$r = \\sqrt{3^2 + 4^2} = \\sqrt{9 + 16} = 5$."},
+  {"id":"q_sat_037","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"hard","question":"$x$ và $y$ là số nguyên dương, $\\dfrac{x}{y} = \\dfrac{2}{3}$, $x + y = 25$. Giá trị $y$ là:","choices":["$15$","$10$","$5$","$12$"],"correct":0,"explanation":"$x = 2k$, $y = 3k$. $5k = 25 \\Rightarrow k = 5$. Vậy $y = 15$."},
+  {"id":"q_sat_038","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"statistics","difficulty":"easy","question":"Khoảng biến thiên (range) của $\\{3, 8, 5, 12, 1, 9, 4\\}$ là:","choices":["$11$","$12$","$9$","$8$"],"correct":0,"explanation":"Max $= 12$, Min $= 1$. Khoảng biến thiên $= 12 - 1 = 11$."},
+  {"id":"q_sat_039","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"trigonometry","difficulty":"medium","question":"Trong tam giác vuông, $\\sin\\theta = \\dfrac{3}{5}$. Giá trị $\\cos\\theta$ là:","choices":["$\\dfrac{4}{5}$","$\\dfrac{3}{4}$","$\\dfrac{5}{3}$","$\\dfrac{5}{4}$"],"correct":0,"explanation":"$\\cos^2\\theta = 1 - \\sin^2\\theta = 1 - \\dfrac{9}{25} = \\dfrac{16}{25}$. Vậy $\\cos\\theta = \\dfrac{4}{5}$."},
+  {"id":"q_sat_040","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"hard","question":"Phương trình $2^{2x} - 5 \\cdot 2^x + 4 = 0$ có giá trị $2^x$ lớn nhất bằng:","choices":["$4$","$2$","$8$","$1$"],"correct":0,"explanation":"Đặt $t = 2^x$: $t^2 - 5t + 4 = 0 \\Rightarrow (t-1)(t-4) = 0$. Giá trị $t$ lớn nhất $= 4$."},
+  {"id":"q_sat_041","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"geometry","difficulty":"medium","question":"Hình trụ có bán kính $3$ và chiều cao $7$. Thể tích của nó là:","choices":["$63\\pi$","$21\\pi$","$42\\pi$","$9\\pi$"],"correct":0,"explanation":"$V = \\pi r^2 h = \\pi \\times 9 \\times 7 = 63\\pi$."},
+  {"id":"q_sat_042","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"geometry","difficulty":"medium","question":"Đường thẳng qua $(0,\\,3)$ với hệ số góc $-2$. Giao điểm với trục $Ox$ là:","choices":["$\\left(\\dfrac{3}{2},\\ 0\\right)$","$(3,\\ 0)$","$(-3,\\ 0)$","$(2,\\ 0)$"],"correct":0,"explanation":"$y = -2x + 3 = 0 \\Rightarrow x = \\dfrac{3}{2}$."},
+  {"id":"q_sat_043","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"algebra","difficulty":"hard","question":"Nếu $3^x = 9^{y+1}$, biểu thức $x$ theo $y$ là:","choices":["$2y + 2$","$y + 2$","$2y$","$y + 1$"],"correct":0,"explanation":"$9^{y+1} = (3^2)^{y+1} = 3^{2y+2}$. Vậy $3^x = 3^{2y+2} \\Rightarrow x = 2y + 2$."},
+  {"id":"q_sat_044","source":"SAT Math Practice — College Board, USA","year":2024,"topic":"sequences","difficulty":"hard","question":"Trong cấp số nhân, số hạng đầu là $1$ và số hạng thứ $6$ là $32$. Công bội là:","choices":["$2$","$4$","$\\sqrt{2}$","$8$"],"correct":0,"explanation":"$1 \\times r^5 = 32 = 2^5 \\Rightarrow r = 2$."},
+
+  {"id":"q_gauss_021","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"algebra","difficulty":"medium","question":"Một số được nhân đôi rồi trừ đi $5$, kết quả là $19$. Số ban đầu là:","choices":["$12$","$7$","$10$","$14$"],"correct":0,"explanation":"$2n - 5 = 19 \\Rightarrow 2n = 24 \\Rightarrow n = 12$."},
+  {"id":"q_gauss_022","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"geometry","difficulty":"medium","question":"Hình chữ nhật có chu vi $30$ và chiều rộng $6$. Diện tích của nó là:","choices":["$54$","$48$","$36$","$72$"],"correct":0,"explanation":"Chiều dài $= (30 - 2 \\times 6)/2 = 9$. Diện tích $= 9 \\times 6 = 54$."},
+  {"id":"q_gauss_023","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"number_theory","difficulty":"hard","question":"Tổng tất cả các ước số của $28$ (không tính $28$) là:","choices":["$28$","$14$","$56$","$21$"],"correct":0,"explanation":"Các ước: $1, 2, 4, 7, 14$. Tổng $= 1+2+4+7+14 = 28$. Đây là số hoàn hảo (perfect number)!"},
+  {"id":"q_gauss_024","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"algebra","difficulty":"medium","question":"Trung bình cộng của một tập là $10$. Khi thêm giá trị $20$, trung bình mới là $11$. Tập ban đầu có bao nhiêu phần tử?","choices":["$9$","$10$","$8$","$11$"],"correct":0,"explanation":"Tổng ban đầu $= 10n$. $(10n + 20)/(n+1) = 11 \\Rightarrow 10n + 20 = 11n + 11 \\Rightarrow n = 9$."},
+  {"id":"q_gauss_025","source":"Canadian Gauss Contest — University of Waterloo","year":2023,"topic":"geometry","difficulty":"hard","question":"Một tam giác vuông có cạnh huyền $13$ và một cạnh góc vuông $5$. Diện tích tam giác là:","choices":["$30$","$32{,}5$","$26$","$60$"],"correct":0,"explanation":"Cạnh góc vuông còn lại $= \\sqrt{13^2 - 5^2} = \\sqrt{144} = 12$. Diện tích $= \\dfrac{1}{2} \\times 5 \\times 12 = 30$."},
+
+  {"id":"q_ib_sl_021","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"trigonometry","difficulty":"hard","question":"Trong tam giác $ABC$, $a = 5$, $b = 7$, $\\angle C = 60°$. Giá trị $c^2$ bằng:","choices":["$39$","$74$","$109$","$84$"],"correct":0,"explanation":"Theo định lý cosin: $c^2 = a^2 + b^2 - 2ab\\cos C = 25 + 49 - 2(5)(7)(\\frac{1}{2}) = 74 - 35 = 39$."},
+  {"id":"q_ib_sl_022","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"statistics","difficulty":"medium","question":"$X \\sim N(50,\\,16)$. Xác suất $P(X < 58)$ xấp xỉ bằng (biết $P(Z<2) \\approx 0{,}977$):","choices":["$0{,}977$","$0{,}023$","$0{,}500$","$0{,}841$"],"correct":0,"explanation":"$z = \\dfrac{58-50}{\\sqrt{16}} = \\dfrac{8}{4} = 2$. $P(X<58) = P(Z<2) \\approx 0{,}977$."},
+  {"id":"q_ib_sl_023","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"functions","difficulty":"medium","question":"Tập xác định của $f(x) = \\sqrt{4 - x^2}$ là:","choices":["$-2 \\leq x \\leq 2$","$x \\geq 0$","$x \\neq \\pm 2$","$x \\leq 4$"],"correct":0,"explanation":"Cần $4 - x^2 \\geq 0 \\Rightarrow x^2 \\leq 4 \\Rightarrow -2 \\leq x \\leq 2$."},
+  {"id":"q_ib_sl_024","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"calculus","difficulty":"medium","question":"$\\displaystyle\\int \\dfrac{1}{x}\\,dx$ bằng:","choices":["$\\ln|x| + C$","$\\dfrac{1}{x^2} + C$","$-\\dfrac{1}{x^2} + C$","$x \\ln x + C$"],"correct":0,"explanation":"Đây là tích phân cơ bản: $\\int \\dfrac{1}{x}\\,dx = \\ln|x| + C$."},
+  {"id":"q_ib_sl_025","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"algebra","difficulty":"easy","question":"Khai triển $(2x - 3)^2$ bằng:","choices":["$4x^2 - 12x + 9$","$4x^2 - 6x + 9$","$4x^2 + 9$","$2x^2 - 12x + 9$"],"correct":0,"explanation":"$(2x-3)^2 = (2x)^2 - 2(2x)(3) + 3^2 = 4x^2 - 12x + 9$."},
+  {"id":"q_ib_sl_026","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"sequences","difficulty":"medium","question":"Tổng $15$ số hạng đầu của cấp số cộng có $a_1 = 2$, $d = 5$ là:","choices":["$555$","$450$","$500$","$600$"],"correct":0,"explanation":"$S_{15} = \\dfrac{15}{2}(2 \\times 2 + 14 \\times 5) = \\dfrac{15}{2} \\times 74 = 555$."},
+  {"id":"q_ib_sl_027","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"trigonometry","difficulty":"hard","question":"Trong $0° \\leq x \\leq 360°$, phương trình $\\sin x = \\dfrac{1}{2}$ có tổng các nghiệm bằng:","choices":["$180°$","$30°$","$150°$","$210°$"],"correct":0,"explanation":"$\\sin x = \\dfrac{1}{2}$ cho $x = 30°$ và $x = 150°$. Tổng $= 180°$."},
+  {"id":"q_ib_sl_028","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"probability","difficulty":"medium","question":"Túi có $5$ bi đỏ và $3$ bi xanh. Rút $2$ bi không hoàn lại. Xác suất cả hai đều đỏ là:","choices":["$\\dfrac{5}{14}$","$\\dfrac{25}{64}$","$\\dfrac{5}{8}$","$\\dfrac{1}{4}$"],"correct":0,"explanation":"$P = \\dfrac{5}{8} \\times \\dfrac{4}{7} = \\dfrac{20}{56} = \\dfrac{5}{14}$."},
+  {"id":"q_ib_sl_029","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"calculus","difficulty":"hard","question":"Diện tích dưới đường cong $y = \\sin x$ từ $0$ đến $\\pi$ là:","choices":["$2$","$0$","$1$","$\\pi$"],"correct":0,"explanation":"$\\int_0^\\pi \\sin x\\,dx = [-\\cos x]_0^\\pi = -\\cos\\pi + \\cos 0 = 1 + 1 = 2$."},
+  {"id":"q_ib_sl_030","source":"IB Mathematics Standard Level — International Baccalaureate","year":2023,"topic":"calculus","difficulty":"medium","question":"Nếu $g(x) = e^{2x}$, đạo hàm $g'(x)$ bằng:","choices":["$2e^{2x}$","$e^{2x}$","$2xe^{2x}$","$\\dfrac{e^{2x}}{2}$"],"correct":0,"explanation":"$g'(x) = e^{2x} \\cdot 2 = 2e^{2x}$ (quy tắc đạo hàm hàm hợp)."},
+
+  {"id":"q_ksat_021","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"sequences","difficulty":"medium","question":"Dãy số: $a_1 = 2$, $a_{n+1} = 2a_n + 1$. Giá trị $a_3$ là:","choices":["$11$","$9$","$13$","$7$"],"correct":0,"explanation":"$a_2 = 2(2)+1 = 5$. $a_3 = 2(5)+1 = 11$."},
+  {"id":"q_ksat_022","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"calculus","difficulty":"medium","question":"Cho $f(x) = \\sin(3x)$. Giá trị $f'\\!\\left(\\dfrac{\\pi}{6}\\right)$ là:","choices":["$0$","$3$","$-3$","$1$"],"correct":0,"explanation":"$f'(x) = 3\\cos(3x)$. $f'\\!\\left(\\dfrac{\\pi}{6}\\right) = 3\\cos\\!\\left(\\dfrac{\\pi}{2}\\right) = 3 \\times 0 = 0$."},
+  {"id":"q_ksat_023","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"algebra","difficulty":"medium","question":"Phương trình $x^4 - 5x^2 + 4 = 0$ có bao nhiêu nghiệm thực?","choices":["$4$ nghiệm thực","$2$ nghiệm thực","$0$ nghiệm thực","$3$ nghiệm thực"],"correct":0,"explanation":"Đặt $t = x^2$: $(t-1)(t-4)=0 \\Rightarrow t = 1$ hoặc $t = 4$. Từ đó $x = \\pm 1$ hoặc $x = \\pm 2$: có $4$ nghiệm thực."},
+  {"id":"q_ksat_024","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"statistics","difficulty":"medium","question":"Độ lệch chuẩn của tập $\\{2, 4, 6, 8, 10\\}$ là:","choices":["$2\\sqrt{2}$","$4$","$2$","$8$"],"correct":0,"explanation":"Phương sai $= 8$. Độ lệch chuẩn $= \\sqrt{8} = 2\\sqrt{2}$."},
+  {"id":"q_ksat_025","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"trigonometry","difficulty":"medium","question":"Nếu $\\tan\\theta = \\dfrac{3}{4}$ ($0 < \\theta < 90°$), giá trị $\\sin\\theta$ là:","choices":["$\\dfrac{3}{5}$","$\\dfrac{4}{5}$","$\\dfrac{3}{4}$","$\\dfrac{4}{3}$"],"correct":0,"explanation":"Tam giác vuông $3$-$4$-$5$: cạnh đối $= 3$, cạnh kề $= 4$, huyền $= 5$. Nên $\\sin\\theta = \\dfrac{3}{5}$."},
+  {"id":"q_ksat_026","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"functions","difficulty":"medium","question":"Tập giá trị của $f(x) = 2\\sin x + 1$ là:","choices":["$[-1,\\ 3]$","$[0,\\ 2]$","$[-2,\\ 2]$","$[1,\\ 3]$"],"correct":0,"explanation":"$-1 \\leq \\sin x \\leq 1 \\Rightarrow -2 \\leq 2\\sin x \\leq 2 \\Rightarrow -1 \\leq 2\\sin x + 1 \\leq 3$."},
+  {"id":"q_ksat_027","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"probability","difficulty":"hard","question":"Chọn $3$ người từ $6$ nam và $4$ nữ. Xác suất để có đúng $2$ nữ là:","choices":["$\\dfrac{3}{10}$","$\\dfrac{1}{5}$","$\\dfrac{2}{5}$","$\\dfrac{1}{2}$"],"correct":0,"explanation":"$P = \\dfrac{C_4^2 \\times C_6^1}{C_{10}^3} = \\dfrac{6 \\times 6}{120} = \\dfrac{36}{120} = \\dfrac{3}{10}$."},
+  {"id":"q_ksat_028","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"calculus","difficulty":"hard","question":"$\\displaystyle\\int_0^2 x(x - 2)\\,dx$ bằng:","choices":["$-\\dfrac{4}{3}$","$\\dfrac{4}{3}$","$0$","$-\\dfrac{8}{3}$"],"correct":0,"explanation":"$\\int_0^2(x^2-2x)\\,dx = \\left[\\dfrac{x^3}{3} - x^2\\right]_0^2 = \\dfrac{8}{3} - 4 = -\\dfrac{4}{3}$."},
+  {"id":"q_ksat_029","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"algebra","difficulty":"hard","question":"Số phức $z$ thỏa $z + \\bar{z} = 6$ và $|z|^2 = 13$. Giá trị $|z - 3|$ là:","choices":["$2$","$3$","$4$","$\\sqrt{13}$"],"correct":0,"explanation":"$z = 3 + bi$. $|z|^2 = 9 + b^2 = 13 \\Rightarrow b = \\pm 2$. $|z - 3| = |bi| = |b| = 2$."},
+  {"id":"q_ksat_030","source":"Korean CSAT (수능) Mathematics — Korea Institute for Curriculum and Evaluation","year":2023,"topic":"calculus","difficulty":"hard","question":"Hàm $f(x) = x^3 - 3x$ có giá trị cực tiểu là:","choices":["$-2$","$2$","$0$","$-4$"],"correct":0,"explanation":"$f'(x) = 3x^2 - 3 = 0 \\Rightarrow x = \\pm 1$. $f(1) = 1 - 3 = -2$ (cực tiểu). $f(-1) = -1 + 3 = 2$ (cực đại)."},
+
+  {"id":"q_jee_021","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"algebra","difficulty":"medium","question":"Cho $A$ và $B$ là ma trận $2 \\times 2$ với $\\det(A) = 3$ và $\\det(B) = 2$. Giá trị $\\det(AB)$ là:","choices":["$6$","$5$","$1$","$9$"],"correct":0,"explanation":"$\\det(AB) = \\det(A) \\cdot \\det(B) = 3 \\times 2 = 6$."},
+  {"id":"q_jee_022","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"algebra","difficulty":"medium","question":"Argument (góc) của số phức $z = -1 + i$ là:","choices":["$\\dfrac{3\\pi}{4}$","$\\dfrac{\\pi}{4}$","$-\\dfrac{\\pi}{4}$","$\\dfrac{\\pi}{2}$"],"correct":0,"explanation":"$z$ nằm ở góc phần tư thứ hai. $\\arg(z) = \\pi - \\arctan(1) = \\pi - \\dfrac{\\pi}{4} = \\dfrac{3\\pi}{4}$."},
+  {"id":"q_jee_023","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"calculus","difficulty":"medium","question":"Nếu $y = x^n$, đạo hàm cấp $n$ là $\\dfrac{d^n y}{dx^n}$ bằng:","choices":["$n!$","$n \\cdot x$","$x^{n-1}$","$0$"],"correct":0,"explanation":"Đạo hàm bậc $n$ của $x^n$: $\\dfrac{d^n}{dx^n}(x^n) = n!$."},
+  {"id":"q_jee_024","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"probability","difficulty":"medium","question":"Gieo $3$ xúc xắc. Xác suất để tổng ba mặt bằng $18$ là:","choices":["$\\dfrac{1}{216}$","$\\dfrac{1}{36}$","$\\dfrac{3}{216}$","$\\dfrac{1}{72}$"],"correct":0,"explanation":"Chỉ có $1$ cách để tổng $= 18$: cả ba mặt đều là $6$. $P = \\dfrac{1}{6^3} = \\dfrac{1}{216}$."},
+  {"id":"q_jee_025","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"vectors","difficulty":"medium","question":"Cho $\\vec{a} = (1,0,0)$ và $\\vec{b} = (0,1,0)$. Tích có hướng $\\vec{a} \\times \\vec{b}$ bằng:","choices":["$(0,\\ 0,\\ 1)$","$(1,\\ 1,\\ 0)$","$(0,\\ 0,\\ -1)$","$(1,\\ 0,\\ 1)$"],"correct":0,"explanation":"$\\vec{i} \\times \\vec{j} = \\vec{k} = (0,\\ 0,\\ 1)$."},
+  {"id":"q_jee_026","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"calculus","difficulty":"hard","question":"Phương trình $e^x + e^{-x} = 2$ có bao nhiêu nghiệm thực?","choices":["$1$ nghiệm ($x=0$)","$2$ nghiệm","Vô số nghiệm","Không có nghiệm"],"correct":0,"explanation":"$e^x + e^{-x} \\geq 2$ (bất đẳng thức AM-GM), đẳng thức khi $e^x = e^{-x}$, tức $x = 0$. Chỉ có duy nhất $1$ nghiệm."},
+  {"id":"q_jee_027","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"geometry","difficulty":"medium","question":"Điểm trên parabol $y^2 = 4x$ ứng với $x = 4$ (với $y > 0$) có $y$ bằng:","choices":["$4$","$2$","$8$","$\\sqrt{2}$"],"correct":0,"explanation":"$y^2 = 4 \\times 4 = 16 \\Rightarrow y = 4$ (với $y > 0$)."},
+  {"id":"q_jee_028","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"algebra","difficulty":"hard","question":"Nếu $\\alpha$ và $\\beta$ là nghiệm của $2x^2 - 5x + 3 = 0$, giá trị $\\alpha^2 + \\beta^2$ là:","choices":["$\\dfrac{13}{4}$","$\\dfrac{19}{4}$","$\\dfrac{25}{4}$","$3$"],"correct":0,"explanation":"$\\alpha+\\beta = \\dfrac{5}{2}$, $\\alpha\\beta = \\dfrac{3}{2}$. $\\alpha^2+\\beta^2 = \\left(\\dfrac{5}{2}\\right)^2 - 2 \\cdot \\dfrac{3}{2} = \\dfrac{25}{4} - 3 = \\dfrac{13}{4}$."},
+  {"id":"q_jee_029","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"calculus","difficulty":"hard","question":"$\\displaystyle\\int_0^{\\pi/2} \\sin x \\cos x\\,dx$ bằng:","choices":["$\\dfrac{1}{2}$","$1$","$0$","$\\dfrac{1}{4}$"],"correct":0,"explanation":"$\\int_0^{\\pi/2}\\dfrac{\\sin 2x}{2}\\,dx = \\left[-\\dfrac{\\cos 2x}{4}\\right]_0^{\\pi/2} = \\dfrac{-\\cos\\pi + \\cos 0}{4} = \\dfrac{1+1}{4} = \\dfrac{1}{2}$."},
+  {"id":"q_jee_030","source":"JEE Main Mathematics — National Testing Agency, India","year":2024,"topic":"statistics","difficulty":"hard","question":"Một phân phối có Mode $= 7$ và Mean $= 13$. Theo công thức thực nghiệm Pearson ($\\text{Mode} = 3\\,\\text{Median} - 2\\,\\text{Mean}$), Median bằng:","choices":["$11$","$10$","$12$","$13$"],"correct":0,"explanation":"$7 = 3 \\times \\text{Median} - 2 \\times 13 \\Rightarrow 3\\,\\text{Median} = 7 + 26 = 33 \\Rightarrow \\text{Median} = 11$."}
 ]
