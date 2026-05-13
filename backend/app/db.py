@@ -10,7 +10,15 @@ SQL translation handled automatically:
   ::type casts     → stripped
   NOW()            → datetime('now')
   list params      → JSON-serialised (for embedding storage)
+
+Architecture note:
+  A single persistent aiosqlite connection is shared across all callers.  An
+  asyncio.Lock serialises every acquire() so only one coroutine touches the
+  SQLite file at a time.  This eliminates the concurrent-writer corruption that
+  WAL mode's shared-memory coordination (-shm/-wal files) causes on
+  network/container filesystems (NFS, Docker overlays, HuggingFace Spaces /data).
 """
+import asyncio
 import json
 import logging
 import re
@@ -127,43 +135,55 @@ class _Connection:
 
 
 class AsyncSQLitePool:
-    """Asyncpg-compatible pool backed by a local SQLite file."""
+    """Single-connection asyncpg-compatible pool backed by a local SQLite file.
+
+    One persistent aiosqlite connection is shared by all callers.  An asyncio.Lock
+    ensures only one coroutine executes against the connection at a time, which is
+    both sufficient (single uvicorn process) and necessary (prevents WAL-mode
+    shared-memory corruption on container/NFS filesystems).
+    """
 
     def __init__(self, db_path: str) -> None:
         self._path = db_path
+        self._conn: Optional[aiosqlite.Connection] = None
+        self._lock: asyncio.Lock = asyncio.Lock()
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
 
     async def initialize(self) -> None:
-        """Enable WAL mode; auto-recover if the DB file is corrupted."""
+        """Open the persistent connection; auto-recover if the DB file is corrupted."""
         try:
-            async with aiosqlite.connect(self._path) as conn:
-                await conn.execute("PRAGMA journal_mode=WAL")
-                await conn.execute("PRAGMA synchronous=NORMAL")
-                # Verify integrity before handing the pool to the app.
-                cur = await conn.execute("PRAGMA integrity_check")
-                row = await cur.fetchone()
-                if row and row[0] != "ok":
-                    raise sqlite3.DatabaseError(f"integrity_check: {row[0]}")
-                await conn.commit()
+            conn = await aiosqlite.connect(self._path)
+            await conn.execute("PRAGMA foreign_keys = ON")
+            cur = await conn.execute("PRAGMA integrity_check")
+            row = await cur.fetchone()
+            if row and row[0] != "ok":
+                await conn.close()
+                raise sqlite3.DatabaseError(f"integrity_check: {row[0]}")
+            await conn.commit()
+            self._conn = conn
         except (sqlite3.DatabaseError, Exception) as exc:
             logger.warning("DB at %s is corrupt (%s) — wiping and recreating", self._path, exc)
+            if self._conn is not None:
+                try:
+                    await self._conn.close()
+                except Exception:
+                    pass
+                self._conn = None
             path = Path(self._path)
             for suffix in ("", "-wal", "-shm"):
                 candidate = Path(str(path) + suffix)
                 if candidate.exists():
                     candidate.unlink()
-            async with aiosqlite.connect(self._path) as conn:
-                await conn.execute("PRAGMA journal_mode=WAL")
-                await conn.execute("PRAGMA synchronous=NORMAL")
-                await conn.commit()
+            conn = await aiosqlite.connect(self._path)
+            await conn.execute("PRAGMA foreign_keys = ON")
+            await conn.commit()
+            self._conn = conn
             logger.info("Fresh DB created at %s", self._path)
 
     @asynccontextmanager
     async def acquire(self) -> AsyncGenerator[_Connection, None]:
-        async with aiosqlite.connect(self._path) as conn:
-            await conn.execute("PRAGMA foreign_keys = ON")
-            await conn.execute("PRAGMA busy_timeout = 30000")
-            yield _Connection(conn)
+        async with self._lock:
+            yield _Connection(self._conn)
 
     # Shortcut methods (asyncpg pools expose these directly)
 
@@ -184,4 +204,7 @@ class AsyncSQLitePool:
             return await conn.execute(query, *args)
 
     async def close(self) -> None:
-        pass
+        async with self._lock:
+            if self._conn is not None:
+                await self._conn.close()
+                self._conn = None
