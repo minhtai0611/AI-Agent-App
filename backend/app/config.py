@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     embedding_model_name: str = "BAAI/bge-m3"
     google_client_id: str = ""
     jwt_secret: str = ""
+    sqlite_path: str = "/data/app.db"
 
     def __init__(self, **data):
         super().__init__(**data)

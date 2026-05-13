@@ -18,25 +18,17 @@ from app.auth import verify_google_token, create_jwt
 logger = logging.getLogger(__name__)
 
 
-async def _register_codecs(conn) -> None:
-    # Create extension first so the vector type exists before codec registration
-    await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
-    import pgvector.asyncpg
-    await pgvector.asyncpg.register_vector(conn)
-
-
 _SCHEMA_DDL = [
-    "CREATE EXTENSION IF NOT EXISTS vector",
     """CREATE TABLE IF NOT EXISTS wiki_units (
         id TEXT PRIMARY KEY, type TEXT NOT NULL, topic TEXT NOT NULL,
         subtopic TEXT NOT NULL, content TEXT NOT NULL,
         problem_ids TEXT NOT NULL DEFAULT '[]',
         source TEXT NOT NULL DEFAULT 'manual', source_url TEXT,
-        deleted BOOLEAN NOT NULL DEFAULT FALSE,
+        deleted INTEGER NOT NULL DEFAULT 0,
         version INTEGER NOT NULL DEFAULT 1, last_edited_by TEXT,
-        embedding vector(1024),
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        embedding TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     )""",
     """CREATE TABLE IF NOT EXISTS problems (
         problem_id TEXT PRIMARY KEY, problem_text TEXT NOT NULL,
@@ -47,22 +39,22 @@ _SCHEMA_DDL = [
         figure_type TEXT NOT NULL DEFAULT 'svg'
     )""",
     """CREATE TABLE IF NOT EXISTS wiki_unit_history (
-        id SERIAL PRIMARY KEY, unit_id TEXT NOT NULL,
+        id INTEGER PRIMARY KEY AUTOINCREMENT, unit_id TEXT NOT NULL,
         version INTEGER NOT NULL, content TEXT NOT NULL,
         edited_by TEXT, reason TEXT,
-        edited_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        edited_at TEXT NOT NULL DEFAULT (datetime('now'))
     )""",
     """CREATE TABLE IF NOT EXISTS unit_feedback (
-        id SERIAL PRIMARY KEY, unit_id TEXT NOT NULL,
+        id INTEGER PRIMARY KEY AUTOINCREMENT, unit_id TEXT NOT NULL,
         problem_text TEXT, feedback_type TEXT NOT NULL DEFAULT 'general',
-        comment TEXT, resolved BOOLEAN NOT NULL DEFAULT FALSE,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        comment TEXT, resolved INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
     )""",
     """CREATE TABLE IF NOT EXISTS flagged_solutions (
-        id SERIAL PRIMARY KEY, problem_text TEXT NOT NULL,
+        id INTEGER PRIMARY KEY AUTOINCREMENT, problem_text TEXT NOT NULL,
         problem_hash TEXT NOT NULL, solver_output TEXT NOT NULL,
-        flag_reason TEXT, reviewed BOOLEAN NOT NULL DEFAULT FALSE,
-        flagged_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        flag_reason TEXT, reviewed INTEGER NOT NULL DEFAULT 0,
+        flagged_at TEXT NOT NULL DEFAULT (datetime('now'))
     )""",
     """CREATE TABLE IF NOT EXISTS wiki_drafts (
         draft_id TEXT PRIMARY KEY, source_url TEXT,
@@ -70,50 +62,49 @@ _SCHEMA_DDL = [
         proposed_units_json TEXT NOT NULL DEFAULT '[]',
         final_units_json TEXT, topic_hint TEXT,
         status TEXT NOT NULL DEFAULT 'pending',
-        reviewed_by TEXT, reviewed_at TIMESTAMPTZ,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        reviewed_by TEXT, reviewed_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
     )""",
     """CREATE TABLE IF NOT EXISTS solution_logs (
-        id SERIAL PRIMARY KEY, problem_text TEXT NOT NULL,
+        id INTEGER PRIMARY KEY AUTOINCREMENT, problem_text TEXT NOT NULL,
         problem_hash TEXT NOT NULL, classified_topic TEXT NOT NULL,
         retrieved_ids TEXT NOT NULL DEFAULT '[]',
         used_knowledge_ids TEXT NOT NULL DEFAULT '[]',
         solver_confidence TEXT NOT NULL DEFAULT 'medium',
-        validation_valid BOOLEAN NOT NULL DEFAULT FALSE,
+        validation_valid INTEGER NOT NULL DEFAULT 0,
         validation_issues TEXT NOT NULL DEFAULT '[]',
-        wiki_assisted BOOLEAN NOT NULL DEFAULT TRUE,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        wiki_assisted INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
     )""",
     """CREATE TABLE IF NOT EXISTS staged_wiki_units (
         staged_id TEXT PRIMARY KEY, unit_data TEXT NOT NULL,
         source TEXT NOT NULL DEFAULT 'manual', source_url TEXT,
         status TEXT NOT NULL DEFAULT 'pending',
         proposed_by TEXT NOT NULL DEFAULT 'system',
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     )""",
     "CREATE INDEX IF NOT EXISTS wiki_units_topic_idx ON wiki_units (topic)",
     "CREATE INDEX IF NOT EXISTS wiki_units_deleted_idx ON wiki_units (deleted)",
     "CREATE INDEX IF NOT EXISTS problems_hash_idx ON problems (problem_hash)",
     "CREATE INDEX IF NOT EXISTS solution_logs_created_idx ON solution_logs (created_at)",
     "CREATE INDEX IF NOT EXISTS staged_wiki_units_status_idx ON staged_wiki_units (status)",
-    "CREATE INDEX IF NOT EXISTS wiki_units_embedding_hnsw ON wiki_units USING hnsw (embedding vector_cosine_ops)",
     """CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         google_sub TEXT UNIQUE NOT NULL,
         email TEXT NOT NULL,
         display_name TEXT,
         avatar_url TEXT,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        updated_at TIMESTAMPTZ DEFAULT NOW()
+        created_at TEXT DEFAULT (datetime('now')),
+        updated_at TEXT DEFAULT (datetime('now'))
     )""",
     """CREATE TABLE IF NOT EXISTS exam_results (
         result_id TEXT PRIMARY KEY,
-        user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         exam_id TEXT,
-        score FLOAT,
-        payload JSONB,
-        created_at TIMESTAMPTZ DEFAULT NOW()
+        score REAL,
+        payload TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
     )""",
 ]
 
@@ -159,7 +150,7 @@ async def _auto_seed_wiki(pool, client) -> None:
         logger.info("auto-seed: CRAWL_FORCE_RESEED=true — wiping wiki_units for fresh crawl")
         try:
             async with pool.acquire() as conn:
-                await conn.execute("TRUNCATE TABLE wiki_units")
+                await conn.execute("DELETE FROM wiki_units")
         except Exception as exc:
             logger.error("auto-seed: truncate failed: %s — aborting reseed", exc)
             return
@@ -322,28 +313,15 @@ async def _apply_schema(pool) -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    import asyncpg
+    from app.db import AsyncSQLitePool
     from app.math_wiki.pipeline import _wiki_status, _ensure_bm25
 
     settings = get_settings()
-    if settings.database_url:
-        try:
-            app.state.pool = await asyncpg.create_pool(
-                settings.database_url,
-                min_size=1,
-                max_size=5,
-                statement_cache_size=0,
-                max_inactive_connection_lifetime=240,
-                init=_register_codecs,
-            )
-            logger.info("asyncpg pool connected to Neon")
-            await _apply_schema(app.state.pool)
-        except Exception as exc:
-            logger.error("Failed to create asyncpg pool: %s", exc)
-            app.state.pool = None
-    else:
-        logger.warning("DATABASE_URL not set — running without PostgreSQL pool")
-        app.state.pool = None
+    pool = AsyncSQLitePool(settings.sqlite_path)
+    await pool.initialize()
+    app.state.pool = pool
+    await _apply_schema(app.state.pool)
+    logger.info("SQLite pool ready at %s", settings.sqlite_path)
 
     _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
     asyncio.ensure_future(_ensure_bm25(app.state.pool))
@@ -781,9 +759,10 @@ async def metrics(x_admin_key: str | None = None, pool=Depends(get_pool)):
     data = get_metrics()
     if pool:
         try:
-            async with pool.acquire() as conn:
-                db_size = await conn.fetchval("SELECT pg_database_size(current_database())")
-                data["pg_database_size_bytes"] = db_size
+            import os
+            from app.config import get_settings as _gs
+            db_path = _gs().sqlite_path
+            data["sqlite_size_bytes"] = os.path.getsize(db_path) if os.path.exists(db_path) else 0
         except Exception:
             pass
         try:
@@ -925,7 +904,7 @@ async def get_history(
             "exam_id": r["exam_id"],
             "score": r["score"],
             "payload": r["payload"],
-            "created_at": r["created_at"].isoformat() if r["created_at"] else None,
+            "created_at": r["created_at"] if isinstance(r["created_at"], str) else (r["created_at"].isoformat() if r["created_at"] else None),
         }
         for r in rows
     ]
