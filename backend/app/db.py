@@ -12,6 +12,7 @@ SQL translation handled automatically:
   list params      → JSON-serialised (for embedding storage)
 """
 import json
+import logging
 import re
 import sqlite3
 from contextlib import asynccontextmanager
@@ -19,6 +20,8 @@ from pathlib import Path
 from typing import Any, AsyncGenerator, Optional
 
 import aiosqlite
+
+logger = logging.getLogger(__name__)
 
 
 class Row(dict):
@@ -131,11 +134,29 @@ class AsyncSQLitePool:
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
 
     async def initialize(self) -> None:
-        """Enable WAL mode once for better concurrent read performance."""
-        async with aiosqlite.connect(self._path) as conn:
-            await conn.execute("PRAGMA journal_mode=WAL")
-            await conn.execute("PRAGMA synchronous=NORMAL")
-            await conn.commit()
+        """Enable WAL mode; auto-recover if the DB file is corrupted."""
+        try:
+            async with aiosqlite.connect(self._path) as conn:
+                await conn.execute("PRAGMA journal_mode=WAL")
+                await conn.execute("PRAGMA synchronous=NORMAL")
+                # Verify integrity before handing the pool to the app.
+                cur = await conn.execute("PRAGMA integrity_check")
+                row = await cur.fetchone()
+                if row and row[0] != "ok":
+                    raise sqlite3.DatabaseError(f"integrity_check: {row[0]}")
+                await conn.commit()
+        except (sqlite3.DatabaseError, Exception) as exc:
+            logger.warning("DB at %s is corrupt (%s) — wiping and recreating", self._path, exc)
+            path = Path(self._path)
+            for suffix in ("", "-wal", "-shm"):
+                candidate = Path(str(path) + suffix)
+                if candidate.exists():
+                    candidate.unlink()
+            async with aiosqlite.connect(self._path) as conn:
+                await conn.execute("PRAGMA journal_mode=WAL")
+                await conn.execute("PRAGMA synchronous=NORMAL")
+                await conn.commit()
+            logger.info("Fresh DB created at %s", self._path)
 
     @asynccontextmanager
     async def acquire(self) -> AsyncGenerator[_Connection, None]:
