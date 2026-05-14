@@ -7,7 +7,7 @@ export function loadQuestions() {
 }
 
 export function loadExams() {
-  return examsData.filter(e => e.mode !== 'thithu')
+  return examsData.filter(e => e.mode !== 'thithu' && e.mode !== 'retired')
 }
 
 export function loadThiThuExams() {
