@@ -8,12 +8,11 @@ import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { scoreExam } from '../engine/scoringEngine.js'
 import { analyzeResult } from '../engine/aiEngine.js'
-import { loadSchools, buildStudyPlanPayload } from '../api/index.js'
+import { loadSchools, loadExamById, buildStudyPlanPayload, buildAnalyzePayload } from '../api/index.js'
 import { analyzeResult as aiAnalyzeResult, generateStudyPlan } from '../api/aiClient.js'
 import TopicBreakdownChart from '../components/TopicBreakdownChart.jsx'
 import AIInsights from '../components/AIInsights.jsx'
 import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
-import SchoolList from '../components/SchoolList.jsx'
 
 const TOPIC_LABELS = { algebra: 'Đại số', geometry: 'Hình học', statistics: 'Thống kê', combinatorics: 'Tổ hợp' }
 const TOPIC_COLORS = { algebra: '#10B981', geometry: '#FBBF24', statistics: '#FB7185', combinatorics: '#10B981' }
@@ -48,7 +47,6 @@ export default function Results({ onOpenAuth }) {
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
   const [result, setResult] = useState(null)
   const [analysis, setAnalysis] = useState(null)
-  const [schoolRecs, setSchoolRecs] = useState([])
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState(false)
   const [planReady, setPlanReady] = useState(false)
@@ -64,9 +62,10 @@ export default function Results({ onOpenAuth }) {
         return
       }
       const scored = scoreExam(session)
-      const id = addResult(scored)
       setResult(scored)
-      navigate(`/results/${id}`, { replace: true })
+      addResult(scored).then(id => {
+        navigate(`/results/${id}`, { replace: true })
+      })
     } else {
       const found = results.find(r => r.id === resultId)
       if (found) setResult(found)
@@ -109,10 +108,8 @@ export default function Results({ onOpenAuth }) {
       })
     }
 
-    // School recommendations — always computed locally, independent of AI
     const schools = loadSchools()
     const localAnalysis = analyzeResult(result, allPast, schools)
-    setSchoolRecs(localAnalysis.recommendations)
 
     // Return cached AI analysis immediately if available
     const cacheKey = `ai-analysis-${result.id}`
@@ -125,12 +122,26 @@ export default function Results({ onOpenAuth }) {
     // Local fallback while AI loads
     setAnalysis(localAnalysis)
 
+    const examObj = loadExamById(result.examId) || {}
+
     setAiLoading(true)
     setAiError(false)
-    aiAnalyzeResult({ result, history: allPast }).then(({ data, error }) => {
+    const payload = buildAnalyzePayload(
+      result,
+      allPast,
+      localAnalysis.recommendations,
+      examObj.category || '',
+      user ? {
+        location: user.province || user.location || '',
+        province: user.province || '',
+        grade: user.grade || '',
+        display_name: user.display_name || '',
+      } : {}
+    )
+    aiAnalyzeResult(payload).then(({ data, error }) => {
       setAiLoading(false)
       if (data) {
-        const aiAnalysis = { ...data, _source: 'ai' }
+        const aiAnalysis = { ...data, _source: 'ai', schoolRecs: localAnalysis.recommendations }
         localStorage.setItem(cacheKey, JSON.stringify(aiAnalysis))
         setAnalysis(aiAnalysis)
       } else {
@@ -304,32 +315,9 @@ export default function Results({ onOpenAuth }) {
             <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Phân tích AI</span>
           </div>
           <AIErrorBoundary>
-            <AIInsights analysis={aiLoading ? null : analysis} loading={aiLoading} error={aiError} />
+            <AIInsights analysis={aiLoading ? null : analysis} loading={aiLoading} error={aiError} score={score} />
           </AIErrorBoundary>
         </div>
-
-        {/* School recommendations */}
-        {schoolRecs.length > 0 && (
-          <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-[#10B981] text-[16px]">🏫</span>
-                <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Gợi ý trường phù hợp</span>
-              </div>
-              <span className="font-jakarta text-[11px] text-[#475569]">Điểm Toán của bạn: <span className="text-[#F2A20C] font-bold">{score}/10</span></span>
-            </div>
-            <p className="font-jakarta text-[12px] text-[#475569] leading-relaxed">
-              Dựa trên điểm thi thử này so với điểm chuẩn môn Toán năm 2024.
-              <span className="text-[#10B981]"> An toàn</span> — trên ngưỡng,{' '}
-              <span className="text-[#F59E0B]">Phù hợp</span> — trong tầm,{' '}
-              <span className="text-[#FB7185]">Thách thức</span> — cần cố gắng thêm.
-            </p>
-            <SchoolList recommendations={schoolRecs} />
-            <p className="font-jakarta text-[10px] text-[#2A3A50] leading-relaxed">
-              ↑ điểm chuẩn tăng dần · ↓ điểm chuẩn giảm dần · → ổn định
-            </p>
-          </div>
-        )}
 
         {/* Action buttons */}
         <div className="flex gap-3">

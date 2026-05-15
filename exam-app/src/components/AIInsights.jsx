@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import SchoolList from './SchoolList.jsx'
 
 const TOPIC_LABELS = {
@@ -44,15 +45,79 @@ function TipList({ label, items }) {
   )
 }
 
-export default function AIInsights({ analysis, loading, error }) {
+function SchoolSection({ schoolRecs, schoolInsight, score }) {
+  if (!schoolRecs || schoolRecs.length === 0) return null
+  return (
+    <div className="flex flex-col gap-3 pt-2 border-t border-[#1E2A44]">
+      <div className="flex items-center justify-between">
+        <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Trường phù hợp</span>
+        {score !== undefined && (
+          <span className="font-jakarta text-[11px] text-[#475569]">
+            Điểm Toán: <span className="text-[#F2A20C] font-bold">{score}/10</span>
+          </span>
+        )}
+      </div>
+      {schoolInsight && (
+        <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{schoolInsight}</p>
+      )}
+      <SchoolList recommendations={schoolRecs} />
+      <p className="font-jakarta text-[10px] text-[#2A3A50] leading-relaxed">
+        So sánh với điểm chuẩn Toán 2025 (ước tính) · ↑ tăng dần · ↓ giảm dần · → ổn định
+      </p>
+    </div>
+  )
+}
+
+function AIErrorMessage({ error }) {
+  const navigate = useNavigate()
+  if (!error) return null
+
+  // Structured 402 insufficient_credits
+  if (typeof error === 'object' && error.code === 'insufficient_credits') {
+    return (
+      <div className="flex flex-col gap-3 py-4 items-center text-center">
+        <span className="font-jakarta text-[13px] text-[#94A3B8]">
+          Hết AI Điểm — còn <strong className="text-amber-400">{error.balance}</strong> điểm, cần <strong>{error.required}</strong>.
+        </span>
+        <button
+          onClick={() => navigate('/account#topup')}
+          className="px-5 py-2 rounded-lg font-jakarta text-[12px] font-bold"
+          style={{ background: '#F2A20C', color: '#0A0E1A' }}
+        >
+          Mua top-up
+        </button>
+      </div>
+    )
+  }
+
+  // 403 tier_required
+  if (typeof error === 'object' && error.code === 'tier_required') {
+    return (
+      <div className="flex flex-col gap-3 py-4 items-center text-center">
+        <span className="font-jakarta text-[13px] text-[#94A3B8]">{error.message || 'Cần nâng cấp gói để sử dụng tính năng này.'}</span>
+        <button
+          onClick={() => navigate('/account')}
+          className="px-5 py-2 rounded-lg font-jakarta text-[12px] font-bold"
+          style={{ background: '#F2A20C', color: '#0A0E1A' }}
+        >
+          Nâng cấp
+        </button>
+      </div>
+    )
+  }
+
+  // Generic string error
+  const msg = typeof error === 'string' ? error : 'Phân tích AI không khả dụng — đang dùng phân tích ngoại tuyến'
+  return (
+    <div className="flex items-center justify-center py-8 font-jakarta text-sm text-[#475569]">{msg}</div>
+  )
+}
+
+export default function AIInsights({ analysis, loading, error, score }) {
   if (loading) return <Skeleton />
 
   if (!analysis) {
-    return (
-      <div className="flex items-center justify-center py-8 font-jakarta text-sm text-[#475569]">
-        {error ? 'Phân tích AI không khả dụng — đang dùng phân tích ngoại tuyến' : 'Chưa đủ dữ liệu phân tích'}
-      </div>
-    )
+    return <AIErrorMessage error={error || 'Chưa đủ dữ liệu phân tích'} />
   }
 
   const isAI = analysis._source === 'ai'
@@ -67,6 +132,12 @@ export default function AIInsights({ analysis, loading, error }) {
         {analysis.insights && (
           <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{analysis.insights}</p>
         )}
+        {analysis.question_analysis && (
+          <div className="flex flex-col gap-2">
+            <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Phân tích câu trả lời</span>
+            <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{analysis.question_analysis}</p>
+          </div>
+        )}
         {analysis.weak_topics && analysis.weak_topics.length > 0 && (
           <div className="flex flex-col gap-2.5">
             <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Chủ đề cần cải thiện</span>
@@ -80,6 +151,11 @@ export default function AIInsights({ analysis, loading, error }) {
           </div>
         )}
         <TipList label="Khuyến nghị từ AI" items={analysis.recommendations} />
+        <SchoolSection
+          schoolRecs={analysis.schoolRecs}
+          schoolInsight={analysis.school_insight}
+          score={score}
+        />
       </div>
     )
   }
@@ -130,10 +206,7 @@ export default function AIInsights({ analysis, loading, error }) {
       <TipList label="Kế hoạch cải thiện" items={improvementStrategy} />
 
       {recommendations && recommendations.length > 0 && (
-        <div className="flex flex-col gap-2.5">
-          <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Trường phù hợp</span>
-          <SchoolList recommendations={recommendations} />
-        </div>
+        <SchoolSection schoolRecs={recommendations} score={score} />
       )}
     </div>
   )

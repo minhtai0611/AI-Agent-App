@@ -30,14 +30,18 @@ cd exam-app && npm install && npm run dev   # http://localhost:5173
 backend/app/
   config.py          # Settings (pydantic-settings), get_settings(); ALLOWED_ORIGINS for CORS
   dependencies.py    # get_ai_client() singleton (AsyncOpenAI)
-  middleware.py      # RateLimitMiddleware — 20 req/min per IP on AI endpoints
-  main.py            # FastAPI routes: /chat /compress /analyze /hint /tutor /study-plan /health
+  middleware.py      # RateLimitMiddleware — IP (20/min) + per-user (60/min) + rapid-fire hint detection
+  abuse_detector.py # Background loop (5 min) — credit velocity, burst, score anomaly, new-account checks
+  main.py            # FastAPI routes: /chat /compress /analyze /hint /explain /tutor /study-plan /health
+                     #   + /auth/google, /users/me, /users/me/profile, /users/me/credits/log
+                     #   + /admin/users/{id}/subscription|credits|suspend|unsuspend
+                     #   + GET /admin/security-events
   agent/
     core.py          # run_agent(), call_with_retry(), system prompt builder
     memory.py        # compress_conversation() via Haiku
-    exam_analyzer.py # analyze_exam_result() — AI-powered results analysis
+    exam_analyzer.py # analyze_exam_result() — grade+province → location-aware school recs
     hint_generator.py# generate_hint() — Socratic hints via Haiku
-    exam_tutor.py    # run_tutor() — tutoring chat with exam context injected
+    exam_tutor.py    # run_tutor() — tutoring chat with exam context injected (no UI but kept)
     study_planner.py # generate_study_plan() — 4-week study plan with JSON fallback
   tools/
     registry.py      # Tool schemas (ALL_TOOLS), handle_tool_call(), PRICE_TABLE
@@ -47,18 +51,53 @@ backend/app/
 exam-app/src/
   api/
     index.js         # Static data loaders (questions, exams, schools)
-    aiClient.js      # Axios client wrapping /analyze /hint /tutor /study-plan
+    aiClient.js      # Axios client wrapping all backend endpoints; wrap() preserves structured errors
   components/
-    AIInsights.jsx   # Renders local or AI analysis; loading skeleton + offline badge
+    AIInsights.jsx   # Renders AI analysis; handles 401/402/403 error codes + credit top-up CTA
     AIErrorBoundary.jsx  # React error boundary wrapping AI sections
-    QuestionCard.jsx # Question renderer + Socratic hint button + "Xem giải thích" toggle (practice mode only)
-    TutorChat.jsx    # Slide-in chat drawer — AI tutor with exam context
+    QuestionCard.jsx # Question renderer + hint (⚡1 credit) + explanation toggle (practice mode)
+    ProfileOnboarding.jsx # Modal: grade (required) + province (required) + school type + ToS gate
+    LowCreditBanner.jsx   # Sticky banner when credits_balance < 10; dismissible per session
+    Navbar.jsx       # ⚡ credits badge → /account; avatar/name → /account
   pages/
-    Results.jsx      # Async AI analysis; "Hỏi AI Gia Sư" + "Tạo Kế Hoạch" buttons
+    Results.jsx      # Async AI analysis with grade+province in payload; "Tạo Kế Hoạch" button
     StudyPlan.jsx    # /study-plan/:resultId — 4-week plan with localStorage checkbox progress
+    Account.jsx      # /account — profile, tier/credits, pricing table (monthly/annual toggle), credit log
+    ExamSelect.jsx   # Auth gate (1 guest trial), grade/tier filter, category lock for non-complete tiers
   context/
     ExamContext.jsx  # Exam state + hints: {} + SET_HINT action + useHints() hook
+    AuthContext.jsx  # user (all profile fields), login, logout, updateProfile()
 ```
+
+## User profile fields (users table)
+
+| Field | Values | Effect |
+|---|---|---|
+| `grade` | '9','10','11','12' | ≤9 → grade10 exams only; 10-12 → thpt only |
+| `province` | 63 VN provinces | AI school recs localized to province |
+| `school_type` | 'chuyên','công lập','quốc tế' | Optional, informational |
+| `subscription_tier` | 'basic','student','complete' | Controls exam access + study-plan gate |
+| `subscription_period` | 'monthly','annual' | Annual shown with badge in Navbar/Account |
+| `credits_balance` | integer ≥0 | Deducted per AI call; 402 when exhausted |
+| `tos_accepted_at` | ISO timestamp | Required before any credit-deducting request |
+| `is_suspended` | 0/1 | 403 account_suspended → suspension modal |
+
+## AI credit costs
+
+| Endpoint | Credits |
+|---|---|
+| `/hint` | 1 |
+| `/explain` | 1 |
+| `/analyze` | 3 |
+| `/study-plan` | 5 (student/complete tier only) |
+
+## Admin endpoints (require X-Admin-Key header ≥32 chars)
+
+- `POST /admin/users/{id}/subscription` — set tier/period/expiry + bonus credits
+- `POST /admin/users/{id}/credits` — grant top-up credits
+- `POST /admin/users/{id}/suspend` — suspend with reason
+- `POST /admin/users/{id}/unsuspend`
+- `GET /admin/security-events` — recent HIGH/MEDIUM events with user status
 
 ## AI router rules (CRITICAL)
 
@@ -90,6 +129,9 @@ exam-app/src/
 | `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `claude-haiku-4.5` |
 | `ALLOWED_ORIGINS` | `http://localhost:5173` |
 | `SQLITE_PATH` | `./math_wiki.db` (local) / `/data/app.db` (HF Spaces) |
+| `GOOGLE_CLIENT_ID` | *(Google OAuth client ID)* |
+| `JWT_SECRET` | *(≥32 chars, required)* |
+| `ADMIN_KEY` | *(≥32 chars if set — required for /admin/* endpoints)* |
 
 **`exam-app/.env`** (copy from `exam-app/.env.example`, never commit)
 
@@ -156,7 +198,7 @@ Indexed as **AI-Agent-App** — re-index with `gitnexus analyze /mnt/d/AI-Agent-
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **AI-Agent-App** (3153 symbols, 6782 relationships, 183 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **AI-Agent-App** (3154 symbols, 6795 relationships, 180 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

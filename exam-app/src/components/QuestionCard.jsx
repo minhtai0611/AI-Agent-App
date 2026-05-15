@@ -10,15 +10,15 @@ import { sanitizeSvg } from '../utils/sanitizeSvg.js'
 
 function MathText({ children, className, style }) {
   return (
-    <Markdown
-      className={className}
-      style={style}
-      remarkPlugins={[remarkMath, remarkGfm]}
-      rehypePlugins={[rehypeKatex]}
-      components={{ p: ({ children }) => <span>{children}</span> }}
-    >
-      {children}
-    </Markdown>
+    <span className={className} style={style}>
+      <Markdown
+        remarkPlugins={[remarkMath, remarkGfm]}
+        rehypePlugins={[rehypeKatex]}
+        components={{ p: ({ children }) => <span>{children}</span> }}
+      >
+        {children}
+      </Markdown>
+    </span>
   )
 }
 
@@ -77,7 +77,7 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
     const nextCount = hintCount + 1
     setHintLoading(true)
     setHintError(null)
-    const { data, error } = await getHint({
+    const { data, error, status } = await getHint({
       question,
       attempt_count: nextCount,
       previous_hints: hintTexts,
@@ -85,8 +85,14 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
     setHintLoading(false)
     if (data) {
       onHint(question.id, nextCount, data.hint)
+    } else if (status === 401) {
+      setHintError('Đăng nhập để sử dụng gợi ý AI')
+    } else if (status === 402 && typeof error === 'object' && error.code === 'insufficient_credits') {
+      setHintError(`Hết AI Điểm (còn ${error.balance}, cần ${error.required})`)
+    } else if (status === 429) {
+      setHintError('Vui lòng chờ trước khi yêu cầu gợi ý tiếp theo')
     } else {
-      setHintError(error || 'Không thể tải gợi ý')
+      setHintError(typeof error === 'string' ? error : 'Không thể tải gợi ý')
     }
   }
 
@@ -190,6 +196,7 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
                 <span className="text-[#F2A20C]">💡</span>
               )}
               Gợi ý ({hintCount}/{MAX_HINTS})
+              <span className="text-[#2A3A60] text-[10px]">⚡1</span>
             </button>
           ) : (
             <button

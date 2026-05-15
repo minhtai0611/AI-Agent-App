@@ -38,12 +38,17 @@ class Settings(BaseSettings):
     embedding_model_name: str = "BAAI/bge-m3"
     google_client_id: str = ""
     jwt_secret: str = ""
+    admin_key: str = ""
     sqlite_path: str = "/data/app.db"
 
     def __init__(self, **data):
         super().__init__(**data)
         if not self.jwt_secret:
             raise RuntimeError("JWT_SECRET must be set in environment variables")
+        if len(self.jwt_secret) < 32:
+            raise RuntimeError("JWT_SECRET must be at least 32 characters")
+        if self.admin_key and len(self.admin_key) < 32:
+            raise RuntimeError("ADMIN_KEY must be at least 32 characters if set")
     embedding_dim: int = 1024
 
     @property

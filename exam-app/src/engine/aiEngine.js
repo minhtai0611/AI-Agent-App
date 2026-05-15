@@ -88,7 +88,7 @@ export function analyzeResult(result, allResults, schools) {
   if (result.accuracy < 0.7) {
     improvementStrategy.push('Luyện tập thêm các bài tập cơ bản để củng cố nền tảng')
   }
-  if (result.timeSpent > 0 && result.answeredCount < result.answers ? Object.keys(result.answers).length : 0) {
+  if (result.timeSpent > 0 && result.answeredCount < Object.keys(result.answers ?? {}).length) {
     improvementStrategy.push('Quản lý thời gian tốt hơn — hãy ưu tiên câu dễ trước')
   }
   improvementStrategy.push('Làm thêm đề thi thử để quen với định dạng câu hỏi')

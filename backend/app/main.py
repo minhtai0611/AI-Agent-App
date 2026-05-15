@@ -84,6 +84,38 @@ _SCHEMA_DDL = [
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     )""",
+    # Live migrations for existing DBs (ALTER TABLE is idempotent via try/except in _apply_schema)
+    "ALTER TABLE users ADD COLUMN grade TEXT CHECK(grade IN ('9','10','11','12'))",
+    "ALTER TABLE users ADD COLUMN school_type TEXT CHECK(school_type IN ('chuyên','công lập','quốc tế'))",
+    "ALTER TABLE users ADD COLUMN province TEXT",
+    "ALTER TABLE users ADD COLUMN subscription_tier TEXT NOT NULL DEFAULT 'basic'",
+    "ALTER TABLE users ADD COLUMN subscription_period TEXT NOT NULL DEFAULT 'monthly'",
+    "ALTER TABLE users ADD COLUMN subscription_expires_at TEXT",
+    "ALTER TABLE users ADD COLUMN credits_balance INTEGER NOT NULL DEFAULT 50",
+    "ALTER TABLE users ADD COLUMN credits_reset_at TEXT",
+    "ALTER TABLE users ADD COLUMN is_suspended INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE users ADD COLUMN suspension_reason TEXT",
+    "ALTER TABLE users ADD COLUMN tos_accepted_at TEXT",
+    "ALTER TABLE users ADD COLUMN last_ip TEXT",
+    """CREATE TABLE IF NOT EXISTS ai_credits_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        delta INTEGER NOT NULL,
+        reason TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    """CREATE TABLE IF NOT EXISTS security_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        ip TEXT,
+        event_type TEXT NOT NULL,
+        confidence TEXT DEFAULT 'medium',
+        detail TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    "CREATE INDEX IF NOT EXISTS ai_credits_log_user_idx ON ai_credits_log (user_id, created_at)",
+    "CREATE INDEX IF NOT EXISTS security_events_user_idx ON security_events (user_id, created_at)",
+    "CREATE INDEX IF NOT EXISTS security_events_type_idx ON security_events (event_type, created_at)",
     "CREATE INDEX IF NOT EXISTS wiki_units_topic_idx ON wiki_units (topic)",
     "CREATE INDEX IF NOT EXISTS wiki_units_deleted_idx ON wiki_units (deleted)",
     "CREATE INDEX IF NOT EXISTS problems_hash_idx ON problems (problem_hash)",
@@ -95,6 +127,18 @@ _SCHEMA_DDL = [
         email TEXT NOT NULL,
         display_name TEXT,
         avatar_url TEXT,
+        grade TEXT CHECK(grade IN ('9','10','11','12')),
+        school_type TEXT CHECK(school_type IN ('chuyên','công lập','quốc tế')),
+        province TEXT,
+        subscription_tier TEXT NOT NULL DEFAULT 'basic',
+        subscription_period TEXT NOT NULL DEFAULT 'monthly',
+        subscription_expires_at TEXT,
+        credits_balance INTEGER NOT NULL DEFAULT 50 CHECK(credits_balance >= 0),
+        credits_reset_at TEXT,
+        is_suspended INTEGER NOT NULL DEFAULT 0,
+        suspension_reason TEXT,
+        tos_accepted_at TEXT,
+        last_ip TEXT,
         created_at TEXT DEFAULT (datetime('now')),
         updated_at TEXT DEFAULT (datetime('now'))
     )""",
@@ -325,6 +369,8 @@ async def lifespan(app: FastAPI):
 
     _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
     asyncio.ensure_future(_ensure_bm25(app.state.pool))
+    from app.abuse_detector import _run_abuse_detector
+    asyncio.ensure_future(_run_abuse_detector(app.state.pool))
     if app.state.pool and (settings.crawl_auto_seed_enabled or settings.crawl_force_reseed or settings.crawl_gap_fill_enabled):
         asyncio.ensure_future(_auto_seed_wiki(app.state.pool, get_ai_client()))
     elif app.state.pool:
@@ -382,12 +428,18 @@ class ExamAnalyzeRequest(BaseModel):
     result: dict
     history: list[dict] = []
     student_name: str = ""
+    wrong_questions: list[dict] = []
+    school_recommendations: list[dict] = []
+    exam_category: str = ""
+    user_profile: dict = {}
 
 
 class ExamAnalyzeResponse(BaseModel):
     insights: str
     weak_topics: list[str]
     recommendations: list[str]
+    question_analysis: str = ""
+    school_insight: str = ""
 
 
 class HintRequest(BaseModel):
@@ -523,14 +575,25 @@ async def compress(
 async def analyze(
     req: ExamAnalyzeRequest,
     client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
 ):
+    await _spend_credits(pool, current_user.user_id, 3, "analyze")
     from app.agent.exam_analyzer import analyze_exam_result
     try:
-        data = await analyze_exam_result(client, req.result, req.history, req.student_name)
+        data = await analyze_exam_result(
+            client, req.result, req.history, req.student_name,
+            wrong_questions=req.wrong_questions,
+            school_recommendations=req.school_recommendations,
+            exam_category=req.exam_category,
+            user_profile=req.user_profile,
+        )
         return ExamAnalyzeResponse(
             insights=data.get("insights", ""),
             weak_topics=data.get("weak_topics", []),
             recommendations=data.get("recommendations", []),
+            question_analysis=data.get("question_analysis", ""),
+            school_insight=data.get("school_insight", ""),
         )
     except (ValueError, KeyError):
         raise HTTPException(status_code=502, detail="AI response parse error")
@@ -540,7 +603,10 @@ async def analyze(
 async def hint(
     req: HintRequest,
     client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
 ):
+    await _spend_credits(pool, current_user.user_id, 1, "hint")
     from app.agent.hint_generator import generate_hint
     try:
         data = await generate_hint(client, req.question, req.attempt_count, req.previous_hints)
@@ -570,7 +636,10 @@ async def tutor(
 async def explain(
     req: ExplainRequest,
     client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
 ):
+    await _spend_credits(pool, current_user.user_id, 1, "explain")
     from app.agent.exam_explainer import generate_explanation
     try:
         data = await generate_explanation(client, req.question, req.chosen_index)
@@ -582,11 +651,25 @@ async def explain(
         raise HTTPException(status_code=502, detail=f"Không thể tạo giải thích: {exc}")
 
 
+_PAID_TIERS = {"student", "complete"}
+
+
 @app.post("/study-plan", response_model=StudyPlanResponse)
 async def study_plan(
     req: StudyPlanRequest,
     client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
 ):
+    user_row = await pool.fetchrow(
+        "SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id
+    )
+    if not user_row or user_row["subscription_tier"] not in _PAID_TIERS:
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "tier_required", "required": "student", "message": "Cần gói Học sinh hoặc Toàn diện để tạo kế hoạch học tập"},
+        )
+    await _spend_credits(pool, current_user.user_id, 5, "study-plan")
     from app.agent.study_planner import generate_study_plan
     data = await generate_study_plan(client, req.result, req.history, req.wrong_questions, req.topic_miss_counts, req.student_name)
     return StudyPlanResponse(
@@ -843,12 +926,120 @@ async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
 @app.get("/users/me")
 async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Depends(get_pool)):
     row = await pool.fetchrow(
-        "SELECT id, email, display_name, avatar_url FROM users WHERE id = $1",
+        """SELECT id, email, display_name, avatar_url,
+                  grade, school_type, province,
+                  subscription_tier, subscription_period, subscription_expires_at,
+                  credits_balance, credits_reset_at,
+                  is_suspended, suspension_reason, tos_accepted_at
+           FROM users WHERE id = $1""",
         current_user.user_id,
     )
     if not row:
         raise HTTPException(status_code=404, detail="User not found")
     return dict(row)
+
+
+_VALID_GRADES = {"9", "10", "11", "12"}
+_VALID_SCHOOL_TYPES = {"chuyên", "công lập", "quốc tế"}
+
+
+class ProfileUpdateRequest(BaseModel):
+    grade: str | None = None
+    school_type: str | None = None
+    province: str | None = None
+    tos_accepted_at: str | None = None
+
+
+@app.post("/users/me/profile")
+@app.patch("/users/me/profile")
+async def update_profile(
+    body: ProfileUpdateRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    if body.grade is not None and body.grade not in _VALID_GRADES:
+        raise HTTPException(status_code=422, detail=f"grade must be one of {sorted(_VALID_GRADES)}")
+    if body.school_type is not None and body.school_type not in _VALID_SCHOOL_TYPES:
+        raise HTTPException(status_code=422, detail=f"school_type must be one of {sorted(_VALID_SCHOOL_TYPES)}")
+    if body.province is not None and len(body.province.strip()) == 0:
+        raise HTTPException(status_code=422, detail="province cannot be blank")
+
+    updates = {}
+    if body.grade is not None:
+        updates["grade"] = body.grade
+    if body.school_type is not None:
+        updates["school_type"] = body.school_type
+    if body.province is not None:
+        updates["province"] = body.province.strip()
+    if body.tos_accepted_at is not None:
+        updates["tos_accepted_at"] = body.tos_accepted_at
+    updates["updated_at"] = "datetime('now')"
+
+    if not updates:
+        raise HTTPException(status_code=422, detail="No fields to update")
+
+    # Build SET clause — datetime('now') must not be quoted as a string
+    set_parts = []
+    params = []
+    for k, v in updates.items():
+        if v == "datetime('now')":
+            set_parts.append(f"{k} = datetime('now')")
+        else:
+            set_parts.append(f"{k} = ?")
+            params.append(v)
+    params.append(current_user.user_id)
+
+    await pool.execute(
+        f"UPDATE users SET {', '.join(set_parts)} WHERE id = ?",  # noqa: S608
+        *params,
+    )
+
+    row = await pool.fetchrow(
+        """SELECT id, email, display_name, avatar_url,
+                  grade, school_type, province,
+                  subscription_tier, subscription_period, subscription_expires_at,
+                  credits_balance, credits_reset_at,
+                  is_suspended, suspension_reason, tos_accepted_at
+           FROM users WHERE id = ?""",
+        current_user.user_id,
+    )
+    return dict(row)
+
+
+async def _spend_credits(pool, user_id: int, amount: int, reason: str) -> int:
+    """Deduct `amount` credits from user. Returns new balance. Raises 402 if insufficient."""
+    row = await pool.fetchrow(
+        "SELECT credits_balance, tos_accepted_at FROM users WHERE id = ?", user_id
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not row["tos_accepted_at"]:
+        raise HTTPException(status_code=403, detail="tos_not_accepted")
+    if row["credits_balance"] < amount:
+        raise HTTPException(
+            status_code=402,
+            detail={"code": "insufficient_credits", "balance": row["credits_balance"], "required": amount},
+        )
+    await pool.execute(
+        "UPDATE users SET credits_balance = credits_balance - ? WHERE id = ?", amount, user_id
+    )
+    await pool.execute(
+        "INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, ?, ?)",
+        user_id, -amount, reason,
+    )
+    return row["credits_balance"] - amount
+
+
+@app.get("/users/me/credits/log")
+async def get_credits_log(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    rows = await pool.fetch(
+        "SELECT delta, reason, created_at FROM ai_credits_log WHERE user_id = ? ORDER BY created_at DESC LIMIT 20",
+        current_user.user_id,
+    )
+    return [dict(r) for r in rows]
 
 
 class HistoryEntry(BaseModel):
@@ -867,6 +1058,13 @@ async def post_history(
 ):
     if not entries:
         return
+    for entry in entries:
+        if entry.score is not None and not (0 <= entry.score <= 10):
+            raise HTTPException(status_code=422, detail=f"score must be between 0 and 10, got {entry.score}")
+        if entry.payload:
+            acc = entry.payload.get("accuracy")
+            if acc is not None and not (0 <= float(acc) <= 1):
+                raise HTTPException(status_code=422, detail=f"accuracy must be between 0 and 1, got {acc}")
     async with pool.acquire() as conn:
         for entry in entries:
             await conn.execute(
@@ -908,3 +1106,132 @@ async def get_history(
         }
         for r in rows
     ]
+
+
+# ── Admin endpoints ───────────────────────────────────────────────────────────
+
+def _require_admin(request: Request):
+    key = request.headers.get("x-admin-key", "")
+    expected = getattr(get_settings(), "admin_key", "")
+    if not expected or key != expected:
+        raise HTTPException(status_code=401, detail="Invalid or missing admin key")
+
+
+class SubscriptionUpdate(BaseModel):
+    tier: str
+    period: str = "monthly"
+    expires_at: str | None = None
+    bonus_credits: int = 0
+
+
+class CreditGrant(BaseModel):
+    amount: int
+    reason: str = "admin_grant"
+
+
+class SuspendRequest(BaseModel):
+    reason: str
+
+
+@app.post("/admin/users/{user_id}/subscription", status_code=204)
+async def admin_set_subscription(
+    user_id: int,
+    body: SubscriptionUpdate,
+    request: Request,
+    pool=Depends(get_pool),
+):
+    _require_admin(request)
+    valid_tiers = {"basic", "student", "complete"}
+    valid_periods = {"monthly", "annual"}
+    if body.tier not in valid_tiers:
+        raise HTTPException(status_code=422, detail=f"tier must be one of {sorted(valid_tiers)}")
+    if body.period not in valid_periods:
+        raise HTTPException(status_code=422, detail=f"period must be one of {sorted(valid_periods)}")
+    await pool.execute(
+        """UPDATE users SET subscription_tier = ?, subscription_period = ?,
+           subscription_expires_at = ?,
+           credits_balance = credits_balance + ?,
+           updated_at = datetime('now')
+           WHERE id = ?""",
+        body.tier, body.period, body.expires_at, body.bonus_credits, user_id,
+    )
+    if body.bonus_credits:
+        await pool.execute(
+            "INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, ?, ?)",
+            user_id, body.bonus_credits, f"subscription_bonus_{body.tier}",
+        )
+
+
+@app.post("/admin/users/{user_id}/credits", status_code=204)
+async def admin_grant_credits(
+    user_id: int,
+    body: CreditGrant,
+    request: Request,
+    pool=Depends(get_pool),
+):
+    _require_admin(request)
+    if body.amount <= 0:
+        raise HTTPException(status_code=422, detail="amount must be positive")
+    await pool.execute(
+        "UPDATE users SET credits_balance = credits_balance + ?, updated_at = datetime('now') WHERE id = ?",
+        body.amount, user_id,
+    )
+    await pool.execute(
+        "INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, ?, ?)",
+        user_id, body.amount, body.reason,
+    )
+
+
+@app.post("/admin/users/{user_id}/suspend", status_code=204)
+async def admin_suspend_user(
+    user_id: int,
+    body: SuspendRequest,
+    request: Request,
+    pool=Depends(get_pool),
+):
+    _require_admin(request)
+    await pool.execute(
+        "UPDATE users SET is_suspended = 1, suspension_reason = ?, updated_at = datetime('now') WHERE id = ?",
+        body.reason, user_id,
+    )
+    await pool.execute(
+        "INSERT INTO security_events (user_id, event_type, confidence, detail) VALUES (?, ?, ?, ?)",
+        user_id, "manual_suspend", "high", body.reason,
+    )
+
+
+@app.post("/admin/users/{user_id}/unsuspend", status_code=204)
+async def admin_unsuspend_user(
+    user_id: int,
+    request: Request,
+    pool=Depends(get_pool),
+):
+    _require_admin(request)
+    await pool.execute(
+        "UPDATE users SET is_suspended = 0, suspension_reason = NULL, updated_at = datetime('now') WHERE id = ?",
+        user_id,
+    )
+    await pool.execute(
+        "INSERT INTO security_events (user_id, event_type, confidence, detail) VALUES (?, ?, ?, ?)",
+        user_id, "manual_unsuspend", "low", "admin unsuspend",
+    )
+
+
+@app.get("/admin/security-events")
+async def admin_security_events(
+    request: Request,
+    limit: int = 50,
+    pool=Depends(get_pool),
+):
+    _require_admin(request)
+    rows = await pool.fetch(
+        """SELECT se.id, se.user_id, se.ip, se.event_type, se.confidence, se.detail, se.created_at,
+                  u.email, u.is_suspended
+           FROM security_events se
+           LEFT JOIN users u ON u.id = se.user_id
+           WHERE se.confidence IN ('high', 'medium')
+           ORDER BY se.created_at DESC
+           LIMIT ?""",
+        limit,
+    )
+    return [dict(r) for r in rows]

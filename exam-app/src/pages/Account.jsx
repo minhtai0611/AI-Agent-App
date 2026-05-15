@@ -1,0 +1,308 @@
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext.jsx'
+import { getCreditLog } from '../api/aiClient.js'
+
+const TIER_LABELS = { basic: 'Cơ bản', student: 'Học sinh', complete: 'Toàn diện' }
+const TIER_COLORS = { basic: '#64748B', student: '#F2A20C', complete: '#10B981' }
+
+const GRADE_LABELS = { '9': 'Lớp 9 trở xuống', '10': 'Lớp 10', '11': 'Lớp 11', '12': 'Lớp 12' }
+
+const PLANS_MONTHLY = [
+  { tier: 'basic', label: 'Cơ bản', price: 'Miễn phí', credits: 50, studyPlan: false, badge: null },
+  { tier: 'student', label: 'Học sinh', price: '29,000đ/tháng', credits: 500, studyPlan: true, badge: 'PHỔ BIẾN' },
+  { tier: 'complete', label: 'Toàn diện', price: '59,000đ/tháng', credits: 2000, studyPlan: true, badge: null },
+]
+
+const PLANS_ANNUAL = [
+  { tier: 'basic', label: 'Cơ bản', price: 'Miễn phí', credits: 50, studyPlan: false, badge: null },
+  { tier: 'student', label: 'Học sinh', price: '261,000đ/năm', credits: 500, studyPlan: true, badge: 'PHỔ BIẾN', bonus: '+1,000 điểm', effective: '21,750đ/tháng' },
+  { tier: 'complete', label: 'Toàn diện', price: '531,000đ/năm', credits: 2000, studyPlan: true, badge: null, bonus: '+3,000 điểm', effective: '44,250đ/tháng' },
+]
+
+const TOPUP_PACKAGES = [
+  { price: '15,000đ', credits: 150 },
+  { price: '29,000đ', credits: 350 },
+  { price: '59,000đ', credits: 800 },
+]
+
+function formatDate(iso) {
+  if (!iso) return '—'
+  try {
+    return new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  } catch {
+    return iso
+  }
+}
+
+export default function Account() {
+  const navigate = useNavigate()
+  const { user, updateProfile } = useAuth()
+  const [creditLog, setCreditLog] = useState([])
+  const [billing, setBilling] = useState('monthly')
+  const [editMode, setEditMode] = useState(false)
+  const [editGrade, setEditGrade] = useState('')
+  const [editProvince, setEditProvince] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
+
+  useEffect(() => {
+    if (!user) return
+    getCreditLog().then(({ data }) => {
+      if (data) setCreditLog(data)
+    })
+  }, [user])
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center font-jakarta text-[#475569]">
+        Đang tải...
+      </div>
+    )
+  }
+
+  const tier = user.subscription_tier || 'basic'
+  const plans = billing === 'annual' ? PLANS_ANNUAL : PLANS_MONTHLY
+
+  async function handleSaveProfile() {
+    setSaving(true)
+    setSaveError('')
+    try {
+      await updateProfile({
+        grade: editGrade || undefined,
+        province: editProvince || undefined,
+      })
+      setEditMode(false)
+    } catch (err) {
+      setSaveError(err.message || 'Lưu thất bại, vui lòng thử lại')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0A0E1A] flex flex-col">
+      {/* Nav */}
+      <nav className="flex items-center justify-between px-8 bg-[#0D1221] border-b border-[#1E2A44]" style={{ height: 64 }}>
+        <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-[#94A3B8] hover:text-[#F8FAFC] transition">
+          ← Quay lại
+        </button>
+        <span className="font-jakarta text-[14px] font-semibold text-[#F8FAFC]">Tài khoản</span>
+        <div />
+      </nav>
+
+      <div className="max-w-2xl mx-auto w-full px-4 py-10 flex flex-col gap-8">
+
+        {/* Profile section */}
+        <section className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+          <div className="flex items-center justify-between">
+            <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Hồ sơ</span>
+            {!editMode && (
+              <button
+                onClick={() => { setEditMode(true); setEditGrade(user.grade || ''); setEditProvince(user.province || '') }}
+                className="font-jakarta text-[12px] text-amber-400 hover:text-amber-300 transition"
+              >
+                Chỉnh sửa
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-4">
+            {user.avatar_url ? (
+              <img src={user.avatar_url} alt="" className="w-14 h-14 rounded-full object-cover" />
+            ) : (
+              <div className="w-14 h-14 rounded-full bg-amber-500 flex items-center justify-center font-bold text-lg text-black">
+                {(user.display_name || '?')[0].toUpperCase()}
+              </div>
+            )}
+            <div className="flex flex-col gap-0.5">
+              <span className="font-fraunces text-[18px] font-bold text-[#F8FAFC]">{user.display_name}</span>
+              <span className="font-jakarta text-[13px] text-[#64748B]">{user.email}</span>
+            </div>
+          </div>
+          {editMode ? (
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-2 flex-wrap">
+                {['9','10','11','12'].map(g => (
+                  <button key={g} type="button" onClick={() => setEditGrade(g)}
+                    className={`px-4 py-2 rounded-lg border font-jakarta text-[12px] font-medium transition ${
+                      editGrade === g ? 'border-amber-400 text-amber-400 bg-amber-400/10' : 'border-[#1E2A44] text-[#64748B]'
+                    }`}>
+                    {GRADE_LABELS[g]}
+                  </button>
+                ))}
+              </div>
+              <input
+                className="px-4 py-2.5 rounded-xl border border-[#1E2A44] bg-[#111827] font-jakarta text-[13px] text-[#F0F4FF] focus:outline-none focus:border-amber-400"
+                placeholder="Tỉnh / Thành phố"
+                value={editProvince}
+                onChange={e => setEditProvince(e.target.value)}
+              />
+              {saveError && (
+                <p className="font-jakarta text-[12px] text-red-400">{saveError}</p>
+              )}
+              <div className="flex gap-2">
+                <button onClick={handleSaveProfile} disabled={saving}
+                  className="px-5 py-2 rounded-lg font-jakarta text-[13px] font-bold transition"
+                  style={{ background: '#F2A20C', color: '#0A0E1A' }}>
+                  {saving ? 'Đang lưu...' : 'Lưu'}
+                </button>
+                <button onClick={() => { setEditMode(false); setSaveError('') }} className="px-5 py-2 rounded-lg font-jakarta text-[13px] text-[#64748B] hover:text-[#F8FAFC] transition">
+                  Huỷ
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-6">
+              <div className="flex flex-col gap-0.5">
+                <span className="font-jakarta text-[11px] text-[#475569]">Lớp</span>
+                <span className="font-jakarta text-[13px] text-[#F0F4FF]">{GRADE_LABELS[user.grade] || '—'}</span>
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <span className="font-jakarta text-[11px] text-[#475569]">Tỉnh / Thành phố</span>
+                <span className="font-jakarta text-[13px] text-[#F0F4FF]">{user.province || '—'}</span>
+              </div>
+              {user.school_type && (
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-jakarta text-[11px] text-[#475569]">Loại trường</span>
+                  <span className="font-jakarta text-[13px] text-[#F0F4FF]">{user.school_type}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+
+        {/* Current plan */}
+        <section className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+          <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Gói hiện tại</span>
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="font-jakarta text-[13px] font-bold px-3 py-1 rounded-full"
+              style={{ background: (TIER_COLORS[tier] || '#64748B') + '22', color: TIER_COLORS[tier] || '#64748B' }}>
+              {TIER_LABELS[tier] || tier}
+            </span>
+            {user.subscription_period === 'annual' && (
+              <span className="font-jakarta text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400">
+                Hàng năm
+              </span>
+            )}
+          </div>
+          <div className="flex gap-6 flex-wrap">
+            <div className="flex flex-col gap-0.5">
+              <span className="font-jakarta text-[11px] text-[#475569]">AI Điểm còn lại</span>
+              <span className="font-fraunces text-[20px] font-bold text-amber-400">⚡ {user.credits_balance ?? 0}</span>
+            </div>
+            {user.credits_reset_at && (
+              <div className="flex flex-col gap-0.5">
+                <span className="font-jakarta text-[11px] text-[#475569]">Làm mới vào</span>
+                <span className="font-jakarta text-[13px] text-[#F0F4FF]">{formatDate(user.credits_reset_at)}</span>
+              </div>
+            )}
+            {user.subscription_expires_at && (
+              <div className="flex flex-col gap-0.5">
+                <span className="font-jakarta text-[11px] text-[#475569]">Hết hạn</span>
+                <span className="font-jakarta text-[13px] text-[#F0F4FF]">{formatDate(user.subscription_expires_at)}</span>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Upgrade / Pricing */}
+        <section className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Nâng cấp gói</span>
+            <div className="flex items-center gap-1 bg-[#111827] rounded-full p-1">
+              {['monthly', 'annual'].map(b => (
+                <button key={b} onClick={() => setBilling(b)}
+                  className={`px-4 py-1.5 rounded-full font-jakarta text-[12px] transition ${billing === b ? 'bg-[#F2A20C] text-[#0A0E1A] font-semibold' : 'text-[#94A3B8]'}`}>
+                  {b === 'monthly' ? 'Hàng tháng' : 'Hàng năm (−25%)'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {plans.map(plan => (
+              <div key={plan.tier}
+                className={`flex items-center justify-between gap-4 px-5 py-4 rounded-xl border transition ${
+                  tier === plan.tier ? 'border-amber-400/60 bg-amber-400/5' : 'border-[#1E2A44] bg-[#111827]'
+                }`}>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-jakarta text-[14px] font-bold text-[#F0F4FF]">{plan.label}</span>
+                    {plan.badge && (
+                      <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400">
+                        {plan.badge}
+                      </span>
+                    )}
+                    {tier === plan.tier && (
+                      <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-400">
+                        Hiện tại
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="font-jakarta text-[12px] text-[#64748B]">⚡ {plan.credits.toLocaleString()} điểm/tháng</span>
+                    {plan.studyPlan && <span className="font-jakarta text-[12px] text-emerald-400">✓ Kế hoạch học</span>}
+                    {plan.bonus && <span className="font-jakarta text-[12px] text-amber-300">🎁 {plan.bonus}</span>}
+                  </div>
+                  {plan.effective && <span className="font-jakarta text-[11px] text-[#475569]">≈ {plan.effective}</span>}
+                </div>
+                <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                  <span className="font-fraunces text-[15px] font-bold text-[#F0F4FF]">{plan.price}</span>
+                  {tier !== plan.tier && plan.tier !== 'basic' && (
+                    <span className="font-jakarta text-[11px] text-amber-400">Liên hệ nâng cấp</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Payment instructions */}
+          <div className="mt-2 px-5 py-4 rounded-xl border border-[#1E2A44] bg-[#0A0E1A] flex flex-col gap-2">
+            <span className="font-jakarta text-[12px] font-semibold text-[#94A3B8]">Thanh toán (Chuyển khoản ngân hàng)</span>
+            <span className="font-jakarta text-[12px] text-[#64748B]">
+              Chuyển khoản theo số tài khoản được cung cấp và gửi email xác nhận. Kích hoạt trong 1–2 giờ làm việc.
+            </span>
+            <span className="font-jakarta text-[11px] text-[#475569]">
+              * MoMo · VNPay · ZaloPay · Stripe sẽ sớm ra mắt
+            </span>
+          </div>
+
+          {/* Top-up */}
+          <div id="topup" className="flex flex-col gap-3">
+            <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Mua top-up AI Điểm</span>
+            <div className="flex gap-3 flex-wrap">
+              {TOPUP_PACKAGES.map(pkg => (
+                <div key={pkg.price}
+                  className="flex-1 min-w-[100px] flex flex-col items-center gap-1 px-4 py-3 rounded-xl border border-[#1E2A44] bg-[#111827]">
+                  <span className="font-fraunces text-[15px] font-bold text-amber-400">⚡ {pkg.credits}</span>
+                  <span className="font-jakarta text-[12px] text-[#F0F4FF]">{pkg.price}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Credit log */}
+        {creditLog.length > 0 && (
+          <section className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+            <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Lịch sử AI Điểm</span>
+            <div className="flex flex-col gap-1">
+              {creditLog.map((entry, i) => (
+                <div key={i} className="flex items-center justify-between py-2 border-b border-[#1E2A44] last:border-0">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-jakarta text-[12px] text-[#94A3B8]">{entry.reason}</span>
+                    <span className="font-jakarta text-[11px] text-[#475569]">{formatDate(entry.created_at)}</span>
+                  </div>
+                  <span className={`font-fraunces text-[14px] font-bold ${entry.delta > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {entry.delta > 0 ? '+' : ''}{entry.delta}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+      </div>
+    </div>
+  )
+}

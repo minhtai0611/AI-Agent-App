@@ -1,7 +1,45 @@
+## Auth & Credit System
+
+### Auth-required endpoints
+All AI endpoints (`/analyze`, `/hint`, `/explain`, `/study-plan`) require a valid JWT in `Authorization: Bearer <token>`. The token is obtained from `POST /auth/google`.
+
+### Credit deduction per feature
+| Feature | Endpoint | Credits |
+|---|---|---|
+| Socratic hint | POST /hint | 1 |
+| Answer explanation | POST /explain | 1 |
+| Result analysis | POST /analyze | 3 |
+| Study plan | POST /study-plan | 5 |
+
+`/study-plan` also requires `subscription_tier` ∈ {student, complete} — returns 403 `tier_required` otherwise.
+
+### Granting manual top-ups (admin)
+```
+POST /admin/users/{user_id}/credits
+X-Admin-Key: <ADMIN_KEY from .env>
+{"amount": 500, "reason": "manual_topup_bank_transfer"}
+```
+
+### Activating subscriptions (admin)
+```
+POST /admin/users/{user_id}/subscription
+X-Admin-Key: <ADMIN_KEY>
+{"tier": "student", "period": "monthly", "expires_at": "2026-06-15T00:00:00Z", "bonus_credits": 0}
+```
+
+### Suspending abusive accounts (admin)
+```
+POST /admin/users/{user_id}/suspend
+X-Admin-Key: <ADMIN_KEY>
+{"reason": "credit_velocity abuse"}
+```
+
+The abuse detector (`backend/app/abuse_detector.py`) runs every 5 minutes and auto-suspends on HIGH-confidence signals (credit velocity, burst >100 req/10min). MEDIUM-confidence events are logged to `security_events` for manual review via `GET /admin/security-events`.
+
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **AI-Agent-App** (3153 symbols, 6782 relationships, 183 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **AI-Agent-App** (3154 symbols, 6795 relationships, 180 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

@@ -31,6 +31,35 @@ export function loadQuestionsByIds(ids) {
 
 const DIFF_RANK = { hard: 3, medium: 2, easy: 1 }
 
+// Builds the payload for /analyze including wrong questions and school recs.
+export function buildAnalyzePayload(result, history, schoolRecommendations, examCategory, userProfile) {
+  const exam = loadExamById(result.examId)
+  const questions = exam ? loadQuestionsByIds(exam.questionIds) : []
+
+  const wrong = questions
+    .filter(q => {
+      const chosen = result.answers?.[q.id]
+      return chosen === undefined || chosen === null || chosen !== q.correct
+    })
+    .map(q => ({
+      topic: q.topic,
+      difficulty: q.difficulty,
+      question: q.question,
+      correct_answer: q.choices[q.correct],
+    }))
+    .sort((a, b) => (DIFF_RANK[b.difficulty] || 0) - (DIFF_RANK[a.difficulty] || 0))
+    .slice(0, 8)
+
+  return {
+    result,
+    history,
+    wrong_questions: wrong,
+    school_recommendations: schoolRecommendations || [],
+    exam_category: examCategory || exam?.category || "",
+    user_profile: userProfile || {},
+  }
+}
+
 // Returns { result, history, wrong_questions, topic_miss_counts } enriched
 // with representative wrong questions (max 2–3 per topic, hardest first).
 // Capped at 8 total so the prompt stays within token limits.

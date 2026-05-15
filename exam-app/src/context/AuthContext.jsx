@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
-import { googleSignIn, getMe, postHistory, setLogoutRef } from '../api/aiClient'
+import { googleSignIn, getMe, postHistory, setLogoutRef, updateProfile as apiUpdateProfile } from '../api/aiClient'
 
 const AuthContext = createContext(null)
 
@@ -36,7 +36,10 @@ export function AuthProvider({ children }) {
     if (error || !data) throw new Error(error || 'Đăng nhập thất bại')
 
     localStorage.setItem('auth_token', data.access_token)
-    setUser(data.user)
+
+    // Fetch full profile (includes grade, province, credits, tier, etc.)
+    const { data: profile } = await getMe()
+    setUser(profile || data.user)
 
     // Sync local history to server then clear local copy
     try {
@@ -53,6 +56,13 @@ export function AuthProvider({ children }) {
     resetToLocalRef.current?.(false)
   }
 
+  async function updateProfile(fields) {
+    const { data, error } = await apiUpdateProfile(fields)
+    if (error) throw new Error(error)
+    setUser(prev => ({ ...prev, ...data }))
+    return data
+  }
+
   function logout() {
     localStorage.removeItem('auth_token')
     setUser(null)
@@ -64,7 +74,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, registerResetToLocal }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, registerResetToLocal, updateProfile }}>
       {children}
     </AuthContext.Provider>
   )

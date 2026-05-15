@@ -426,7 +426,7 @@ export default function StudyPlan() {
       if (data) { localStorage.setItem(cacheKey, JSON.stringify(data)); setPlan(data) }
       else setError(true)
     })
-  }, [resultId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [resultId, result]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function toggleTask(weekIdx, taskIdx) {
     setProgress(prev => {

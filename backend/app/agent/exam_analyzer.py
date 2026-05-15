@@ -3,8 +3,8 @@ from openai import AsyncOpenAI
 from app.config import get_settings
 from app.agent.core import call_with_retry
 
-STATIC_EXAM_ANALYSIS_INSTRUCTIONS = """Bạn là chuyên gia phân tích kết quả học tập cho học sinh ôn thi vào lớp 10.
-Phân tích kết quả thi và đưa ra nhận xét cụ thể, điểm yếu cần cải thiện, và khuyến nghị thực tế.
+STATIC_EXAM_ANALYSIS_INSTRUCTIONS = """Bạn là chuyên gia phân tích kết quả học tập cho học sinh ôn thi Toán.
+Phân tích kết quả thi, các câu trả lời đúng/sai cụ thể, và gợi ý trường phù hợp dựa trên điểm số.
 Trả lời bằng tiếng Việt. Luôn trả về JSON hợp lệ theo đúng định dạng yêu cầu, không có text ngoài JSON."""
 
 
@@ -22,6 +22,10 @@ async def analyze_exam_result(
     result: dict,
     history: list[dict],
     student_name: str = "",
+    wrong_questions: list[dict] = None,
+    school_recommendations: list[dict] = None,
+    exam_category: str = "",
+    user_profile: dict = None,
 ) -> dict:
     settings = get_settings()
 
@@ -34,24 +38,66 @@ async def analyze_exam_result(
     dynamic_parts.append(f"Điểm: {result.get('score', 0)}/10")
     dynamic_parts.append(f"Độ chính xác: {round(result.get('accuracy', 0) * 100)}%")
     dynamic_parts.append(f"Chủ đề yếu (< 60%): {', '.join(weak_topics) or 'Không có'}")
-    dynamic_parts.append(f"Chi tiết: {json.dumps(topic_breakdown, ensure_ascii=False)}")
+    dynamic_parts.append(f"Chi tiết theo chủ đề: {json.dumps(topic_breakdown, ensure_ascii=False)}")
     if len(history) >= 2:
         recent_scores = [r.get("score", 0) for r in history[-5:]]
         dynamic_parts.append(f"Điểm gần đây: {recent_scores}")
 
-    prompt = "\n".join(dynamic_parts) + """
+    if wrong_questions:
+        wrong_summary = [
+            {"topic": q.get("topic"), "difficulty": q.get("difficulty"), "question": q.get("question", "")[:80]}
+            for q in wrong_questions[:5]
+        ]
+        dynamic_parts.append(f"Câu sai ({len(wrong_questions)} câu, ví dụ): {json.dumps(wrong_summary, ensure_ascii=False)}")
+
+    grade = str((user_profile or {}).get("grade", ""))
+    province = (user_profile or {}).get("province", "") or (user_profile or {}).get("location", "")
+
+    if school_recommendations:
+        school_list = [
+            f"{s['school']['name']} ({s['matchStrength']}, điểm chuẩn Toán: {s['cutoff']})"
+            for s in school_recommendations[:6]
+        ]
+        # Derive school type from grade: ≤9 → high school (lớp 10), 10-12 → university
+        if grade and grade.isdigit() and int(grade) <= 9:
+            exam_type = "lớp 10"
+            school_type_note = "trường THPT"
+        else:
+            exam_type = "đại học/THPT"
+            school_type_note = "trường đại học/cao đẳng"
+        loc_note = f" tại {province}" if province else ""
+        dynamic_parts.append(
+            f"Trường gợi ý{loc_note} ({school_type_note}, kỳ thi {exam_type}): {'; '.join(school_list)}"
+        )
+
+    # Add grade + province context for personalized school recommendation prompt
+    if grade:
+        dynamic_parts.append(f"Lớp học sinh: {grade}")
+    if province:
+        dynamic_parts.append(f"Tỉnh/thành phố: {province}")
+
+    school_json_field = ""
+    if school_recommendations:
+        if grade and grade.isdigit() and int(grade) <= 9:
+            school_insight_hint = "Nhận xét ngắn 1-2 câu về trường THPT phù hợp để thi vào lớp 10 với điểm số này"
+        else:
+            school_insight_hint = "Nhận xét ngắn 1-2 câu về trường đại học/cao đẳng phù hợp với điểm số này"
+        school_json_field = f',\n  "school_insight": "{school_insight_hint}"'
+
+    prompt = "\n".join(dynamic_parts) + f"""
 
 Trả về JSON (không có text ngoài JSON):
-{
-  "insights": "Nhận xét tổng quan 2-3 câu",
+{{
+  "insights": "Nhận xét tổng quan 2-3 câu về kết quả thi",
+  "question_analysis": "Phân tích cụ thể các câu trả lời sai nếu có, chỉ ra điểm cần cải thiện (2-3 câu)",
   "weak_topics": ["topic_key1", "topic_key2"],
-  "recommendations": ["khuyến nghị 1", "khuyến nghị 2", "khuyến nghị 3"]
-}"""
+  "recommendations": ["khuyến nghị 1", "khuyến nghị 2", "khuyến nghị 3"]{school_json_field}
+}}"""
 
     response = await call_with_retry(
         client,
         model=settings.default_model,
-        max_tokens=1024,
+        max_tokens=1200,
         messages=[
             {"role": "system", "content": STATIC_EXAM_ANALYSIS_INSTRUCTIONS},
             {"role": "user", "content": prompt},

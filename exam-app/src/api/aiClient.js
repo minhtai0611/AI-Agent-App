@@ -31,10 +31,12 @@ _attachInterceptors(slowClient)
 
 function wrap(promise) {
   return promise
-    .then(res => ({ data: res.data, error: null }))
+    .then(res => ({ data: res.data, error: null, status: res.status }))
     .catch(err => {
-      if (!err.response) return { data: null, error: 'Không kết nối được server — hãy kiểm tra backend đang chạy' }
-      return { data: null, error: err.response.data?.detail || err.message || 'Lỗi kết nối' }
+      if (!err.response) return { data: null, error: 'Không kết nối được server — hãy kiểm tra backend đang chạy', status: 0 }
+      const detail = err.response.data?.detail
+      // Preserve structured error objects (e.g. 402 insufficient_credits)
+      return { data: null, error: detail ?? err.message ?? 'Lỗi kết nối', status: err.response.status }
     })
 }
 
@@ -90,6 +92,14 @@ export function googleSignIn(idToken) {
 
 export function getMe() {
   return wrap(client.get('/users/me'))
+}
+
+export function updateProfile(payload) {
+  return wrap(client.post('/users/me/profile', payload))
+}
+
+export function getCreditLog() {
+  return wrap(client.get('/users/me/credits/log'))
 }
 
 export function postHistory(entries) {

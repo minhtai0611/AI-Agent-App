@@ -38,10 +38,10 @@ export default function TestInterface() {
     }
   }, [session.status, dispatch, navigate])
 
-  if (session.status === 'idle' || !session.exam) return null
-
   const { hints, setHint } = useHints()
   const { flags, toggleFlag } = useFlags()
+
+  if (session.status === 'idle' || !session.exam) return null
   const { questions, answers, mode, timeLeft, exam } = session
   const question = questions[currentIndex]
   const chosen = answers[question?.id] ?? null
@@ -63,7 +63,7 @@ export default function TestInterface() {
       topicProgress[t].total++
       if (answers[q.id] !== undefined) {
         topicProgress[t].answered++
-        if (isPractice && topicProgress[t].correct !== undefined && answers[q.id] === q.correctAnswer) {
+        if (isPractice && topicProgress[t].correct !== undefined && answers[q.id] === q.correct) {
           topicProgress[t].correct++
         }
       }
