@@ -46,5 +46,6 @@ export function scoreExam(session) {
     timeSpent,
     topicBreakdown,
     answeredCount,
+    timePerQuestion: session.timePerQuestion ?? {},
   }
 }

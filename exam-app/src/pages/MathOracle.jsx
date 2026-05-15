@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { motion } from 'framer-motion'
 import DOMPurify from 'dompurify'
 import { useNavigate } from 'react-router-dom'
 import Markdown from 'react-markdown'
@@ -894,7 +895,9 @@ export default function MathOracle() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden"
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
+      className="min-h-screen relative overflow-hidden"
       style={{ background: 'radial-gradient(ellipse 120% 80% at 50% 0%, #1B2B4B 0%, #0A0E1A 60%)' }}>
 
       {/* Ambient glow */}
@@ -1191,6 +1194,6 @@ export default function MathOracle() {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }

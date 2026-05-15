@@ -1,23 +1,36 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useExam, useExamDispatch, useHints, useFlags } from '../context/ExamContext.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import Timer from '../components/Timer.jsx'
-import TutorChat from '../components/TutorChat.jsx'
+import { usePageTitle } from '../hooks/usePageTitle.js'
 
 const TOPIC_LABELS = { algebra: 'Đại số', geometry: 'Hình học', statistics: 'Thống kê', combinatorics: 'Tổ hợp' }
 const DIFF_LABELS = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
+const KB_HINT_KEY = 'kb_hint_seen'
 
 export default function TestInterface() {
+  usePageTitle('Đang thi')
   const navigate = useNavigate()
   const { examId } = useParams()
   const session = useExam()
   const dispatch = useExamDispatch()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(1)
-  const [tutorOpen, setTutorOpen] = useState(false)
   const [submitModal, setSubmitModal] = useState(false)
+  const [pauseOverlay, setPauseOverlay] = useState(false)
+  const [fullscreen, setFullscreen] = useState(false)
+  const [showKbHint, setShowKbHint] = useState(() => !sessionStorage.getItem(KB_HINT_KEY))
+
+  // Time-per-question tracking
+  const questionStartTime = useRef(Date.now())
+
+  function recordTimeForQuestion(qId) {
+    const elapsed = Math.round((Date.now() - questionStartTime.current) / 1000)
+    if (qId && elapsed > 0) dispatch({ type: 'RECORD_TIME', questionId: qId, seconds: elapsed })
+    questionStartTime.current = Date.now()
+  }
 
   useEffect(() => {
     if (session.status === 'idle' || !session.exam || session.exam.id !== examId) {
@@ -25,12 +38,14 @@ export default function TestInterface() {
     }
   }, [session.status, session.exam, examId, navigate])
 
+  // Timer tick (only when active)
   useEffect(() => {
     if (session.mode !== 'timed' || session.status !== 'active') return
     const id = setInterval(() => dispatch({ type: 'TICK' }), 1000)
     return () => clearInterval(id)
   }, [session.mode, session.status, dispatch])
 
+  // Timeout → auto-submit
   useEffect(() => {
     if (session.status === 'timeout') {
       dispatch({ type: 'SUBMIT' })
@@ -38,74 +53,121 @@ export default function TestInterface() {
     }
   }, [session.status, dispatch, navigate])
 
+  // Auto-pause on tab switch (timed mode only)
+  useEffect(() => {
+    if (session.mode !== 'timed') return
+    function handleVisibility() {
+      if (document.hidden && session.status === 'active') {
+        dispatch({ type: 'PAUSE' })
+        setPauseOverlay(true)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [session.mode, session.status, dispatch])
+
+  // Fullscreen sync
+  useEffect(() => {
+    function onFsChange() { setFullscreen(!!document.fullscreenElement) }
+    document.addEventListener('fullscreenchange', onFsChange)
+    return () => document.removeEventListener('fullscreenchange', onFsChange)
+  }, [])
+
+  // Keyboard shortcuts
+  const { questions, answers, mode, timeLeft, exam } = session
+  const question = questions[currentIndex]
+
+  const handleAnswerCallback = useCallback((choiceIndex) => {
+    if (!question) return
+    dispatch({ type: 'ANSWER_QUESTION', questionId: question.id, choiceIndex })
+  }, [dispatch, question])
+
+  useEffect(() => {
+    if (session.status !== 'active' || submitModal || pauseOverlay) return
+    function onKey(e) {
+      const tag = e.target.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return
+      switch (e.key) {
+        case 'a': case 'A': handleAnswerCallback(0); break
+        case 'b': case 'B': handleAnswerCallback(1); break
+        case 'c': case 'C': handleAnswerCallback(2); break
+        case 'd': case 'D': handleAnswerCallback(3); break
+        case 'ArrowRight': handleNext(); break
+        case 'ArrowLeft': handlePrev(); break
+        case 'f': case 'F': if (question) dispatch({ type: 'TOGGLE_FLAG', questionId: question.id }); break
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [session.status, submitModal, pauseOverlay, handleAnswerCallback, currentIndex]) // eslint-disable-line
+
   const { hints, setHint } = useHints()
   const { flags, toggleFlag } = useFlags()
 
   if (session.status === 'idle' || !session.exam) return null
-  const { questions, answers, mode, timeLeft, exam } = session
-  const question = questions[currentIndex]
+
   const chosen = answers[question?.id] ?? null
   const isLast = currentIndex === questions.length - 1
   const isPractice = mode === 'practice'
   const progress = ((currentIndex + 1) / questions.length) * 100
-
   const isFlagged = flags[question?.id] ?? false
   const flagged = questions.map((q, i) => ({ q, i })).filter(({ q }) => flags[q.id])
   const unanswered = questions.map((q, i) => ({ q, i })).filter(({ q }) => answers[q.id] === undefined)
   const allAnswered = unanswered.length === 0
 
-  // Build rich in-exam context for the tutor — recomputed on every relevant state change.
-  const examContext = useMemo(() => {
-    const topicProgress = {}
-    for (const q of questions) {
-      const t = q.topic || 'other'
-      if (!topicProgress[t]) topicProgress[t] = { total: 0, answered: 0, correct: isPractice ? 0 : undefined }
-      topicProgress[t].total++
-      if (answers[q.id] !== undefined) {
-        topicProgress[t].answered++
-        if (isPractice && topicProgress[t].correct !== undefined && answers[q.id] === q.correct) {
-          topicProgress[t].correct++
-        }
-      }
-    }
-    return {
-      inExam: true,
-      examId: exam?.id,
-      examTitle: exam?.title,
-      mode,
-      currentQuestionNumber: currentIndex + 1,
-      totalQuestions: questions.length,
-      answeredCount: Object.keys(answers).length,
-      currentTopic: question?.topic,
-      timeLeftSeconds: mode === 'timed' ? timeLeft : null,
-      topicProgress,
-    }
-  }, [exam, mode, currentIndex, questions, answers, timeLeft, question, isPractice])
+  const timerPulsing = session.mode === 'timed' && timeLeft !== null && timeLeft < 300
 
   function handleAnswer(choiceIndex) {
     dispatch({ type: 'ANSWER_QUESTION', questionId: question.id, choiceIndex })
   }
 
   function handleNext() {
-    if (currentIndex < questions.length - 1) { setDirection(1); setCurrentIndex(i => i + 1) }
+    if (currentIndex < questions.length - 1) {
+      recordTimeForQuestion(question?.id)
+      setDirection(1)
+      setCurrentIndex(i => i + 1)
+    }
   }
 
   function handlePrev() {
-    if (currentIndex > 0) { setDirection(-1); setCurrentIndex(i => i - 1) }
+    if (currentIndex > 0) {
+      recordTimeForQuestion(question?.id)
+      setDirection(-1)
+      setCurrentIndex(i => i - 1)
+    }
   }
 
   function jumpTo(i) {
+    recordTimeForQuestion(question?.id)
     setDirection(i > currentIndex ? 1 : -1)
     setCurrentIndex(i)
   }
 
-  function handleSubmit() {
-    setSubmitModal(true)
-  }
+  function handleSubmit() { setSubmitModal(true) }
 
   function confirmSubmit() {
+    recordTimeForQuestion(question?.id)
     dispatch({ type: 'SUBMIT' })
     navigate('/results/current', { replace: true })
+  }
+
+  function resumeFromPause() {
+    dispatch({ type: 'RESUME' })
+    setPauseOverlay(false)
+    questionStartTime.current = Date.now()
+  }
+
+  function toggleFullscreen() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen()
+    } else {
+      document.documentElement.requestFullscreen()
+    }
+  }
+
+  function dismissKbHint() {
+    sessionStorage.setItem(KB_HINT_KEY, '1')
+    setShowKbHint(false)
   }
 
   const canProceed = isPractice ? chosen !== null : true
@@ -120,30 +182,48 @@ export default function TestInterface() {
         style={{ width: 500, height: 500, left: -100, top: 300,
           background: 'radial-gradient(circle, #10B98112 0%, #10B98100 100%)' }} />
 
-      {/* Accent line at top */}
+      {/* Accent line */}
       <div className="absolute top-0 left-0 right-0 h-0.5 pointer-events-none"
         style={{ background: 'linear-gradient(90deg, #F2A20C00 0%, #F2A20C 50%, #F2A20C00 100%)' }} />
 
       {/* NavBar */}
       <nav
-        className="relative z-10 flex items-center justify-between px-8 border-b border-[#1E2A44]"
+        className="relative z-10 flex items-center justify-between px-6 border-b border-[#1E2A44]"
         style={{ height: 64, background: 'linear-gradient(180deg, #0F1628 0%, #0D1221 100%)' }}
       >
         <div className="flex items-center gap-2">
           <span className="font-fraunces font-semibold text-[#F8FAFC] text-[15px]">
             Câu {currentIndex + 1}
           </span>
-          <span className="text-[#475569] text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <span className="text-[#475569] text-sm"  style={{ fontFamily: 'Inter, sans-serif' }}>
             / {questions.length}
           </span>
         </div>
-        <span className="font-jakarta text-[#94A3B8] text-sm font-medium truncate max-w-xs">
+        <span className="font-jakarta text-[#94A3B8] text-sm font-medium truncate max-w-xs hidden sm:block">
           {exam?.title}
         </span>
-        {mode === 'timed' && timeLeft !== null
-          ? <Timer timeLeft={timeLeft} />
-          : <div className="w-20" />
-        }
+        <div className="flex items-center gap-3">
+          {mode === 'timed' && timeLeft !== null && (
+            <motion.div
+              animate={timerPulsing ? { boxShadow: ['0 0 0 0 #F2A20C40', '0 0 0 8px #F2A20C00'] } : {}}
+              transition={timerPulsing ? { duration: 1.2, repeat: Infinity } : {}}
+              className="rounded-lg"
+            >
+              <Timer timeLeft={timeLeft} />
+            </motion.div>
+          )}
+          {/* Focus mode toggle */}
+          <button
+            onClick={toggleFullscreen}
+            title={fullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
+            className="p-2 rounded-lg text-[#475569] hover:text-[#F8FAFC] hover:bg-[#1E2A44] transition"
+          >
+            {fullscreen
+              ? <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 1H1v4M9 1h4v4M5 13H1V9M9 13h4V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              : <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 5V1h4M9 1h4v4M1 9v4h4M13 9v4H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            }
+          </button>
+        </div>
       </nav>
 
       {/* Progress bar */}
@@ -158,6 +238,25 @@ export default function TestInterface() {
 
       {/* Main content */}
       <div className="relative z-10 flex-1 max-w-3xl mx-auto w-full px-4 py-10 flex flex-col gap-8">
+        {/* Keyboard hint */}
+        <AnimatePresence>
+          {showKbHint && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-[#1E2A44] bg-[#0D1221]"
+            >
+              <span className="font-jakarta text-[12px] text-[#475569]">
+                ⌨ <span className="text-[#64748B]">A · B · C · D</span> chọn đáp án &nbsp;·&nbsp;
+                <span className="text-[#64748B]">← →</span> chuyển câu &nbsp;·&nbsp;
+                <span className="text-[#64748B]">F</span> đánh dấu
+              </span>
+              <button onClick={dismissKbHint} className="text-[#2A3A50] hover:text-[#64748B] text-base leading-none">×</button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Question badges */}
         <div className="flex items-center gap-2">
           {question?.topic && (
@@ -262,6 +361,31 @@ export default function TestInterface() {
         </div>
       </div>
 
+      {/* Pause overlay */}
+      <AnimatePresence>
+        {pauseOverlay && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(10,14,26,0.92)', backdropFilter: 'blur(8px)' }}
+          >
+            <div className="flex flex-col items-center gap-6 text-center">
+              <span className="font-fraunces text-[22px] font-bold text-[#F8FAFC]">Bài thi đã tạm dừng</span>
+              <p className="font-jakarta text-[14px] text-[#64748B]">Bạn đã rời khỏi tab — bộ đếm giờ đã dừng.</p>
+              <button
+                onClick={resumeFromPause}
+                className="px-8 py-3 rounded-xl font-jakarta text-[14px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
+                style={{ background: '#F2A20C' }}
+              >
+                Tiếp tục thi
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Submit confirmation modal */}
       {submitModal && (
         <div
@@ -272,7 +396,6 @@ export default function TestInterface() {
             className="relative w-full max-w-sm rounded-2xl border border-[#1E2A44] p-6 flex flex-col gap-5"
             style={{ background: 'linear-gradient(180deg, #0F1628 0%, #0D1221 100%)' }}
           >
-            {/* Header */}
             <div className="flex flex-col gap-1">
               {allAnswered ? (
                 <>
@@ -293,7 +416,6 @@ export default function TestInterface() {
               )}
             </div>
 
-            {/* Unanswered dot grid */}
             {!allAnswered && (
               <div className="flex flex-wrap gap-2">
                 {unanswered.map(({ q, i }) => (
@@ -309,7 +431,6 @@ export default function TestInterface() {
               </div>
             )}
 
-            {/* Flagged questions */}
             {flagged.length > 0 && (
               <div className="flex flex-col gap-2">
                 <span className="font-jakarta text-[#EF4444] text-[12px] font-semibold flex items-center gap-1.5">
@@ -333,7 +454,6 @@ export default function TestInterface() {
               </div>
             )}
 
-            {/* Actions */}
             <div className="flex items-center gap-3 mt-1">
               <button
                 onClick={() => setSubmitModal(false)}
@@ -351,28 +471,6 @@ export default function TestInterface() {
             </div>
           </div>
         </div>
-      )}
-
-
-      {/* Floating AI tutor button — practice mode only */}
-      {isPractice && (
-        <>
-          <button
-            onClick={() => setTutorOpen(true)}
-            className="fixed bottom-6 right-6 z-30 flex items-center gap-2 px-4 py-2.5 rounded-full font-jakarta text-[13px] font-bold text-[#0A0E1A] shadow-lg hover:opacity-90 transition-all"
-            style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
-            aria-label="Hỏi AI Gia Sư"
-          >
-            <span>✦</span>
-            <span>AI Gia Sư</span>
-          </button>
-
-          <TutorChat
-            open={tutorOpen}
-            onClose={() => setTutorOpen(false)}
-            examContext={examContext}
-          />
-        </>
       )}
     </div>
   )

@@ -126,9 +126,6 @@ export default function AIInsights({ analysis, loading, error, score }) {
   if (isAI) {
     return (
       <div key="ai" className="flex flex-col gap-5 animate-fade-in-up">
-        <span className="self-start px-2 py-0.5 rounded-full bg-[#1A2A10] border border-[#2D4A1A] font-jakarta text-[11px] text-[#10B981]">
-          ✦ Claude AI
-        </span>
         {analysis.insights && (
           <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{analysis.insights}</p>
         )}

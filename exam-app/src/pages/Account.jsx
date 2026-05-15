@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useHistory } from '../context/HistoryContext.jsx'
 import { getCreditLog } from '../api/aiClient.js'
+import { pageVariants } from '../utils/animations.js'
+import { usePageTitle } from '../hooks/usePageTitle.js'
 
 const TIER_LABELS = { basic: 'Cơ bản', student: 'Học sinh', complete: 'Toàn diện' }
 const TIER_COLORS = { basic: '#64748B', student: '#F2A20C', complete: '#10B981' }
@@ -35,9 +39,35 @@ function formatDate(iso) {
   }
 }
 
+function buildHeatmap(results) {
+  const counts = {}
+  for (const r of results) {
+    const day = new Date(r.finishedAt).toISOString().slice(0, 10)
+    counts[day] = (counts[day] ?? 0) + 1
+  }
+  const cells = []
+  const end = new Date()
+  for (let i = 363; i >= 0; i--) {
+    const d = new Date(end)
+    d.setDate(end.getDate() - i)
+    const key = d.toISOString().slice(0, 10)
+    cells.push({ key, count: counts[key] ?? 0 })
+  }
+  return cells
+}
+
+function heatColor(count) {
+  if (count === 0) return '#1E2A44'
+  if (count === 1) return '#F2A20C33'
+  if (count === 2) return '#F2A20C77'
+  return '#F2A20C'
+}
+
 export default function Account() {
+  usePageTitle('Tài khoản')
   const navigate = useNavigate()
   const { user, updateProfile } = useAuth()
+  const { results } = useHistory()
   const [creditLog, setCreditLog] = useState([])
   const [billing, setBilling] = useState('monthly')
   const [editMode, setEditMode] = useState(false)
@@ -80,8 +110,13 @@ export default function Account() {
     }
   }
 
+  const heatmap = buildHeatmap(results)
+
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex flex-col">
+    <motion.div
+      className="min-h-screen bg-[#0A0E1A] flex flex-col"
+      variants={pageVariants} initial="hidden" animate="show"
+    >
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 bg-[#0D1221] border-b border-[#1E2A44]" style={{ height: 64 }}>
         <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-[#94A3B8] hover:text-[#F8FAFC] transition">
@@ -263,7 +298,7 @@ export default function Account() {
               Chuyển khoản theo số tài khoản được cung cấp và gửi email xác nhận. Kích hoạt trong 1–2 giờ làm việc.
             </span>
             <span className="font-jakarta text-[11px] text-[#475569]">
-              * MoMo · VNPay · ZaloPay · Stripe sẽ sớm ra mắt
+              * MoMo · VNPay · ZaloPay · PayOS sẽ sớm ra mắt
             </span>
           </div>
 
@@ -281,6 +316,42 @@ export default function Account() {
             </div>
           </div>
         </section>
+
+        {/* Activity heatmap */}
+        {results.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4"
+          >
+            <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Hoạt động học tập</span>
+            <div className="overflow-x-auto">
+              <div className="flex gap-1" style={{ minWidth: 640 }}>
+                {Array.from({ length: 52 }, (_, week) => (
+                  <div key={week} className="flex flex-col gap-1">
+                    {heatmap.slice(week * 7, week * 7 + 7).map(({ key, count }) => (
+                      <div
+                        key={key}
+                        title={`${key}: ${count} lần thi`}
+                        className="w-3 h-3 rounded-sm"
+                        style={{ background: heatColor(count) }}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-jakarta text-[11px] text-[#475569]">Ít</span>
+              {[0, 1, 2, 3].map(c => (
+                <div key={c} className="w-3 h-3 rounded-sm" style={{ background: heatColor(c) }} />
+              ))}
+              <span className="font-jakarta text-[11px] text-[#475569]">Nhiều</span>
+            </div>
+          </motion.section>
+        )}
 
         {/* Credit log */}
         {creditLog.length > 0 && (
@@ -303,6 +374,6 @@ export default function Account() {
         )}
 
       </div>
-    </div>
+    </motion.div>
   )
 }

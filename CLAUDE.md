@@ -238,3 +238,30 @@ This project is indexed by GitNexus as **AI-Agent-App** (3154 symbols, 6795 rela
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+## Deploy commands
+
+### Hugging Face Space (backend) — orphan push required
+
+```bash
+git checkout master
+git checkout --orphan hf-deploy-new
+git add -A
+git commit -m "deploy: $(git log master --oneline -1 | cut -c1-7)"
+git branch -D hf-deploy
+git branch -m hf-deploy-new hf-deploy
+git push --force space hf-deploy:main
+git checkout master
+```
+
+**Never** use `git merge master` on hf-deploy — the repo history contains old binary files that HF rejects. The orphan commit has no parents, so none of that history is included.
+
+### Cloudflare Pages (frontend) — must use `--branch=main`
+
+```bash
+cd exam-app
+npm run build
+npx wrangler pages deploy dist --project-name exam-app --branch=main --commit-dirty=true
+```
+
+**Always** pass `--branch=main`. Without it, wrangler creates a **Preview** deployment (not Production), and `exam-app-ey0.pages.dev` keeps serving the old bundle. The production URL only aliases Production deployments.

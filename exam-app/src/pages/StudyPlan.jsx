@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import Markdown from 'react-markdown'
 import remarkMath from 'remark-math'
@@ -448,7 +449,10 @@ export default function StudyPlan() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex flex-col">
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
+      className="min-h-screen bg-[#0A0E1A] flex flex-col"
+    >
       <nav className="flex items-center justify-between px-8 bg-[#0D1221] border-b border-[#1E2A44]" style={{ height: 64 }}>
         <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-[#94A3B8] hover:text-[#F8FAFC] transition">
           ← Quay lại
@@ -548,6 +552,6 @@ export default function StudyPlan() {
           </>
         ) : null}
       </div>
-    </div>
+    </motion.div>
   )
 }

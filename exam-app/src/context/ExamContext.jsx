@@ -12,7 +12,8 @@ const initialState = {
   flags: {},
   mode: 'timed',
   timeLeft: null,
-  status: 'idle', // idle | active | timeout | submitted
+  status: 'idle', // idle | active | paused | timeout | submitted
+  timePerQuestion: {},
 }
 
 function reducer(state, action) {
@@ -45,6 +46,18 @@ function reducer(state, action) {
         flags: {
           ...state.flags,
           [action.questionId]: !state.flags[action.questionId],
+        },
+      }
+    case 'PAUSE':
+      return { ...state, status: 'paused' }
+    case 'RESUME':
+      return { ...state, status: 'active' }
+    case 'RECORD_TIME':
+      return {
+        ...state,
+        timePerQuestion: {
+          ...state.timePerQuestion,
+          [action.questionId]: (state.timePerQuestion[action.questionId] ?? 0) + action.seconds,
         },
       }
     case 'TICK':

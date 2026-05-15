@@ -25,6 +25,42 @@ function MathText({ children, className, style }) {
 const LABELS = ['A', 'B', 'C', 'D']
 const MAX_HINTS = 3
 
+function getAIRatings() {
+  try { return JSON.parse(localStorage.getItem('ai_ratings') ?? '{}') }
+  catch { return {} }
+}
+
+function AIRating({ questionId, hintIndex }) {
+  const key = `${questionId}_h${hintIndex}`
+  const [rating, setRating] = useState(() => getAIRatings()[key] ?? null)
+
+  function rate(val) {
+    const ratings = getAIRatings()
+    ratings[key] = val
+    localStorage.setItem('ai_ratings', JSON.stringify(ratings))
+    setRating(val)
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      <span className="font-jakarta text-[10px] text-[#2A3A50] mr-1">Hữu ích?</span>
+      {['👍', '👎'].map((emoji, i) => {
+        const val = i === 0 ? 'up' : 'down'
+        return (
+          <button
+            key={val}
+            onClick={() => rate(val)}
+            className="text-sm transition-opacity"
+            style={{ opacity: rating === null ? 0.5 : rating === val ? 1 : 0.25 }}
+          >
+            {emoji}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 // aiCorrect is null while loading (answered but AI not yet responded)
 function choiceStyle(index, chosen, aiCorrect, showFeedback) {
   if (!showFeedback) {
@@ -216,9 +252,12 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
             </div>
           )}
           {hintTexts.map((text, i) => (
-            <div key={i} className="p-3.5 rounded-xl border border-[#2A3A60] bg-[#111827]">
+            <div key={i} className="p-3.5 rounded-xl border border-[#2A3A60] bg-[#111827] flex flex-col gap-2">
               <MathText className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{text}</MathText>
-              <span className="font-jakarta text-[11px] text-[#475569]">Gợi ý {i + 1}/{MAX_HINTS}</span>
+              <div className="flex items-center justify-between">
+                <span className="font-jakarta text-[11px] text-[#475569]">Gợi ý {i + 1}/{MAX_HINTS}</span>
+                <AIRating questionId={question.id} hintIndex={i} />
+              </div>
             </div>
           ))}
         </div>

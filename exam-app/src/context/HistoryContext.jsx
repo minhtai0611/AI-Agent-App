@@ -62,13 +62,16 @@ export function HistoryProvider({ children }) {
     getHistory().then(({ data }) => {
       if (!data) return
       // Map server shape (result_id, payload) → local shape (id, ...)
-      const mapped = data.map(r => ({
-        id: r.result_id,
-        examId: r.exam_id,
-        score: r.score,
-        createdAt: r.created_at,
-        ...(r.payload || {}),
-      }))
+      const mapped = data.map(r => {
+        const payload = typeof r.payload === 'string' ? JSON.parse(r.payload) : (r.payload || {})
+        return {
+          id: r.result_id,
+          examId: r.exam_id,
+          score: r.score,
+          createdAt: r.created_at,
+          ...payload,
+        }
+      })
       dispatch({ type: 'LOAD', results: mapped })
     })
   }, [user])

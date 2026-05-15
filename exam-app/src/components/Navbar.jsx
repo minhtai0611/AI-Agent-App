@@ -19,9 +19,11 @@ export default function Navbar({ onOpenAuth }) {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4"
-      style={{ height: 48, background: '#0A0E1A', borderBottom: '1px solid #1e2640' }}
+      className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 relative"
+      style={{ height: 48, background: '#0A0E1A' }}
     >
+      <div className="absolute bottom-0 left-0 right-0 h-px pointer-events-none"
+        style={{ background: 'linear-gradient(90deg, #F2A20C00 0%, #F2A20C 50%, #F2A20C00 100%)' }} />
       <span
         className="text-amber-400 font-semibold text-sm cursor-pointer"
         onClick={() => navigate('/')}

@@ -12,7 +12,7 @@ export function analyzeResult(result, allResults, schools) {
   const { score, topicBreakdown } = result
 
   // Weak topics: accuracy < 0.6
-  const weakTopics = Object.entries(topicBreakdown)
+  const weakTopics = Object.entries(topicBreakdown ?? {})
     .filter(([, tb]) => tb.accuracy < 0.6)
     .map(([topic]) => topic)
 

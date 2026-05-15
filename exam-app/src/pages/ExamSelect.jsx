@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useExamDispatch } from '../context/ExamContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { loadExams, loadThiThuExams, loadQuestionsByIds } from '../api/index.js'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { usePageTitle } from '../hooks/usePageTitle.js'
 
 const listVariants = {
   hidden: {},
@@ -36,11 +37,13 @@ function getAllowedCategories(user) {
 }
 
 export default function ExamSelect({ onOpenAuth }) {
+  usePageTitle('Chọn đề thi')
   const navigate = useNavigate()
   const dispatch = useExamDispatch()
   const { user } = useAuth()
   const [searchParams] = useSearchParams()
   const [mode, setMode] = useState(searchParams.get('mode') === 'practice' ? 'practice' : 'timed')
+  const [previewExam, setPreviewExam] = useState(null)
   const exams = mode === 'timed' ? loadThiThuExams() : loadExams()
 
   const allowedCategories = getAllowedCategories(user)
@@ -61,8 +64,12 @@ export default function ExamSelect({ onOpenAuth }) {
 
   const groups = GROUPS[mode]
 
+  function openPreview(exam) { setPreviewExam(exam) }
+  function closePreview() { setPreviewExam(null) }
+  function confirmStart(exam) { closePreview(); handleStart(exam) }
+
   return (
-    <div className="min-h-screen bg-[#111827] flex flex-col">
+    <div className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden">
       {/* Nav */}
       <nav className="flex items-center justify-between px-10 py-4 bg-[#0D1521] border-b border-[#1E2D45]">
         <button onClick={() => navigate('/')} className="font-jakarta text-sm text-[#64748B] hover:text-[#94A3B8] transition">
@@ -163,7 +170,7 @@ export default function ExamSelect({ onOpenAuth }) {
                             </span>
                           </div>
                           <button
-                            onClick={() => handleStart(exam)}
+                            onClick={() => openPreview(exam)}
                             className="flex-shrink-0 px-5 py-2 rounded-md font-jakarta text-[13px] font-semibold transition"
                             style={{ background: 'transparent', border: `1px solid ${group.accent}`, color: group.accent }}
                             onMouseEnter={e => e.currentTarget.style.background = group.accent + '1A'}
@@ -181,6 +188,66 @@ export default function ExamSelect({ onOpenAuth }) {
           })}
         </motion.div>
       </div>
+
+      {/* Exam preview modal */}
+      <AnimatePresence>
+        {previewExam && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(10,14,26,0.88)', backdropFilter: 'blur(6px)' }}
+            onClick={closePreview}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-sm rounded-2xl border border-[#1E2A44] p-7 flex flex-col gap-5"
+              style={{ background: 'linear-gradient(180deg, #0F1628 0%, #0D1221 100%)' }}
+            >
+              <div className="flex flex-col gap-1.5">
+                <span className="font-fraunces text-[18px] font-semibold text-[#F8FAFC]">{previewExam.title}</span>
+                <span className="font-jakarta text-[13px] text-[#64748B]">{previewExam.year}</span>
+              </div>
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-jakarta text-[11px] text-[#475569]">Số câu</span>
+                  <span className="font-fraunces text-[16px] font-bold text-[#F8FAFC]">{previewExam.totalQuestions}</span>
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-jakarta text-[11px] text-[#475569]">Thời gian</span>
+                  <span className="font-fraunces text-[16px] font-bold text-[#F8FAFC]">{previewExam.duration} phút</span>
+                </div>
+                {previewExam.source && (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-jakarta text-[11px] text-[#475569]">Nguồn</span>
+                    <span className="font-jakarta text-[13px] text-[#94A3B8]">{previewExam.source}</span>
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-3 mt-1">
+                <button
+                  onClick={closePreview}
+                  className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-[#1E2A44] text-[#94A3B8] hover:text-[#F8FAFC] transition"
+                >
+                  Huỷ
+                </button>
+                <button
+                  onClick={() => confirmStart(previewExam)}
+                  className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
+                  style={{ background: '#F2A20C' }}
+                >
+                  Bắt đầu thi
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
