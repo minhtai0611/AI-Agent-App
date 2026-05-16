@@ -31,10 +31,11 @@ def create_jwt(user_id: int) -> str:
         "sub": str(user_id),
         "iat": now,
         "exp": now + timedelta(days=7),
+        "aud": "exam-app",
     }
     return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
 
 
 def decode_jwt(token: str) -> dict:
     settings = get_settings()
-    return jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
+    return jwt.decode(token, settings.jwt_secret, algorithms=["HS256"], audience="exam-app")

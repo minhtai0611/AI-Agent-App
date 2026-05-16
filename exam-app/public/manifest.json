@@ -1,0 +1,17 @@
+{
+  "name": "ExamApp — Ôn tập Toán",
+  "short_name": "ExamApp",
+  "description": "Ôn tập Toán với 40+ đề thi Việt Nam & quốc tế — AI phân tích kết quả và gợi ý ôn luyện.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0E1A",
+  "theme_color": "#0A0E1A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

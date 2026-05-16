@@ -8,10 +8,22 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const resetToLocalRef = useRef(null)
 
-  // On mount: validate stored token
+  // On mount: validate stored token (check expiry before API call)
   useEffect(() => {
     const token = localStorage.getItem('auth_token')
     if (!token) {
+      setLoading(false)
+      return
+    }
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      if (payload.exp * 1000 < Date.now()) {
+        localStorage.removeItem('auth_token')
+        setLoading(false)
+        return
+      }
+    } catch {
+      localStorage.removeItem('auth_token')
       setLoading(false)
       return
     }
@@ -64,7 +76,15 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
+    const uid = user?.id
     localStorage.removeItem('auth_token')
+    // Clear user-namespaced keys so next user gets a clean slate
+    if (uid) {
+      for (const key of Object.keys(localStorage)) {
+        if (key.startsWith(`user-${uid}-`)) localStorage.removeItem(key)
+      }
+    }
+    localStorage.removeItem('exam_history')
     setUser(null)
     resetToLocalRef.current?.(true)
   }

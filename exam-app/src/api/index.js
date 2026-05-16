@@ -1,9 +1,23 @@
-import questionsData from '../data/questions.json'
 import examsData from '../data/exams.json'
 import schoolsData from '../data/schools.json'
 
-export function loadQuestions() {
-  return questionsData
+// Lazy-load questions.json — only fetched when first needed, then cached
+let _questionsData = null
+let _questionsPromise = null
+
+async function _loadQuestionsAsync() {
+  if (_questionsData) return _questionsData
+  if (!_questionsPromise) {
+    _questionsPromise = import('../data/questions.json').then(m => {
+      _questionsData = m.default
+      return _questionsData
+    })
+  }
+  return _questionsPromise
+}
+
+export async function loadQuestions() {
+  return _loadQuestionsAsync()
 }
 
 export function loadExams() {
@@ -24,17 +38,18 @@ export function loadExamById(examId) {
   return examsData.find(e => e.id === examId) ?? null
 }
 
-export function loadQuestionsByIds(ids) {
-  const map = Object.fromEntries(questionsData.map(q => [q.id, q]))
+export async function loadQuestionsByIds(ids) {
+  const data = await _loadQuestionsAsync()
+  const map = Object.fromEntries(data.map(q => [q.id, q]))
   return ids.map(id => map[id]).filter(Boolean)
 }
 
 const DIFF_RANK = { hard: 3, medium: 2, easy: 1 }
 
-// Builds the payload for /analyze including wrong questions and school recs.
-export function buildAnalyzePayload(result, history, schoolRecommendations, examCategory, userProfile) {
+// Builds the payload for /analyze including wrong questions.
+export async function buildAnalyzePayload(result, history, _unused, examCategory, userProfile) {
   const exam = loadExamById(result.examId)
-  const questions = exam ? loadQuestionsByIds(exam.questionIds) : []
+  const questions = exam ? await loadQuestionsByIds(exam.questionIds) : []
 
   const wrong = questions
     .filter(q => {
@@ -54,7 +69,7 @@ export function buildAnalyzePayload(result, history, schoolRecommendations, exam
     result,
     history,
     wrong_questions: wrong,
-    school_recommendations: schoolRecommendations || [],
+    school_recommendations: [],
     exam_category: examCategory || exam?.category || "",
     user_profile: userProfile || {},
   }
@@ -63,9 +78,9 @@ export function buildAnalyzePayload(result, history, schoolRecommendations, exam
 // Returns { result, history, wrong_questions, topic_miss_counts } enriched
 // with representative wrong questions (max 2–3 per topic, hardest first).
 // Capped at 8 total so the prompt stays within token limits.
-export function buildStudyPlanPayload(result, history) {
+export async function buildStudyPlanPayload(result, history) {
   const exam = loadExamById(result.examId)
-  const questions = exam ? loadQuestionsByIds(exam.questionIds) : []
+  const questions = exam ? await loadQuestionsByIds(exam.questionIds) : []
 
   const allWrong = questions
     .filter(q => {
@@ -105,4 +120,29 @@ export function buildStudyPlanPayload(result, history) {
   wrong_questions.splice(8)
 
   return { result, history, wrong_questions, topic_miss_counts }
+}
+
+// Returns the best unattempted exam for the student given weak topics.
+export async function recommendNextExam(weakTopics, attemptedExamIds) {
+  const allQuestions = await _loadQuestionsAsync()
+  const allExams = examsData.filter(e => e.mode !== 'retired')
+
+  const attempted = new Set(attemptedExamIds)
+  const candidates = allExams.filter(e => !attempted.has(e.id))
+  if (!candidates.length) return null
+
+  const weakSet = new Set(weakTopics)
+
+  // Score each candidate by weak-topic overlap with its questions
+  const scores = await Promise.all(candidates.map(async exam => {
+    const qs = exam.questionIds
+      ? exam.questionIds.map(id => allQuestions.find(q => q.id === id)).filter(Boolean)
+      : []
+    const overlap = qs.filter(q => weakSet.has(q.topic)).length
+    const ratio = qs.length > 0 ? overlap / qs.length : 0
+    return { exam, score: ratio }
+  }))
+
+  scores.sort((a, b) => b.score - a.score)
+  return scores[0]?.exam ?? null
 }

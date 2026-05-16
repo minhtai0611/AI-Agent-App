@@ -47,17 +47,18 @@ async def get_current_user(
     user = CurrentUser(user_id=int(payload["sub"]), email=payload.get("email", ""))
 
     pool = getattr(request.app.state, "pool", None)
-    if pool:
-        ip = request.client.host if request.client else None
-        row = await pool.fetchrow(
-            "SELECT is_suspended, suspension_reason FROM users WHERE id = ?", user.user_id
+    if not pool:
+        raise HTTPException(status_code=503, detail="Service unavailable")
+    ip = request.client.host if request.client else None
+    row = await pool.fetchrow(
+        "SELECT is_suspended, suspension_reason FROM users WHERE id = ?", user.user_id
+    )
+    if row and row["is_suspended"]:
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "account_suspended", "reason": row["suspension_reason"] or ""},
         )
-        if row and row["is_suspended"]:
-            raise HTTPException(
-                status_code=403,
-                detail={"code": "account_suspended", "reason": row["suspension_reason"] or ""},
-            )
-        if ip:
-            await pool.execute("UPDATE users SET last_ip = ? WHERE id = ?", ip, user.user_id)
+    if ip:
+        await pool.execute("UPDATE users SET last_ip = ? WHERE id = ?", ip, user.user_id)
 
     return user

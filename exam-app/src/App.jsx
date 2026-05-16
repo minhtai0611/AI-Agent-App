@@ -7,6 +7,7 @@ import Navbar from './components/Navbar.jsx'
 import AuthModal from './components/AuthModal.jsx'
 import ProfileOnboarding from './components/ProfileOnboarding.jsx'
 import LowCreditBanner from './components/LowCreditBanner.jsx'
+import OfflineBanner from './components/OfflineBanner.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import Landing from './pages/Landing.jsx'
 import ExamSelect from './pages/ExamSelect.jsx'
@@ -17,6 +18,9 @@ import StudyPlan from './pages/StudyPlan.jsx'
 import MathOracle from './pages/MathOracle.jsx'
 import Account from './pages/Account.jsx'
 import ReviewSession from './pages/ReviewSession.jsx'
+import Mistakes from './pages/Mistakes.jsx'
+import AdaptivePractice from './pages/AdaptivePractice.jsx'
+import DailyChallenge from './pages/DailyChallenge.jsx'
 
 function SuspensionModal({ reason, onLogout }) {
   return (
@@ -45,11 +49,12 @@ function AppInner() {
 
   const showOnboarding = !loading && user && !user.grade
   const showLowCredit = !loading && user && (user.credits_balance ?? 0) < 10
-  const showSuspension = !loading && user && user.is_suspended
+  const showSuspension = !loading && Boolean(user?.is_suspended)
 
   return (
     <>
       <ScrollToTop />
+      <OfflineBanner />
       <Navbar onOpenAuth={() => setAuthOpen(true)} />
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       {showSuspension && (
@@ -73,6 +78,9 @@ function AppInner() {
           <Route path="/oracle" element={<MathOracle />} />
           <Route path="/account" element={<Account />} />
           <Route path="/review" element={<ReviewSession />} />
+          <Route path="/mistakes" element={<Mistakes />} />
+          <Route path="/practice/adaptive" element={<AdaptivePractice />} />
+          <Route path="/daily" element={<DailyChallenge />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

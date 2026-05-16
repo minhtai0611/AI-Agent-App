@@ -422,11 +422,13 @@ export default function StudyPlan() {
     const cached = localStorage.getItem(cacheKey)
     if (cached) { setPlan(JSON.parse(cached)); setLoading(false); return }
     setLoading(true)
-    generateStudyPlan(buildStudyPlanPayload(result, history)).then(({ data, error: err }) => {
-      setLoading(false)
-      if (data) { localStorage.setItem(cacheKey, JSON.stringify(data)); setPlan(data) }
-      else setError(true)
-    })
+    buildStudyPlanPayload(result, history).then(payload =>
+      generateStudyPlan(payload).then(({ data, error: err }) => {
+        setLoading(false)
+        if (data) { localStorage.setItem(cacheKey, JSON.stringify(data)); setPlan(data) }
+        else setError(true)
+      })
+    )
   }, [resultId, result]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function toggleTask(weekIdx, taskIdx) {
@@ -470,10 +472,12 @@ export default function StudyPlan() {
             <button
               onClick={() => {
                 setError(false); setLoading(true)
-                generateStudyPlan(buildStudyPlanPayload(result, history)).then(({ data }) => {
-                  setLoading(false)
-                  if (data) setPlan(data); else setError(true)
-                })
+                buildStudyPlanPayload(result, history).then(payload =>
+                  generateStudyPlan(payload).then(({ data }) => {
+                    setLoading(false)
+                    if (data) setPlan(data); else setError(true)
+                  })
+                )
               }}
               className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold text-[#0A0E1A]"
               style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}

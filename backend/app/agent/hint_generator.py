@@ -3,6 +3,11 @@ from openai import AsyncOpenAI
 from app.config import get_settings
 from app.agent.core import call_with_retry
 
+
+def _safe(s: str, max_len: int = 500) -> str:
+    """Strip newlines and cap length to prevent prompt injection."""
+    return s.replace('\n', ' ').replace('\r', ' ')[:max_len]
+
 STATIC_HINT_INSTRUCTIONS = """Bạn là trợ lý AI của ứng dụng luyện thi toán lớp 10 TPHCM. \
 Hỗ trợ tạo nội dung giáo dục. Trả lời bằng tiếng Việt."""
 
@@ -36,14 +41,18 @@ async def generate_hint(
         shown = "\n".join(f"  Lần {i+1}: {h}" for i, h in enumerate(previous_hints))
         prev_context = f"\nCác gợi ý đã cung cấp (KHÔNG lặp lại, phải tiến xa hơn):\n{shown}\n"
 
+    safe_question = _safe(question.get('question', ''))
+    safe_topic = _safe(question.get('topic', ''), 50)
+    safe_difficulty = _safe(question.get('difficulty', ''), 30)
+
     prompt = f"""Tôi cần bạn tạo một GỢI Ý ngắn (KHÔNG phải lời giải) cho câu hỏi toán sau.
 Yêu cầu ({level}): Đặt 1–2 câu hỏi gợi mở hoặc nhắc 1 khái niệm liên quan để học sinh tự suy nghĩ.
 Quy tắc bắt buộc:
 - Tối đa 2 câu, viết liền mạch, không xuống dòng
 - KHÔNG dùng markdown, KHÔNG dùng số thứ tự, KHÔNG dùng gạch đầu dòng
 - KHÔNG tiết lộ đáp án hay ký hiệu A/B/C/D
-Chủ đề: {question.get('topic', '')} | Mức độ: {question.get('difficulty', '')} | Lần {attempt_count}/3
-Câu hỏi: {question.get('question', '')}{prev_context}
+Chủ đề: {safe_topic} | Mức độ: {safe_difficulty} | Lần {attempt_count}/3
+Câu hỏi: {safe_question}{prev_context}
 Trả về đúng định dạng JSON sau, không thêm text nào khác:
 {{"hint": "<1–2 câu gợi ý tiếng Việt, không markdown>", "difficulty_note": ""}}"""
 

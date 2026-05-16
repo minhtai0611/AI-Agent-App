@@ -4,11 +4,15 @@ import { getHistory, postHistory } from '../api/aiClient'
 
 const HistoryContext = createContext(null)
 
-const STORAGE_KEY = 'exam_history'
+const GUEST_KEY = 'exam_history'
 
-function loadLocal() {
+function storageKey(userId) {
+  return userId ? `user-${userId}-exam_history` : GUEST_KEY
+}
+
+function loadLocal(userId) {
   try {
-    const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
+    const arr = JSON.parse(localStorage.getItem(storageKey(userId)) ?? '[]')
     const seen = new Set()
     return arr.filter(r => r?.id && !seen.has(r.id) && seen.add(r.id))
   } catch {
@@ -16,15 +20,15 @@ function loadLocal() {
   }
 }
 
-function saveLocal(results) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(results))
+function saveLocal(results, userId) {
+  localStorage.setItem(storageKey(userId), JSON.stringify(results))
 }
 
 function reducer(state, action) {
   switch (action.type) {
     case 'ADD': {
       const next = [action.result, ...state.filter(r => r.id !== action.result.id)]
-      if (!action.serverMode) saveLocal(next)
+      if (!action.serverMode) saveLocal(next, action.userId)
       return next
     }
     case 'LOAD':
@@ -38,19 +42,20 @@ export function HistoryProvider({ children }) {
   const { user, registerResetToLocal } = useAuth()
   const [serverMode, setServerMode] = useState(!!user)
   const serverModeRef = useRef(serverMode)
+  const userIdRef = useRef(user?.id ?? null)
 
-  const [results, dispatch] = useReducer(reducer, undefined, loadLocal)
+  const [results, dispatch] = useReducer(reducer, undefined, () => loadLocal(null))
 
-  // Keep ref in sync so addResult closure always has the current value
+  // Keep refs in sync so closures always have current values
   useEffect(() => { serverModeRef.current = serverMode }, [serverMode])
+  useEffect(() => { userIdRef.current = user?.id ?? null }, [user])
 
   // Register callback so AuthContext can flip server mode on login/logout
   useEffect(() => {
     registerResetToLocal?.((useLocal) => {
       setServerMode(!useLocal)
       if (useLocal) {
-        // Revert to localStorage snapshot
-        dispatch({ type: 'LOAD', results: loadLocal() })
+        dispatch({ type: 'LOAD', results: loadLocal(null) })
       }
     })
   }, [registerResetToLocal])
@@ -78,7 +83,7 @@ export function HistoryProvider({ children }) {
 
   async function addResult(result) {
     const isServer = serverModeRef.current
-    dispatch({ type: 'ADD', result, serverMode: isServer })
+    dispatch({ type: 'ADD', result, serverMode: isServer, userId: userIdRef.current })
     if (isServer) {
       // Fire-and-forget; failure is silent (result is already in local state)
       postHistory([{

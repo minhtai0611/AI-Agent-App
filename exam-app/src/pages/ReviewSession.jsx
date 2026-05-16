@@ -51,9 +51,10 @@ export default function ReviewSession() {
     const dueIds = Object.entries(queue)
       .filter(([, entry]) => entry.dueDate <= today)
       .map(([id]) => id)
-    const loaded = loadQuestionsByIds(dueIds)
-    setQuestions(loaded)
-    if (loaded.length === 0) setDone(true)
+    loadQuestionsByIds(dueIds).then(loaded => {
+      setQuestions(loaded)
+      if (loaded.length === 0) setDone(true)
+    })
   }, [])
 
   const question = questions[index]

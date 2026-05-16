@@ -1,4 +1,5 @@
 import asyncio
+import hmac
 import io
 import json
 import logging
@@ -116,6 +117,15 @@ _SCHEMA_DDL = [
     "CREATE INDEX IF NOT EXISTS ai_credits_log_user_idx ON ai_credits_log (user_id, created_at)",
     "CREATE INDEX IF NOT EXISTS security_events_user_idx ON security_events (user_id, created_at)",
     "CREATE INDEX IF NOT EXISTS security_events_type_idx ON security_events (event_type, created_at)",
+    """CREATE TABLE IF NOT EXISTS question_reports (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        question_id TEXT NOT NULL,
+        user_id INTEGER,
+        reason TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    "ALTER TABLE users ADD COLUMN trial_used INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE users ADD COLUMN trial_expires_at TEXT",
     "CREATE INDEX IF NOT EXISTS wiki_units_topic_idx ON wiki_units (topic)",
     "CREATE INDEX IF NOT EXISTS wiki_units_deleted_idx ON wiki_units (deleted)",
     "CREATE INDEX IF NOT EXISTS problems_hash_idx ON problems (problem_hash)",
@@ -624,6 +634,7 @@ async def hint(
 async def tutor(
     req: TutorChatRequest,
     client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     from app.agent.exam_tutor import run_tutor
     reply, updated = await run_tutor(
@@ -682,6 +693,7 @@ async def study_plan(
 async def study_plan_quiz(
     req: WeekQuizRequest,
     client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
     from app.math_wiki.agents.quiz_generator import generate_week_quiz
@@ -694,7 +706,11 @@ async def study_plan_quiz(
 
 
 @app.post("/math-ingest")
-async def math_ingest(req: MathIngestRequest, pool=Depends(get_pool)):
+async def math_ingest(
+    req: MathIngestRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
     client = get_ai_client()
     from app.math_wiki.agents.ingest import ingest_exam
     try:
@@ -735,7 +751,11 @@ async def math_ocr(file: UploadFile = File(...)):
 
 
 @app.post("/math-solve", response_model=MathSolveResponse)
-async def math_solve(req: MathSolveRequest, pool=Depends(get_pool)):
+async def math_solve(
+    req: MathSolveRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
     client = get_ai_client()
     from app.math_wiki.pipeline import run_pipeline
     for attempt in range(2):
@@ -761,7 +781,11 @@ async def math_solve(req: MathSolveRequest, pool=Depends(get_pool)):
 
 
 @app.post("/math-review", response_model=MathReviewResponse)
-async def math_review(req: MathReviewRequest, pool=Depends(get_pool)):
+async def math_review(
+    req: MathReviewRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
     client = get_ai_client()
     from app.math_wiki.agents.reviewer import review_solution
     from app.math_wiki.pipeline import _retrieve_rerank_context
@@ -785,7 +809,11 @@ async def math_review(req: MathReviewRequest, pool=Depends(get_pool)):
 
 
 @app.post("/math-upload")
-async def math_upload(file: UploadFile = File(...), pool=Depends(get_pool)):
+async def math_upload(
+    file: UploadFile = File(...),
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
     MAX_SIZE = 10 * 1024 * 1024  # 10MB
     content = await file.read(MAX_SIZE + 1)
     if len(content) > MAX_SIZE:
@@ -832,13 +860,10 @@ async def math_upload(file: UploadFile = File(...), pool=Depends(get_pool)):
 
 
 @app.get("/metrics")
-async def metrics(x_admin_key: str | None = None, pool=Depends(get_pool)):
+async def metrics(request: Request, pool=Depends(get_pool)):
     from app.metrics import get_metrics
     from app.math_wiki.storage.analytics import get_unit_usage_stats
-    settings = get_settings()
-    expected = getattr(settings, "admin_key", None)
-    if expected and x_admin_key != expected:
-        raise HTTPException(status_code=401, detail="Invalid admin key")
+    _require_admin(request)
     data = get_metrics()
     if pool:
         try:
@@ -947,7 +972,6 @@ class ProfileUpdateRequest(BaseModel):
     grade: str | None = None
     school_type: str | None = None
     province: str | None = None
-    tos_accepted_at: str | None = None
 
 
 @app.post("/users/me/profile")
@@ -971,8 +995,6 @@ async def update_profile(
         updates["school_type"] = body.school_type
     if body.province is not None:
         updates["province"] = body.province.strip()
-    if body.tos_accepted_at is not None:
-        updates["tos_accepted_at"] = body.tos_accepted_at
     updates["updated_at"] = "datetime('now')"
 
     if not updates:
@@ -1006,8 +1028,19 @@ async def update_profile(
     return dict(row)
 
 
-async def _spend_credits(pool, user_id: int, amount: int, reason: str) -> int:
-    """Deduct `amount` credits from user. Returns new balance. Raises 402 if insufficient."""
+@app.post("/users/me/tos-accept", status_code=204)
+async def accept_tos(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    await pool.execute(
+        "UPDATE users SET tos_accepted_at = datetime('now') WHERE id = ? AND tos_accepted_at IS NULL",
+        current_user.user_id,
+    )
+
+
+async def _spend_credits(pool, user_id: int, amount: int, reason: str) -> None:
+    """Atomically deduct `amount` credits. Raises 402 if insufficient, 403 if TOS not accepted."""
     row = await pool.fetchrow(
         "SELECT credits_balance, tos_accepted_at FROM users WHERE id = ?", user_id
     )
@@ -1015,19 +1048,21 @@ async def _spend_credits(pool, user_id: int, amount: int, reason: str) -> int:
         raise HTTPException(status_code=404, detail="User not found")
     if not row["tos_accepted_at"]:
         raise HTTPException(status_code=403, detail="tos_not_accepted")
-    if row["credits_balance"] < amount:
+    result = await pool.execute(
+        "UPDATE users SET credits_balance = credits_balance - ? WHERE id = ? AND credits_balance >= ?",
+        amount, user_id, amount,
+    )
+    if result == "UPDATE 0":
+        balance_row = await pool.fetchrow("SELECT credits_balance FROM users WHERE id = ?", user_id)
+        balance = balance_row["credits_balance"] if balance_row else 0
         raise HTTPException(
             status_code=402,
-            detail={"code": "insufficient_credits", "balance": row["credits_balance"], "required": amount},
+            detail={"code": "insufficient_credits", "balance": balance, "required": amount},
         )
-    await pool.execute(
-        "UPDATE users SET credits_balance = credits_balance - ? WHERE id = ?", amount, user_id
-    )
     await pool.execute(
         "INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, ?, ?)",
         user_id, -amount, reason,
     )
-    return row["credits_balance"] - amount
 
 
 @app.get("/users/me/credits/log")
@@ -1108,12 +1143,56 @@ async def get_history(
     ]
 
 
+class QuestionReportRequest(BaseModel):
+    reason: str
+
+
+@app.post("/questions/{question_id}/report", status_code=204)
+async def report_question(
+    question_id: str,
+    body: QuestionReportRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    if not body.reason.strip():
+        raise HTTPException(status_code=422, detail="reason cannot be blank")
+    await pool.execute(
+        "INSERT INTO question_reports (question_id, user_id, reason) VALUES (?, ?, ?)",
+        question_id, current_user.user_id, body.reason[:500],
+    )
+
+
+@app.post("/users/me/trial", status_code=204)
+async def activate_trial(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    row = await pool.fetchrow(
+        "SELECT subscription_tier, trial_used FROM users WHERE id = ?", current_user.user_id
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="User not found")
+    if row["trial_used"]:
+        raise HTTPException(status_code=409, detail="Trial already used")
+    if row["subscription_tier"] != "basic":
+        raise HTTPException(status_code=409, detail="Trial only available on Basic tier")
+    await pool.execute(
+        """UPDATE users SET
+             subscription_tier = 'student',
+             trial_used = 1,
+             trial_expires_at = datetime('now', '+7 days'),
+             updated_at = datetime('now')
+           WHERE id = ?""",
+        current_user.user_id,
+    )
+
+
 # ── Admin endpoints ───────────────────────────────────────────────────────────
 
 def _require_admin(request: Request):
     key = request.headers.get("x-admin-key", "")
-    expected = getattr(get_settings(), "admin_key", "")
-    if not expected or key != expected:
+    expected = getattr(get_settings(), "admin_key", "") or ""
+    if not expected or not hmac.compare_digest(key.encode(), expected.encode()):
         raise HTTPException(status_code=401, detail="Invalid or missing admin key")
 
 
@@ -1224,6 +1303,7 @@ async def admin_security_events(
     pool=Depends(get_pool),
 ):
     _require_admin(request)
+    limit = max(1, min(limit, 500))
     rows = await pool.fetch(
         """SELECT se.id, se.user_id, se.ip, se.event_type, se.confidence, se.detail, se.created_at,
                   u.email, u.is_suspended

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { pageVariants, listVariants, itemVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
+import { useAuth } from '../context/AuthContext.jsx'
 
 const PLANS_MONTHLY = [
   { tier: 'basic', label: 'Cơ bản', price: 'Miễn phí', credits: 50, studyPlan: false },
@@ -27,6 +28,7 @@ function getDueCount() {
 export default function Landing({ onOpenAuth }) {
   usePageTitle('')
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [dueCount, setDueCount] = useState(0)
 
   useEffect(() => { setDueCount(getDueCount()) }, [])
@@ -164,11 +166,11 @@ export default function Landing({ onOpenAuth }) {
                 <span className="font-fraunces text-[16px] font-bold text-[#F0F4FF]">{plan.price}</span>
                 {plan.tier !== 'basic' && (
                   <button
-                    onClick={onOpenAuth}
+                    onClick={user ? () => navigate('/account') : onOpenAuth}
                     className="px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
                     style={{ background: '#F2A20C' }}
                   >
-                    Đăng nhập để bắt đầu
+                    {user ? 'Nâng cấp ngay' : 'Đăng nhập để bắt đầu'}
                   </button>
                 )}
               </div>

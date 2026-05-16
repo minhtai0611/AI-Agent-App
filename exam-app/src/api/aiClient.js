@@ -29,6 +29,18 @@ function _attachInterceptors(instance) {
 _attachInterceptors(client)
 _attachInterceptors(slowClient)
 
+async function withRetry(fn, attempts = 2) {
+  for (let i = 0; i <= attempts; i++) {
+    try { return await fn() }
+    catch (err) {
+      const status = err?.response?.status
+      // Don't retry 4xx (auth/credits/tier errors) or last attempt
+      if (i === attempts || (status && status < 500)) throw err
+      await new Promise(r => setTimeout(r, 800 * (i + 1)))
+    }
+  }
+}
+
 function wrap(promise) {
   return promise
     .then(res => ({ data: res.data, error: null, status: res.status }))
@@ -40,16 +52,20 @@ function wrap(promise) {
     })
 }
 
+function wrapRetry(fn) {
+  return wrap(withRetry(fn).catch(err => Promise.reject(err)))
+}
+
 export function analyzeResult(payload) {
-  return wrap(client.post('/analyze', payload))
+  return wrapRetry(() => client.post('/analyze', payload))
 }
 
 export function getHint(payload) {
-  return wrap(client.post('/hint', payload))
+  return wrapRetry(() => client.post('/hint', payload))
 }
 
 export function getExplanation(payload) {
-  return wrap(client.post('/explain', payload))
+  return wrapRetry(() => client.post('/explain', payload))
 }
 
 export function sendTutorMessage(payload) {
@@ -57,7 +73,7 @@ export function sendTutorMessage(payload) {
 }
 
 export function generateStudyPlan(payload) {
-  return wrap(slowClient.post('/study-plan', payload))
+  return wrapRetry(() => slowClient.post('/study-plan', payload))
 }
 
 export function solveMath(question) {
@@ -96,6 +112,18 @@ export function getMe() {
 
 export function updateProfile(payload) {
   return wrap(client.post('/users/me/profile', payload))
+}
+
+export function acceptTos() {
+  return wrap(client.post('/users/me/tos-accept'))
+}
+
+export function activateTrial() {
+  return wrap(client.post('/users/me/trial'))
+}
+
+export function reportQuestion(questionId, reason) {
+  return wrap(client.post(`/questions/${questionId}/report`, { reason }))
 }
 
 export function getCreditLog() {

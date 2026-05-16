@@ -47,7 +47,10 @@ async def _check_credit_velocity(pool):
         rows = await pool.fetch(
             """SELECT user_id, COUNT(*) as gains
                FROM ai_credits_log
-               WHERE delta > 0 AND created_at > datetime('now', '-1 hour')
+               WHERE delta > 0
+                 AND reason NOT LIKE 'admin_%'
+                 AND reason NOT LIKE 'subscription_%'
+                 AND created_at > datetime('now', '-1 hour')
                GROUP BY user_id HAVING gains >= 3"""
         )
         for row in rows:

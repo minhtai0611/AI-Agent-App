@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
-import { getCreditLog } from '../api/aiClient.js'
+import { getCreditLog, activateTrial } from '../api/aiClient.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 
@@ -75,6 +75,9 @@ export default function Account() {
   const [editProvince, setEditProvince] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+  const [trialActivating, setTrialActivating] = useState(false)
+  const [trialDone, setTrialDone] = useState(false)
+  const [trialError, setTrialError] = useState('')
 
   useEffect(() => {
     if (!user) return
@@ -239,6 +242,39 @@ export default function Account() {
             )}
           </div>
         </section>
+
+        {/* 7-day trial CTA — basic users who haven't used their trial */}
+        {tier === 'basic' && !user.trial_used && !trialDone && (
+          <section className="bg-gradient-to-br from-[#1A2A10] to-[#0D1521] border border-[#2D4A1A] rounded-2xl p-6 flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Dùng thử 7 ngày miễn phí</span>
+              <p className="font-jakarta text-[13px] text-[#94A3B8]">
+                Trải nghiệm gói Học sinh trong 7 ngày — đề thi đầy đủ, kế hoạch học AI và 500 điểm AI mỗi tháng.
+              </p>
+            </div>
+            {trialError && <p className="font-jakarta text-[12px] text-red-400">{trialError}</p>}
+            <button
+              disabled={trialActivating}
+              onClick={async () => {
+                setTrialActivating(true)
+                setTrialError('')
+                const { error } = await activateTrial()
+                setTrialActivating(false)
+                if (error) setTrialError(typeof error === 'string' ? error : 'Kích hoạt thất bại, vui lòng thử lại')
+                else setTrialDone(true)
+              }}
+              className="self-start px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold transition"
+              style={{ background: trialActivating ? '#1E2A44' : '#10B981', color: trialActivating ? '#475569' : '#0A0E1A' }}
+            >
+              {trialActivating ? 'Đang kích hoạt...' : 'Kích hoạt dùng thử'}
+            </button>
+          </section>
+        )}
+        {trialDone && (
+          <div className="px-5 py-4 rounded-2xl border border-[#2D4A1A] bg-[#0A1A0A] font-jakarta text-[13px] text-[#34D399]">
+            Đã kích hoạt! Gói Học sinh của bạn sẽ hoạt động trong 7 ngày. Làm mới trang để cập nhật.
+          </div>
+        )}
 
         {/* Upgrade / Pricing */}
         <section className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">

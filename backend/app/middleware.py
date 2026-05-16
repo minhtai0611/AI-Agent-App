@@ -3,7 +3,11 @@ from collections import defaultdict, deque
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
-_AI_PATHS = {"/analyze", "/hint", "/tutor", "/study-plan", "/explain"}
+_AI_PATHS = {
+    "/analyze", "/hint", "/tutor", "/study-plan", "/explain",
+    "/chat", "/compress", "/math-solve", "/math-review", "/math-ingest", "/math-upload",
+    "/study-plan-quiz",
+}
 _AUTH_PATHS = {"/auth/google"}
 _WINDOW = 60        # seconds
 _IP_LIMIT = 20      # requests per window per IP
@@ -36,7 +40,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self._hint_buckets: dict[str, deque] = defaultdict(deque)
 
     async def dispatch(self, request: Request, call_next):
-        ip = request.client.host if request.client else "unknown"
+        ip = (
+            request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+            or (request.client.host if request.client else "unknown")
+        )
         now = time.monotonic()
 
         # Auth endpoint — tight IP-based limit

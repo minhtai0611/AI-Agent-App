@@ -27,6 +27,14 @@ const GROUPS = {
 }
 
 const TRIAL_KEY = 'guest_trial_used'
+const FILTER_KEY = 'examselect_filter'
+
+function loadSavedFilters() {
+  try { return JSON.parse(sessionStorage.getItem(FILTER_KEY) || '{}') } catch { return {} }
+}
+function saveFilters(f) {
+  try { sessionStorage.setItem(FILTER_KEY, JSON.stringify(f)) } catch {}
+}
 
 function getAllowedCategories(user) {
   if (!user) return null // guest — computed separately
@@ -44,11 +52,35 @@ export default function ExamSelect({ onOpenAuth }) {
   const [searchParams] = useSearchParams()
   const [mode, setMode] = useState(searchParams.get('mode') === 'practice' ? 'practice' : 'timed')
   const [previewExam, setPreviewExam] = useState(null)
-  const exams = mode === 'timed' ? loadThiThuExams() : loadExams()
+
+  const saved = loadSavedFilters()
+  const [filterYear, setFilterYear] = useState(saved.year ?? null)
+  const [filterSearch, setFilterSearch] = useState(saved.search ?? '')
+
+  const allExams = mode === 'timed' ? loadThiThuExams() : loadExams()
+  const availableYears = [...new Set(allExams.map(e => e.year).filter(Boolean))].sort((a, b) => b - a)
+
+  const exams = allExams.filter(e => {
+    if (filterYear && e.year !== filterYear) return false
+    if (filterSearch.trim()) {
+      const q = filterSearch.toLowerCase()
+      return (e.title || '').toLowerCase().includes(q) || String(e.year).includes(q) || (e.source || '').toLowerCase().includes(q)
+    }
+    return true
+  })
+
+  function setYear(y) {
+    setFilterYear(y)
+    saveFilters({ year: y, search: filterSearch })
+  }
+  function setSearch(s) {
+    setFilterSearch(s)
+    saveFilters({ year: filterYear, search: s })
+  }
 
   const allowedCategories = getAllowedCategories(user)
 
-  function handleStart(exam) {
+  async function handleStart(exam) {
     if (!user) {
       const trialUsed = localStorage.getItem(TRIAL_KEY)
       if (trialUsed) {
@@ -57,7 +89,7 @@ export default function ExamSelect({ onOpenAuth }) {
       }
       localStorage.setItem(TRIAL_KEY, '1')
     }
-    const questions = loadQuestionsByIds(exam.questionIds)
+    const questions = await loadQuestionsByIds(exam.questionIds)
     dispatch({ type: 'START_EXAM', exam, questions, mode: mode === 'timed' ? 'timed' : 'practice' })
     navigate(`/test/${exam.id}`)
   }
@@ -105,6 +137,34 @@ export default function ExamSelect({ onOpenAuth }) {
           </button>
         </div>
       )}
+
+      {/* Filter bar */}
+      <div className="flex flex-wrap items-center gap-3 px-10 pt-6">
+        <input
+          type="search"
+          placeholder="Tìm đề thi..."
+          value={filterSearch}
+          onChange={e => setSearch(e.target.value)}
+          className="h-9 px-4 rounded-full border border-[#1E2A44] bg-[#111827] font-jakarta text-[13px] text-[#F0F4FF] placeholder-[#475569] focus:outline-none focus:border-[#F2A20C] w-48"
+        />
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setYear(null)}
+            className={`h-8 px-3 rounded-full font-jakarta text-[12px] font-medium border transition ${
+              !filterYear ? 'border-[#F2A20C] bg-[#F2A20C22] text-[#F2A20C]' : 'border-[#1E2A44] text-[#64748B] hover:border-[#2A3A50]'
+            }`}
+          >Tất cả</button>
+          {availableYears.map(y => (
+            <button
+              key={y}
+              onClick={() => setYear(filterYear === y ? null : y)}
+              className={`h-8 px-3 rounded-full font-jakarta text-[12px] font-medium border transition ${
+                filterYear === y ? 'border-[#F2A20C] bg-[#F2A20C22] text-[#F2A20C]' : 'border-[#1E2A44] text-[#64748B] hover:border-[#2A3A50]'
+              }`}
+            >{y}</button>
+          ))}
+        </div>
+      </div>
 
       {/* Content */}
       <div className="flex flex-col gap-10 p-10">

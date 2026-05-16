@@ -19,6 +19,7 @@ export default function TestInterface() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(1)
   const [submitModal, setSubmitModal] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const [pauseOverlay, setPauseOverlay] = useState(false)
   const [fullscreen, setFullscreen] = useState(false)
   const [showKbHint, setShowKbHint] = useState(() => !sessionStorage.getItem(KB_HINT_KEY))
@@ -52,6 +53,16 @@ export default function TestInterface() {
       navigate('/results/current', { replace: true })
     }
   }, [session.status, dispatch, navigate])
+
+  // Persist answers to sessionStorage so a refresh mid-exam doesn't lose work
+  useEffect(() => {
+    if (!examId || !session.answers || session.status !== 'active') return
+    sessionStorage.setItem(`exam-draft-${examId}`, JSON.stringify({
+      examId,
+      answers: session.answers,
+      startedAt: session.startedAt ?? new Date().toISOString(),
+    }))
+  }, [examId, session.answers, session.status])
 
   // Auto-pause on tab switch (timed mode only)
   useEffect(() => {
@@ -146,7 +157,10 @@ export default function TestInterface() {
   function handleSubmit() { setSubmitModal(true) }
 
   function confirmSubmit() {
+    if (submitting) return
+    setSubmitting(true)
     recordTimeForQuestion(question?.id)
+    sessionStorage.removeItem(`exam-draft-${examId}`)
     dispatch({ type: 'SUBMIT' })
     navigate('/results/current', { replace: true })
   }

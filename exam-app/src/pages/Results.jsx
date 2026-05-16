@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import CountUp from 'react-countup'
 import ReactCanvasConfetti from 'react-canvas-confetti'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { scoreExam } from '../engine/scoringEngine.js'
@@ -11,7 +11,7 @@ import { analyzeResult } from '../engine/aiEngine.js'
 import {
   RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer,
 } from 'recharts'
-import { loadSchools, loadExamById, loadQuestionsByIds, buildStudyPlanPayload, buildAnalyzePayload } from '../api/index.js'
+import { loadExamById, loadQuestionsByIds, buildStudyPlanPayload, buildAnalyzePayload, recommendNextExam } from '../api/index.js'
 import { analyzeResult as aiAnalyzeResult, generateStudyPlan } from '../api/aiClient.js'
 import AIInsights from '../components/AIInsights.jsx'
 import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
@@ -74,17 +74,21 @@ export default function Results({ onOpenAuth }) {
   usePageTitle('Kết quả thi')
   const navigate = useNavigate()
   const { resultId } = useParams()
+  const [searchParams] = useSearchParams()
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'overview')
   const session = useExam()
   const dispatch = useExamDispatch()
   const { results, addResult } = useHistory()
   const { user } = useAuth()
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
   const [result, setResult] = useState(null)
+  const [allQuestions, setAllQuestions] = useState([])
   const [analysis, setAnalysis] = useState(null)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState(false)
   const [planReady, setPlanReady] = useState(false)
   const [wrongAccordion, setWrongAccordion] = useState({})
+  const [nextExam, setNextExam] = useState(null)
 
   const isCurrent = !resultId || resultId === 'current'
   const fireConfetti = useRef(null)
@@ -121,53 +125,73 @@ export default function Results({ onOpenAuth }) {
 
   useEffect(() => {
     if (!result) return
+    let cancelled = false
     const allPast = results.filter(r => r.id !== result.id)
-
-    // Add wrong questions to spaced-repetition queue
     const examObj = loadExamById(result.examId)
-    if (examObj) {
-      const qs = loadQuestionsByIds(examObj.questionIds)
-      addToReviewQueue(result.examId, result.answers, qs)
-    }
 
-    const planCacheKey = `study-plan-data-${result.id}`
-    const planCached = localStorage.getItem(planCacheKey)
-    const prefetchFlag = `_prefetching-${result.id}`
-    if (planCached) {
-      setPlanReady(true)
-    } else if (!window[prefetchFlag]) {
-      window[prefetchFlag] = true
-      generateStudyPlan(buildStudyPlanPayload(result, allPast)).then(({ data }) => {
-        delete window[prefetchFlag]
-        if (data) { localStorage.setItem(planCacheKey, JSON.stringify(data)); setPlanReady(true) }
+    async function run() {
+      // Add wrong questions to spaced-repetition queue
+      if (examObj) {
+        const qs = await loadQuestionsByIds(examObj.questionIds)
+        if (!cancelled) addToReviewQueue(result.examId, result.answers, qs)
+      }
+
+      const planCacheKey = `study-plan-data-${result.id}`
+      const planCached = localStorage.getItem(planCacheKey)
+      const prefetchFlag = `_prefetching-${result.id}`
+      if (planCached) {
+        setPlanReady(true)
+      } else if (!window[prefetchFlag]) {
+        window[prefetchFlag] = true
+        buildStudyPlanPayload(result, allPast).then(payload =>
+          generateStudyPlan(payload).then(({ data }) => {
+            delete window[prefetchFlag]
+            if (data && !cancelled) { localStorage.setItem(planCacheKey, JSON.stringify(data)); setPlanReady(true) }
+          })
+        )
+      }
+
+      const localAnalysis = analyzeResult(result, allPast, [])
+      const cacheKey = `ai-analysis-${user?.id || 'guest'}-${result.id}`
+      const AI_CACHE_TTL = 7 * 24 * 60 * 60 * 1000 // 7 days
+      const cachedRaw = localStorage.getItem(cacheKey)
+      if (cachedRaw) {
+        try {
+          const entry = JSON.parse(cachedRaw)
+          if (entry.ts && Date.now() - entry.ts < AI_CACHE_TTL) {
+            if (!cancelled) setAnalysis(entry.data)
+            return
+          }
+        } catch { /* stale or corrupt — re-fetch */ }
+      }
+
+      if (!cancelled) {
+        setAnalysis(localAnalysis)
+        setAiLoading(true)
+        setAiError(false)
+      }
+      const obj = examObj || {}
+      const payload = await buildAnalyzePayload(
+        result, allPast, [], obj.category || '',
+        user ? { location: user.province || '', province: user.province || '', grade: user.grade || '', display_name: user.display_name || '' } : {}
+      )
+      if (cancelled) return
+      aiAnalyzeResult(payload).then(({ data, error }) => {
+        if (cancelled) return
+        setAiLoading(false)
+        if (data) {
+          const aiAnalysis = { ...data, _source: 'ai' }
+          localStorage.setItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
+          setAnalysis(aiAnalysis)
+        } else {
+          setAiError(true)
+        }
       })
     }
 
-    const schools = loadSchools()
-    const localAnalysis = analyzeResult(result, allPast, schools)
-    const cacheKey = `ai-analysis-${result.id}`
-    const cached = localStorage.getItem(cacheKey)
-    if (cached) { setAnalysis(JSON.parse(cached)); return }
-
-    setAnalysis(localAnalysis)
-    setAiLoading(true)
-    setAiError(false)
-    const obj = examObj || {}
-    const payload = buildAnalyzePayload(
-      result, allPast, localAnalysis.recommendations, obj.category || '',
-      user ? { location: user.province || '', province: user.province || '', grade: user.grade || '', display_name: user.display_name || '' } : {}
-    )
-    aiAnalyzeResult(payload).then(({ data, error }) => {
-      setAiLoading(false)
-      if (data) {
-        const aiAnalysis = { ...data, _source: 'ai', schoolRecs: localAnalysis.recommendations }
-        localStorage.setItem(cacheKey, JSON.stringify(aiAnalysis))
-        setAnalysis(aiAnalysis)
-      } else {
-        setAiError(true)
-      }
-    })
-  }, [result]) // eslint-disable-line react-hooks/exhaustive-deps
+    run()
+    return () => { cancelled = true }
+  }, [result?.id, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Personal best check — computed before early returns so hook order stays stable
   const pastSameExam = result ? results.filter(r => r.examId === result.examId && r.id !== result.id) : []
@@ -182,6 +206,18 @@ export default function Results({ onOpenAuth }) {
         colors: ['#F2A20C', '#FBBF24', '#FDE68A'],
       })
     }, 1200)
+  }, [result?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Recommend next exam based on weak topics
+  useEffect(() => {
+    if (!result || !results.length) return
+    const weak = Object.entries(result.topicBreakdown ?? {})
+      .filter(([, tb]) => tb.accuracy < 0.6)
+      .map(([t]) => t)
+    const attemptedIds = results.map(r => r.examId).filter(Boolean)
+    recommendNextExam(weak, attemptedIds).then(exam => {
+      if (exam) setNextExam(exam)
+    })
   }, [result?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!result) {
@@ -205,15 +241,22 @@ export default function Results({ onOpenAuth }) {
   const { score, accuracy, timeSpent, topicBreakdown, examId, answers = {} } = result
   const topics = Object.entries(topicBreakdown ?? {})
   const examObj = loadExamById(examId)
-  const allQuestions = examObj ? loadQuestionsByIds(examObj.questionIds) : []
 
-  // Wrong questions sorted by difficulty for "Top 3 câu sai"
+  // Load questions async into state (first load fetches chunk, subsequent renders use cache)
+  useEffect(() => {
+    if (!examObj) return
+    loadQuestionsByIds(examObj.questionIds).then(qs => setAllQuestions(qs))
+  }, [examId]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const wrongQuestions = allQuestions
     .filter(q => { const c = answers[q.id] ?? null; return c === null || c !== q.correct })
     .sort((a, b) => (DIFF_RANK[b.difficulty] || 0) - (DIFF_RANK[a.difficulty] || 0))
-    .slice(0, 3)
 
-  const wrongCount = allQuestions.filter(q => { const c = answers[q.id] ?? null; return c === null || c !== q.correct }).length
+  const wrongCount = wrongQuestions.length
+
+  const weakTopics = Object.entries(topicBreakdown ?? {})
+    .filter(([, tb]) => tb.accuracy < 0.6)
+    .map(([t]) => t)
 
   // RadarChart data
   const radarData = topics.map(([t, tb]) => ({
@@ -224,6 +267,13 @@ export default function Results({ onOpenAuth }) {
 
   const color = arcColor(score)
 
+  const TABS = [
+    { id: 'overview', label: 'Tổng quan' },
+    { id: 'wrong', label: wrongCount > 0 ? `Câu sai (${wrongCount})` : 'Câu sai' },
+    { id: 'schools', label: 'Trường phù hợp' },
+    { id: 'plan', label: 'Kế hoạch' },
+  ]
+
   return (
     <div className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden">
       <ReactCanvasConfetti
@@ -233,9 +283,6 @@ export default function Results({ onOpenAuth }) {
       <div className="absolute pointer-events-none rounded-full"
         style={{ width: 700, height: 700, right: -200, top: -100,
           background: 'radial-gradient(circle, #F2A20C10 0%, #F2A20C00 100%)' }} />
-      <div className="absolute pointer-events-none rounded-full"
-        style={{ width: 600, height: 600, left: -200, bottom: -100,
-          background: 'radial-gradient(circle, #10B98110 0%, #10B98100 100%)' }} />
 
       {/* NavBar */}
       <nav className="relative z-10 flex items-center justify-between px-8 bg-[#0D1221] border-b border-[#1E2A44]" style={{ height: 64 }}>
@@ -250,25 +297,19 @@ export default function Results({ onOpenAuth }) {
         </button>
       </nav>
 
-      <div className="relative z-10 flex flex-col gap-6 max-w-3xl mx-auto w-full px-4 py-10">
+      <div className="relative z-10 flex flex-col gap-5 max-w-3xl mx-auto w-full px-4 py-8">
 
-        {/* ── 1. Score hero — animated SVG arc ── */}
+        {/* ── Score hero ── */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
           className="flex items-center gap-8 bg-[#0D1221] border border-[#1E2A44] rounded-2xl px-8 py-8"
         >
           <div className="flex-shrink-0">
             <svg width="120" height="120" viewBox="0 0 120 120">
-              {/* Background ring */}
               <circle cx="60" cy="60" r="54" stroke="#1E2A44" strokeWidth="6" fill="none" />
-              {/* Foreground arc */}
               <motion.circle
-                cx="60" cy="60" r="54"
-                stroke={color} strokeWidth="6" fill="none"
-                strokeLinecap="round"
-                strokeDasharray={CIRC}
+                cx="60" cy="60" r="54" stroke={color} strokeWidth="6" fill="none"
+                strokeLinecap="round" strokeDasharray={CIRC}
                 initial={{ strokeDashoffset: CIRC }}
                 animate={{ strokeDashoffset: CIRC * (1 - score / 10) }}
                 transition={{ duration: 1.5, ease: 'easeOut', delay: 0.2 }}
@@ -299,20 +340,14 @@ export default function Results({ onOpenAuth }) {
           </div>
         </motion.div>
 
-        {/* ── 2. Personal best banner ── */}
+        {/* Personal best */}
         <AnimatePresence>
           {isPersonalBest && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
+            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className="flex items-center gap-3 px-5 py-3.5 rounded-xl"
-              style={{ background: '#1A1200', border: '1px solid #F2A20C60' }}
-            >
+              style={{ background: '#1A1200', border: '1px solid #F2A20C60' }}>
               <span className="text-xl">🏆</span>
-              <span className="font-jakarta text-[14px] font-semibold text-[#F2A20C]">
-                Điểm cao nhất của bạn trên đề thi này!
-              </span>
+              <span className="font-jakarta text-[14px] font-semibold text-[#F2A20C]">Điểm cao nhất của bạn trên đề thi này!</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -321,183 +356,254 @@ export default function Results({ onOpenAuth }) {
         {!user && !nudgeDismissed && (
           <div className="flex items-center justify-between gap-3 px-5 py-3 rounded-xl"
             style={{ background: '#0D1221', border: '1px solid #F2A20C44' }}>
-            <button onClick={onOpenAuth}
-              className="font-jakarta text-[13px] text-amber-400 hover:text-amber-300 transition-colors text-left">
+            <button onClick={onOpenAuth} className="font-jakarta text-[13px] text-amber-400 hover:text-amber-300 transition-colors text-left">
               Đăng nhập để lưu kết quả vào tài khoản →
             </button>
             <button onClick={() => setNudgeDismissed(true)} className="text-gray-500 hover:text-gray-300 text-lg leading-none flex-shrink-0">×</button>
           </div>
         )}
 
-        {/* ── 3. Hồ sơ năng lực — RadarChart + 2×2 chips ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-6"
-        >
-          <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Hồ sơ năng lực</span>
+        {/* ── Tab bar ── */}
+        <div className="flex border-b border-[#1E2A44]">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className="relative px-4 py-2.5 font-jakarta text-[13px] font-medium transition-colors"
+              style={{ color: activeTab === tab.id ? '#F2A20C' : '#64748B' }}
+            >
+              {tab.label}
+              {activeTab === tab.id && (
+                <motion.div layoutId="tab-underline"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F2A20C]" />
+              )}
+            </button>
+          ))}
+        </div>
 
-          {/* Radar chart */}
-          {radarData.length > 0 && (
-            <div style={{ height: 220 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                  <PolarGrid stroke="#1E2A44" />
-                  <PolarAngleAxis dataKey="topic" tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'Plus Jakarta Sans, sans-serif' }} />
-                  <Radar
-                    dataKey="score"
-                    stroke="#F2A20C"
-                    fill="#F2A20C"
-                    fillOpacity={0.15}
-                    strokeWidth={2}
-                  />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-
-          {/* 2×2 topic chip grid */}
-          <div className="grid grid-cols-2 gap-3">
-            {topics.map(([topic, tb]) => {
-              const verdict = topicVerdict(tb.accuracy)
-              return (
-                <div key={topic} className="flex flex-col gap-2 px-4 py-3 rounded-xl"
-                  style={{ background: verdict.bg, border: `1px solid ${verdict.border}` }}>
-                  <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">
-                    {TOPIC_LABELS[topic] ?? topic}
-                  </span>
-                  <span className="font-jakarta text-[12px] text-[#64748B]">
-                    {tb.correct}/{tb.total} · {Math.round(tb.accuracy * 100)}%
-                  </span>
-                  <span className="font-jakarta text-[11px] font-bold" style={{ color: verdict.color }}>
-                    {verdict.text}
-                  </span>
+        {/* ── Tab: Tổng quan ── */}
+        {activeTab === 'overview' && (
+          <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-5">
+            {/* Hồ sơ năng lực */}
+            <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-6">
+              <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Hồ sơ năng lực</span>
+              {radarData.length > 0 && (
+                <div style={{ height: 220 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                      <PolarGrid stroke="#1E2A44" />
+                      <PolarAngleAxis dataKey="topic" tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'Plus Jakarta Sans, sans-serif' }} />
+                      <Radar dataKey="score" stroke="#F2A20C" fill="#F2A20C" fillOpacity={0.15} strokeWidth={2} />
+                    </RadarChart>
+                  </ResponsiveContainer>
                 </div>
-              )
-            })}
-          </div>
-        </motion.div>
+              )}
+              <div className="grid grid-cols-2 gap-3">
+                {topics.map(([topic, tb]) => {
+                  const verdict = topicVerdict(tb.accuracy)
+                  return (
+                    <div key={topic} className="flex flex-col gap-2 px-4 py-3 rounded-xl"
+                      style={{ background: verdict.bg, border: `1px solid ${verdict.border}` }}>
+                      <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">{TOPIC_LABELS[topic] ?? topic}</span>
+                      <span className="font-jakarta text-[12px] text-[#64748B]">{tb.correct}/{tb.total} · {Math.round(tb.accuracy * 100)}%</span>
+                      <span className="font-jakarta text-[11px] font-bold" style={{ color: verdict.color }}>{verdict.text}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
 
-        {/* ── 4. Top 3 câu sai ── */}
-        {wrongQuestions.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.25 }}
-            className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4"
-          >
-            <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Top {wrongQuestions.length} câu sai</span>
+            {/* AI Insights */}
+            <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+              <div className="flex items-center justify-between">
+                <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Phân tích AI</span>
+                <span className="font-jakarta text-[11px] text-amber-400/70">⚡3 AI Điểm</span>
+              </div>
+              <AIErrorBoundary>
+                <AIInsights analysis={aiLoading ? null : analysis} loading={aiLoading} error={aiError} score={score} />
+              </AIErrorBoundary>
+            </div>
+
+            {/* Next exam recommendation */}
+            {nextExam && (
+              <div className="bg-[#0D1521] border border-[#1E2A44] rounded-xl px-5 py-4 flex items-center justify-between gap-3">
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className="font-jakarta text-[11px] text-[#64748B]">Đề tiếp theo cho bạn</span>
+                  <span className="font-jakarta text-[14px] font-semibold text-[#F8FAFC] truncate">{nextExam.title}</span>
+                </div>
+                <button
+                  onClick={() => navigate(`/test/${nextExam.id}`)}
+                  className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-[12px] font-bold"
+                  style={{ background: '#F2A20C', color: '#0A0E1A' }}
+                >
+                  Bắt đầu →
+                </button>
+              </div>
+            )}
+
+            {/* Actions */}
             <div className="flex flex-col gap-3">
-              {wrongQuestions.map((q, idx) => {
-                const open = wrongAccordion[q.id]
-                return (
-                  <div key={q.id} className="rounded-xl border border-[#1E2A44] overflow-hidden">
-                    <button
-                      onClick={() => setWrongAccordion(prev => ({ ...prev, [q.id]: !prev[q.id] }))}
-                      className="w-full flex items-center justify-between px-5 py-3.5 bg-[#111827] hover:bg-[#1A2440] transition text-left"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="w-5 h-5 rounded-full bg-[#FB718522] border border-[#FB7185] flex items-center justify-center font-jakarta text-[10px] font-bold text-[#FB7185] flex-shrink-0">
-                          {idx + 1}
-                        </span>
-                        <span className="font-jakarta text-[13px] text-[#94A3B8] line-clamp-1">
-                          {q.question.slice(0, 70)}{q.question.length > 70 ? '…' : ''}
-                        </span>
-                      </div>
-                      <span className="text-[#475569] text-sm ml-2 flex-shrink-0">{open ? '▲' : '▼'}</span>
-                    </button>
-                    <AnimatePresence>
-                      {open && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.22 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="px-5 py-4 flex flex-col gap-3 border-t border-[#1E2A44]">
-                            <p className="font-jakarta text-[13px] text-[#F0F4FF] leading-relaxed">{q.question}</p>
-                            <div className="flex flex-col gap-2">
-                              {q.choices.map((c, i) => (
-                                <div key={i} className="flex items-start gap-2.5 px-4 py-2.5 rounded-lg"
-                                  style={{
-                                    background: i === q.correct ? '#0D2A1A' : '#0A0E1A',
-                                    border: `1px solid ${i === q.correct ? '#10B981' : '#1E2A44'}`,
-                                  }}>
-                                  <span className="font-jakarta text-[12px] font-bold flex-shrink-0"
-                                    style={{ color: i === q.correct ? '#10B981' : '#475569' }}>
-                                    {String.fromCharCode(65 + i)}.
-                                  </span>
-                                  <span className="font-jakarta text-[13px]"
-                                    style={{ color: i === q.correct ? '#10B981' : '#64748B' }}>
-                                    {c}
-                                    {i === q.correct && <span className="ml-2 text-[11px]">✓ Đáp án đúng</span>}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                )
-              })}
+              {wrongCount > 0 && (
+                <button onClick={() => setActiveTab('wrong')}
+                  className="w-full py-3.5 rounded-xl font-jakarta text-[14px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
+                  style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}>
+                  Xem {wrongCount} câu sai →
+                </button>
+              )}
+              <button onClick={() => setActiveTab('plan')}
+                className={`w-full py-3 rounded-xl font-jakarta text-[13px] font-semibold border transition flex items-center justify-center gap-2 ${
+                  planReady ? 'bg-[#0D1221] border-[#F2A20C44] text-[#F2A20C] hover:border-[#F2A20C]' : 'bg-[#0D1221] border-[#1E2A44] text-[#475569]'
+                }`}>
+                {!planReady && <span className="w-3.5 h-3.5 rounded-full border border-[#2A3A50] border-t-[#F2A20C] animate-spin flex-shrink-0" />}
+                {planReady ? 'Kế hoạch học tập ⚡5 →' : 'Đang chuẩn bị kế hoạch…'}
+              </button>
+              <button onClick={() => { dispatch({ type: 'RESET' }); navigate('/exams') }}
+                className="w-full py-3 rounded-xl font-jakarta text-[13px] font-medium text-[#475569] hover:text-[#94A3B8] transition">
+                Thi lại
+              </button>
             </div>
           </motion.div>
         )}
 
-        {/* ── 5. Nhận xét & Gợi ý ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.35 }}
-          className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5"
-        >
-          <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Nhận xét &amp; Gợi ý</span>
-          <AIErrorBoundary>
-            <AIInsights analysis={aiLoading ? null : analysis} loading={aiLoading} error={aiError} score={score} />
-          </AIErrorBoundary>
-        </motion.div>
+        {/* ── Tab: Câu sai ── */}
+        {activeTab === 'wrong' && (
+          <motion.div key="wrong" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
+            {wrongQuestions.length === 0 ? (
+              <div className="py-16 text-center font-jakarta text-[#475569]">Không có câu sai — xuất sắc!</div>
+            ) : (
+              <>
+                <div className="flex flex-col gap-3">
+                  {wrongQuestions.map((q, idx) => {
+                    const open = wrongAccordion[q.id]
+                    const timing = (result.timePerQuestion ?? result.questionTimings)?.[q.id]
+                    return (
+                      <div key={q.id} className="rounded-xl border border-[#1E2A44] overflow-hidden">
+                        <button
+                          onClick={() => setWrongAccordion(prev => ({ ...prev, [q.id]: !prev[q.id] }))}
+                          className="w-full flex items-center justify-between px-5 py-3.5 bg-[#111827] hover:bg-[#1A2440] transition text-left"
+                        >
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <span className="w-5 h-5 rounded-full bg-[#FB718522] border border-[#FB7185] flex items-center justify-center font-jakarta text-[10px] font-bold text-[#FB7185] flex-shrink-0">
+                              {idx + 1}
+                            </span>
+                            <span className="font-jakarta text-[13px] text-[#94A3B8] truncate">
+                              {q.question.slice(0, 70)}{q.question.length > 70 ? '…' : ''}
+                            </span>
+                            {timing != null && (
+                              <span className={`font-jakarta text-[11px] flex-shrink-0 ${timing > 120 ? 'text-amber-400' : 'text-[#475569]'}`}>
+                                ⏱ {timing >= 60 ? `${Math.floor(timing/60)}m${timing%60}s` : `${timing}s`}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[#475569] text-sm ml-2 flex-shrink-0">{open ? '▲' : '▼'}</span>
+                        </button>
+                        <AnimatePresence>
+                          {open && (
+                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
+                              <div className="px-5 py-4 flex flex-col gap-3 border-t border-[#1E2A44]">
+                                <p className="font-jakarta text-[13px] text-[#F0F4FF] leading-relaxed">{q.question}</p>
+                                <div className="flex flex-col gap-2">
+                                  {q.choices.map((c, i) => (
+                                    <div key={i} className="flex items-start gap-2.5 px-4 py-2.5 rounded-lg"
+                                      style={{ background: i === q.correct ? '#0D2A1A' : '#0A0E1A', border: `1px solid ${i === q.correct ? '#10B981' : '#1E2A44'}` }}>
+                                      <span className="font-jakarta text-[12px] font-bold flex-shrink-0"
+                                        style={{ color: i === q.correct ? '#10B981' : '#475569' }}>
+                                        {String.fromCharCode(65 + i)}.
+                                      </span>
+                                      <span className="font-jakarta text-[13px]" style={{ color: i === q.correct ? '#10B981' : '#64748B' }}>
+                                        {c}{i === q.correct && <span className="ml-2 text-[11px]">✓ Đáp án đúng</span>}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    )
+                  })}
+                </div>
 
-        {/* ── 6. Action buttons ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.45 }}
-          className="flex flex-col gap-3"
-        >
-          {/* Primary: review wrong questions */}
-          {wrongCount > 0 && (
-            <button
-              onClick={() => navigate('/review')}
-              className="w-full py-3.5 rounded-xl font-jakarta text-[14px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
-              style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
-            >
-              Ôn lại {wrongCount} câu sai
+                {/* Oracle CTA */}
+                {weakTopics.length > 0 && (
+                  <div className="flex flex-col gap-3 px-5 py-4 rounded-xl border border-[#6366F144] bg-[#0D1221]">
+                    <p className="font-jakarta text-[13px] text-[#94A3B8]">
+                      Bạn sai <strong className="text-[#F8FAFC]">{wrongCount} câu</strong>
+                      {weakTopics.length > 0 && <> về <strong className="text-[#F8FAFC]">{weakTopics.map(t => TOPIC_LABELS[t] ?? t).join(', ')}</strong></>}
+                      {' '}— hỏi <strong className="text-[#6366F1]">Toán Oracle</strong> về chủ đề này?
+                    </p>
+                    <button
+                      onClick={() => navigate('/oracle', { state: {
+                        weakTopics,
+                        wrongQuestions: wrongQuestions.slice(0, 3).map(q => ({ topic: q.topic, question: q.question })),
+                      }})}
+                      className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-jakarta text-[12px] font-bold text-[#6366F1] border border-[#6366F144] hover:bg-[#6366F1]/10 transition"
+                    >
+                      <span>✦</span>Hỏi Toán Oracle
+                    </button>
+                  </div>
+                )}
+
+                <button onClick={() => navigate('/review')}
+                  className="w-full py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-[#F2A20C44] text-[#F2A20C] hover:border-[#F2A20C] transition">
+                  Ôn tập theo lịch (Spaced Repetition)
+                </button>
+              </>
+            )}
+          </motion.div>
+        )}
+
+        {/* ── Tab: Trường phù hợp ── */}
+        {activeTab === 'schools' && (
+          <motion.div key="schools" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Trường phù hợp</span>
+              <span className="font-jakarta text-[11px] text-[#475569]">Điểm Toán: <span className="text-[#F2A20C] font-bold">{score}/10</span></span>
+            </div>
+            {aiLoading ? (
+              <div className="flex flex-col gap-3 animate-pulse">
+                <div className="h-4 bg-[#111827] rounded w-3/4" />
+                <div className="h-4 bg-[#111827] rounded w-full" />
+                <div className="h-4 bg-[#111827] rounded w-5/6" />
+              </div>
+            ) : analysis?.school_insight ? (
+              <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed whitespace-pre-line">{analysis.school_insight}</p>
+            ) : (
+              <p className="font-jakarta text-[13px] text-[#475569] py-4 text-center">
+                {aiError ? 'Không thể tải gợi ý trường — vui lòng thử lại' : 'Đang phân tích…'}
+              </p>
+            )}
+          </motion.div>
+        )}
+
+        {/* ── Tab: Kế hoạch ── */}
+        {activeTab === 'plan' && (
+          <motion.div key="plan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
+            <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+              <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Kế hoạch học tập 4 tuần</span>
+              <p className="font-jakarta text-[13px] text-[#64748B] leading-relaxed">
+                AI sẽ tạo lịch ôn tập cá nhân hóa dựa trên điểm yếu và lịch sử làm bài của bạn.
+              </p>
+              <button
+                onClick={() => navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })}
+                className={`w-full py-3.5 rounded-xl font-jakarta text-[14px] font-bold transition flex items-center justify-center gap-2 ${
+                  planReady ? 'text-[#0A0E1A] hover:opacity-90' : 'text-[#475569] border border-[#1E2A44]'
+                }`}
+                style={planReady ? { background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' } : {}}
+              >
+                {!planReady && <span className="w-3.5 h-3.5 rounded-full border border-[#2A3A50] border-t-[#F2A20C] animate-spin" />}
+                {planReady ? 'Xem kế hoạch học tập ⚡5' : 'Đang chuẩn bị…'}
+              </button>
+            </div>
+            <button onClick={() => { dispatch({ type: 'RESET' }); navigate('/exams') }}
+              className="w-full py-3 rounded-xl font-jakarta text-[13px] font-medium text-[#475569] hover:text-[#94A3B8] transition">
+              Thi lại
             </button>
-          )}
-          {/* Secondary: study plan */}
-          <button
-            onClick={() => navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })}
-            className={`w-full py-3 rounded-xl font-jakarta text-[13px] font-semibold border transition flex items-center justify-center gap-2 ${
-              planReady
-                ? 'bg-[#0D1221] border-[#F2A20C44] text-[#F2A20C] hover:border-[#F2A20C]'
-                : 'bg-[#0D1221] border-[#1E2A44] text-[#475569]'
-            }`}
-          >
-            {!planReady && <span className="w-3.5 h-3.5 rounded-full border border-[#2A3A50] border-t-[#F2A20C] animate-spin flex-shrink-0" />}
-            {planReady ? 'Kế hoạch học tập →' : 'Đang chuẩn bị kế hoạch…'}
-          </button>
-          {/* Tertiary: retake */}
-          <button
-            onClick={() => { dispatch({ type: 'RESET' }); navigate('/exams') }}
-            className="w-full py-3 rounded-xl font-jakarta text-[13px] font-medium text-[#475569] hover:text-[#94A3B8] transition"
-          >
-            Thi lại
-          </button>
-        </motion.div>
+          </motion.div>
+        )}
 
       </div>
     </div>

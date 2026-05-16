@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext.jsx'
+import { acceptTos } from '../api/aiClient.js'
 
 const GRADES = [
   { value: '9', label: 'Lớp 9 trở xuống', sub: 'Thi vào lớp 10' },
@@ -107,8 +108,8 @@ export default function ProfileOnboarding({ onDone }) {
         grade,
         province,
         school_type: schoolType || undefined,
-        tos_accepted_at: new Date().toISOString(),
       })
+      await acceptTos()
       onDone?.()
     } catch (err) {
       setError(err.message || 'Có lỗi xảy ra, vui lòng thử lại')

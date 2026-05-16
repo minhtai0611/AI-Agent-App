@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import SchoolList from './SchoolList.jsx'
 
 const TOPIC_LABELS = {
   algebra: 'Đại số',
@@ -45,8 +44,8 @@ function TipList({ label, items }) {
   )
 }
 
-function SchoolSection({ schoolRecs, schoolInsight, score }) {
-  if (!schoolRecs || schoolRecs.length === 0) return null
+function SchoolSection({ schoolInsight, score }) {
+  if (!schoolInsight) return null
   return (
     <div className="flex flex-col gap-3 pt-2 border-t border-[#1E2A44]">
       <div className="flex items-center justify-between">
@@ -57,13 +56,7 @@ function SchoolSection({ schoolRecs, schoolInsight, score }) {
           </span>
         )}
       </div>
-      {schoolInsight && (
-        <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{schoolInsight}</p>
-      )}
-      <SchoolList recommendations={schoolRecs} />
-      <p className="font-jakarta text-[10px] text-[#2A3A50] leading-relaxed">
-        So sánh với điểm chuẩn Toán 2025 (ước tính) · ↑ tăng dần · ↓ giảm dần · → ổn định
-      </p>
+      <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed whitespace-pre-line">{schoolInsight}</p>
     </div>
   )
 }
@@ -149,7 +142,6 @@ export default function AIInsights({ analysis, loading, error, score }) {
         )}
         <TipList label="Khuyến nghị từ AI" items={analysis.recommendations} />
         <SchoolSection
-          schoolRecs={analysis.schoolRecs}
           schoolInsight={analysis.school_insight}
           score={score}
         />
@@ -202,9 +194,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
 
       <TipList label="Kế hoạch cải thiện" items={improvementStrategy} />
 
-      {recommendations && recommendations.length > 0 && (
-        <SchoolSection schoolRecs={recommendations} score={score} />
-      )}
+      {/* Offline mode: no AI school suggestions available */}
     </div>
   )
 }

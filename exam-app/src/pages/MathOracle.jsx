@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import DOMPurify from 'dompurify'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Markdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
@@ -731,8 +731,11 @@ function useWikiStatus() {
   return { status, justBecameReady }
 }
 
+const TOPIC_LABELS = { algebra: 'Đại số', geometry: 'Hình học', statistics: 'Thống kê', combinatorics: 'Tổ hợp' }
+
 export default function MathOracle() {
   const navigate = useNavigate()
+  const location = useLocation()
   const MAX_RETRIES = 2
 
   const [mode, setMode] = useState('solve')   // 'solve' | 'review'
@@ -763,6 +766,25 @@ export default function MathOracle() {
   useEffect(() => {
     getMathStats().then(({ data }) => { if (data) setStats(data) })
   }, [])
+
+  // Pre-seed from Results page navigation (weak topics + wrong questions)
+  useEffect(() => {
+    const state = location.state
+    if (!state?.weakTopics?.length) return
+    const topicNames = state.weakTopics.map(t => TOPIC_LABELS[t] ?? t).join(', ')
+    const lines = [`Tôi vừa làm bài thi và còn yếu ở các chủ đề: ${topicNames}.`]
+    if (state.wrongQuestions?.length) {
+      lines.push(`\nMột số câu tôi làm sai:`)
+      state.wrongQuestions.slice(0, 3).forEach((q, i) => {
+        const text = q.question || q.text || ''
+        if (text) lines.push(`${i + 1}. ${text.slice(0, 120)}`)
+      })
+    }
+    lines.push(`\nBạn có thể giải thích và hướng dẫn tôi cách ôn tập những chủ đề này không?`)
+    setQuestion(lines.join('\n'))
+    // Clear state so refreshing doesn't re-seed
+    window.history.replaceState({}, '', location.pathname)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const prevReadyRef = useRef(false)
   useEffect(() => {

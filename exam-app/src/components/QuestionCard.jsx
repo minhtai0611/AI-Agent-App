@@ -5,7 +5,7 @@ import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
-import { getHint, getExplanation } from '../api/aiClient.js'
+import { getHint, getExplanation, reportQuestion } from '../api/aiClient.js'
 import { sanitizeSvg } from '../utils/sanitizeSvg.js'
 
 function MathText({ children, className, style }) {
@@ -76,6 +76,49 @@ function choiceStyle(index, chosen, aiCorrect, showFeedback) {
   if (index === aiCorrect) return { bg: '#0A1F14', border: '#10B981', bw: '1.5px', labelBg: '#10B981', labelText: '#0A0E1A', text: '#6EE7B7' }
   if (index === chosen) return { bg: '#1F0A0E', border: '#FB7185', bw: '1.5px', labelBg: '#FB7185', labelText: '#0A0E1A', text: '#FB7185' }
   return { bg: '#0D1221', border: '#1E2A44', bw: '1px', labelBg: '#1E2A44', labelText: '#475569', text: '#475569' }
+}
+
+const REPORT_REASONS = ['Sai đáp án', 'Câu hỏi không rõ', 'Lỗi hiển thị']
+
+function ReportButton({ questionId }) {
+  const [open, setOpen] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [sending, setSending] = useState(false)
+
+  async function submit(reason) {
+    setSending(true)
+    await reportQuestion(questionId, reason)
+    setSending(false)
+    setSent(true)
+    setTimeout(() => { setSent(false); setOpen(false) }, 2000)
+  }
+
+  if (sent) return <p className="font-jakarta text-[11px] text-[#34D399] mt-2">Đã gửi báo cáo — cảm ơn!</p>
+
+  return (
+    <div className="relative mt-2">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="font-jakarta text-[11px] text-[#475569] hover:text-[#64748B] transition"
+      >
+        Báo lỗi
+      </button>
+      {open && (
+        <div className="absolute left-0 top-5 z-20 bg-[#0D1221] border border-[#1E2A44] rounded-xl p-3 flex flex-col gap-1.5 shadow-xl min-w-max">
+          {REPORT_REASONS.map(r => (
+            <button
+              key={r}
+              disabled={sending}
+              onClick={() => submit(r)}
+              className="font-jakarta text-[12px] text-[#94A3B8] hover:text-[#F8FAFC] text-left px-2 py-1 rounded hover:bg-[#1E2A44] transition disabled:opacity-50"
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hintState, onHint }) {
@@ -216,6 +259,8 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
           )}
         </div>
       )}
+
+      <ReportButton questionId={question.id} />
 
       {/* Hint button — practice mode only, before answer is chosen */}
       {practiceMode && !submitted && !showFeedback && (
