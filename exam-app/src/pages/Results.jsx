@@ -174,7 +174,10 @@ export default function Results({ onOpenAuth }) {
       if (cachedRaw) {
         try {
           const entry = JSON.parse(cachedRaw)
-          if (entry.ts && Date.now() - entry.ts < AI_CACHE_TTL) {
+          const userGradeNum = user?.grade ? parseInt(user.grade, 10) : null
+          const needsSchoolInsight = userGradeNum !== null && userGradeNum >= 10
+          const cacheHasSchoolInsight = !!entry.data?.school_insight
+          if (entry.ts && Date.now() - entry.ts < AI_CACHE_TTL && (!needsSchoolInsight || cacheHasSchoolInsight)) {
             if (!cancelled) setAnalysis(entry.data)
             return
           }
@@ -292,7 +295,7 @@ export default function Results({ onOpenAuth }) {
   }, [examId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const wrongQuestions = allQuestions
-    .filter(q => { const c = answers[q.id] ?? null; return c === null || c !== q.correct })
+    .filter(q => { const c = answers[q.id] ?? null; return c !== null && c !== q.correct })
     .sort((a, b) => (DIFF_RANK[b.difficulty] || 0) - (DIFF_RANK[a.difficulty] || 0))
 
   const wrongCount = wrongQuestions.length
@@ -574,8 +577,8 @@ export default function Results({ onOpenAuth }) {
                             <span className="w-5 h-5 rounded-full bg-[#FB718522] border border-[#FB7185] flex items-center justify-center font-jakarta text-[10px] font-bold text-[#FB7185] flex-shrink-0">
                               {idx + 1}
                             </span>
-                            <span className="font-jakarta text-[13px] text-[#94A3B8] truncate">
-                              {q.question.slice(0, 70)}{q.question.length > 70 ? '…' : ''}
+                            <span className="font-jakarta text-[13px] text-[#94A3B8] overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                              <MathText>{q.question}</MathText>
                             </span>
                             {timing != null && (
                               <span className={`font-jakarta text-[11px] flex-shrink-0 ${timing > 120 ? 'text-amber-400' : 'text-[#475569]'}`}>
@@ -592,18 +595,29 @@ export default function Results({ onOpenAuth }) {
                               <div className="px-5 py-4 flex flex-col gap-3 border-t border-[#1E2A44]">
                                 <MathText className="font-jakarta text-[13px] text-[#F0F4FF] leading-relaxed">{q.question}</MathText>
                                 <div className="flex flex-col gap-2">
-                                  {q.choices.map((c, i) => (
+                                  {q.choices.map((c, i) => {
+                                    const chosen = answers[q.id] ?? null
+                                    const isCorrect = i === q.correct
+                                    const isChosen = i === chosen
+                                    const bg = isCorrect ? '#0D2A1A' : isChosen ? '#2A0F14' : '#0A0E1A'
+                                    const borderColor = isCorrect ? '#10B981' : isChosen ? '#FB7185' : '#1E2A44'
+                                    const labelColor = isCorrect ? '#10B981' : isChosen ? '#FB7185' : '#475569'
+                                    const textColor = isCorrect ? '#10B981' : isChosen ? '#FB7185' : '#64748B'
+                                    return (
                                     <div key={i} className="flex items-start gap-2.5 px-4 py-2.5 rounded-lg"
-                                      style={{ background: i === q.correct ? '#0D2A1A' : '#0A0E1A', border: `1px solid ${i === q.correct ? '#10B981' : '#1E2A44'}` }}>
+                                      style={{ background: bg, border: `1px solid ${borderColor}` }}>
                                       <span className="font-jakarta text-[12px] font-bold flex-shrink-0"
-                                        style={{ color: i === q.correct ? '#10B981' : '#475569' }}>
+                                        style={{ color: labelColor }}>
                                         {String.fromCharCode(65 + i)}.
                                       </span>
-                                      <span className="font-jakarta text-[13px]" style={{ color: i === q.correct ? '#10B981' : '#64748B' }}>
-                                        <MathText>{c}</MathText>{i === q.correct && <span className="ml-2 text-[11px]">✓ Đáp án đúng</span>}
+                                      <span className="font-jakarta text-[13px]" style={{ color: textColor }}>
+                                        <MathText>{c}</MathText>
+                                        {isCorrect && <span className="ml-2 text-[11px]">✓ Đáp án đúng</span>}
+                                        {isChosen && !isCorrect && <span className="ml-2 text-[11px] text-[#FB7185]">← Bạn đã chọn</span>}
                                       </span>
                                     </div>
-                                  ))}
+                                    )
+                                  })}
                                 </div>
                               </div>
                             </motion.div>
@@ -644,58 +658,86 @@ export default function Results({ onOpenAuth }) {
         )}
 
         {/* ── Tab: Trường phù hợp ── */}
-        {activeTab === 'schools' && (
+        {activeTab === 'schools' && (() => {
+          const userGrade = user?.grade ? parseInt(user.grade, 10) : null
+          const isCollegeUser = userGrade !== null && userGrade >= 10
+          return (
           <motion.div key="schools" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className="flex flex-col gap-4">
-            {/* Computed probability bars */}
-            <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
-              <div className="flex items-center justify-between">
-                <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Khả năng đỗ</span>
-                <span className="font-jakarta text-[11px] text-[#475569]">Điểm Toán: <span className="text-[#F2A20C] font-bold">{score.toFixed(1)}/10</span></span>
-              </div>
-              <p className="font-jakarta text-[12px] text-[#475569]">Dựa trên điểm chuẩn môn Toán các năm gần nhất.</p>
-              <div className="flex flex-col gap-4">
-                {schoolFitList.map(school => {
-                  const prob = school.prob
-                  const barColor = prob >= 70 ? '#10B981' : prob >= 40 ? '#F2A20C' : '#FB7185'
-                  return (
-                    <div key={school.id} className="flex flex-col gap-1.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">{school.name}</span>
-                          <span className="font-jakarta text-[11px] text-[#475569]">{school.district} · Chuẩn Toán: {school.cutoff}</span>
-                        </div>
-                        <span className="font-fraunces text-[20px] font-bold flex-shrink-0 ml-4" style={{ color: barColor }}>
-                          {prob}%
-                        </span>
-                      </div>
-                      <div className="h-2 rounded-full bg-[#111827] overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full"
-                          style={{ background: barColor }}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${prob}%` }}
-                          transition={{ duration: 0.8, ease: 'easeOut' }}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-              <p className="font-jakarta text-[11px] text-[#2A3A50]">
-                Xác suất ước tính theo hàm sigmoid so với điểm chuẩn năm gần nhất. Không phải kết quả chính thức.
-              </p>
-            </div>
 
-            {/* AI school insight (secondary) */}
-            {analysis?.school_insight && (
+            {/* Grade 10-12: show AI university recommendations as primary content */}
+            {isCollegeUser ? (
+              <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+                <div className="flex items-center justify-between">
+                  <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Gợi ý đại học / cao đẳng</span>
+                  <span className="font-jakarta text-[11px] text-[#475569]">Điểm Toán: <span className="text-[#F2A20C] font-bold">{score.toFixed(1)}/10</span></span>
+                </div>
+                {aiLoading && !analysis?.school_insight && (
+                  <p className="font-jakarta text-[13px] text-[#475569] animate-pulse">AI đang phân tích...</p>
+                )}
+                {analysis?.school_insight ? (
+                  <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed whitespace-pre-line">{analysis.school_insight}</p>
+                ) : !aiLoading && (
+                  <p className="font-jakarta text-[13px] text-[#475569]">
+                    {user ? 'Gợi ý trường chưa được tạo. Hãy đảm bảo hồ sơ của bạn có lớp học và thử phân tích lại.' : 'Hãy đăng nhập để nhận gợi ý trường phù hợp.'}
+                  </p>
+                )}
+                <p className="font-jakarta text-[11px] text-[#2A3A50]">
+                  Gợi ý từ AI dựa trên điểm Toán và hồ sơ của bạn. Không phải kết quả tuyển sinh chính thức.
+                </p>
+              </div>
+            ) : (
+              /* Grade ≤9 or unknown: show THPT probability bars */
+              <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+                <div className="flex items-center justify-between">
+                  <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Khả năng đỗ THPT</span>
+                  <span className="font-jakarta text-[11px] text-[#475569]">Điểm Toán: <span className="text-[#F2A20C] font-bold">{score.toFixed(1)}/10</span></span>
+                </div>
+                <p className="font-jakarta text-[12px] text-[#475569]">Dựa trên điểm chuẩn môn Toán các năm gần nhất.</p>
+                <div className="flex flex-col gap-4">
+                  {schoolFitList.map(school => {
+                    const prob = school.prob
+                    const barColor = prob >= 70 ? '#10B981' : prob >= 40 ? '#F2A20C' : '#FB7185'
+                    return (
+                      <div key={school.id} className="flex flex-col gap-1.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">{school.name}</span>
+                            <span className="font-jakarta text-[11px] text-[#475569]">{school.district} · Chuẩn Toán: {school.cutoff}</span>
+                          </div>
+                          <span className="font-fraunces text-[20px] font-bold flex-shrink-0 ml-4" style={{ color: barColor }}>
+                            {prob}%
+                          </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-[#111827] overflow-hidden">
+                          <motion.div
+                            className="h-full rounded-full"
+                            style={{ background: barColor }}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${prob}%` }}
+                            transition={{ duration: 0.8, ease: 'easeOut' }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <p className="font-jakarta text-[11px] text-[#2A3A50]">
+                  Xác suất ước tính theo hàm sigmoid so với điểm chuẩn năm gần nhất. Không phải kết quả chính thức.
+                </p>
+              </div>
+            )}
+
+            {/* AI school insight — only shown for grade ≤9 as supplementary */}
+            {!isCollegeUser && analysis?.school_insight && (
               <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-3">
                 <span className="font-jakarta text-[12px] font-bold text-amber-400/70 uppercase tracking-wider">Gợi ý từ AI</span>
                 <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed whitespace-pre-line">{analysis.school_insight}</p>
               </div>
             )}
           </motion.div>
-        )}
+          )
+        })()}
 
         {/* ── Tab: Kế hoạch ── */}
         {activeTab === 'plan' && (

@@ -62,7 +62,7 @@ export async function buildAnalyzePayload(result, history, _unused, examCategory
   const wrong = questions
     .filter(q => {
       const chosen = result.answers?.[q.id]
-      return chosen === undefined || chosen === null || chosen !== q.correct
+      return chosen !== undefined && chosen !== null && chosen !== q.correct
     })
     .map(q => ({
       topic: q.topic,
