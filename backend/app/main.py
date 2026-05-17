@@ -1251,6 +1251,8 @@ async def activate_trial(
              subscription_tier = 'student',
              trial_used = 1,
              trial_expires_at = datetime('now', '+7 days'),
+             credits_balance = credits_balance + 500,
+             credits_reset_at = datetime('now', '+7 days'),
              updated_at = datetime('now')
            WHERE id = ?""",
         current_user.user_id,
