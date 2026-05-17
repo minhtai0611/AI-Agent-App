@@ -70,7 +70,9 @@ function MistakeRow({ question, userAnswer, examTitle }) {
             )}
           </div>
         </div>
-        <span className="text-[#475569] flex-shrink-0 mt-0.5">{expanded ? '▲' : '▼'}</span>
+        <span className="text-[#475569] flex-shrink-0 mt-0.5">
+          {explLoading ? <span className="animate-spin inline-block">⟳</span> : expanded ? '▲' : '▼'}
+        </span>
       </button>
 
       {expanded && (

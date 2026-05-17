@@ -93,7 +93,7 @@ export default function Results({ onOpenAuth }) {
   const session = useExam()
   const dispatch = useExamDispatch()
   const { results, addResult } = useHistory()
-  const { user } = useAuth()
+  const { user, refundCredits } = useAuth()
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
   const [result, setResult] = useState(() => location.state?.result ?? null)
   const [allQuestions, setAllQuestions] = useState([])
@@ -115,7 +115,11 @@ export default function Results({ onOpenAuth }) {
         navigate('/exams', { replace: true })
         return
       }
-      const scored = scoreExam(session)
+      const scored = {
+        ...scoreExam(session),
+        tab_switches: location.state?.tab_switches ?? 0,
+        devtools_detected: location.state?.devtools_detected ?? 0,
+      }
       setResult(scored)
       addResult(scored).then(id => {
         navigate(`/results/${id}`, { replace: true, state: { result: scored } })
@@ -142,6 +146,7 @@ export default function Results({ onOpenAuth }) {
   useEffect(() => {
     if (!result) return
     let cancelled = false
+    const abortCtrl = new AbortController()
     const allPast = results.filter(r => r.id !== result.id)
     const examObj = loadExamById(result.examId)
 
@@ -168,7 +173,14 @@ export default function Results({ onOpenAuth }) {
       }
 
       const localAnalysis = analyzeResult(result, allPast, [])
-      const cacheKey = `ai-analysis-${user?.id || 'guest'}-${result.id}`
+
+      // Skip AI call until auth is confirmed — prevents double-fire on hydration
+      if (!user?.id) {
+        if (!cancelled) setAnalysis(localAnalysis)
+        return
+      }
+
+      const cacheKey = `ai-analysis-${user.id}-${result.id}`
       const AI_CACHE_TTL = 7 * 24 * 60 * 60 * 1000 // 7 days
       const cachedRaw = localStorage.getItem(cacheKey)
       if (cachedRaw) {
@@ -192,7 +204,7 @@ export default function Results({ onOpenAuth }) {
       const obj = examObj || {}
       const payload = await buildAnalyzePayload(
         result, allPast, [], obj.category || '',
-        user ? { location: user.province || '', province: user.province || '', grade: user.grade || '', display_name: user.display_name || '' } : {}
+        { location: user.province || '', province: user.province || '', grade: user.grade || '', display_name: user.display_name || '' }
       )
       if (cancelled) return
       analyzeResultStream(payload, (token) => {
@@ -202,7 +214,7 @@ export default function Results({ onOpenAuth }) {
           insights: ((prev?.insights && !prev?._streaming_done) ? prev.insights : '') + token,
           _streaming: true,
         }))
-      }).then(({ data: rawText, error }) => {
+      }, abortCtrl.signal).then(({ data: rawText, error }) => {
         if (cancelled) return
         setAiLoading(false)
         if (rawText) {
@@ -218,9 +230,11 @@ export default function Results({ onOpenAuth }) {
             setAiError(true)
           }
         } else {
-          setAiError(!!error)
-          // Fall back to non-streaming endpoint if stream failed
-          if (error && !cancelled) {
+          const failed = !!error || rawText === ''
+          setAiError(failed)
+          // Fall back to non-streaming endpoint if stream failed or returned empty
+          if (failed && !cancelled) {
+            refundCredits(3)
             aiAnalyzeResult(payload).then(({ data }) => {
               if (cancelled || !data) return
               const aiAnalysis = { ...data, _source: 'ai' }
@@ -234,7 +248,7 @@ export default function Results({ onOpenAuth }) {
     }
 
     run()
-    return () => { cancelled = true }
+    return () => { cancelled = true; abortCtrl.abort() }
   }, [result?.id, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Personal best check — computed before early returns so hook order stays stable
@@ -532,24 +546,21 @@ export default function Results({ onOpenAuth }) {
               </div>
             )}
 
-            {/* Actions */}
-            <div className="flex flex-col gap-3">
+            {/* Navigation shortcuts — compact chip row */}
+            <div className="flex flex-wrap gap-2 pt-1">
               {wrongCount > 0 && (
                 <button onClick={() => setActiveTab('wrong')}
-                  className="w-full py-3.5 rounded-xl font-jakarta text-[14px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
-                  style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}>
-                  Xem {wrongCount} câu sai →
+                  className="px-3 py-1.5 rounded-lg border border-[#1E2A44] font-jakarta text-[12px] text-[#94A3B8] hover:border-[#475569] hover:text-[#F8FAFC] transition flex items-center gap-1.5">
+                  <span className="text-[#FB7185]">✗</span> {wrongCount} câu sai
                 </button>
               )}
               <button onClick={() => setActiveTab('plan')}
-                className={`w-full py-3 rounded-xl font-jakarta text-[13px] font-semibold border transition flex items-center justify-center gap-2 ${
-                  planReady ? 'bg-[#0D1221] border-[#F2A20C44] text-[#F2A20C] hover:border-[#F2A20C]' : 'bg-[#0D1221] border-[#1E2A44] text-[#475569]'
-                }`}>
-                {!planReady && <span className="w-3.5 h-3.5 rounded-full border border-[#2A3A50] border-t-[#F2A20C] animate-spin flex-shrink-0" />}
-                {planReady ? 'Kế hoạch học tập ⚡5 →' : 'Đang chuẩn bị kế hoạch…'}
+                className="px-3 py-1.5 rounded-lg border border-[#1E2A44] font-jakarta text-[12px] text-[#94A3B8] hover:border-[#475569] hover:text-[#F8FAFC] transition flex items-center gap-1.5">
+                {!planReady && <span className="w-2.5 h-2.5 rounded-full border border-[#2A3A50] border-t-[#F2A20C] animate-spin flex-shrink-0" />}
+                {planReady ? '→ Kế hoạch' : 'Đang tải kế hoạch…'}
               </button>
               <button onClick={() => { dispatch({ type: 'RESET' }); navigate('/exams') }}
-                className="w-full py-3 rounded-xl font-jakarta text-[13px] font-medium text-[#475569] hover:text-[#94A3B8] transition">
+                className="px-3 py-1.5 rounded-lg border border-[#1E2A44] font-jakarta text-[12px] text-[#94A3B8] hover:border-[#475569] hover:text-[#F8FAFC] transition">
                 Thi lại
               </button>
             </div>

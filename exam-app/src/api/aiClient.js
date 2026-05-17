@@ -8,10 +8,15 @@ const slowClient = axios.create({ baseURL: BASE, timeout: 130000 })
 let _logoutRef = null
 export function setLogoutRef(fn) { _logoutRef = fn }
 
+let _refreshUserRef = null
+export function setRefreshUserRef(fn) { _refreshUserRef = fn }
+
 // Optimistic credit helpers — wired in by AuthContext on mount
 let _deductRef = null
 let _refundRef = null
 export function setCreditRefs(deduct, refund) { _deductRef = deduct; _refundRef = refund }
+
+const _ACCOUNT_STATUS_CODES = new Set(['account_locked', 'account_suspended', 'account_deactivated'])
 
 function _attachInterceptors(instance) {
   instance.interceptors.request.use(config => {
@@ -22,9 +27,14 @@ function _attachInterceptors(instance) {
   instance.interceptors.response.use(
     res => res,
     err => {
-      if (err.response?.status === 401) {
+      const status = err.response?.status
+      const code = err.response?.data?.detail?.code ?? err.response?.data?.code
+      if (status === 401) {
         localStorage.removeItem('auth_token')
         _logoutRef?.()
+      } else if (status === 403 && _ACCOUNT_STATUS_CODES.has(code)) {
+        // Refresh user so App.jsx picks up the new account status flag and shows the modal
+        _refreshUserRef?.()
       }
       return Promise.reject(err)
     }
@@ -77,18 +87,20 @@ export function analyzeResult(payload) {
 // Streams the AI analysis as SSE tokens.
 // onToken(str) called for each chunk; returns a Promise<{data, error}> that
 // resolves when the stream ends (data = full accumulated text).
-export async function analyzeResultStream(payload, onToken) {
+export async function analyzeResultStream(payload, onToken, signal) {
   if (!navigator.onLine) return { data: null, error: 'Bạn đang ngoại tuyến — kết nối mạng để dùng tính năng AI', status: 0 }
-  _deductRef?.(3)
   const token = localStorage.getItem('auth_token')
+  if (!token) return { data: null, error: 'not authenticated', status: 401 }
+  _deductRef?.(3)
   try {
     const res = await fetch(`${BASE}/analyze/stream`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
+      signal,
     })
     if (!res.ok) {
       const detail = await res.json().catch(() => ({}))
@@ -100,6 +112,7 @@ export async function analyzeResultStream(payload, onToken) {
     let buffer = ''
     let full = ''
     while (true) {
+      if (signal?.aborted) { reader.cancel(); return { data: null, error: 'aborted', status: 0 } }
       const { value, done } = await reader.read()
       if (done) break
       buffer += decoder.decode(value, { stream: true })
@@ -118,6 +131,7 @@ export async function analyzeResultStream(payload, onToken) {
     }
     return { data: full, error: null, status: 200 }
   } catch (err) {
+    if (err.name === 'AbortError') return { data: null, error: 'aborted', status: 0 }
     return { data: null, error: err?.message ?? 'Stream error', status: 0 }
   }
 }
@@ -199,3 +213,36 @@ export function postHistory(entries) {
 export function getHistory() {
   return wrap(client.get('/users/me/history'))
 }
+
+export const deleteAccount = (confirmEmail) =>
+  wrap(client.delete('/users/me', { data: { confirm_email: confirmEmail } }))
+
+export const deactivateAccount = () =>
+  wrap(client.post('/users/me/deactivate'))
+
+export const reactivateAccount = () =>
+  wrap(client.post('/users/me/reactivate'))
+
+export const adminListUsers = (key, { search = '', page = 1, limit = 20 } = {}) =>
+  wrap(client.get('/admin/users', { params: { search, page, limit }, headers: { 'x-admin-key': key } }))
+
+export const adminDeleteUser = (key, userId) =>
+  wrap(client.delete(`/admin/users/${userId}`, { headers: { 'x-admin-key': key } }))
+
+export const adminUnlockUser = (key, userId) =>
+  wrap(client.post(`/admin/users/${userId}/unlock`, {}, { headers: { 'x-admin-key': key } }))
+
+export const adminResetUser = (key, userId) =>
+  wrap(client.post(`/admin/users/${userId}/reset`, {}, { headers: { 'x-admin-key': key } }))
+
+export const adminSuspendUser = (key, userId, reason) =>
+  wrap(client.post(`/admin/users/${userId}/suspend`, { reason }, { headers: { 'x-admin-key': key } }))
+
+export const adminUnsuspendUser = (key, userId) =>
+  wrap(client.post(`/admin/users/${userId}/unsuspend`, {}, { headers: { 'x-admin-key': key } }))
+
+export const adminGrantCredits = (key, userId, amount) =>
+  wrap(client.post(`/admin/users/${userId}/credits`, { amount }, { headers: { 'x-admin-key': key } }))
+
+export const adminGetSecurityEvents = (key) =>
+  wrap(client.get('/admin/security-events', { headers: { 'x-admin-key': key } }))

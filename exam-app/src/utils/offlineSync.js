@@ -15,6 +15,8 @@ function readQueue() {
 function writeQueue(q) {
   try {
     localStorage.setItem(QUEUE_KEY, JSON.stringify(q))
+    // Broadcast queue size so Navbar can show a status chip
+    localStorage.setItem('offline_queue_size', String(q.length))
   } catch { /* quota exceeded — drop oldest */ }
 }
 

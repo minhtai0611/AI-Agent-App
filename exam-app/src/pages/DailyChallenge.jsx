@@ -67,6 +67,7 @@ export default function DailyChallenge() {
   const { user } = useAuth()
   const [question, setQuestion] = useState(null)
   const [chosen, setChosen] = useState(null)
+  const [answering, setAnswering] = useState(false)
   const [explanation, setExplanation] = useState(null)
   const [explLoading, setExplLoading] = useState(false)
   const [streak, setStreak] = useState(() => computeStreak(loadStreak()))
@@ -79,7 +80,8 @@ export default function DailyChallenge() {
   }, [user?.id])
 
   async function handleAnswer(idx) {
-    if (chosen !== null) return
+    if (chosen !== null || answering) return
+    setAnswering(true)
     setChosen(idx)
     const correct = idx === question.correct
     // Update streak
@@ -102,6 +104,7 @@ export default function DailyChallenge() {
       topic: question.topic,
     })
     setExplLoading(false)
+    setAnswering(false)
     setExplanation(data?.explanation || question.explanation || null)
   }
 
@@ -163,7 +166,7 @@ export default function DailyChallenge() {
               return (
                 <button
                   key={i}
-                  disabled={chosen !== null}
+                  disabled={chosen !== null || answering}
                   onClick={() => handleAnswer(i)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition text-left ${style} ${chosen === null ? 'hover:border-[#F2A20C] hover:text-[#F0F4FF]' : ''}`}
                 >

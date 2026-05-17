@@ -231,7 +231,7 @@ export default function TestInterface() {
     sessionStorage.removeItem(`exam-draft-${examId}`)
     const scored = scoreExam(session)
     dispatch({ type: 'SUBMIT' })
-    navigate('/results/current', { replace: true, state: { result: scored } })
+    navigate('/results/current', { replace: true, state: { result: scored, tab_switches: tabSwitchCount, devtools_detected: devToolsOpen ? 1 : 0 } })
 
     // Precompute AI analysis in background — Results.jsx reads from this cache key
     if (user) {

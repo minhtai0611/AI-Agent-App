@@ -442,21 +442,40 @@ export default function StudyPlan() {
               </div>
             </div>
 
-            {/* Week tabs */}
-            <div className="flex gap-2 flex-wrap">
-              {plan.weekly_schedule.map((w, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveWeek(i)}
-                  className={`px-4 py-2 rounded-lg font-jakarta text-[12px] font-semibold transition ${
-                    activeWeek === i ? 'text-[#0A0E1A]' : 'bg-[#111827] border border-[#1E2A44] text-[#94A3B8] hover:text-[#F8FAFC]'
-                  }`}
-                  style={activeWeek === i ? { background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' } : {}}
-                >
-                  Tuần {w.week}
-                </button>
-              ))}
-            </div>
+            {/* Week tabs with mastery gates */}
+            {(() => {
+              // A week unlocks once ≥50% of the previous week's tasks are checked
+              const weekUnlocked = plan.weekly_schedule.map((_, i) => {
+                if (i === 0) return true
+                const prev = progress[i - 1] || {}
+                const prevTasks = plan.weekly_schedule[i - 1].tasks.length
+                const done = Object.values(prev).filter(Boolean).length
+                return prevTasks === 0 || done / prevTasks >= 0.5
+              })
+              return (
+                <div className="flex gap-2 flex-wrap">
+                  {plan.weekly_schedule.map((w, i) => {
+                    const locked = !weekUnlocked[i]
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => !locked && setActiveWeek(i)}
+                        disabled={locked}
+                        title={locked ? 'Hoàn thành ≥50% tuần trước để mở khóa' : undefined}
+                        className={`px-4 py-2 rounded-lg font-jakarta text-[12px] font-semibold transition ${
+                          locked
+                            ? 'bg-[#0D1221] border border-[#1E2A44] text-[#374151] cursor-not-allowed'
+                            : activeWeek === i ? 'text-[#0A0E1A]' : 'bg-[#111827] border border-[#1E2A44] text-[#94A3B8] hover:text-[#F8FAFC]'
+                        }`}
+                        style={!locked && activeWeek === i ? { background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' } : {}}
+                      >
+                        {locked ? '🔒 ' : ''}Tuần {w.week}
+                      </button>
+                    )
+                  })}
+                </div>
+              )
+            })()}
 
             {/* Active week */}
             {plan.weekly_schedule[activeWeek] && (() => {

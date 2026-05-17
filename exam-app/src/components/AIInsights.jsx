@@ -1,27 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
-
-function Skeleton() {
-  return (
-    <div className="flex flex-col gap-4 animate-pulse">
-      <div className="flex items-center gap-2">
-        <span className="text-[#475569] text-[13px] animate-pulse">⟳</span>
-        <span className="font-jakarta text-[13px] text-[#475569]">AI đang phân tích kết quả của bạn...</span>
-      </div>
-      <div className="h-20 bg-[#111827] rounded-xl" />
-      <div className="h-5 w-1/2 bg-[#111827] rounded" />
-      <div className="flex gap-2">
-        <div className="h-7 w-20 bg-[#111827] rounded-full" />
-        <div className="h-7 w-24 bg-[#111827] rounded-full" />
-      </div>
-      <div className="flex flex-col gap-2">
-        <div className="h-5 bg-[#111827] rounded" />
-        <div className="h-5 bg-[#111827] rounded w-5/6" />
-        <div className="h-5 bg-[#111827] rounded w-4/6" />
-      </div>
-    </div>
-  )
-}
+import { ResultsInsightsSkeleton } from './Skeleton.jsx'
 
 function TipList({ label, items }) {
   if (!items || items.length === 0) return null
@@ -105,7 +84,7 @@ function AIErrorMessage({ error }) {
 }
 
 export default function AIInsights({ analysis, loading, error, score }) {
-  if (loading && !analysis?._streaming) return <Skeleton />
+  if (loading && !analysis?._streaming) return <ResultsInsightsSkeleton />
   // Streaming in-progress — show partial text with a cursor
   if (analysis?._streaming && !analysis?._streaming_done) {
     return (
@@ -155,10 +134,6 @@ export default function AIInsights({ analysis, loading, error, score }) {
           </div>
         )}
         <TipList label="Khuyến nghị từ AI" items={analysis.recommendations} />
-        <SchoolSection
-          schoolInsight={analysis.school_insight}
-          score={score}
-        />
       </div>
     )
   }

@@ -113,6 +113,62 @@ async def _check_new_account_burst(pool):
         logger.warning("abuse_detector: new_account_burst check error: %s", exc)
 
 
+async def _check_behavioral_anomalies(pool):
+    """Tab switches >10 or DevTools detected in a single day → behavior_anomaly event."""
+    try:
+        rows = await pool.fetch(
+            """SELECT user_id,
+                      SUM(CAST(json_extract(payload, '$.tab_switches') AS INTEGER)) AS total_tabs,
+                      MAX(CAST(json_extract(payload, '$.devtools_detected') AS INTEGER)) AS any_devtools
+               FROM exam_results
+               WHERE created_at > datetime('now', '-1 day')
+               GROUP BY user_id
+               HAVING total_tabs > 10 OR any_devtools = 1"""
+        )
+        for row in rows:
+            reason = f"behavior_anomaly: tab_switches={row['total_tabs']}, devtools={row['any_devtools']}"
+            await _log_event(pool, row["user_id"], None, "behavior_anomaly", "medium", reason)
+            # If user already has a HIGH event in the same window, auto-lock
+            high_events = await pool.fetchrow(
+                """SELECT COUNT(*) AS cnt FROM security_events
+                   WHERE user_id = ? AND confidence = 'high'
+                     AND created_at > datetime('now', '-1 day')""",
+                row["user_id"],
+            )
+            if high_events and high_events["cnt"] > 0:
+                await pool.execute(
+                    "UPDATE users SET is_locked = 1, lock_reason = ? WHERE id = ? AND is_locked = 0",
+                    f"auto-lock: {reason}", row["user_id"],
+                )
+                await _log_event(pool, row["user_id"], None, "auto_lock", "high", f"auto-lock: {reason}")
+                from app.dependencies import invalidate_account_cache
+                invalidate_account_cache(row["user_id"])
+    except Exception as exc:
+        logger.warning("abuse_detector: behavioral_anomalies check error: %s", exc)
+
+
+async def _auto_lock_on_high_confidence(pool):
+    """Auto-lock users with HIGH confidence abuse events if not already locked."""
+    try:
+        rows = await pool.fetch(
+            """SELECT DISTINCT user_id FROM security_events
+               WHERE confidence = 'high'
+                 AND event_type IN ('credit_velocity', 'burst_pattern', 'exam_anomaly')
+                 AND created_at > datetime('now', '-1 hour')"""
+        )
+        for row in rows:
+            result = await pool.execute(
+                "UPDATE users SET is_locked = 1, lock_reason = 'auto-lock: high-confidence abuse' WHERE id = ? AND is_locked = 0",
+                row["user_id"],
+            )
+            if result:
+                await _log_event(pool, row["user_id"], None, "auto_lock", "high", "auto-lock: high-confidence abuse event")
+                from app.dependencies import invalidate_account_cache
+                invalidate_account_cache(row["user_id"])
+    except Exception as exc:
+        logger.warning("abuse_detector: auto_lock check error: %s", exc)
+
+
 async def _run_abuse_detector(pool):
     """Main detection loop — runs every 5 minutes."""
     logger.info("abuse_detector: starting background loop (interval=%ds)", _INTERVAL)
@@ -123,6 +179,8 @@ async def _run_abuse_detector(pool):
             await _check_burst_patterns(pool)
             await _check_score_anomalies(pool)
             await _check_new_account_burst(pool)
+            await _check_behavioral_anomalies(pool)
+            await _auto_lock_on_high_confidence(pool)
         except asyncio.CancelledError:
             logger.info("abuse_detector: loop cancelled, shutting down")
             break

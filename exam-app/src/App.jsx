@@ -25,6 +25,7 @@ const Mistakes = lazy(() => import('./pages/Mistakes.jsx'))
 const AdaptivePractice = lazy(() => import('./pages/AdaptivePractice.jsx'))
 const DailyChallenge = lazy(() => import('./pages/DailyChallenge.jsx'))
 const BattleMistakes = lazy(() => import('./pages/BattleMistakes.jsx'))
+const Admin = lazy(() => import('./pages/Admin.jsx'))
 
 const PageFallback = () => <div className="min-h-screen bg-[#0A0E1A]" />
 
@@ -107,6 +108,7 @@ function AppInner() {
   const showOnboarding = !loading && user && !user.grade
   const showLowCredit = !loading && user && (user.credits_balance ?? 0) < 10
   const showSuspension = !loading && Boolean(user?.is_suspended)
+  const showLocked = !loading && Boolean(user?.is_locked)
 
   return (
     <>
@@ -114,14 +116,17 @@ function AppInner() {
       <OfflineBanner />
       <Navbar onOpenAuth={() => setAuthOpen(true)} />
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-      {showSuspension && (
+      {showLocked && (
+        <SuspensionModal reason={user.lock_reason || 'Tài khoản bị khóa do hoạt động bất thường. Liên hệ hỗ trợ để mở khóa.'} onLogout={logout} />
+      )}
+      {!showLocked && showSuspension && (
         <SuspensionModal reason={user.suspension_reason} onLogout={logout} />
       )}
-      {!showSuspension && showOnboarding && (
+      {!showLocked && !showSuspension && showOnboarding && (
         <ProfileOnboarding onDone={() => {}} />
       )}
       <div className="min-h-screen bg-[#0A0E1A] text-gray-900 pt-12">
-        {showLowCredit && !showOnboarding && (
+        {showLowCredit && !showOnboarding && !showLocked && !showSuspension && (
           <LowCreditBanner balance={user.credits_balance} />
         )}
         <Suspense fallback={<PageFallback />}>
@@ -140,6 +145,7 @@ function AppInner() {
             <Route path="/practice/adaptive" element={<AdaptivePractice />} />
             <Route path="/daily" element={<DailyChallenge />} />
             <Route path="/battle" element={<BattleMistakes />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

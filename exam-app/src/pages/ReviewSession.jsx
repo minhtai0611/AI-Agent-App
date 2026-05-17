@@ -4,13 +4,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { loadQuestionsByIds } from '../api/index.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
-
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { MathText } from '../components/MathText.jsx'
-const NEXT_INTERVAL = { 1: 3, 3: 7, 7: 14, 14: 30, 30: 60 }
+import { QuestionCardSkeleton } from '../components/Skeleton.jsx'
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10)
+}
+
+function addDays(date, n) {
+  const d = new Date(date)
+  d.setDate(d.getDate() + n)
+  return d.toISOString().slice(0, 10)
 }
 
 function getQueue() {
@@ -22,24 +27,30 @@ function saveQueue(q) {
   localStorage.setItem('review_queue', JSON.stringify(q))
 }
 
-function advanceInterval(entry) {
-  const current = entry.interval ?? 1
-  const next = NEXT_INTERVAL[current] ?? 60
-  const due = new Date()
-  due.setDate(due.getDate() + next)
-  return { ...entry, interval: next, dueDate: due.toISOString().slice(0, 10) }
-}
+// SM-2 algorithm: grade 4 = correct, grade 1 = wrong
+function updateSM2(entry, correct) {
+  let { easeFactor = 2.5, interval = 1, repetitions = 0 } = entry
+  const grade = correct ? 4 : 1
 
-function resetInterval() {
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  return { interval: 1, dueDate: tomorrow.toISOString().slice(0, 10) }
+  if (grade >= 3) {
+    if (repetitions === 0) interval = 1
+    else if (repetitions === 1) interval = 6
+    else interval = Math.round(interval * easeFactor)
+    repetitions += 1
+  } else {
+    repetitions = 0
+    interval = 1
+  }
+
+  easeFactor = Math.max(1.3, easeFactor + 0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02))
+  return { ...entry, easeFactor, interval, repetitions, dueDate: addDays(new Date(), interval) }
 }
 
 export default function ReviewSession() {
   usePageTitle('Ôn tập hôm nay')
   const navigate = useNavigate()
   const [questions, setQuestions] = useState([])
+  const [loading, setLoading] = useState(true)
   const [index, setIndex] = useState(0)
   const [revealed, setRevealed] = useState(false)
   const [chosen, setChosen] = useState(null)
@@ -55,6 +66,7 @@ export default function ReviewSession() {
     loadQuestionsByIds(dueIds).then(loaded => {
       setQuestions(loaded)
       if (loaded.length === 0) setDone(true)
+      setLoading(false)
     })
   }, [])
 
@@ -69,8 +81,8 @@ export default function ReviewSession() {
   function handleNext(markCorrect) {
     const queue = getQueue()
     const qId = question.id
-    const entry = queue[qId] ?? { interval: 1 }
-    queue[qId] = markCorrect ? advanceInterval(entry) : resetInterval()
+    const entry = queue[qId] ?? {}
+    queue[qId] = updateSM2(entry, markCorrect)
     saveQueue(queue)
 
     setResults(r => [...r, markCorrect ? 'correct' : 'wrong'])
@@ -82,6 +94,14 @@ export default function ReviewSession() {
       setChosen(null)
       setRevealed(false)
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0A0E1A] px-4 py-10 max-w-2xl mx-auto w-full flex flex-col gap-4">
+        <QuestionCardSkeleton />
+      </div>
+    )
   }
 
   if (done) {

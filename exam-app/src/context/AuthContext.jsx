@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
-import { googleSignIn, getMe, postHistory, setLogoutRef, setCreditRefs, updateProfile as apiUpdateProfile } from '../api/aiClient'
+import { googleSignIn, getMe, postHistory, setLogoutRef, setRefreshUserRef, setCreditRefs, updateProfile as apiUpdateProfile, deleteAccount as apiDeleteAccount, deactivateAccount as apiDeactivateAccount, reactivateAccount as apiReactivateAccount } from '../api/aiClient'
 
 const AuthContext = createContext(null)
 
@@ -37,16 +37,31 @@ export function AuthProvider({ children }) {
     })
   }, [])
 
-  // Register / unregister logout callback for the Axios 401 interceptor
+  // Register / unregister logout + refresh callbacks for the Axios interceptor
   useEffect(() => {
     setLogoutRef(logout)
-    return () => setLogoutRef(null)
+    setRefreshUserRef(refreshUser)
+    return () => { setLogoutRef(null); setRefreshUserRef(null) }
   })
 
   // Keep credit refs current so aiClient.js optimistic deduction stays in sync
   useEffect(() => {
     setCreditRefs(deductCredits, refundCredits)
   })
+
+  // Refresh user data when tab regains focus (catches server-side credit/tier changes)
+  useEffect(() => {
+    if (!user) return
+    let lastRefresh = Date.now()
+    function onVisible() {
+      if (document.visibilityState === 'visible' && Date.now() - lastRefresh > 60_000) {
+        lastRefresh = Date.now()
+        refreshUser()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function login(credential) {
     const { data, error } = await googleSignIn(credential)
@@ -107,12 +122,30 @@ export function AuthProvider({ children }) {
     resetToLocalRef.current?.(true)
   }
 
+  async function deleteAccount(confirmEmail) {
+    const { error } = await apiDeleteAccount(confirmEmail)
+    if (error) throw new Error(typeof error === 'string' ? error : 'Xóa tài khoản thất bại')
+    logout()
+  }
+
+  async function deactivateAccount() {
+    const { error } = await apiDeactivateAccount()
+    if (error) throw new Error(typeof error === 'string' ? error : 'Tạm ngưng thất bại')
+    logout()
+  }
+
+  async function reactivateAccount() {
+    const { error } = await apiReactivateAccount()
+    if (error) throw new Error(typeof error === 'string' ? error : 'Kích hoạt lại thất bại')
+    await refreshUser()
+  }
+
   function registerResetToLocal(fn) {
     resetToLocalRef.current = fn
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, registerResetToLocal, updateProfile, refreshUser, deductCredits, refundCredits }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, registerResetToLocal, updateProfile, refreshUser, deductCredits, refundCredits, deleteAccount, deactivateAccount, reactivateAccount }}>
       {children}
     </AuthContext.Provider>
   )

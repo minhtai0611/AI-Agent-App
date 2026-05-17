@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import ZenithLogo from './ZenithLogo'
 
 export default function Navbar({ onOpenAuth }) {
   const { user, logout } = useAuth()
@@ -8,6 +9,9 @@ export default function Navbar({ onOpenAuth }) {
   const [avatarError, setAvatarError] = useState(false)
   const [visible, setVisible] = useState(true)
   const lastScrollY = useRef(0)
+  const [pendingSync, setPendingSync] = useState(
+    parseInt(localStorage.getItem('offline_queue_size') ?? '0', 10)
+  )
 
   useEffect(() => {
     function onScroll() {
@@ -17,6 +21,16 @@ export default function Navbar({ onOpenAuth }) {
     }
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    function onStorage(e) {
+      if (e.key === 'offline_queue_size') {
+        setPendingSync(parseInt(e.newValue ?? '0', 10))
+      }
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
   }, [])
 
   function handleLogout() {
@@ -39,16 +53,18 @@ export default function Navbar({ onOpenAuth }) {
         transition: 'transform 0.25s ease',
       }}
     >
-      <span
-        className="text-amber-400 font-semibold text-sm cursor-pointer"
-        onClick={() => navigate('/')}
-      >
-        Zenith
-      </span>
+      <ZenithLogo variant="nav" onClick={() => navigate('/')} />
 
       <div className="flex items-center gap-3">
         {user ? (
           <>
+            {/* Offline sync pending indicator */}
+            {pendingSync > 0 && (
+              <span className="font-jakarta text-[10px] text-amber-400/70 border border-amber-400/30 rounded px-1.5 py-0.5">
+                {pendingSync} chờ đồng bộ
+              </span>
+            )}
+
             {/* Credits badge — always visible for logged-in users */}
             {user.credits_balance != null && (
             <button
@@ -67,6 +83,7 @@ export default function Navbar({ onOpenAuth }) {
               <img
                 src={user.avatar_url}
                 alt={user.display_name || 'Avatar'}
+                referrerPolicy="no-referrer"
                 onError={() => setAvatarError(true)}
                 className="w-7 h-7 rounded-full object-cover cursor-pointer"
                 onClick={() => navigate('/account')}

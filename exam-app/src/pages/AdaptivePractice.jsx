@@ -32,9 +32,13 @@ function computeTopicWeights(results, questionMap) {
   return weights
 }
 
-function weightedSample(pool, weights, n) {
-  // Fisher-Yates weighted shuffle
-  const scored = pool.map(q => ({ q, w: (weights[q.topic] ?? 0.5) + Math.random() * 0.3 }))
+function weightedSample(pool, weights, n, excludeTopic = null) {
+  // Filter out previous topic to force interleaving (if more than one topic available)
+  const uniqueTopics = [...new Set(pool.map(q => q.topic))]
+  const eligible = uniqueTopics.length > 1 && excludeTopic
+    ? pool.filter(q => q.topic !== excludeTopic)
+    : pool
+  const scored = eligible.map(q => ({ q, w: (weights[q.topic] ?? 0.5) + Math.random() * 0.3 }))
   scored.sort((a, b) => b.w - a.w)
   return scored.slice(0, n).map(x => x.q)
 }

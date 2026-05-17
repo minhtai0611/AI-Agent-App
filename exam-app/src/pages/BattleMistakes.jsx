@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import { loadQuestions } from '../api/index.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { MathText } from '../components/MathText.jsx'
+import { QuestionCardSkeleton } from '../components/Skeleton.jsx'
 
 const LABELS = ['A', 'B', 'C', 'D']
 const STREAK_TO_TAME = 3
@@ -18,6 +19,7 @@ export default function BattleMistakes() {
   const { user } = useAuth()
 
   const [questions, setQuestions] = useState([])
+  const [loading, setLoading] = useState(true)
   const [streak, setStreak] = useState({})     // { [qId]: 0..STREAK_TO_TAME }
   const [tamed, setTamed] = useState({})        // { [qId]: true }
   const [current, setCurrent] = useState(0)
@@ -45,6 +47,7 @@ export default function BattleMistakes() {
       const battleQs = Object.values(mistakeMap).slice(0, BATTLE_SIZE)
       setQuestions(battleQs)
       setStreak(Object.fromEntries(battleQs.map(q => [q.id, 0])))
+      setLoading(false)
     })
   }, [results])
 
@@ -97,13 +100,10 @@ export default function BattleMistakes() {
   }
 
   // Loading state
-  if (questions.length === 0) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
-        <div className="text-center flex flex-col gap-4 items-center">
-          <div className="w-8 h-8 rounded-full border-2 border-[#F2A20C] border-t-transparent animate-spin" />
-          <p className="font-jakarta text-[14px] text-[#64748B]">Đang tải câu hỏi...</p>
-        </div>
+      <div className="min-h-screen bg-[#0A0E1A] px-4 py-10 max-w-2xl mx-auto w-full flex flex-col gap-4">
+        <QuestionCardSkeleton />
       </div>
     )
   }

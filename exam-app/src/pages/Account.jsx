@@ -66,7 +66,7 @@ function heatColor(count) {
 export default function Account() {
   usePageTitle('Tài khoản')
   const navigate = useNavigate()
-  const { user, loading, updateProfile, refreshUser } = useAuth()
+  const { user, loading, updateProfile, refreshUser, refundCredits, logout, deleteAccount, deactivateAccount, reactivateAccount } = useAuth()
   const { results } = useHistory()
   const [creditLog, setCreditLog] = useState([])
   const [billing, setBilling] = useState('monthly')
@@ -80,6 +80,13 @@ export default function Account() {
   const [trialError, setTrialError] = useState('')
   const [accountTab, setAccountTab] = useState('billing')
   const [showAllCredits, setShowAllCredits] = useState(false)
+  const [avatarErr, setAvatarErr] = useState(false)
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteEmail, setDeleteEmail] = useState('')
+  const [dangerLoading, setDangerLoading] = useState(false)
+  const [dangerError, setDangerError] = useState('')
+  const [reactivating, setReactivating] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -151,11 +158,17 @@ export default function Account() {
             )}
           </div>
           <div className="flex items-center gap-4">
-            {user.avatar_url ? (
-              <img src={user.avatar_url} alt="" className="w-14 h-14 rounded-full object-cover" />
+            {user.avatar_url && !avatarErr ? (
+              <img
+                src={user.avatar_url}
+                alt=""
+                referrerPolicy="no-referrer"
+                onError={() => setAvatarErr(true)}
+                className="w-14 h-14 rounded-full object-cover"
+              />
             ) : (
               <div className="w-14 h-14 rounded-full bg-amber-500 flex items-center justify-center font-bold text-lg text-black">
-                {(user.display_name || '?')[0].toUpperCase()}
+                {(user.display_name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || '?'}
               </div>
             )}
             <div className="flex flex-col gap-0.5">
@@ -270,6 +283,7 @@ export default function Account() {
                   setTrialError(typeof error === 'string' ? error : 'Kích hoạt thất bại, vui lòng thử lại')
                 } else {
                   setTrialDone(true)
+                  refundCredits(500)
                   await refreshUser()
                 }
               }}
@@ -444,7 +458,166 @@ export default function Account() {
           </div>
         )}
 
+        {/* Account status banners */}
+        {user.is_locked && (
+          <div className="px-5 py-4 rounded-2xl border border-red-500/40 bg-red-500/8 flex flex-col gap-1">
+            <span className="font-jakarta text-[13px] font-semibold text-red-400">Tài khoản bị khóa do hoạt động bất thường</span>
+            <span className="font-jakarta text-[12px] text-[#94A3B8]">{user.lock_reason || 'Liên hệ hỗ trợ để mở khóa tài khoản.'}</span>
+          </div>
+        )}
+        {user.is_deactivated && !user.is_locked && (
+          <div className="px-5 py-4 rounded-2xl border border-amber-400/40 bg-amber-400/8 flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-0.5">
+              <span className="font-jakarta text-[13px] font-semibold text-amber-400">Tài khoản đang bị tạm ngưng</span>
+              <span className="font-jakarta text-[12px] text-[#94A3B8]">Bạn có thể kích hoạt lại bất kỳ lúc nào.</span>
+            </div>
+            <button
+              disabled={reactivating}
+              onClick={async () => {
+                setReactivating(true)
+                await reactivateAccount()
+                setReactivating(false)
+              }}
+              className="shrink-0 px-4 py-2 rounded-lg font-jakarta text-[12px] font-bold transition"
+              style={{ background: '#F2A20C', color: '#0A0E1A', opacity: reactivating ? 0.6 : 1 }}
+            >
+              {reactivating ? 'Đang kích hoạt...' : 'Kích hoạt lại'}
+            </button>
+          </div>
+        )}
+
+        {/* Danger Zone */}
+        <section className="bg-[#0D1221] border border-red-500/20 rounded-2xl p-7 flex flex-col gap-5">
+          <span className="font-fraunces text-[15px] font-semibold text-red-400">Vùng nguy hiểm</span>
+
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="flex flex-col gap-0.5">
+              <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">Tạm ngưng tài khoản</span>
+              <span className="font-jakarta text-[12px] text-[#64748B]">Vô hiệu hóa tài khoản tạm thời. Bạn có thể kích hoạt lại sau.</span>
+            </div>
+            <button
+              onClick={() => setShowDeactivateModal(true)}
+              className="shrink-0 px-4 py-2 rounded-lg font-jakarta text-[12px] font-bold border border-amber-400/40 text-amber-400 hover:bg-amber-400/10 transition"
+            >
+              Tạm ngưng
+            </button>
+          </div>
+
+          <div className="border-t border-[#1E2A44]" />
+
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="flex flex-col gap-0.5">
+              <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">Xóa tài khoản vĩnh viễn</span>
+              <span className="font-jakarta text-[12px] text-[#64748B]">Tất cả dữ liệu sẽ bị xóa và không thể khôi phục.</span>
+            </div>
+            <button
+              onClick={() => { setShowDeleteModal(true); setDeleteEmail(''); setDangerError('') }}
+              className="shrink-0 px-4 py-2 rounded-lg font-jakarta text-[12px] font-bold border border-red-500/40 text-red-400 hover:bg-red-500/10 transition"
+            >
+              Xóa tài khoản
+            </button>
+          </div>
+        </section>
+
       </div>
+
+      {/* Deactivate confirmation modal */}
+      <AnimatePresence>
+        {showDeactivateModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="max-w-sm w-full bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5"
+            >
+              <span className="font-fraunces text-[16px] font-bold text-[#F8FAFC]">Tạm ngưng tài khoản?</span>
+              <p className="font-jakarta text-[13px] text-[#94A3B8]">
+                Bạn sẽ không thể sử dụng dịch vụ cho đến khi kích hoạt lại. Dữ liệu của bạn sẽ được giữ nguyên.
+              </p>
+              {dangerError && <p className="font-jakarta text-[12px] text-red-400">{dangerError}</p>}
+              <div className="flex gap-2">
+                <button
+                  disabled={dangerLoading}
+                  onClick={async () => {
+                    setDangerLoading(true)
+                    setDangerError('')
+                    const { error } = await deactivateAccount()
+                    setDangerLoading(false)
+                    if (error) { setDangerError(typeof error === 'string' ? error : 'Thất bại, vui lòng thử lại') }
+                    else { setShowDeactivateModal(false); logout() }
+                  }}
+                  className="flex-1 py-2.5 rounded-xl font-jakarta text-[13px] font-bold transition"
+                  style={{ background: dangerLoading ? '#1E2A44' : '#F2A20C', color: dangerLoading ? '#475569' : '#0A0E1A' }}
+                >
+                  {dangerLoading ? 'Đang xử lý...' : 'Xác nhận tạm ngưng'}
+                </button>
+                <button
+                  onClick={() => { setShowDeactivateModal(false); setDangerError('') }}
+                  className="px-4 py-2.5 rounded-xl font-jakarta text-[13px] text-[#64748B] hover:text-[#F8FAFC] transition"
+                >
+                  Huỷ
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete account confirmation modal */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="max-w-sm w-full bg-[#0D1221] border border-red-500/30 rounded-2xl p-7 flex flex-col gap-5"
+            >
+              <span className="font-fraunces text-[16px] font-bold text-red-400">Xóa tài khoản vĩnh viễn</span>
+              <p className="font-jakarta text-[13px] text-[#94A3B8]">
+                Hành động này <strong className="text-[#F8FAFC]">không thể hoàn tác</strong>. Tất cả dữ liệu bao gồm lịch sử thi và Tia sẽ bị xóa.
+              </p>
+              <div className="flex flex-col gap-1.5">
+                <span className="font-jakarta text-[12px] text-[#64748B]">Nhập địa chỉ email của bạn để xác nhận:</span>
+                <input
+                  className="px-4 py-2.5 rounded-xl border border-[#1E2A44] bg-[#111827] font-jakarta text-[13px] text-[#F0F4FF] focus:outline-none focus:border-red-400"
+                  placeholder={user.email}
+                  value={deleteEmail}
+                  onChange={e => setDeleteEmail(e.target.value)}
+                />
+              </div>
+              {dangerError && <p className="font-jakarta text-[12px] text-red-400">{dangerError}</p>}
+              <div className="flex gap-2">
+                <button
+                  disabled={dangerLoading || deleteEmail !== user.email}
+                  onClick={async () => {
+                    setDangerLoading(true)
+                    setDangerError('')
+                    const { error } = await deleteAccount(deleteEmail)
+                    setDangerLoading(false)
+                    if (error) { setDangerError(typeof error === 'string' ? error : 'Thất bại, vui lòng thử lại') }
+                    else { setShowDeleteModal(false); logout() }
+                  }}
+                  className="flex-1 py-2.5 rounded-xl font-jakarta text-[13px] font-bold transition disabled:opacity-40"
+                  style={{ background: '#EF4444', color: '#fff' }}
+                >
+                  {dangerLoading ? 'Đang xóa...' : 'Xóa vĩnh viễn'}
+                </button>
+                <button
+                  onClick={() => { setShowDeleteModal(false); setDangerError(''); setDeleteEmail('') }}
+                  className="px-4 py-2.5 rounded-xl font-jakarta text-[13px] text-[#64748B] hover:text-[#F8FAFC] transition"
+                >
+                  Huỷ
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </motion.div>
   )
 }

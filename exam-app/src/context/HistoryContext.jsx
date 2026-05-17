@@ -98,6 +98,27 @@ export function HistoryProvider({ children }) {
     if (getPendingCount() > 0) flushQueue(postHistory)
   }, [user])
 
+  // Cross-tab sync: reload history when another tab completes an exam
+  useEffect(() => {
+    function handleStorage(e) {
+      if (e.key !== 'exam_result_sync') return
+      if (serverModeRef.current) {
+        getHistory().then(({ data }) => {
+          if (!data) return
+          const mapped = data.map(r => {
+            const payload = typeof r.payload === 'string' ? JSON.parse(r.payload) : (r.payload || {})
+            return { id: r.result_id, examId: r.exam_id, score: r.score, createdAt: r.created_at, ...payload }
+          })
+          dispatch({ type: 'LOAD', results: mapped })
+        })
+      } else {
+        dispatch({ type: 'LOAD', results: loadLocal(userIdRef.current) })
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [])
+
   async function addResult(result) {
     const isServer = serverModeRef.current
     dispatch({ type: 'ADD', result, serverMode: isServer, userId: userIdRef.current })
@@ -118,6 +139,8 @@ export function HistoryProvider({ children }) {
         postHistory([entry]).then(({ error }) => {
           if (error) enqueueHistoryEntry(entry)
         })
+        // Signal other tabs to reload history
+        try { localStorage.setItem('exam_result_sync', JSON.stringify({ id: entry.result_id, ts: Date.now() })) } catch { /* ignore */ }
       }
     }
     return result.id

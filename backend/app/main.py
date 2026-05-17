@@ -126,6 +126,15 @@ _SCHEMA_DDL = [
     )""",
     "ALTER TABLE users ADD COLUMN trial_used INTEGER NOT NULL DEFAULT 0",
     "ALTER TABLE users ADD COLUMN trial_expires_at TEXT",
+    "ALTER TABLE users ADD COLUMN is_deactivated INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE users ADD COLUMN deactivated_at TEXT",
+    "ALTER TABLE users ADD COLUMN is_locked INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE users ADD COLUMN lock_reason TEXT",
+    """CREATE TABLE IF NOT EXISTS deleted_google_subs (
+        google_sub TEXT PRIMARY KEY,
+        trial_used INTEGER NOT NULL DEFAULT 0,
+        deleted_at TEXT DEFAULT (datetime('now'))
+    )""",
     "CREATE INDEX IF NOT EXISTS wiki_units_topic_idx ON wiki_units (topic)",
     "CREATE INDEX IF NOT EXISTS wiki_units_deleted_idx ON wiki_units (deleted)",
     "CREATE INDEX IF NOT EXISTS problems_hash_idx ON problems (problem_hash)",
@@ -967,17 +976,24 @@ async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
     display_name = google_payload.get("name")
     avatar_url = google_payload.get("picture")
 
+    # Check if this google_sub previously hard-deleted their account to preserve trial_used
+    deleted_sub = await pool.fetchrow(
+        "SELECT trial_used FROM deleted_google_subs WHERE google_sub = $1",
+        google_sub,
+    )
+    preserved_trial_used = deleted_sub["trial_used"] if deleted_sub else 0
+
     row = await pool.fetchrow(
         """
-        INSERT INTO users (google_sub, email, display_name, avatar_url, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, NOW(), NOW())
+        INSERT INTO users (google_sub, email, display_name, avatar_url, trial_used, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
         ON CONFLICT (google_sub) DO UPDATE
           SET display_name = EXCLUDED.display_name,
               avatar_url = EXCLUDED.avatar_url,
               updated_at = NOW()
         RETURNING id, email, display_name, avatar_url
         """,
-        google_sub, email, display_name, avatar_url,
+        google_sub, email, display_name, avatar_url, preserved_trial_used,
     )
 
     token = create_jwt(row["id"])
@@ -1002,7 +1018,8 @@ async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Dep
                   subscription_tier, subscription_period, subscription_expires_at,
                   credits_balance, credits_reset_at,
                   is_suspended, suspension_reason, tos_accepted_at,
-                  trial_used, trial_expires_at
+                  trial_used, trial_expires_at,
+                  is_deactivated, is_locked, lock_reason
            FROM users WHERE id = $1""",
         current_user.user_id,
     )
@@ -1259,6 +1276,60 @@ async def activate_trial(
     )
 
 
+class DeleteAccountRequest(BaseModel):
+    confirm_email: str
+
+
+@app.delete("/users/me", status_code=204)
+async def delete_account(
+    body: DeleteAccountRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    row = await pool.fetchrow(
+        "SELECT email, google_sub, trial_used FROM users WHERE id = ?",
+        current_user.user_id,
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="User not found")
+    if row["email"] != body.confirm_email:
+        raise HTTPException(status_code=400, detail="Email confirmation does not match")
+    # Preserve trial status so re-registration cannot claim another trial
+    await pool.execute(
+        "INSERT OR REPLACE INTO deleted_google_subs (google_sub, trial_used) VALUES (?, ?)",
+        row["google_sub"], row["trial_used"],
+    )
+    await pool.execute("DELETE FROM users WHERE id = ?", current_user.user_id)
+    from app.dependencies import invalidate_account_cache
+    invalidate_account_cache(current_user.user_id)
+
+
+@app.post("/users/me/deactivate", status_code=204)
+async def deactivate_account(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    await pool.execute(
+        "UPDATE users SET is_deactivated = 1, deactivated_at = datetime('now'), updated_at = datetime('now') WHERE id = ?",
+        current_user.user_id,
+    )
+    from app.dependencies import invalidate_account_cache
+    invalidate_account_cache(current_user.user_id)
+
+
+@app.post("/users/me/reactivate", status_code=204)
+async def reactivate_account(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    await pool.execute(
+        "UPDATE users SET is_deactivated = 0, deactivated_at = NULL, updated_at = datetime('now') WHERE id = ?",
+        current_user.user_id,
+    )
+    from app.dependencies import invalidate_account_cache
+    invalidate_account_cache(current_user.user_id)
+
+
 # ── Admin endpoints ───────────────────────────────────────────────────────────
 
 def _require_admin(request: Request):
@@ -1387,3 +1458,134 @@ async def admin_security_events(
         limit,
     )
     return [dict(r) for r in rows]
+
+
+@app.get("/admin/users")
+async def admin_list_users(
+    request: Request,
+    search: str = "",
+    page: int = 1,
+    limit: int = 20,
+    pool=Depends(get_pool),
+):
+    _require_admin(request)
+    limit = max(1, min(limit, 100))
+    page = max(1, page)
+    offset = (page - 1) * limit
+    if search:
+        _pat = f"%{search}%"
+        total_row = await pool.fetchrow(
+            "SELECT COUNT(*) AS cnt FROM users WHERE email LIKE ? OR display_name LIKE ?",
+            _pat, _pat,
+        )
+    else:
+        total_row = await pool.fetchrow("SELECT COUNT(*) AS cnt FROM users")
+    total = total_row["cnt"] if total_row else 0
+    behavior_subq = """
+        LEFT JOIN (
+            SELECT user_id,
+                   CAST(json_extract(payload, '$.tab_switches') AS INTEGER) AS last_tab_switches,
+                   CAST(json_extract(payload, '$.devtools_detected') AS INTEGER) AS last_devtools
+            FROM exam_results
+            WHERE id IN (SELECT MAX(id) FROM exam_results GROUP BY user_id)
+        ) beh ON beh.user_id = u.id
+    """
+    if search:
+        pattern = f"%{search}%"
+        rows = await pool.fetch(
+            f"""SELECT u.id, u.email, u.display_name, u.subscription_tier, u.credits_balance,
+                      u.is_suspended, u.suspension_reason, u.is_locked, u.lock_reason,
+                      u.is_deactivated, u.trial_used, u.created_at,
+                      beh.last_tab_switches, beh.last_devtools
+               FROM users u {behavior_subq}
+               WHERE u.email LIKE ? OR u.display_name LIKE ?
+               ORDER BY u.created_at DESC LIMIT ? OFFSET ?""",
+            pattern, pattern, limit, offset,
+        )
+    else:
+        rows = await pool.fetch(
+            f"""SELECT u.id, u.email, u.display_name, u.subscription_tier, u.credits_balance,
+                      u.is_suspended, u.suspension_reason, u.is_locked, u.lock_reason,
+                      u.is_deactivated, u.trial_used, u.created_at,
+                      beh.last_tab_switches, beh.last_devtools
+               FROM users u {behavior_subq}
+               ORDER BY u.created_at DESC LIMIT ? OFFSET ?""",
+            limit, offset,
+        )
+    return {"users": [dict(r) for r in rows], "total": total}
+
+
+@app.delete("/admin/users/{user_id}", status_code=204)
+async def admin_delete_user(
+    user_id: int,
+    request: Request,
+    pool=Depends(get_pool),
+):
+    _require_admin(request)
+    row = await pool.fetchrow("SELECT google_sub, trial_used FROM users WHERE id = ?", user_id)
+    if row:
+        await pool.execute(
+            "INSERT OR REPLACE INTO deleted_google_subs (google_sub, trial_used) VALUES (?, ?)",
+            row["google_sub"], row["trial_used"],
+        )
+    await pool.execute("DELETE FROM users WHERE id = ?", user_id)
+    from app.dependencies import invalidate_account_cache
+    invalidate_account_cache(user_id)
+
+
+@app.post("/admin/users/{user_id}/unlock", status_code=204)
+async def admin_unlock_user(
+    user_id: int,
+    request: Request,
+    pool=Depends(get_pool),
+):
+    _require_admin(request)
+    await pool.execute(
+        "UPDATE users SET is_locked = 0, lock_reason = NULL, updated_at = datetime('now') WHERE id = ?",
+        user_id,
+    )
+    await pool.execute(
+        "INSERT INTO security_events (user_id, event_type, confidence, detail) VALUES (?, ?, ?, ?)",
+        user_id, "manual_unlock", "low", "admin unlocked account",
+    )
+    from app.dependencies import invalidate_account_cache
+    invalidate_account_cache(user_id)
+
+
+@app.post("/admin/users/{user_id}/reset", status_code=204)
+async def admin_reset_user(
+    user_id: int,
+    request: Request,
+    pool=Depends(get_pool),
+):
+    _require_admin(request)
+    row = await pool.fetchrow("SELECT google_sub FROM users WHERE id = ?", user_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="User not found")
+    await pool.execute(
+        """UPDATE users SET
+             subscription_tier = 'basic', subscription_period = 'monthly', subscription_expires_at = NULL,
+             credits_balance = 50, credits_reset_at = NULL,
+             trial_used = 0, trial_expires_at = NULL,
+             grade = NULL, province = NULL, school_type = NULL,
+             tos_accepted_at = NULL,
+             is_suspended = 0, suspension_reason = NULL,
+             is_locked = 0, lock_reason = NULL,
+             is_deactivated = 0, deactivated_at = NULL,
+             updated_at = datetime('now')
+           WHERE id = ?""",
+        user_id,
+    )
+    await pool.execute("DELETE FROM exam_results WHERE user_id = ?", user_id)
+    await pool.execute("DELETE FROM security_events WHERE user_id = ?", user_id)
+    await pool.execute("DELETE FROM ai_credits_log WHERE user_id = ?", user_id)
+    if row["google_sub"]:
+        await pool.execute(
+            "DELETE FROM deleted_google_subs WHERE google_sub = ?", row["google_sub"]
+        )
+    await pool.execute(
+        "INSERT INTO security_events (user_id, event_type, confidence, detail) VALUES (?, ?, ?, ?)",
+        user_id, "admin_reset", "low", "full account reset by admin",
+    )
+    from app.dependencies import invalidate_account_cache
+    invalidate_account_cache(user_id)

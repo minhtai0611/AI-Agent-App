@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { pageVariants, listVariants, itemVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import ZenithLogo from '../components/ZenithLogo.jsx'
 
 const PLANS_MONTHLY = [
   { tier: 'basic', label: 'Cơ bản', price: 'Miễn phí', credits: 50, studyPlan: false },
@@ -52,6 +53,9 @@ export default function Landing({ onOpenAuth }) {
         animate="show"
       >
         <div className="flex flex-col items-center gap-5">
+          <motion.div variants={itemVariants}>
+            <ZenithLogo variant="hero" />
+          </motion.div>
           <motion.span variants={itemVariants} className="font-jakarta text-[11px] font-semibold text-[#F2A20C] tracking-[3px] uppercase">
             Toán lớp 10 · Đề thi Việt Nam &amp; Quốc tế
           </motion.span>
