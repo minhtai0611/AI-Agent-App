@@ -86,7 +86,7 @@ function AIErrorMessage({ error }) {
 export default function AIInsights({ analysis, loading, error, score }) {
   if (loading && !analysis?._streaming) return <ResultsInsightsSkeleton />
   // Streaming in-progress — show partial text with a cursor
-  if (analysis?._streaming && !analysis?._streaming_done) {
+  if (analysis?._streaming && !analysis?._streaming_done && !error) {
     return (
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">

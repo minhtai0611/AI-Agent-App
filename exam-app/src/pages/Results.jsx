@@ -93,7 +93,7 @@ export default function Results({ onOpenAuth }) {
   const session = useExam()
   const dispatch = useExamDispatch()
   const { results, addResult } = useHistory()
-  const { user, refundCredits } = useAuth()
+  const { user, refundCredits, refreshUser } = useAuth()
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
   const [result, setResult] = useState(() => location.state?.result ?? null)
   const [allQuestions, setAllQuestions] = useState([])
@@ -108,6 +108,7 @@ export default function Results({ onOpenAuth }) {
   const isCurrent = !resultId || resultId === 'current'
   const fireConfetti = useRef(null)
   const onConfettiInit = useCallback(({ confetti }) => { fireConfetti.current = confetti }, [])
+  const savedRef = useRef(false)
 
   useEffect(() => {
     if (isCurrent) {
@@ -115,6 +116,8 @@ export default function Results({ onOpenAuth }) {
         navigate('/exams', { replace: true })
         return
       }
+      if (savedRef.current) return
+      savedRef.current = true
       const scored = {
         ...scoreExam(session),
         tab_switches: location.state?.tab_switches ?? 0,
@@ -151,6 +154,9 @@ export default function Results({ onOpenAuth }) {
     const examObj = loadExamById(result.examId)
 
     async function run() {
+      // Don't run side effects while still at /results/current — about to navigate away
+      if (isCurrent) return
+
       // Add wrong questions to spaced-repetition queue
       if (examObj) {
         const qs = await loadQuestionsByIds(examObj.questionIds)
@@ -207,13 +213,23 @@ export default function Results({ onOpenAuth }) {
         { location: user.province || '', province: user.province || '', grade: user.grade || '', display_name: user.display_name || '' }
       )
       if (cancelled) return
+      let _streamBuf = ''
+      let _rafId = null
       analyzeResultStream(payload, (token) => {
-        // Show streaming text progressively in the insights field while waiting
-        if (!cancelled) setAnalysis(prev => ({
-          ...(prev || {}),
-          insights: ((prev?.insights && !prev?._streaming_done) ? prev.insights : '') + token,
-          _streaming: true,
-        }))
+        if (cancelled) return
+        _streamBuf += token
+        if (!_rafId) {
+          _rafId = requestAnimationFrame(() => {
+            _rafId = null
+            if (cancelled) return
+            const buf = _streamBuf; _streamBuf = ''
+            setAnalysis(prev => ({
+              ...(prev || {}),
+              insights: ((prev?.insights && !prev?._streaming_done) ? prev.insights : '') + buf,
+              _streaming: true,
+            }))
+          })
+        }
       }, abortCtrl.signal).then(({ data: rawText, error }) => {
         if (cancelled) return
         setAiLoading(false)
@@ -226,8 +242,20 @@ export default function Results({ onOpenAuth }) {
             const aiAnalysis = { ...parsed, _source: 'ai', _streaming_done: true }
             safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
             setAnalysis(aiAnalysis)
+            refreshUser()
           } catch {
             setAiError(true)
+            refundCredits(3)
+            if (!cancelled) {
+              aiAnalyzeResult(payload).then(({ data }) => {
+                if (cancelled || !data) return
+                const aiAnalysis = { ...data, _source: 'ai' }
+                safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
+                setAnalysis(aiAnalysis)
+                setAiError(false)
+                refreshUser()
+              })
+            }
           }
         } else {
           const failed = !!error || rawText === ''
@@ -241,6 +269,7 @@ export default function Results({ onOpenAuth }) {
               safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
               setAnalysis(aiAnalysis)
               setAiError(false)
+              refreshUser()
             })
           }
         }
@@ -249,7 +278,7 @@ export default function Results({ onOpenAuth }) {
 
     run()
     return () => { cancelled = true; abortCtrl.abort() }
-  }, [result?.id, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [result?.id, user?.id, isCurrent]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Personal best check — computed before early returns so hook order stays stable
   const pastSameExam = result ? results.filter(r => r.examId === result.examId && r.id !== result.id) : []
@@ -525,7 +554,7 @@ export default function Results({ onOpenAuth }) {
                 <span className="font-jakarta text-[11px] text-amber-400/70">⚡3 Tia</span>
               </div>
               <AIErrorBoundary>
-                <AIInsights analysis={aiLoading ? null : analysis} loading={aiLoading} error={aiError} score={score} />
+                <AIInsights analysis={analysis} loading={aiLoading && !analysis?._streaming} error={aiError} score={score} />
               </AIErrorBoundary>
             </div>
 

@@ -80,7 +80,7 @@ export function HistoryProvider({ children }) {
       })
       dispatch({ type: 'LOAD', results: mapped })
     })
-  }, [user])
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Flush offline queue whenever user comes back online (and is authenticated)
   useEffect(() => {
@@ -96,7 +96,7 @@ export function HistoryProvider({ children }) {
   useEffect(() => {
     if (!user || !navigator.onLine) return
     if (getPendingCount() > 0) flushQueue(postHistory)
-  }, [user])
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Cross-tab sync: reload history when another tab completes an exam
   useEffect(() => {
