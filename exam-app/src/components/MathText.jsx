@@ -23,9 +23,9 @@ const TABLE_COMPONENTS = {
 
 // Inline (default): wraps paragraphs in <span> — suitable for stems, choices, tasks.
 // Block (block=true): preserves <p> paragraph breaks — suitable for explanations, plan text.
-export function MathText({ children, className }) {
+export function MathText({ children, className, style }) {
   return (
-    <span className={className}>
+    <span className={className} style={style}>
       <Markdown
         remarkPlugins={REMARK_PLUGINS}
         rehypePlugins={REHYPE_PLUGINS}

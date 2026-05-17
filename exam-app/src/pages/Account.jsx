@@ -66,7 +66,7 @@ function heatColor(count) {
 export default function Account() {
   usePageTitle('Tài khoản')
   const navigate = useNavigate()
-  const { user, updateProfile, refreshUser } = useAuth()
+  const { user, loading, updateProfile, refreshUser } = useAuth()
   const { results } = useHistory()
   const [creditLog, setCreditLog] = useState([])
   const [billing, setBilling] = useState('monthly')
@@ -88,7 +88,11 @@ export default function Account() {
     })
   }, [user])
 
-  if (!user) {
+  useEffect(() => {
+    if (!loading && !user) navigate('/', { replace: true })
+  }, [loading, user, navigate])
+
+  if (loading || !user) {
     return (
       <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center font-jakarta text-[#475569]">
         Đang tải...
