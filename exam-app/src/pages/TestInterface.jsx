@@ -292,7 +292,7 @@ export default function TestInterface() {
           <span className="font-fraunces font-semibold text-[#F8FAFC] text-[15px]">
             Câu {currentIndex + 1}
           </span>
-          <span className="text-[#475569] text-sm"  style={{ fontFamily: 'Inter, sans-serif' }}>
+          <span className="font-jakarta text-[#475569] text-sm">
             / {questions.length}
           </span>
         </div>
