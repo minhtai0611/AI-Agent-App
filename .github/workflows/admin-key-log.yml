@@ -1,0 +1,33 @@
+name: Admin Key Log (fallback)
+
+# Fallback scheduler — fires if cron-job.org misses a run.
+# Primary scheduler: cron-job.org (POST /admin/generate-key-log, X-Cron-Secret header)
+# This workflow is a safety net only; cron-job.org is preferred.
+#
+# Required GitHub repo secrets:
+#   HF_SPACE_URL  — e.g. https://your-space.hf.space
+#   CRON_SECRET   — same value as CRON_SECRET in HF Secrets (≥32 chars)
+#
+# Schedule: 20:05 UTC Sunday = 03:05 ICT Monday (5 min after cron-job.org fires at 20:00)
+# If cron-job.org already ran, the backend will just append a duplicate line — harmless.
+
+on:
+  schedule:
+    - cron: "5 20 * * 0"
+  workflow_dispatch:
+
+jobs:
+  trigger-key-log:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger key log generation
+        run: |
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "${{ secrets.HF_SPACE_URL }}/admin/generate-key-log" \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          echo "Response status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "Key log generation failed with status $HTTP_STATUS"
+            exit 1
+          fi

@@ -1,3 +1,4 @@
+import hmac
 import json
 import logging
 from datetime import datetime, timezone
@@ -9,6 +10,7 @@ from app.dependencies import get_ai_client
 from app.math_wiki.storage import pg_db
 from app.math_wiki.storage.analytics import get_retrieval_effectiveness, get_unit_usage_stats
 from app.math_wiki.schemas import WikiUnit, StagedWikiUnit
+from app.admin_auth import validate_admin_key
 import asyncio
 
 logger = logging.getLogger(__name__)
@@ -31,8 +33,7 @@ _crawl: dict = {
 
 def _check_admin_key(x_admin_key: str = Header(...)):
     settings = get_settings()
-    expected = getattr(settings, "admin_key", None)
-    if not expected or x_admin_key != expected:
+    if not validate_admin_key(x_admin_key, settings.admin_master_secret, settings.admin_key_rotation_period):
         raise HTTPException(status_code=401, detail="Invalid admin key")
 
 

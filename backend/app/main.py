@@ -4,6 +4,7 @@ import io
 import json
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI, Depends, HTTPException, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -15,6 +16,7 @@ from app.agent.core import run_agent
 from app.agent.memory import compress_conversation
 from app.math_wiki.admin_router import router as admin_router
 from app.auth import verify_google_token, create_jwt
+from app.admin_auth import validate_admin_key, derive_key, get_window_label, get_expiry_date
 
 logger = logging.getLogger(__name__)
 
@@ -1333,9 +1335,9 @@ async def reactivate_account(
 # ── Admin endpoints ───────────────────────────────────────────────────────────
 
 def _require_admin(request: Request):
+    settings = get_settings()
     key = request.headers.get("x-admin-key", "")
-    expected = getattr(get_settings(), "admin_key", "") or ""
-    if not expected or not hmac.compare_digest(key.encode(), expected.encode()):
+    if not validate_admin_key(key, settings.admin_master_secret, settings.admin_key_rotation_period):
         raise HTTPException(status_code=401, detail="Invalid or missing admin key")
 
 
@@ -1353,6 +1355,38 @@ class CreditGrant(BaseModel):
 
 class SuspendRequest(BaseModel):
     reason: str
+
+
+@app.post("/admin/generate-key-log", status_code=200)
+async def generate_key_log(request: Request):
+    settings = get_settings()
+    cron_secret = settings.cron_secret or ""
+    provided = request.headers.get("x-cron-secret", "")
+    if not cron_secret or not hmac.compare_digest(provided.encode(), cron_secret.encode()):
+        raise HTTPException(status_code=401, detail="Invalid or missing cron secret")
+    if not settings.admin_master_secret or not settings.admin_key_log_enabled:
+        return {"status": "disabled"}
+
+    period = settings.admin_key_rotation_period
+    label = get_window_label(period, offset=0)
+    key = derive_key(settings.admin_master_secret, label)
+    expiry = get_expiry_date(period)
+
+    import datetime as _dt
+    ict = _dt.timezone(_dt.timedelta(hours=7))
+    ts = _dt.datetime.now(ict).strftime("%Y-%m-%d %H:%M:%S")
+    log_line = f"{label}  |  generated: {ts} ICT  |  expires: {expiry}  |  {key}\n"
+
+    log_path = Path(settings.admin_key_log_path)
+    try:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(log_path, "a") as f:
+            f.write(log_line)
+    except OSError as e:
+        logger.error("Failed to write admin key log: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to write key log")
+
+    return {"status": "ok", "window": label, "expires": expiry}
 
 
 @app.post("/admin/users/{user_id}/subscription", status_code=204)

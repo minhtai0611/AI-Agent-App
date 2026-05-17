@@ -13,24 +13,30 @@ All AI endpoints (`/analyze`, `/hint`, `/explain`, `/study-plan`) require a vali
 
 `/study-plan` also requires `subscription_tier` ∈ {student, complete} — returns 403 `tier_required` otherwise.
 
+### Getting the current admin key
+
+Admin keys rotate automatically (default: weekly). Get the current key from either:
+1. **HF Spaces** → Files tab → `/data/admin_keys.txt` → copy the latest line's key
+2. **Local fallback**: `python tools/gen_admin_key.py` (prompts for `ADMIN_MASTER_SECRET`)
+
 ### Granting manual top-ups (admin)
 ```
 POST /admin/users/{user_id}/credits
-X-Admin-Key: <ADMIN_KEY from .env>
+X-Admin-Key: <current derived key from admin_keys.txt or gen_admin_key.py>
 {"amount": 500, "reason": "manual_topup_bank_transfer"}
 ```
 
 ### Activating subscriptions (admin)
 ```
 POST /admin/users/{user_id}/subscription
-X-Admin-Key: <ADMIN_KEY>
+X-Admin-Key: <current derived key>
 {"tier": "student", "period": "monthly", "expires_at": "2026-06-15T00:00:00Z", "bonus_credits": 0}
 ```
 
 ### Suspending abusive accounts (admin)
 ```
 POST /admin/users/{user_id}/suspend
-X-Admin-Key: <ADMIN_KEY>
+X-Admin-Key: <current derived key>
 {"reason": "credit_velocity abuse"}
 ```
 
@@ -39,7 +45,7 @@ The abuse detector (`backend/app/abuse_detector.py`) runs every 5 minutes and au
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **AI-Agent-App** (3154 symbols, 6795 relationships, 180 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **AI-Agent-App** (3912 symbols, 9370 relationships, 212 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

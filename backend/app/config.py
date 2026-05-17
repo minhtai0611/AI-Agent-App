@@ -1,7 +1,10 @@
+import logging
 import os
 from functools import lru_cache
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_logger = logging.getLogger(__name__)
 
 # Resolve .env relative to this file so it works regardless of CWD (e.g. npm run dev from repo root)
 _ENV_FILE = Path(__file__).parent.parent / ".env"
@@ -38,7 +41,11 @@ class Settings(BaseSettings):
     embedding_model_name: str = "BAAI/bge-m3"
     google_client_id: str = ""
     jwt_secret: str = ""
-    admin_key: str = ""
+    admin_master_secret: str = ""
+    admin_key_rotation_period: str = "weekly"
+    admin_key_log_path: str = "./admin_keys.txt"
+    admin_key_log_enabled: bool = True
+    cron_secret: str = ""
     sqlite_path: str = "/data/app.db"
 
     def __init__(self, **data):
@@ -47,8 +54,15 @@ class Settings(BaseSettings):
             raise RuntimeError("JWT_SECRET must be set in environment variables")
         if len(self.jwt_secret) < 32:
             raise RuntimeError("JWT_SECRET must be at least 32 characters")
-        if self.admin_key and len(self.admin_key) < 32:
-            raise RuntimeError("ADMIN_KEY must be at least 32 characters if set")
+        if self.admin_master_secret and len(self.admin_master_secret) < 32:
+            raise RuntimeError("ADMIN_MASTER_SECRET must be at least 32 characters if set")
+        if self.cron_secret and len(self.cron_secret) < 32:
+            raise RuntimeError("CRON_SECRET must be at least 32 characters if set")
+        if os.environ.get("ADMIN_KEY") and not self.admin_master_secret:
+            _logger.warning(
+                "ADMIN_KEY env var detected but ADMIN_MASTER_SECRET is not set. "
+                "Rename ADMIN_KEY → ADMIN_MASTER_SECRET in your .env to restore admin access."
+            )
     embedding_dim: int = 1024
 
     @property

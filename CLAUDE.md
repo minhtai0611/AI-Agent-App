@@ -91,13 +91,16 @@ exam-app/src/
 | `/analyze` | 3 |
 | `/study-plan` | 5 (student/complete tier only) |
 
-## Admin endpoints (require X-Admin-Key header ≥32 chars)
+## Admin endpoints (require X-Admin-Key: current derived key)
+
+Admin key rotates automatically (default: weekly). Get current key from `/data/admin_keys.txt` on HF Spaces or run `python tools/gen_admin_key.py`.
 
 - `POST /admin/users/{id}/subscription` — set tier/period/expiry + bonus credits
 - `POST /admin/users/{id}/credits` — grant top-up credits
 - `POST /admin/users/{id}/suspend` — suspend with reason
 - `POST /admin/users/{id}/unsuspend`
 - `GET /admin/security-events` — recent HIGH/MEDIUM events with user status
+- `POST /admin/generate-key-log` — (cron use only) derive + append current key to log; requires `X-Cron-Secret` header
 
 ## AI router rules (CRITICAL)
 
@@ -131,7 +134,11 @@ exam-app/src/
 | `SQLITE_PATH` | `./math_wiki.db` (local) / `/data/app.db` (HF Spaces) |
 | `GOOGLE_CLIENT_ID` | *(Google OAuth client ID)* |
 | `JWT_SECRET` | *(≥32 chars, required)* |
-| `ADMIN_KEY` | *(≥32 chars if set — required for /admin/* endpoints)* |
+| `ADMIN_MASTER_SECRET` | *(≥32 chars — static master; effective key is HMAC-derived + time window)* |
+| `ADMIN_KEY_ROTATION_PERIOD` | `weekly` *(daily\|weekly\|monthly\|quarterly\|annual)* |
+| `ADMIN_KEY_LOG_PATH` | `./admin_keys.txt` (local) / `/data/admin_keys.txt` (HF Spaces) |
+| `ADMIN_KEY_LOG_ENABLED` | `true` |
+| `CRON_SECRET` | *(≥32 chars — authenticates POST /admin/generate-key-log from cron-job.org/GitHub Actions)* |
 
 **`exam-app/.env`** (copy from `exam-app/.env.example`, never commit)
 
@@ -198,7 +205,7 @@ Indexed as **AI-Agent-App** — re-index with `gitnexus analyze /mnt/d/AI-Agent-
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **AI-Agent-App** (3154 symbols, 6795 relationships, 180 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **AI-Agent-App** (3912 symbols, 9370 relationships, 212 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
