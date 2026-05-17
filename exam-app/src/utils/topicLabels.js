@@ -1,0 +1,17 @@
+export const TOPIC_LABELS = {
+  algebra:             'Đại số',
+  geometry:            'Hình học',
+  statistics:          'Thống kê',
+  combinatorics:       'Tổ hợp',
+  number_theory:       'Lý thuyết số',
+  functions:           'Hàm số',
+  calculus:            'Giải tích',
+  arithmetic:          'Số học',
+  trigonometry:        'Lượng giác',
+  probability:         'Xác suất',
+  sequences:           'Dãy số',
+  coordinate_geometry: 'Hình học tọa độ',
+  financial_math:      'Toán tài chính',
+  vectors:             'Vectơ',
+  sets:                'Tập hợp',
+}

@@ -1,9 +1,9 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import CountUp from 'react-countup'
 import ReactCanvasConfetti from 'react-canvas-confetti'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { scoreExam } from '../engine/scoringEngine.js'
@@ -12,13 +12,26 @@ import {
   RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer,
 } from 'recharts'
 import { loadExamById, loadQuestionsByIds, buildStudyPlanPayload, buildAnalyzePayload, recommendNextExam } from '../api/index.js'
-import { analyzeResult as aiAnalyzeResult, generateStudyPlan } from '../api/aiClient.js'
+import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPlan } from '../api/aiClient.js'
 import AIInsights from '../components/AIInsights.jsx'
 import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
 import { usePageTitle } from '../hooks/usePageTitle.js'
-
-const TOPIC_LABELS = { algebra: 'Đại số', geometry: 'Hình học', statistics: 'Thống kê', combinatorics: 'Tổ hợp' }
+import { MathText } from '../components/MathText.jsx'
+import { TOPIC_LABELS } from '../utils/topicLabels.js'
+import { safeSetItem } from '../utils/storageManager.js'
+import ResultShareCard from '../components/ResultShareCard.jsx'
+import schoolsData from '../data/schools.json'
 const DIFF_RANK = { hard: 3, medium: 2, easy: 1 }
+
+// Sigmoid probability: 50% at cutoff, ~88% at +0.5, ~12% at -0.5
+function schoolFitProbability(score, cutoff) {
+  return Math.round(100 / (1 + Math.exp(-(score - cutoff) * 4)))
+}
+
+function latestCutoff(school) {
+  const years = Object.keys(school.cutoffs ?? {}).sort().reverse()
+  return years.length ? school.cutoffs[years[0]]?.math ?? null : null
+}
 const CIRC = 2 * Math.PI * 54
 
 function pctColor(acc) {
@@ -73,6 +86,7 @@ function addToReviewQueue(examId, answers, questions) {
 export default function Results({ onOpenAuth }) {
   usePageTitle('Kết quả thi')
   const navigate = useNavigate()
+  const location = useLocation()
   const { resultId } = useParams()
   const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'overview')
@@ -81,7 +95,7 @@ export default function Results({ onOpenAuth }) {
   const { results, addResult } = useHistory()
   const { user } = useAuth()
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
-  const [result, setResult] = useState(null)
+  const [result, setResult] = useState(() => location.state?.result ?? null)
   const [allQuestions, setAllQuestions] = useState([])
   const [analysis, setAnalysis] = useState(null)
   const [aiLoading, setAiLoading] = useState(false)
@@ -89,6 +103,7 @@ export default function Results({ onOpenAuth }) {
   const [planReady, setPlanReady] = useState(false)
   const [wrongAccordion, setWrongAccordion] = useState({})
   const [nextExam, setNextExam] = useState(null)
+  const [showShareCard, setShowShareCard] = useState(false)
 
   const isCurrent = !resultId || resultId === 'current'
   const fireConfetti = useRef(null)
@@ -103,9 +118,10 @@ export default function Results({ onOpenAuth }) {
       const scored = scoreExam(session)
       setResult(scored)
       addResult(scored).then(id => {
-        navigate(`/results/${id}`, { replace: true })
+        navigate(`/results/${id}`, { replace: true, state: { result: scored } })
       })
     } else {
+      if (result) return  // already seeded from location.state — skip stale lookup
       const found = results.find(r => r.id === resultId)
       if (found) setResult(found)
     }
@@ -176,15 +192,40 @@ export default function Results({ onOpenAuth }) {
         user ? { location: user.province || '', province: user.province || '', grade: user.grade || '', display_name: user.display_name || '' } : {}
       )
       if (cancelled) return
-      aiAnalyzeResult(payload).then(({ data, error }) => {
+      analyzeResultStream(payload, (token) => {
+        // Show streaming text progressively in the insights field while waiting
+        if (!cancelled) setAnalysis(prev => ({
+          ...(prev || {}),
+          insights: ((prev?.insights && !prev?._streaming_done) ? prev.insights : '') + token,
+          _streaming: true,
+        }))
+      }).then(({ data: rawText, error }) => {
         if (cancelled) return
         setAiLoading(false)
-        if (data) {
-          const aiAnalysis = { ...data, _source: 'ai' }
-          localStorage.setItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
-          setAnalysis(aiAnalysis)
+        if (rawText) {
+          try {
+            // Strip possible code fence from streamed JSON
+            let clean = rawText.trim()
+            if (clean.startsWith('```')) { const p = clean.split('```'); clean = p[1] || clean; if (clean.startsWith('json')) clean = clean.slice(4) }
+            const parsed = JSON.parse(clean.trim())
+            const aiAnalysis = { ...parsed, _source: 'ai', _streaming_done: true }
+            safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
+            setAnalysis(aiAnalysis)
+          } catch {
+            setAiError(true)
+          }
         } else {
-          setAiError(true)
+          setAiError(!!error)
+          // Fall back to non-streaming endpoint if stream failed
+          if (error && !cancelled) {
+            aiAnalyzeResult(payload).then(({ data }) => {
+              if (cancelled || !data) return
+              const aiAnalysis = { ...data, _source: 'ai' }
+              safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
+              setAnalysis(aiAnalysis)
+              setAiError(false)
+            })
+          }
         }
       })
     }
@@ -196,6 +237,8 @@ export default function Results({ onOpenAuth }) {
   // Personal best check — computed before early returns so hook order stays stable
   const pastSameExam = result ? results.filter(r => r.examId === result.examId && r.id !== result.id) : []
   const isPersonalBest = result != null && pastSameExam.length > 0 && result.score > Math.max(...pastSameExam.map(r => r.score))
+  const personalBestScore = pastSameExam.length > 0 ? Math.max(...pastSameExam.map(r => r.score)) : null
+  const isScoreDrop = result != null && pastSameExam.length > 0 && !isPersonalBest && result.score < personalBestScore
 
   // Trigger amber confetti for personal best
   useEffect(() => {
@@ -267,6 +310,25 @@ export default function Results({ onOpenAuth }) {
 
   const color = arcColor(score)
 
+  // School fit scores — computed from cutoff data in schools.json
+  const schoolFitList = useMemo(() => {
+    return schoolsData
+      .map(s => {
+        const cutoff = latestCutoff(s)
+        if (cutoff === null) return null
+        const prob = schoolFitProbability(score, cutoff)
+        return { ...s, prob, cutoff }
+      })
+      .filter(Boolean)
+      .sort((a, b) => {
+        // Sort by closest to 50% probability (most interesting range near the cutoff)
+        const da = Math.abs(a.prob - 50)
+        const db = Math.abs(b.prob - 50)
+        return da - db
+      })
+      .slice(0, 6)
+  }, [score])
+
   const TABS = [
     { id: 'overview', label: 'Tổng quan' },
     { id: 'wrong', label: wrongCount > 0 ? `Câu sai (${wrongCount})` : 'Câu sai' },
@@ -276,6 +338,14 @@ export default function Results({ onOpenAuth }) {
 
   return (
     <div className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden">
+      {showShareCard && (
+        <ResultShareCard
+          result={result}
+          examTitle={examObj?.title}
+          personalBest={isPersonalBest}
+          onClose={() => setShowShareCard(false)}
+        />
+      )}
       <ReactCanvasConfetti
         onInit={onConfettiInit}
         style={{ position: 'fixed', pointerEvents: 'none', top: 0, left: 0, width: '100%', height: '100%', zIndex: 100 }}
@@ -291,10 +361,17 @@ export default function Results({ onOpenAuth }) {
           ← Trang chủ
         </button>
         <span className="font-jakarta text-[14px] font-semibold text-[#F8FAFC]">Kết quả thi</span>
-        <button onClick={() => navigate('/history')}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#111827] border border-[#1E2A44] rounded-lg font-jakarta text-[12px] text-[#94A3B8] hover:text-[#F8FAFC] transition">
-          Lịch sử
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setShowShareCard(true)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#111827] border border-[#1E2A44] rounded-lg font-jakarta text-[12px] text-[#94A3B8] hover:text-[#F8FAFC] transition"
+            title="Chia sẻ kết quả">
+            📤
+          </button>
+          <button onClick={() => navigate('/history')}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#111827] border border-[#1E2A44] rounded-lg font-jakarta text-[12px] text-[#94A3B8] hover:text-[#F8FAFC] transition">
+            Lịch sử
+          </button>
+        </div>
       </nav>
 
       <div className="relative z-10 flex flex-col gap-5 max-w-3xl mx-auto w-full px-4 py-8">
@@ -348,6 +425,17 @@ export default function Results({ onOpenAuth }) {
               style={{ background: '#1A1200', border: '1px solid #F2A20C60' }}>
               <span className="text-xl">🏆</span>
               <span className="font-jakarta text-[14px] font-semibold text-[#F2A20C]">Điểm cao nhất của bạn trên đề thi này!</span>
+            </motion.div>
+          )}
+          {isScoreDrop && (
+            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className="flex items-center gap-3 px-5 py-3.5 rounded-xl"
+              style={{ background: '#1A0D00', border: '1px solid #F2A20C44' }}>
+              <span className="text-xl">💪</span>
+              <span className="font-jakarta text-[13px] text-[#94A3B8]">
+                Hôm nay chưa phải ngày tốt nhất của bạn — không sao cả. Kỷ lục của bạn vẫn là{' '}
+                <strong className="text-amber-400">{personalBestScore}</strong> điểm. Hãy ôn lại và thử lại!
+              </span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -417,7 +505,7 @@ export default function Results({ onOpenAuth }) {
             <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center justify-between">
                 <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Phân tích AI</span>
-                <span className="font-jakarta text-[11px] text-amber-400/70">⚡3 AI Điểm</span>
+                <span className="font-jakarta text-[11px] text-amber-400/70">⚡3 Tia</span>
               </div>
               <AIErrorBoundary>
                 <AIInsights analysis={aiLoading ? null : analysis} loading={aiLoading} error={aiError} score={score} />
@@ -502,7 +590,7 @@ export default function Results({ onOpenAuth }) {
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
                               <div className="px-5 py-4 flex flex-col gap-3 border-t border-[#1E2A44]">
-                                <p className="font-jakarta text-[13px] text-[#F0F4FF] leading-relaxed">{q.question}</p>
+                                <MathText className="font-jakarta text-[13px] text-[#F0F4FF] leading-relaxed">{q.question}</MathText>
                                 <div className="flex flex-col gap-2">
                                   {q.choices.map((c, i) => (
                                     <div key={i} className="flex items-start gap-2.5 px-4 py-2.5 rounded-lg"
@@ -512,7 +600,7 @@ export default function Results({ onOpenAuth }) {
                                         {String.fromCharCode(65 + i)}.
                                       </span>
                                       <span className="font-jakarta text-[13px]" style={{ color: i === q.correct ? '#10B981' : '#64748B' }}>
-                                        {c}{i === q.correct && <span className="ml-2 text-[11px]">✓ Đáp án đúng</span>}
+                                        <MathText>{c}</MathText>{i === q.correct && <span className="ml-2 text-[11px]">✓ Đáp án đúng</span>}
                                       </span>
                                     </div>
                                   ))}
@@ -558,23 +646,53 @@ export default function Results({ onOpenAuth }) {
         {/* ── Tab: Trường phù hợp ── */}
         {activeTab === 'schools' && (
           <motion.div key="schools" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Trường phù hợp</span>
-              <span className="font-jakarta text-[11px] text-[#475569]">Điểm Toán: <span className="text-[#F2A20C] font-bold">{score}/10</span></span>
-            </div>
-            {aiLoading ? (
-              <div className="flex flex-col gap-3 animate-pulse">
-                <div className="h-4 bg-[#111827] rounded w-3/4" />
-                <div className="h-4 bg-[#111827] rounded w-full" />
-                <div className="h-4 bg-[#111827] rounded w-5/6" />
+            className="flex flex-col gap-4">
+            {/* Computed probability bars */}
+            <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+              <div className="flex items-center justify-between">
+                <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Khả năng đỗ</span>
+                <span className="font-jakarta text-[11px] text-[#475569]">Điểm Toán: <span className="text-[#F2A20C] font-bold">{score.toFixed(1)}/10</span></span>
               </div>
-            ) : analysis?.school_insight ? (
-              <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed whitespace-pre-line">{analysis.school_insight}</p>
-            ) : (
-              <p className="font-jakarta text-[13px] text-[#475569] py-4 text-center">
-                {aiError ? 'Không thể tải gợi ý trường — vui lòng thử lại' : 'Đang phân tích…'}
+              <p className="font-jakarta text-[12px] text-[#475569]">Dựa trên điểm chuẩn môn Toán các năm gần nhất.</p>
+              <div className="flex flex-col gap-4">
+                {schoolFitList.map(school => {
+                  const prob = school.prob
+                  const barColor = prob >= 70 ? '#10B981' : prob >= 40 ? '#F2A20C' : '#FB7185'
+                  return (
+                    <div key={school.id} className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">{school.name}</span>
+                          <span className="font-jakarta text-[11px] text-[#475569]">{school.district} · Chuẩn Toán: {school.cutoff}</span>
+                        </div>
+                        <span className="font-fraunces text-[20px] font-bold flex-shrink-0 ml-4" style={{ color: barColor }}>
+                          {prob}%
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-[#111827] overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{ background: barColor }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${prob}%` }}
+                          transition={{ duration: 0.8, ease: 'easeOut' }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              <p className="font-jakarta text-[11px] text-[#2A3A50]">
+                Xác suất ước tính theo hàm sigmoid so với điểm chuẩn năm gần nhất. Không phải kết quả chính thức.
               </p>
+            </div>
+
+            {/* AI school insight (secondary) */}
+            {analysis?.school_insight && (
+              <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-3">
+                <span className="font-jakarta text-[12px] font-bold text-amber-400/70 uppercase tracking-wider">Gợi ý từ AI</span>
+                <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed whitespace-pre-line">{analysis.school_insight}</p>
+              </div>
             )}
           </motion.div>
         )}

@@ -158,7 +158,7 @@ export default function Landing({ onOpenAuth }) {
                   )}
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
-                  <span className="font-jakarta text-[13px] text-[#64748B]">⚡ {plan.credits.toLocaleString()} AI Điểm / tháng</span>
+                  <span className="font-jakarta text-[13px] text-[#64748B]">⚡ {plan.credits.toLocaleString()} Tia / tháng</span>
                   {plan.studyPlan && <span className="font-jakarta text-[12px] text-emerald-400">✓ Kế hoạch học</span>}
                 </div>
               </div>
@@ -180,7 +180,7 @@ export default function Landing({ onOpenAuth }) {
 
         {/* Top-up packages */}
         <div className="flex flex-col gap-4">
-          <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8] text-center">Hoặc mua thêm AI Điểm</span>
+          <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8] text-center">Hoặc nạp thêm Tia</span>
           <div className="flex gap-3 flex-wrap justify-center">
             {TOPUP_PACKAGES.map(pkg => (
               <div key={pkg.price}

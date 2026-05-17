@@ -154,6 +154,8 @@ class AsyncSQLitePool:
         try:
             conn = await aiosqlite.connect(self._path)
             await conn.execute("PRAGMA foreign_keys = ON")
+            await conn.execute("PRAGMA cache_size = -64000")   # 64 MB in-process page cache
+            await conn.execute("PRAGMA busy_timeout = 5000")   # queue 5 s before failing
             cur = await conn.execute("PRAGMA integrity_check")
             row = await cur.fetchone()
             if row and row[0] != "ok":
@@ -176,6 +178,8 @@ class AsyncSQLitePool:
                     candidate.unlink()
             conn = await aiosqlite.connect(self._path)
             await conn.execute("PRAGMA foreign_keys = ON")
+            await conn.execute("PRAGMA cache_size = -64000")
+            await conn.execute("PRAGMA busy_timeout = 5000")
             await conn.commit()
             self._conn = conn
             logger.info("Fresh DB created at %s", self._path)

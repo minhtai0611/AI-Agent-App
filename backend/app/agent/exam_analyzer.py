@@ -22,8 +22,7 @@ def _strip_code_fence(text: str) -> str:
     return text.strip()
 
 
-async def analyze_exam_result(
-    client: AsyncOpenAI,
+def build_analyze_prompt(
     result: dict,
     history: list[dict],
     student_name: str = "",
@@ -31,9 +30,8 @@ async def analyze_exam_result(
     school_recommendations: list[dict] = None,
     exam_category: str = "",
     user_profile: dict = None,
-) -> dict:
-    settings = get_settings()
-
+) -> str:
+    """Build the user prompt for exam analysis (shared by sync and streaming endpoints)."""
     topic_breakdown = result.get("topicBreakdown", {})
     weak_topics = [t for t, tb in topic_breakdown.items() if tb.get("accuracy", 1) < 0.6]
 
@@ -102,6 +100,27 @@ Trả về JSON (không có text ngoài JSON):
   "recommendations": ["khuyến nghị 1", "khuyến nghị 2", "khuyến nghị 3"]{school_json_field}
 }}"""
 
+    return prompt
+
+
+async def analyze_exam_result(
+    client: AsyncOpenAI,
+    result: dict,
+    history: list[dict],
+    student_name: str = "",
+    wrong_questions: list[dict] = None,
+    school_recommendations: list[dict] = None,
+    exam_category: str = "",
+    user_profile: dict = None,
+) -> dict:
+    settings = get_settings()
+    prompt = build_analyze_prompt(
+        result, history, student_name,
+        wrong_questions=wrong_questions,
+        school_recommendations=school_recommendations,
+        exam_category=exam_category,
+        user_profile=user_profile,
+    )
     response = await call_with_retry(
         client,
         model=settings.default_model,
@@ -111,6 +130,5 @@ Trả về JSON (không có text ngoài JSON):
             {"role": "user", "content": prompt},
         ],
     )
-
     content = _strip_code_fence(response.choices[0].message.content or "{}")
     return json.loads(content)

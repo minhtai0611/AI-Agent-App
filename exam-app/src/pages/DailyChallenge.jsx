@@ -11,8 +11,8 @@ import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 
+import { TOPIC_LABELS } from '../utils/topicLabels.js'
 const STREAK_KEY = 'daily_challenge_streak'
-const TOPIC_LABELS = { algebra: 'Đại số', geometry: 'Hình học', statistics: 'Thống kê', combinatorics: 'Tổ hợp' }
 
 function loadStreak() {
   try { return JSON.parse(localStorage.getItem(STREAK_KEY) ?? '{}') }
@@ -124,11 +124,15 @@ export default function DailyChallenge() {
             ← Quay lại
           </button>
           <div className="flex items-center gap-3">
-            {streak.current > 0 && (
+            {streak.current > 0 ? (
               <span className="font-jakarta text-[13px] font-semibold text-amber-400">
                 🔥 {streak.current} ngày
               </span>
-            )}
+            ) : streak.longest > 0 ? (
+              <span className="font-jakarta text-[12px] text-[#FB7185]">
+                Chuỗi bị gián đoạt. Hôm nay là cơ hội để bắt đầu lại 🔥
+              </span>
+            ) : null}
             <span className="font-jakarta text-[12px] text-[#475569]">
               Kỷ lục: {streak.longest}
             </span>

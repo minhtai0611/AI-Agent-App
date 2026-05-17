@@ -1,15 +1,13 @@
 import { useNavigate } from 'react-router-dom'
-
-const TOPIC_LABELS = {
-  algebra: 'Đại số',
-  geometry: 'Hình học',
-  statistics: 'Thống kê',
-  combinatorics: 'Tổ hợp',
-}
+import { TOPIC_LABELS } from '../utils/topicLabels.js'
 
 function Skeleton() {
   return (
     <div className="flex flex-col gap-4 animate-pulse">
+      <div className="flex items-center gap-2">
+        <span className="text-[#475569] text-[13px] animate-pulse">⟳</span>
+        <span className="font-jakarta text-[13px] text-[#475569]">AI đang phân tích kết quả của bạn...</span>
+      </div>
       <div className="h-20 bg-[#111827] rounded-xl" />
       <div className="h-5 w-1/2 bg-[#111827] rounded" />
       <div className="flex gap-2">
@@ -70,7 +68,7 @@ function AIErrorMessage({ error }) {
     return (
       <div className="flex flex-col gap-3 py-4 items-center text-center">
         <span className="font-jakarta text-[13px] text-[#94A3B8]">
-          Hết AI Điểm — còn <strong className="text-amber-400">{error.balance}</strong> điểm, cần <strong>{error.required}</strong>.
+          Hết Tia — còn <strong className="text-amber-400">{error.balance}</strong> Tia, cần <strong>{error.required}</strong>.
         </span>
         <button
           onClick={() => navigate('/account#topup')}
@@ -107,7 +105,23 @@ function AIErrorMessage({ error }) {
 }
 
 export default function AIInsights({ analysis, loading, error, score }) {
-  if (loading) return <Skeleton />
+  if (loading && !analysis?._streaming) return <Skeleton />
+  // Streaming in-progress — show partial text with a cursor
+  if (analysis?._streaming && !analysis?._streaming_done) {
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-[#475569] text-[13px] animate-pulse">⟳</span>
+          <span className="font-jakarta text-[13px] text-[#475569]">AI đang phân tích kết quả của bạn...</span>
+        </div>
+        {analysis.insights && (
+          <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">
+            {analysis.insights}<span className="animate-pulse">▌</span>
+          </p>
+        )}
+      </div>
+    )
+  }
 
   if (!analysis) {
     return <AIErrorMessage error={error || 'Chưa đủ dữ liệu phân tích'} />

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { motion } from 'framer-motion'
 import DOMPurify from 'dompurify'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -730,8 +731,6 @@ function useWikiStatus() {
 
   return { status, justBecameReady }
 }
-
-const TOPIC_LABELS = { algebra: 'Đại số', geometry: 'Hình học', statistics: 'Thống kê', combinatorics: 'Tổ hợp' }
 
 export default function MathOracle() {
   const navigate = useNavigate()

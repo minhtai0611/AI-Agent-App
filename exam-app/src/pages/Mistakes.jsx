@@ -11,12 +11,8 @@ import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 
-const TOPIC_LABELS = {
-  algebra: 'Đại số',
-  geometry: 'Hình học',
-  statistics: 'Thống kê',
-  combinatorics: 'Tổ hợp',
-}
+import { TOPIC_LABELS } from '../utils/topicLabels.js'
+import { MathText } from '../components/MathText.jsx'
 const TOPIC_ORDER = ['algebra', 'geometry', 'statistics', 'combinatorics']
 
 function MdMath({ children }) {
@@ -61,13 +57,13 @@ function MistakeRow({ question, userAnswer, examTitle }) {
         onClick={fetchExplanation}
       >
         <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-          <p className="font-jakarta text-[13px] text-[#CBD5E1] line-clamp-2">{question.question?.replace(/\$[^$]*\$/g, '[math]')}</p>
+          <MathText className="font-jakarta text-[13px] text-[#CBD5E1] line-clamp-2">{question.question}</MathText>
           <div className="flex flex-wrap gap-2 text-[11px]">
             <span className="px-2 py-0.5 rounded-full bg-[#2A0F14] border border-[#5A1A24] text-[#FB7185]">
-              Bạn chọn: {userLabel?.replace(/\$[^$]*\$/g, '[math]').slice(0, 30)}
+              Bạn chọn: <MathText>{userLabel?.slice(0, 40)}</MathText>
             </span>
             <span className="px-2 py-0.5 rounded-full bg-[#0A2A1A] border border-[#1A5A2A] text-[#34D399]">
-              Đáp án: {correctLabel?.replace(/\$[^$]*\$/g, '[math]').slice(0, 30)}
+              Đáp án: <MathText>{correctLabel?.slice(0, 40)}</MathText>
             </span>
             {examTitle && (
               <span className="px-2 py-0.5 rounded-full bg-[#111827] border border-[#1E2A44] text-[#475569]">{examTitle}</span>
@@ -108,12 +104,15 @@ function MistakeRow({ question, userAnswer, examTitle }) {
   )
 }
 
+const PATTERN_THRESHOLD = 3  // repeated same wrong choice this many times = a pattern
+
 export default function Mistakes() {
   usePageTitle('Sổ tay sai lầm')
   const navigate = useNavigate()
   const { results } = useHistory()
   const [questions, setQuestions] = useState([])
   const [filterTopic, setFilterTopic] = useState(null)
+  const [expandedTopics, setExpandedTopics] = useState({})
 
   useEffect(() => {
     loadQuestions().then(setQuestions)
@@ -161,6 +160,37 @@ export default function Mistakes() {
 
   const visibleTopics = filterTopic ? [filterTopic] : topics
 
+  // Error patterns: same wrong choice chosen ≥ PATTERN_THRESHOLD times across all results
+  const errorPatterns = useMemo(() => {
+    // wrongCounts[questionId][choiceIndex] = number of times chosen wrongly
+    const wrongCounts = {}
+    for (const result of results) {
+      for (const [qId, chosen] of Object.entries(result.answers ?? {})) {
+        const q = questionMap[qId]
+        if (!q || chosen === null || chosen === q.correct) continue
+        if (!wrongCounts[qId]) wrongCounts[qId] = {}
+        wrongCounts[qId][chosen] = (wrongCounts[qId][chosen] ?? 0) + 1
+      }
+    }
+    const patterns = []
+    for (const [qId, choices] of Object.entries(wrongCounts)) {
+      for (const [choiceIdx, count] of Object.entries(choices)) {
+        if (count >= PATTERN_THRESHOLD) {
+          const q = questionMap[qId]
+          if (!q) continue
+          patterns.push({
+            question: q,
+            wrongChoiceIndex: Number(choiceIdx),
+            wrongChoiceText: q.choices?.[Number(choiceIdx)] ?? '',
+            correctText: q.choices?.[q.correct] ?? '',
+            occurrences: count,
+          })
+        }
+      }
+    }
+    return patterns.sort((a, b) => b.occurrences - a.occurrences).slice(0, 5)
+  }, [results, questionMap])
+
   return (
     <div className="min-h-screen bg-[#0A0E1A] pb-16">
       <div className="max-w-2xl mx-auto px-4 pt-20">
@@ -178,13 +208,21 @@ export default function Mistakes() {
             </p>
           </div>
           {totalMistakes > 0 && (
-            <button
-              onClick={() => navigate('/exams?mode=practice')}
-              className="px-4 py-2 rounded-xl font-jakarta text-[12px] font-bold"
-              style={{ background: '#F2A20C', color: '#0A0E1A' }}
-            >
-              Luyện từ lỗi sai
-            </button>
+            <div className="flex flex-col gap-2 items-end">
+              <button
+                onClick={() => navigate('/battle')}
+                className="px-4 py-2 rounded-xl font-jakarta text-[12px] font-bold"
+                style={{ background: '#F2A20C', color: '#0A0E1A' }}
+              >
+                Chiến đấu 🔥
+              </button>
+              <button
+                onClick={() => navigate('/exams?mode=practice')}
+                className="px-4 py-1.5 rounded-lg font-jakarta text-[11px] text-[#64748B] hover:text-[#94A3B8] border border-[#1E2A44] transition"
+              >
+                Luyện từ lỗi sai
+              </button>
+            </div>
           )}
         </div>
 
@@ -226,17 +264,54 @@ export default function Mistakes() {
           </div>
         )}
 
+        {/* Error patterns — systematic wrong choices */}
+        {errorPatterns.length > 0 && !filterTopic && (
+          <div className="mb-8 bg-[#0D1221] border border-[#2A1A40] rounded-2xl p-5 flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <span className="font-jakarta text-[12px] font-bold text-[#A78BFA] uppercase tracking-wider">Lỗi hệ thống</span>
+              <span className="font-jakarta text-[11px] text-[#475569]">Những lựa chọn bạn lặp lại ≥{PATTERN_THRESHOLD} lần</span>
+            </div>
+            <div className="flex flex-col gap-3">
+              {errorPatterns.map((p, i) => (
+                <div key={`${p.question.id}-${p.wrongChoiceIndex}`} className="flex flex-col gap-1.5 px-4 py-3 rounded-xl bg-[#150D2A] border border-[#2A1A40]">
+                  <MathText className="font-jakarta text-[13px] text-[#CBD5E1] line-clamp-2">{p.question.question}</MathText>
+                  <div className="flex flex-wrap gap-2 text-[11px]">
+                    <span className="px-2 py-0.5 rounded-full bg-[#2A0F14] border border-[#5A1A24] text-[#FB7185]">
+                      Hay chọn nhầm: <MathText>{p.wrongChoiceText.slice(0, 40)}</MathText>
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-[#0A2A1A] border border-[#1A5A2A] text-[#34D399]">
+                      Đúng: <MathText>{p.correctText.slice(0, 40)}</MathText>
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-[#1A1240] border border-[#2A1A60] text-[#A78BFA]">
+                      {p.occurrences} lần
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-[#111827] border border-[#1E2A44] text-[#475569]">
+                      {TOPIC_LABELS[p.question.topic] ?? p.question.topic}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Grouped list */}
-        {visibleTopics.map(topic => (
+        {visibleTopics.map(topic => {
+          const SHOW_FIRST = 8
+          const topicEntries = byTopic[topic]
+          const isExpanded = !!expandedTopics[topic]
+          const visibleEntries = isExpanded ? topicEntries : topicEntries.slice(0, SHOW_FIRST)
+          const hiddenCount = topicEntries.length - SHOW_FIRST
+          return (
           <div key={topic} className="mb-8">
             <div className="flex items-center gap-2 mb-3">
               <span className="font-jakarta text-[12px] font-bold text-[#94A3B8] uppercase tracking-wider">
                 {TOPIC_LABELS[topic] ?? topic}
               </span>
-              <span className="font-jakarta text-[11px] text-[#475569]">{byTopic[topic].length} câu</span>
+              <span className="font-jakarta text-[11px] text-[#475569]">{topicEntries.length} câu</span>
             </div>
             <div className="flex flex-col gap-2">
-              {byTopic[topic].map(entry => (
+              {visibleEntries.map(entry => (
                 <MistakeRow
                   key={entry.question.id}
                   question={entry.question}
@@ -244,9 +319,17 @@ export default function Mistakes() {
                   examTitle={null}
                 />
               ))}
+              {!isExpanded && hiddenCount > 0 && (
+                <button
+                  onClick={() => setExpandedTopics(prev => ({ ...prev, [topic]: true }))}
+                  className="font-jakarta text-[12px] text-center py-2 rounded-xl border border-dashed border-[#1E2A44] text-[#475569] hover:text-[#94A3B8] transition">
+                  + Xem thêm ({hiddenCount} câu)
+                </button>
+              )}
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

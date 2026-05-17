@@ -26,6 +26,7 @@ export function createSession(exam, questions, mode) {
     mode,
     timeLeft: mode === 'timed' ? exam.duration * 60 : null,
     status: 'active',
+    startedAt: new Date().toISOString(),
   }
 }
 

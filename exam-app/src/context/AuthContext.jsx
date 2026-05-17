@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
-import { googleSignIn, getMe, postHistory, setLogoutRef, updateProfile as apiUpdateProfile } from '../api/aiClient'
+import { googleSignIn, getMe, postHistory, setLogoutRef, setCreditRefs, updateProfile as apiUpdateProfile } from '../api/aiClient'
 
 const AuthContext = createContext(null)
 
@@ -43,6 +43,11 @@ export function AuthProvider({ children }) {
     return () => setLogoutRef(null)
   })
 
+  // Keep credit refs current so aiClient.js optimistic deduction stays in sync
+  useEffect(() => {
+    setCreditRefs(deductCredits, refundCredits)
+  })
+
   async function login(credential) {
     const { data, error } = await googleSignIn(credential)
     if (error || !data) throw new Error(error || 'Đăng nhập thất bại')
@@ -68,11 +73,24 @@ export function AuthProvider({ children }) {
     resetToLocalRef.current?.(false)
   }
 
+  async function refreshUser() {
+    const { data } = await getMe()
+    if (data) setUser(data)
+  }
+
   async function updateProfile(fields) {
     const { data, error } = await apiUpdateProfile(fields)
     if (error) throw new Error(error)
     setUser(prev => ({ ...prev, ...data }))
     return data
+  }
+
+  function deductCredits(amount) {
+    setUser(prev => prev ? { ...prev, credits_balance: Math.max(0, (prev.credits_balance ?? 0) - amount) } : prev)
+  }
+
+  function refundCredits(amount) {
+    setUser(prev => prev ? { ...prev, credits_balance: (prev.credits_balance ?? 0) + amount } : prev)
   }
 
   function logout() {
@@ -94,7 +112,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, registerResetToLocal, updateProfile }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, registerResetToLocal, updateProfile, refreshUser, deductCredits, refundCredits }}>
       {children}
     </AuthContext.Provider>
   )

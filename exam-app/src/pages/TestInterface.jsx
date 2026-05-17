@@ -2,11 +2,17 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useExam, useExamDispatch, useHints, useFlags } from '../context/ExamContext.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import Timer from '../components/Timer.jsx'
 import { usePageTitle } from '../hooks/usePageTitle.js'
+import { embedWatermark } from '../utils/watermark.js'
+import { scoreExam } from '../engine/scoringEngine.js'
+import { buildAnalyzePayload } from '../api/index.js'
+import { analyzeResult as aiAnalyzeResult } from '../api/aiClient.js'
+import { safeSetItem } from '../utils/storageManager.js'
 
-const TOPIC_LABELS = { algebra: 'Đại số', geometry: 'Hình học', statistics: 'Thống kê', combinatorics: 'Tổ hợp' }
+import { TOPIC_LABELS } from '../utils/topicLabels.js'
 const DIFF_LABELS = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
 const KB_HINT_KEY = 'kb_hint_seen'
 
@@ -16,6 +22,7 @@ export default function TestInterface() {
   const { examId } = useParams()
   const session = useExam()
   const dispatch = useExamDispatch()
+  const { user } = useAuth()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(1)
   const [submitModal, setSubmitModal] = useState(false)
@@ -23,6 +30,10 @@ export default function TestInterface() {
   const [pauseOverlay, setPauseOverlay] = useState(false)
   const [fullscreen, setFullscreen] = useState(false)
   const [showKbHint, setShowKbHint] = useState(() => !sessionStorage.getItem(KB_HINT_KEY))
+  const [tabSwitchCount, setTabSwitchCount] = useState(0)
+  const [showTabWarning, setShowTabWarning] = useState(false)
+  const [devToolsOpen, setDevToolsOpen] = useState(false)
+  const canvasRef = useRef(null)
 
   // Time-per-question tracking
   const questionStartTime = useRef(Date.now())
@@ -49,10 +60,11 @@ export default function TestInterface() {
   // Timeout → auto-submit
   useEffect(() => {
     if (session.status === 'timeout') {
+      const scored = scoreExam(session)
       dispatch({ type: 'SUBMIT' })
-      navigate('/results/current', { replace: true })
+      navigate('/results/current', { replace: true, state: { result: scored } })
     }
-  }, [session.status, dispatch, navigate])
+  }, [session.status, dispatch, navigate]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Persist answers to sessionStorage so a refresh mid-exam doesn't lose work
   useEffect(() => {
@@ -61,21 +73,77 @@ export default function TestInterface() {
       examId,
       answers: session.answers,
       startedAt: session.startedAt ?? new Date().toISOString(),
+      mode: session.mode,
     }))
   }, [examId, session.answers, session.status])
 
-  // Auto-pause on tab switch (timed mode only)
+  // Auto-pause + tab-switch tracking
   useEffect(() => {
-    if (session.mode !== 'timed') return
     function handleVisibility() {
       if (document.hidden && session.status === 'active') {
-        dispatch({ type: 'PAUSE' })
-        setPauseOverlay(true)
+        setTabSwitchCount(n => n + 1)
+        setShowTabWarning(true)
+        if (session.mode === 'timed') {
+          dispatch({ type: 'PAUSE' })
+          setPauseOverlay(true)
+        }
       }
     }
     document.addEventListener('visibilitychange', handleVisibility)
     return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [session.mode, session.status, dispatch])
+
+  // Tier 1 — copy/cut/contextmenu/keyboard blockers during active exam
+  useEffect(() => {
+    if (session.status !== 'active') return
+    const blockCopy = (e) => { e.preventDefault(); e.stopPropagation() }
+    const blockKey = (e) => {
+      if (e.key === 'PrintScreen') { e.preventDefault(); navigator.clipboard?.writeText('').catch(() => {}) }
+      if ((e.ctrlKey || e.metaKey) && ['a', 'u', 's', 'p'].includes(e.key.toLowerCase())) e.preventDefault()
+    }
+    document.addEventListener('copy', blockCopy)
+    document.addEventListener('cut', blockCopy)
+    document.addEventListener('contextmenu', blockCopy)
+    window.addEventListener('keydown', blockKey)
+    return () => {
+      document.removeEventListener('copy', blockCopy)
+      document.removeEventListener('cut', blockCopy)
+      document.removeEventListener('contextmenu', blockCopy)
+      window.removeEventListener('keydown', blockKey)
+    }
+  }, [session.status])
+
+  // Tier 2 — DevTools detection via window size delta
+  useEffect(() => {
+    if (session.status !== 'active') return
+    const id = setInterval(() => {
+      const threshold = 160
+      const open = window.outerWidth - window.innerWidth > threshold ||
+                   window.outerHeight - window.innerHeight > threshold
+      setDevToolsOpen(open)
+    }, 1000)
+    return () => clearInterval(id)
+  }, [session.status])
+
+  // Tier 3 — Canvas watermark overlay (user identity)
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas || !user) return
+    const ctx = canvas.getContext('2d')
+    canvas.width = canvas.offsetWidth || 600
+    canvas.height = canvas.offsetHeight || 400
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.save()
+    ctx.font = '12px monospace'
+    ctx.fillStyle = 'rgba(242,162,12,0.03)'
+    ctx.translate(canvas.width / 2, canvas.height / 2)
+    ctx.rotate(-Math.PI / 6)
+    const label = `${user.email ?? user.id} · ${user.id}`
+    for (let y = -canvas.height; y < canvas.height; y += 60)
+      for (let x = -canvas.width; x < canvas.width; x += 200)
+        ctx.fillText(label, x, y)
+    ctx.restore()
+  }, [user, currentIndex])
 
   // Fullscreen sync
   useEffect(() => {
@@ -161,8 +229,23 @@ export default function TestInterface() {
     setSubmitting(true)
     recordTimeForQuestion(question?.id)
     sessionStorage.removeItem(`exam-draft-${examId}`)
+    const scored = scoreExam(session)
     dispatch({ type: 'SUBMIT' })
-    navigate('/results/current', { replace: true })
+    navigate('/results/current', { replace: true, state: { result: scored } })
+
+    // Precompute AI analysis in background — Results.jsx reads from this cache key
+    if (user) {
+      const cacheKey = `ai-analysis-${user.id}-${scored.id}`
+      if (!localStorage.getItem(cacheKey)) {
+        const examObj = session.exam || {}
+        const profile = { province: user.province || '', grade: user.grade || '', display_name: user.display_name || '' }
+        buildAnalyzePayload(scored, [], [], examObj.category || '', profile).then(payload =>
+          aiAnalyzeResult(payload).then(({ data }) => {
+            if (data) safeSetItem(cacheKey, JSON.stringify({ data: { ...data, _source: 'ai' }, ts: Date.now() }))
+          })
+        )
+      }
+    }
   }
 
   function resumeFromPause() {
@@ -251,7 +334,7 @@ export default function TestInterface() {
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 flex-1 max-w-3xl mx-auto w-full px-4 py-10 flex flex-col gap-8">
+      <div className="relative z-10 flex-1 max-w-3xl mx-auto w-full px-4 py-10 flex flex-col gap-8 exam-content">
         {/* Keyboard hint */}
         <AnimatePresence>
           {showKbHint && (
@@ -270,6 +353,16 @@ export default function TestInterface() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Tab-switch warning banner */}
+        {showTabWarning && (
+          <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-[#F2A20C44] bg-[#1A0D00]">
+            <span className="font-jakarta text-[12px] text-[#94A3B8]">
+              Bạn đã rời khỏi trang <strong className="text-amber-400">{tabSwitchCount}</strong> lần trong khi làm bài.
+            </span>
+            <button onClick={() => setShowTabWarning(false)} className="text-[#475569] hover:text-[#94A3B8] text-base leading-none">×</button>
+          </div>
+        )}
 
         {/* Question badges */}
         <div className="flex items-center gap-2">
@@ -298,7 +391,7 @@ export default function TestInterface() {
           </button>
         </div>
 
-        {/* Question card */}
+        {/* Question card with watermark overlay */}
         <AnimatePresence mode="wait" custom={direction}>
           {question && (
             <motion.div
@@ -308,15 +401,22 @@ export default function TestInterface() {
               animate={{ opacity: 1, x: 0 }}
               exit={d => ({ opacity: 0, x: d * -40 })}
               transition={{ duration: 0.22, ease: 'easeInOut' }}
+              className="relative"
             >
               <QuestionCard
-                question={question}
+                question={user ? { ...question, question: embedWatermark(question.question, user.id) } : question}
                 chosen={chosen}
                 onAnswer={handleAnswer}
                 practiceMode={isPractice}
                 submitted={session.status === 'submitted'}
                 hintState={hints[question.id]}
                 onHint={setHint}
+              />
+              {/* Canvas watermark — invisible diagonal user identity overlay */}
+              <canvas
+                ref={canvasRef}
+                className="absolute inset-0 w-full h-full pointer-events-none"
+                style={{ zIndex: 1 }}
               />
             </motion.div>
           )}
@@ -374,6 +474,17 @@ export default function TestInterface() {
           })}
         </div>
       </div>
+
+      {/* DevTools warning overlay */}
+      {devToolsOpen && session.status === 'active' && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-4 pointer-events-none">
+          <div className="px-6 py-4 rounded-xl border border-[#F2A20C44] bg-[#1A0D00] pointer-events-auto">
+            <p className="font-jakarta text-[13px] text-amber-400 text-center">
+              Vui lòng đóng DevTools để tiếp tục làm bài.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Pause overlay */}
       <AnimatePresence>

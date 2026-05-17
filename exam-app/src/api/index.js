@@ -20,6 +20,14 @@ export async function loadQuestions() {
   return _loadQuestionsAsync()
 }
 
+// Auth-gated variant used by exam flows — rejects unauthenticated callers
+// before the questions bundle is parsed and handed to the caller.
+export async function loadQuestionsForExam() {
+  const token = localStorage.getItem('auth_token')
+  if (!token) throw new Error('auth_required')
+  return _loadQuestionsAsync()
+}
+
 export function loadExams() {
   return examsData.filter(e => e.mode !== 'thithu' && e.mode !== 'retired')
 }
@@ -38,8 +46,8 @@ export function loadExamById(examId) {
   return examsData.find(e => e.id === examId) ?? null
 }
 
-export async function loadQuestionsByIds(ids) {
-  const data = await _loadQuestionsAsync()
+export async function loadQuestionsByIds(ids, requireAuth = false) {
+  const data = requireAuth ? await loadQuestionsForExam() : await _loadQuestionsAsync()
   const map = Object.fromEntries(data.map(q => [q.id, q]))
   return ids.map(id => map[id]).filter(Boolean)
 }

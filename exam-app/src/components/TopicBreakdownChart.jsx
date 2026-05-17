@@ -1,9 +1,4 @@
-const TOPIC_LABELS = {
-  algebra: 'Đại số',
-  geometry: 'Hình học',
-  statistics: 'Thống kê',
-  combinatorics: 'Tổ hợp',
-}
+import { TOPIC_LABELS } from '../utils/topicLabels.js'
 
 const TOPIC_COLORS = {
   algebra: '#10B981',

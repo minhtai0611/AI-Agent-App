@@ -1,16 +1,38 @@
 import { useState, useEffect } from 'react'
+import { getPendingCount } from '../utils/offlineSync'
 
 export default function OfflineBanner() {
   const [online, setOnline] = useState(navigator.onLine)
   const [dismissed, setDismissed] = useState(false)
+  const [syncing, setSyncing] = useState(false)
 
   useEffect(() => {
-    function onOnline() { setOnline(true); setDismissed(false) }
-    function onOffline() { setOnline(false) }
+    function onOnline() {
+      setOnline(true)
+      setDismissed(false)
+      if (getPendingCount() > 0) {
+        setSyncing(true)
+        // Hide syncing indicator after 3s (flush happens in HistoryContext)
+        setTimeout(() => setSyncing(false), 3000)
+      }
+    }
+    function onOffline() { setOnline(false); setSyncing(false) }
     window.addEventListener('online', onOnline)
     window.addEventListener('offline', onOffline)
-    return () => { window.removeEventListener('online', onOnline); window.removeEventListener('offline', onOffline) }
+    return () => {
+      window.removeEventListener('online', onOnline)
+      window.removeEventListener('offline', onOffline)
+    }
   }, [])
+
+  if (syncing) {
+    return (
+      <div className="fixed top-12 left-0 right-0 z-30 flex items-center gap-3 px-4 py-2 bg-[#0A2A1A] border-b border-[#1A5A2A]">
+        <span className="w-3 h-3 rounded-full border border-[#34D399] border-t-transparent animate-spin flex-shrink-0" />
+        <span className="font-jakarta text-[12px] text-[#34D399]">Đã có mạng — đang đồng bộ kết quả...</span>
+      </div>
+    )
+  }
 
   if (online || dismissed) return null
 

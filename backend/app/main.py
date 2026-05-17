@@ -609,6 +609,52 @@ async def analyze(
         raise HTTPException(status_code=502, detail="AI response parse error")
 
 
+@app.post("/analyze/stream")
+async def analyze_stream(
+    req: ExamAnalyzeRequest,
+    client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Stream the AI analysis as SSE text/event-stream.
+    Each event is `data: <token>\\n\\n`; the final event is `data: [DONE]\\n\\n`.
+    Credits are deducted upfront before the stream starts.
+    """
+    from fastapi.responses import StreamingResponse
+    from app.agent.exam_analyzer import build_analyze_prompt, STATIC_EXAM_ANALYSIS_INSTRUCTIONS
+    await _spend_credits(pool, current_user.user_id, 3, "analyze")
+
+    prompt = build_analyze_prompt(
+        req.result, req.history, req.student_name,
+        wrong_questions=req.wrong_questions,
+        exam_category=req.exam_category,
+        user_profile=req.user_profile,
+    )
+    settings = get_settings()
+
+    async def event_stream():
+        try:
+            stream = await client.chat.completions.create(
+                model=settings.default_model,
+                max_tokens=1200,
+                messages=[
+                    {"role": "system", "content": STATIC_EXAM_ANALYSIS_INSTRUCTIONS},
+                    {"role": "user", "content": prompt},
+                ],
+                stream=True,
+            )
+            async for chunk in stream:
+                token = chunk.choices[0].delta.content if chunk.choices else None
+                if token:
+                    yield f"data: {json.dumps(token)}\n\n"
+            yield "data: [DONE]\n\n"
+        except Exception as exc:
+            yield f"data: {json.dumps({'error': str(exc)})}\n\n"
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
 @app.post("/hint", response_model=HintResponse)
 async def hint(
     req: HintRequest,
@@ -955,13 +1001,25 @@ async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Dep
                   grade, school_type, province,
                   subscription_tier, subscription_period, subscription_expires_at,
                   credits_balance, credits_reset_at,
-                  is_suspended, suspension_reason, tos_accepted_at
+                  is_suspended, suspension_reason, tos_accepted_at,
+                  trial_used, trial_expires_at
            FROM users WHERE id = $1""",
         current_user.user_id,
     )
     if not row:
         raise HTTPException(status_code=404, detail="User not found")
-    return dict(row)
+    row = dict(row)
+    # Enforce trial expiry: downgrade to basic if 7-day trial has elapsed
+    if row.get("trial_used") and row.get("subscription_tier") == "student" and row.get("trial_expires_at"):
+        from datetime import datetime, timezone
+        expires = datetime.fromisoformat(row["trial_expires_at"])
+        if expires.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+            await pool.execute(
+                "UPDATE users SET subscription_tier = 'basic', updated_at = NOW() WHERE id = $1",
+                current_user.user_id,
+            )
+            row["subscription_tier"] = "basic"
+    return row
 
 
 _VALID_GRADES = {"9", "10", "11", "12"}
@@ -1115,6 +1173,18 @@ async def post_history(
                 json.dumps(entry.payload) if entry.payload is not None else None,
                 entry.created_at,
             )
+            # Timing anomaly detection
+            if entry.payload:
+                duration = entry.payload.get("durationSeconds")
+                answered = entry.payload.get("answeredCount", 0)
+                if duration is not None and answered > 5 and duration < answered * 3:
+                    await conn.execute(
+                        "INSERT INTO security_events (user_id, event_type, confidence, detail) VALUES ($1, $2, $3, $4)",
+                        current_user.user_id,
+                        "exam_anomaly",
+                        "HIGH",
+                        json.dumps({"reason": "impossible_speed", "durationSeconds": duration, "answeredCount": answered, "exam_id": entry.exam_id}),
+                    )
 
 
 @app.get("/users/me/history")

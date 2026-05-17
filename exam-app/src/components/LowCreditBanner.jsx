@@ -13,7 +13,7 @@ export default function LowCreditBanner({ balance }) {
       style={{ background: '#1A1200', borderBottom: '1px solid #F2A20C33' }}
     >
       <span className="text-amber-300">
-        ⚡ Còn <strong>{balance}</strong> AI Điểm — mua top-up để tiếp tục sử dụng tính năng AI.
+        ⚡ Còn <strong>{balance}</strong> Tia — nạp thêm để tiếp tục sử dụng tính năng AI.
       </span>
       <div className="flex items-center gap-3 flex-shrink-0">
         <button

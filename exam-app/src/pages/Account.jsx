@@ -20,8 +20,8 @@ const PLANS_MONTHLY = [
 
 const PLANS_ANNUAL = [
   { tier: 'basic', label: 'Cơ bản', price: 'Miễn phí', credits: 50, studyPlan: false, badge: null },
-  { tier: 'student', label: 'Học sinh', price: '261,000đ/năm', credits: 500, studyPlan: true, badge: 'PHỔ BIẾN', bonus: '+1,000 điểm', effective: '21,750đ/tháng' },
-  { tier: 'complete', label: 'Toàn diện', price: '531,000đ/năm', credits: 2000, studyPlan: true, badge: null, bonus: '+3,000 điểm', effective: '44,250đ/tháng' },
+  { tier: 'student', label: 'Học sinh', price: '261,000đ/năm', credits: 500, studyPlan: true, badge: 'PHỔ BIẾN', bonus: '+1,000 Tia', effective: '21,750đ/tháng' },
+  { tier: 'complete', label: 'Toàn diện', price: '531,000đ/năm', credits: 2000, studyPlan: true, badge: null, bonus: '+3,000 Tia', effective: '44,250đ/tháng' },
 ]
 
 const TOPUP_PACKAGES = [
@@ -66,7 +66,7 @@ function heatColor(count) {
 export default function Account() {
   usePageTitle('Tài khoản')
   const navigate = useNavigate()
-  const { user, updateProfile } = useAuth()
+  const { user, updateProfile, refreshUser } = useAuth()
   const { results } = useHistory()
   const [creditLog, setCreditLog] = useState([])
   const [billing, setBilling] = useState('monthly')
@@ -78,6 +78,8 @@ export default function Account() {
   const [trialActivating, setTrialActivating] = useState(false)
   const [trialDone, setTrialDone] = useState(false)
   const [trialError, setTrialError] = useState('')
+  const [accountTab, setAccountTab] = useState('billing')
+  const [showAllCredits, setShowAllCredits] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -225,7 +227,7 @@ export default function Account() {
           </div>
           <div className="flex gap-6 flex-wrap">
             <div className="flex flex-col gap-0.5">
-              <span className="font-jakarta text-[11px] text-[#475569]">AI Điểm còn lại</span>
+              <span className="font-jakarta text-[11px] text-[#475569]">Tia còn lại</span>
               <span className="font-fraunces text-[20px] font-bold text-amber-400">⚡ {user.credits_balance ?? 0}</span>
             </div>
             {user.credits_reset_at && (
@@ -249,7 +251,7 @@ export default function Account() {
             <div className="flex flex-col gap-1">
               <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Dùng thử 7 ngày miễn phí</span>
               <p className="font-jakarta text-[13px] text-[#94A3B8]">
-                Trải nghiệm gói Học sinh trong 7 ngày — đề thi đầy đủ, kế hoạch học AI và 500 điểm AI mỗi tháng.
+                Trải nghiệm gói Học sinh trong 7 ngày — đề thi đầy đủ, kế hoạch học AI và 500 Tia mỗi tháng.
               </p>
             </div>
             {trialError && <p className="font-jakarta text-[12px] text-red-400">{trialError}</p>}
@@ -260,8 +262,12 @@ export default function Account() {
                 setTrialError('')
                 const { error } = await activateTrial()
                 setTrialActivating(false)
-                if (error) setTrialError(typeof error === 'string' ? error : 'Kích hoạt thất bại, vui lòng thử lại')
-                else setTrialDone(true)
+                if (error) {
+                  setTrialError(typeof error === 'string' ? error : 'Kích hoạt thất bại, vui lòng thử lại')
+                } else {
+                  setTrialDone(true)
+                  await refreshUser()
+                }
               }}
               className="self-start px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold transition"
               style={{ background: trialActivating ? '#1E2A44' : '#10B981', color: trialActivating ? '#475569' : '#0A0E1A' }}
@@ -272,141 +278,166 @@ export default function Account() {
         )}
         {trialDone && (
           <div className="px-5 py-4 rounded-2xl border border-[#2D4A1A] bg-[#0A1A0A] font-jakarta text-[13px] text-[#34D399]">
-            Đã kích hoạt! Gói Học sinh của bạn sẽ hoạt động trong 7 ngày. Làm mới trang để cập nhật.
+            Đã kích hoạt! Gói Học sinh của bạn sẽ hoạt động trong 7 ngày.
           </div>
         )}
 
-        {/* Upgrade / Pricing */}
-        <section className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Nâng cấp gói</span>
-            <div className="flex items-center gap-1 bg-[#111827] rounded-full p-1">
-              {['monthly', 'annual'].map(b => (
-                <button key={b} onClick={() => setBilling(b)}
-                  className={`px-4 py-1.5 rounded-full font-jakarta text-[12px] transition ${billing === b ? 'bg-[#F2A20C] text-[#0A0E1A] font-semibold' : 'text-[#94A3B8]'}`}>
-                  {b === 'monthly' ? 'Hàng tháng' : 'Hàng năm (−25%)'}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* Tabs */}
+        <div className="flex gap-1 bg-[#0D1221] border border-[#1E2A44] rounded-xl p-1">
+          {[['billing', 'Gói & Thanh toán'], ['history', 'Lịch sử Tia']].map(([key, label]) => (
+            <button key={key} onClick={() => setAccountTab(key)}
+              className={`flex-1 py-2 rounded-lg font-jakarta text-[13px] font-medium transition ${
+                accountTab === key ? 'bg-[#F2A20C] text-[#0A0E1A] font-semibold' : 'text-[#64748B] hover:text-[#94A3B8]'
+              }`}>
+              {label}
+            </button>
+          ))}
+        </div>
 
-          <div className="flex flex-col gap-3">
-            {plans.map(plan => (
-              <div key={plan.tier}
-                className={`flex items-center justify-between gap-4 px-5 py-4 rounded-xl border transition ${
-                  tier === plan.tier ? 'border-amber-400/60 bg-amber-400/5' : 'border-[#1E2A44] bg-[#111827]'
-                }`}>
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-jakarta text-[14px] font-bold text-[#F0F4FF]">{plan.label}</span>
-                    {plan.badge && (
-                      <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400">
-                        {plan.badge}
-                      </span>
-                    )}
-                    {tier === plan.tier && (
-                      <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-400">
-                        Hiện tại
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <span className="font-jakarta text-[12px] text-[#64748B]">⚡ {plan.credits.toLocaleString()} điểm/tháng</span>
-                    {plan.studyPlan && <span className="font-jakarta text-[12px] text-emerald-400">✓ Kế hoạch học</span>}
-                    {plan.bonus && <span className="font-jakarta text-[12px] text-amber-300">🎁 {plan.bonus}</span>}
-                  </div>
-                  {plan.effective && <span className="font-jakarta text-[11px] text-[#475569]">≈ {plan.effective}</span>}
-                </div>
-                <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                  <span className="font-fraunces text-[15px] font-bold text-[#F0F4FF]">{plan.price}</span>
-                  {tier !== plan.tier && plan.tier !== 'basic' && (
-                    <span className="font-jakarta text-[11px] text-amber-400">Liên hệ nâng cấp</span>
-                  )}
-                </div>
+        {/* Tab: Gói & Thanh toán */}
+        {accountTab === 'billing' && (
+          <section className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Nâng cấp gói</span>
+              <div className="flex items-center gap-1 bg-[#111827] rounded-full p-1">
+                {['monthly', 'annual'].map(b => (
+                  <button key={b} onClick={() => setBilling(b)}
+                    className={`px-4 py-1.5 rounded-full font-jakarta text-[12px] transition ${billing === b ? 'bg-[#F2A20C] text-[#0A0E1A] font-semibold' : 'text-[#94A3B8]'}`}>
+                    {b === 'monthly' ? 'Hàng tháng' : 'Hàng năm (−25%)'}
+                  </button>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
 
-          {/* Payment instructions */}
-          <div className="mt-2 px-5 py-4 rounded-xl border border-[#1E2A44] bg-[#0A0E1A] flex flex-col gap-2">
-            <span className="font-jakarta text-[12px] font-semibold text-[#94A3B8]">Thanh toán (Chuyển khoản ngân hàng)</span>
-            <span className="font-jakarta text-[12px] text-[#64748B]">
-              Chuyển khoản theo số tài khoản được cung cấp và gửi email xác nhận. Kích hoạt trong 1–2 giờ làm việc.
-            </span>
-            <span className="font-jakarta text-[11px] text-[#475569]">
-              * MoMo · VNPay · ZaloPay · PayOS sẽ sớm ra mắt
-            </span>
-          </div>
-
-          {/* Top-up */}
-          <div id="topup" className="flex flex-col gap-3">
-            <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Mua top-up AI Điểm</span>
-            <div className="flex gap-3 flex-wrap">
-              {TOPUP_PACKAGES.map(pkg => (
-                <div key={pkg.price}
-                  className="flex-1 min-w-[100px] flex flex-col items-center gap-1 px-4 py-3 rounded-xl border border-[#1E2A44] bg-[#111827]">
-                  <span className="font-fraunces text-[15px] font-bold text-amber-400">⚡ {pkg.credits}</span>
-                  <span className="font-jakarta text-[12px] text-[#F0F4FF]">{pkg.price}</span>
+            <div className="flex flex-col gap-3">
+              {plans.map(plan => (
+                <div key={plan.tier}
+                  className={`flex items-center justify-between gap-4 px-5 py-4 rounded-xl border transition ${
+                    tier === plan.tier ? 'border-amber-400/60 bg-amber-400/5' : 'border-[#1E2A44] bg-[#111827]'
+                  }`}>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-jakarta text-[14px] font-bold text-[#F0F4FF]">{plan.label}</span>
+                      {plan.badge && (
+                        <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400">
+                          {plan.badge}
+                        </span>
+                      )}
+                      {tier === plan.tier && (
+                        <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-400">
+                          Hiện tại
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="font-jakarta text-[12px] text-[#64748B]">⚡ {plan.credits.toLocaleString()} Tia/tháng</span>
+                      {plan.studyPlan && <span className="font-jakarta text-[12px] text-emerald-400">✓ Kế hoạch học</span>}
+                      {plan.bonus && <span className="font-jakarta text-[12px] text-amber-300">🎁 {plan.bonus}</span>}
+                    </div>
+                    {plan.effective && <span className="font-jakarta text-[11px] text-[#475569]">≈ {plan.effective}</span>}
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                    <span className="font-fraunces text-[15px] font-bold text-[#F0F4FF]">{plan.price}</span>
+                    {tier !== plan.tier && plan.tier !== 'basic' && (
+                      <span className="font-jakarta text-[11px] text-amber-400">Liên hệ nâng cấp</span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
 
-        {/* Activity heatmap */}
-        {results.length > 0 && (
-          <motion.section
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4"
-          >
-            <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Hoạt động học tập</span>
-            <div className="overflow-x-auto">
-              <div className="flex gap-1" style={{ minWidth: 640 }}>
-                {Array.from({ length: 52 }, (_, week) => (
-                  <div key={week} className="flex flex-col gap-1">
-                    {heatmap.slice(week * 7, week * 7 + 7).map(({ key, count }) => (
-                      <div
-                        key={key}
-                        title={`${key}: ${count} lần thi`}
-                        className="w-3 h-3 rounded-sm"
-                        style={{ background: heatColor(count) }}
-                      />
-                    ))}
+            <div className="mt-2 px-5 py-4 rounded-xl border border-[#1E2A44] bg-[#0A0E1A] flex flex-col gap-2">
+              <span className="font-jakarta text-[12px] font-semibold text-[#94A3B8]">Thanh toán (Chuyển khoản ngân hàng)</span>
+              <span className="font-jakarta text-[12px] text-[#64748B]">
+                Chuyển khoản theo số tài khoản được cung cấp và gửi email xác nhận. Kích hoạt trong 1–2 giờ làm việc.
+              </span>
+              <span className="font-jakarta text-[11px] text-[#475569]">
+                * MoMo · VNPay · ZaloPay · PayOS sẽ sớm ra mắt
+              </span>
+            </div>
+
+            <div id="topup" className="flex flex-col gap-3">
+              <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Nạp thêm Tia</span>
+              <div className="flex gap-3 flex-wrap">
+                {TOPUP_PACKAGES.map(pkg => (
+                  <div key={pkg.price}
+                    className="flex-1 min-w-[100px] flex flex-col items-center gap-1 px-4 py-3 rounded-xl border border-[#1E2A44] bg-[#111827]">
+                    <span className="font-fraunces text-[15px] font-bold text-amber-400">⚡ {pkg.credits}</span>
+                    <span className="font-jakarta text-[12px] text-[#F0F4FF]">{pkg.price}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="font-jakarta text-[11px] text-[#475569]">Ít</span>
-              {[0, 1, 2, 3].map(c => (
-                <div key={c} className="w-3 h-3 rounded-sm" style={{ background: heatColor(c) }} />
-              ))}
-              <span className="font-jakarta text-[11px] text-[#475569]">Nhiều</span>
-            </div>
-          </motion.section>
+          </section>
         )}
 
-        {/* Credit log */}
-        {creditLog.length > 0 && (
-          <section className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
-            <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Lịch sử AI Điểm</span>
-            <div className="flex flex-col gap-1">
-              {creditLog.map((entry, i) => (
-                <div key={i} className="flex items-center justify-between py-2 border-b border-[#1E2A44] last:border-0">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-jakarta text-[12px] text-[#94A3B8]">{entry.reason}</span>
-                    <span className="font-jakarta text-[11px] text-[#475569]">{formatDate(entry.created_at)}</span>
+        {/* Tab: Lịch sử Tia */}
+        {accountTab === 'history' && (
+          <div className="flex flex-col gap-6">
+            {results.length > 0 && (
+              <motion.section
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4"
+              >
+                <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Hoạt động học tập</span>
+                <div className="overflow-x-auto">
+                  <div className="flex gap-1" style={{ minWidth: 640 }}>
+                    {Array.from({ length: 52 }, (_, week) => (
+                      <div key={week} className="flex flex-col gap-1">
+                        {heatmap.slice(week * 7, week * 7 + 7).map(({ key, count }) => (
+                          <div
+                            key={key}
+                            title={`${key}: ${count} lần thi`}
+                            className="w-3 h-3 rounded-sm"
+                            style={{ background: heatColor(count) }}
+                          />
+                        ))}
+                      </div>
+                    ))}
                   </div>
-                  <span className={`font-fraunces text-[14px] font-bold ${entry.delta > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {entry.delta > 0 ? '+' : ''}{entry.delta}
-                  </span>
                 </div>
-              ))}
-            </div>
-          </section>
+                <div className="flex items-center gap-2">
+                  <span className="font-jakarta text-[11px] text-[#475569]">Ít</span>
+                  {[0, 1, 2, 3].map(c => (
+                    <div key={c} className="w-3 h-3 rounded-sm" style={{ background: heatColor(c) }} />
+                  ))}
+                  <span className="font-jakarta text-[11px] text-[#475569]">Nhiều</span>
+                </div>
+              </motion.section>
+            )}
+
+            {creditLog.length > 0 ? (
+              <section className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+                <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Lịch sử Tia</span>
+                <div className="flex flex-col gap-1">
+                  {(showAllCredits ? creditLog : creditLog.slice(0, 15)).map((entry, i) => (
+                    <div key={i} className="flex items-center justify-between py-2 border-b border-[#1E2A44] last:border-0">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-jakarta text-[12px] text-[#94A3B8]">{entry.reason}</span>
+                        <span className="font-jakarta text-[11px] text-[#475569]">{formatDate(entry.created_at)}</span>
+                      </div>
+                      <span className={`font-fraunces text-[14px] font-bold ${entry.delta > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {entry.delta > 0 ? '+' : ''}{entry.delta}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {creditLog.length > 15 && !showAllCredits && (
+                  <button onClick={() => setShowAllCredits(true)}
+                    className="font-jakarta text-[12px] text-amber-400 hover:text-amber-300 transition text-center">
+                    + Xem thêm ({creditLog.length - 15} mục)
+                  </button>
+                )}
+              </section>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-16 gap-2 text-center">
+                <span className="font-jakarta text-[#475569] text-[14px]">Chưa có giao dịch nào.</span>
+                <span className="font-jakarta text-[#374151] text-[12px]">Sử dụng tính năng AI để xem lịch sử Tia của bạn.</span>
+              </div>
+            )}
+          </div>
         )}
 
       </div>

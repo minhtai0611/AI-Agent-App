@@ -5,6 +5,9 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import { AuthProvider } from './context/AuthContext.jsx'
 import App from './App.jsx'
 import './index.css'
+import { pruneStorage } from './utils/storageManager.js'
+
+pruneStorage()
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

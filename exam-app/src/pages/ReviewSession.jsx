@@ -5,7 +5,8 @@ import { loadQuestionsByIds } from '../api/index.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 
-const TOPIC_LABELS = { algebra: 'Đại số', geometry: 'Hình học', statistics: 'Thống kê', combinatorics: 'Tổ hợp' }
+import { TOPIC_LABELS } from '../utils/topicLabels.js'
+import { MathText } from '../components/MathText.jsx'
 const NEXT_INTERVAL = { 1: 3, 3: 7, 7: 14, 14: 30, 30: 60 }
 
 function todayStr() {
@@ -86,6 +87,12 @@ export default function ReviewSession() {
   if (done) {
     const correct = results.filter(r => r === 'correct').length
     const total = questions.length
+    const dailyStreak = (() => {
+      try {
+        const s = JSON.parse(localStorage.getItem('daily_challenge_streak') ?? '{}')
+        return s.currentStreak ?? 0
+      } catch { return 0 }
+    })()
     return (
       <motion.div
         className="min-h-screen bg-[#0A0E1A] flex flex-col items-center justify-center gap-8 px-4"
@@ -99,6 +106,11 @@ export default function ReviewSession() {
           {total > 0 && (
             <p className="font-jakarta text-[#94A3B8] text-[15px]">
               Đúng <span className="text-[#10B981] font-bold">{correct}</span> / {total} câu
+            </p>
+          )}
+          {dailyStreak > 0 && (
+            <p className="font-jakarta text-[13px] text-amber-400">
+              🔥 {dailyStreak} ngày liên tiếp — tiếp tục chuỗi với Thử thách hôm nay!
             </p>
           )}
         </div>
@@ -171,7 +183,7 @@ export default function ReviewSession() {
             className="flex flex-col gap-5"
           >
             <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-6">
-              <p className="font-jakarta text-[15px] text-[#F0F4FF] leading-relaxed">{question.question}</p>
+              <MathText className="font-jakarta text-[15px] text-[#F0F4FF] leading-relaxed">{question.question}</MathText>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -194,7 +206,7 @@ export default function ReviewSession() {
                     style={{ background: bg, border: `1px solid ${border}`, color: textColor }}
                   >
                     <span className="font-semibold mr-3">{String.fromCharCode(65 + i)}.</span>
-                    {choice}
+                    <MathText>{choice}</MathText>
                   </button>
                 )
               })}

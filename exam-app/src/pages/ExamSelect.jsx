@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useExamDispatch } from '../context/ExamContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
-import { loadExams, loadThiThuExams, loadQuestionsByIds } from '../api/index.js'
+import { useHistory } from '../context/HistoryContext.jsx'
+import { loadExams, loadThiThuExams, loadQuestionsByIds, loadExamById } from '../api/index.js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePageTitle } from '../hooks/usePageTitle.js'
+import { buildBriefing } from '../utils/examBriefing.js'
 
 const listVariants = {
   hidden: {},
@@ -49,9 +51,11 @@ export default function ExamSelect({ onOpenAuth }) {
   const navigate = useNavigate()
   const dispatch = useExamDispatch()
   const { user } = useAuth()
+  const { results } = useHistory()
   const [searchParams] = useSearchParams()
   const [mode, setMode] = useState(searchParams.get('mode') === 'practice' ? 'practice' : 'timed')
   const [previewExam, setPreviewExam] = useState(null)
+  const [expandedCategories, setExpandedCategories] = useState({})
 
   const saved = loadSavedFilters()
   const [filterYear, setFilterYear] = useState(saved.year ?? null)
@@ -80,6 +84,23 @@ export default function ExamSelect({ onOpenAuth }) {
 
   const allowedCategories = getAllowedCategories(user)
 
+  const motivationalHeader = useMemo(() => {
+    if (!results || results.length === 0) return 'Bắt đầu với một đề thi phù hợp với trình độ của bạn.'
+    const sorted = [...results].sort((a, b) => new Date(b.finishedAt) - new Date(a.finishedAt))
+    const last = sorted[0]
+    const bestByExam = {}
+    for (const r of results) {
+      if (!bestByExam[r.examId] || r.score > bestByExam[r.examId]) bestByExam[r.examId] = r.score
+    }
+    const personalBest = Math.max(...Object.values(bestByExam))
+    const recentBestExamId = Object.entries(bestByExam).find(([, s]) => s === personalBest)?.[0]
+    if (recentBestExamId && last.examId === recentBestExamId && results.filter(r => r.examId === recentBestExamId).length >= 2) {
+      return `Bạn vừa đạt kỷ lục ${personalBest} điểm — hãy thử thách tiếp!`
+    }
+    const lastTitle = loadExamById(last.examId)?.title ?? null
+    return lastTitle ? `Chào mừng trở lại! Tiếp tục từ ${lastTitle} →` : 'Chào mừng trở lại! Chọn một đề thi để tiếp tục.'
+  }, [results])
+
   async function handleStart(exam) {
     if (!user) {
       const trialUsed = localStorage.getItem(TRIAL_KEY)
@@ -89,7 +110,7 @@ export default function ExamSelect({ onOpenAuth }) {
       }
       localStorage.setItem(TRIAL_KEY, '1')
     }
-    const questions = await loadQuestionsByIds(exam.questionIds)
+    const questions = await loadQuestionsByIds(exam.questionIds, !!user)
     dispatch({ type: 'START_EXAM', exam, questions, mode: mode === 'timed' ? 'timed' : 'practice' })
     navigate(`/test/${exam.id}`)
   }
@@ -168,7 +189,10 @@ export default function ExamSelect({ onOpenAuth }) {
 
       {/* Content */}
       <div className="flex flex-col gap-10 p-10">
-        <h1 className="font-fraunces text-[36px] font-bold text-[#F8FAFC]">Chọn đề thi</h1>
+        <div className="flex flex-col gap-2">
+          <h1 className="font-fraunces text-[36px] font-bold text-[#F8FAFC]">Chọn đề thi</h1>
+          <p className="font-jakarta text-[14px] text-[#64748B]">{motivationalHeader}</p>
+        </div>
 
         <motion.div
           className="flex flex-col gap-10"
@@ -211,38 +235,51 @@ export default function ExamSelect({ onOpenAuth }) {
                       Nâng cấp
                     </button>
                   </div>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {groupExams.map(exam => (
-                      <motion.div
-                        key={exam.id}
-                        variants={cardVariants}
-                        whileHover={{ scale: 1.012 }}
-                        className="bg-[#0D1521] rounded-xl px-6 py-5 flex flex-col gap-3"
-                        style={{ borderLeft: `3px solid ${group.accent}99` }}
-                      >
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex flex-col gap-1.5">
-                            <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{exam.title}</span>
-                            <span className="font-jakarta text-[13px] text-[#64748B]">
-                              {exam.year} · {exam.totalQuestions} câu · {exam.duration} phút
-                              {exam.source && ` · ${exam.source}`}
-                            </span>
+                ) : (() => {
+                  const SHOW_FIRST = 5
+                  const isExpanded = !!expandedCategories[group.category + mode]
+                  const visibleExams = isExpanded ? groupExams : groupExams.slice(0, SHOW_FIRST)
+                  const hiddenCount = groupExams.length - SHOW_FIRST
+                  return (
+                    <div className="flex flex-col gap-3">
+                      {visibleExams.map(exam => (
+                        <motion.div
+                          key={exam.id}
+                          variants={cardVariants}
+                          whileHover={{ scale: 1.012 }}
+                          className="bg-[#0D1521] rounded-xl px-6 py-5 flex flex-col gap-3"
+                          style={{ borderLeft: `3px solid ${group.accent}99` }}
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex flex-col gap-1.5">
+                              <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{exam.title}</span>
+                              <span className="font-jakarta text-[13px] text-[#64748B]">
+                                {exam.year} · {exam.totalQuestions} câu · {exam.duration} phút
+                                {exam.source && ` · ${exam.source}`}
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => openPreview(exam)}
+                              className="flex-shrink-0 px-5 py-2 rounded-md font-jakarta text-[13px] font-semibold transition"
+                              style={{ background: 'transparent', border: `1px solid ${group.accent}`, color: group.accent }}
+                              onMouseEnter={e => e.currentTarget.style.background = group.accent + '1A'}
+                              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                            >
+                              Bắt đầu
+                            </button>
                           </div>
-                          <button
-                            onClick={() => openPreview(exam)}
-                            className="flex-shrink-0 px-5 py-2 rounded-md font-jakarta text-[13px] font-semibold transition"
-                            style={{ background: 'transparent', border: `1px solid ${group.accent}`, color: group.accent }}
-                            onMouseEnter={e => e.currentTarget.style.background = group.accent + '1A'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                          >
-                            Bắt đầu
-                          </button>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
+                        </motion.div>
+                      ))}
+                      {!isExpanded && hiddenCount > 0 && (
+                        <button
+                          onClick={() => setExpandedCategories(prev => ({ ...prev, [group.category + mode]: true }))}
+                          className="font-jakarta text-[13px] text-center py-2.5 rounded-xl border border-dashed border-[#1E2A44] text-[#475569] hover:text-[#94A3B8] hover:border-[#2A3A5E] transition">
+                          + Xem thêm ({hiddenCount} đề)
+                        </button>
+                      )}
+                    </div>
+                  )
+                })()}
               </motion.section>
             )
           })}
@@ -289,6 +326,25 @@ export default function ExamSelect({ onOpenAuth }) {
                   </div>
                 )}
               </div>
+              {/* Pre-exam briefing — only shown when user has history */}
+              {(() => {
+                if (!results || results.length === 0) return null
+                const briefing = buildBriefing(results, previewExam)
+                if (!briefing) return null
+                return (
+                  <div className="rounded-xl bg-[#0A1628] border border-[#1E3A5E] px-4 py-3.5 flex flex-col gap-2">
+                    <span className="font-jakarta text-[11px] font-bold text-[#3B82F6] uppercase tracking-wider">Chuẩn bị trước khi thi</span>
+                    <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{briefing.message}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-0.5">
+                      {briefing.weakTopics.map(w => (
+                        <span key={w.topic} className="px-2.5 py-1 rounded-full bg-[#2A0F14] border border-[#5A1A24] font-jakarta text-[11px] text-[#FB7185]">
+                          {w.label} · {w.accuracy}%
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
               <div className="flex gap-3 mt-1">
                 <button
                   onClick={closePreview}

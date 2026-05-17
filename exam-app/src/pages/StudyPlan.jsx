@@ -1,81 +1,18 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import Markdown from 'react-markdown'
-import remarkMath from 'remark-math'
-import remarkGfm from 'remark-gfm'
-import rehypeKatex from 'rehype-katex'
-import 'katex/dist/katex.min.css'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { generateStudyPlan, generateWeekQuiz } from '../api/aiClient.js'
 import { buildStudyPlanPayload } from '../api/index.js'
+import { safeSetItem } from '../utils/storageManager.js'
+import { MathText, MathBlock } from '../components/MathText.jsx'
 
 const STORAGE_KEY      = (id) => `study-plan-progress-${id}`
 const PLAN_CACHE_KEY   = (id) => `study-plan-data-${id}`
 const QUIZ_CACHE_KEY   = (id, w) => `study-plan-quiz-${id}-${w}`
 
-const REMARK_MATH_OPTS = [remarkMath, { singleDollarTextMath: true }]
-
 const DIFF_COLOR = { easy: '#10B981', medium: '#F2A20C', hard: '#EF4444' }
 const DIFF_LABEL = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
-
-// Inline context: stem, choices, tasks — wraps paragraphs in <span> to avoid block gaps.
-// GFM enabled so markdown tables inside stems render instead of showing raw pipe characters.
-function MathText({ children }) {
-  return (
-    <Markdown
-      remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]}
-      rehypePlugins={[rehypeKatex]}
-      components={{
-        p:     ({ children: c }) => <span>{c}</span>,
-        table: ({ children: c }) => (
-          <div className="overflow-x-auto my-2">
-            <table className="border-collapse text-[12px] w-full">{c}</table>
-          </div>
-        ),
-        th: ({ children: c }) => (
-          <th className="border border-[#2A3A5E] px-3 py-1.5 font-semibold text-[#CBD5E1] text-left bg-[#111827]">{c}</th>
-        ),
-        td: ({ children: c }) => (
-          <td className="border border-[#2A3A5E] px-3 py-1.5 text-[#94A3B8]">{c}</td>
-        ),
-      }}
-    >
-      {children ?? ''}
-    </Markdown>
-  )
-}
-
-// Block context: plan overview, explanations — preserves paragraph breaks and renders tables
-function MathBlock({ children }) {
-  return (
-    <Markdown
-      remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]}
-      rehypePlugins={[rehypeKatex]}
-      components={{
-        p:      ({ children: c }) => <p className="mb-2 last:mb-0">{c}</p>,
-        strong: ({ children: c }) => <strong className="font-semibold text-[#CBD5E1]">{c}</strong>,
-        em:     ({ children: c }) => <em className="italic">{c}</em>,
-        ul:     ({ children: c }) => <ul className="list-disc pl-5 space-y-1">{c}</ul>,
-        ol:     ({ children: c }) => <ol className="list-decimal pl-5 space-y-1">{c}</ol>,
-        li:     ({ children: c }) => <li className="leading-relaxed">{c}</li>,
-        table:  ({ children: c }) => (
-          <div className="overflow-x-auto my-2">
-            <table className="border-collapse text-[12px] w-full">{c}</table>
-          </div>
-        ),
-        th: ({ children: c }) => (
-          <th className="border border-[#2A3A5E] px-3 py-1.5 font-semibold text-[#CBD5E1] text-left bg-[#111827]">{c}</th>
-        ),
-        td: ({ children: c }) => (
-          <td className="border border-[#2A3A5E] px-3 py-1.5 text-[#94A3B8]">{c}</td>
-        ),
-      }}
-    >
-      {children ?? ''}
-    </Markdown>
-  )
-}
 
 function ProgressDots({ tasks, checked, onToggle }) {
   return (
@@ -235,7 +172,7 @@ function WeekQuiz({ resultId, weekIndex, weekFocus, weekTasks }) {
       if (!valid) console.warn('[quiz-validate] dropped question:', issues, q)
       return valid
     })
-    localStorage.setItem(cacheKey, JSON.stringify(qs))
+    safeSetItem(cacheKey, JSON.stringify(qs))
     setQuestions(qs)
     setAnswers({})
     setSubmitted(false)
@@ -386,6 +323,10 @@ function WeekQuiz({ resultId, weekIndex, weekFocus, weekTasks }) {
 function Skeleton() {
   return (
     <div className="flex flex-col gap-5 animate-pulse">
+      <div className="flex items-center gap-2">
+        <span className="text-[#475569] text-[13px] animate-pulse">⟳</span>
+        <span className="font-jakarta text-[13px] text-[#475569]">Đang tạo kế hoạch học tập cá nhân hóa...</span>
+      </div>
       <div className="h-8 w-48 bg-[#111827] rounded" />
       <div className="flex gap-2">
         {[1, 2, 3, 4].map(i => <div key={i} className="h-9 w-20 bg-[#111827] rounded-lg" />)}
@@ -425,7 +366,7 @@ export default function StudyPlan() {
     buildStudyPlanPayload(result, history).then(payload =>
       generateStudyPlan(payload).then(({ data, error: err }) => {
         setLoading(false)
-        if (data) { localStorage.setItem(cacheKey, JSON.stringify(data)); setPlan(data) }
+        if (data) { safeSetItem(cacheKey, JSON.stringify(data)); setPlan(data) }
         else setError(true)
       })
     )
@@ -441,10 +382,13 @@ export default function StudyPlan() {
 
   if (!result) {
     return (
-      <div className="min-h-screen bg-[#0A0E1A] flex flex-col items-center justify-center gap-4">
-        <p className="font-jakarta text-[#94A3B8]">Không tìm thấy kết quả</p>
-        <button onClick={() => navigate('/history')} className="font-jakarta text-sm text-[#F2A20C] underline">
-          Xem lịch sử
+      <div className="min-h-screen bg-[#0A0E1A] flex flex-col items-center justify-center gap-4 px-6 text-center">
+        <span className="text-4xl">📝</span>
+        <p className="font-jakarta text-[15px] text-[#94A3B8]">Hoàn thành một bài thi để nhận kế hoạch học tập cá nhân hóa của bạn →</p>
+        <button onClick={() => navigate('/exams')}
+          className="px-5 py-2 rounded-xl font-jakarta text-[13px] font-bold mt-2"
+          style={{ background: '#F2A20C', color: '#0A0E1A' }}>
+          Chọn đề thi
         </button>
       </div>
     )

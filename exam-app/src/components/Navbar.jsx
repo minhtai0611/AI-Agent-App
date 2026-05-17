@@ -43,7 +43,7 @@ export default function Navbar({ onOpenAuth }) {
         className="text-amber-400 font-semibold text-sm cursor-pointer"
         onClick={() => navigate('/')}
       >
-        ExamApp
+        Zenith
       </span>
 
       <div className="flex items-center gap-3">
@@ -54,7 +54,7 @@ export default function Navbar({ onOpenAuth }) {
             <button
               onClick={() => navigate('/account')}
               className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#1E2A44] bg-[#111827]/80 hover:border-amber-500/50 transition"
-              title="AI Điểm"
+              title="Tia"
             >
               <span className="text-amber-400 text-[11px]">⚡</span>
               <span className="font-jakarta text-[12px] font-semibold text-amber-400">

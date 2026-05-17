@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useReducer, useRef, useState } from 'react'
 import { useAuth } from './AuthContext'
 import { getHistory, postHistory } from '../api/aiClient'
+import { enqueueHistoryEntry, flushQueue, getPendingCount } from '../utils/offlineSync'
 
 const HistoryContext = createContext(null)
 
@@ -81,18 +82,43 @@ export function HistoryProvider({ children }) {
     })
   }, [user])
 
+  // Flush offline queue whenever user comes back online (and is authenticated)
+  useEffect(() => {
+    function handleOnline() {
+      if (!serverModeRef.current) return
+      flushQueue(postHistory)
+    }
+    window.addEventListener('online', handleOnline)
+    return () => window.removeEventListener('online', handleOnline)
+  }, [])
+
+  // Also try to flush on login (user may have been offline before authenticating)
+  useEffect(() => {
+    if (!user || !navigator.onLine) return
+    if (getPendingCount() > 0) flushQueue(postHistory)
+  }, [user])
+
   async function addResult(result) {
     const isServer = serverModeRef.current
     dispatch({ type: 'ADD', result, serverMode: isServer, userId: userIdRef.current })
+
     if (isServer) {
-      // Fire-and-forget; failure is silent (result is already in local state)
-      postHistory([{
+      const entry = {
         result_id: result.id,
         exam_id: result.examId ?? null,
         score: result.score ?? null,
-        payload: result,
+        payload: { ...result, durationSeconds: result.timeSpent ?? null },
         created_at: result.createdAt ?? null,
-      }])
+      }
+      if (!navigator.onLine) {
+        // Device is offline — queue for later sync
+        enqueueHistoryEntry(entry)
+      } else {
+        // Online — post now; if it fails, queue for retry
+        postHistory([entry]).then(({ error }) => {
+          if (error) enqueueHistoryEntry(entry)
+        })
+      }
     }
     return result.id
   }

@@ -1,26 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, memo } from 'react'
 import { motion } from 'framer-motion'
-import Markdown from 'react-markdown'
-import remarkMath from 'remark-math'
-import remarkGfm from 'remark-gfm'
-import rehypeKatex from 'rehype-katex'
-import 'katex/dist/katex.min.css'
 import { getHint, getExplanation, reportQuestion } from '../api/aiClient.js'
 import { sanitizeSvg } from '../utils/sanitizeSvg.js'
-
-function MathText({ children, className, style }) {
-  return (
-    <span className={className} style={style}>
-      <Markdown
-        remarkPlugins={[remarkMath, remarkGfm]}
-        rehypePlugins={[rehypeKatex]}
-        components={{ p: ({ children }) => <span>{children}</span> }}
-      >
-        {children}
-      </Markdown>
-    </span>
-  )
-}
+import { MathText } from './MathText.jsx'
 
 const LABELS = ['A', 'B', 'C', 'D']
 const MAX_HINTS = 3
@@ -121,7 +103,7 @@ function ReportButton({ questionId }) {
   )
 }
 
-export default function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hintState, onHint }) {
+function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hintState, onHint }) {
   const showFeedback = practiceMode && chosen !== null && chosen !== undefined
   const [hintLoading, setHintLoading] = useState(false)
   const [hintError, setHintError] = useState(null)
@@ -167,7 +149,7 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
     } else if (status === 401) {
       setHintError('Đăng nhập để sử dụng gợi ý AI')
     } else if (status === 402 && typeof error === 'object' && error.code === 'insufficient_credits') {
-      setHintError(`Hết AI Điểm (còn ${error.balance}, cần ${error.required})`)
+      setHintError(`Hết Tia (còn ${error.balance}, cần ${error.required})`)
     } else if (status === 429) {
       setHintError('Vui lòng chờ trước khi yêu cầu gợi ý tiếp theo')
     } else {
@@ -310,3 +292,11 @@ export default function QuestionCard({ question, chosen, onAnswer, practiceMode,
     </div>
   )
 }
+
+export default memo(QuestionCard, (prev, next) =>
+  prev.question.id === next.question.id &&
+  prev.chosen === next.chosen &&
+  prev.mode === next.mode &&
+  prev.practiceMode === next.practiceMode &&
+  prev.submitted === next.submitted
+)

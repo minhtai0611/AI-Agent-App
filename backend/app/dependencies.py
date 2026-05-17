@@ -4,9 +4,14 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 import jwt
+from cachetools import TTLCache
 
 from app.config import get_settings
 from app.auth import decode_jwt
+
+# Cache user suspension status for 30 s — avoids a DB read on every request
+# for the ~50 active users under load.  Invalidated implicitly on TTL expiry.
+_suspension_cache: TTLCache = TTLCache(maxsize=500, ttl=30)
 
 
 @lru_cache
@@ -50,13 +55,20 @@ async def get_current_user(
     if not pool:
         raise HTTPException(status_code=503, detail="Service unavailable")
     ip = request.client.host if request.client else None
-    row = await pool.fetchrow(
-        "SELECT is_suspended, suspension_reason FROM users WHERE id = ?", user.user_id
-    )
-    if row and row["is_suspended"]:
+
+    cached = _suspension_cache.get(user.user_id)
+    if cached is None:
+        row = await pool.fetchrow(
+            "SELECT is_suspended, suspension_reason FROM users WHERE id = ?", user.user_id
+        )
+        cached = {"suspended": bool(row and row["is_suspended"]),
+                  "reason": (row["suspension_reason"] or "") if row else ""}
+        _suspension_cache[user.user_id] = cached
+
+    if cached["suspended"]:
         raise HTTPException(
             status_code=403,
-            detail={"code": "account_suspended", "reason": row["suspension_reason"] or ""},
+            detail={"code": "account_suspended", "reason": cached["reason"]},
         )
     if ip:
         await pool.execute("UPDATE users SET last_ip = ? WHERE id = ?", ip, user.user_id)

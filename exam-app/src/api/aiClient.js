@@ -8,6 +8,11 @@ const slowClient = axios.create({ baseURL: BASE, timeout: 130000 })
 let _logoutRef = null
 export function setLogoutRef(fn) { _logoutRef = fn }
 
+// Optimistic credit helpers — wired in by AuthContext on mount
+let _deductRef = null
+let _refundRef = null
+export function setCreditRefs(deduct, refund) { _deductRef = deduct; _refundRef = refund }
+
 function _attachInterceptors(instance) {
   instance.interceptors.request.use(config => {
     const token = localStorage.getItem('auth_token')
@@ -56,16 +61,73 @@ function wrapRetry(fn) {
   return wrap(withRetry(fn).catch(err => Promise.reject(err)))
 }
 
+// Deducts `cost` Tia immediately, refunds if the server returns 402.
+async function wrapOptimistic(cost, fn) {
+  if (!navigator.onLine) return { data: null, error: 'Bạn đang ngoại tuyến — kết nối mạng để dùng tính năng AI', status: 0 }
+  _deductRef?.(cost)
+  const result = await wrap(withRetry(fn).catch(err => Promise.reject(err)))
+  if (result.status === 402) _refundRef?.(cost)
+  return result
+}
+
 export function analyzeResult(payload) {
-  return wrapRetry(() => client.post('/analyze', payload))
+  return wrapOptimistic(3, () => client.post('/analyze', payload))
+}
+
+// Streams the AI analysis as SSE tokens.
+// onToken(str) called for each chunk; returns a Promise<{data, error}> that
+// resolves when the stream ends (data = full accumulated text).
+export async function analyzeResultStream(payload, onToken) {
+  if (!navigator.onLine) return { data: null, error: 'Bạn đang ngoại tuyến — kết nối mạng để dùng tính năng AI', status: 0 }
+  _deductRef?.(3)
+  const token = localStorage.getItem('auth_token')
+  try {
+    const res = await fetch(`${BASE}/analyze/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) {
+      const detail = await res.json().catch(() => ({}))
+      if (res.status === 402) _refundRef?.(3)
+      return { data: null, error: detail?.detail ?? `HTTP ${res.status}`, status: res.status }
+    }
+    const reader = res.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+    let full = ''
+    while (true) {
+      const { value, done } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() ?? ''
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        const raw = line.slice(6)
+        if (raw === '[DONE]') return { data: full, error: null, status: 200 }
+        try {
+          const chunk = JSON.parse(raw)
+          if (typeof chunk === 'string') { full += chunk; onToken?.(chunk) }
+          else if (chunk?.error) return { data: null, error: chunk.error, status: 502 }
+        } catch { /* ignore malformed chunk */ }
+      }
+    }
+    return { data: full, error: null, status: 200 }
+  } catch (err) {
+    return { data: null, error: err?.message ?? 'Stream error', status: 0 }
+  }
 }
 
 export function getHint(payload) {
-  return wrapRetry(() => client.post('/hint', payload))
+  return wrapOptimistic(1, () => client.post('/hint', payload))
 }
 
 export function getExplanation(payload) {
-  return wrapRetry(() => client.post('/explain', payload))
+  return wrapOptimistic(1, () => client.post('/explain', payload))
 }
 
 export function sendTutorMessage(payload) {

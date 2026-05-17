@@ -5,7 +5,7 @@ import { useExam, useExamDispatch } from '../context/ExamContext'
 import { loadQuestions } from '../api/index.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 
-const TOPIC_LABELS = { algebra: 'Đại số', geometry: 'Hình học', statistics: 'Thống kê', combinatorics: 'Tổ hợp' }
+import { TOPIC_LABELS } from '../utils/topicLabels.js'
 const TOPICS = Object.keys(TOPIC_LABELS)
 const SESSION_SIZE = 15
 
