@@ -165,6 +165,7 @@ export default function ExamSelect({ onOpenAuth }) {
           {[
             { value: 'timed', label: 'Có thời gian' },
             { value: 'practice', label: 'Luyện tập' },
+            { value: 'special', label: 'Chế độ đặc biệt' },
           ].map(opt => (
             <button key={opt.value} onClick={() => setMode(opt.value)}
               className={`px-5 py-2 rounded-full font-jakarta text-[13px] transition ${
@@ -264,7 +265,53 @@ export default function ExamSelect({ onOpenAuth }) {
           <p className="font-jakarta text-[14px] text-[#64748B]">{motivationalHeader}</p>
         </div>
 
-        <motion.div
+        {mode === 'special' && (
+          <motion.div
+            key="special"
+            variants={listVariants}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          >
+            {[
+              { icon: '🔥', label: 'Thử thách hôm nay', desc: 'Câu hỏi ngẫu nhiên mỗi ngày — duy trì chuỗi học liên tiếp', route: '/daily', accent: '#F2A20C', tag: 'Daily' },
+              { icon: '⚡', label: 'Flash Mode', desc: '20 câu · 10 giây mỗi câu · nhanh tay hay chậm chân', route: '/flash', accent: '#818CF8', tag: 'Tốc độ' },
+              { icon: '🗡️', label: 'Boss Battle', desc: 'Chinh phục các câu sai · tích lũy chuỗi đúng để đánh bại boss', route: '/battle', accent: '#EF4444', tag: 'Battle' },
+              { icon: '❤️‍🔥', label: 'Streak Survival', desc: 'Đừng để mất mạng · chuỗi 5 câu đúng nhân đôi điểm', route: '/survival', accent: '#FB7185', tag: 'Survival' },
+              { icon: '🔄', label: 'Reverse Mode', desc: 'Cho trước đáp án · tìm đúng câu hỏi', route: '/reverse', accent: '#34D399', tag: 'Tư duy' },
+              { icon: '🧠', label: 'Luyện thích nghi', desc: 'AI chọn câu hỏi theo điểm yếu của bạn', route: '/practice/adaptive', accent: '#60A5FA', tag: 'AI' },
+              { icon: '📚', label: 'Ôn tập thẻ ghi nhớ', desc: 'Spaced-repetition — ôn đúng lúc, nhớ lâu hơn', route: '/review', accent: '#A78BFA', tag: 'SM-2' },
+              { icon: '📖', label: 'Sổ tay sai lầm', desc: 'Xem lại tất cả câu đã sai và luyện từng lỗi một', route: '/mistakes', accent: '#94A3B8', tag: 'Review' },
+            ].map(m => (
+              <motion.button
+                key={m.route}
+                variants={cardVariants}
+                onClick={() => navigate(m.route)}
+                className="group text-left bg-[#0D1521] rounded-2xl p-5 flex flex-col gap-3 border border-[#1E2A44] hover:border-opacity-60 transition"
+                style={{ '--accent': m.accent, borderColor: m.accent + '22' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = m.accent + '66'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = m.accent + '22'}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl">{m.icon}</span>
+                  <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
+                    style={{ background: m.accent + '22', color: m.accent }}>
+                    {m.tag}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{m.label}</span>
+                  <span className="font-jakarta text-[12px] text-[#64748B] leading-relaxed">{m.desc}</span>
+                </div>
+                <span className="font-jakarta text-[12px] font-semibold mt-auto" style={{ color: m.accent }}>
+                  Bắt đầu →
+                </span>
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
+
+        {mode !== 'special' && <motion.div
           className="flex flex-col gap-10"
           key={mode}
           variants={listVariants}
@@ -353,7 +400,8 @@ export default function ExamSelect({ onOpenAuth }) {
               </motion.section>
             )
           })}
-        </motion.div>
+        </motion.div>}
+
       </div>
 
       {/* Exam preview modal */}

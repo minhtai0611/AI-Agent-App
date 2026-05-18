@@ -1,5 +1,5 @@
-const CACHE_SHELL = 'exam-shell-v3'
-const CACHE_ASSETS = 'exam-assets-v3'
+const CACHE_SHELL = 'exam-shell-v4'
+const CACHE_ASSETS = 'exam-assets-v4'
 
 // App shell — cached on install for reliable offline navigation
 const SHELL_URLS = ['/', '/manifest.json', '/favicon.svg', '/offline.html']
