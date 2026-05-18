@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState, useMemo } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { pageVariants, listVariants, itemVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useHistory } from '../context/HistoryContext.jsx'
+import { computeStreak } from '../utils/streak.js'
+import { getDaysUntilExam } from '../utils/examCountdown.js'
 import ZenithLogo from '../components/ZenithLogo.jsx'
 
 const PLANS_MONTHLY = [
@@ -30,9 +33,21 @@ export default function Landing({ onOpenAuth }) {
   usePageTitle('')
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { results } = useHistory()
+  const [searchParams] = useSearchParams()
   const [dueCount, setDueCount] = useState(0)
+  const streak = useMemo(() => computeStreak(results), [results])
+  const daysUntil = user ? getDaysUntilExam(user.province) : null
 
   useEffect(() => { setDueCount(getDueCount()) }, [])
+
+  // Store referral code before user logs in
+  useEffect(() => {
+    const ref = searchParams.get('ref')
+    if (ref && /^[A-Za-z0-9_-]{8,20}$/.test(ref)) {
+      try { sessionStorage.setItem('pending_ref', ref) } catch { /* ignore */ }
+    }
+  }, [searchParams])
 
   return (
     <motion.div
@@ -92,22 +107,34 @@ export default function Landing({ onOpenAuth }) {
           </motion.button>
         </motion.div>
 
-        {/* Review badge + history link */}
-        <motion.div variants={itemVariants} className="flex items-center gap-4 flex-wrap justify-center">
-          {dueCount > 0 && (
-            <motion.button
-              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-              onClick={() => navigate('/review')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#6366F144] font-jakarta text-[13px] font-semibold text-[#6366F1] hover:bg-[#6366F1]/10 transition"
-            >
-              <span className="w-2 h-2 rounded-full bg-[#6366F1] animate-pulse" />
-              Ôn tập hôm nay ({dueCount} câu)
-            </motion.button>
-          )}
-          <button onClick={() => navigate('/history')} className="font-jakarta text-sm text-[#64748B] hover:text-[#94A3B8] transition">
-            Xem lịch sử làm bài →
-          </button>
-        </motion.div>
+        {/* Review badge + history link — only for logged-in users */}
+        {user && (
+          <motion.div variants={itemVariants} className="flex items-center gap-4 flex-wrap justify-center">
+            {dueCount > 0 && (
+              <motion.button
+                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+                onClick={() => navigate('/review')}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#6366F144] font-jakarta text-[13px] font-semibold text-[#6366F1] hover:bg-[#6366F1]/10 transition"
+              >
+                <span className="w-2 h-2 rounded-full bg-[#6366F1] animate-pulse" />
+                Ôn tập hôm nay ({dueCount} câu)
+              </motion.button>
+            )}
+            {streak > 0 && (
+              <span className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-[#F2A20C]">
+                🔥 {streak} ngày liên tiếp
+              </span>
+            )}
+            {daysUntil != null && (
+              <span className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-[#818CF8]">
+                📅 Còn {daysUntil} ngày đến kỳ thi
+              </span>
+            )}
+            <button onClick={() => navigate('/history')} className="font-jakarta text-sm text-[#64748B] hover:text-[#94A3B8] transition">
+              Xem lịch sử làm bài →
+            </button>
+          </motion.div>
+        )}
 
         {/* Stats */}
         <motion.div variants={itemVariants} className="flex gap-4 flex-wrap justify-center">

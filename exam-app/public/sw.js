@@ -1,8 +1,8 @@
-const CACHE_SHELL = 'exam-shell-v2'
-const CACHE_ASSETS = 'exam-assets-v2'
+const CACHE_SHELL = 'exam-shell-v3'
+const CACHE_ASSETS = 'exam-assets-v3'
 
 // App shell — cached on install for reliable offline navigation
-const SHELL_URLS = ['/', '/manifest.json', '/favicon.svg']
+const SHELL_URLS = ['/', '/manifest.json', '/favicon.svg', '/offline.html']
 
 // Asset types that are safe to cache aggressively (hashed filenames never change)
 function isHashedAsset(url) {
@@ -80,11 +80,11 @@ self.addEventListener('fetch', e => {
     return
   }
 
-  // Navigation (HTML pages) — network-first, fallback to shell
+  // Navigation (HTML pages) — network-first, fallback to offline page
   if (request.mode === 'navigate') {
     e.respondWith(
       fetch(request).catch(() =>
-        caches.match('/').then(r => r || new Response('Offline', { status: 503 }))
+        caches.match('/offline.html').then(r => r || caches.match('/').then(s => s || new Response('Offline', { status: 503 })))
       )
     )
     return

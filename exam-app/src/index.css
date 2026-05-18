@@ -113,6 +113,11 @@ body {
   -moz-user-select: none;
 }
 
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* KaTeX — normalize math font size to match surrounding text in all contexts */
 .katex { font-size: 1em; }
 

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ngoại tuyến · Zenith</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      background: radial-gradient(ellipse 140% 100% at 50% 35%, #1B2B4B 0%, #0A0E1A 100%);
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      color: #F8FAFC;
+      padding: 24px;
+      text-align: center;
+    }
+    .icon { font-size: 48px; }
+    h1 { font-size: 22px; font-weight: 700; }
+    p { font-size: 14px; color: #94A3B8; max-width: 320px; line-height: 1.6; }
+    button {
+      margin-top: 8px;
+      padding: 12px 28px;
+      background: #F2A20C;
+      color: #0A0E1A;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { opacity: 0.88; }
+  </style>
+</head>
+<body>
+  <div class="icon">📡</div>
+  <h1>Bạn đang ngoại tuyến</h1>
+  <p>Kiểm tra kết nối mạng và thử lại. Các đề thi đã tải trước vẫn khả dụng khi có mạng trở lại.</p>
+  <button onclick="location.reload()">Thử lại</button>
+</body>
+</html>

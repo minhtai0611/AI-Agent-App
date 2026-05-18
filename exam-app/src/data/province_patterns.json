@@ -1,0 +1,19 @@
+{
+  "Hà Nội": [
+    { "topic": "algebra", "avgCount": 5, "trend": "stable", "note": "Thường ra 4–5 câu về hàm số và phương trình" },
+    { "topic": "geometry", "avgCount": 4, "trend": "rising", "note": "Hình học phẳng tăng dần — đặc biệt đường tròn" }
+  ],
+  "Hồ Chí Minh": [
+    { "topic": "statistics", "avgCount": 4, "trend": "rising", "note": "Xác suất và thống kê ngày càng được chú trọng" },
+    { "topic": "combinatorics", "avgCount": 3, "trend": "stable", "note": "Tổ hợp ổn định 2–3 câu mỗi năm" }
+  ],
+  "Đà Nẵng": [
+    { "topic": "algebra", "avgCount": 6, "trend": "stable", "note": "Bất phương trình và hệ phương trình chiếm tỉ lệ cao" }
+  ],
+  "Nghệ An": [
+    { "topic": "geometry", "avgCount": 5, "trend": "rising", "note": "Bài toán hình không gian xuất hiện nhiều hơn" }
+  ],
+  "Hải Phòng": [
+    { "topic": "algebra", "avgCount": 4, "trend": "stable", "note": "Tập trung vào đa thức và phân thức đại số" }
+  ]
+}

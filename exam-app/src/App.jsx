@@ -11,6 +11,7 @@ import ProfileOnboarding from './components/ProfileOnboarding.jsx'
 import LowCreditBanner from './components/LowCreditBanner.jsx'
 import OfflineBanner from './components/OfflineBanner.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
+import InstallPrompt from './components/InstallPrompt.jsx'
 
 const Landing = lazy(() => import('./pages/Landing.jsx'))
 const ExamSelect = lazy(() => import('./pages/ExamSelect.jsx'))
@@ -26,6 +27,9 @@ const AdaptivePractice = lazy(() => import('./pages/AdaptivePractice.jsx'))
 const DailyChallenge = lazy(() => import('./pages/DailyChallenge.jsx'))
 const BattleMistakes = lazy(() => import('./pages/BattleMistakes.jsx'))
 const Admin = lazy(() => import('./pages/Admin.jsx'))
+const ShareView = lazy(() => import('./pages/ShareView.jsx'))
+const ChallengeLanding = lazy(() => import('./pages/ChallengeLanding.jsx'))
+const ClassDashboard = lazy(() => import('./pages/ClassDashboard.jsx'))
 
 const PageFallback = () => <div className="min-h-screen bg-[#0A0E1A]" />
 
@@ -114,6 +118,7 @@ function AppInner() {
     <>
       <ScrollToTop />
       <OfflineBanner />
+      <InstallPrompt />
       <Navbar onOpenAuth={() => setAuthOpen(true)} />
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       {showLocked && (
@@ -146,6 +151,9 @@ function AppInner() {
             <Route path="/daily" element={<DailyChallenge />} />
             <Route path="/battle" element={<BattleMistakes />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/share" element={<ShareView />} />
+            <Route path="/challenge" element={<ChallengeLanding />} />
+            <Route path="/class" element={<ClassDashboard />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

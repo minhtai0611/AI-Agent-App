@@ -41,6 +41,9 @@ function _attachInterceptors(instance) {
   )
 }
 
+// Separate instance for admin requests — no 401 auto-logout (admin key failures must not log out the user)
+const adminClient = axios.create({ baseURL: BASE, timeout: 30000 })
+
 _attachInterceptors(client)
 _attachInterceptors(slowClient)
 
@@ -178,8 +181,8 @@ export function generateWeekQuiz(payload) {
   return wrap(slowClient.post('/study-plan-quiz', payload))
 }
 
-export function googleSignIn(idToken) {
-  return wrap(client.post('/auth/google', { id_token: idToken }))
+export function googleSignIn(idToken, ref) {
+  return wrap(client.post('/auth/google', { id_token: idToken, ...(ref ? { ref } : {}) }))
 }
 
 export function getMe() {
@@ -206,6 +209,40 @@ export function getCreditLog() {
   return wrap(client.get('/users/me/credits/log'))
 }
 
+export function getPercentile(examId, score) {
+  return wrap(client.get(`/results/${encodeURIComponent(examId)}/percentile`, { params: { score } }))
+}
+
+export function generateAdaptivePractice(payload) {
+  return wrapOptimistic(payload.count ?? 5, () => client.post('/adaptive-practice', payload))
+}
+
+export function getReferral() {
+  return wrap(client.get('/users/me/referral'))
+}
+
+export function createClass(name) {
+  return wrap(client.post('/classes', { name }))
+}
+
+export function joinClass(code) {
+  return wrap(client.post('/classes/join', { code }))
+}
+
+export function listClasses() {
+  return wrap(client.get('/classes'))
+}
+
+export function getClassResults(classId) {
+  return wrap(client.get(`/classes/${classId}/results`))
+}
+
+export function ocrExam(file) {
+  const form = new FormData()
+  form.append('file', file)
+  return wrap(client.post('/ocr/exam', form))
+}
+
 export function postHistory(entries) {
   return wrap(client.post('/users/me/history', entries))
 }
@@ -224,25 +261,25 @@ export const reactivateAccount = () =>
   wrap(client.post('/users/me/reactivate'))
 
 export const adminListUsers = (key, { search = '', page = 1, limit = 20 } = {}) =>
-  wrap(client.get('/admin/users', { params: { search, page, limit }, headers: { 'x-admin-key': key } }))
+  wrap(adminClient.get('/admin/users', { params: { search, page, limit }, headers: { 'x-admin-key': key } }))
 
 export const adminDeleteUser = (key, userId) =>
-  wrap(client.delete(`/admin/users/${userId}`, { headers: { 'x-admin-key': key } }))
+  wrap(adminClient.delete(`/admin/users/${userId}`, { headers: { 'x-admin-key': key } }))
 
 export const adminUnlockUser = (key, userId) =>
-  wrap(client.post(`/admin/users/${userId}/unlock`, {}, { headers: { 'x-admin-key': key } }))
+  wrap(adminClient.post(`/admin/users/${userId}/unlock`, {}, { headers: { 'x-admin-key': key } }))
 
 export const adminResetUser = (key, userId) =>
-  wrap(client.post(`/admin/users/${userId}/reset`, {}, { headers: { 'x-admin-key': key } }))
+  wrap(adminClient.post(`/admin/users/${userId}/reset`, {}, { headers: { 'x-admin-key': key } }))
 
 export const adminSuspendUser = (key, userId, reason) =>
-  wrap(client.post(`/admin/users/${userId}/suspend`, { reason }, { headers: { 'x-admin-key': key } }))
+  wrap(adminClient.post(`/admin/users/${userId}/suspend`, { reason }, { headers: { 'x-admin-key': key } }))
 
 export const adminUnsuspendUser = (key, userId) =>
-  wrap(client.post(`/admin/users/${userId}/unsuspend`, {}, { headers: { 'x-admin-key': key } }))
+  wrap(adminClient.post(`/admin/users/${userId}/unsuspend`, {}, { headers: { 'x-admin-key': key } }))
 
 export const adminGrantCredits = (key, userId, amount) =>
-  wrap(client.post(`/admin/users/${userId}/credits`, { amount }, { headers: { 'x-admin-key': key } }))
+  wrap(adminClient.post(`/admin/users/${userId}/credits`, { amount }, { headers: { 'x-admin-key': key } }))
 
 export const adminGetSecurityEvents = (key) =>
-  wrap(client.get('/admin/security-events', { headers: { 'x-admin-key': key } }))
+  wrap(adminClient.get('/admin/security-events', { headers: { 'x-admin-key': key } }))

@@ -171,6 +171,37 @@ _SCHEMA_DDL = [
         payload TEXT,
         created_at TEXT DEFAULT (datetime('now'))
     )""",
+    "ALTER TABLE users ADD COLUMN referral_code TEXT",
+    "CREATE UNIQUE INDEX IF NOT EXISTS users_referral_code_idx ON users (referral_code)",
+    """CREATE TABLE IF NOT EXISTS classes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        teacher_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        code TEXT UNIQUE NOT NULL,
+        name TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now')),
+        max_students INTEGER NOT NULL DEFAULT 60,
+        active INTEGER NOT NULL DEFAULT 1
+    )""",
+    """CREATE TABLE IF NOT EXISTS class_members (
+        class_id INTEGER NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+        student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        joined_at TEXT DEFAULT (datetime('now')),
+        PRIMARY KEY (class_id, student_id)
+    )""",
+    """CREATE TABLE IF NOT EXISTS referral_grants (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        referrer_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        referred_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        granted_at TEXT DEFAULT (datetime('now')),
+        UNIQUE (referrer_id, referred_user_id)
+    )""",
+    """CREATE TABLE IF NOT EXISTS exam_leaderboard (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        exam_id TEXT NOT NULL,
+        score REAL NOT NULL,
+        submitted_at TEXT DEFAULT (datetime('now'))
+    )""",
+    """CREATE INDEX IF NOT EXISTS idx_leaderboard_exam ON exam_leaderboard (exam_id)""",
 ]
 
 
@@ -778,6 +809,20 @@ async def math_ingest(
 
 
 _ACCEPTED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
+_IMAGE_MAGIC = {
+    b"\xff\xd8\xff": "image/jpeg",
+    b"\x89PNG": "image/png",
+    b"RIFF": "image/webp",  # RIFF....WEBP — checked further below
+}
+
+def _validate_image_magic(data: bytes) -> str:
+    """Return detected MIME type or raise 415."""
+    for magic, mime in _IMAGE_MAGIC.items():
+        if data[:len(magic)] == magic:
+            if mime == "image/webp" and data[8:12] != b"WEBP":
+                continue
+            return mime
+    raise HTTPException(status_code=415, detail="File does not match an accepted image format (JPEG, PNG, or WebP).")
 
 
 @app.post("/math-ocr", response_model=MathOcrResponse)
@@ -805,6 +850,59 @@ async def math_ocr(file: UploadFile = File(...)):
         raise HTTPException(status_code=502, detail=f"OCR failed: {exc}")
 
     return MathOcrResponse(text=text)
+
+
+@app.post("/ocr/exam")
+async def ocr_exam(
+    file: UploadFile = File(...),
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Extract structured exam questions from an image using vision AI.
+    Credits: 3 per call. Max 5 MB. Validates magic bytes; rejects non-images."""
+    MAX_SIZE = 5 * 1024 * 1024
+    content = await file.read(MAX_SIZE + 1)
+    if len(content) > MAX_SIZE:
+        raise HTTPException(status_code=413, detail="Image too large (max 5 MB)")
+
+    # Magic bytes validation — never trust client MIME type
+    detected_mime = _validate_image_magic(content)
+    await _spend_credits(pool, current_user.user_id, 3, "ocr_exam")
+
+    client = get_ai_client()
+    settings = get_settings()
+    import base64
+    b64 = base64.standard_b64encode(content).decode()
+    prompt = (
+        "Extract all math exam questions from this image. "
+        "Return a JSON array of objects: "
+        '{"question": "question text", "choices": ["A","B","C","D"], "correct": 0, "topic": "algebra", "difficulty": "medium"}. '
+        "If choices are not present, use empty array. correct is the 0-based index if determinable, else null. "
+        "Use LaTeX for math. Return ONLY the JSON array."
+    )
+    try:
+        response = await client.chat.completions.create(
+            model=settings.default_model,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {"type": "image_url", "image_url": {"url": f"data:{detected_mime};base64,{b64}"}},
+                    {"type": "text", "text": prompt},
+                ],
+            }],
+            max_tokens=4096,
+        )
+        raw = (response.choices[0].message.content or "").strip()
+        if raw.startswith("```"):
+            raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+        questions = json.loads(raw)
+        if not isinstance(questions, list):
+            raise ValueError("Expected a JSON array")
+    except Exception as exc:
+        logger.error("ocr/exam failed: %s", exc)
+        raise HTTPException(status_code=502, detail=f"OCR extraction failed: {exc}")
+
+    return {"questions": questions}
 
 
 @app.post("/math-solve", response_model=MathSolveResponse)
@@ -964,10 +1062,12 @@ async def math_stats(pool=Depends(get_pool)):
 
 class GoogleAuthRequest(BaseModel):
     id_token: str
+    ref: str | None = Field(default=None, max_length=20)
 
 
 @app.post("/auth/google")
 async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
+    import secrets as _secrets
     try:
         google_payload = await verify_google_token(body.id_token)
     except ValueError as exc:
@@ -985,18 +1085,51 @@ async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
     )
     preserved_trial_used = deleted_sub["trial_used"] if deleted_sub else 0
 
+    # Generate a unique referral code for new users
+    new_ref_code = _secrets.token_urlsafe(8)
+
     row = await pool.fetchrow(
         """
-        INSERT INTO users (google_sub, email, display_name, avatar_url, trial_used, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+        INSERT INTO users (google_sub, email, display_name, avatar_url, trial_used, referral_code, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
         ON CONFLICT (google_sub) DO UPDATE
           SET display_name = EXCLUDED.display_name,
               avatar_url = EXCLUDED.avatar_url,
               updated_at = NOW()
-        RETURNING id, email, display_name, avatar_url
+        RETURNING id, email, display_name, avatar_url,
+                  (xmax = 0) AS is_new_user
         """,
-        google_sub, email, display_name, avatar_url, preserved_trial_used,
+        google_sub, email, display_name, avatar_url, preserved_trial_used, new_ref_code,
     )
+    is_new_user = bool(row.get("is_new_user"))
+
+    # Process referral — only on new account creation
+    if is_new_user and body.ref and len(body.ref) <= 20:
+        referrer = await pool.fetchrow(
+            "SELECT id, google_sub FROM users WHERE referral_code = $1", body.ref
+        )
+        if referrer and referrer["id"] != row["id"] and referrer["google_sub"] != google_sub:
+            # Check referral cap (max 20 per referrer)
+            referral_count = await pool.fetchrow(
+                "SELECT COUNT(*) AS cnt FROM referral_grants WHERE referrer_id = $1", referrer["id"]
+            )
+            if (referral_count["cnt"] or 0) < 20:
+                try:
+                    await pool.execute(
+                        "INSERT INTO referral_grants (referrer_id, referred_user_id) VALUES ($1, $2)",
+                        referrer["id"], row["id"],
+                    )
+                    # Grant 50 credits to both parties
+                    await pool.execute(
+                        "UPDATE users SET credits_balance = credits_balance + 50 WHERE id IN ($1, $2)",
+                        referrer["id"], row["id"],
+                    )
+                    await pool.execute(
+                        "INSERT INTO ai_credits_log (user_id, delta, reason) VALUES ($1, 50, 'referral_grant'), ($2, 50, 'referral_grant')",
+                        referrer["id"], row["id"],
+                    )
+                except Exception:
+                    pass  # UNIQUE constraint violation = already processed
 
     token = create_jwt(row["id"])
     return {
@@ -1039,6 +1172,22 @@ async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Dep
             )
             row["subscription_tier"] = "basic"
     return row
+
+
+@app.get("/users/me/referral")
+async def get_referral(current_user: CurrentUser = Depends(get_current_user), pool=Depends(get_pool)):
+    row = await pool.fetchrow(
+        "SELECT referral_code FROM users WHERE id = $1", current_user.user_id
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="User not found")
+    count_row = await pool.fetchrow(
+        "SELECT COUNT(*) AS cnt FROM referral_grants WHERE referrer_id = $1", current_user.user_id
+    )
+    return {
+        "referral_code": row["referral_code"],
+        "successful_referrals": count_row["cnt"] if count_row else 0,
+    }
 
 
 _VALID_GRADES = {"9", "10", "11", "12"}
@@ -1204,6 +1353,39 @@ async def post_history(
                         "HIGH",
                         json.dumps({"reason": "impossible_speed", "durationSeconds": duration, "answeredCount": answered, "exam_id": entry.exam_id}),
                     )
+            # Leaderboard — anonymous score insert (no user_id)
+            if entry.exam_id and entry.score is not None:
+                await conn.execute(
+                    "INSERT INTO exam_leaderboard (exam_id, score) VALUES ($1, $2)",
+                    entry.exam_id,
+                    entry.score,
+                )
+
+
+@app.get("/results/{exam_id}/percentile")
+async def get_percentile(
+    exam_id: str,
+    score: float,
+    pool=Depends(get_pool),
+):
+    """Returns the percentile rank (0–100) for a given score on an exam."""
+    if not (0 <= score <= 10):
+        raise HTTPException(status_code=422, detail="score must be between 0 and 10")
+    row = await pool.fetchrow(
+        """
+        SELECT
+            COUNT(*) FILTER (WHERE score <= $2) AS at_or_below,
+            COUNT(*) AS total
+        FROM exam_leaderboard
+        WHERE exam_id = $1
+        """,
+        exam_id,
+        score,
+    )
+    if not row or (row["total"] or 0) < 5:
+        return {"percentile": None, "total": row["total"] if row else 0}
+    percentile = round(100 * (row["at_or_below"] or 0) / row["total"])
+    return {"percentile": percentile, "total": row["total"]}
 
 
 @app.get("/users/me/history")
@@ -1330,6 +1512,177 @@ async def reactivate_account(
     )
     from app.dependencies import invalidate_account_cache
     invalidate_account_cache(current_user.user_id)
+
+
+# ── Class / teacher mode ─────────────────────────────────────────────────────
+
+class CreateClassRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+
+
+class JoinClassRequest(BaseModel):
+    code: str = Field(..., min_length=1, max_length=30)
+
+
+@app.post("/classes", status_code=201)
+async def create_class(
+    body: CreateClassRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    import secrets as _secrets
+    code = _secrets.token_urlsafe(8)
+    row = await pool.fetchrow(
+        "INSERT INTO classes (teacher_id, code, name) VALUES ($1, $2, $3) RETURNING id, code, name",
+        current_user.user_id, code, body.name,
+    )
+    return {"id": row["id"], "code": row["code"], "name": row["name"]}
+
+
+@app.post("/classes/join", status_code=204)
+async def join_class(
+    body: JoinClassRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    # Always return 204 — do not distinguish "not found" from "full" to prevent enumeration
+    cls = await pool.fetchrow(
+        "SELECT id, teacher_id, max_students, active FROM classes WHERE code = $1", body.code
+    )
+    if not cls or not cls["active"] or cls["teacher_id"] == current_user.user_id:
+        return  # silently ignore invalid/expired/self-join
+
+    member_count = await pool.fetchrow(
+        "SELECT COUNT(*) AS cnt FROM class_members WHERE class_id = $1", cls["id"]
+    )
+    if (member_count["cnt"] or 0) >= cls["max_students"]:
+        return  # silently ignore full class
+
+    try:
+        await pool.execute(
+            "INSERT INTO class_members (class_id, student_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+            cls["id"], current_user.user_id,
+        )
+    except Exception:
+        pass
+
+
+@app.get("/classes")
+async def list_my_classes(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    rows = await pool.fetch(
+        """SELECT c.id, c.code, c.name, c.created_at,
+                  (SELECT COUNT(*) FROM class_members WHERE class_id = c.id) AS member_count
+           FROM classes c WHERE c.teacher_id = $1 AND c.active = 1 ORDER BY c.created_at DESC""",
+        current_user.user_id,
+    )
+    return [dict(r) for r in rows]
+
+
+@app.get("/classes/{class_id}/results")
+async def class_results(
+    class_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    # Ownership check — only the teacher may access full results
+    cls = await pool.fetchrow("SELECT teacher_id FROM classes WHERE id = $1", class_id)
+    if not cls:
+        raise HTTPException(status_code=404, detail="Class not found")
+    if cls["teacher_id"] != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    rows = await pool.fetch(
+        """SELECT u.display_name, u.email,
+                  er.exam_id, er.score, er.created_at
+           FROM class_members cm
+           JOIN users u ON u.id = cm.student_id
+           LEFT JOIN exam_results er ON er.user_id = cm.student_id
+           WHERE cm.class_id = $1
+           ORDER BY u.display_name, er.created_at DESC""",
+        class_id,
+    )
+    # Group by student
+    students = {}
+    for r in rows:
+        key = r["email"]
+        if key not in students:
+            students[key] = {"display_name": r["display_name"], "email": r["email"], "results": []}
+        if r["exam_id"]:
+            students[key]["results"].append({
+                "exam_id": r["exam_id"], "score": r["score"], "created_at": r["created_at"]
+            })
+    return list(students.values())
+
+
+@app.post("/classes/{class_id}/deactivate", status_code=204)
+async def deactivate_class(
+    class_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    cls = await pool.fetchrow("SELECT teacher_id FROM classes WHERE id = $1", class_id)
+    if not cls:
+        raise HTTPException(status_code=404, detail="Class not found")
+    if cls["teacher_id"] != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    await pool.execute("UPDATE classes SET active = 0 WHERE id = $1", class_id)
+
+
+# ── Adaptive practice ─────────────────────────────────────────────────────────
+
+class AdaptivePracticeRequest(BaseModel):
+    weak_topics: list[str] = Field(default_factory=list, max_length=10)
+    grade: str = Field(..., pattern=r"^(9|10|11|12)$")
+    count: int = Field(default=5, ge=1, le=20)
+
+
+@app.post("/adaptive-practice")
+async def adaptive_practice(
+    req: AdaptivePracticeRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    from app.math_wiki.taxonomy import CANONICAL_TOPICS
+    # Allowlist weak_topics — reject any unknown topic slug
+    invalid = [t for t in req.weak_topics if t not in CANONICAL_TOPICS]
+    if invalid:
+        raise HTTPException(status_code=422, detail=f"Unknown topic(s): {invalid!r}. Must be one of the canonical topic slugs.")
+
+    cost = req.count
+    await _spend_credits(pool, current_user.user_id, cost, "adaptive_practice")
+
+    client = get_ai_client()
+    settings = get_settings()
+    topics_str = ", ".join(req.weak_topics) if req.weak_topics else "mixed"
+    prompt = (
+        f"Generate {req.count} multiple-choice math practice questions for a grade {req.grade} Vietnamese student. "
+        f"Focus on these weak topics: <user_topics>{topics_str}</user_topics>. "
+        "Return a JSON array of objects with keys: "
+        '{"id": "ap_<uuid4_short>", "question": "question text (in Vietnamese)", "choices": ["A","B","C","D"], "correct": 0, "topic": "<slug>", "difficulty": "medium", "explanation": "step-by-step solution"}. '
+        "Choices must be 4 strings. correct is the 0-based index of the correct choice. "
+        "Use LaTeX notation for math expressions. Return ONLY the JSON array, no markdown fences."
+    )
+    try:
+        response = await client.chat.completions.create(
+            model=settings.default_model,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=4096,
+            temperature=0.7,
+        )
+        raw = (response.choices[0].message.content or "").strip()
+        if raw.startswith("```"):
+            raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+        questions = json.loads(raw)
+        if not isinstance(questions, list):
+            raise ValueError("Expected a JSON array")
+    except Exception as exc:
+        logger.error("adaptive-practice generation failed: %s", exc)
+        raise HTTPException(status_code=502, detail=f"Question generation failed: {exc}")
+
+    return {"questions": questions}
 
 
 # ── Admin endpoints ───────────────────────────────────────────────────────────
@@ -1521,7 +1874,7 @@ async def admin_list_users(
                    CAST(json_extract(payload, '$.tab_switches') AS INTEGER) AS last_tab_switches,
                    CAST(json_extract(payload, '$.devtools_detected') AS INTEGER) AS last_devtools
             FROM exam_results
-            WHERE id IN (SELECT MAX(id) FROM exam_results GROUP BY user_id)
+            WHERE rowid IN (SELECT MAX(rowid) FROM exam_results GROUP BY user_id)
         ) beh ON beh.user_id = u.id
     """
     if search:

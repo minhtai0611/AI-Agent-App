@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { ResultsInsightsSkeleton } from './Skeleton.jsx'
+import MarkdownProse from './MarkdownProse.jsx'
 
 function TipList({ label, items }) {
   if (!items || items.length === 0) return null
@@ -33,7 +34,7 @@ function SchoolSection({ schoolInsight, score }) {
           </span>
         )}
       </div>
-      <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed whitespace-pre-line">{schoolInsight}</p>
+      <MarkdownProse>{schoolInsight}</MarkdownProse>
     </div>
   )
 }

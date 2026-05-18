@@ -64,7 +64,9 @@ export function AuthProvider({ children }) {
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function login(credential) {
-    const { data, error } = await googleSignIn(credential)
+    let pendingRef = null
+    try { pendingRef = sessionStorage.getItem('pending_ref') } catch { /* ignore */ }
+    const { data, error } = await googleSignIn(credential, pendingRef)
     if (error || !data) throw new Error(error || 'Đăng nhập thất bại')
 
     localStorage.setItem('auth_token', data.access_token)
@@ -72,6 +74,9 @@ export function AuthProvider({ children }) {
     // Fetch full profile (includes grade, province, credits, tier, etc.)
     const { data: profile } = await getMe()
     setUser(profile || data.user)
+
+    // Clear pending referral code after use
+    try { sessionStorage.removeItem('pending_ref') } catch { /* ignore */ }
 
     // Sync local history to server then clear local copy
     try {

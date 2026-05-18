@@ -1,0 +1,16 @@
+{
+  "ha-noi-2023": {
+    "Hà Nội": {
+      "7.0-7.9": { "school": "THPT Chu Văn An", "predictedScore": "36–40" },
+      "8.0-8.9": { "school": "THPT Chuyên Hà Nội-Amsterdam", "predictedScore": "40–46" },
+      "9.0-10": { "school": "THPT Chuyên Khoa học Tự nhiên", "predictedScore": "46–50" }
+    }
+  },
+  "ho-chi-minh-2023": {
+    "Hồ Chí Minh": {
+      "7.0-7.9": { "school": "THPT Lê Hồng Phong (Toán)", "predictedScore": "34–38" },
+      "8.0-8.9": { "school": "THPT Chuyên Lê Hồng Phong", "predictedScore": "38–44" },
+      "9.0-10": { "school": "THPT Chuyên Trần Đại Nghĩa", "predictedScore": "44–50" }
+    }
+  }
+}

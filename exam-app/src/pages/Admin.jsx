@@ -350,7 +350,7 @@ function SecurityEventsTab({ adminKey }) {
 }
 
 export default function Admin() {
-  const [adminKey, setAdminKey] = useState(() => sessionStorage.getItem('admin_key') || '')
+  const [adminKey, setAdminKey] = useState('')
   const [keyInput, setKeyInput] = useState('')
   const [authError, setAuthError] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
@@ -360,11 +360,14 @@ export default function Admin() {
     e.preventDefault()
     setAuthLoading(true)
     setAuthError('')
-    const { error } = await adminListUsers(keyInput, { limit: 1 })
+    const trimmedKey = keyInput.trim()
+    const { error, status } = await adminListUsers(trimmedKey, { limit: 1 })
     setAuthLoading(false)
-    if (error) { setAuthError('Admin key không hợp lệ'); return }
-    sessionStorage.setItem('admin_key', keyInput)
-    setAdminKey(keyInput)
+    if (error) {
+      setAuthError(status === 401 ? 'Admin key không hợp lệ' : `Lỗi xác thực (${status ?? 'network'})`)
+      return
+    }
+    setAdminKey(trimmedKey)
   }
 
   if (!adminKey) {
@@ -399,7 +402,7 @@ export default function Admin() {
       <nav className="flex items-center justify-between px-6 bg-[#0D1221] border-b border-[#1E2A44]" style={{ height: 56 }}>
         <span className="font-fraunces text-[15px] font-bold text-amber-400">Zenith Admin</span>
         <button
-          onClick={() => { sessionStorage.removeItem('admin_key'); setAdminKey('') }}
+          onClick={() => setAdminKey('')}
           className="font-jakarta text-[12px] text-[#64748B] hover:text-[#F8FAFC] transition"
         >
           Đăng xuất

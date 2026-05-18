@@ -1,5 +1,3 @@
-const TOPICS = ['algebra', 'geometry', 'statistics', 'combinatorics']
-
 export function scoreExam(session) {
   const { questions, answers, exam } = session
   const startedAt = session.startedAt ?? new Date().toISOString()
@@ -9,8 +7,10 @@ export function scoreExam(session) {
     ? exam.duration * 60 - session.timeLeft
     : Math.round((new Date(finishedAt) - new Date(startedAt)) / 1000)
 
+  // Derive topics from actual questions (replaces hardcoded 4-topic list)
+  const allTopics = [...new Set(questions.map(q => q.topic).filter(Boolean))]
   const topicBreakdown = Object.fromEntries(
-    TOPICS.map(t => [t, { correct: 0, total: 0, accuracy: 0 }])
+    allTopics.map(t => [t, { correct: 0, total: 0, accuracy: 0 }])
   )
 
   let correctCount = 0
@@ -18,10 +18,8 @@ export function scoreExam(session) {
     const chosen = answers[q.id] ?? null
     const isCorrect = chosen !== null && chosen === q.correct
     if (isCorrect) correctCount++
-
-    const tb = topicBreakdown[q.topic] ?? topicBreakdown.algebra
-    tb.total++
-    if (isCorrect) tb.correct++
+    const tb = topicBreakdown[q.topic]
+    if (tb) { tb.total++; if (isCorrect) tb.correct++ }
   }
 
   for (const tb of Object.values(topicBreakdown)) {
@@ -47,5 +45,9 @@ export function scoreExam(session) {
     topicBreakdown,
     answeredCount,
     timePerQuestion: session.timePerQuestion ?? {},
+    // Shuffled choices+correct per question — used by Results.jsx to fix wrong-answer highlights
+    questionData: Object.fromEntries(
+      questions.map(q => [q.id, { choices: q.choices, correct: q.correct }])
+    ),
   }
 }

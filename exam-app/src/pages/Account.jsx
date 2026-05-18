@@ -1,11 +1,26 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
-import { getCreditLog, activateTrial } from '../api/aiClient.js'
+import { getCreditLog, activateTrial, getReferral } from '../api/aiClient.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
+import { useToast } from '../context/ToastContext.jsx'
+import { computeStreak } from '../utils/streak.js'
+import { getDaysUntilExam } from '../utils/examCountdown.js'
+import { computeBadges } from '../utils/badges.js'
+
+const REASON_LABELS = {
+  'analyze':                    'Phân tích kết quả',
+  'hint':                       'Gợi ý câu hỏi',
+  'explain':                    'Giải thích đáp án',
+  'study-plan':                 'Kế hoạch học tập',
+  'subscription_bonus_student': 'Nâng cấp gói Học sinh',
+  'subscription_bonus_complete':'Nâng cấp gói Toàn diện',
+  'admin_grant':                'Nạp Tia',
+  'trial_activation':           'Kích hoạt dùng thử',
+}
 
 const TIER_LABELS = { basic: 'Cơ bản', student: 'Học sinh', complete: 'Toàn diện' }
 const TIER_COLORS = { basic: '#64748B', student: '#F2A20C', complete: '#10B981' }
@@ -47,7 +62,7 @@ function buildHeatmap(results) {
   }
   const cells = []
   const end = new Date()
-  for (let i = 363; i >= 0; i--) {
+  for (let i = 181; i >= 0; i--) {
     const d = new Date(end)
     d.setDate(end.getDate() - i)
     const key = d.toISOString().slice(0, 10)
@@ -87,11 +102,16 @@ export default function Account() {
   const [dangerLoading, setDangerLoading] = useState(false)
   const [dangerError, setDangerError] = useState('')
   const [reactivating, setReactivating] = useState(false)
+  const [referral, setReferral] = useState(null)
+  const toast = useToast()
 
   useEffect(() => {
     if (!user) return
     getCreditLog().then(({ data }) => {
       if (data) setCreditLog(data)
+    })
+    getReferral().then(({ data }) => {
+      if (data) setReferral(data)
     })
   }, [user])
 
@@ -101,8 +121,19 @@ export default function Account() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center font-jakarta text-[#475569]">
-        Đang tải...
+      <div className="min-h-screen bg-[#0A0E1A] flex flex-col">
+        <nav className="flex items-center px-8 bg-[#0D1221] border-b border-[#1E2A44]" style={{ height: 64 }}>
+          <div className="skeleton h-4 w-16 rounded" />
+        </nav>
+        <div className="max-w-2xl mx-auto w-full px-4 py-10 flex flex-col gap-8">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+              <div className="skeleton h-5 w-32 rounded" />
+              <div className="skeleton h-4 w-full rounded" />
+              <div className="skeleton h-4 w-5/6 rounded" />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -119,14 +150,20 @@ export default function Account() {
         province: editProvince || undefined,
       })
       setEditMode(false)
+      toast.success('Đã lưu hồ sơ')
     } catch (err) {
-      setSaveError(err.message || 'Lưu thất bại, vui lòng thử lại')
+      const msg = err.message || 'Lưu thất bại, vui lòng thử lại'
+      setSaveError(msg)
+      toast.error(msg)
     } finally {
       setSaving(false)
     }
   }
 
   const heatmap = buildHeatmap(results)
+  const streak = useMemo(() => computeStreak(results), [results])
+  const daysUntil = user ? getDaysUntilExam(user.province) : null
+  const badges = useMemo(() => computeBadges(results), [results])
 
   return (
     <motion.div
@@ -226,6 +263,86 @@ export default function Account() {
               )}
             </div>
           )}
+          {/* Streak + Countdown */}
+          <div className="flex flex-wrap gap-3">
+            {streak > 0 && (
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#F2A20C33] bg-[#1A1200]">
+                <span className="text-[18px]">🔥</span>
+                <div className="flex flex-col gap-0">
+                  <span className="font-fraunces text-[16px] font-bold text-[#F2A20C]">{streak} ngày</span>
+                  <span className="font-jakarta text-[11px] text-[#64748B]">Chuỗi học liên tiếp</span>
+                </div>
+              </div>
+            )}
+            {daysUntil != null && (
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#6366F133] bg-[#0D0D1A]">
+                <span className="text-[18px]">📅</span>
+                <div className="flex flex-col gap-0">
+                  <span className="font-fraunces text-[16px] font-bold text-[#818CF8]">{daysUntil} ngày</span>
+                  <span className="font-jakarta text-[11px] text-[#64748B]">Đến kỳ thi vào lớp 10</span>
+                </div>
+              </div>
+            )}
+          </div>
+          {/* Badges */}
+          {badges.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <span className="font-jakarta text-[12px] font-semibold text-[#475569]">Huy hiệu</span>
+              <div className="flex flex-wrap gap-2">
+                {badges.map(b => (
+                  <div key={b.id} title={b.desc}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#1E2A44] bg-[#111827]">
+                    <span className="text-[14px]">{b.icon}</span>
+                    <span className="font-jakarta text-[11px] font-semibold text-[#94A3B8]">{b.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Referral section */}
+          {referral?.referral_code && (
+            <div className="flex flex-col gap-2 pt-2 border-t border-[#1E2A44]">
+              <span className="font-jakarta text-[12px] font-semibold text-[#475569]">
+                Mời bạn bè — bạn và người được mời đều nhận <span className="text-amber-400">⚡ 50 Tia</span>
+              </span>
+              <div className="flex items-center gap-2">
+                <input
+                  readOnly
+                  value={`${import.meta.env.VITE_APP_URL || 'https://exam-app-ey0.pages.dev'}/?ref=${referral.referral_code}`}
+                  className="flex-1 px-3 py-2 rounded-lg border border-[#1E2A44] bg-[#0A0E1A] font-jakarta text-[11px] text-[#64748B] select-all"
+                />
+                <button
+                  onClick={() => {
+                    const url = `${import.meta.env.VITE_APP_URL || 'https://exam-app-ey0.pages.dev'}/?ref=${referral.referral_code}`
+                    navigator.clipboard?.writeText(url).then(() => toast.success('Đã sao chép link giới thiệu')).catch(() => {})
+                  }}
+                  className="px-3 py-2 rounded-lg font-jakarta text-[12px] font-bold"
+                  style={{ background: '#F2A20C', color: '#0A0E1A' }}
+                >
+                  Sao chép
+                </button>
+              </div>
+              {(referral.successful_referrals ?? 0) > 0 && (
+                <span className="font-jakarta text-[11px] text-[#64748B]">
+                  {referral.successful_referrals} người đã tham gia qua link của bạn
+                </span>
+              )}
+            </div>
+          )}
+        </section>
+
+        {/* Class mode entry */}
+        <section className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-6 flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-1">
+            <span className="font-jakarta text-[14px] font-semibold text-[#F8FAFC]">Lớp học</span>
+            <span className="font-jakarta text-[12px] text-[#64748B]">Tham gia lớp học hoặc quản lý lớp (giáo viên)</span>
+          </div>
+          <button
+            onClick={() => navigate('/class')}
+            className="flex-shrink-0 px-5 py-2 rounded-lg font-jakarta text-[13px] font-bold text-[#F8FAFC] bg-[#6366F1] hover:opacity-90 transition"
+          >
+            Vào lớp →
+          </button>
         </section>
 
         {/* Current plan */}
@@ -402,7 +519,7 @@ export default function Account() {
                 <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Hoạt động học tập</span>
                 <div className="overflow-x-auto">
                   <div className="flex gap-1" style={{ minWidth: 640 }}>
-                    {Array.from({ length: 52 }, (_, week) => (
+                    {Array.from({ length: 26 }, (_, week) => (
                       <div key={week} className="flex flex-col gap-1">
                         {heatmap.slice(week * 7, week * 7 + 7).map(({ key, count }) => (
                           <div
@@ -430,10 +547,10 @@ export default function Account() {
               <section className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
                 <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Lịch sử Tia</span>
                 <div className="flex flex-col gap-1">
-                  {(showAllCredits ? creditLog : creditLog.slice(0, 15)).map((entry, i) => (
+                  {(showAllCredits ? creditLog : creditLog.slice(0, 8)).map((entry, i) => (
                     <div key={i} className="flex items-center justify-between py-2 border-b border-[#1E2A44] last:border-0">
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-jakarta text-[12px] text-[#94A3B8]">{entry.reason}</span>
+                        <span className="font-jakarta text-[12px] text-[#94A3B8]">{REASON_LABELS[entry.reason] ?? entry.reason}</span>
                         <span className="font-jakarta text-[11px] text-[#475569]">{formatDate(entry.created_at)}</span>
                       </div>
                       <span className={`font-fraunces text-[14px] font-bold ${entry.delta > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
@@ -442,10 +559,10 @@ export default function Account() {
                     </div>
                   ))}
                 </div>
-                {creditLog.length > 15 && !showAllCredits && (
+                {creditLog.length > 8 && !showAllCredits && (
                   <button onClick={() => setShowAllCredits(true)}
                     className="font-jakarta text-[12px] text-amber-400 hover:text-amber-300 transition text-center">
-                    + Xem thêm ({creditLog.length - 15} mục)
+                    + Xem thêm ({creditLog.length - 8} mục)
                   </button>
                 )}
               </section>
@@ -459,13 +576,13 @@ export default function Account() {
         )}
 
         {/* Account status banners */}
-        {user.is_locked && (
+        {!!user.is_locked && (
           <div className="px-5 py-4 rounded-2xl border border-red-500/40 bg-red-500/8 flex flex-col gap-1">
             <span className="font-jakarta text-[13px] font-semibold text-red-400">Tài khoản bị khóa do hoạt động bất thường</span>
             <span className="font-jakarta text-[12px] text-[#94A3B8]">{user.lock_reason || 'Liên hệ hỗ trợ để mở khóa tài khoản.'}</span>
           </div>
         )}
-        {user.is_deactivated && !user.is_locked && (
+        {!!user.is_deactivated && !user.is_locked && (
           <div className="px-5 py-4 rounded-2xl border border-amber-400/40 bg-amber-400/8 flex items-center justify-between gap-4">
             <div className="flex flex-col gap-0.5">
               <span className="font-jakarta text-[13px] font-semibold text-amber-400">Tài khoản đang bị tạm ngưng</span>

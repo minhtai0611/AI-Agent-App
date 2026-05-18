@@ -10,18 +10,30 @@ import { scoreExam } from '../engine/scoringEngine.js'
 import { analyzeResult } from '../engine/aiEngine.js'
 import {
   RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer,
+  LineChart, Line, XAxis, Tooltip,
 } from 'recharts'
 import { loadExamById, loadQuestionsByIds, buildStudyPlanPayload, buildAnalyzePayload, recommendNextExam } from '../api/index.js'
-import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPlan } from '../api/aiClient.js'
+import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPlan, getPercentile } from '../api/aiClient.js'
 import AIInsights from '../components/AIInsights.jsx'
 import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { MathText } from '../components/MathText.jsx'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { safeSetItem } from '../utils/storageManager.js'
+import { requestStudyReminder, checkAndShowStudyReminder } from '../utils/studyReminder.js'
 import ResultShareCard from '../components/ResultShareCard.jsx'
+import { useToast } from '../context/ToastContext.jsx'
+import MarkdownProse from '../components/MarkdownProse.jsx'
 import schoolsData from '../data/schools.json'
+import provincePatterns from '../data/province_patterns.json'
+import scoreCorrelation from '../data/score_correlation.json'
 const DIFF_RANK = { hard: 3, medium: 2, easy: 1 }
+
+function extractInsightsFromStream(raw) {
+  const m = raw.match(/"insights"\s*:\s*"((?:[^"\\]|\\.)*)"?/)
+  if (!m) return ''
+  try { return JSON.parse('"' + m[1] + '"') } catch { return m[1] }
+}
 
 // Sigmoid probability: 50% at cutoff, ~88% at +0.5, ~12% at -0.5
 function schoolFitProbability(score, cutoff) {
@@ -83,6 +95,69 @@ function addToReviewQueue(examId, answers, questions) {
   } catch { /* non-critical */ }
 }
 
+function parseExplanationSteps(text) {
+  if (!text) return []
+  // Split on newlines first
+  const byLine = text.split(/\n+/).map(s => s.trim()).filter(Boolean)
+  if (byLine.length > 1) return byLine
+  // Split on sentence boundaries outside LaTeX ($...$)
+  const steps = []
+  let buf = ''
+  let inMath = false
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]
+    if (ch === '$') inMath = !inMath
+    buf += ch
+    if (!inMath && (ch === '.' || ch === ';') && i + 1 < text.length && text[i + 1] === ' ') {
+      steps.push(buf.trim())
+      buf = ''
+      i++ // skip the space
+    }
+  }
+  if (buf.trim()) steps.push(buf.trim())
+  return steps.length > 1 ? steps : [text]
+}
+
+function ProvincePatternTip({ province }) {
+  if (!province) return null
+  const patterns = provincePatterns[province]
+  if (!patterns || patterns.length === 0) return null
+  return (
+    <div className="bg-[#0D1221] border border-[#6366F133] rounded-xl px-5 py-4 flex flex-col gap-2">
+      <span className="font-jakarta text-[12px] font-semibold text-[#818CF8]">📌 Xu hướng đề thi {province}</span>
+      {patterns.map((p, i) => (
+        <p key={i} className="font-jakarta text-[13px] text-[#94A3B8]">{p.note}</p>
+      ))}
+    </div>
+  )
+}
+
+function ScoreCorrelation({ examId, score, province }) {
+  if (!examId || score == null || !province) return null
+  const examData = scoreCorrelation[examId]
+  if (!examData) return null
+  const provData = examData[province]
+  if (!provData) return null
+  const ranges = Object.entries(provData)
+  const range = ranges.find(([k]) => {
+    const [lo, hi] = k.split('-').map(Number)
+    return score >= lo && score <= hi
+  })
+  if (!range) return null
+  const [, { school, predictedScore }] = range
+  return (
+    <div className="bg-[#0D1221] border border-[#10B98133] rounded-xl px-5 py-4 flex flex-col gap-1">
+      <span className="font-jakarta text-[12px] font-semibold text-[#10B981]">📊 Dự đoán thực tế</span>
+      <p className="font-jakarta text-[13px] text-[#94A3B8]">
+        Điểm thi thử của bạn tương ứng với khoảng{' '}
+        <strong className="text-[#F8FAFC]">{predictedScore} điểm</strong> tuyển sinh vào{' '}
+        <strong className="text-[#F8FAFC]">{school}</strong>.
+      </p>
+      <span className="font-jakarta text-[10px] text-[#475569]">Ước tính dựa trên dữ liệu lịch sử · Không phải kết quả chính thức</span>
+    </div>
+  )
+}
+
 export default function Results({ onOpenAuth }) {
   usePageTitle('Kết quả thi')
   const navigate = useNavigate()
@@ -102,8 +177,16 @@ export default function Results({ onOpenAuth }) {
   const [aiError, setAiError] = useState(false)
   const [planReady, setPlanReady] = useState(false)
   const [wrongAccordion, setWrongAccordion] = useState({})
+  const [revealedSteps, setRevealedSteps] = useState({})
   const [nextExam, setNextExam] = useState(null)
   const [showShareCard, setShowShareCard] = useState(false)
+  const [percentile, setPercentile] = useState(null)
+  const toast = useToast()
+  const _rawStreamRef = useRef('')
+  const challengerData = location.state?.challengerScore != null ? {
+    score: location.state.challengerScore,
+    name: location.state.challengerName || 'Đối thủ',
+  } : null
 
   const isCurrent = !resultId || resultId === 'current'
   const fireConfetti = useRef(null)
@@ -163,6 +246,19 @@ export default function Results({ onOpenAuth }) {
         if (!cancelled) addToReviewQueue(result.examId, result.answers, qs)
       }
 
+      // Request notification permission on first result load (high engagement moment)
+      if (results.length === 1) {
+        requestStudyReminder()
+      }
+      checkAndShowStudyReminder()
+
+      // Fetch leaderboard percentile
+      if (result.examId && result.score != null) {
+        getPercentile(result.examId, result.score).then(({ data }) => {
+          if (!cancelled && data?.percentile != null) setPercentile(data.percentile)
+        })
+      }
+
       const planCacheKey = `study-plan-data-${result.id}`
       const planCached = localStorage.getItem(planCacheKey)
       const prefetchFlag = `_prefetching-${result.id}`
@@ -213,6 +309,7 @@ export default function Results({ onOpenAuth }) {
         { location: user.province || '', province: user.province || '', grade: user.grade || '', display_name: user.display_name || '' }
       )
       if (cancelled) return
+      _rawStreamRef.current = ''
       let _streamBuf = ''
       let _rafId = null
       analyzeResultStream(payload, (token) => {
@@ -222,10 +319,12 @@ export default function Results({ onOpenAuth }) {
           _rafId = requestAnimationFrame(() => {
             _rafId = null
             if (cancelled) return
-            const buf = _streamBuf; _streamBuf = ''
+            _rawStreamRef.current += _streamBuf
+            _streamBuf = ''
+            const extracted = extractInsightsFromStream(_rawStreamRef.current)
             setAnalysis(prev => ({
               ...(prev || {}),
-              insights: ((prev?.insights && !prev?._streaming_done) ? prev.insights : '') + buf,
+              insights: extracted,
               _streaming: true,
             }))
           })
@@ -321,8 +420,29 @@ export default function Results({ onOpenAuth }) {
       )
     }
     return (
-      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center font-jakarta text-[#475569]">
-        Đang tải...
+      <div className="min-h-screen bg-[#0A0E1A] flex flex-col">
+        <nav className="flex items-center justify-between px-8 bg-[#0D1221] border-b border-[#1E2A44]" style={{ height: 64 }}>
+          <div className="skeleton h-4 w-20 rounded" />
+          <div className="skeleton h-4 w-24 rounded" />
+          <div className="skeleton h-8 w-24 rounded-lg" />
+        </nav>
+        <div className="max-w-3xl mx-auto w-full px-4 py-8 flex flex-col gap-5">
+          <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-8 flex gap-6">
+            <div className="skeleton w-28 h-28 rounded-full flex-shrink-0" />
+            <div className="flex flex-col gap-3 flex-1">
+              <div className="skeleton h-6 w-32 rounded" />
+              <div className="skeleton h-4 w-48 rounded" />
+              <div className="flex gap-6">
+                {[0, 1, 2].map(i => <div key={i} className="skeleton h-8 w-16 rounded" />)}
+              </div>
+            </div>
+          </div>
+          <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+            <div className="skeleton h-5 w-32 rounded" />
+            <div className="skeleton h-4 w-full rounded" />
+            <div className="skeleton h-4 w-5/6 rounded" />
+          </div>
+        </div>
       </div>
     )
   }
@@ -331,11 +451,14 @@ export default function Results({ onOpenAuth }) {
   const topics = Object.entries(topicBreakdown ?? {})
   const examObj = loadExamById(examId)
 
-  // Load questions async into state (first load fetches chunk, subsequent renders use cache)
+  // Load questions; overlay shuffled choices+correct from questionData to fix wrong-answer highlights
   useEffect(() => {
     if (!examObj) return
-    loadQuestionsByIds(examObj.questionIds).then(qs => setAllQuestions(qs))
-  }, [examId]) // eslint-disable-line react-hooks/exhaustive-deps
+    loadQuestionsByIds(examObj.questionIds).then(qs => {
+      const qd = result?.questionData ?? {}
+      setAllQuestions(qs.map(q => ({ ...q, ...(qd[q.id] ?? {}) })))
+    })
+  }, [examId, result?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const wrongQuestions = allQuestions
     .filter(q => { const c = answers[q.id] ?? null; return c !== null && c !== q.correct })
@@ -413,6 +536,25 @@ export default function Results({ onOpenAuth }) {
             title="Chia sẻ kết quả">
             📤
           </button>
+          {result && examId && (
+            <button
+              onClick={() => {
+                const BASE_URL = import.meta.env.VITE_APP_URL || 'https://exam-app-ey0.pages.dev'
+                const payload = encodeURIComponent(JSON.stringify({
+                  name: user?.display_name || 'Bạn',
+                  score: result.score ?? 0,
+                  examId,
+                  dt: new Date().toISOString().slice(0, 10),
+                }))
+                const url = `${BASE_URL}/challenge?c=${payload}`
+                navigator.clipboard?.writeText(url).then(() => toast.success('Đã sao chép link thách đấu')).catch(() => {})
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#111827] border border-[#1E2A44] rounded-lg font-jakarta text-[12px] text-[#94A3B8] hover:text-[#F8FAFC] transition"
+              title="Thách đấu bạn bè"
+            >
+              ⚔️
+            </button>
+          )}
           <button onClick={() => navigate('/history')}
             className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#111827] border border-[#1E2A44] rounded-lg font-jakarta text-[12px] text-[#94A3B8] hover:text-[#F8FAFC] transition">
             Lịch sử
@@ -463,6 +605,17 @@ export default function Results({ onOpenAuth }) {
           </div>
         </motion.div>
 
+        {/* Percentile banner */}
+        {percentile != null && (
+          <div className="flex items-center gap-3 px-5 py-3 rounded-xl"
+            style={{ background: '#0D1526', border: '1px solid #6366F133' }}>
+            <span className="text-[18px]">📊</span>
+            <span className="font-jakarta text-[13px] text-[#94A3B8]">
+              Bạn đạt <strong className="text-[#818CF8]">top {100 - percentile}%</strong> người làm đề này
+            </span>
+          </div>
+        )}
+
         {/* Personal best */}
         <AnimatePresence>
           {isPersonalBest && (
@@ -485,6 +638,55 @@ export default function Results({ onOpenAuth }) {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Attempt trend sparkline — only when ≥2 attempts on this exam */}
+        {pastSameExam.length >= 1 && result && (() => {
+          const sorted = [...pastSameExam, result]
+            .sort((a, b) => new Date(a.finishedAt) - new Date(b.finishedAt))
+          const chartData = sorted.map((r, i) => ({ n: i + 1, s: r.score }))
+          const prev = sorted[sorted.length - 2]
+          const diff = result.score - prev.score
+          return (
+            <div className="flex items-center gap-4 px-5 py-4 rounded-xl"
+              style={{ background: '#0D1221', border: '1px solid #1E2A44' }}>
+              <div className="flex flex-col gap-0.5 min-w-[110px]">
+                <span className="font-jakarta text-[11px] text-[#475569]">Xu hướng ({sorted.length} lần thi)</span>
+                <span className="font-jakarta text-[13px] font-semibold" style={{ color: diff >= 0 ? '#10B981' : '#FB7185' }}>
+                  {diff >= 0 ? '+' : ''}{diff.toFixed(1)} so với lần trước
+                </span>
+              </div>
+              <div style={{ width: 140, height: 40 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData}>
+                    <XAxis dataKey="n" hide />
+                    <Tooltip
+                      contentStyle={{ background: '#0D1221', border: '1px solid #1E2A44', borderRadius: 8, fontSize: 12 }}
+                      formatter={v => [v.toFixed(1), 'Điểm']}
+                      labelFormatter={n => `Lần ${n}`}
+                    />
+                    <Line type="monotone" dataKey="s" stroke="#F2A20C" strokeWidth={2} dot={{ r: 3, fill: '#F2A20C' }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* Challenger comparison banner */}
+        {challengerData && result && (
+          <div className="flex items-center justify-between gap-4 px-5 py-3.5 rounded-xl"
+            style={{ background: '#0D1221', border: '1px solid #6366F144' }}>
+            <div className="flex flex-col gap-0.5">
+              <span className="font-jakarta text-[12px] text-[#64748B]">So với {challengerData.name}</span>
+              <span className="font-jakarta text-[13px] font-semibold" style={{
+                color: (result.score ?? 0) >= challengerData.score ? '#10B981' : '#FB7185'
+              }}>
+                {(result.score ?? 0) >= challengerData.score ? '🏆 Bạn thắng! ' : '💪 Cố lên! '}
+                Bạn: {(result.score ?? 0).toFixed(1)} · {challengerData.name}: {challengerData.score.toFixed(1)}
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Sign-in nudge */}
         {!user && !nudgeDismissed && (
@@ -575,6 +777,12 @@ export default function Results({ onOpenAuth }) {
               </div>
             )}
 
+            {/* Province exam pattern tip */}
+            <ProvincePatternTip province={user?.province} />
+
+            {/* Score correlation */}
+            <ScoreCorrelation examId={examId} score={score} province={user?.province} />
+
             {/* Navigation shortcuts — compact chip row */}
             <div className="flex flex-wrap gap-2 pt-1">
               {wrongCount > 0 && (
@@ -583,11 +791,23 @@ export default function Results({ onOpenAuth }) {
                   <span className="text-[#FB7185]">✗</span> {wrongCount} câu sai
                 </button>
               )}
+              {schoolFitList.length > 0 && (
+                <button onClick={() => setActiveTab('schools')}
+                  className="px-3 py-1.5 rounded-lg border border-[#1E2A44] font-jakarta text-[12px] text-[#94A3B8] hover:border-[#475569] hover:text-[#F8FAFC] transition flex items-center gap-1.5">
+                  <span>⌂</span> Trường phù hợp
+                </button>
+              )}
               <button onClick={() => setActiveTab('plan')}
                 className="px-3 py-1.5 rounded-lg border border-[#1E2A44] font-jakarta text-[12px] text-[#94A3B8] hover:border-[#475569] hover:text-[#F8FAFC] transition flex items-center gap-1.5">
                 {!planReady && <span className="w-2.5 h-2.5 rounded-full border border-[#2A3A50] border-t-[#F2A20C] animate-spin flex-shrink-0" />}
                 {planReady ? '→ Kế hoạch' : 'Đang tải kế hoạch…'}
               </button>
+              {weakTopics.length > 0 && (
+                <button onClick={() => navigate('/practice/adaptive')}
+                  className="px-3 py-1.5 rounded-lg border border-[#6366F144] font-jakarta text-[12px] text-[#818CF8] hover:border-[#6366F1] hover:text-[#A5B4FC] transition flex items-center gap-1.5">
+                  <span>⚡</span> Luyện điểm yếu
+                </button>
+              )}
               <button onClick={() => { dispatch({ type: 'RESET' }); navigate('/exams') }}
                 className="px-3 py-1.5 rounded-lg border border-[#1E2A44] font-jakarta text-[12px] text-[#94A3B8] hover:border-[#475569] hover:text-[#F8FAFC] transition">
                 Thi lại
@@ -659,6 +879,52 @@ export default function Results({ onOpenAuth }) {
                                     )
                                   })}
                                 </div>
+                                {/* Step-by-step explanation */}
+                                {q.explanation && (() => {
+                                  const steps = parseExplanationSteps(q.explanation)
+                                  const shown = revealedSteps[q.id] ?? 0
+                                  return (
+                                    <div className="flex flex-col gap-2 pt-1 border-t border-[#1E2A44]">
+                                      <span className="font-jakarta text-[11px] font-semibold text-[#10B981]">Lời giải</span>
+                                      {steps.slice(0, shown).map((step, si) => (
+                                        <div key={si} className="flex gap-2 px-3 py-2 rounded-lg bg-[#0D2A1A] border border-[#10B98133]">
+                                          {steps.length > 1 && (
+                                            <span className="font-jakarta text-[10px] font-bold text-[#10B981] mt-0.5 flex-shrink-0">
+                                              {si + 1}.
+                                            </span>
+                                          )}
+                                          <MathText className="font-jakarta text-[12px] text-[#6EE7B7] leading-relaxed">
+                                            {step}
+                                          </MathText>
+                                        </div>
+                                      ))}
+                                      {shown === 0 && (
+                                        <button
+                                          onClick={() => setRevealedSteps(prev => ({ ...prev, [q.id]: 1 }))}
+                                          className="self-start font-jakarta text-[12px] text-[#10B981] hover:text-[#6EE7B7] transition"
+                                        >
+                                          Xem lời giải →
+                                        </button>
+                                      )}
+                                      {shown > 0 && shown < steps.length && (
+                                        <div className="flex items-center gap-3">
+                                          <button
+                                            onClick={() => setRevealedSteps(prev => ({ ...prev, [q.id]: shown + 1 }))}
+                                            className="font-jakarta text-[12px] text-[#10B981] hover:text-[#6EE7B7] transition"
+                                          >
+                                            Xem bước tiếp theo →
+                                          </button>
+                                          <button
+                                            onClick={() => setRevealedSteps(prev => ({ ...prev, [q.id]: steps.length }))}
+                                            className="font-jakarta text-[12px] text-[#475569] hover:text-[#94A3B8] transition"
+                                          >
+                                            Xem tất cả
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )
+                                })()}
                               </div>
                             </motion.div>
                           )}
@@ -716,7 +982,7 @@ export default function Results({ onOpenAuth }) {
                   <p className="font-jakarta text-[13px] text-[#475569] animate-pulse">AI đang phân tích...</p>
                 )}
                 {analysis?.school_insight ? (
-                  <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed whitespace-pre-line">{analysis.school_insight}</p>
+                  <MarkdownProse>{analysis.school_insight}</MarkdownProse>
                 ) : !aiLoading && (
                   <p className="font-jakarta text-[13px] text-[#475569]">
                     {user ? 'Gợi ý trường chưa được tạo. Hãy đảm bảo hồ sơ của bạn có lớp học và thử phân tích lại.' : 'Hãy đăng nhập để nhận gợi ý trường phù hợp.'}
@@ -772,7 +1038,7 @@ export default function Results({ onOpenAuth }) {
             {!isCollegeUser && analysis?.school_insight && (
               <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-3">
                 <span className="font-jakarta text-[12px] font-bold text-amber-400/70 uppercase tracking-wider">Gợi ý từ AI</span>
-                <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed whitespace-pre-line">{analysis.school_insight}</p>
+                <MarkdownProse>{analysis.school_insight}</MarkdownProse>
               </div>
             )}
           </motion.div>

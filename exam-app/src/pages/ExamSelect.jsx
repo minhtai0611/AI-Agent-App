@@ -1,9 +1,10 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useExamDispatch } from '../context/ExamContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { loadExams, loadThiThuExams, loadQuestionsByIds, loadExamById } from '../api/index.js'
+import { ocrExam } from '../api/aiClient.js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { buildBriefing } from '../utils/examBriefing.js'
@@ -60,6 +61,10 @@ export default function ExamSelect({ onOpenAuth }) {
   const saved = loadSavedFilters()
   const [filterYear, setFilterYear] = useState(saved.year ?? null)
   const [filterSearch, setFilterSearch] = useState(saved.search ?? '')
+  const [ocrLoading, setOcrLoading] = useState(false)
+  const [ocrError, setOcrError] = useState('')
+  const [ocrQuestions, setOcrQuestions] = useState(null)
+  const ocrInputRef = useRef(null)
 
   const allExams = mode === 'timed' ? loadThiThuExams() : loadExams()
   const availableYears = [...new Set(allExams.map(e => e.year).filter(Boolean))].sort((a, b) => b - a)
@@ -80,6 +85,34 @@ export default function ExamSelect({ onOpenAuth }) {
   function setSearch(s) {
     setFilterSearch(s)
     saveFilters({ year: filterYear, search: s })
+  }
+
+  async function handleOcrUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { setOcrError('Ảnh quá lớn — tối đa 5 MB'); return }
+    setOcrLoading(true)
+    setOcrError('')
+    setOcrQuestions(null)
+    const { data, error } = await ocrExam(file)
+    setOcrLoading(false)
+    if (error) { setOcrError(typeof error === 'string' ? error : 'Không đọc được ảnh — thử lại với ảnh rõ hơn'); return }
+    if (!data?.questions?.length) { setOcrError('Không tìm thấy câu hỏi nào trong ảnh'); return }
+    setOcrQuestions(data.questions)
+    e.target.value = ''
+  }
+
+  function startOcrExam() {
+    if (!ocrQuestions?.length) return
+    const fakeExam = {
+      id: `ocr-${Date.now()}`,
+      title: 'Đề thi từ ảnh',
+      questionIds: ocrQuestions.map(q => q.id),
+      duration: Math.ceil(ocrQuestions.length * 1.5),
+      source: 'ocr',
+    }
+    dispatch({ type: 'START_EXAM', exam: fakeExam, questions: ocrQuestions, mode: 'practice' })
+    navigate(`/test/${fakeExam.id}`)
   }
 
   const allowedCategories = getAllowedCategories(user)
@@ -168,6 +201,19 @@ export default function ExamSelect({ onOpenAuth }) {
           onChange={e => setSearch(e.target.value)}
           className="h-9 px-4 rounded-full border border-[#1E2A44] bg-[#111827] font-jakarta text-[13px] text-[#F0F4FF] placeholder-[#475569] focus:outline-none focus:border-[#F2A20C] w-48"
         />
+        {/* OCR upload */}
+        {user && (
+          <>
+            <input ref={ocrInputRef} type="file" accept="image/*" className="hidden" onChange={handleOcrUpload} />
+            <button
+              onClick={() => ocrInputRef.current?.click()}
+              disabled={ocrLoading}
+              className="h-9 px-4 rounded-full border border-[#6366F144] bg-[#6366F111] font-jakarta text-[12px] font-semibold text-[#818CF8] hover:border-[#6366F188] transition disabled:opacity-50 flex items-center gap-1.5"
+            >
+              {ocrLoading ? <><span className="animate-spin">⟳</span> Đang đọc...</> : <>📷 Tải ảnh đề thi</>}
+            </button>
+          </>
+        )}
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setYear(null)}
@@ -186,6 +232,30 @@ export default function ExamSelect({ onOpenAuth }) {
           ))}
         </div>
       </div>
+
+      {/* OCR result panel */}
+      {(ocrError || ocrQuestions) && (
+        <div className="mx-10 mt-4 px-5 py-4 rounded-xl flex items-center justify-between gap-4"
+          style={{ background: ocrError ? '#1A0808' : '#0A1A10', border: `1px solid ${ocrError ? '#EF444440' : '#10B98140'}` }}>
+          {ocrError ? (
+            <span className="font-jakarta text-[13px] text-red-400">{ocrError}</span>
+          ) : (
+            <>
+              <span className="font-jakarta text-[13px] text-emerald-400">
+                ✓ Đọc được <strong>{ocrQuestions.length}</strong> câu hỏi từ ảnh
+              </span>
+              <button
+                onClick={startOcrExam}
+                className="px-5 py-2 rounded-lg font-jakarta text-[13px] font-bold text-[#0A0E1A] bg-[#10B981] hover:opacity-90 transition flex-shrink-0"
+              >
+                Bắt đầu luyện tập →
+              </button>
+            </>
+          )}
+          <button onClick={() => { setOcrError(''); setOcrQuestions(null) }}
+            className="text-[#475569] hover:text-[#94A3B8] text-lg flex-shrink-0">✕</button>
+        </div>
+      )}
 
       {/* Content */}
       <div className="flex flex-col gap-10 p-10">

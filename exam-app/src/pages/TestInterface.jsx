@@ -306,7 +306,7 @@ export default function TestInterface() {
               transition={timerPulsing ? { duration: 1.2, repeat: Infinity } : {}}
               className="rounded-lg"
             >
-              <Timer timeLeft={timeLeft} />
+              <Timer timeLeft={timeLeft} totalTime={(session.exam?.duration ?? 0) * 60} />
             </motion.div>
           )}
           {/* Focus mode toggle */}
