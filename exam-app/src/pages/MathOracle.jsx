@@ -53,8 +53,9 @@ const UNICODE_LATEX   = {
   '½':'\\frac{1}{2}','⅓':'\\frac{1}{3}','⅔':'\\frac{2}{3}',
   '¼':'\\frac{1}{4}','¾':'\\frac{3}{4}',
   // Misc
-  '…':'\\ldots','·':'\\cdot',
+  '…':'\\ldots',
 }
+
 
 // Reverse of UNICODE_LATEX — only simple symbol commands, no structural ones.
 // Used to make pasted text display with real symbols instead of \ commands.

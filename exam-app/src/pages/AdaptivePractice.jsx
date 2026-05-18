@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useHistory } from '../context/HistoryContext'
 import { useExam, useExamDispatch } from '../context/ExamContext'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -54,6 +54,8 @@ export default function AdaptivePractice() {
   usePageTitle('Luyện tập thích nghi')
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const pinnedTopic = (location.state?.topic || searchParams.get('topic') || null)
   const { results } = useHistory()
   const { user } = useAuth()
   const dispatch = useExamDispatch()
@@ -82,11 +84,14 @@ export default function AdaptivePractice() {
       const allQuestions = await loadQuestions()
       const questionMap = Object.fromEntries(allQuestions.map(q => [q.id, q]))
       const weights = computeTopicWeights(results, questionMap)
-      const pool = allQuestions.filter(q => TOPICS.includes(q.topic))
+      const pool = allQuestions.filter(q =>
+        pinnedTopic ? q.topic === pinnedTopic : TOPICS.includes(q.topic)
+      )
       const selected = weightedSample(pool, weights, SESSION_SIZE)
+      const topicLabel = pinnedTopic ? (TOPIC_LABELS[pinnedTopic] ?? pinnedTopic) : null
       const adaptiveExam = {
         id: `adaptive-${Date.now()}`,
-        title: 'Luyện tập thích nghi',
+        title: topicLabel ? `Luyện tập — ${topicLabel}` : 'Luyện tập thích nghi',
         totalQuestions: selected.length,
         duration: SESSION_SIZE * 2,
         category: 'adaptive',

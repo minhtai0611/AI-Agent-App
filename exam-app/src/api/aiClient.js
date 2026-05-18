@@ -286,3 +286,12 @@ export const adminGetSecurityEvents = (key) =>
 
 export const getPaymentConfig = () =>
   wrap(client.get('/payment/config'))
+
+export const getDailyChallenge = () =>
+  wrap(client.get('/daily-challenge'))
+
+export const submitDailyScore = (answers, time_seconds) =>
+  wrap(client.post('/daily-challenge/score', { answers, time_seconds }))
+
+export const getDailyChallengeLeaderboard = () =>
+  wrap(client.get('/daily-challenge/leaderboard'))
