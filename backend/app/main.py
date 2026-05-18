@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import hmac
 import io
 import json
@@ -7,7 +8,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI, Depends, HTTPException, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from openai import AsyncOpenAI, APIStatusError, APIConnectionError, RateLimitError
 from app.config import get_settings
 from app.dependencies import get_ai_client, get_current_user, CurrentUser
@@ -19,6 +20,38 @@ from app.auth import verify_google_token, create_jwt
 from app.admin_auth import validate_admin_key, derive_key, get_window_label, get_expiry_date
 
 logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Daily-challenge helpers
+# ---------------------------------------------------------------------------
+_ANSWER_KEY_PATH = Path(__file__).parent / "data" / "question_answers.json"
+_answer_key: dict | None = None  # {question_id: correct_index}
+
+def _load_answer_key() -> dict:
+    global _answer_key
+    if _answer_key is None:
+        try:
+            with open(_ANSWER_KEY_PATH) as f:
+                _answer_key = json.load(f)
+        except Exception:
+            _answer_key = {}
+    return _answer_key
+
+def _select_daily_questions(all_ids: list[str], date_str: str, n: int = 5) -> list[str]:
+    """Deterministically select n question IDs seeded by date string."""
+    if len(all_ids) <= n:
+        return all_ids[:n]
+    result: list[str] = []
+    seen: set[int] = set()
+    counter = 0
+    while len(result) < n:
+        digest = hashlib.md5(f"{date_str}:{counter}".encode()).digest()
+        idx = int.from_bytes(digest[:4], "big") % len(all_ids)
+        if idx not in seen:
+            seen.add(idx)
+            result.append(all_ids[idx])
+        counter += 1
+    return result
 
 
 _SCHEMA_DDL = [
@@ -202,6 +235,18 @@ _SCHEMA_DDL = [
         submitted_at TEXT DEFAULT (datetime('now'))
     )""",
     """CREATE INDEX IF NOT EXISTS idx_leaderboard_exam ON exam_leaderboard (exam_id)""",
+    """CREATE TABLE IF NOT EXISTS daily_challenge_leaderboard (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        display_name TEXT NOT NULL DEFAULT '',
+        date TEXT NOT NULL,
+        score INTEGER NOT NULL,
+        total INTEGER NOT NULL DEFAULT 5,
+        time_seconds INTEGER NOT NULL DEFAULT 0,
+        submitted_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(user_id, date)
+    )""",
+    """CREATE INDEX IF NOT EXISTS idx_daily_lb_date ON daily_challenge_leaderboard (date, score DESC, time_seconds ASC)""",
 ]
 
 
@@ -723,7 +768,9 @@ async def tutor(
     req: TutorChatRequest,
     client: AsyncOpenAI = Depends(get_ai_client),
     current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
 ):
+    await _spend_credits(pool, current_user.user_id, 1, "tutor")
     from app.agent.exam_tutor import run_tutor
     reply, updated = await run_tutor(
         client, req.messages, req.exam_context, req.student_name
@@ -1085,6 +1132,12 @@ async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
     )
     preserved_trial_used = deleted_sub["trial_used"] if deleted_sub else 0
 
+    # Determine new vs existing before upsert (xmax is PostgreSQL-only, not available in SQLite)
+    existing = await pool.fetchrow(
+        "SELECT id FROM users WHERE google_sub = $1", google_sub
+    )
+    is_new_user = existing is None
+
     # Generate a unique referral code for new users
     new_ref_code = _secrets.token_urlsafe(8)
 
@@ -1096,12 +1149,10 @@ async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
           SET display_name = EXCLUDED.display_name,
               avatar_url = EXCLUDED.avatar_url,
               updated_at = NOW()
-        RETURNING id, email, display_name, avatar_url,
-                  (xmax = 0) AS is_new_user
+        RETURNING id, email, display_name, avatar_url
         """,
         google_sub, email, display_name, avatar_url, preserved_trial_used, new_ref_code,
     )
-    is_new_user = bool(row.get("is_new_user"))
 
     # Process referral — only on new account creation
     if is_new_user and body.ref and len(body.ref) <= 20:
@@ -1289,6 +1340,131 @@ async def _spend_credits(pool, user_id: int, amount: int, reason: str) -> None:
         "INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, ?, ?)",
         user_id, -amount, reason,
     )
+
+
+@app.get("/payment/config")
+async def get_payment_config(current_user: CurrentUser = Depends(get_current_user)):
+    """Return bank transfer details for the top-up modal. Requires authentication."""
+    return {
+        "bank_name": settings.payment_bank_name,
+        "account_number": settings.payment_account_number,
+        "account_name": settings.payment_account_name,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Daily challenge endpoints (B3 + F3)
+# ---------------------------------------------------------------------------
+
+@app.get("/daily-challenge")
+async def get_daily_challenge():
+    """Return today's 5 question IDs (no auth required). Correct answers omitted."""
+    key = _load_answer_key()
+    if not key:
+        raise HTTPException(status_code=503, detail="question_data_unavailable")
+    from datetime import datetime, timezone
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    all_ids = list(key.keys())
+    daily_ids = _select_daily_questions(all_ids, date_str)
+    return {"date": date_str, "question_ids": daily_ids}
+
+
+class DailyChallengeScoreRequest(BaseModel):
+    answers: dict[str, int]  # {question_id: chosen_index}
+    time_seconds: int = 0
+
+
+@app.post("/daily-challenge/score")
+async def submit_daily_challenge_score(
+    req: DailyChallengeScoreRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Score the daily challenge server-side and record in leaderboard."""
+    from datetime import datetime, timezone
+    key = _load_answer_key()
+    if not key:
+        raise HTTPException(status_code=503, detail="question_data_unavailable")
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    all_ids = list(key.keys())
+    daily_ids = _select_daily_questions(all_ids, date_str)
+
+    # Server-side scoring — never trust client-reported score
+    correct = sum(
+        1 for qid in daily_ids
+        if req.answers.get(qid) == key.get(qid)
+    )
+    total = len(daily_ids)
+    time_s = max(0, min(req.time_seconds, 86400))
+
+    # Check if this is a first submission today (for Tia grant)
+    existing = await pool.fetchrow(
+        "SELECT score FROM daily_challenge_leaderboard WHERE user_id = ? AND date = ?",
+        str(current_user.user_id), date_str,
+    )
+    first_submission = existing is None
+
+    # Upsert: only keep the better score (higher score, or same score with faster time)
+    if first_submission:
+        await pool.execute(
+            """INSERT INTO daily_challenge_leaderboard
+               (user_id, display_name, date, score, total, time_seconds)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            str(current_user.user_id),
+            current_user.display_name or "",
+            date_str, correct, total, time_s,
+        )
+    else:
+        prev_score = existing["score"]
+        if correct > prev_score or (correct == prev_score and time_s < (existing.get("time_seconds") or 86400)):
+            await pool.execute(
+                """UPDATE daily_challenge_leaderboard
+                   SET score = ?, time_seconds = ?, display_name = ?, submitted_at = datetime('now')
+                   WHERE user_id = ? AND date = ?""",
+                correct, time_s, current_user.display_name or "",
+                str(current_user.user_id), date_str,
+            )
+
+    # Grant 1 Tia on first submission (regardless of score)
+    tia_earned = 0
+    if first_submission:
+        await pool.execute(
+            "UPDATE users SET credits_balance = credits_balance + 1 WHERE id = ?",
+            current_user.user_id,
+        )
+        await pool.execute(
+            "INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, 1, 'daily_challenge')",
+            current_user.user_id,
+        )
+        tia_earned = 1
+
+    return {"score": correct, "total": total, "date": date_str, "tia_earned": tia_earned}
+
+
+@app.get("/daily-challenge/leaderboard")
+async def get_daily_challenge_leaderboard(pool=Depends(get_pool)):
+    """Top 10 scores for today's daily challenge."""
+    from datetime import datetime, timezone
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    rows = await pool.fetch(
+        """SELECT display_name, score, total, time_seconds
+           FROM daily_challenge_leaderboard
+           WHERE date = ?
+           ORDER BY score DESC, time_seconds ASC
+           LIMIT 10""",
+        date_str,
+    )
+    entries = [
+        {
+            "rank": i + 1,
+            "display_name": r["display_name"] or "Ẩn danh",
+            "score": r["score"],
+            "total": r["total"],
+            "time_seconds": r["time_seconds"],
+        }
+        for i, r in enumerate(rows)
+    ]
+    return {"date": date_str, "entries": entries}
 
 
 @app.get("/users/me/credits/log")
