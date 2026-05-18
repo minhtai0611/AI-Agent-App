@@ -118,6 +118,7 @@ export function AuthProvider({ children }) {
     const uid = user?.id
     localStorage.removeItem('auth_token')
     localStorage.removeItem('guest_trial_used')
+    localStorage.removeItem('offline_queue_size')
     // Clear user-namespaced keys so next user gets a clean slate
     if (uid) {
       for (const key of Object.keys(localStorage)) {

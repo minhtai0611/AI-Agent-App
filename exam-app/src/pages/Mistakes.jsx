@@ -15,6 +15,22 @@ import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { MathText } from '../components/MathText.jsx'
 const TOPIC_ORDER = ['algebra', 'geometry', 'statistics', 'combinatorics']
 
+const ERROR_TAGS = [
+  { id: 'calc', label: 'Lỗi tính toán' },
+  { id: 'reading', label: 'Lỗi hiểu đề' },
+  { id: 'concept', label: 'Lỗi khái niệm' },
+]
+const TAGS_KEY = 'mistake_tags'
+
+function loadTags() {
+  try { return JSON.parse(localStorage.getItem(TAGS_KEY) ?? '{}') } catch { return {} }
+}
+function saveTag(questionId, tagId) {
+  const tags = loadTags()
+  tags[questionId] = tagId
+  try { localStorage.setItem(TAGS_KEY, JSON.stringify(tags)) } catch {}
+}
+
 function MdMath({ children }) {
   return (
     <Markdown remarkPlugins={[remarkMath, remarkGfm]} rehypePlugins={[rehypeKatex]}
@@ -30,6 +46,7 @@ function MistakeRow({ question, userAnswer, examTitle }) {
   const [explanation, setExplanation] = useState(null)
   const [explLoading, setExplLoading] = useState(false)
   const [explError, setExplError] = useState(null)
+  const [tag, setTag] = useState(() => loadTags()[question.id] ?? null)
 
   async function fetchExplanation() {
     if (explanation || explLoading) { setExpanded(e => !e); return }
@@ -100,6 +117,22 @@ function MistakeRow({ question, userAnswer, examTitle }) {
           {!user && (
             <p className="font-jakarta text-[11px] text-amber-400">Đăng nhập để dùng AI giải thích ⚡1</p>
           )}
+          <div className="flex items-center gap-2 pt-1 flex-wrap">
+            <span className="font-jakarta text-[11px] text-[#475569]">Loại lỗi:</span>
+            {ERROR_TAGS.map(t => (
+              <button
+                key={t.id}
+                onClick={() => { const next = tag === t.id ? null : t.id; setTag(next); saveTag(question.id, next) }}
+                className={`px-2.5 py-1 rounded-full font-jakarta text-[11px] border transition ${
+                  tag === t.id
+                    ? 'border-[#F2A20C] bg-[#F2A20C22] text-[#F2A20C]'
+                    : 'border-[#1E2A44] text-[#475569] hover:border-[#2A3A50] hover:text-[#94A3B8]'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

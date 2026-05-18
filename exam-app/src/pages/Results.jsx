@@ -291,7 +291,7 @@ export default function Results({ onOpenAuth }) {
           const userGradeNum = user?.grade ? parseInt(user.grade, 10) : null
           const needsSchoolInsight = userGradeNum !== null && userGradeNum >= 10
           const cacheHasSchoolInsight = !!entry.data?.school_insight
-          if (entry.ts && Date.now() - entry.ts < AI_CACHE_TTL && (!needsSchoolInsight || cacheHasSchoolInsight)) {
+          if (entry.ts && Date.now() - entry.ts < AI_CACHE_TTL && entry.data?._source === 'ai' && (!needsSchoolInsight || cacheHasSchoolInsight)) {
             if (!cancelled) setAnalysis(entry.data)
             return
           }
@@ -984,9 +984,25 @@ export default function Results({ onOpenAuth }) {
                 {analysis?.school_insight ? (
                   <MarkdownProse>{analysis.school_insight}</MarkdownProse>
                 ) : !aiLoading && (
-                  <p className="font-jakarta text-[13px] text-[#475569]">
-                    {user ? 'Gợi ý trường chưa được tạo. Hãy đảm bảo hồ sơ của bạn có lớp học và thử phân tích lại.' : 'Hãy đăng nhập để nhận gợi ý trường phù hợp.'}
-                  </p>
+                  <div className="flex flex-col gap-3">
+                    {!user?.grade ? (
+                      <>
+                        <p className="font-jakarta text-[13px] text-[#64748B]">Hãy cập nhật lớp học trong hồ sơ để nhận gợi ý trường phù hợp.</p>
+                        <button onClick={() => navigate('/account')}
+                          className="self-start px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-semibold border border-[#F2A20C]/40 text-[#F2A20C] hover:bg-[#F2A20C]/10 transition">
+                          Cập nhật hồ sơ →
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-jakarta text-[13px] text-[#64748B]">Gợi ý trường chưa được tạo trong lần phân tích này.</p>
+                        <button onClick={() => { localStorage.removeItem(`ai-analysis-${user.id}-${result.id}`); setAnalysis(null); setAiError(false); setAiLoading(false) }}
+                          className="self-start px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-semibold border border-[#F2A20C]/40 text-[#F2A20C] hover:bg-[#F2A20C]/10 transition">
+                          Thử phân tích lại →
+                        </button>
+                      </>
+                    )}
+                  </div>
                 )}
                 <p className="font-jakarta text-[11px] text-[#2A3A50]">
                   Gợi ý từ AI dựa trên điểm Toán và hồ sơ của bạn. Không phải kết quả tuyển sinh chính thức.
