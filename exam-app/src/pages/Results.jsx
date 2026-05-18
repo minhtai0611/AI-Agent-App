@@ -175,6 +175,7 @@ export default function Results({ onOpenAuth }) {
   const [analysis, setAnalysis] = useState(null)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState(false)
+  const [retryKey, setRetryKey] = useState(0)
   const [planReady, setPlanReady] = useState(false)
   const [wrongAccordion, setWrongAccordion] = useState({})
   const [revealedSteps, setRevealedSteps] = useState({})
@@ -329,9 +330,12 @@ export default function Results({ onOpenAuth }) {
             }))
           })
         }
-      }, abortCtrl.signal).then(({ data: rawText, error }) => {
+      }, abortCtrl.signal).then(({ data: rawText, error, status: streamStatus }) => {
         if (cancelled) return
         setAiLoading(false)
+        // If the stream HTTP succeeded (200), backend already charged 3 credits.
+        // Never call aiAnalyzeResult as fallback in that case — it would double-charge.
+        const streamHttpOk = streamStatus === 200
         if (rawText) {
           try {
             // Strip possible code fence from streamed JSON
@@ -343,24 +347,27 @@ export default function Results({ onOpenAuth }) {
             setAnalysis(aiAnalysis)
             refreshUser()
           } catch {
+            // JSON parse failed but stream was HTTP 200 — credits already charged, show retry
             setAiError(true)
-            refundCredits(3)
-            if (!cancelled) {
-              aiAnalyzeResult(payload).then(({ data }) => {
-                if (cancelled || !data) return
-                const aiAnalysis = { ...data, _source: 'ai' }
-                safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
-                setAnalysis(aiAnalysis)
-                setAiError(false)
-                refreshUser()
-              })
+            if (!streamHttpOk) {
+              refundCredits(3)
+              if (!cancelled) {
+                aiAnalyzeResult(payload).then(({ data }) => {
+                  if (cancelled || !data) return
+                  const aiAnalysis = { ...data, _source: 'ai' }
+                  safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
+                  setAnalysis(aiAnalysis)
+                  setAiError(false)
+                  refreshUser()
+                })
+              }
             }
           }
         } else {
           const failed = !!error || rawText === ''
           setAiError(failed)
-          // Fall back to non-streaming endpoint if stream failed or returned empty
-          if (failed && !cancelled) {
+          // Only fall back to non-streaming if the stream itself never connected (not HTTP 200)
+          if (failed && !streamHttpOk && !cancelled) {
             refundCredits(3)
             aiAnalyzeResult(payload).then(({ data }) => {
               if (cancelled || !data) return
@@ -377,7 +384,7 @@ export default function Results({ onOpenAuth }) {
 
     run()
     return () => { cancelled = true; abortCtrl.abort() }
-  }, [result?.id, user?.id, isCurrent]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [result?.id, user?.id, isCurrent, retryKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Personal best check — computed before early returns so hook order stays stable
   const pastSameExam = result ? results.filter(r => r.examId === result.examId && r.id !== result.id) : []
@@ -996,7 +1003,7 @@ export default function Results({ onOpenAuth }) {
                     ) : (
                       <>
                         <p className="font-jakarta text-[13px] text-[#64748B]">Gợi ý trường chưa được tạo trong lần phân tích này.</p>
-                        <button onClick={() => { localStorage.removeItem(`ai-analysis-${user.id}-${result.id}`); setAnalysis(null); setAiError(false); setAiLoading(false) }}
+                        <button onClick={() => { localStorage.removeItem(`ai-analysis-${user.id}-${result.id}`); setAnalysis(null); setAiError(false); setAiLoading(false); setRetryKey(k => k + 1) }}
                           className="self-start px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-semibold border border-[#F2A20C]/40 text-[#F2A20C] hover:bg-[#F2A20C]/10 transition">
                           Thử phân tích lại →
                         </button>
