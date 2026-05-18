@@ -148,7 +148,7 @@ export function getExplanation(payload) {
 }
 
 export function sendTutorMessage(payload) {
-  return wrap(client.post('/tutor', payload))
+  return wrapOptimistic(1, () => client.post('/tutor', payload))
 }
 
 export function generateStudyPlan(payload) {
@@ -283,3 +283,6 @@ export const adminGrantCredits = (key, userId, amount) =>
 
 export const adminGetSecurityEvents = (key) =>
   wrap(adminClient.get('/admin/security-events', { headers: { 'x-admin-key': key } }))
+
+export const getPaymentConfig = () =>
+  wrap(client.get('/payment/config'))

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { loadQuestionsByIds } from '../api/index.js'
 import { pageVariants } from '../utils/animations.js'
@@ -18,13 +19,15 @@ function addDays(date, n) {
   return d.toISOString().slice(0, 10)
 }
 
-function getQueue() {
-  try { return JSON.parse(localStorage.getItem('review_queue') ?? '{}') }
+const QUEUE_KEY = (uid) => `review_queue-${uid ?? 'guest'}`
+
+function getQueue(uid) {
+  try { return JSON.parse(localStorage.getItem(QUEUE_KEY(uid)) ?? '{}') }
   catch { return {} }
 }
 
-function saveQueue(q) {
-  localStorage.setItem('review_queue', JSON.stringify(q))
+function saveQueue(q, uid) {
+  localStorage.setItem(QUEUE_KEY(uid), JSON.stringify(q))
 }
 
 // SM-2 algorithm: grade 4 = correct, grade 1 = wrong
@@ -49,6 +52,8 @@ function updateSM2(entry, correct) {
 export default function ReviewSession() {
   usePageTitle('Ôn tập hôm nay')
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const uid = user?.id ?? null
   const [questions, setQuestions] = useState([])
   const [loading, setLoading] = useState(true)
   const [index, setIndex] = useState(0)
@@ -58,7 +63,7 @@ export default function ReviewSession() {
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    const queue = getQueue()
+    const queue = getQueue(uid)
     const today = todayStr()
     const dueIds = Object.entries(queue)
       .filter(([, entry]) => entry.dueDate <= today)
@@ -79,11 +84,11 @@ export default function ReviewSession() {
   }
 
   function handleNext(markCorrect) {
-    const queue = getQueue()
+    const queue = getQueue(uid)
     const qId = question.id
     const entry = queue[qId] ?? {}
     queue[qId] = updateSM2(entry, markCorrect)
-    saveQueue(queue)
+    saveQueue(queue, uid)
 
     setResults(r => [...r, markCorrect ? 'correct' : 'wrong'])
 

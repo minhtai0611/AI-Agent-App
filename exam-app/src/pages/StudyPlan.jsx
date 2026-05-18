@@ -2,14 +2,15 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useHistory } from '../context/HistoryContext.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import { generateStudyPlan, generateWeekQuiz } from '../api/aiClient.js'
 import { buildStudyPlanPayload } from '../api/index.js'
 import { safeSetItem } from '../utils/storageManager.js'
 import { MathText, MathBlock } from '../components/MathText.jsx'
 
-const STORAGE_KEY      = (id) => `study-plan-progress-${id}`
-const PLAN_CACHE_KEY   = (id) => `study-plan-data-${id}`
-const QUIZ_CACHE_KEY   = (id, w) => `study-plan-quiz-${id}-${w}`
+const STORAGE_KEY      = (uid, id) => `study-plan-progress-${uid ?? 'guest'}-${id}`
+const PLAN_CACHE_KEY   = (uid, id) => `study-plan-data-${uid ?? 'guest'}-${id}`
+const QUIZ_CACHE_KEY   = (uid, id, w) => `study-plan-quiz-${uid ?? 'guest'}-${id}-${w}`
 
 const DIFF_COLOR = { easy: '#10B981', medium: '#F2A20C', hard: '#EF4444' }
 const DIFF_LABEL = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
@@ -144,8 +145,8 @@ function QuizQuestion({ q, index, chosen, submitted, onChoose }) {
   )
 }
 
-function WeekQuiz({ resultId, weekIndex, weekFocus, weekTasks }) {
-  const cacheKey = QUIZ_CACHE_KEY(resultId, weekIndex)
+function WeekQuiz({ resultId, weekIndex, weekFocus, weekTasks, uid }) {
+  const cacheKey = QUIZ_CACHE_KEY(uid, resultId, weekIndex)
 
   const [open, setOpen]       = useState(false)
   const [loading, setLoading] = useState(false)
@@ -343,6 +344,8 @@ export default function StudyPlan() {
   const { resultId } = useParams()
   const location = useLocation()
   const { results } = useHistory()
+  const { user } = useAuth()
+  const uid = user?.id ?? null
   const [plan, setPlan]         = useState(null)
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState(false)
@@ -353,13 +356,13 @@ export default function StudyPlan() {
   const history = location.state?.history || results.filter(r => r.id !== resultId)
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY(resultId))
+    const saved = localStorage.getItem(STORAGE_KEY(uid, resultId))
     if (saved) setProgress(JSON.parse(saved))
-  }, [resultId])
+  }, [resultId, uid])
 
   useEffect(() => {
     if (!result) return
-    const cacheKey = PLAN_CACHE_KEY(resultId)
+    const cacheKey = PLAN_CACHE_KEY(uid, resultId)
     const cached = localStorage.getItem(cacheKey)
     if (cached) { setPlan(JSON.parse(cached)); setLoading(false); return }
     setLoading(true)
@@ -370,12 +373,12 @@ export default function StudyPlan() {
         else setError(true)
       })
     )
-  }, [resultId, result]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [resultId, result, uid]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function toggleTask(weekIdx, taskIdx) {
     setProgress(prev => {
       const next = { ...prev, [weekIdx]: { ...prev[weekIdx], [taskIdx]: !prev[weekIdx]?.[taskIdx] } }
-      localStorage.setItem(STORAGE_KEY(resultId), JSON.stringify(next))
+      localStorage.setItem(STORAGE_KEY(uid, resultId), JSON.stringify(next))
       return next
     })
   }
@@ -512,6 +515,7 @@ export default function StudyPlan() {
                     weekIndex={activeWeek}
                     weekFocus={w.focus}
                     weekTasks={w.tasks}
+                    uid={uid}
                   />
                 </div>
               )

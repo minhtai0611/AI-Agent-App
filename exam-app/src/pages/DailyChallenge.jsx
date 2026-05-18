@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { useHistory } from '../context/HistoryContext'
 import { useAuth } from '../context/AuthContext'
 import { loadQuestions } from '../api/index.js'
-import { getExplanation } from '../api/aiClient.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import Markdown from 'react-markdown'
 import remarkMath from 'remark-math'
@@ -12,15 +11,15 @@ import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
-const STREAK_KEY = 'daily_challenge_streak'
+const STREAK_KEY = (uid) => `daily_challenge_streak-${uid ?? 'guest'}`
 
-function loadStreak() {
-  try { return JSON.parse(localStorage.getItem(STREAK_KEY) ?? '{}') }
+function loadStreak(uid) {
+  try { return JSON.parse(localStorage.getItem(STREAK_KEY(uid)) ?? '{}') }
   catch { return {} }
 }
 
-function saveStreak(s) {
-  try { localStorage.setItem(STREAK_KEY, JSON.stringify(s)) } catch {}
+function saveStreak(s, uid) {
+  try { localStorage.setItem(STREAK_KEY(uid), JSON.stringify(s)) } catch {}
 }
 
 function todayStr() {
@@ -69,8 +68,7 @@ export default function DailyChallenge() {
   const [chosen, setChosen] = useState(null)
   const [answering, setAnswering] = useState(false)
   const [explanation, setExplanation] = useState(null)
-  const [explLoading, setExplLoading] = useState(false)
-  const [streak, setStreak] = useState(() => computeStreak(loadStreak()))
+  const [streak, setStreak] = useState(() => computeStreak(loadStreak(user?.id)))
 
   useEffect(() => {
     loadQuestions().then(qs => {
@@ -84,28 +82,20 @@ export default function DailyChallenge() {
     setAnswering(true)
     setChosen(idx)
     const correct = idx === question.correct
+    const uid = user?.id
     // Update streak
-    const raw = loadStreak()
+    const raw = loadStreak(uid)
     const today = todayStr()
     if (raw.lastCompletedDate !== today) {
       const computed = computeStreak(raw)
       const newCurrent = correct ? computed.current + 1 : 0
       const newLongest = Math.max(newCurrent, computed.longest)
       const updated = { currentStreak: newCurrent, longestStreak: newLongest, lastCompletedDate: today }
-      saveStreak(updated)
+      saveStreak(updated, uid)
       setStreak({ current: newCurrent, longest: newLongest, completedToday: true })
     }
-    // Fetch free explanation (no credit cost for daily challenge)
-    setExplLoading(true)
-    const { data } = await getExplanation({
-      question: question.question,
-      choices: question.choices,
-      correct: question.correct,
-      topic: question.topic,
-    })
-    setExplLoading(false)
     setAnswering(false)
-    setExplanation(data?.explanation || question.explanation || null)
+    setExplanation(question.explanation || null)
   }
 
   if (!question) {
@@ -190,11 +180,6 @@ export default function DailyChallenge() {
           )}
 
           {/* Explanation */}
-          {explLoading && (
-            <div className="flex items-center gap-2 text-[#475569] font-jakarta text-[12px]">
-              <span className="animate-spin">⟳</span> Đang tải giải thích...
-            </div>
-          )}
           {explanation && (
             <div className="flex flex-col gap-2 pt-2 border-t border-[#1E2A44]">
               <span className="font-jakarta text-[11px] font-semibold text-[#475569] uppercase tracking-wider">Giải thích</span>

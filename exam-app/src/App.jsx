@@ -26,6 +26,9 @@ const Mistakes = lazy(() => import('./pages/Mistakes.jsx'))
 const AdaptivePractice = lazy(() => import('./pages/AdaptivePractice.jsx'))
 const DailyChallenge = lazy(() => import('./pages/DailyChallenge.jsx'))
 const BattleMistakes = lazy(() => import('./pages/BattleMistakes.jsx'))
+const FlashMode = lazy(() => import('./pages/FlashMode.jsx'))
+const ReverseMode = lazy(() => import('./pages/ReverseMode.jsx'))
+const StreakSurvival = lazy(() => import('./pages/StreakSurvival.jsx'))
 const Admin = lazy(() => import('./pages/Admin.jsx'))
 const ShareView = lazy(() => import('./pages/ShareView.jsx'))
 const ChallengeLanding = lazy(() => import('./pages/ChallengeLanding.jsx'))
@@ -150,6 +153,9 @@ function AppInner() {
             <Route path="/practice/adaptive" element={<AdaptivePractice />} />
             <Route path="/daily" element={<DailyChallenge />} />
             <Route path="/battle" element={<BattleMistakes />} />
+            <Route path="/flash" element={<FlashMode />} />
+            <Route path="/reverse" element={<ReverseMode />} />
+            <Route path="/survival" element={<StreakSurvival />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/share" element={<ShareView />} />
             <Route path="/challenge" element={<ChallengeLanding />} />

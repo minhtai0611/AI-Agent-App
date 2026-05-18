@@ -8,7 +8,7 @@ import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
-import { solveMath, getMathStats, getWikiStatus, ocrImage, reviewMath } from '../api/aiClient'
+import { solveMath, getMathStats, getWikiStatus, ocrImage, reviewMath, sendTutorMessage } from '../api/aiClient'
 import SymbolPalette from '../components/SymbolPalette'
 
 // One level of nested braces — handles \frac{\sqrt{x}}{2} correctly
@@ -328,6 +328,29 @@ function StepList({ steps }) {
   )
 }
 
+function StepReveal({ steps }) {
+  const [revealed, setRevealed] = useState(1)
+  const total = steps.length
+  const showing = Math.min(revealed, total)
+  return (
+    <div className="flex flex-col gap-4">
+      <StepList steps={steps.slice(0, showing)} />
+      {showing < total && (
+        <div className="flex items-center gap-3 pt-1">
+          <button onClick={() => setRevealed(r => r + 1)}
+            className="px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-semibold border border-[#F2A20C]/40 text-[#F2A20C] hover:bg-[#F2A20C]/10 transition">
+            Tiếp theo →
+          </button>
+          <button onClick={() => setRevealed(total)}
+            className="font-jakarta text-[11px] text-[#475569] hover:text-[#94A3B8] transition">
+            Xem tất cả ({total - showing} bước còn lại)
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function StatsBadge({ stats }) {
   if (!stats) return null
   const total = stats.wiki_units || 0
@@ -557,7 +580,7 @@ function AnswerCard({ result, problem }) {
               )}
             </div>
           </div>
-          <StepList steps={answer.steps} />
+          <StepReveal steps={answer.steps} />
         </div>
       )}
 
@@ -732,24 +755,53 @@ function useWikiStatus() {
   return { status, justBecameReady }
 }
 
+const HISTORY_KEY = 'oracle_history'
+const HISTORY_MAX = 20
+const VALID_TOPICS = ['algebra', 'geometry', 'statistics', 'combinatorics', 'calculus', 'number_theory']
+
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]') } catch { return [] }
+}
+
+function saveHistory(items) {
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(items)) } catch {}
+}
+
+function pushHistory(problem) {
+  const prev = loadHistory()
+  const next = [{ id: Date.now(), problem: problem.slice(0, 80), timestamp: new Date().toISOString() }, ...prev]
+  saveHistory(next.slice(0, HISTORY_MAX))
+  return next.slice(0, HISTORY_MAX)
+}
+
 export default function MathOracle() {
   const navigate = useNavigate()
   const location = useLocation()
   const MAX_RETRIES = 2
 
-  const [mode, setMode] = useState('solve')   // 'solve' | 'review'
+  // ── C1+C2: Chat thread state ──────────────────────────────────────────────
+  // chatMode: 'solve' | 'socratic' | 'review'
+  // messages: [{ role:'user'|'oracle', content, steps, type, result }]
+  const [chatMode, setChatMode] = useState('solve')
+  const [messages, setMessages] = useState([])
+  const chatEndRef = useRef(null)
+
+  // ── Legacy single-result state (kept for doSolve/doReview internals) ──────
   const [question, setQuestion] = useState('')
   const [solution, setSolution] = useState('')
-  const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [stats, setStats] = useState(null)
   const [retryAttempt, setRetryAttempt] = useState(0)
-  const [lastQuestion, setLastQuestion] = useState('')
-  const [lastSolution, setLastSolution] = useState('')
+  const [lastSolveQuestion, setLastSolveQuestion] = useState('')
   const [ocring, setOcring] = useState(false)
   const [ocringS, setOcringS] = useState(false)
   const [cameraMenu, setCameraMenu] = useState(null) // null | 'question' | 'solution'
+
+  // ── C3: History sidebar ───────────────────────────────────────────────────
+  const [history, setHistory] = useState(() => loadHistory())
+  const [historyOpen, setHistoryOpen] = useState(false) // mobile dropdown
+
   const textareaRef = useRef(null)
   const solutionRef = useRef(null)
   const fileInputRef = useRef(null)
@@ -757,10 +809,9 @@ export default function MathOracle() {
   const solutionFileInputRef = useRef(null)
   const solutionCameraInputRef = useRef(null)
 
-  const { status: wikiStatus, justBecameReady } = useWikiStatus()
+  const { status: wikiStatus } = useWikiStatus()
   const wikiReady  = wikiStatus?.phase === 'ready'
   const wikiFailed = wikiStatus?.phase === 'failed'
-  const wikiLocked = wikiStatus !== null && !wikiReady && !wikiFailed
 
   useEffect(() => {
     getMathStats().then(({ data }) => { if (data) setStats(data) })
@@ -781,7 +832,6 @@ export default function MathOracle() {
     }
     lines.push(`\nBạn có thể giải thích và hướng dẫn tôi cách ôn tập những chủ đề này không?`)
     setQuestion(lines.join('\n'))
-    // Clear state so refreshing doesn't re-seed
     window.history.replaceState({}, '', location.pathname)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -793,6 +843,11 @@ export default function MathOracle() {
     prevReadyRef.current = wikiReady
   }, [wikiReady])
 
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, loading])
+
   const handleChange = useCallback((e) => {
     setQuestion(e.target.value)
     autoResize(e.target)
@@ -802,15 +857,10 @@ export default function MathOracle() {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault()
       const text = textareaRef.current?.value.trim()
-      if (!text || loading || wikiLocked) return
-      if (mode === 'review') {
-        const sol = solutionRef.current?.value.trim() || ''
-        setResult(null); setLastQuestion(text); setLastSolution(sol); doReview(text, sol)
-      } else {
-        setResult(null); setLastQuestion(text); doSolve(text)
-      }
+      if (!text || loading) return
+      handleSubmit(text)
     }
-  }, [loading, wikiLocked, mode]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loading, chatMode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePaste = useCallback((e) => {
     const html  = e.clipboardData?.getData('text/html')  ?? ''
@@ -830,49 +880,127 @@ export default function MathOracle() {
     autoResize(e.target)
   }, [])
 
-  async function doSolve(text, attempt = 0) {
-    setLoading(true)
+  // ── Submit dispatcher ─────────────────────────────────────────────────────
+  // Heuristic: a "new problem" is a long input (>20 chars) or no prior messages.
+  // A short reply to an existing thread is treated as a follow-up.
+  async function handleSubmit(text) {
+    const isNewProblem = messages.length === 0 || text.length > 20
+
+    // Push user message to thread
+    setMessages(prev => [...prev, { role: 'user', content: text, steps: null, type: chatMode }])
+    setQuestion('')
+    if (textareaRef.current) { textareaRef.current.value = ''; autoResize(textareaRef.current) }
     setError(null)
+
+    if (chatMode === 'solve' && isNewProblem) {
+      await doSolveChat(text)
+    } else if (chatMode === 'review' && isNewProblem) {
+      const sol = (solutionRef.current?.value || '').trim()
+      setSolution('')
+      if (solutionRef.current) { solutionRef.current.value = ''; autoResize(solutionRef.current) }
+      await doReviewChat(text, sol)
+    } else {
+      // socratic mode first message, or any follow-up
+      await doTutorChat(text, chatMode === 'socratic' && isNewProblem)
+    }
+  }
+
+  async function doSolveChat(text, attempt = 0) {
+    setLoading(true)
     setRetryAttempt(attempt)
+    setLastSolveQuestion(text)
     const { data, error: err } = await solveMath(text)
     if (err) {
       const isTimeout = /timed out|504|timeout|không kết nối|network error/i.test(err)
       if (isTimeout && attempt < MAX_RETRIES) {
         await new Promise(r => setTimeout(r, 1000))
-        return doSolve(text, attempt + 1)
+        return doSolveChat(text, attempt + 1)
       }
       setLoading(false)
       setRetryAttempt(0)
       setError(err)
+      // Remove optimistic user message on error
+      setMessages(prev => prev.slice(0, -1))
       return
     }
     setLoading(false)
     setRetryAttempt(0)
-    setResult(data)
+    const answer = data?.answer || {}
+    setMessages(prev => [...prev, {
+      role: 'oracle',
+      content: null,
+      steps: answer.steps || null,
+      type: 'solve',
+      result: data,
+    }])
+    // C3: push to history after successful solve
+    const updated = pushHistory(text)
+    setHistory(updated)
   }
 
-  async function doReview(problem, sol) {
+  async function doReviewChat(problem, sol) {
     setLoading(true)
-    setError(null)
     const { data, error: err } = await reviewMath(problem, sol)
     setLoading(false)
-    if (err) { setError(err); return }
-    setResult({ _type: 'review', ...data })
+    if (err) {
+      setError(err)
+      setMessages(prev => prev.slice(0, -1))
+      return
+    }
+    setMessages(prev => [...prev, {
+      role: 'oracle',
+      content: null,
+      steps: null,
+      type: 'review',
+      result: { _type: 'review', ...data },
+      problem,
+      solution: sol,
+    }])
+    const updated = pushHistory(problem)
+    setHistory(updated)
   }
 
-  function handleSolve(e) {
+  async function doTutorChat(text, isSocraticStart = false) {
+    setLoading(true)
+    // Build conversation history for tutor endpoint
+    const historyMsgs = messages
+      .filter(m => m.role === 'user' || (m.role === 'oracle' && m.content))
+      .map(m => ({ role: m.role === 'oracle' ? 'assistant' : 'user', content: m.content || '' }))
+
+    const systemHint = isSocraticStart
+      ? 'Hướng dẫn học sinh từng bước bằng câu hỏi gợi mở, không giải thẳng.'
+      : undefined
+
+    const payload = {
+      messages: [...historyMsgs, { role: 'user', content: text }],
+      ...(systemHint ? { system: systemHint } : {}),
+    }
+
+    const { data, error: err } = await sendTutorMessage(payload)
+    setLoading(false)
+    if (err) {
+      setError(err)
+      setMessages(prev => prev.slice(0, -1))
+      return
+    }
+    const reply = data?.reply || data?.message || (typeof data === 'string' ? data : 'Oracle không trả lời được.')
+    setMessages(prev => [...prev, {
+      role: 'oracle',
+      content: reply,
+      steps: null,
+      type: isSocraticStart ? 'socratic' : 'followup',
+    }])
+    if (isSocraticStart) {
+      const updated = pushHistory(text)
+      setHistory(updated)
+    }
+  }
+
+  function handleSolveForm(e) {
     e?.preventDefault()
     const text = (textareaRef.current?.value || '').trim()
     if (!text || loading) return
-    setResult(null)
-    setLastQuestion(text)
-    if (mode === 'review') {
-      const sol = (solutionRef.current?.value || '').trim()
-      setLastSolution(sol)
-      doReview(text, sol)
-    } else {
-      doSolve(text)
-    }
+    handleSubmit(text)
   }
 
   function handleInsert(s) {
@@ -915,6 +1043,18 @@ export default function MathOracle() {
     setSolution(text)
   }
 
+  // ── C4: "Luyện bài tương tự" — read problem_type from last solve result ──
+  const lastSolveResult = [...messages].reverse().find(m => m.role === 'oracle' && m.type === 'solve')
+  const rawTopic = lastSolveResult?.result?.answer?.problem_type
+  const safeTopic = VALID_TOPICS.includes(rawTopic) ? rawTopic : null
+
+  // ── Mode toggle labels ────────────────────────────────────────────────────
+  const MODE_OPTS = [
+    ['solve', 'Giải thẳng'],
+    ['socratic', 'Hướng dẫn'],
+    ['review', 'Chấm bài'],
+  ]
+
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
@@ -926,6 +1066,27 @@ export default function MathOracle() {
         style={{ width: 600, height: 400, left: '50%', top: 0, transform: 'translateX(-50%)',
           background: 'radial-gradient(circle, #6366F118 0%, transparent 70%)' }} />
 
+      {/* ── C3: Desktop history sidebar (lg+) ────────────────────────────── */}
+      {history.length > 0 && (
+        <div className="hidden lg:flex flex-col gap-2 fixed left-4 top-24 w-48 max-h-[70vh] overflow-y-auto z-20">
+          <p className="font-jakarta text-[10px] font-semibold text-[#334155] tracking-widest uppercase px-1 mb-1">
+            Lịch sử
+          </p>
+          {history.map(item => (
+            <button key={item.id}
+              onClick={() => {
+                const ta = textareaRef.current
+                if (ta) { ta.value = item.problem; autoResize(ta); ta.focus() }
+                setQuestion(item.problem)
+              }}
+              className="text-left font-jakarta text-[11px] text-[#475569] hover:text-[#94A3B8] hover:bg-[#0F1726] border border-transparent hover:border-[#2A3A5E] rounded-lg px-2.5 py-1.5 transition truncate"
+              title={item.problem}>
+              {item.problem}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="relative z-10 max-w-2xl mx-auto px-6 py-12 flex flex-col gap-8">
 
         {/* Back */}
@@ -936,10 +1097,17 @@ export default function MathOracle() {
 
         {/* Header */}
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between">
             <span className="font-jakarta text-[10px] font-semibold text-[#6366F1] tracking-[3px] uppercase">
               Experimental · AI Knowledge System
             </span>
+            {/* Wiki status dot */}
+            {wikiStatus === null
+              ? <div className="w-1.5 h-1.5 rounded-full bg-[#475569] animate-pulse" title="Đang tải…" />
+              : wikiReady
+                ? <div className="w-1.5 h-1.5 rounded-full bg-[#10B981]" title="Tri thức đã sẵn sàng" />
+                : <div className="w-1.5 h-1.5 rounded-full bg-[#334155]" title="" />
+            }
           </div>
           <h1 className="font-fraunces text-[52px] font-bold text-[#F8FAFC] leading-none tracking-tight">
             Toán Oracle
@@ -947,67 +1115,72 @@ export default function MathOracle() {
           <p className="font-jakarta text-[15px] text-[#64748B] leading-relaxed max-w-[480px]">
             Đặt câu hỏi toán — Oracle truy vấn kho tri thức và giải từng bước.
           </p>
-          <StatsBadge stats={stats} />
         </div>
 
-        {/* Mode toggle */}
-        <div className="flex gap-2 self-start">
-          {[['solve', 'Giải bài'], ['review', 'Chấm bài']].map(([m, label]) => (
-            <button key={m} type="button"
-              onClick={() => { setMode(m); setResult(null); setError(null) }}
-              className="font-jakarta text-[12px] font-semibold px-4 py-1.5 rounded-full transition"
-              style={mode === m
-                ? { background: '#6366F1', color: '#fff' }
-                : { background: 'transparent', border: '1px solid #2A3A5E', color: '#475569' }}>
-              {label}
+        {/* ── C1+C2: Mode toggle (3 options) + mobile history ───────────── */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex gap-2">
+            {MODE_OPTS.map(([m, label]) => (
+              <button key={m} type="button"
+                onClick={() => setChatMode(m)}
+                className="font-jakarta text-[12px] font-semibold px-4 py-1.5 rounded-full transition"
+                style={chatMode === m
+                  ? { background: '#6366F1', color: '#fff' }
+                  : { background: 'transparent', border: '1px solid #2A3A5E', color: '#475569' }}>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* ── C3: Mobile history toggle ─────────────────────────────── */}
+          {history.length > 0 && (
+            <div className="relative lg:hidden ml-auto">
+              <button
+                type="button"
+                onClick={() => setHistoryOpen(o => !o)}
+                className="font-jakarta text-[11px] text-[#475569] hover:text-[#94A3B8] border border-[#2A3A5E] rounded-full px-3 py-1 transition">
+                Lịch sử
+              </button>
+              {historyOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setHistoryOpen(false)} />
+                  <div className="absolute right-0 top-full mt-1 z-20 rounded-xl border border-[#2A3A5E] bg-[#0F1726] shadow-xl overflow-hidden" style={{ minWidth: 220 }}>
+                    {history.slice(0, 5).map(item => (
+                      <button key={item.id}
+                        onClick={() => {
+                          setHistoryOpen(false)
+                          const ta = textareaRef.current
+                          if (ta) { ta.value = item.problem; autoResize(ta); ta.focus() }
+                          setQuestion(item.problem)
+                        }}
+                        className="w-full text-left px-4 py-2.5 font-jakarta text-[12px] text-[#94A3B8] hover:bg-[#1E2D45] transition truncate border-b border-[#1E2D45] last:border-0">
+                        {item.problem}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* ── C1: New conversation button (only when thread has messages) ── */}
+          {messages.length > 0 && (
+            <button
+              type="button"
+              onClick={() => { setMessages([]); setError(null) }}
+              className="font-jakarta text-[11px] text-[#475569] hover:text-[#94A3B8] transition ml-auto lg:ml-0">
+              Cuộc trò chuyện mới
             </button>
-          ))}
+          )}
         </div>
-
-        {/* Wiki init banner */}
-        {wikiStatus !== null && !wikiReady && !wikiFailed && (
-          <div className="rounded-xl border border-[#6366F1]/30 bg-[#6366F1]/5 px-4 py-3 flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <span className="font-jakarta text-[13px] text-[#818CF8] animate-pulse">
-                {PHASE_LABELS[wikiStatus.phase] ?? wikiStatus.phase}
-              </span>
-              <span className="font-jakarta text-[12px] text-[#6366F1] font-semibold">
-                {wikiStatus.progress}%
-              </span>
-            </div>
-            <div className="h-1 w-full rounded-full bg-[#1E2D45] overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-700 ease-out"
-                style={{
-                  width: `${wikiStatus.progress}%`,
-                  background: 'linear-gradient(90deg, #6366F1, #818CF8)',
-                }}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Wiki failed banner */}
-        {wikiFailed && (
-          <div className="rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/5 px-4 py-3">
-            <p className="font-jakarta text-[13px] text-[#EF4444]">Không thể khởi động chỉ mục — Oracle hoạt động ở chế độ AI trực tiếp</p>
-            {wikiStatus.error && (
-              <p className="font-jakarta text-[11px] text-[#EF4444]/70 mt-1">{wikiStatus.error}</p>
-            )}
-          </div>
-        )}
 
         {/* Input */}
         <style>{`
           .oracle-textarea::placeholder { color: #334155; }
           .oracle-textarea { caret-color: #E2E8F0; }
-          @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to   { opacity: 1; transform: translateY(0); }
-          }
           @keyframes spin { to { transform: rotate(360deg); } }
         `}</style>
-        <form onSubmit={handleSolve} className="flex flex-col gap-3">
+        <form onSubmit={handleSolveForm} className="flex flex-col gap-3">
           <div className="rounded-xl border border-[#2A3A5E] bg-[#0F1726] focus-within:border-[#6366F1] transition-colors overflow-hidden">
             <textarea
               ref={textareaRef}
@@ -1015,10 +1188,16 @@ export default function MathOracle() {
               onChange={handleChange}
               onKeyDown={handleKeyDown}
               onPaste={handlePaste}
-              disabled={wikiLocked || ocring}
-              placeholder={"Nhập bài toán… (hỗ trợ LaTeX, nhiều dòng, tiếng Việt)\nVD: Giải phương trình x² – 5x + 6 = 0"}
+              disabled={ocring}
+              placeholder={
+                chatMode === 'review'
+                  ? 'Nhập bài toán cần chấm… (LaTeX, tiếng Việt)'
+                  : chatMode === 'socratic'
+                  ? 'Nhập bài toán để được hướng dẫn từng bước…'
+                  : 'Nhập bài toán… (hỗ trợ LaTeX, nhiều dòng, tiếng Việt)\nVD: Giải phương trình x² – 5x + 6 = 0'
+              }
               rows={3}
-              className={`oracle-textarea${(wikiLocked || ocring) ? ' opacity-60 cursor-not-allowed' : ''}`}
+              className={`oracle-textarea${ocring ? ' opacity-60 cursor-not-allowed' : ''}`}
               style={{
                 display: 'block', width: '100%', resize: 'none', overflow: 'hidden',
                 background: 'transparent', color: '#E2E8F0', fontSize: 15,
@@ -1035,7 +1214,7 @@ export default function MathOracle() {
                   type="button"
                   title="Nhận diện ảnh"
                   onClick={() => setCameraMenu(m => m === 'question' ? null : 'question')}
-                  disabled={ocring || loading || wikiLocked}
+                  disabled={ocring || loading}
                   className="p-1.5 text-[#475569] hover:text-[#94A3B8] disabled:opacity-40 transition"
                 >
                   {ocring
@@ -1066,16 +1245,18 @@ export default function MathOracle() {
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleOcrFile} style={{ display: 'none' }} />
               <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleOcrFile} style={{ display: 'none' }} />
               <span className="font-jakarta text-[11px] text-[#334155]">⌘ Enter</span>
-              <button type="submit" disabled={!question.trim() || loading || wikiLocked || ocring || ocringS}
+              <button type="submit" disabled={!question.trim() || loading || ocring || ocringS}
                 className="px-4 py-1.5 bg-[#6366F1] text-white font-jakarta font-semibold text-sm rounded-lg disabled:opacity-40 hover:bg-[#4F46E5] transition">
-                {loading ? (mode === 'review' ? 'Đang chấm…' : 'Đang tính…') : (mode === 'review' ? 'Chấm bài' : 'Giải')}
+                {loading
+                  ? (chatMode === 'review' ? 'Đang chấm…' : chatMode === 'socratic' ? 'Đang hướng dẫn…' : 'Đang tính…')
+                  : (chatMode === 'review' ? 'Chấm bài' : chatMode === 'socratic' ? 'Hướng dẫn' : 'Giải')}
               </button>
             </div>
           </div>
           <MathPreview text={question} />
 
           {/* Solution textarea — only in review mode */}
-          {mode === 'review' && (
+          {chatMode === 'review' && (
             <div className="rounded-xl border border-[#2A3A5E] bg-[#0F1726] focus-within:border-[#6366F1] transition-colors overflow-hidden">
               <textarea
                 ref={solutionRef}
@@ -1131,7 +1312,7 @@ export default function MathOracle() {
             </div>
           )}
 
-          {question.trim() === '' && (
+          {question.trim() === '' && messages.length === 0 && (
             <div className="flex flex-wrap gap-2">
               {[
                 { insert: 'x^{2} - 5x + 6 = 0',              label: '$x^{2} - 5x + 6 = 0$' },
@@ -1160,12 +1341,60 @@ export default function MathOracle() {
           </div>
         )}
 
+        {/* ── C1+C2: Chat thread ────────────────────────────────────────────── */}
+        {messages.length > 0 && (
+          <div className="flex flex-col gap-5">
+            {messages.map((msg, idx) => {
+              if (msg.role === 'user') {
+                return (
+                  <div key={idx} className="flex justify-end">
+                    <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-[#1E2D45] border border-[#2A3A5E] px-4 py-3">
+                      <div className="font-jakarta text-[14px] text-[#F2A20C] leading-relaxed">
+                        <MathText>{msg.content}</MathText>
+                      </div>
+                    </div>
+                  </div>
+                )
+              }
+
+              // Oracle message
+              if (msg.type === 'solve') {
+                return (
+                  <div key={idx} className="flex flex-col gap-3">
+                    <AnswerCard result={msg.result} problem={null} />
+                  </div>
+                )
+              }
+              if (msg.type === 'review') {
+                return (
+                  <div key={idx} className="flex flex-col gap-3">
+                    <ReviewCard result={msg.result} problem={msg.problem} solution={msg.solution} />
+                  </div>
+                )
+              }
+              // socratic / followup — plain text bubble
+              return (
+                <div key={idx} className="flex justify-start">
+                  <div className="max-w-[90%] rounded-2xl rounded-tl-sm bg-[#0F1726] border border-[#2A3A5E] px-4 py-3">
+                    <div className="font-jakarta text-[14px] text-[#CBD5E1] leading-relaxed">
+                      <MathText>{msg.content}</MathText>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+            <div ref={chatEndRef} />
+          </div>
+        )}
+
         {/* Loading */}
         {loading && (
           <div className="flex items-center gap-3 font-jakarta text-[14px] text-[#475569] animate-pulse">
             <span className="w-2 h-2 rounded-full bg-[#6366F1] animate-bounce" />
             {retryAttempt > 0
               ? `Đang thử lại sau timeout (lần ${retryAttempt + 1}/${MAX_RETRIES + 1})…`
+              : chatMode === 'socratic' ? 'Oracle đang soạn câu hỏi gợi mở…'
+              : chatMode === 'review'   ? 'Oracle đang chấm bài…'
               : 'Oracle đang truy vấn tri thức…'
             }
           </div>
@@ -1175,9 +1404,9 @@ export default function MathOracle() {
         {error && (
           <div className="rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/5 p-4 font-jakarta text-sm text-[#EF4444] flex items-center justify-between gap-4">
             <span>{error}</span>
-            {/timed out|timeout|không kết nối/i.test(error) && lastQuestion && (
+            {/timed out|timeout|không kết nối/i.test(error) && lastSolveQuestion && (
               <button
-                onClick={() => { setError(null); doSolve(lastQuestion) }}
+                onClick={() => { setError(null); doSolveChat(lastSolveQuestion) }}
                 className="shrink-0 px-3 py-1.5 bg-[#EF4444]/10 border border-[#EF4444]/30 rounded-lg text-[12px] font-semibold hover:bg-[#EF4444]/20 transition"
               >
                 Thử lại
@@ -1186,34 +1415,20 @@ export default function MathOracle() {
           </div>
         )}
 
-        {/* Result */}
-        {result && (
-          result._type === 'review'
-            ? <ReviewCard result={result} problem={lastQuestion} solution={lastSolution} />
-            : <AnswerCard result={result} problem={lastQuestion} />
-        )}
-
-        {/* Ready toast */}
-        {justBecameReady && (
-          <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-[#10B981]/30 bg-[#0A1A14] px-5 py-4 shadow-lg"
-            style={{ animation: 'slideInUp 0.3s ease-out' }}>
-            <p className="font-jakarta text-[14px] font-semibold text-[#10B981]">Oracle sẵn sàng</p>
-            <p className="font-jakarta text-[12px] text-[#475569] mt-0.5">Hệ thống tri thức đã được khởi động</p>
+        {/* ── C4: "Luyện bài tương tự" — shown after a successful solve ──── */}
+        {lastSolveResult && !loading && (
+          <div className="flex justify-end">
+            <button
+              onClick={() => navigate(safeTopic
+                ? `/practice/adaptive?topic=${safeTopic}`
+                : '/practice/adaptive'
+              )}
+              className="font-jakarta text-[13px] font-semibold text-[#6366F1] hover:text-[#818CF8] border border-[#6366F1]/30 hover:border-[#6366F1]/60 rounded-lg px-4 py-2 transition">
+              Luyện bài tương tự →
+            </button>
           </div>
         )}
 
-        {/* Empty-DB notice when stats show 0 */}
-        {stats?.wiki_units === 0 && !loading && !result && (
-          <div className="rounded-xl border border-[#2A3A5E] bg-[#0F1726] p-5 flex items-start gap-4">
-            <span className="text-2xl">🌱</span>
-            <div>
-              <p className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Wiki còn trống</p>
-              <p className="font-jakarta text-[12px] text-[#475569] mt-0.5">
-                Nạp đề thi qua <code className="text-[#6366F1]">POST /math-ingest</code> hoặc tải file lên <code className="text-[#6366F1]">POST /math-upload</code> để xây dựng kho tri thức.
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     </motion.div>
   )
