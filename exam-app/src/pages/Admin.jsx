@@ -12,10 +12,10 @@ function formatDate(iso) {
 }
 
 function StatusBadge({ user }) {
-  if (user.is_locked) return <span className="px-2 py-0.5 rounded-full font-jakarta text-[10px] font-bold bg-red-500/20 text-red-400">Khóa</span>
-  if (user.is_suspended) return <span className="px-2 py-0.5 rounded-full font-jakarta text-[10px] font-bold bg-amber-500/20 text-amber-400">Tạm khoá</span>
-  if (user.is_deactivated) return <span className="px-2 py-0.5 rounded-full font-jakarta text-[10px] font-bold bg-slate-500/20 text-slate-400">Tạm ngưng</span>
-  return <span className="px-2 py-0.5 rounded-full font-jakarta text-[10px] font-bold bg-emerald-500/20 text-emerald-400">Hoạt động</span>
+  if (user.is_locked) return <span className="px-2 py-0.5 rounded-full font-jakarta text-[11px] font-bold bg-red-500/20 text-red-400">Khóa</span>
+  if (user.is_suspended) return <span className="px-2 py-0.5 rounded-full font-jakarta text-[11px] font-bold bg-amber-500/20 text-amber-400">Tạm khoá</span>
+  if (user.is_deactivated) return <span className="px-2 py-0.5 rounded-full font-jakarta text-[11px] font-bold bg-slate-500/20 text-slate-400">Tạm ngưng</span>
+  return <span className="px-2 py-0.5 rounded-full font-jakarta text-[11px] font-bold bg-emerald-500/20 text-emerald-400">Hoạt động</span>
 }
 
 function GrantCreditsModal({ user, adminKey, onClose, onDone }) {
@@ -204,7 +204,7 @@ function UserRow({ user, adminKey, onRefresh }) {
             <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF] truncate">{user.display_name || '—'}</span>
             <StatusBadge user={user} />
             {user.pending_deletion_at && (
-              <span className="px-2 py-0.5 rounded-full font-jakarta text-[10px] font-bold bg-red-500/20 text-red-400">
+              <span className="px-2 py-0.5 rounded-full font-jakarta text-[11px] font-bold bg-red-500/20 text-red-400">
                 Xóa {new Date(user.pending_deletion_at).toLocaleDateString('vi-VN')}
               </span>
             )}
