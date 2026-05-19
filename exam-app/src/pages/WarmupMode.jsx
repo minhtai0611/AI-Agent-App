@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useHistory } from '../context/HistoryContext'
 import { useExamDispatch } from '../context/ExamContext'
+import { useAuth } from '../context/AuthContext.jsx'
 import { loadQuestions } from '../api/index.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
@@ -63,13 +64,14 @@ export default function WarmupMode() {
   const navigate = useNavigate()
   const { results } = useHistory()
   const dispatch = useExamDispatch()
+  const { user } = useAuth()
 
   useEffect(() => {
     async function build() {
       try {
         const allQuestions = await loadQuestions()
         let reviewQueue = {}
-        try { reviewQueue = JSON.parse(localStorage.getItem('review_queue') ?? '{}') } catch {}
+        try { reviewQueue = JSON.parse(localStorage.getItem(`review_queue-${user?.id ?? 'guest'}`) ?? '{}') } catch {}
         const selected = pickWarmupQuestions(allQuestions, results, reviewQueue)
         if (!selected.length) { navigate('/exams?mode=special'); return }
 

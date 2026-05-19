@@ -85,7 +85,7 @@ export default function ExamSelect({ onOpenAuth }) {
       setDailyStreak({ current, completedToday })
     } catch {}
     try {
-      const queue = JSON.parse(localStorage.getItem('review_queue') ?? '{}')
+      const queue = JSON.parse(localStorage.getItem(`review_queue-${user?.id ?? 'guest'}`) ?? '{}')
       const today = new Date().toISOString().slice(0, 10)
       setDueCount(Object.values(queue).filter(e => e.dueDate <= today).length)
     } catch {}

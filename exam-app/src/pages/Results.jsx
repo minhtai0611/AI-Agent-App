@@ -78,9 +78,10 @@ function topicVerdict(acc) {
   return { text: '✗ Yếu', color: '#FB7185', bg: '#2A0F14', border: '#4A1A24' }
 }
 
-function addToReviewQueue(examId, answers, questions) {
+function addToReviewQueue(examId, answers, questions, uid) {
   try {
-    const queue = JSON.parse(localStorage.getItem('review_queue') ?? '{}')
+    const key = `review_queue-${uid ?? 'guest'}`
+    const queue = JSON.parse(localStorage.getItem(key) ?? '{}')
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
     const dueDate = tomorrow.toISOString().slice(0, 10)
@@ -91,7 +92,7 @@ function addToReviewQueue(examId, answers, questions) {
         queue[q.id] = { interval: 1, dueDate }
       }
     }
-    localStorage.setItem('review_queue', JSON.stringify(queue))
+    localStorage.setItem(key, JSON.stringify(queue))
   } catch { /* non-critical */ }
 }
 
@@ -245,7 +246,7 @@ export default function Results({ onOpenAuth }) {
       // Add wrong questions to spaced-repetition queue
       if (examObj) {
         const qs = await loadQuestionsByIds(examObj.questionIds)
-        if (!cancelled) addToReviewQueue(result.examId, result.answers, qs)
+        if (!cancelled) addToReviewQueue(result.examId, result.answers, qs, user?.id)
       }
 
       // Request notification permission on first result load (high engagement moment)
@@ -326,7 +327,7 @@ export default function Results({ onOpenAuth }) {
             const extracted = extractInsightsFromStream(_rawStreamRef.current)
             setAnalysis(prev => ({
               ...(prev || {}),
-              insights: extracted,
+              insights: extracted || prev?.insights || '',
               _streaming: true,
             }))
           })

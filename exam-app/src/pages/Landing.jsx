@@ -32,9 +32,9 @@ const TOPUP_PACKAGES = [
   { price: '59,000đ', credits: 800 },
 ]
 
-function getDueCount() {
+function getDueCount(uid) {
   try {
-    const queue = JSON.parse(localStorage.getItem('review_queue') ?? '{}')
+    const queue = JSON.parse(localStorage.getItem(`review_queue-${uid ?? 'guest'}`) ?? '{}')
     const today = new Date().toISOString().slice(0, 10)
     return Object.values(queue).filter(e => e.dueDate <= today).length
   } catch { return 0 }
@@ -52,7 +52,7 @@ export default function Landing({ onOpenAuth }) {
   const daysUntil = user ? getDaysUntilExam(user.province) : null
   const readiness = useReadiness(results, questionMap)
 
-  useEffect(() => { setDueCount(getDueCount()) }, [])
+  useEffect(() => { setDueCount(getDueCount(user?.id)) }, [user?.id])
 
   useEffect(() => {
     if (!user || !results.length) return

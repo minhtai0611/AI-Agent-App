@@ -243,7 +243,7 @@ function UserRow({ user, adminKey, onRefresh }) {
               ) : (
                 <button onClick={() => { setModal('suspend'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-amber-400 hover:bg-[#1E2A44] transition">Tạm khoá</button>
               )}
-              {user.is_locked && (
+              {!!user.is_locked && (
                 <button onClick={handleUnlock} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-emerald-400 hover:bg-[#1E2A44] transition">Mở khóa</button>
               )}
               <button onClick={() => { setModal('grant'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-[#94A3B8] hover:bg-[#1E2A44] transition">Tặng Tia</button>

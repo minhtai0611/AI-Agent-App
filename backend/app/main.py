@@ -808,6 +808,7 @@ async def analyze_stream(
     settings = get_settings()
 
     async def event_stream():
+        buf = ''
         try:
             stream = await client.chat.completions.create(
                 model=settings.default_model,
@@ -821,10 +822,16 @@ async def analyze_stream(
             async for chunk in stream:
                 token = chunk.choices[0].delta.content if chunk.choices else None
                 if token:
-                    yield f"data: {json.dumps(token)}\n\n"
-            yield "data: [DONE]\n\n"
+                    buf += token
+                    if len(buf) >= 15:
+                        yield f"data: {json.dumps(buf)}\n\n"
+                        buf = ''
+            if buf:
+                yield f"data: {json.dumps(buf)}\n\n"
         except Exception as exc:
             yield f"data: {json.dumps({'error': str(exc)})}\n\n"
+        finally:
+            yield "data: [DONE]\n\n"
 
     return StreamingResponse(event_stream(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
