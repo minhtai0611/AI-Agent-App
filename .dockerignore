@@ -14,6 +14,8 @@ build/
 # Node
 node_modules/
 exam-app/
+!exam-app/src/data/exams.json
+!exam-app/src/data/questions.json
 
 # Env files (set secrets in Koyeb dashboard, not baked into image)
 .env
