@@ -211,7 +211,7 @@ export default function ReviewSession() {
               <MathText className="font-jakarta text-[15px] text-[#F0F4FF] leading-relaxed">{question.question}</MathText>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {question.choices.map((choice, i) => {
                 const isChosen = chosen === i
                 const isCorrectChoice = i === question.correct

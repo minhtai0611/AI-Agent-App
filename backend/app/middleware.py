@@ -16,6 +16,11 @@ _USER_LIMIT = 60    # requests per minute per authenticated user
 _HINT_RAPID_WINDOW = 10   # seconds
 _HINT_RAPID_LIMIT = 5     # max hint requests per user in rapid window
 
+_ADMIN_PATHS_PREFIX = "/admin"
+_ADMIN_IP_LIMIT = 10       # 10 requests/min per IP to any /admin/* path
+_ADMIN_FAIL_LIMIT = 5      # block IP after 5 failed key attempts
+_ADMIN_FAIL_WINDOW = 900   # 15-minute lockout window
+
 
 def _extract_user_id(request: Request) -> str | None:
     """Decode JWT from Authorization header to get user_id (no DB lookup)."""
@@ -38,10 +43,31 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self._auth_buckets: dict[str, deque] = defaultdict(deque)
         self._user_buckets: dict[str, deque] = defaultdict(deque)
         self._hint_buckets: dict[str, deque] = defaultdict(deque)
+        self._admin_ip_buckets: dict[str, deque] = defaultdict(deque)
+        self._admin_fail_counts: dict[str, list] = defaultdict(list)
 
     async def dispatch(self, request: Request, call_next):
         ip = request.client.host if request.client else "unknown"
         now = time.monotonic()
+
+        # Admin endpoints — tight IP rate limit + failed-attempt lockout
+        if request.url.path.startswith(_ADMIN_PATHS_PREFIX):
+            # IP rate limit
+            ab = self._admin_ip_buckets[ip]
+            while ab and ab[0] < now - _WINDOW:
+                ab.popleft()
+            if len(ab) >= _ADMIN_IP_LIMIT:
+                return Response('{"detail":"Too many requests"}', status_code=429, media_type="application/json")
+            ab.append(now)
+            # Failed-attempt lockout
+            self._admin_fail_counts[ip] = [t for t in self._admin_fail_counts[ip] if t > now - _ADMIN_FAIL_WINDOW]
+            if len(self._admin_fail_counts[ip]) >= _ADMIN_FAIL_LIMIT:
+                return Response('{"detail":"Too many requests"}', status_code=429, media_type="application/json")
+            # Call next and record failure if key was bad
+            response = await call_next(request)
+            if getattr(request.state, "admin_key_failed", False):
+                self._admin_fail_counts[ip].append(now)
+            return response
 
         # Auth endpoint — tight IP-based limit
         if request.url.path in _AUTH_PATHS:

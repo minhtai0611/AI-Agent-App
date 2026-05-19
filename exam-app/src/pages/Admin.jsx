@@ -156,6 +156,15 @@ function DeleteUserModal({ user, adminKey, onClose, onDone }) {
   )
 }
 
+function getOnlineStatus(lastSeenAt) {
+  if (!lastSeenAt) return { status: 'unknown', label: 'Chưa hoạt động' }
+  const diff = (Date.now() - new Date(lastSeenAt).getTime()) / 1000
+  if (diff < 120) return { status: 'online', label: 'Đang online' }
+  if (diff < 3600) return { status: 'offline', label: `${Math.floor(diff / 60)} phút trước` }
+  if (diff < 86400) return { status: 'offline', label: `${Math.floor(diff / 3600)} giờ trước` }
+  return { status: 'offline', label: `${Math.floor(diff / 86400)} ngày trước` }
+}
+
 function UserRow({ user, adminKey, onRefresh }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [modal, setModal] = useState(null) // 'grant' | 'suspend' | 'reset' | 'delete'
@@ -189,8 +198,16 @@ function UserRow({ user, adminKey, onRefresh }) {
       <div className="flex items-center gap-3 py-3 border-b border-[#1E2A44] last:border-0">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
+            {(() => { const { status, label } = getOnlineStatus(user.last_seen_at); return (
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${status === 'online' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} title={label} />
+            )})()}
             <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF] truncate">{user.display_name || '—'}</span>
             <StatusBadge user={user} />
+            {user.pending_deletion_at && (
+              <span className="px-2 py-0.5 rounded-full font-jakarta text-[10px] font-bold bg-red-500/20 text-red-400">
+                Xóa {new Date(user.pending_deletion_at).toLocaleDateString('vi-VN')}
+              </span>
+            )}
           </div>
           <span className="font-jakarta text-[11px] text-[#64748B]">{user.email}</span>
         </div>
@@ -200,13 +217,13 @@ function UserRow({ user, adminKey, onRefresh }) {
         </div>
         <div className="hidden md:flex items-center gap-1.5">
           {(user.last_tab_switches ?? 0) > 0 && (
-            <span className={`font-jakarta text-[10px] px-1.5 py-0.5 rounded-full ${(user.last_tab_switches ?? 0) > 5 ? 'bg-red-500/20 text-red-400' : 'bg-slate-500/20 text-slate-400'}`}
+            <span className={`font-jakarta text-[11px] px-1.5 py-0.5 rounded-full ${(user.last_tab_switches ?? 0) > 5 ? 'bg-red-500/20 text-red-400' : 'bg-slate-500/20 text-slate-400'}`}
               title="Tab switches in last exam">
               ↹ {user.last_tab_switches}
             </span>
           )}
           {user.last_devtools === 1 && (
-            <span className="font-jakarta text-[10px] px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400" title="DevTools detected in last exam">
+            <span className="font-jakarta text-[11px] px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400" title="DevTools detected in last exam">
               {'</>'}
             </span>
           )}
@@ -333,13 +350,13 @@ function SecurityEventsTab({ adminKey }) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-jakarta text-[12px] font-semibold text-[#F0F4FF]">{ev.event_type}</span>
-                  <span className="font-jakarta text-[10px] px-1.5 py-0.5 rounded-full" style={{ color: CONFIDENCE_COLOR[ev.confidence] ?? '#64748B', background: (CONFIDENCE_COLOR[ev.confidence] ?? '#64748B') + '22' }}>{ev.confidence}</span>
+                  <span className="font-jakarta text-[11px] px-1.5 py-0.5 rounded-full" style={{ color: CONFIDENCE_COLOR[ev.confidence] ?? '#64748B', background: (CONFIDENCE_COLOR[ev.confidence] ?? '#64748B') + '22' }}>{ev.confidence}</span>
                 </div>
                 <span className="font-jakarta text-[11px] text-[#64748B]">{ev.detail ?? '—'}</span>
               </div>
               <div className="shrink-0 text-right">
                 <span className="font-jakarta text-[11px] text-[#475569]">{formatDate(ev.created_at)}</span>
-                {ev.user_email && <div className="font-jakarta text-[10px] text-[#475569] truncate max-w-[120px]">{ev.user_email}</div>}
+                {ev.user_email && <div className="font-jakarta text-[12px] text-[#475569] truncate max-w-[120px]">{ev.user_email}</div>}
               </div>
             </div>
           ))}
@@ -349,12 +366,34 @@ function SecurityEventsTab({ adminKey }) {
   )
 }
 
+const ADMIN_SESSION_TIMEOUT = 30 * 60 * 1000
+
 export default function Admin() {
   const [adminKey, setAdminKey] = useState('')
   const [keyInput, setKeyInput] = useState('')
   const [authError, setAuthError] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
   const [tab, setTab] = useState('users')
+  const inactivityTimer = useRef(null)
+
+  function resetInactivityTimer() {
+    clearTimeout(inactivityTimer.current)
+    inactivityTimer.current = setTimeout(() => {
+      setAdminKey('')
+    }, ADMIN_SESSION_TIMEOUT)
+  }
+
+  useEffect(() => {
+    if (!adminKey) return
+    resetInactivityTimer()
+    window.addEventListener('mousemove', resetInactivityTimer)
+    window.addEventListener('keydown', resetInactivityTimer)
+    return () => {
+      clearTimeout(inactivityTimer.current)
+      window.removeEventListener('mousemove', resetInactivityTimer)
+      window.removeEventListener('keydown', resetInactivityTimer)
+    }
+  }, [adminKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleKeySubmit(e) {
     e.preventDefault()

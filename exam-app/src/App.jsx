@@ -118,6 +118,7 @@ function AppInner() {
   const showLowCredit = !loading && user && (user.credits_balance ?? 0) < 10
   const showSuspension = !loading && Boolean(user?.is_suspended)
   const showLocked = !loading && Boolean(user?.is_locked)
+  const showDeactivated = !loading && Boolean(user?.is_deactivated)
 
   return (
     <>
@@ -126,17 +127,20 @@ function AppInner() {
       <InstallPrompt />
       {!isAdminRoute && <Navbar onOpenAuth={() => setAuthOpen(true)} />}
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-      {showLocked && (
+      {showDeactivated && (
+        <SuspensionModal reason="Tài khoản đã bị tạm xóa do không hoạt động. Liên hệ hỗ trợ để khôi phục tài khoản." onLogout={logout} />
+      )}
+      {!showDeactivated && showLocked && (
         <SuspensionModal reason={user.lock_reason || 'Tài khoản bị khóa do hoạt động bất thường. Liên hệ hỗ trợ để mở khóa.'} onLogout={logout} />
       )}
-      {!showLocked && showSuspension && (
+      {!showDeactivated && !showLocked && showSuspension && (
         <SuspensionModal reason={user.suspension_reason} onLogout={logout} />
       )}
-      {!showLocked && !showSuspension && showOnboarding && (
+      {!showDeactivated && !showLocked && !showSuspension && showOnboarding && (
         <ProfileOnboarding onDone={() => {}} />
       )}
       <div className={`min-h-screen bg-[#0A0E1A] text-gray-900${isAdminRoute ? '' : ' pt-12'}`}>
-        {showLowCredit && !showOnboarding && !showLocked && !showSuspension && (
+        {showLowCredit && !showOnboarding && !showDeactivated && !showLocked && !showSuspension && (
           <LowCreditBanner balance={user.credits_balance} />
         )}
         <Suspense fallback={<PageFallback />}>

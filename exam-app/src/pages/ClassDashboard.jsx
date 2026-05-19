@@ -161,7 +161,23 @@ export default function ClassDashboard() {
           ) : classResults.length === 0 ? (
             <p className="font-jakarta text-[13px] text-[#475569] text-center py-6">Chưa có học sinh nào nộp bài</p>
           ) : (
-            <div className="overflow-x-auto">
+            {/* Mobile card view */}
+            <div className="sm:hidden flex flex-col gap-2">
+              {classResults.map((r, i) => (
+                <div key={i} className="bg-[#141D2E] border border-[#1E2A44] rounded-xl p-4 flex flex-col gap-1">
+                  <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF] truncate">{r.student_name ?? r.student_email ?? '—'}</span>
+                  <span className="font-jakarta text-[12px] text-[#64748B] truncate">{r.exam_id}</span>
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="font-jakarta text-[13px] font-bold" style={{ color: r.score >= 8 ? '#10B981' : r.score >= 5 ? '#F2A20C' : '#FB7185' }}>
+                      {typeof r.score === 'number' ? r.score.toFixed(1) : '—'}
+                    </span>
+                    <span className="font-jakarta text-[11px] text-[#475569]">{r.finished_at ? new Date(r.finished_at).toLocaleDateString('vi-VN') : '—'}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Desktop table */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full font-jakarta text-[13px]">
                 <thead>
                   <tr className="text-[#475569] border-b border-[#1E2A44]">

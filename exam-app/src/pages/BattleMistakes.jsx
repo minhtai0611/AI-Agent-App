@@ -210,7 +210,7 @@ function BossBattle({ topicKey, onExit }) {
           </div>
 
           {/* Lives */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="font-jakarta text-[12px] text-[#475569]">Mạng:</span>
             <div className="flex gap-1">
               {Array.from({ length: BOSS_LIVES_MAX }).map((_, i) => (
@@ -476,7 +476,7 @@ function MistakesBattle() {
 
         {/* Streak indicator for current question */}
         {question && (
-          <div className="flex items-center gap-2 mb-5">
+          <div className="flex flex-wrap items-center gap-2 mb-5">
             <span className="font-jakarta text-[12px] text-[#475569]">Chuỗi đúng:</span>
             <div className="flex gap-1.5">
               {Array.from({ length: STREAK_TO_TAME }).map((_, i) => (

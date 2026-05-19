@@ -1,3 +1,4 @@
+import time
 from functools import lru_cache
 from openai import AsyncOpenAI
 from fastapi import Depends, HTTPException, Request, status
@@ -11,6 +12,9 @@ from app.auth import decode_jwt
 
 # Cache account status (suspended/locked/deactivated) for 30 s per user.
 _account_status_cache: TTLCache = TTLCache(maxsize=500, ttl=30)
+
+_last_seen_flush: dict[int, float] = {}
+_SEEN_DEBOUNCE = 60  # seconds
 
 
 def invalidate_account_cache(user_id: int) -> None:
@@ -90,6 +94,15 @@ async def get_current_user(
             detail={"code": "account_deactivated"},
         )
     if ip:
-        await pool.execute("UPDATE users SET last_ip = ? WHERE id = ?", ip, user.user_id)
+        now_mono = time.monotonic()
+        needs_seen = (now_mono - _last_seen_flush.get(user.user_id, 0)) >= _SEEN_DEBOUNCE
+        if needs_seen:
+            _last_seen_flush[user.user_id] = now_mono
+            await pool.execute(
+                "UPDATE users SET last_ip = ?, last_seen_at = datetime('now') WHERE id = ?",
+                ip, user.user_id,
+            )
+        else:
+            await pool.execute("UPDATE users SET last_ip = ? WHERE id = ?", ip, user.user_id)
 
     return user

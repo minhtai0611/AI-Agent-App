@@ -165,7 +165,7 @@ export default function AdaptivePractice() {
       <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center px-4">
         <div className="flex flex-col items-center gap-4 text-center max-w-sm">
           <p className="font-jakarta text-[14px] text-red-400">{error}</p>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button onClick={() => setMode('static')}
               className="px-5 py-2 rounded-xl font-jakarta text-[13px] font-bold"
               style={{ background: '#F2A20C', color: '#0A0E1A' }}>

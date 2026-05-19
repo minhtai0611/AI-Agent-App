@@ -169,6 +169,48 @@ async def _auto_lock_on_high_confidence(pool):
         logger.warning("abuse_detector: auto_lock check error: %s", exc)
 
 
+_DORMANT_DAYS = 365
+_DELETION_WARNING_DAYS = 30
+
+
+async def _mark_dormant_accounts(pool):
+    """Phase 1: mark basic-tier accounts inactive > _DORMANT_DAYS as pending deletion."""
+    try:
+        await pool.execute(
+            f"""UPDATE users
+               SET pending_deletion_at = datetime('now', '+{_DELETION_WARNING_DAYS} days')
+               WHERE subscription_tier = 'basic'
+                 AND is_suspended = 0 AND is_locked = 0 AND is_deactivated = 0
+                 AND pending_deletion_at IS NULL
+                 AND (last_seen_at IS NULL
+                      OR last_seen_at < datetime('now', '-{_DORMANT_DAYS} days'))
+            """
+        )
+    except Exception as exc:
+        logger.warning("abuse_detector: mark_dormant error: %s", exc)
+
+
+async def _deactivate_expired_pending(pool):
+    """Phase 2: deactivate accounts whose warning period has expired."""
+    try:
+        rows = await pool.fetch(
+            """SELECT id FROM users
+               WHERE pending_deletion_at IS NOT NULL
+                 AND pending_deletion_at < datetime('now')
+                 AND is_deactivated = 0"""
+        )
+        for row in rows:
+            await pool.execute(
+                "UPDATE users SET is_deactivated = 1 WHERE id = ?",
+                row["id"],
+            )
+            await _log_event(pool, row["id"], None, "auto_deactivated", "low",
+                             f"dormant account — no login for {_DORMANT_DAYS} days")
+            logger.info("abuse_detector: deactivated dormant account %s", row["id"])
+    except Exception as exc:
+        logger.warning("abuse_detector: deactivate_expired_pending error: %s", exc)
+
+
 async def _run_abuse_detector(pool):
     """Main detection loop — runs every 5 minutes."""
     logger.info("abuse_detector: starting background loop (interval=%ds)", _INTERVAL)
@@ -181,6 +223,8 @@ async def _run_abuse_detector(pool):
             await _check_new_account_burst(pool)
             await _check_behavioral_anomalies(pool)
             await _auto_lock_on_high_confidence(pool)
+            await _mark_dormant_accounts(pool)
+            await _deactivate_expired_pending(pool)
         except asyncio.CancelledError:
             logger.info("abuse_detector: loop cancelled, shutting down")
             break

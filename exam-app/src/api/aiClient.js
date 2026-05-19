@@ -193,6 +193,10 @@ export function updateProfile(payload) {
   return wrap(client.post('/users/me/profile', payload))
 }
 
+export function updateUsername(username) {
+  return wrap(client.patch('/users/me/username', { username }))
+}
+
 export function acceptTos() {
   return wrap(client.post('/users/me/tos-accept'))
 }

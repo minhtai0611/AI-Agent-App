@@ -4,6 +4,7 @@ import hmac
 import io
 import json
 import logging
+import re
 from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI, Depends, HTTPException, Request, UploadFile, File
@@ -133,6 +134,11 @@ _SCHEMA_DDL = [
     "ALTER TABLE users ADD COLUMN suspension_reason TEXT",
     "ALTER TABLE users ADD COLUMN tos_accepted_at TEXT",
     "ALTER TABLE users ADD COLUMN last_ip TEXT",
+    "ALTER TABLE users ADD COLUMN custom_display_name TEXT",
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_custom_display_name ON users(custom_display_name) WHERE custom_display_name IS NOT NULL",
+    "ALTER TABLE users ADD COLUMN last_seen_at TEXT DEFAULT NULL",
+    "ALTER TABLE users ADD COLUMN pending_deletion_at TEXT DEFAULT NULL",
+    "CREATE INDEX IF NOT EXISTS idx_users_last_seen ON users(last_seen_at)",
     """CREATE TABLE IF NOT EXISTS ai_credits_log (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -1112,6 +1118,15 @@ class GoogleAuthRequest(BaseModel):
     ref: str | None = Field(default=None, max_length=20)
 
 
+def _normalize_google_avatar(url: str | None) -> str | None:
+    if not url:
+        return url
+    normalized = re.sub(r'=s\d+(-c)?$', '=s200-c', url)
+    if normalized == url and 'googleusercontent.com' in url:
+        normalized = url + '=s200-c'
+    return normalized
+
+
 @app.post("/auth/google")
 async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
     import secrets as _secrets
@@ -1123,7 +1138,7 @@ async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
     google_sub = google_payload["sub"]
     email = google_payload.get("email", "")
     display_name = google_payload.get("name")
-    avatar_url = google_payload.get("picture")
+    avatar_url = _normalize_google_avatar(google_payload.get("picture"))
 
     # Check if this google_sub previously hard-deleted their account to preserve trial_used
     deleted_sub = await pool.fetchrow(
@@ -1149,7 +1164,7 @@ async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
           SET display_name = EXCLUDED.display_name,
               avatar_url = EXCLUDED.avatar_url,
               updated_at = NOW()
-        RETURNING id, email, display_name, avatar_url
+        RETURNING id, email, display_name, avatar_url, custom_display_name
         """,
         google_sub, email, display_name, avatar_url, preserved_trial_used, new_ref_code,
     )
@@ -1190,6 +1205,7 @@ async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
             "email": row["email"],
             "display_name": row["display_name"],
             "avatar_url": row["avatar_url"],
+            "custom_display_name": row["custom_display_name"],
         },
     }
 
@@ -1199,7 +1215,7 @@ async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
 @app.get("/users/me")
 async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Depends(get_pool)):
     row = await pool.fetchrow(
-        """SELECT id, email, display_name, avatar_url,
+        """SELECT id, email, display_name, avatar_url, custom_display_name,
                   grade, school_type, province,
                   subscription_tier, subscription_period, subscription_expires_at,
                   credits_balance, credits_reset_at,
@@ -1243,6 +1259,34 @@ async def get_referral(current_user: CurrentUser = Depends(get_current_user), po
 
 _VALID_GRADES = {"9", "10", "11", "12"}
 _VALID_SCHOOL_TYPES = {"chuyên", "công lập", "quốc tế"}
+_USERNAME_RE = re.compile(r'^[\w\s\-]{2,30}$', re.UNICODE)
+
+
+class UsernameUpdateRequest(BaseModel):
+    username: str
+
+
+@app.patch("/users/me/username")
+async def update_username(
+    body: UsernameUpdateRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    name = body.username.strip()
+    name = ' '.join(name.split())
+    if not _USERNAME_RE.match(name):
+        raise HTTPException(422, detail="Tên phải từ 2–30 ký tự, chỉ gồm chữ, số, dấu gạch và khoảng trắng")
+    try:
+        await pool.execute(
+            "UPDATE users SET custom_display_name = $1, updated_at = NOW() WHERE id = $2",
+            name, current_user.user_id,
+        )
+    except Exception as e:
+        if "UNIQUE" in str(e).upper():
+            raise HTTPException(409, detail="Tên này đã được người khác sử dụng")
+        raise
+    row = await pool.fetchrow("SELECT custom_display_name FROM users WHERE id = $1", current_user.user_id)
+    return {"custom_display_name": row["custom_display_name"]}
 
 
 class ProfileUpdateRequest(BaseModel):
@@ -1867,6 +1911,7 @@ def _require_admin(request: Request):
     settings = get_settings()
     key = request.headers.get("x-admin-key", "")
     if not validate_admin_key(key, settings.admin_master_secret, settings.admin_key_rotation_period):
+        request.state.admin_key_failed = True
         raise HTTPException(status_code=401, detail="Invalid or missing admin key")
 
 
@@ -2059,6 +2104,7 @@ async def admin_list_users(
             f"""SELECT u.id, u.email, u.display_name, u.subscription_tier, u.credits_balance,
                       u.is_suspended, u.suspension_reason, u.is_locked, u.lock_reason,
                       u.is_deactivated, u.trial_used, u.created_at,
+                      u.last_seen_at, u.pending_deletion_at,
                       beh.last_tab_switches, beh.last_devtools
                FROM users u {behavior_subq}
                WHERE u.email LIKE ? OR u.display_name LIKE ?
@@ -2070,6 +2116,7 @@ async def admin_list_users(
             f"""SELECT u.id, u.email, u.display_name, u.subscription_tier, u.credits_balance,
                       u.is_suspended, u.suspension_reason, u.is_locked, u.lock_reason,
                       u.is_deactivated, u.trial_used, u.created_at,
+                      u.last_seen_at, u.pending_deletion_at,
                       beh.last_tab_switches, beh.last_devtools
                FROM users u {behavior_subq}
                ORDER BY u.created_at DESC LIMIT ? OFFSET ?""",

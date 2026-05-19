@@ -101,14 +101,14 @@ export default function Navbar({ onOpenAuth }) {
                   className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center text-xs font-bold text-black cursor-pointer"
                   onClick={() => navigate('/account')}
                 >
-                  {initials(user.display_name)}
+                  {initials(user.custom_display_name || user.display_name)}
                 </div>
               )}
               <span
                 className="text-gray-300 text-sm cursor-pointer hover:text-white transition"
                 onClick={() => navigate('/account')}
               >
-                {user.display_name}
+                {user.custom_display_name || user.display_name}
               </span>
               <button
                 onClick={handleLogout}

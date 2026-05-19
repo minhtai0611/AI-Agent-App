@@ -7,7 +7,7 @@ import {
 } from 'recharts'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
-import { getCreditLog, activateTrial, getReferral } from '../api/aiClient.js'
+import { getCreditLog, activateTrial, getReferral, updateUsername } from '../api/aiClient.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { useToast } from '../context/ToastContext.jsx'
@@ -199,6 +199,9 @@ export default function Account() {
   const [saving,       setSaving]       = useState(false)
   const [saveError,    setSaveError]    = useState('')
   const [avatarErr,    setAvatarErr]    = useState(false)
+  const [usernameInput, setUsernameInput] = useState('')
+  const [usernameError, setUsernameError] = useState('')
+  const [usernameLoading, setUsernameLoading] = useState(false)
 
   // ── Trial ──
   const [trialActivating, setTrialActivating] = useState(false)
@@ -358,12 +361,12 @@ export default function Account() {
             />
           ) : (
             <div className="w-14 h-14 rounded-full bg-amber-500 flex items-center justify-center font-bold text-lg text-black flex-shrink-0">
-              {(user.display_name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || '?'}
+              {((user.custom_display_name || user.display_name) || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || '?'}
             </div>
           )}
           {/* Name + email */}
           <div className="flex-1 min-w-0">
-            <p className="font-fraunces text-[18px] font-bold text-[#F8FAFC] truncate">{user.display_name}</p>
+            <p className="font-fraunces text-[18px] font-bold text-[#F8FAFC] truncate">{user.custom_display_name || user.display_name}</p>
             <p className="font-jakarta text-[12px] text-[#64748B] truncate">{user.email}</p>
           </div>
           {/* Actions */}
@@ -490,6 +493,42 @@ export default function Account() {
                   </div>
                 </div>
               )}
+            </section>
+
+            {/* Username card */}
+            <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+              <div className="flex flex-col gap-0.5">
+                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Tên hiển thị</span>
+                <span className="font-jakarta text-[12px] text-[#64748B]">Tên phải là duy nhất · 2–30 ký tự</span>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  value={usernameInput}
+                  onChange={e => { setUsernameInput(e.target.value); setUsernameError('') }}
+                  placeholder={user.custom_display_name || user.display_name || 'Nhập tên mới...'}
+                  maxLength={30}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#1E2A44] bg-[#111827] font-jakarta text-[13px] text-[#F0F4FF] placeholder-[#475569] focus:outline-none focus:border-amber-400"
+                />
+                <button
+                  disabled={usernameLoading || !usernameInput.trim()}
+                  onClick={async () => {
+                    setUsernameLoading(true)
+                    setUsernameError('')
+                    const { data, error, status } = await updateUsername(usernameInput.trim())
+                    setUsernameLoading(false)
+                    if (error) {
+                      setUsernameError(status === 409 ? 'Tên này đã được dùng bởi người khác' : (typeof error === 'string' ? error : 'Lỗi khi lưu tên'))
+                    } else {
+                      await refreshUser()
+                      setUsernameInput('')
+                    }
+                  }}
+                  className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold disabled:opacity-40 transition"
+                  style={{ background: '#F2A20C', color: '#0A0E1A' }}>
+                  {usernameLoading ? '...' : 'Lưu'}
+                </button>
+              </div>
+              {usernameError && <p className="font-jakarta text-[12px] text-red-400">{usernameError}</p>}
             </section>
 
             {/* Referral card */}
