@@ -160,7 +160,7 @@ export default function DailyChallenge() {
     return (
       <div className="min-h-screen bg-[#0A0E1A] pb-16">
         <div className="max-w-xl mx-auto px-4 pt-20 flex flex-col gap-6">
-          <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition self-start">
+          <button onClick={() => navigate('/exams?mode=special')} className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition self-start">
             ← Quay lại
           </button>
           <div className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-6 flex flex-col gap-4 text-center">
@@ -213,7 +213,7 @@ export default function DailyChallenge() {
       <div className="max-w-xl mx-auto px-4 pt-20">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition">
+          <button onClick={() => navigate('/exams?mode=special')} className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition">
             ← Quay lại
           </button>
           <div className="flex items-center gap-3">

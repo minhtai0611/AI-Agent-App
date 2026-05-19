@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { motion } from 'framer-motion'
 import DOMPurify from 'dompurify'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import Markdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
@@ -778,6 +778,7 @@ function pushHistory(problem) {
 export default function MathOracle() {
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
   const MAX_RETRIES = 2
 
   // ── C1+C2: Chat thread state ──────────────────────────────────────────────
@@ -802,6 +803,12 @@ export default function MathOracle() {
   // ── C3: History sidebar ───────────────────────────────────────────────────
   const [history, setHistory] = useState(() => loadHistory())
   const [historyOpen, setHistoryOpen] = useState(false) // mobile dropdown
+
+  // Pre-fill from ?q= URL param (e.g. navigating from Landing page Oracle input)
+  useEffect(() => {
+    const q = searchParams.get('q')
+    if (q) setQuestion(q)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const textareaRef = useRef(null)
   const solutionRef = useRef(null)

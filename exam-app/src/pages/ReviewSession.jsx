@@ -27,7 +27,7 @@ function getQueue(uid) {
 }
 
 function saveQueue(q, uid) {
-  localStorage.setItem(QUEUE_KEY(uid), JSON.stringify(q))
+  try { localStorage.setItem(QUEUE_KEY(uid), JSON.stringify(q)) } catch {}
 }
 
 // SM-2 algorithm: grade 4 = correct, grade 1 = wrong
@@ -141,7 +141,7 @@ export default function ReviewSession() {
         </div>
         <div className="flex gap-3 flex-wrap justify-center">
           <button
-            onClick={() => navigate('/exams')}
+            onClick={() => navigate('/exams?mode=special')}
             className="px-6 py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-[#1E2A44] text-[#94A3B8] hover:text-[#F8FAFC] transition"
           >
             Làm đề thi

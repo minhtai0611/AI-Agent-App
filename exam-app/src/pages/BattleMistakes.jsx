@@ -402,7 +402,7 @@ function MistakesBattle() {
         <span className="text-5xl">🎉</span>
         <h1 className="font-fraunces text-[24px] font-bold text-[#F8FAFC]">Không có câu sai nào!</h1>
         <p className="font-jakarta text-[14px] text-[#64748B]">Hãy làm thêm bài thi để bắt đầu chiến đấu.</p>
-        <button onClick={() => navigate('/exams')}
+        <button onClick={() => navigate('/exams?mode=special')}
           className="px-6 py-3 rounded-xl font-jakarta text-[13px] font-bold"
           style={{ background: '#F2A20C', color: '#0A0E1A' }}>
           Chọn đề thi
@@ -437,7 +437,7 @@ function MistakesBattle() {
             style={{ background: '#F2A20C', color: '#0A0E1A' }}>
             Về sổ tay sai lầm
           </button>
-          <button onClick={() => navigate('/exams')}
+          <button onClick={() => navigate('/exams?mode=special')}
             className="w-full py-3 rounded-xl font-jakarta text-[13px] font-medium text-[#64748B] hover:text-[#94A3B8] transition">
             Chọn đề thi mới
           </button>
@@ -572,7 +572,7 @@ export default function BattleMistakes() {
   usePageTitle(topicKey ? `Boss Battle: ${TOPIC_LABELS[topicKey] ?? topicKey}` : 'Chiến đấu với lỗi sai')
 
   if (topicKey) {
-    return <BossBattle topicKey={topicKey} onExit={() => navigate(-1)} />
+    return <BossBattle topicKey={topicKey} onExit={() => navigate('/exams?mode=special')} />
   }
 
   return <MistakesBattle />

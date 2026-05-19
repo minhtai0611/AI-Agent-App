@@ -227,7 +227,7 @@ export default function StreakSurvival() {
       <div className="min-h-screen bg-[#0A0E1A] pb-16">
         <div className="max-w-xl mx-auto px-4 pt-16">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/exams?mode=special')}
             className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition mb-8 block"
           >
             ← Quay lại
@@ -314,7 +314,7 @@ export default function StreakSurvival() {
         {/* Top bar */}
         <div className="flex items-center justify-between mb-4">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/exams?mode=special')}
             className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition"
           >
             ← Quay lại
@@ -331,7 +331,7 @@ export default function StreakSurvival() {
         </div>
 
         {/* Score / streak / multiplier bar */}
-        <div className="flex items-center gap-4 mb-4 px-1">
+        <div className="flex items-center gap-4 mb-4 px-1 flex-wrap">
           <div className="flex flex-col">
             <span className="font-fraunces text-xl font-bold text-[#F8FAFC]">{score}</span>
             <span className="font-jakarta text-[10px] text-[#475569]">điểm</span>

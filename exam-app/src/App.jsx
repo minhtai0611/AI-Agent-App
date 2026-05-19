@@ -1,5 +1,5 @@
 import { useState, lazy, Suspense, useCallback } from 'react'
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { ExamProvider } from './context/ExamContext.jsx'
 import { HistoryProvider } from './context/HistoryContext.jsx'
 import { useAuth } from './context/AuthContext.jsx'
@@ -62,6 +62,8 @@ function AppInner() {
   const { user, loading, logout } = useAuth()
   const dispatch = useExamDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
+  const isAdminRoute = location.pathname === '/admin'
 
   const [resumeBanner] = useState(() => {
     try {
@@ -122,7 +124,7 @@ function AppInner() {
       <ScrollToTop />
       <OfflineBanner />
       <InstallPrompt />
-      <Navbar onOpenAuth={() => setAuthOpen(true)} />
+      {!isAdminRoute && <Navbar onOpenAuth={() => setAuthOpen(true)} />}
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       {showLocked && (
         <SuspensionModal reason={user.lock_reason || 'Tài khoản bị khóa do hoạt động bất thường. Liên hệ hỗ trợ để mở khóa.'} onLogout={logout} />
@@ -133,7 +135,7 @@ function AppInner() {
       {!showLocked && !showSuspension && showOnboarding && (
         <ProfileOnboarding onDone={() => {}} />
       )}
-      <div className="min-h-screen bg-[#0A0E1A] text-gray-900 pt-12">
+      <div className={`min-h-screen bg-[#0A0E1A] text-gray-900${isAdminRoute ? '' : ' pt-12'}`}>
         {showLowCredit && !showOnboarding && !showLocked && !showSuspension && (
           <LowCreditBanner balance={user.credits_balance} />
         )}

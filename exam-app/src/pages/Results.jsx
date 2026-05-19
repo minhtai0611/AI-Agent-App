@@ -741,7 +741,7 @@ export default function Results({ onOpenAuth }) {
                   </ResponsiveContainer>
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {topics.map(([topic, tb]) => {
                   const verdict = topicVerdict(tb.accuracy)
                   return (

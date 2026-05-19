@@ -542,7 +542,7 @@ export default function Account() {
             {/* Badges grid */}
             <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
               <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Huy hiệu</span>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {BADGE_DEFS.map(b => {
                   const earned = earnedBadgeIds.has(b.id)
                   return (
@@ -798,7 +798,7 @@ export default function Account() {
             {/* Top-up packages */}
             <section id="topup" className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
               <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Nạp thêm Tia</span>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {TOPUP_PACKAGES.map(pkg => (
                   <button
                     key={pkg.price}

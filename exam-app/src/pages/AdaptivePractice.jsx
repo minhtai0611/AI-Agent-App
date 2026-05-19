@@ -171,7 +171,7 @@ export default function AdaptivePractice() {
               style={{ background: '#F2A20C', color: '#0A0E1A' }}>
               Thử lại (từ kho đề)
             </button>
-            <button onClick={() => navigate('/exams')}
+            <button onClick={() => navigate('/exams?mode=special')}
               className="px-5 py-2 rounded-xl font-jakarta text-[13px] text-[#64748B] border border-[#1E2A44]">
               Quay lại
             </button>
@@ -220,7 +220,7 @@ export default function AdaptivePractice() {
         )}
       </div>
 
-      <button onClick={() => navigate(-1)}
+      <button onClick={() => navigate('/exams?mode=special')}
         className="font-jakarta text-[13px] text-[#475569] hover:text-[#94A3B8] transition">
         ← Quay lại
       </button>

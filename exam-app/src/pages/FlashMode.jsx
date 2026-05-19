@@ -206,7 +206,7 @@ export default function FlashMode() {
       <div className="min-h-screen bg-[#0A0E1A] pb-16">
         <div className="max-w-xl mx-auto px-4 pt-16">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/exams?mode=special')}
             className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition mb-8 block"
           >
             ← Quay lại
@@ -313,12 +313,12 @@ export default function FlashMode() {
         {/* Top bar */}
         <div className="flex items-center justify-between mb-5">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/exams?mode=special')}
             className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition"
           >
             ← Quay lại
           </button>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <span className="font-jakarta text-[13px] text-[#64748B]">{index + 1}/{TOTAL_QUESTIONS}</span>
             <span className="font-jakarta text-[13px] font-semibold text-[#F2A20C]">✓ {correctCount}</span>
           </div>

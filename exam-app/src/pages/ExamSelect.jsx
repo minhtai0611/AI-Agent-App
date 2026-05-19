@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useExamDispatch } from '../context/ExamContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -54,7 +54,9 @@ export default function ExamSelect({ onOpenAuth }) {
   const { user } = useAuth()
   const { results } = useHistory()
   const [searchParams] = useSearchParams()
-  const [mode, setMode] = useState(searchParams.get('mode') === 'practice' ? 'practice' : 'timed')
+  const [mode, setMode] = useState(
+    ['practice', 'special'].includes(searchParams.get('mode')) ? searchParams.get('mode') : 'timed'
+  )
   const [previewExam, setPreviewExam] = useState(null)
   const [expandedCategories, setExpandedCategories] = useState({})
 
@@ -65,6 +67,36 @@ export default function ExamSelect({ onOpenAuth }) {
   const [ocrError, setOcrError] = useState('')
   const [ocrQuestions, setOcrQuestions] = useState(null)
   const ocrInputRef = useRef(null)
+
+  // Live data for Special Mode cards
+  const [dailyStreak, setDailyStreak] = useState({ current: 0, completedToday: false })
+  const [dueCount, setDueCount] = useState(0)
+
+  useEffect(() => {
+    try {
+      const raw = JSON.parse(localStorage.getItem(`daily_challenge_streak-${user?.id ?? 'guest'}`) ?? '{}')
+      const today = new Date().toISOString().slice(0, 10)
+      const last = raw.lastCompletedDate
+      const completedToday = last === today
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
+      const current = completedToday ? (raw.currentStreak ?? 0)
+        : (last === yesterday ? (raw.currentStreak ?? 0) : 0)
+      setDailyStreak({ current, completedToday })
+    } catch {}
+    try {
+      const queue = JSON.parse(localStorage.getItem('review_queue') ?? '{}')
+      const today = new Date().toISOString().slice(0, 10)
+      setDueCount(Object.values(queue).filter(e => e.dueDate <= today).length)
+    } catch {}
+  }, [user?.id])
+
+  const mistakeCount = useMemo(() => {
+    const seen = new Set()
+    for (const r of results) {
+      for (const qId of Object.keys(r.answers ?? {})) seen.add(qId)
+    }
+    return seen.size
+  }, [results])
 
   const allExams = mode === 'timed' ? loadThiThuExams() : loadExams()
   const availableYears = [...new Set(allExams.map(e => e.year).filter(Boolean))].sort((a, b) => b - a)
@@ -193,8 +225,8 @@ export default function ExamSelect({ onOpenAuth }) {
         </div>
       )}
 
-      {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-3 px-10 pt-6">
+      {/* Filter bar — hidden in special mode */}
+      <div className={`flex flex-wrap items-center gap-3 px-10 pt-6${mode === 'special' ? ' hidden' : ''}`}>
         <input
           type="search"
           placeholder="Tìm đề thi..."
@@ -266,48 +298,173 @@ export default function ExamSelect({ onOpenAuth }) {
         </div>
 
         {mode === 'special' && (
-          <motion.div
-            key="special"
-            variants={listVariants}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-          >
-            {[
-              { icon: '🔥', label: 'Thử thách hôm nay', desc: 'Câu hỏi ngẫu nhiên mỗi ngày — duy trì chuỗi học liên tiếp', route: '/daily', accent: '#F2A20C', tag: 'Daily' },
-              { icon: '⚡', label: 'Flash Mode', desc: '20 câu · 10 giây mỗi câu · nhanh tay hay chậm chân', route: '/flash', accent: '#818CF8', tag: 'Tốc độ' },
-              { icon: '🗡️', label: 'Boss Battle', desc: 'Chinh phục các câu sai · tích lũy chuỗi đúng để đánh bại boss', route: '/battle', accent: '#EF4444', tag: 'Battle' },
-              { icon: '❤️‍🔥', label: 'Streak Survival', desc: 'Đừng để mất mạng · chuỗi 5 câu đúng nhân đôi điểm', route: '/survival', accent: '#FB7185', tag: 'Survival' },
-              { icon: '🔄', label: 'Reverse Mode', desc: 'Cho trước đáp án · tìm đúng câu hỏi', route: '/reverse', accent: '#34D399', tag: 'Tư duy' },
-              { icon: '🧠', label: 'Luyện thích nghi', desc: 'AI chọn câu hỏi theo điểm yếu của bạn', route: '/practice/adaptive', accent: '#60A5FA', tag: 'AI' },
-              { icon: '📚', label: 'Ôn tập thẻ ghi nhớ', desc: 'Spaced-repetition — ôn đúng lúc, nhớ lâu hơn', route: '/review', accent: '#A78BFA', tag: 'SM-2' },
-              { icon: '📖', label: 'Sổ tay sai lầm', desc: 'Xem lại tất cả câu đã sai và luyện từng lỗi một', route: '/mistakes', accent: '#94A3B8', tag: 'Review' },
-            ].map(m => (
-              <motion.button
-                key={m.route}
-                variants={cardVariants}
-                onClick={() => navigate(m.route)}
-                className="group text-left bg-[#0D1521] rounded-2xl p-5 flex flex-col gap-3 border border-[#1E2A44] hover:border-opacity-60 transition"
-                style={{ '--accent': m.accent, borderColor: m.accent + '22' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = m.accent + '66'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = m.accent + '22'}
+          <motion.div key="special" variants={listVariants} initial="hidden" animate="show"
+            className="flex flex-col gap-8">
+
+            {/* ── Section: Hôm nay ── */}
+            <div className="flex flex-col gap-3">
+              <span className="font-jakarta text-[11px] font-bold tracking-[3px] uppercase text-[#475569]">Hôm nay</span>
+
+              {/* Hero: Daily Challenge */}
+              <motion.button variants={cardVariants}
+                onClick={() => navigate('/daily')}
+                className="w-full text-left bg-[#0D1521] rounded-2xl p-6 flex items-center justify-between gap-4 border transition"
+                style={{ borderColor: '#F2A20C22' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#F2A20C66'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = '#F2A20C22'}
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl">{m.icon}</span>
-                  <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
-                    style={{ background: m.accent + '22', color: m.accent }}>
-                    {m.tag}
-                  </span>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🔥</span>
+                    <span className="font-jakarta text-[16px] font-bold text-[#F8FAFC]">Thử thách hôm nay</span>
+                    <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
+                      style={{ background: '#F2A20C22', color: '#F2A20C' }}>Daily</span>
+                  </div>
+                  <span className="font-jakarta text-[13px] text-[#64748B]">Câu hỏi ngẫu nhiên mỗi ngày — duy trì chuỗi học liên tiếp</span>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{m.label}</span>
-                  <span className="font-jakarta text-[12px] text-[#64748B] leading-relaxed">{m.desc}</span>
+                <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                  {dailyStreak.completedToday ? (
+                    <span className="font-jakarta text-[12px] font-semibold text-[#34D399]">✓ Đã hoàn thành</span>
+                  ) : (
+                    <span className="font-jakarta text-[12px] font-semibold text-[#F2A20C]">Bắt đầu →</span>
+                  )}
+                  {dailyStreak.current > 0 && (
+                    <span className="font-jakarta text-[12px] text-[#F2A20C]">🔥 {dailyStreak.current} ngày</span>
+                  )}
                 </div>
-                <span className="font-jakarta text-[12px] font-semibold mt-auto" style={{ color: m.accent }}>
-                  Bắt đầu →
-                </span>
               </motion.button>
-            ))}
+
+              {/* Flashcard Review */}
+              <motion.button variants={cardVariants}
+                onClick={() => navigate('/review')}
+                className="w-full text-left bg-[#0D1521] rounded-2xl p-5 flex items-center justify-between gap-4 border transition"
+                style={{ borderColor: '#A78BFA22' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#A78BFA66'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = '#A78BFA22'}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📚</span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Ôn tập thẻ ghi nhớ</span>
+                    <span className="font-jakarta text-[12px] text-[#64748B]">Spaced-repetition — ôn đúng lúc, nhớ lâu hơn</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  {dueCount > 0 ? (
+                    <span className="flex items-center gap-1.5 font-jakarta text-[12px] font-semibold text-[#34D399]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] animate-pulse" />{dueCount} câu đến hạn
+                    </span>
+                  ) : (
+                    <span className="font-jakarta text-[11px] text-[#475569]">Không có câu nào hôm nay</span>
+                  )}
+                  <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
+                    style={{ background: '#A78BFA22', color: '#A78BFA' }}>SM-2</span>
+                </div>
+              </motion.button>
+            </div>
+
+            {/* ── Section: Chế độ chơi ── */}
+            <div className="flex flex-col gap-3">
+              <span className="font-jakarta text-[11px] font-bold tracking-[3px] uppercase text-[#475569]">Chế độ chơi</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { icon: '⚡', label: 'Flash Mode', desc: '20 câu · 10 giây mỗi câu · nhanh tay hay chậm chân', route: '/flash', accent: '#818CF8', tag: 'Tốc độ' },
+                  { icon: '🗡️', label: 'Boss Battle', desc: 'Chinh phục các câu sai · tích lũy chuỗi đúng để đánh bại boss', route: '/battle', accent: '#EF4444', tag: 'Battle' },
+                  { icon: '❤️‍🔥', label: 'Streak Survival', desc: 'Đừng để mất mạng · chuỗi 5 câu đúng nhân đôi điểm', route: '/survival', accent: '#FB7185', tag: 'Survival' },
+                  { icon: '🔄', label: 'Reverse Mode', desc: 'Cho trước đáp án · tìm đúng câu hỏi', route: '/reverse', accent: '#34D399', tag: 'Tư duy' },
+                ].map(m => (
+                  <motion.button key={m.route} variants={cardVariants}
+                    onClick={() => navigate(m.route)}
+                    className="group text-left bg-[#0D1521] rounded-2xl p-5 flex flex-col gap-3 border transition"
+                    style={{ borderColor: m.accent + '22' }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = m.accent + '66'}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = m.accent + '22'}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl">{m.icon}</span>
+                      <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
+                        style={{ background: m.accent + '22', color: m.accent }}>{m.tag}</span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{m.label}</span>
+                      <span className="font-jakarta text-[12px] text-[#64748B] leading-relaxed">{m.desc}</span>
+                    </div>
+                    <span className="font-jakarta text-[12px] font-semibold mt-auto" style={{ color: m.accent }}>Bắt đầu →</span>
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Section: AI Luyện tập ── */}
+            <div className="flex flex-col gap-3">
+              <span className="font-jakarta text-[11px] font-bold tracking-[3px] uppercase text-[#475569]">AI Luyện tập</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Adaptive */}
+                <motion.button variants={cardVariants}
+                  onClick={() => navigate('/practice/adaptive')}
+                  className="text-left bg-[#0D1521] rounded-2xl p-5 flex flex-col gap-3 border transition"
+                  style={{ borderColor: '#60A5FA22' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#60A5FA66'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = '#60A5FA22'}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl">🧠</span>
+                    <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
+                      style={{ background: '#60A5FA22', color: '#60A5FA' }}>AI</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Luyện thích nghi</span>
+                    <span className="font-jakarta text-[12px] text-[#64748B] leading-relaxed">AI chọn câu hỏi theo điểm yếu của bạn</span>
+                  </div>
+                  <span className="font-jakarta text-[12px] font-semibold mt-auto" style={{ color: '#60A5FA' }}>Bắt đầu →</span>
+                </motion.button>
+
+                {/* Oracle */}
+                <motion.button variants={cardVariants}
+                  onClick={() => navigate('/oracle')}
+                  className="text-left rounded-2xl p-5 flex flex-col gap-3 border transition relative overflow-hidden"
+                  style={{ borderColor: '#6366F144', background: 'linear-gradient(135deg, #0D1521 60%, #1a1040 100%)' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#6366F188'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = '#6366F144'}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl">✦</span>
+                    <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
+                      style={{ background: '#6366F122', color: '#818CF8' }}>Oracle</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Toán Oracle</span>
+                    <span className="font-jakarta text-[12px] text-[#64748B] leading-relaxed">Giải toán từng bước · chấm bài · hướng dẫn Socratic</span>
+                  </div>
+                  <span className="font-jakarta text-[12px] font-semibold mt-auto" style={{ color: '#818CF8' }}>Mở Oracle →</span>
+                </motion.button>
+
+                {/* Mistakes notebook — full width */}
+                <motion.button variants={cardVariants}
+                  onClick={() => navigate('/mistakes')}
+                  className="sm:col-span-2 text-left bg-[#0D1521] rounded-2xl p-5 flex items-center justify-between gap-4 border transition"
+                  style={{ borderColor: '#94A3B822' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#94A3B866'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = '#94A3B822'}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">📖</span>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Sổ tay sai lầm</span>
+                      <span className="font-jakarta text-[12px] text-[#64748B]">Xem lại tất cả câu đã sai và luyện từng lỗi một</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    {mistakeCount > 0 && (
+                      <span className="font-jakarta text-[12px] font-semibold text-[#94A3B8]">{mistakeCount} câu sai</span>
+                    )}
+                    <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
+                      style={{ background: '#94A3B822', color: '#94A3B8' }}>Review</span>
+                  </div>
+                </motion.button>
+              </div>
+            </div>
+
           </motion.div>
         )}
 
