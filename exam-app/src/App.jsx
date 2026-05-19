@@ -82,6 +82,7 @@ function AppInner() {
               answers: draft.answers,
               mode: draft.mode || 'timed',
               answeredCount: Object.keys(draft.answers).length,
+              userId: draft.userId ?? null,
             }
           }
         }
@@ -176,7 +177,7 @@ function AppInner() {
           </Routes>
         </Suspense>
       </div>
-      {resumeBanner && !resumeDismissed && (
+      {resumeBanner && !resumeDismissed && (resumeBanner.userId ?? null) === (user?.id ?? null) && (
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0D1221] border-t border-[#F2A20C44] px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
             <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">Bạn có bài thi đang dở</span>

@@ -75,6 +75,7 @@ export default function TestInterface() {
       answers: session.answers,
       startedAt: session.startedAt ?? new Date().toISOString(),
       mode: session.mode,
+      userId: user?.id ?? null,
     }))
   }, [examId, session.answers, session.status])
 
