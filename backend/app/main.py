@@ -1976,6 +1976,44 @@ class CreditGrant(BaseModel):
     reason: str = "admin_grant"
 
 
+class ClassifyErrorRequest(BaseModel):
+    question: str
+    wrong_choice: str
+    correct_choice: str
+
+
+@app.post("/classify-error")
+async def classify_error(
+    req: ClassifyErrorRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Classify the error type for a wrong answer using Haiku."""
+    client = get_ai_client()
+    settings = get_settings()
+    prompt = (
+        f"Câu hỏi: {req.question[:300]}\n"
+        f"Học sinh chọn: {req.wrong_choice[:150]}\n"
+        f"Đáp án đúng: {req.correct_choice[:150]}\n\n"
+        "Phân loại lỗi sai này CHÍNH XÁC một trong các loại sau:\n"
+        "sign_error, formula_confusion, procedural_slip, conceptual_gap, calculation\n"
+        "Chỉ trả lời DUY NHẤT tên loại lỗi, không giải thích."
+    )
+    try:
+        response = await client.chat.completions.create(
+            model=settings.haiku_model,
+            max_tokens=20,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        category = response.choices[0].message.content.strip().lower()
+        valid = {"sign_error", "formula_confusion", "procedural_slip", "conceptual_gap", "calculation"}
+        if category not in valid:
+            category = "procedural_slip"
+        return {"category": category, "confidence": 0.8}
+    except Exception:
+        return {"category": None, "confidence": 0.0}
+
+
 class SuspendRequest(BaseModel):
     reason: str
 

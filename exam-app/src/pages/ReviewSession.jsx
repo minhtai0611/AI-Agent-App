@@ -30,24 +30,58 @@ function saveQueue(q, uid) {
   try { localStorage.setItem(QUEUE_KEY(uid), JSON.stringify(q)) } catch {}
 }
 
-// SM-2 algorithm: grade 4 = correct, grade 1 = wrong
-function updateSM2(entry, quality) {
-  // quality: 5=Chắc, 3=Khá, 1=Đoán/Again (SM-2 scale)
-  let { easeFactor = 2.5, interval = 1, repetitions = 0 } = entry
-  const grade = typeof quality === 'number' ? quality : (quality ? 4 : 1)
+// FSRS v5 — parameters tuned on Anki open dataset
+const FSRS_W = [0.4, 0.6, 2.4, 5.8, 4.93, 0.94, 0.86, 0.01, 1.49, 0.14, 0.94, 2.18, 0.05, 0.34, 1.26, 0.29, 2.61]
 
-  if (grade >= 3) {
-    if (repetitions === 0) interval = 1
-    else if (repetitions === 1) interval = 6
-    else interval = Math.round(interval * easeFactor)
-    repetitions += 1
+function fsrsNextInterval(stability, difficulty, elapsed, quality) {
+  // quality: 1=Đoán(Again), 3=Khá(Good), 5=Chắc(Easy) → map to FSRS 1–4
+  const q = quality <= 1 ? 1 : quality <= 3 ? 3 : 4
+  const retrievability = Math.exp(Math.log(0.9) * elapsed / stability)
+  let newStability
+  if (q >= 3) {
+    newStability = stability * (
+      Math.exp(FSRS_W[8]) *
+      (11 - difficulty) *
+      Math.pow(stability, -FSRS_W[9]) *
+      (Math.exp(FSRS_W[10] * (1 - retrievability)) - 1) + 1
+    )
   } else {
-    repetitions = 0
-    interval = 1
+    newStability = FSRS_W[11] *
+      Math.pow(difficulty, -FSRS_W[12]) *
+      (Math.pow(stability + 1, FSRS_W[13]) - 1) *
+      Math.exp(FSRS_W[14] * (1 - retrievability))
   }
+  newStability = Math.max(0.5, newStability)
+  const interval = Math.max(1, Math.round(newStability * Math.log(0.9) / Math.log(0.9)))
+  return { newStability, interval: Math.max(1, interval) }
+}
 
-  easeFactor = Math.max(1.3, easeFactor + 0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02))
-  return { ...entry, easeFactor, interval, repetitions, dueDate: addDays(new Date(), interval) }
+// SM-2 → FSRS migration: convert old entries on first encounter
+function migrateEntry(entry) {
+  if (entry.stability !== undefined) return entry
+  return {
+    ...entry,
+    stability: Math.max(1, entry.interval || 1),
+    difficulty: Math.max(1, Math.min(10, 11 - (entry.easeFactor || 2.5) * 2)),
+    elapsed: entry.interval || 1,
+  }
+}
+
+function updateSM2(entry, quality) {
+  // quality: 5=Chắc, 3=Khá, 1=Đoán (maps to FSRS scale)
+  const migrated = migrateEntry(entry)
+  const { stability = 1, difficulty = 5, elapsed = 1 } = migrated
+  const { newStability, interval } = fsrsNextInterval(stability, difficulty, elapsed, quality)
+  const q = quality <= 1 ? 1 : quality <= 3 ? 3 : 4
+  const newDifficulty = Math.max(1, Math.min(10, difficulty + FSRS_W[6] * (3 - q)))
+  return {
+    ...migrated,
+    stability: newStability,
+    difficulty: newDifficulty,
+    elapsed: interval,
+    interval,
+    dueDate: addDays(new Date(), interval),
+  }
 }
 
 export default function ReviewSession() {

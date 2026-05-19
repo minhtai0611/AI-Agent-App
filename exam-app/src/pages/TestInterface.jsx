@@ -5,6 +5,7 @@ import { useExam, useExamDispatch, useHints, useFlags } from '../context/ExamCon
 import { useAuth } from '../context/AuthContext.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import Timer from '../components/Timer.jsx'
+import { FormulaDrawer } from '../components/FormulaDrawer.jsx'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { embedWatermark } from '../utils/watermark.js'
 import { scoreExam } from '../engine/scoringEngine.js'
@@ -424,13 +425,16 @@ export default function TestInterface() {
 
         {/* Nav row */}
         <div className="flex items-center justify-between">
-          <button
-            onClick={handlePrev}
-            disabled={currentIndex === 0}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-[#111827] border border-[#1E2A44] rounded-[10px] font-jakarta text-[13px] text-[#94A3B8] font-medium disabled:opacity-40 hover:bg-[#1E2A44] transition"
-          >
-            ← Câu trước
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrev}
+              disabled={currentIndex === 0}
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-[#111827] border border-[#1E2A44] rounded-[10px] font-jakarta text-[13px] text-[#94A3B8] font-medium disabled:opacity-40 hover:bg-[#1E2A44] transition"
+            >
+              ← Câu trước
+            </button>
+            {isPractice && <FormulaDrawer />}
+          </div>
           <div className="flex items-center gap-2.5">
             {!isLast && (
               <button

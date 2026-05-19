@@ -7,6 +7,8 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { computeStreak } from '../utils/streak.js'
 import { getDaysUntilExam, getExamYear } from '../utils/examCountdown.js'
+import { useReadiness } from '../hooks/useReadiness.js'
+import { loadQuestions } from '../api/index.js'
 import ZenithLogo from '../components/ZenithLogo.jsx'
 
 const PLANS_MONTHLY = [
@@ -45,10 +47,17 @@ export default function Landing({ onOpenAuth }) {
   const { results } = useHistory()
   const [searchParams] = useSearchParams()
   const [dueCount, setDueCount] = useState(0)
+  const [questionMap, setQuestionMap] = useState({})
   const streak = useMemo(() => computeStreak(results), [results])
   const daysUntil = user ? getDaysUntilExam(user.province) : null
+  const readiness = useReadiness(results, questionMap)
 
   useEffect(() => { setDueCount(getDueCount()) }, [])
+
+  useEffect(() => {
+    if (!user || !results.length) return
+    loadQuestions().then(qs => setQuestionMap(Object.fromEntries(qs.map(q => [q.id, q])))).catch(() => {})
+  }, [user, results.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Store referral code before user logs in
   useEffect(() => {
@@ -154,6 +163,11 @@ export default function Landing({ onOpenAuth }) {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] animate-pulse" />
                 {dueCount} câu cần ôn
               </button>
+            )}
+            {readiness != null && (
+              <span className="font-jakarta text-[13px] font-semibold text-[#818CF8]">
+                📊 {readiness.readiness}% sẵn sàng
+              </span>
             )}
             <button onClick={() => navigate('/history')}
               className="ml-auto font-jakarta text-[12px] text-[#475569] hover:text-[#94A3B8] transition">
