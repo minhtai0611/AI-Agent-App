@@ -1726,14 +1726,18 @@ async def get_payment_config(current_user: CurrentUser = Depends(get_current_use
 # ---------------------------------------------------------------------------
 
 @app.get("/daily-challenge")
-async def get_daily_challenge():
+async def get_daily_challenge(pool=Depends(get_pool)):
     """Return today's 5 question IDs (no auth required). Correct answers omitted."""
-    key = _load_answer_key()
-    if not key:
-        raise HTTPException(status_code=503, detail="question_data_unavailable")
     from datetime import datetime, timezone
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    all_ids = list(key.keys())
+    try:
+        rows = await pool.fetch("SELECT id FROM questions")
+        all_ids = [r["id"] for r in rows]
+    except Exception:
+        # Fallback to file-based key if DB unavailable
+        all_ids = list(_load_answer_key().keys())
+    if not all_ids:
+        raise HTTPException(status_code=503, detail="question_data_unavailable")
     daily_ids = _select_daily_questions(all_ids, date_str)
     return {"date": date_str, "question_ids": daily_ids}
 
@@ -1766,11 +1770,17 @@ async def submit_daily_challenge_score(
 ):
     """Score the daily challenge server-side and record in leaderboard."""
     from datetime import datetime, timezone
-    key = _load_answer_key()
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    # Load answer key from DB; fallback to JSON file if DB unavailable
+    try:
+        rows = await pool.fetch("SELECT id, correct FROM questions")
+        key = {r["id"]: r["correct"] for r in rows}
+        all_ids = list(key.keys())
+    except Exception:
+        key = _load_answer_key()
+        all_ids = list(key.keys())
     if not key:
         raise HTTPException(status_code=503, detail="question_data_unavailable")
-    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    all_ids = list(key.keys())
     daily_ids = _select_daily_questions(all_ids, date_str)
 
     # Server-side scoring — never trust client-reported score

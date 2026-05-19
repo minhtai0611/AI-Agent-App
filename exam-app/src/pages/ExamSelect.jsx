@@ -479,6 +479,27 @@ export default function ExamSelect({ onOpenAuth }) {
                   <span className="font-jakarta text-[12px] font-semibold mt-auto" style={{ color: '#818CF8' }}>Mở Oracle →</span>
                 </motion.button>
 
+                {/* Custom Exam Generator — Complete tier only, full width */}
+                {user?.subscription_tier === 'complete' && (
+                  <motion.button variants={cardVariants}
+                    onClick={() => navigate('/account')}
+                    className="sm:col-span-2 text-left rounded-2xl p-5 flex items-center justify-between gap-4 border transition relative overflow-hidden"
+                    style={{ borderColor: '#F2A20C33', background: 'linear-gradient(135deg, #0D1521 60%, #1a120a 100%)' }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = '#F2A20C66'}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = '#F2A20C33'}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">✦</span>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Tạo đề riêng</span>
+                        <span className="font-jakarta text-[12px] text-[#64748B]">AI tạo đề thi theo chủ đề và độ khó bạn chọn · 5 Tia</span>
+                      </div>
+                    </div>
+                    <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded flex-shrink-0"
+                      style={{ background: '#F2A20C22', color: '#F2A20C' }}>Toàn diện</span>
+                  </motion.button>
+                )}
+
                 {/* Mistakes notebook — full width */}
                 <motion.button variants={cardVariants}
                   onClick={() => navigate('/mistakes')}

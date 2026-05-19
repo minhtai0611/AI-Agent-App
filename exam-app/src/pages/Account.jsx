@@ -7,7 +7,9 @@ import {
 } from 'recharts'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
+import { loadQuestions } from '../api/index.js'
 import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince } from '../api/aiClient.js'
+import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { useToast } from '../context/ToastContext.jsx'
@@ -181,6 +183,11 @@ export default function Account() {
   const navigate  = useNavigate()
   const { user, loading, updateProfile, refreshUser, refundCredits, logout, deleteAccount, deactivateAccount, reactivateAccount } = useAuth()
   const { results } = useHistory()
+  const [questionMap, setQuestionMap] = useState({})
+  useEffect(() => {
+    loadQuestions().then(qs => setQuestionMap(Object.fromEntries(qs.map(q => [q.id, q])))).catch(() => {})
+  }, [])
+  const readiness = useReadiness(results, questionMap)
 
   // ── Tab state ──
   const [activeTab, setActiveTab] = useState(() => {
@@ -522,16 +529,36 @@ export default function Account() {
                 </div>
               )}
 
-              {/* Countdown */}
-              {daysUntil != null && (
-                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#6366F133] bg-[#0D0D1A] self-start">
-                  <span className="text-[18px]">📅</span>
-                  <div className="flex flex-col">
-                    <span className="font-fraunces text-[16px] font-bold text-[#818CF8]">{daysUntil} ngày</span>
-                    <span className="font-jakarta text-[11px] text-[#64748B]">Đến kỳ thi vào lớp 10</span>
+              {/* Countdown + Readiness row */}
+              <div className="flex items-center gap-3 flex-wrap">
+                {daysUntil != null && (
+                  <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#6366F133] bg-[#0D0D1A]">
+                    <span className="text-[18px]">📅</span>
+                    <div className="flex flex-col">
+                      <span className="font-fraunces text-[16px] font-bold text-[#818CF8]">{daysUntil} ngày</span>
+                      <span className="font-jakarta text-[11px] text-[#64748B]">Đến kỳ thi vào lớp 10</span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+                {readiness != null && (
+                  <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl border border-[#34D39933] bg-[#0D0D1A]">
+                    {/* SVG ring */}
+                    <svg width="40" height="40" viewBox="0 0 40 40">
+                      <circle cx="20" cy="20" r="16" fill="none" stroke="#1E2A44" strokeWidth="4" />
+                      <circle cx="20" cy="20" r="16" fill="none" stroke="#34D399" strokeWidth="4"
+                        strokeDasharray={`${2 * Math.PI * 16}`}
+                        strokeDashoffset={`${2 * Math.PI * 16 * (1 - readiness.readiness / 100)}`}
+                        strokeLinecap="round"
+                        transform="rotate(-90 20 20)" />
+                      <text x="20" y="24" textAnchor="middle" fill="#34D399" fontSize="10" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="700">{readiness.readiness}%</text>
+                    </svg>
+                    <div className="flex flex-col">
+                      <span className="font-jakarta text-[13px] font-semibold text-[#34D399]">Sẵn sàng</span>
+                      <span className="font-jakarta text-[11px] text-[#64748B]">30 ngày qua</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </section>
 
             {/* Username card */}

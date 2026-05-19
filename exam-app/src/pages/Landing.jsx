@@ -176,6 +176,13 @@ export default function Landing({ onOpenAuth }) {
           </motion.div>
         )}
 
+        {/* Warm-up CTA */}
+        <motion.button variants={itemVariants}
+          onClick={() => navigate('/warmup')}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#818CF822] font-jakarta text-[13px] font-semibold text-[#818CF8] hover:border-[#818CF855] hover:bg-[#818CF808] transition">
+          ⚡ Khởi động 5 phút
+        </motion.button>
+
         {/* Proof strip */}
         <motion.div variants={itemVariants}
           className="flex items-center gap-2 flex-wrap justify-center font-jakarta text-[13px] text-[#475569]">

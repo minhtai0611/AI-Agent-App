@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext.jsx'
 import { loadQuestions } from '../api/index.js'
 import { getDailyChallenge, submitDailyScore, getDailyChallengeLeaderboard } from '../api/aiClient.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
@@ -62,7 +63,8 @@ const LABELS = ['A', 'B', 'C', 'D']
 export default function DailyChallenge() {
   usePageTitle('Thử thách hôm nay')
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
+  const toast = useToast()
   const [questions, setQuestions] = useState([]) // multi-question backend mode
   const [question, setQuestion] = useState(null)  // single fallback question
   const [qIndex, setQIndex] = useState(0)
@@ -138,7 +140,14 @@ export default function DailyChallenge() {
       // Submit to server for scoring + 1 Tia grant
       if (serverMode && user && !submitted) {
         const timeSeconds = Math.round((Date.now() - startTime) / 1000)
-        await submitDailyScore(answers, timeSeconds)
+        const { data } = await submitDailyScore(answers, timeSeconds)
+        if (data) {
+          const bonus = (data.tia_earned ?? 0) - 1  // base is 1 Tia
+          if (bonus > 0) {
+            refreshUser?.()
+            toast.success(`🔥 Chuỗi ${data.streak} ngày! Thưởng +${bonus} Tia`)
+          }
+        }
       }
       setSubmitted(true)
     } else {
