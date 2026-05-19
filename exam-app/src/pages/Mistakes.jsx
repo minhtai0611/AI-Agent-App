@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useHistory } from '../context/HistoryContext'
 import { useAuth } from '../context/AuthContext'
 import { loadQuestions } from '../api/index.js'
-import { getExplanation } from '../api/aiClient'
+import { getExplanation, classifyError } from '../api/aiClient'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import Markdown from 'react-markdown'
 import remarkMath from 'remark-math'
@@ -21,6 +21,15 @@ const ERROR_TAGS = [
   { id: 'concept', label: 'Lỗi khái niệm' },
 ]
 const TAGS_KEY = 'mistake_tags'
+const AI_CATEGORIES_KEY = 'mistake_ai_categories'
+
+const AI_CATEGORY_META = {
+  sign_error:        { label: 'Sai dấu',          color: '#FB7185' },
+  formula_confusion: { label: 'Nhầm công thức',    color: '#F2A20C' },
+  procedural_slip:   { label: 'Sai quy trình',     color: '#818CF8' },
+  conceptual_gap:    { label: 'Lỗ hổng khái niệm', color: '#60A5FA' },
+  calculation:       { label: 'Tính toán sai',     color: '#34D399' },
+}
 
 function loadTags() {
   try { return JSON.parse(localStorage.getItem(TAGS_KEY) ?? '{}') } catch { return {} }
@@ -29,6 +38,14 @@ function saveTag(questionId, tagId) {
   const tags = loadTags()
   tags[questionId] = tagId
   try { localStorage.setItem(TAGS_KEY, JSON.stringify(tags)) } catch {}
+}
+function loadAiCategories() {
+  try { return JSON.parse(localStorage.getItem(AI_CATEGORIES_KEY) ?? '{}') } catch { return {} }
+}
+function saveAiCategory(questionId, category) {
+  const cats = loadAiCategories()
+  cats[questionId] = category
+  try { localStorage.setItem(AI_CATEGORIES_KEY, JSON.stringify(cats)) } catch {}
 }
 
 function MdMath({ children }) {
@@ -47,10 +64,22 @@ function MistakeRow({ question, userAnswer, examTitle }) {
   const [explLoading, setExplLoading] = useState(false)
   const [explError, setExplError] = useState(null)
   const [tag, setTag] = useState(() => loadTags()[question.id] ?? null)
+  const [aiCategory, setAiCategory] = useState(() => loadAiCategories()[question.id] ?? null)
+
+  // Fire AI classification once per mistake, lazily on first expand
+  async function maybeClassify() {
+    if (aiCategory || !user) return
+    const wrongText = typeof userAnswer === 'number' ? (question.choices?.[userAnswer] ?? '') : ''
+    const correctText = question.choices?.[question.correct] ?? ''
+    if (!wrongText || !correctText) return
+    const { data } = await classifyError(question.question, wrongText, correctText)
+    if (data?.category) { setAiCategory(data.category); saveAiCategory(question.id, data.category) }
+  }
 
   async function fetchExplanation() {
     if (explanation || explLoading) { setExpanded(e => !e); return }
     setExpanded(true)
+    maybeClassify()
     setExplLoading(true)
     setExplError(null)
     const { data, error } = await getExplanation({
@@ -84,6 +113,12 @@ function MistakeRow({ question, userAnswer, examTitle }) {
             </span>
             {examTitle && (
               <span className="px-2 py-0.5 rounded-full bg-[#111827] border border-[#1E2A44] text-[#475569]">{examTitle}</span>
+            )}
+            {aiCategory && AI_CATEGORY_META[aiCategory] && (
+              <span className="px-2 py-0.5 rounded-full font-jakarta text-[10px] font-semibold border"
+                style={{ borderColor: AI_CATEGORY_META[aiCategory].color + '44', color: AI_CATEGORY_META[aiCategory].color, background: AI_CATEGORY_META[aiCategory].color + '18' }}>
+                {AI_CATEGORY_META[aiCategory].label}
+              </span>
             )}
           </div>
         </div>
@@ -147,7 +182,9 @@ export default function Mistakes() {
   const { results } = useHistory()
   const [questions, setQuestions] = useState([])
   const [filterTopic, setFilterTopic] = useState(null)
+  const [filterCategory, setFilterCategory] = useState(null)
   const [expandedTopics, setExpandedTopics] = useState({})
+  const [aiCategories, setAiCategories] = useState(() => loadAiCategories())
 
   useEffect(() => {
     loadQuestions().then(setQuestions)
@@ -178,16 +215,40 @@ export default function Mistakes() {
     return map
   }, [results, questionMap])
 
-  // Group by topic
+  // Filter mistakes by AI category if selected
+  const filteredMistakeMap = useMemo(() => {
+    if (!filterCategory) return mistakeMap
+    return Object.fromEntries(
+      Object.entries(mistakeMap).filter(([qId]) => aiCategories[qId] === filterCategory)
+    )
+  }, [mistakeMap, filterCategory, aiCategories])
+
+  // Group by topic (respects category filter)
   const byTopic = useMemo(() => {
     const groups = {}
-    for (const entry of Object.values(mistakeMap)) {
+    for (const entry of Object.values(filteredMistakeMap)) {
       const t = entry.question.topic || 'other'
       if (!groups[t]) groups[t] = []
       groups[t].push(entry)
     }
     return groups
-  }, [mistakeMap])
+  }, [filteredMistakeMap])
+
+  // Weekly summary: count category occurrences from mistakes made in last 7 days
+  const weeklyCategorySummary = useMemo(() => {
+    const cutoff = Date.now() - 7 * 86400000
+    const counts = {}
+    for (const result of results) {
+      if (new Date(result.timestamp).getTime() < cutoff) continue
+      for (const [qId, chosen] of Object.entries(result.answers ?? {})) {
+        const q = questionMap[qId]
+        if (!q || chosen === q.correct) continue
+        const cat = aiCategories[qId]
+        if (cat) counts[cat] = (counts[cat] ?? 0) + 1
+      }
+    }
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3)
+  }, [results, questionMap, aiCategories])
 
   const totalMistakes = Object.values(mistakeMap).length
   const topics = TOPIC_ORDER.filter(t => byTopic[t]?.length > 0)
@@ -260,6 +321,50 @@ export default function Mistakes() {
             </div>
           )}
         </div>
+
+        {/* Weekly AI category summary */}
+        {weeklyCategorySummary.length > 0 && (
+          <div className="mb-4 px-4 py-3 rounded-xl bg-[#0D1221] border border-[#1E2A44] flex flex-wrap items-center gap-2">
+            <span className="font-jakarta text-[11px] font-semibold text-[#475569] uppercase tracking-wider mr-1">Tuần này:</span>
+            {weeklyCategorySummary.map(([cat, count]) => {
+              const meta = AI_CATEGORY_META[cat]
+              if (!meta) return null
+              return (
+                <span key={cat} className="font-jakarta text-[12px] font-medium"
+                  style={{ color: meta.color }}>
+                  {count} lỗi {meta.label.toLowerCase()}
+                </span>
+              )
+            }).filter(Boolean).reduce((acc, el, i) => i === 0 ? [el] : [...acc, <span key={`sep-${i}`} className="text-[#1E2A44]">·</span>, el], [])}
+          </div>
+        )}
+
+        {/* AI category filter chips */}
+        {Object.keys(aiCategories).length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <button
+              onClick={() => setFilterCategory(null)}
+              className={`h-7 px-3 rounded-full font-jakarta text-[11px] font-medium border transition ${
+                !filterCategory ? 'border-[#818CF8] bg-[#818CF822] text-[#818CF8]' : 'border-[#1E2A44] text-[#64748B]'
+              }`}
+            >AI: Tất cả</button>
+            {Object.keys(AI_CATEGORY_META).filter(cat => Object.values(aiCategories).includes(cat)).map(cat => {
+              const meta = AI_CATEGORY_META[cat]
+              const count = Object.values(aiCategories).filter(c => c === cat).length
+              return (
+                <button key={cat}
+                  onClick={() => setFilterCategory(filterCategory === cat ? null : cat)}
+                  className="h-7 px-3 rounded-full font-jakarta text-[11px] font-medium border transition"
+                  style={filterCategory === cat
+                    ? { borderColor: meta.color, background: meta.color + '22', color: meta.color }
+                    : { borderColor: '#1E2A44', color: '#64748B' }}
+                >
+                  {meta.label} <span className="opacity-60 ml-1">{count}</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {/* Topic filter chips */}
         {topics.length > 1 && (

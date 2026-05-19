@@ -161,6 +161,7 @@ export default function ClassDashboard() {
           ) : classResults.length === 0 ? (
             <p className="font-jakarta text-[13px] text-[#475569] text-center py-6">Chưa có học sinh nào nộp bài</p>
           ) : (
+            <>
             {/* Mobile card view */}
             <div className="sm:hidden flex flex-col gap-2">
               {classResults.map((r, i) => (
@@ -201,6 +202,7 @@ export default function ClassDashboard() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
       )}

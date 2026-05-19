@@ -213,6 +213,10 @@ export function getCreditLog() {
   return wrap(client.get('/users/me/credits/log'))
 }
 
+export function classifyError(question, wrongChoice, correctChoice) {
+  return wrap(client.post('/classify-error', { question, wrong_choice: wrongChoice, correct_choice: correctChoice }))
+}
+
 export function getPercentile(examId, score) {
   return wrap(client.get(`/results/${encodeURIComponent(examId)}/percentile`, { params: { score } }))
 }

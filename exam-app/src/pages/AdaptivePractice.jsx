@@ -7,11 +7,12 @@ import { loadQuestions } from '../api/index.js'
 import { generateAdaptivePractice } from '../api/aiClient.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
+import { loadDiagnosticWeights } from './DiagnosticTest.jsx'
 
 const TOPICS = Object.keys(TOPIC_LABELS)
 const SESSION_SIZE = 15
 
-function computeTopicWeights(results, questionMap) {
+function computeTopicWeights(results, questionMap, uid) {
   const counts = {}
   for (const topic of TOPICS) counts[topic] = { correct: 0, total: 0 }
   for (const result of results) {
@@ -23,6 +24,16 @@ function computeTopicWeights(results, questionMap) {
       if (chosen === q.correct) counts[q.topic].correct++
     }
   }
+  const hasHistory = Object.values(counts).some(c => c.total > 0)
+  // Fall back to diagnostic weights when no practice history exists
+  if (!hasHistory) {
+    const diag = loadDiagnosticWeights(uid)
+    if (diag) {
+      const w = {}
+      for (const topic of TOPICS) w[topic] = diag[topic] ?? 0.5
+      return w
+    }
+  }
   const weights = {}
   for (const topic of TOPICS) {
     const { correct, total } = counts[topic]
@@ -31,8 +42,8 @@ function computeTopicWeights(results, questionMap) {
   return weights
 }
 
-function computeWeakTopics(results, questionMap) {
-  const weights = computeTopicWeights(results, questionMap)
+function computeWeakTopics(results, questionMap, uid) {
+  const weights = computeTopicWeights(results, questionMap, uid)
   return Object.entries(weights)
     .filter(([, w]) => w > 0.5)
     .sort((a, b) => b[1] - a[1])
@@ -86,7 +97,7 @@ export default function AdaptivePractice() {
   useEffect(() => {
     loadQuestions().then(qs => {
       const qMap = Object.fromEntries(qs.map(q => [q.id, q]))
-      setWeakTopics(computeWeakTopics(results, qMap))
+      setWeakTopics(computeWeakTopics(results, qMap, user?.id))
     }).catch(() => {})
   }, [results])
 
@@ -101,7 +112,7 @@ export default function AdaptivePractice() {
     try {
       const allQuestions = await loadQuestions()
       const questionMap = Object.fromEntries(allQuestions.map(q => [q.id, q]))
-      const weights = computeTopicWeights(results, questionMap)
+      const weights = computeTopicWeights(results, questionMap, user?.id)
       const pool = allQuestions.filter(q =>
         pinnedTopic ? q.topic === pinnedTopic : TOPICS.includes(q.topic)
       )

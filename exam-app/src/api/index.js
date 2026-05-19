@@ -1,31 +1,51 @@
 import examsData from '../data/exams.json'
 import schoolsData from '../data/schools.json'
 
-// Lazy-load questions.json — only fetched when first needed, then cached
-let _questionsData = null
+const _API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+
+async function _apiFetch(path, token) {
+  const res = await fetch(`${_API_BASE}${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+// In-memory caches
+let _questionsCache = null  // { [id]: question }
 let _questionsPromise = null
 
-async function _loadQuestionsAsync() {
-  if (_questionsData) return _questionsData
-  if (!_questionsPromise) {
-    _questionsPromise = import('../data/questions.json').then(m => {
-      _questionsData = m.default
-      return _questionsData
-    })
-  }
-  return _questionsPromise
+async function _loadQuestionsFromJson() {
+  const { default: local } = await import('../data/questions.json')
+  _questionsCache = Object.fromEntries(local.map(q => [q.id, q]))
+  return local
 }
 
 export async function loadQuestions() {
-  return _loadQuestionsAsync()
+  if (_questionsCache) return Object.values(_questionsCache)
+  if (_questionsPromise) return _questionsPromise
+  _questionsPromise = (async () => {
+    try {
+      const token = localStorage.getItem('auth_token')
+      if (token) {
+        const data = await _apiFetch('/questions', token)
+        _questionsCache = Object.fromEntries(data.map(q => [q.id, q]))
+        return data
+      }
+    } catch {}
+    // Offline fallback — JSON bundle
+    return _loadQuestionsFromJson()
+  })()
+  const result = await _questionsPromise
+  _questionsPromise = null
+  return result
 }
 
-// Auth-gated variant used by exam flows — rejects unauthenticated callers
-// before the questions bundle is parsed and handed to the caller.
+// Auth-gated variant — rejects unauthenticated callers
 export async function loadQuestionsForExam() {
   const token = localStorage.getItem('auth_token')
   if (!token) throw new Error('auth_required')
-  return _loadQuestionsAsync()
+  return loadQuestions()
 }
 
 export function loadExams() {
@@ -42,8 +62,20 @@ export function loadSchools() {
   return schoolsData
 }
 
+// Synchronous lookup (always uses bundled JSON — safe for sync render paths)
 export function loadExamById(examId) {
   return examsData.find(e => e.id === examId) ?? null
+}
+
+// Async variant — fetches from API on cold cache, useful for deep-links before loadExams() runs
+export async function loadExamByIdAsync(examId) {
+  const fromJson = loadExamById(examId)
+  if (fromJson) return fromJson
+  try {
+    return await _apiFetch(`/exams/${examId}`)
+  } catch {
+    return null
+  }
 }
 
 export async function loadQuestionsByIds(ids, requireAuth = false) {

@@ -378,6 +378,24 @@ export default function ExamSelect({ onOpenAuth }) {
                 </div>
                 <span className="font-jakarta text-[12px] font-semibold text-[#F2A20C] flex-shrink-0">Bắt đầu →</span>
               </motion.button>
+              {/* Diagnostic test */}
+              <motion.button variants={cardVariants}
+                onClick={() => navigate('/diagnostic')}
+                className="w-full text-left bg-[#0D1521] rounded-2xl p-5 flex items-center justify-between gap-4 border transition"
+                style={{ borderColor: '#34D39922' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#34D39966'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = '#34D39922'}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🧪</span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Kiểm tra đầu vào</span>
+                    <span className="font-jakarta text-[12px] text-[#64748B]">12 câu · 6 chủ đề · AI cá nhân hóa luyện tập theo kết quả</span>
+                  </div>
+                </div>
+                <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded flex-shrink-0"
+                  style={{ background: '#34D39922', color: '#34D399' }}>Chẩn đoán</span>
+              </motion.button>
             </div>
 
             {/* ── Section: Chế độ chơi ── */}

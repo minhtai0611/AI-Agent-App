@@ -34,6 +34,7 @@ const ShareView = lazy(() => import('./pages/ShareView.jsx'))
 const ChallengeLanding = lazy(() => import('./pages/ChallengeLanding.jsx'))
 const ClassDashboard = lazy(() => import('./pages/ClassDashboard.jsx'))
 const WarmupMode = lazy(() => import('./pages/WarmupMode.jsx'))
+const DiagnosticTest = lazy(() => import('./pages/DiagnosticTest.jsx'))
 
 const PageFallback = () => <div className="min-h-screen bg-[#0A0E1A]" />
 
@@ -168,6 +169,7 @@ function AppInner() {
             <Route path="/challenge" element={<ChallengeLanding />} />
             <Route path="/class" element={<ClassDashboard />} />
             <Route path="/warmup" element={<WarmupMode />} />
+            <Route path="/diagnostic" element={<DiagnosticTest />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
