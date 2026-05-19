@@ -54,7 +54,8 @@ let _examsCache = null
 async function _loadExamsData() {
   if (_examsCache) return
   try {
-    _examsCache = await _apiFetch('/exams')
+    const data = await _apiFetch('/exams')
+    _examsCache = data?.length ? data : examsData
   } catch {
     _examsCache = examsData
   }

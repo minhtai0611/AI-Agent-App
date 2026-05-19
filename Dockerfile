@@ -17,6 +17,7 @@ RUN python -c "from FlagEmbedding import BGEM3FlagModel; BGEM3FlagModel('BAAI/bg
 
 COPY backend/ backend/
 COPY scripts/ scripts/
+COPY exam-app/src/data/ exam-app/src/data/
 
 ENV PYTHONPATH=/app/backend:/app/scripts
 
