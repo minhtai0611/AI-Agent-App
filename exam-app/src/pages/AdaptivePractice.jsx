@@ -40,6 +40,23 @@ function computeWeakTopics(results, questionMap) {
     .map(([t]) => t)
 }
 
+function interleaveQuestions(questions) {
+  const buckets = {}
+  for (const q of questions) {
+    if (!buckets[q.topic]) buckets[q.topic] = []
+    buckets[q.topic].push(q)
+  }
+  const result = []
+  const keys = Object.keys(buckets)
+  let i = 0
+  while (result.length < questions.length) {
+    const key = keys[i % keys.length]
+    if (buckets[key].length) result.push(buckets[key].shift())
+    i++
+  }
+  return result
+}
+
 function weightedSample(pool, weights, n, excludeTopic = null) {
   const uniqueTopics = [...new Set(pool.map(q => q.topic))]
   const eligible = uniqueTopics.length > 1 && excludeTopic
@@ -63,6 +80,7 @@ export default function AdaptivePractice() {
   const [error, setError] = useState(null)
   const [mode, setMode] = useState(null) // null = selection, 'static' | 'ai'
   const [weakTopics, setWeakTopics] = useState([])
+  const [interleaved, setInterleaved] = useState(true)
 
   // Pre-compute weak topics for display
   useEffect(() => {
@@ -87,7 +105,8 @@ export default function AdaptivePractice() {
       const pool = allQuestions.filter(q =>
         pinnedTopic ? q.topic === pinnedTopic : TOPICS.includes(q.topic)
       )
-      const selected = weightedSample(pool, weights, SESSION_SIZE)
+      const sampled = weightedSample(pool, weights, SESSION_SIZE)
+      const selected = interleaved ? interleaveQuestions(sampled) : sampled
       const topicLabel = pinnedTopic ? (TOPIC_LABELS[pinnedTopic] ?? pinnedTopic) : null
       const adaptiveExam = {
         id: `adaptive-${Date.now()}`,
@@ -194,6 +213,14 @@ export default function AdaptivePractice() {
       </div>
 
       <div className="flex flex-col gap-4 w-full max-w-sm">
+        <label className="flex items-center gap-2.5 cursor-pointer px-1">
+          <input type="checkbox" checked={interleaved} onChange={e => setInterleaved(e.target.checked)}
+            className="rounded accent-amber-400 w-4 h-4" />
+          <span className="font-jakarta text-[13px] text-[#94A3B8]">
+            Xáo trộn chủ đề
+            <span className="ml-1 font-jakarta text-[11px] text-[#475569]">— tăng khả năng ghi nhớ</span>
+          </span>
+        </label>
         <button
           onClick={() => setMode('static')}
           className="flex flex-col gap-2 px-6 py-5 rounded-2xl border border-[#1E2A44] bg-[#0D1221] text-left hover:border-[#F2A20C44] transition"

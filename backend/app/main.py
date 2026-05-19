@@ -681,7 +681,9 @@ async def analyze(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
-    await _spend_credits(pool, current_user.user_id, 3, "analyze")
+    tier_row = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
+    if not tier_row or tier_row["subscription_tier"] not in _PAID_TIERS:
+        await _spend_credits(pool, current_user.user_id, 3, "analyze")
     from app.agent.exam_analyzer import analyze_exam_result
     try:
         data = await analyze_exam_result(
@@ -715,7 +717,9 @@ async def analyze_stream(
     """
     from fastapi.responses import StreamingResponse
     from app.agent.exam_analyzer import build_analyze_prompt, STATIC_EXAM_ANALYSIS_INSTRUCTIONS
-    await _spend_credits(pool, current_user.user_id, 3, "analyze")
+    tier_row_s = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
+    if not tier_row_s or tier_row_s["subscription_tier"] not in _PAID_TIERS:
+        await _spend_credits(pool, current_user.user_id, 3, "analyze")
 
     prompt = build_analyze_prompt(
         req.result, req.history, req.student_name,
@@ -964,6 +968,15 @@ async def math_solve(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
+    tier_row_ms = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
+    if tier_row_ms and tier_row_ms["subscription_tier"] == "basic":
+        today_uses = await pool.fetchrow(
+            "SELECT COUNT(*) AS cnt FROM ai_credits_log WHERE user_id = ? AND reason = 'math_solve' AND created_at >= date('now')",
+            current_user.user_id,
+        )
+        if (today_uses["cnt"] or 0) >= 5:
+            raise HTTPException(403, detail={"code": "tier_required", "message": "Đã dùng hết 5 lượt Oracle hôm nay — nâng cấp để dùng không giới hạn"})
+    await pool.execute("INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, 0, 'math_solve')", current_user.user_id)
     client = get_ai_client()
     from app.math_wiki.pipeline import run_pipeline
     for attempt in range(2):
@@ -994,6 +1007,9 @@ async def math_review(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
+    tier_row_mr = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
+    if not tier_row_mr or tier_row_mr["subscription_tier"] not in _PAID_TIERS:
+        raise HTTPException(403, detail={"code": "tier_required", "message": "Chế độ Chấm bài yêu cầu gói Học sinh trở lên"})
     client = get_ai_client()
     from app.math_wiki.agents.reviewer import review_solution
     from app.math_wiki.pipeline import _retrieve_rerank_context
@@ -1413,6 +1429,21 @@ async def get_daily_challenge():
     return {"date": date_str, "question_ids": daily_ids}
 
 
+async def _compute_daily_streak(pool, user_id: str, today: str) -> int:
+    from datetime import datetime, timedelta
+    rows = await pool.fetch(
+        "SELECT date FROM daily_challenge_leaderboard WHERE user_id = ? ORDER BY date DESC",
+        user_id,
+    )
+    dates = {r["date"] for r in rows}
+    count = 0
+    check = datetime.fromisoformat(today).date()
+    while str(check) in dates:
+        count += 1
+        check -= timedelta(days=1)
+    return count
+
+
 class DailyChallengeScoreRequest(BaseModel):
     answers: dict[str, int]  # {question_id: chosen_index}
     time_seconds: int = 0
@@ -1471,6 +1502,7 @@ async def submit_daily_challenge_score(
 
     # Grant 1 Tia on first submission (regardless of score)
     tia_earned = 0
+    streak = 0
     if first_submission:
         await pool.execute(
             "UPDATE users SET credits_balance = credits_balance + 1 WHERE id = ?",
@@ -1482,7 +1514,24 @@ async def submit_daily_challenge_score(
         )
         tia_earned = 1
 
-    return {"score": correct, "total": total, "date": date_str, "tia_earned": tia_earned}
+        # Streak bonus for paid tiers
+        tier_row_dc = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
+        if tier_row_dc and tier_row_dc["subscription_tier"] in _PAID_TIERS:
+            streak = await _compute_daily_streak(pool, str(current_user.user_id), date_str)
+            bonus_map = {7: 20, 30: 100, 100: 300}
+            bonus = bonus_map.get(streak, 0)
+            if bonus:
+                await pool.execute(
+                    "UPDATE users SET credits_balance = credits_balance + ? WHERE id = ?",
+                    bonus, current_user.user_id,
+                )
+                await pool.execute(
+                    "INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, ?, ?)",
+                    current_user.user_id, bonus, f"streak_bonus_{streak}",
+                )
+                tia_earned += bonus
+
+    return {"score": correct, "total": total, "date": date_str, "tia_earned": tia_earned, "streak": streak}
 
 
 @app.get("/daily-challenge/leaderboard")

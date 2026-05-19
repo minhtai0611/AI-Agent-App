@@ -10,6 +10,7 @@ import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 import { solveMath, getMathStats, getWikiStatus, ocrImage, reviewMath, sendTutorMessage } from '../api/aiClient'
 import SymbolPalette from '../components/SymbolPalette'
+import { useVoiceInput } from '../hooks/useVoiceInput.js'
 
 // One level of nested braces — handles \frac{\sqrt{x}}{2} correctly
 const BARE_LATEX_RE = /\\[a-zA-Z]+(?:\{(?:[^{}]|\{[^{}]*\})*\}|\[[^\]]*\])*/g
@@ -812,6 +813,10 @@ export default function MathOracle() {
 
   const textareaRef = useRef(null)
   const solutionRef = useRef(null)
+  const { listening, startListening, isSupported: voiceSupported } = useVoiceInput(text => {
+    setQuestion(prev => prev ? prev + ' ' + text : text)
+    if (textareaRef.current) { textareaRef.current.value = question ? question + ' ' + text : text; autoResize(textareaRef.current) }
+  })
   const fileInputRef = useRef(null)
   const cameraInputRef = useRef(null)
   const solutionFileInputRef = useRef(null)
@@ -1216,6 +1221,20 @@ export default function MathOracle() {
             />
             <SymbolPalette onInsert={handleInsert} />
             <div className="flex justify-end items-center gap-2 px-3 py-2 border-t border-[#2A3A5E]">
+              {/* Voice input */}
+              {voiceSupported && (
+                <button
+                  type="button"
+                  title={listening ? 'Đang nghe...' : 'Nhập bằng giọng nói'}
+                  onClick={startListening}
+                  disabled={listening || ocring || loading}
+                  className={`p-1.5 transition disabled:opacity-40 ${listening ? 'text-red-400 animate-pulse' : 'text-[#475569] hover:text-[#94A3B8]'}`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
+                  </svg>
+                </button>
+              )}
               {/* OCR image upload / camera capture */}
               <div className="relative">
                 <button

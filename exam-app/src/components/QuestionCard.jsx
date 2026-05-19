@@ -168,6 +168,11 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
           dangerouslySetInnerHTML={{ __html: sanitizeSvg(question.figure.data) }}
         />
       )}
+      {question.source && (
+        <span className="inline-block font-jakarta text-[10px] text-[#475569] bg-[#141D2E] px-2 py-0.5 rounded mb-3">
+          {question.source}{question.year ? ` · ${question.year}` : ''}
+        </span>
+      )}
       <MathText className="font-fraunces text-[20px] text-[#F0F4FF] leading-relaxed mb-5 whitespace-pre-wrap">
         {question.question}
       </MathText>

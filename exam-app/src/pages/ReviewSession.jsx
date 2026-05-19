@@ -31,9 +31,10 @@ function saveQueue(q, uid) {
 }
 
 // SM-2 algorithm: grade 4 = correct, grade 1 = wrong
-function updateSM2(entry, correct) {
+function updateSM2(entry, quality) {
+  // quality: 5=Chắc, 3=Khá, 1=Đoán/Again (SM-2 scale)
   let { easeFactor = 2.5, interval = 1, repetitions = 0 } = entry
-  const grade = correct ? 4 : 1
+  const grade = typeof quality === 'number' ? quality : (quality ? 4 : 1)
 
   if (grade >= 3) {
     if (repetitions === 0) interval = 1
@@ -83,13 +84,14 @@ export default function ReviewSession() {
     setRevealed(true)
   }
 
-  function handleNext(markCorrect) {
+  function handleNext(quality) {
     const queue = getQueue(uid)
     const qId = question.id
     const entry = queue[qId] ?? {}
-    queue[qId] = updateSM2(entry, markCorrect)
+    queue[qId] = updateSM2(entry, quality)
     saveQueue(queue, uid)
 
+    const markCorrect = typeof quality === 'number' ? quality >= 3 : Boolean(quality)
     setResults(r => [...r, markCorrect ? 'correct' : 'wrong'])
 
     if (index + 1 >= questions.length) {
@@ -248,20 +250,24 @@ export default function ReviewSession() {
                       : `Đáp án đúng: ${String.fromCharCode(65 + question.correct)}. ${question.choices[question.correct]}`}
                   </span>
                 </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => handleNext(false)}
-                    className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-[#1E2A44] text-[#94A3B8] hover:text-[#F8FAFC] transition"
-                  >
-                    Ôn lại sớm hơn
-                  </button>
-                  <button
-                    onClick={() => handleNext(isCorrect)}
-                    className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
-                    style={{ background: isCorrect ? '#10B981' : '#F2A20C' }}
-                  >
-                    {isCorrect ? 'Tiếp theo →' : 'Đã hiểu →'}
-                  </button>
+                <div className="flex flex-col gap-2">
+                  <span className="font-jakarta text-[11px] text-[#475569] text-center">Mức độ tự tin:</span>
+                  <div className="flex gap-2">
+                    {[
+                      { label: 'Đoán', quality: 1, color: '#FB7185' },
+                      { label: 'Khá', quality: 3, color: '#F2A20C' },
+                      { label: 'Chắc', quality: 5, color: '#34D399' },
+                    ].map(({ label, quality, color }) => (
+                      <button
+                        key={label}
+                        onClick={() => handleNext(quality)}
+                        className="flex-1 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold border transition"
+                        style={{ borderColor: color + '55', color }}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             )}
