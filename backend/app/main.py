@@ -6,6 +6,7 @@ import json
 import logging
 import re
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta
 from pathlib import Path
 from fastapi import FastAPI, Depends, HTTPException, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -850,6 +851,35 @@ async def hint(
         raise HTTPException(status_code=502, detail=f"Không thể tạo gợi ý: {exc}")
 
 
+async def _update_tutor_memory(pool, client, user_id: int, messages: list[dict]) -> None:
+    """Compress the session into a short learning summary and persist it (Complete tier)."""
+    try:
+        settings = get_settings()
+        mem_row = await pool.fetchrow("SELECT summary FROM tutor_memory WHERE user_id = ?", user_id)
+        existing = (mem_row["summary"] if mem_row else "") or ""
+        session_text = "\n".join(
+            f"{m['role'].upper()}: {m['content'][:200]}" for m in messages[-8:] if isinstance(m.get("content"), str)
+        )
+        prompt = (
+            f"Lịch sử học hiện tại (tóm tắt trước đây):\n{existing[:300]}\n\n"
+            f"Phiên học mới:\n{session_text}\n\n"
+            "Viết 2-3 câu tóm tắt những điểm mạnh/yếu mới của học sinh, kết hợp với lịch sử trước. "
+            "Tối đa 400 ký tự. Chỉ trả lời tóm tắt, không giải thích."
+        )
+        resp = await client.chat.completions.create(
+            model=get_settings().haiku_model, max_tokens=120,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        new_summary = (resp.choices[0].message.content or "").strip()[:400]
+        await pool.execute(
+            "INSERT INTO tutor_memory (user_id, summary, updated_at) VALUES (?, ?, datetime('now')) "
+            "ON CONFLICT(user_id) DO UPDATE SET summary = excluded.summary, updated_at = excluded.updated_at",
+            user_id, new_summary,
+        )
+    except Exception as exc:
+        logger.warning("_update_tutor_memory failed for user %s: %s", user_id, exc)
+
+
 @app.post("/tutor", response_model=TutorChatResponse)
 async def tutor(
     req: TutorChatRequest,
@@ -857,12 +887,214 @@ async def tutor(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
+    tier_row_t = await pool.fetchrow(
+        "SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id
+    )
+    tier_t = tier_row_t["subscription_tier"] if tier_row_t else "basic"
     await _spend_credits(pool, current_user.user_id, 1, "tutor")
     from app.agent.exam_tutor import run_tutor
+    # Prepend learning history for Complete users
+    memory_prefix = ""
+    if tier_t == "complete":
+        mem_row = await pool.fetchrow(
+            "SELECT summary FROM tutor_memory WHERE user_id = ?", current_user.user_id
+        )
+        if mem_row and mem_row["summary"]:
+            memory_prefix = f"[Lịch sử học của học sinh: {mem_row['summary']}]\n\n"
     reply, updated = await run_tutor(
-        client, req.messages, req.exam_context, req.student_name
+        client, req.messages, req.exam_context, req.student_name,
+        memory_prefix=memory_prefix,
     )
+    # Async memory update after ≥4 turns for Complete users
+    if tier_t == "complete" and len(req.messages) >= 4:
+        asyncio.ensure_future(_update_tutor_memory(pool, client, current_user.user_id, updated))
     return TutorChatResponse(reply=reply, messages=updated)
+
+
+class GenerateExamRequest(BaseModel):
+    topic_focus: list[str] | None = None
+    difficulty: str = "medium"
+    count: int = 10
+
+
+@app.post("/generate-exam")
+async def generate_exam(
+    req: GenerateExamRequest,
+    client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    tier_row_ge = await pool.fetchrow(
+        "SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id
+    )
+    if not tier_row_ge or tier_row_ge["subscription_tier"] != "complete":
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "tier_required", "required": "complete", "message": "Tạo đề AI riêng yêu cầu gói Toàn diện"},
+        )
+    count = max(5, min(15, req.count))
+    await _spend_credits(pool, current_user.user_id, 5, "generate_exam")
+    settings = get_settings()
+    topics_hint = f"Chủ đề ưu tiên: {', '.join(req.topic_focus)}" if req.topic_focus else "Tất cả chủ đề toán lớp 10"
+    prompt = (
+        f"Tạo {count} câu trắc nghiệm toán lớp 10 theo chuẩn đề thi tuyển sinh Việt Nam.\n"
+        f"{topics_hint}. Độ khó: {req.difficulty}.\n"
+        "Trả về JSON array, mỗi phần tử gồm: question (string), choices (array 4 string), correct (int 0-3), topic (string), explanation (string ngắn).\n"
+        "Chỉ trả lời JSON, không giải thích thêm."
+    )
+    try:
+        resp = await client.chat.completions.create(
+            model=settings.default_model, max_tokens=3000,
+            messages=[{"role": "user", "content": prompt}],
+            response_format={"type": "json_object"},
+        )
+        raw = resp.choices[0].message.content or "{}"
+        parsed = json.loads(raw)
+        questions = parsed if isinstance(parsed, list) else parsed.get("questions", [])
+        exam_id = f"generated-{current_user.user_id}-{int(datetime.utcnow().timestamp())}"
+        return {"exam_id": exam_id, "questions": questions[:count]}
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Không thể tạo đề: {exc}")
+
+
+@app.get("/predict-score")
+async def predict_score(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    tier_row_ps = await pool.fetchrow(
+        "SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id
+    )
+    if not tier_row_ps or tier_row_ps["subscription_tier"] != "complete":
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "tier_required", "required": "complete"},
+        )
+    results = await pool.fetch(
+        "SELECT score FROM exam_results WHERE user_id = ? AND score IS NOT NULL ORDER BY created_at DESC LIMIT 10",
+        current_user.user_id,
+    )
+    if not results:
+        return {"predicted": None, "confidence": "low", "sample_size": 0}
+    scores = [r["score"] for r in results if r["score"] is not None and 0 <= r["score"] <= 10]
+    if not scores:
+        return {"predicted": None, "confidence": "low", "sample_size": 0}
+    weights = [1.5 ** i for i in range(len(scores))]
+    weighted_avg = sum(s * w for s, w in zip(scores, weights)) / sum(weights)
+    spread = max(scores) - min(scores)
+    confidence = "high" if len(scores) >= 7 and spread < 2 else "medium" if len(scores) >= 4 else "low"
+    return {
+        "predicted": round(weighted_avg, 1),
+        "confidence": confidence,
+        "sample_size": len(scores),
+        "low": round(max(0, weighted_avg - 0.5), 1),
+        "high": round(min(10, weighted_avg + 0.5), 1),
+    }
+
+
+class StrategyRequest(BaseModel):
+    pass
+
+
+@app.post("/strategy")
+async def exam_strategy(
+    req: StrategyRequest,
+    client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    tier_row_st = await pool.fetchrow(
+        "SELECT subscription_tier, strategy_used_at FROM users WHERE id = ?", current_user.user_id
+    )
+    if not tier_row_st or tier_row_st["subscription_tier"] != "complete":
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "tier_required", "required": "complete"},
+        )
+    if tier_row_st["strategy_used_at"]:
+        last = datetime.fromisoformat(tier_row_st["strategy_used_at"])
+        if (datetime.utcnow() - last).days < 30:
+            next_available = (last + timedelta(days=30)).strftime("%Y-%m-%d")
+            raise HTTPException(
+                status_code=429,
+                detail={"code": "strategy_cooldown", "next_available": next_available},
+            )
+    await pool.execute(
+        "UPDATE users SET strategy_used_at = datetime('now') WHERE id = ?", current_user.user_id
+    )
+    # Gather topic performance from recent results
+    results = await pool.fetch(
+        "SELECT score, exam_id, created_at FROM exam_results WHERE user_id = ? ORDER BY created_at DESC LIMIT 20",
+        current_user.user_id,
+    )
+    scores_summary = ", ".join(str(r["score"]) for r in results if r["score"] is not None) or "chưa có"
+    settings = get_settings()
+    prompt = (
+        "Bạn là chuyên gia tư vấn chiến lược ôn thi tuyển sinh lớp 10 môn Toán Việt Nam.\n"
+        f"Điểm số gần đây của học sinh (0-10): {scores_summary}\n\n"
+        "Hãy viết chiến lược ôn thi cá nhân hóa gồm:\n"
+        "1. Đánh giá tổng quan\n2. Các chủ đề cần ưu tiên\n3. Phân bổ thời gian gợi ý\n4. Kế hoạch hành động cụ thể\n"
+        "Viết ngắn gọn, thực tế, bằng tiếng Việt."
+    )
+    try:
+        resp = await client.chat.completions.create(
+            model=settings.default_model, max_tokens=800,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        strategy_text = (resp.choices[0].message.content or "").strip()
+        return {"strategy": strategy_text}
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Không thể tạo chiến lược: {exc}")
+
+
+@app.get("/compare/province")
+async def compare_province(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    tier_row_cp = await pool.fetchrow(
+        "SELECT subscription_tier, province FROM users WHERE id = ?", current_user.user_id
+    )
+    if not tier_row_cp or tier_row_cp["subscription_tier"] != "complete":
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "tier_required", "required": "complete"},
+        )
+    province = tier_row_cp["province"]
+    if not province:
+        raise HTTPException(status_code=422, detail="Chưa cài tỉnh thành trong hồ sơ")
+    user_avg_row = await pool.fetchrow(
+        "SELECT AVG(score) AS avg FROM exam_results WHERE user_id = ? AND score IS NOT NULL AND created_at > datetime('now', '-30 days')",
+        current_user.user_id,
+    )
+    province_stats = await pool.fetchrow(
+        """SELECT AVG(er.score) AS avg, COUNT(DISTINCT er.user_id) AS user_count
+           FROM exam_results er JOIN users u ON u.id = er.user_id
+           WHERE u.province = ? AND er.score IS NOT NULL AND er.created_at > datetime('now', '-30 days')""",
+        province,
+    )
+    user_avg = user_avg_row["avg"] if user_avg_row else None
+    prov_avg = province_stats["avg"] if province_stats else None
+    prov_count = province_stats["user_count"] if province_stats else 0
+    percentile = None
+    if user_avg is not None and prov_count > 1:
+        rank_row = await pool.fetchrow(
+            """SELECT COUNT(DISTINCT er.user_id) AS better_count
+               FROM exam_results er JOIN users u ON u.id = er.user_id
+               WHERE u.province = ? AND er.score IS NOT NULL AND er.created_at > datetime('now', '-30 days')
+               GROUP BY er.user_id
+               HAVING AVG(er.score) > ?""",
+            province, user_avg,
+        )
+        better = rank_row["better_count"] if rank_row else 0
+        percentile = round((1 - better / prov_count) * 100)
+    return {
+        "province": province,
+        "your_avg": round(user_avg, 1) if user_avg is not None else None,
+        "province_avg": round(prov_avg, 1) if prov_avg is not None else None,
+        "province_user_count": prov_count,
+        "percentile": percentile,
+    }
 
 
 @app.post("/explain", response_model=ExplainResponse)

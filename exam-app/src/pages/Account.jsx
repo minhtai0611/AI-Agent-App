@@ -7,7 +7,7 @@ import {
 } from 'recharts'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
-import { getCreditLog, activateTrial, getReferral, updateUsername } from '../api/aiClient.js'
+import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince } from '../api/aiClient.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { useToast } from '../context/ToastContext.jsx'
@@ -36,14 +36,20 @@ const TIER_ALLOC   = { basic: 50, student: 500, complete: 2000 }
 const GRADE_LABELS = { '9': 'Lớp 9 trở xuống', '10': 'Lớp 10', '11': 'Lớp 11', '12': 'Lớp 12' }
 
 const PLANS_MONTHLY = [
-  { tier: 'basic',    label: 'Cơ bản',    price: 'Miễn phí',       credits: 50,   studyPlan: false, badge: null },
-  { tier: 'student',  label: 'Học sinh',  price: '29,000đ/tháng',  credits: 500,  studyPlan: true,  badge: 'PHỔ BIẾN' },
-  { tier: 'complete', label: 'Toàn diện', price: '59,000đ/tháng',  credits: 2000, studyPlan: true,  badge: null },
+  { tier: 'basic',    label: 'Cơ bản',    price: 'Miễn phí',       credits: 50,   studyPlan: false, badge: null,
+    features: ['5 Oracle/ngày', 'Tất cả chế độ thi', 'Thử thách hằng ngày'] },
+  { tier: 'student',  label: 'Học sinh',  price: '29,000đ/tháng',  credits: 500,  studyPlan: true,  badge: 'PHỔ BIẾN',
+    features: ['Oracle không giới hạn', 'AI Phân tích miễn phí', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
+  { tier: 'complete', label: 'Toàn diện', price: '59,000đ/tháng',  credits: 2000, studyPlan: true,  badge: null,
+    features: ['Tất cả gói Học sinh', 'Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
 ]
 const PLANS_ANNUAL = [
-  { tier: 'basic',    label: 'Cơ bản',    price: 'Miễn phí',        credits: 50,   studyPlan: false, badge: null },
-  { tier: 'student',  label: 'Học sinh',  price: '261,000đ/năm',    credits: 500,  studyPlan: true,  badge: 'PHỔ BIẾN', bonus: '+1,000 Tia', effective: '21,750đ/tháng' },
-  { tier: 'complete', label: 'Toàn diện', price: '531,000đ/năm',    credits: 2000, studyPlan: true,  badge: null,       bonus: '+3,000 Tia', effective: '44,250đ/tháng' },
+  { tier: 'basic',    label: 'Cơ bản',    price: 'Miễn phí',        credits: 50,   studyPlan: false, badge: null,
+    features: ['5 Oracle/ngày', 'Tất cả chế độ thi', 'Thử thách hằng ngày'] },
+  { tier: 'student',  label: 'Học sinh',  price: '261,000đ/năm',    credits: 500,  studyPlan: true,  badge: 'PHỔ BIẾN', bonus: '+1,000 Tia', effective: '21,750đ/tháng',
+    features: ['Oracle không giới hạn', 'AI Phân tích miễn phí', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
+  { tier: 'complete', label: 'Toàn diện', price: '531,000đ/năm',    credits: 2000, studyPlan: true,  badge: null, bonus: '+3,000 Tia', effective: '44,250đ/tháng',
+    features: ['Tất cả gói Học sinh', 'Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
 ]
 const TOPUP_PACKAGES = [
   { price: '15,000đ', credits: 150, label: 'Starter' },
@@ -203,6 +209,13 @@ export default function Account() {
   const [usernameError, setUsernameError] = useState('')
   const [usernameLoading, setUsernameLoading] = useState(false)
 
+  // ── Complete tier features ──
+  const [strategyLoading, setStrategyLoading] = useState(false)
+  const [strategyResult,  setStrategyResult]  = useState(null)
+  const [strategyError,   setStrategyError]   = useState('')
+  const [provinceData,    setProvinceData]    = useState(null)
+  const [provinceLoading, setProvinceLoading] = useState(false)
+
   // ── Trial ──
   const [trialActivating, setTrialActivating] = useState(false)
   const [trialDone,       setTrialDone]       = useState(false)
@@ -329,6 +342,32 @@ export default function Account() {
   }
 
   const referralUrl = `${import.meta.env.VITE_APP_URL || 'https://exam-app-ey0.pages.dev'}/?ref=${referral?.referral_code || ''}`
+
+  async function handleExamStrategy() {
+    setStrategyLoading(true); setStrategyError(''); setStrategyResult(null)
+    const { data, error, status } = await examStrategy()
+    setStrategyLoading(false)
+    if (data?.strategy) {
+      setStrategyResult(data)
+    } else if (status === 429 && data?.code === 'strategy_cooldown') {
+      setStrategyError(`Đã dùng tháng này. Có thể dùng lại từ ${data.next_available ?? 'tháng sau'}`)
+    } else {
+      setStrategyError(error ?? 'Không lấy được chiến lược, thử lại sau')
+    }
+  }
+
+  async function handleCompareProvince() {
+    setProvinceLoading(true); setProvinceData(null)
+    const { data, error, status } = await compareProvince()
+    setProvinceLoading(false)
+    if (data?.province) {
+      setProvinceData(data)
+    } else if (status === 422) {
+      toast.error('Cần cài tỉnh thành trong hồ sơ để so sánh')
+    } else {
+      toast.error(error ?? 'Không lấy được dữ liệu')
+    }
+  }
 
   // ── Badge progress hints ──
   function badgeProgress(id) {
@@ -578,6 +617,69 @@ export default function Account() {
               </section>
             )}
 
+            {/* Complete tier features: Strategy + Province Comparison */}
+            {user.subscription_tier === 'complete' && (
+              <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Tính năng Toàn diện</span>
+
+                {/* Exam Strategy */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">Tư vấn chiến lược thi</span>
+                      <span className="font-jakarta text-[11px] text-[#64748B]">AI phân tích điểm yếu và lên kế hoạch ôn thi cá nhân hoá · 1 lần/tháng</span>
+                    </div>
+                    <button onClick={handleExamStrategy} disabled={strategyLoading}
+                      className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-[12px] font-bold disabled:opacity-60 transition"
+                      style={{ background: '#10B981', color: '#0A0E1A' }}>
+                      {strategyLoading ? 'Đang tạo...' : 'Lấy chiến lược'}
+                    </button>
+                  </div>
+                  {strategyError && <p className="font-jakarta text-[12px] text-amber-400">{strategyError}</p>}
+                  {strategyResult?.strategy && (
+                    <div className="bg-[#0A0E1A] border border-[#1E2A44] rounded-xl p-4">
+                      <p className="font-jakarta text-[13px] text-[#CBD5E1] leading-relaxed whitespace-pre-wrap">{strategyResult.strategy}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t border-[#1E2A44]" />
+
+                {/* Province comparison */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">So sánh với tỉnh thành</span>
+                      <span className="font-jakarta text-[11px] text-[#64748B]">Xem bạn đứng ở vị trí nào so với học sinh cùng tỉnh · 30 ngày qua</span>
+                    </div>
+                    <button onClick={handleCompareProvince} disabled={provinceLoading}
+                      className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-[12px] font-bold disabled:opacity-60 transition"
+                      style={{ background: '#818CF8', color: '#F8FAFC' }}>
+                      {provinceLoading ? 'Đang tải...' : 'So sánh'}
+                    </button>
+                  </div>
+                  {provinceData && (
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="flex flex-col gap-0.5 bg-[#0A0E1A] border border-[#1E2A44] rounded-xl px-4 py-3">
+                        <span className="font-jakarta text-[10px] text-[#475569]">Điểm của bạn</span>
+                        <span className="font-jakarta text-[17px] font-bold text-[#F2A20C]">{provinceData.your_avg}</span>
+                      </div>
+                      <div className="flex flex-col gap-0.5 bg-[#0A0E1A] border border-[#1E2A44] rounded-xl px-4 py-3">
+                        <span className="font-jakarta text-[10px] text-[#475569]">TB {provinceData.province}</span>
+                        <span className="font-jakarta text-[17px] font-bold text-[#94A3B8]">{provinceData.province_avg}</span>
+                      </div>
+                      <div className="flex flex-col gap-0.5 bg-[#0A0E1A] border border-[#1E2A44] rounded-xl px-4 py-3">
+                        <span className="font-jakarta text-[10px] text-[#475569]">Phần trăm xếp</span>
+                        <span className="font-jakarta text-[17px] font-bold text-[#10B981]">
+                          {provinceData.percentile != null ? `Top ${100 - provinceData.percentile}%` : '—'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+
             {/* Badges grid */}
             <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
               <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Huy hiệu</span>
@@ -811,9 +913,17 @@ export default function Account() {
                       </div>
                       <div className="flex items-center gap-3 flex-wrap">
                         <span className="font-jakarta text-[12px] text-[#64748B]">⚡ {plan.credits.toLocaleString()} Tia/tháng</span>
-                        {plan.studyPlan && <span className="font-jakarta text-[12px] text-emerald-400">✓ Kế hoạch học</span>}
-                        {plan.bonus    && <span className="font-jakarta text-[12px] text-amber-300">🎁 {plan.bonus}</span>}
+                        {plan.bonus && <span className="font-jakarta text-[12px] text-amber-300">🎁 {plan.bonus}</span>}
                       </div>
+                      {plan.features && (
+                        <div className="flex flex-col gap-1 mt-1">
+                          {plan.features.map(f => (
+                            <span key={f} className="font-jakarta text-[12px] text-[#94A3B8] flex items-center gap-1.5">
+                              <span className="text-emerald-400 text-[10px]">✓</span>{f}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       {plan.effective && <span className="font-jakarta text-[11px] text-[#475569]">≈ {plan.effective}</span>}
                     </div>
                     <div className="flex flex-col items-end gap-1.5 flex-shrink-0">

@@ -303,3 +303,15 @@ export const submitDailyScore = (answers, time_seconds) =>
 
 export const getDailyChallengeLeaderboard = () =>
   wrap(client.get('/daily-challenge/leaderboard'))
+
+export const generateExam = (topicFocus, difficulty = 'medium', count = 10) =>
+  wrap(client.post('/generate-exam', { topic_focus: topicFocus, difficulty, count }))
+
+export const predictScore = () =>
+  wrap(client.get('/predict-score'))
+
+export const examStrategy = () =>
+  wrap(client.post('/strategy', {}))
+
+export const compareProvince = () =>
+  wrap(client.get('/compare/province'))

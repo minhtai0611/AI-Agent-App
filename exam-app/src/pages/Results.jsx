@@ -13,7 +13,7 @@ import {
   LineChart, Line, XAxis, Tooltip,
 } from 'recharts'
 import { loadExamById, loadQuestionsByIds, buildStudyPlanPayload, buildAnalyzePayload, recommendNextExam } from '../api/index.js'
-import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPlan, getPercentile } from '../api/aiClient.js'
+import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPlan, getPercentile, predictScore } from '../api/aiClient.js'
 import AIInsights from '../components/AIInsights.jsx'
 import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
 import { usePageTitle } from '../hooks/usePageTitle.js'
@@ -182,6 +182,7 @@ export default function Results({ onOpenAuth }) {
   const [nextExam, setNextExam] = useState(null)
   const [showShareCard, setShowShareCard] = useState(false)
   const [percentile, setPercentile] = useState(null)
+  const [predictedScoreData, setPredictedScoreData] = useState(null)
   const toast = useToast()
   const _rawStreamRef = useRef('')
   const challengerData = location.state?.challengerScore != null ? {
@@ -505,11 +506,56 @@ export default function Results({ onOpenAuth }) {
       .slice(0, 6)
   }, [score])
 
+  const isPaidUser = user?.subscription_tier === 'student' || user?.subscription_tier === 'complete'
+  const isComplete = user?.subscription_tier === 'complete'
+
+  useEffect(() => {
+    if (!isComplete || !result) return
+    predictScore().then(({ data }) => {
+      if (data?.predicted != null) setPredictedScoreData(data)
+    })
+  }, [result?.id, isComplete]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 30-day topic trend — per-week accuracy per topic (Student+ only)
+  const topicTrends = useMemo(() => {
+    if (!isPaidUser || !results.length) return null
+    const cutoff = Date.now() - 30 * 86400000
+    const recent = results.filter(r => new Date(r.timestamp).getTime() >= cutoff)
+    if (!recent.length) return null
+    // Build topic → week → {correct, total}
+    const weekData = {}
+    for (const r of recent) {
+      const weekNum = Math.floor((Date.now() - new Date(r.timestamp).getTime()) / (7 * 86400000))
+      const weekLabel = weekNum === 0 ? 'Tuần này' : weekNum === 1 ? 'Tuần trước' : `${weekNum * 7}n trước`
+      for (const [qId, chosen] of Object.entries(r.answers ?? {})) {
+        const tb = r.topicBreakdown
+        // Use topicBreakdown if available, else skip
+        if (!tb) continue
+        for (const [topic, data] of Object.entries(tb)) {
+          if (!weekData[topic]) weekData[topic] = {}
+          if (!weekData[topic][weekLabel]) weekData[topic][weekLabel] = { correct: 0, total: 0 }
+          weekData[topic][weekLabel].total += data.total ?? 0
+          weekData[topic][weekLabel].correct += data.correct ?? 0
+        }
+      }
+    }
+    // Convert to display format
+    const topics = Object.keys(weekData)
+    if (!topics.length) return null
+    return topics.map(topic => {
+      const weeks = Object.entries(weekData[topic]).map(([week, d]) => ({
+        week, accuracy: d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0,
+      })).reverse()
+      return { topic, weeks }
+    }).filter(t => t.weeks.some(w => w.accuracy > 0))
+  }, [isPaidUser, results])
+
   const TABS = [
     { id: 'overview', label: 'Tổng quan' },
     { id: 'wrong', label: wrongCount > 0 ? `Câu sai (${wrongCount})` : 'Câu sai' },
     { id: 'schools', label: 'Trường phù hợp' },
     { id: 'plan', label: 'Kế hoạch' },
+    ...(isPaidUser ? [{ id: 'trends', label: 'Xu hướng 30 ngày' }] : []),
   ]
 
   return (
@@ -781,6 +827,27 @@ export default function Results({ onOpenAuth }) {
                 >
                   Bắt đầu →
                 </button>
+              </div>
+            )}
+
+            {/* Predictive Score card (Complete tier) */}
+            {predictedScoreData && (
+              <div className="flex items-center justify-between gap-4 px-5 py-4 rounded-xl"
+                style={{ background: '#0D1521', border: '1px solid #10B98144' }}>
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-jakarta text-[11px] text-[#64748B]">Dự đoán điểm thi thật</span>
+                  <span className="font-jakarta text-[15px] font-bold text-[#10B981]">
+                    {predictedScoreData.predicted}/10
+                    <span className="font-normal text-[#475569] text-[12px] ml-1.5">
+                      ({predictedScoreData.low}–{predictedScoreData.high})
+                    </span>
+                  </span>
+                  <span className="font-jakarta text-[11px] text-[#475569]">
+                    Độ tin cậy: {predictedScoreData.confidence === 'high' ? 'Cao' : predictedScoreData.confidence === 'medium' ? 'Trung bình' : 'Thấp'}
+                    {' '}· Dựa trên {predictedScoreData.sample_size} bài làm gần nhất
+                  </span>
+                </div>
+                <span className="text-2xl flex-shrink-0">📊</span>
               </div>
             )}
 
@@ -1091,6 +1158,40 @@ export default function Results({ onOpenAuth }) {
               className="w-full py-3 rounded-xl font-jakarta text-[13px] font-medium text-[#475569] hover:text-[#94A3B8] transition">
               Thi lại
             </button>
+          </motion.div>
+        )}
+
+        {/* ── Tab: Xu hướng 30 ngày (Student+) ── */}
+        {activeTab === 'trends' && (
+          <motion.div key="trends" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
+            <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-6 flex flex-col gap-5">
+              <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Xu hướng 30 ngày</span>
+              {!topicTrends || topicTrends.length === 0 ? (
+                <p className="font-jakarta text-[13px] text-[#64748B]">Chưa đủ dữ liệu — hãy làm thêm bài để xem xu hướng.</p>
+              ) : (
+                <div className="flex flex-col gap-5">
+                  {topicTrends.map(({ topic, weeks }) => (
+                    <div key={topic} className="flex flex-col gap-2">
+                      <span className="font-jakarta text-[13px] font-semibold text-[#CBD5E1]">{TOPIC_LABELS[topic] ?? topic}</span>
+                      <div className="flex items-end gap-2">
+                        {weeks.map(({ week, accuracy }) => (
+                          <div key={week} className="flex flex-col items-center gap-1 flex-1">
+                            <span className="font-jakarta text-[10px] text-[#475569]">{accuracy}%</span>
+                            <div className="w-full rounded-t"
+                              style={{
+                                height: `${Math.max(4, accuracy * 0.6)}px`,
+                                background: accuracy >= 70 ? '#34D399' : accuracy >= 40 ? '#F2A20C' : '#FB7185',
+                                minHeight: 4,
+                              }} />
+                            <span className="font-jakarta text-[9px] text-[#334155] text-center leading-tight">{week}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
 

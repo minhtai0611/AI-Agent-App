@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useAuth } from '../context/AuthContext.jsx'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { motion } from 'framer-motion'
 import DOMPurify from 'dompurify'
@@ -780,6 +781,8 @@ export default function MathOracle() {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
+  const { user } = useAuth()
+  const isPaidTier = user?.subscription_tier === 'student' || user?.subscription_tier === 'complete'
   const MAX_RETRIES = 2
 
   // ── C1+C2: Chat thread state ──────────────────────────────────────────────
@@ -1133,16 +1136,24 @@ export default function MathOracle() {
         {/* ── C1+C2: Mode toggle (3 options) + mobile history ───────────── */}
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex gap-2">
-            {MODE_OPTS.map(([m, label]) => (
-              <button key={m} type="button"
-                onClick={() => setChatMode(m)}
-                className="font-jakarta text-[12px] font-semibold px-4 py-1.5 rounded-full transition"
-                style={chatMode === m
-                  ? { background: '#6366F1', color: '#fff' }
-                  : { background: 'transparent', border: '1px solid #2A3A5E', color: '#475569' }}>
-                {label}
-              </button>
-            ))}
+            {MODE_OPTS.map(([m, label]) => {
+              const requiresPaid = m === 'review' || m === 'socratic'
+              const locked = requiresPaid && !isPaidTier
+              return (
+                <button key={m} type="button"
+                  onClick={() => locked ? navigate('/account') : setChatMode(m)}
+                  title={locked ? 'Yêu cầu gói Học sinh trở lên' : undefined}
+                  className="font-jakarta text-[12px] font-semibold px-4 py-1.5 rounded-full transition flex items-center gap-1"
+                  style={locked
+                    ? { background: 'transparent', border: '1px solid #2A3A5E', color: '#334155', opacity: 0.6 }
+                    : chatMode === m
+                      ? { background: '#6366F1', color: '#fff' }
+                      : { background: 'transparent', border: '1px solid #2A3A5E', color: '#475569' }}>
+                  {locked && <span className="text-[10px]">🔒</span>}
+                  {label}
+                </button>
+              )
+            })}
           </div>
 
           {/* ── C3: Mobile history toggle ─────────────────────────────── */}

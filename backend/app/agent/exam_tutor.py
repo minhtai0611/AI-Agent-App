@@ -141,9 +141,11 @@ async def run_tutor(
     messages: list[dict],
     exam_context: dict,
     student_name: str = "",
+    memory_prefix: str = "",
 ) -> tuple[str, list[dict]]:
     settings = get_settings()
-    system_msg = {"role": "system", "content": build_tutor_system_prompt(exam_context, student_name)}
+    base_prompt = build_tutor_system_prompt(exam_context, student_name)
+    system_msg = {"role": "system", "content": memory_prefix + base_prompt}
 
     # Hard scope guard: classify the latest user message before hitting the main model.
     if messages:
