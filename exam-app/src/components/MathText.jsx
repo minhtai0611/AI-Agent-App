@@ -30,7 +30,10 @@ export function MathText({ children, className, style }) {
         remarkPlugins={REMARK_PLUGINS}
         rehypePlugins={REHYPE_PLUGINS}
         components={{
-          p: ({ children: c }) => <span>{c}</span>,
+          p:  ({ children: c }) => <span>{c}</span>,
+          ol: ({ children: c }) => <span>{c}</span>,
+          ul: ({ children: c }) => <span>{c}</span>,
+          li: ({ children: c }) => <span>{c}</span>,
           ...TABLE_COMPONENTS,
         }}
       >
