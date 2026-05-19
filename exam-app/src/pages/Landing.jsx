@@ -143,6 +143,11 @@ export default function Landing({ onOpenAuth }) {
               className="font-jakarta text-[13px] font-semibold text-[#94A3B8] hover:text-[#F0F4FF] transition">
               Chế độ đặc biệt
             </button>
+            <span className="text-[#1E2A44]">·</span>
+            <button onClick={() => navigate('/diagnostic')}
+              className="font-jakarta text-[13px] font-semibold text-[#94A3B8] hover:text-[#F0F4FF] transition">
+              Kiểm tra đầu vào
+            </button>
           </div>
         </motion.div>
 

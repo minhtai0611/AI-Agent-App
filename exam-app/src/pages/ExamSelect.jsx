@@ -482,7 +482,7 @@ export default function ExamSelect({ onOpenAuth }) {
                 {/* Custom Exam Generator — Complete tier only, full width */}
                 {user?.subscription_tier === 'complete' && (
                   <motion.button variants={cardVariants}
-                    onClick={() => navigate('/account')}
+                    onClick={() => navigate('/generate-exam')}
                     className="sm:col-span-2 text-left rounded-2xl p-5 flex items-center justify-between gap-4 border transition relative overflow-hidden"
                     style={{ borderColor: '#F2A20C33', background: 'linear-gradient(135deg, #0D1521 60%, #1a120a 100%)' }}
                     onMouseEnter={e => e.currentTarget.style.borderColor = '#F2A20C66'}
