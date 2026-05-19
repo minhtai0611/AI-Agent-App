@@ -29,8 +29,10 @@ export async function loadQuestions() {
       const token = localStorage.getItem('auth_token')
       if (token) {
         const data = await _apiFetch('/questions', token)
-        _questionsCache = Object.fromEntries(data.map(q => [q.id, q]))
-        return data
+        if (data?.length) {
+          _questionsCache = Object.fromEntries(data.map(q => [q.id, q]))
+          return data
+        }
       }
     } catch {}
     // Offline fallback — JSON bundle
