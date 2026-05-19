@@ -48,14 +48,26 @@ export async function loadQuestionsForExam() {
   return loadQuestions()
 }
 
-export function loadExams() {
-  return examsData.filter(e => e.mode !== 'thithu' && e.mode !== 'retired')
+// Exam list cache — populated from API, falls back to bundled JSON
+let _examsCache = null
+
+async function _loadExamsData() {
+  if (_examsCache) return
+  try {
+    _examsCache = await _apiFetch('/exams')
+  } catch {
+    _examsCache = examsData
+  }
 }
 
-export function loadThiThuExams() {
-  return examsData
-    .filter(e => e.mode === 'thithu')
-    .sort((a, b) => b.year - a.year)
+export async function loadExams() {
+  await _loadExamsData()
+  return _examsCache.filter(e => e.mode !== 'thithu' && e.mode !== 'retired')
+}
+
+export async function loadThiThuExams() {
+  await _loadExamsData()
+  return _examsCache.filter(e => e.mode === 'thithu').sort((a, b) => b.year - a.year)
 }
 
 export function loadSchools() {
@@ -79,7 +91,7 @@ export async function loadExamByIdAsync(examId) {
 }
 
 export async function loadQuestionsByIds(ids, requireAuth = false) {
-  const data = requireAuth ? await loadQuestionsForExam() : await _loadQuestionsAsync()
+  const data = requireAuth ? await loadQuestionsForExam() : await loadQuestions()
   const map = Object.fromEntries(data.map(q => [q.id, q]))
   return ids.map(id => map[id]).filter(Boolean)
 }
@@ -164,7 +176,7 @@ export async function buildStudyPlanPayload(result, history) {
 
 // Returns the best unattempted exam for the student given weak topics.
 export async function recommendNextExam(weakTopics, attemptedExamIds) {
-  const allQuestions = await _loadQuestionsAsync()
+  const allQuestions = await loadQuestions()
   const allExams = examsData.filter(e => e.mode !== 'retired')
 
   const attempted = new Set(attemptedExamIds)

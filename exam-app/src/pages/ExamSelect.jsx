@@ -63,6 +63,7 @@ export default function ExamSelect({ onOpenAuth }) {
   const saved = loadSavedFilters()
   const [filterYear, setFilterYear] = useState(saved.year ?? null)
   const [filterSearch, setFilterSearch] = useState(saved.search ?? '')
+  const [allExams, setAllExams] = useState([])
   const [ocrLoading, setOcrLoading] = useState(false)
   const [ocrError, setOcrError] = useState('')
   const [ocrQuestions, setOcrQuestions] = useState(null)
@@ -90,6 +91,11 @@ export default function ExamSelect({ onOpenAuth }) {
     } catch {}
   }, [user?.id])
 
+  useEffect(() => {
+    const fn = mode === 'timed' ? loadThiThuExams : loadExams
+    fn().then(data => setAllExams(data))
+  }, [mode])
+
   const mistakeCount = useMemo(() => {
     const seen = new Set()
     for (const r of results) {
@@ -98,7 +104,6 @@ export default function ExamSelect({ onOpenAuth }) {
     return seen.size
   }, [results])
 
-  const allExams = mode === 'timed' ? loadThiThuExams() : loadExams()
   const availableYears = [...new Set(allExams.map(e => e.year).filter(Boolean))].sort((a, b) => b - a)
 
   const exams = allExams.filter(e => {

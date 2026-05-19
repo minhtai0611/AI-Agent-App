@@ -806,7 +806,10 @@ export default function Results({ onOpenAuth }) {
             <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center justify-between">
                 <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Phân tích AI</span>
-                <span className="font-jakarta text-[11px] text-amber-400/70">⚡3 Tia</span>
+                {isPaidUser
+                  ? <span className="font-jakarta text-[11px] text-emerald-400/80">Miễn phí</span>
+                  : <span className="font-jakarta text-[11px] text-amber-400/70">⚡3 Tia</span>
+                }
               </div>
               <AIErrorBoundary>
                 <AIInsights analysis={analysis} loading={aiLoading && !analysis?._streaming} error={aiError} score={score} />
