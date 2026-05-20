@@ -51,6 +51,23 @@ Only use IDs from the candidates list. Maximum 5 IDs. Output ONLY the JSON objec
 
 PROMPT_SOLVE = """You are a math problem solver. You MUST output ONLY a single JSON object — no prose, no markdown, no text before or after the JSON.
 
+══ MANDATORY RULES — read these before everything else ══
+
+NGÔN NGỮ: Mọi từ trong "steps", "problem_type", và "final_answer" PHẢI bằng tiếng Việt. Không được có bất kỳ từ tiếng Anh nào — kể cả một từ đơn lẻ như "wait", "and", "so", "then", "since", "let", "note", "check", "use", "rearrange", "square", "solve", "substitute", "simplify", "expand", "factor", "compute", "calculate", "verify". Biểu thức toán học trong $...$ được miễn trừ.
+
+KÝ HIỆU TOÁN: Bọc MỌI biểu thức toán học trong $...$. TUYỆT ĐỐI không dùng ký hiệu Unicode toán học ngoài dấu dollar.
+  ✗ SAI: "x² – 3x + 2 = 0",  "√(x+3)",  "±17",  "x→∞",  "3×4",  "a/b"
+  ✓ ĐÚNG: "$x^2 - 3x + 2 = 0$",  "$\\sqrt{x+3}$",  "$\\pm 17$",  "$x \\to \\infty$",  "$3 \\times 4$",  "$\\frac{a}{b}$"
+  Phân số: luôn dùng $\\frac{tử}{mẫu}$, không bao giờ viết "a/b" thuần túy.
+  Căn: luôn dùng $\\sqrt{...}$, không bao giờ dùng ký tự "√".
+  Luỹ thừa: luôn dùng $x^2$, không bao giờ dùng "x²" hay "x^2" ngoài dollar.
+  Cộng/trừ: luôn dùng $\\pm$, không bao giờ dùng ký tự "±".
+  Mũi tên: luôn dùng $\\Rightarrow$ hoặc $\\to$, không bao giờ dùng "→" hay "⇒" ngoài dollar.
+
+BƯỚC GIẢI: Mỗi bước PHẢI bắt đầu bằng "Bước N: " (ví dụ: "Bước 1: ", "Bước 2: "). Mỗi bước chỉ thực hiện một phép biến đổi duy nhất. TUYỆT ĐỐI không viết bất kỳ từ tự sửa lỗi nào ("wait", "thực ra", "nhận thấy sai", "tính lại", "recalculate", "let me", "oops", "actually"). Nếu phát hiện lỗi trong quá trình giải, chỉ viết bước đúng — không đề cập đến lỗi cũ.
+
+══ OUTPUT SCHEMA ══
+
 EXACT output schema (use these exact key names, no others):
 {
   "problem_type": "string mô tả dạng bài",
@@ -76,7 +93,7 @@ Output:
 }
 
 - used_knowledge_ids: ONLY IDs that appear in the user's context list.
-- steps: MUST be written entirely in Vietnamese. Work through the problem fully before writing final_answer; final_answer must be consistent with your last step.
+- steps: MUST be written entirely in Vietnamese, each starting with "Bước N: ". Work through the problem fully before writing final_answer; final_answer must be consistent with your last step.
 - final_answer: for equations, check candidate solutions against the original equation and exclude extraneous roots.
   For differential equations (ODEs), final_answer MUST be the general solution function (e.g. "$y = C_1e^{2x} + C_2e^{3x}$"),
   NOT the characteristic roots. Characteristic roots are intermediate work only.
@@ -127,17 +144,11 @@ Output:
   "confidence": "high"
 }
 
-NGÔN NGỮ BẮT BUỘC: Toàn bộ nội dung trong "steps", "problem_type", và "final_answer" PHẢI bằng tiếng Việt. Tuyệt đối không dùng tiếng Anh trong các trường này — dù chỉ một từ. Biểu thức toán thuần túy ($x = 5$, $y = Ce^{2x}$) được phép dùng nguyên dạng.
-GIỌNG VĂN: Mỗi bước phải là một câu lệnh toán học thuần túy. Không dùng cảm thán, nhận xét chủ quan, hay ngôn ngữ cảm xúc ("thú vị", "tuyệt", "bây giờ chúng ta sẽ", "ta thấy rằng", "hãy cùng", v.v.). Mỗi bước chỉ nêu phép toán hoặc kết quả toán học.
-BƯỚC GIẢI: Mỗi phép biến đổi, thế số, hay rút gọn PHẢI là một bước riêng biệt trong danh sách "steps". Không được gộp hai phép toán vào cùng một bước. Với bài phức tạp, thà có nhiều bước ngắn hơn là ít bước dài.
-
-MATH FORMATTING RULES (mandatory):
-- Use $...$ for ALL inline math expressions: variables, equations, fractions, roots, Greek letters.
-  Examples: $x = 2$, $\\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$, $\\Delta = b^2 - 4ac$
-- Use $$...$$ for standalone display equations (one per line, no surrounding text).
-  Example: $$x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$$
-- NEVER write bare LaTeX commands outside dollar signs (e.g. \\frac, \\sqrt without $ delimiters).
-- Plain text, units, and Vietnamese prose do NOT need dollar signs.
+ĐỊNH DẠNG TOÁN (bắt buộc):
+- Dùng $...$ cho MỌI biểu thức toán học. Xem lại các ví dụ ở phần MANDATORY RULES phía trên.
+- Dùng $$...$$ cho phương trình hiển thị độc lập (mỗi dòng một phương trình, không có văn bản xung quanh).
+- KHÔNG BAO GIỜ viết lệnh LaTeX ngoài dấu dollar (ví dụ: \\frac, \\sqrt phải nằm trong $...$).
+- Văn bản thuần tiếng Việt, đơn vị đo lường không cần dấu dollar.
 
 If the context array is empty or unhelpful, solve using your mathematical knowledge directly.
 Set confidence to "medium" or "low" accordingly — do not refuse to answer.
