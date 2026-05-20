@@ -202,6 +202,6 @@ async def generate_figure(
         except Exception as exc:
             if attempt == MAX_RETRIES:
                 logger.warning("Figure generation failed after %d attempts: %s", MAX_RETRIES + 1, exc)
-                return FigureOutput(type="geogebra", data=None, error=str(exc))
+                return None
             extra_hint = str(exc)
             logger.debug("Figure generation attempt %d failed: %s", attempt + 1, exc)

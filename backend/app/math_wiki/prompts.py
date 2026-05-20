@@ -105,6 +105,12 @@ PROBLEMS WITH VISUAL DESCRIPTIONS (extracted from images — contain phrases lik
 - Extract all dimensions, labels, and relationships from the description before solving
 - Include a step confirming which values were read from the description
 
+MULTIPLE INDEPENDENT PROBLEMS (input contains several completely separate problems labeled "Bài 1:", "Bài 2:", "Câu 1:", "Câu 2:", "Problem 1:", etc.):
+Solve EVERY problem completely in sequence.
+- steps: group by problem. Start each group with "**Bài 1)**", "**Câu 1)**", etc., followed by numbered steps.
+- final_answer: "Bài 1: <answer>; Bài 2: <answer>; ..."
+- problem_type: "nhiều bài toán" + the dominant topic.
+
 MULTI-PART PROBLEMS (questions with labeled parts like "a)", "b)", "c)" or "Ý a", "Ý b", "Câu a", "Phần a"):
 Solve EVERY part completely. Do NOT skip or partially answer any part.
 - steps: group steps by part. Start each group with a plain-string header "**Phần a)**", "**Phần b)**", etc., followed by that part's numbered steps.
@@ -121,7 +127,9 @@ Output:
   "confidence": "high"
 }
 
-LANGUAGE RULE (mandatory): All "steps" text, "problem_type", and prose in "final_answer" MUST be in Vietnamese. Pure math expressions ($x = 5$, $y = Ce^{2x}$) are always acceptable as-is. Do NOT write English words in steps or final_answer.
+NGÔN NGỮ BẮT BUỘC: Toàn bộ nội dung trong "steps", "problem_type", và "final_answer" PHẢI bằng tiếng Việt. Tuyệt đối không dùng tiếng Anh trong các trường này — dù chỉ một từ. Biểu thức toán thuần túy ($x = 5$, $y = Ce^{2x}$) được phép dùng nguyên dạng.
+GIỌNG VĂN: Mỗi bước phải là một câu lệnh toán học thuần túy. Không dùng cảm thán, nhận xét chủ quan, hay ngôn ngữ cảm xúc ("thú vị", "tuyệt", "bây giờ chúng ta sẽ", "ta thấy rằng", "hãy cùng", v.v.). Mỗi bước chỉ nêu phép toán hoặc kết quả toán học.
+BƯỚC GIẢI: Mỗi phép biến đổi, thế số, hay rút gọn PHẢI là một bước riêng biệt trong danh sách "steps". Không được gộp hai phép toán vào cùng một bước. Với bài phức tạp, thà có nhiều bước ngắn hơn là ít bước dài.
 
 MATH FORMATTING RULES (mandatory):
 - Use $...$ for ALL inline math expressions: variables, equations, fractions, roots, Greek letters.
@@ -144,6 +152,7 @@ Given a solver_output (problem_type, steps, final_answer) and context wiki units
 3. For equations/inequalities: substitute the final_answer back into the ORIGINAL problem to confirm it satisfies it. If substitution fails, set valid=false.
 4. Check for extraneous roots: if the original problem contains a square root, absolute value, or logarithm, verify no extraneous solutions are included in final_answer.
 5. If the context array is empty, verify correctness by: (1) checking each step follows logically from the previous, (2) substituting the final answer back into the original equation/expression, (3) checking for extraneous roots. Do not penalise for absent wiki units.
+6. For systems of equations (multiple variables), substitute EACH variable's value into EVERY equation in the system separately. If any single equation is not satisfied, set valid=false and report which equation fails.
 
 MULTIPLE-CHOICE PROBLEMS (final_answer starts with "Chọn"):
 - Extract the selected letter (A/B/C/D) and the computed value from final_answer.
@@ -207,7 +216,8 @@ Scoring guide:
 - "incorrect" (0–3): fundamental error in method, or no meaningful mathematical work shown
 
 Rules:
-- Write feedback and correct_approach in Vietnamese
+- Write ALL text fields (correct_steps, errors, feedback, correct_approach) entirely in Vietnamese. English is forbidden in any field.
+- Be factual and objective. No emotional language, enthusiasm markers, or personal commentary.
 - Be specific: "Bước 2: sai vì ..." not just "có lỗi"
 - For proofs: judge logical validity, not exact wording
 - For multiple-choice: check if the selected option matches the computed result

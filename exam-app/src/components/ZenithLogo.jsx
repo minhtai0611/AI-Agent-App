@@ -20,7 +20,7 @@ export default function ZenithLogo({ variant = 'nav', onClick }) {
       </span>
       {isHero && (
         <span className="font-jakarta text-[9px] tracking-[0.18em] uppercase text-amber-400/50">
-          Above the horizon.
+          Above the horizon
         </span>
       )}
     </div>

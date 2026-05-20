@@ -636,7 +636,7 @@ class HintResponse(BaseModel):
 
 class TutorChatRequest(BaseModel):
     messages: list[dict]
-    exam_context: dict
+    exam_context: dict = {}
     student_name: str = ""
 
 
@@ -1199,7 +1199,10 @@ def _validate_image_magic(data: bytes) -> str:
 
 
 @app.post("/math-ocr", response_model=MathOcrResponse)
-async def math_ocr(file: UploadFile = File(...)):
+async def math_ocr(
+    file: UploadFile = File(...),
+    current_user: CurrentUser = Depends(get_current_user),
+):
     content_type = file.content_type or ""
     if content_type not in _ACCEPTED_IMAGE_TYPES:
         raise HTTPException(
@@ -1284,8 +1287,10 @@ async def math_solve(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
-    tier_row_ms = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
-    if tier_row_ms and tier_row_ms["subscription_tier"] == "basic":
+    tier_row_ms = await pool.fetchrow("SELECT subscription_tier, tos_accepted_at FROM users WHERE id = ?", current_user.user_id)
+    if not tier_row_ms or not tier_row_ms["tos_accepted_at"]:
+        raise HTTPException(status_code=403, detail={"code": "tos_not_accepted"})
+    if tier_row_ms["subscription_tier"] == "basic":
         today_uses = await pool.fetchrow(
             "SELECT COUNT(*) AS cnt FROM ai_credits_log WHERE user_id = ? AND reason = 'math_solve' AND created_at >= date('now')",
             current_user.user_id,

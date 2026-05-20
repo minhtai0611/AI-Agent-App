@@ -1,6 +1,7 @@
 import base64
 from openai import AsyncOpenAI
 from app.config import get_settings
+from app.agent.core import call_with_retry
 
 # Phrases Claude returns when image content was stripped by the proxy
 _NO_IMAGE_PHRASES = (
@@ -22,6 +23,11 @@ _SYSTEM_PROMPT = (
     "- List each numbered problem separately\n"
     "- Do not solve or explain — only transcribe or describe what is visible\n"
     "- If a symbol is unclear, use your best judgment\n"
+    "- For handwritten content: interpret symbols especially carefully. Common handwritten forms:\n"
+    "  fraction a/b → \\frac{a}{b}; square root → \\sqrt{}; exponent → ^{}; subscript → _{};\n"
+    "  absolute value bars → |...|; multiplication dot → \\cdot\n"
+    "- When a symbol is ambiguous, choose the most mathematically plausible interpretation\n"
+    "- Preserve problem number labels exactly as they appear (Bài 1, Câu 2, etc.)\n"
     "Visual elements — when the image contains shapes, graphs, or drawings that cannot be expressed as plain text:\n"
     "- Geometric figures: describe the shape (triangle, circle, quadrilateral…), label each vertex/point as shown,"
     " list all given side lengths, angles, and any marked equal/parallel/perpendicular relationships."
@@ -41,7 +47,8 @@ async def extract_math_from_image(
     settings = get_settings()
     data_uri = f"data:{mime_type};base64,{base64.b64encode(image_bytes).decode()}"
 
-    response = await client.chat.completions.create(
+    response = await call_with_retry(
+        client,
         model=settings.default_model,
         messages=[
             {"role": "system", "content": _SYSTEM_PROMPT},

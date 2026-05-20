@@ -371,32 +371,59 @@ def test_math_upload_too_large():
 
 # ── test_math_ocr ──────────────────────────────────────────────────────────────
 
+def _ocr_auth_override():
+    """Minimal auth stub for /math-ocr — endpoint requires a logged-in user."""
+    m = MagicMock()
+    m.user_id = "test-uid"
+    return m
+
+
 def test_math_ocr_success():
-    with patch("app.math_wiki.agents.ocr.extract_math_from_image",
-               new_callable=AsyncMock, return_value="x^2 + 1 = 0"):
-        r = client.post("/math-ocr", files={"file": ("test.jpg", b"fakejpeg", "image/jpeg")})
-    assert r.status_code == 200
-    assert r.json()["text"] == "x^2 + 1 = 0"
+    from app.dependencies import get_current_user
+    app.dependency_overrides[get_current_user] = _ocr_auth_override
+    try:
+        with patch("app.math_wiki.agents.ocr.extract_math_from_image",
+                   new_callable=AsyncMock, return_value="x^2 + 1 = 0"):
+            r = client.post("/math-ocr", files={"file": ("test.jpg", b"fakejpeg", "image/jpeg")})
+        assert r.status_code == 200
+        assert r.json()["text"] == "x^2 + 1 = 0"
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
 
 
 def test_math_ocr_too_large():
-    big = b"x" * (5 * 1024 * 1024 + 1)
-    r = client.post("/math-ocr", files={"file": ("big.jpg", big, "image/jpeg")})
-    assert r.status_code == 413
+    from app.dependencies import get_current_user
+    app.dependency_overrides[get_current_user] = _ocr_auth_override
+    try:
+        big = b"x" * (5 * 1024 * 1024 + 1)
+        r = client.post("/math-ocr", files={"file": ("big.jpg", big, "image/jpeg")})
+        assert r.status_code == 413
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
 
 
 def test_math_ocr_unsupported_type():
-    r = client.post("/math-ocr", files={"file": ("malware.exe", b"MZ", "application/octet-stream")})
-    assert r.status_code == 415
+    from app.dependencies import get_current_user
+    app.dependency_overrides[get_current_user] = _ocr_auth_override
+    try:
+        r = client.post("/math-ocr", files={"file": ("malware.exe", b"MZ", "application/octet-stream")})
+        assert r.status_code == 415
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
 
 
 def test_math_ocr_no_image_response_raises_502():
     """Router that strips image content causes model to reply 'no image' — must surface as 502."""
-    no_image_reply = "Bạn chưa đính kèm hình ảnh nào. Vui lòng gửi hình ảnh để tôi có thể trích xuất nội dung toán học."
-    with patch("app.math_wiki.agents.ocr.extract_math_from_image",
-               new_callable=AsyncMock, side_effect=ValueError(no_image_reply)):
-        r = client.post("/math-ocr", files={"file": ("test.jpg", b"fakejpeg", "image/jpeg")})
-    assert r.status_code == 502
+    from app.dependencies import get_current_user
+    app.dependency_overrides[get_current_user] = _ocr_auth_override
+    try:
+        no_image_reply = "Bạn chưa đính kèm hình ảnh nào. Vui lòng gửi hình ảnh để tôi có thể trích xuất nội dung toán học."
+        with patch("app.math_wiki.agents.ocr.extract_math_from_image",
+                   new_callable=AsyncMock, side_effect=ValueError(no_image_reply)):
+            r = client.post("/math-ocr", files={"file": ("test.jpg", b"fakejpeg", "image/jpeg")})
+        assert r.status_code == 502
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
 
 
 def test_math_ocr_vision_unsupported_detected():

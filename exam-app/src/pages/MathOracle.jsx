@@ -250,9 +250,14 @@ function MathText({ children, inline = false }) {
     : ({ children: c }) => <p className="mb-1 last:mb-0">{c}</p>
   return (
     <Markdown
-      remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]}
+      remarkPlugins={[remarkGfm, REMARK_MATH_OPTS]}
       rehypePlugins={[rehypeKatex]}
-      components={{ p: pTag }}
+      components={{
+        p: pTag,
+        ol: ({ children: c }) => <span>{c}</span>,
+        ul: ({ children: c }) => <span>{c}</span>,
+        li: ({ children: c }) => <span>{c}</span>,
+      }}
     >
       {normalized}
     </Markdown>
@@ -288,7 +293,15 @@ function MathPreview({ text }) {
         Xem trước
       </p>
       <div className="font-jakarta text-[15px] text-[#94A3B8] leading-relaxed overflow-x-auto">
-        <Markdown remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]} rehypePlugins={[rehypeKatex]}>
+        <Markdown
+          remarkPlugins={[remarkGfm, REMARK_MATH_OPTS]}
+          rehypePlugins={[rehypeKatex]}
+          components={{
+            ol: ({ children: c }) => <span>{c}</span>,
+            ul: ({ children: c }) => <span>{c}</span>,
+            li: ({ children: c }) => <span>{c}</span>,
+          }}
+        >
           {display}
         </Markdown>
       </div>
@@ -389,7 +402,7 @@ function loadGeoGebraScript() {
   return _ggbScriptPromise
 }
 
-function GeoGebraEmbed({ commands }) {
+function GeoGebraEmbed({ commands, onError }) {
   const wrapRef = useRef(null)
   const [status, setStatus] = useState('loading') // loading | ready | error
 
@@ -479,7 +492,7 @@ function GeoGebraEmbed({ commands }) {
         appletRef = new window.GGBApplet(params, true)
         appletRef.inject(uid)
       })
-      .catch(() => { if (!cancelled) setStatus('error') })
+      .catch(() => { if (!cancelled) { setStatus('error'); onError?.() } })
 
     return () => { cancelled = true }
   }, [commands])
@@ -495,17 +508,14 @@ function GeoGebraEmbed({ commands }) {
           <span className="font-jakarta text-[12px] text-[#475569] animate-pulse">Đang tải GeoGebra…</span>
         </div>
       )}
-      {status === 'error' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#0F1726]">
-          <span className="font-jakarta text-[12px] text-[#475569]">Không thể tải GeoGebra</span>
-        </div>
-      )}
+      {status === 'error' && null}
     </div>
   )
 }
 
 function FigureBlock({ figure }) {
-  if (!figure?.data) return null
+  const [geoError, setGeoError] = useState(false)
+  if (!figure?.data || geoError) return null
 
   return (
     <div className="rounded-xl border border-[#2A3A5E] bg-[#0A0F1E] p-4 flex flex-col gap-3">
@@ -514,7 +524,7 @@ function FigureBlock({ figure }) {
       </p>
 
       {figure.type === 'geogebra' ? (
-        <GeoGebraEmbed commands={figure.data} />
+        <GeoGebraEmbed commands={figure.data} onError={() => setGeoError(true)} />
       ) : (
         <div
           className="overflow-x-auto flex justify-center"
@@ -540,7 +550,15 @@ function AnswerCard({ result, problem }) {
             Bài toán
           </p>
           <div className="font-jakarta text-[15px] text-[#CBD5E1] leading-relaxed overflow-x-auto">
-            <Markdown remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]} rehypePlugins={[rehypeKatex]}>
+            <Markdown
+              remarkPlugins={[remarkGfm, REMARK_MATH_OPTS]}
+              rehypePlugins={[rehypeKatex]}
+              components={{
+                ol: ({ children: c }) => <span>{c}</span>,
+                ul: ({ children: c }) => <span>{c}</span>,
+                li: ({ children: c }) => <span>{c}</span>,
+              }}
+            >
               {preparePreview(problem)}
             </Markdown>
           </div>
@@ -624,7 +642,15 @@ function ReviewCard({ result, problem, solution }) {
         <div className="rounded-xl border border-[#2A3A5E] bg-[#0A0F1E] px-5 py-4">
           <p className="font-jakarta text-[10px] font-semibold text-[#334155] tracking-widest uppercase mb-2">Bài toán</p>
           <div className="font-jakarta text-[15px] text-[#CBD5E1] leading-relaxed overflow-x-auto">
-            <Markdown remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]} rehypePlugins={[rehypeKatex]}>
+            <Markdown
+              remarkPlugins={[remarkGfm, REMARK_MATH_OPTS]}
+              rehypePlugins={[rehypeKatex]}
+              components={{
+                ol: ({ children: c }) => <span>{c}</span>,
+                ul: ({ children: c }) => <span>{c}</span>,
+                li: ({ children: c }) => <span>{c}</span>,
+              }}
+            >
               {preparePreview(problem)}
             </Markdown>
           </div>
@@ -636,7 +662,15 @@ function ReviewCard({ result, problem, solution }) {
         <div className="rounded-xl border border-[#2A3A5E] bg-[#0A0F1E] px-5 py-4">
           <p className="font-jakarta text-[10px] font-semibold text-[#334155] tracking-widest uppercase mb-2">Lời giải đã nộp</p>
           <div className="font-jakarta text-[15px] text-[#94A3B8] leading-relaxed overflow-x-auto">
-            <Markdown remarkPlugins={[REMARK_MATH_OPTS, remarkGfm]} rehypePlugins={[rehypeKatex]}>
+            <Markdown
+              remarkPlugins={[remarkGfm, REMARK_MATH_OPTS]}
+              rehypePlugins={[rehypeKatex]}
+              components={{
+                ol: ({ children: c }) => <span>{c}</span>,
+                ul: ({ children: c }) => <span>{c}</span>,
+                li: ({ children: c }) => <span>{c}</span>,
+              }}
+            >
               {preparePreview(solution)}
             </Markdown>
           </div>
@@ -1141,7 +1175,7 @@ export default function MathOracle() {
               const locked = requiresPaid && !isPaidTier
               return (
                 <button key={m} type="button"
-                  onClick={() => locked ? navigate('/account') : setChatMode(m)}
+                  onClick={() => locked ? navigate('/account') : (setChatMode(m), setMessages([]), setError(null))}
                   title={locked ? 'Yêu cầu gói Học sinh trở lên' : undefined}
                   className="font-jakarta text-[12px] font-semibold px-4 py-1.5 rounded-full transition flex items-center gap-1"
                   style={locked

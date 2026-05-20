@@ -18,8 +18,14 @@ async def validate(
     problem_text: str = "",
 ) -> ValidationResult:
     settings = get_settings()
+    solver_dict = {
+        "problem_type": solver_output.problem_type,
+        "steps": solver_output.steps,
+        "final_answer": solver_output.final_answer,
+        "confidence": solver_output.confidence,
+    }
     payload = json.dumps({
-        "solver_output": solver_output.model_dump(),
+        "solver_output": solver_dict,
         "context": [u.model_dump() for u in context],
     })
     response = await call_with_retry(
@@ -29,7 +35,7 @@ async def validate(
             {"role": "system", "content": MODE_PROMPTS["VALIDATE"]},
             {"role": "user", "content": payload},
         ],
-        max_tokens=300,
+        max_tokens=600,
     )
     content = _extract_json(response.choices[0].message.content or "{}")
     try:
