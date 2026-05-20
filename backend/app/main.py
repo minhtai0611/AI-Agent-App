@@ -606,7 +606,10 @@ async def lifespan(app: FastAPI):
         logger.info("auto-seed disabled (set CRAWL_AUTO_SEED_ENABLED, CRAWL_FORCE_RESEED, or CRAWL_GAP_FILL_ENABLED to enable)")
     if app.state.pool and settings.wiki_sanitize_enabled:
         asyncio.ensure_future(_sanitize_wiki(app.state.pool))
+    print(f"[startup] wiki_fix_english_enabled={settings.wiki_fix_english_enabled}", flush=True)
+    logger.warning("startup: wiki_fix_english_enabled=%s", settings.wiki_fix_english_enabled)
     if app.state.pool and settings.wiki_fix_english_enabled:
+        logger.warning("startup: launching fix-english-wiki background task")
         asyncio.ensure_future(_fix_english_wiki_units(app.state.pool, get_ai_client()))
     yield
 
