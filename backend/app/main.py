@@ -448,9 +448,9 @@ async def _fix_english_wiki_units(pool, client) -> None:
             "FROM wiki_units WHERE deleted = false"
         )
         english = [r for r in rows if not _VI_RE.search(r["content"])]
-        logger.info("fix-english-wiki: %d total units, %d need translation", len(rows), len(english))
+        logger.warning("fix-english-wiki: %d total units, %d need translation", len(rows), len(english))
         if not english:
-            logger.info("fix-english-wiki: nothing to do")
+            logger.warning("fix-english-wiki: nothing to do — all units already Vietnamese")
             await _hf_set_space_variable("WIKI_FIX_ENGLISH_ENABLED", "false")
             return
 
@@ -486,7 +486,7 @@ async def _fix_english_wiki_units(pool, client) -> None:
                     failed_ids.append(r["id"])
 
         await asyncio.gather(*(_translate_one(r) for r in english))
-        logger.info("fix-english-wiki phase1 done: %d translated, %d failed", len(translated), len(failed_ids))
+        logger.warning("fix-english-wiki phase1 done: %d translated, %d failed", len(translated), len(failed_ids))
 
         # ── Phase 2: Batch-embed (CPU-bound, batched for BGE-M3 efficiency) ──
         loop = asyncio.get_event_loop()
@@ -496,8 +496,8 @@ async def _fix_english_wiki_units(pool, client) -> None:
             batch_texts = [t for _, t in translated[i:i + EMBED_BATCH]]
             vecs = await loop.run_in_executor(None, embed_texts, batch_texts, "passage")
             embeddings.extend(vecs)
-            logger.info("fix-english-wiki phase2: embedded %d/%d",
-                        min(i + EMBED_BATCH, len(translated)), len(translated))
+            logger.warning("fix-english-wiki phase2: embedded %d/%d",
+                           min(i + EMBED_BATCH, len(translated)), len(translated))
             await asyncio.sleep(0)  # yield to the web server event loop between batches
 
         # ── Phase 3: Write to DB (sequential, precomputed embeddings) ────────
@@ -519,12 +519,12 @@ async def _fix_english_wiki_units(pool, client) -> None:
                 )
                 ok += 1
                 if ok % 100 == 0:
-                    logger.info("fix-english-wiki phase3: %d/%d written", ok, len(translated))
+                    logger.warning("fix-english-wiki phase3: %d/%d written", ok, len(translated))
             except Exception as exc:
                 logger.warning("fix-english-wiki: write failed %s — %s", r["id"], exc)
                 failed_ids.append(r["id"])
 
-        logger.info("fix-english-wiki complete: translated=%d failed=%d", ok, len(failed_ids))
+        logger.warning("fix-english-wiki complete: translated=%d failed=%d", ok, len(failed_ids))
         if not failed_ids:
             await _hf_set_space_variable("WIKI_FIX_ENGLISH_ENABLED", "false")
         else:
