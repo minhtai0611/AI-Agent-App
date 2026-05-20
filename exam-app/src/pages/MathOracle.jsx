@@ -17,13 +17,23 @@ import { useVoiceInput } from '../hooks/useVoiceInput.js'
 const BARE_LATEX_RE = /\\[a-zA-Z]+(?:\{(?:[^{}]|\{[^{}]*\})*\}|\[[^\]]*\])*/g
 
 // Wraps bare LaTeX commands (no surrounding $) in $...$ so remark-math picks them up.
-// Safe to run on mixed prose+math strings: only the LaTeX tokens get wrapped.
+// Handles mixed content: existing $...$ regions are preserved; bare \commands in prose
+// segments are wrapped. Avoids the old early-return bug where partial $ coverage left
+// undelimited LaTeX in prose segments invisible to KaTeX.
 function normalizeMath(text) {
   if (!text) return ''
-  if (text.includes('$')) return text       // already delimited — leave alone
-  if (!/\\[a-zA-Z]/.test(text)) return text // no LaTeX commands — plain text, leave alone
-  BARE_LATEX_RE.lastIndex = 0
-  return text.replace(BARE_LATEX_RE, m => `$${m}$`)
+  if (!/\\[a-zA-Z]/.test(text)) return text  // no LaTeX at all — fast exit
+  if (!text.includes('$')) {
+    BARE_LATEX_RE.lastIndex = 0
+    return text.replace(BARE_LATEX_RE, m => `$${m}$`)
+  }
+  // Mixed: split on $...$ or $$...$$, wrap bare LaTeX only in prose segments
+  return text.replace(/(\$\$[\s\S]*?\$\$|\$[^$\n]*?\$)|([^$]+)/g, (_, math, prose) => {
+    if (math) return math
+    if (!prose || !/\\[a-zA-Z]/.test(prose)) return prose ?? ''
+    BARE_LATEX_RE.lastIndex = 0
+    return prose.replace(BARE_LATEX_RE, m => `$${m}$`)
+  })
 }
 
 // ── Paste normalisation ──────────────────────────────────────────────────────

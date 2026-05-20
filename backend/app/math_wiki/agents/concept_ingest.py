@@ -67,11 +67,14 @@ async def concept_ingest(
         for unit in output.wiki_units:
             _normalize_unit(unit, fallback_topic)
             if unit.topic not in CANONICAL_TOPICS:
+                logger.warning("concept_ingest: skipped %s — invalid topic %r (not in CANONICAL_TOPICS)", unit.id, unit.topic)
                 continue
             content_hash = hashlib.md5(unit.content.encode()).hexdigest()
             if content_hash in existing_hashes:
+                logger.info("concept_ingest: skipped %s — duplicate content hash", unit.id)
                 continue
             if await is_near_duplicate_pg(pool, unit.content):
+                logger.info("concept_ingest: skipped %s — near-duplicate by embedding (similarity>0.92)", unit.id)
                 continue
             await pg_db.upsert_wiki_unit(pool, unit, source=source, source_url=source_url)
             existing_hashes.add(content_hash)

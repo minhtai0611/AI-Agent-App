@@ -253,6 +253,9 @@ def _normalize(parsed: dict, valid_ids: set[str], _label_hint: str = "") -> Solv
             "final_answer %r not found in steps — possible answer/step mismatch", final_answer
         )
 
+    if not steps:
+        logger.warning("solver: no parseable steps in response — using final_answer as sole step. raw=%r", str(parsed)[:200])
+
     return SolverOutput(
         problem_type=problem_type,
         used_knowledge_ids=used_ids,

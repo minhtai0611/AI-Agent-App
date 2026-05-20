@@ -427,61 +427,109 @@ _TRANSLATE_SYSTEM = (
 
 
 async def _fix_english_wiki_units(pool, client) -> None:
-    """Translate English wiki units (exam_upload source) to Vietnamese; self-disables after success."""
+    """Translate all English wiki units to Vietnamese; self-disables after success.
+
+    Three-phase design to protect the live app:
+      Phase 1 — translate concurrently (API-bound, semaphore=5, no DB contact)
+      Phase 2 — batch-embed translated content (BGE-M3, batches of 50, single thread)
+      Phase 3 — write to DB sequentially with precomputed embeddings (no re-inference)
+    """
     import json as _json
     from app.config import get_settings as _gs
     from app.math_wiki.storage import pg_db
+    from app.math_wiki.storage.vectors import embed_texts
     from app.math_wiki.schemas import WikiUnit
     from app.agent.core import call_with_retry
 
     settings = _gs()
     try:
-        async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                "SELECT id, type, topic, subtopic, content, problem_ids, source, source_url "
-                "FROM wiki_units WHERE deleted = false AND source = 'exam_upload'"
-            )
-
+        rows = await pool.fetch(
+            "SELECT id, type, topic, subtopic, content, problem_ids, source, source_url "
+            "FROM wiki_units WHERE deleted = false"
+        )
         english = [r for r in rows if not _VI_RE.search(r["content"])]
-        logger.info("fix-english-wiki: %d exam_upload units, %d need translation", len(rows), len(english))
+        logger.info("fix-english-wiki: %d total units, %d need translation", len(rows), len(english))
+        if not english:
+            logger.info("fix-english-wiki: nothing to do")
+            await _hf_set_space_variable("WIKI_FIX_ENGLISH_ENABLED", "false")
+            return
 
-        ok = failed = 0
-        for r in english:
+        # ── Phase 1: Translate (API-bound, concurrent) ────────────────────
+        sem = asyncio.Semaphore(5)
+        translated: list[tuple] = []  # (row, translated_content)
+        failed_ids: list[str] = []
+
+        async def _translate_one(r):
+            async with sem:
+                try:
+                    resp = await call_with_retry(
+                        client,
+                        model=settings.opus_model,
+                        max_tokens=1024,
+                        messages=[
+                            {"role": "system", "content": _TRANSLATE_SYSTEM},
+                            {"role": "user", "content": r["content"]},
+                        ],
+                    )
+                    text = (resp.choices[0].message.content or "").strip()
+                    if not text:
+                        raise ValueError("empty response")
+                    # Guard: translated text must preserve balanced $ delimiters
+                    orig_dollar = r["content"].count("$")
+                    if orig_dollar > 0 and text.count("$") % 2 != 0:
+                        logger.warning("fix-english-wiki: %s — odd $ count after translation, skipping", r["id"])
+                        failed_ids.append(r["id"])
+                        return
+                    translated.append((r, text))
+                except Exception as exc:
+                    logger.warning("fix-english-wiki: translate failed %s — %s", r["id"], exc)
+                    failed_ids.append(r["id"])
+
+        await asyncio.gather(*(_translate_one(r) for r in english))
+        logger.info("fix-english-wiki phase1 done: %d translated, %d failed", len(translated), len(failed_ids))
+
+        # ── Phase 2: Batch-embed (CPU-bound, batched for BGE-M3 efficiency) ──
+        loop = asyncio.get_event_loop()
+        EMBED_BATCH = 50
+        embeddings: list[list[float]] = []
+        for i in range(0, len(translated), EMBED_BATCH):
+            batch_texts = [t for _, t in translated[i:i + EMBED_BATCH]]
+            vecs = await loop.run_in_executor(None, embed_texts, batch_texts, "passage")
+            embeddings.extend(vecs)
+            logger.info("fix-english-wiki phase2: embedded %d/%d",
+                        min(i + EMBED_BATCH, len(translated)), len(translated))
+            await asyncio.sleep(0)  # yield to the web server event loop between batches
+
+        # ── Phase 3: Write to DB (sequential, precomputed embeddings) ────────
+        ok = 0
+        for (r, text), emb in zip(translated, embeddings):
             try:
-                resp = await call_with_retry(
-                    client,
-                    model=settings.opus_model,
-                    messages=[
-                        {"role": "system", "content": _TRANSLATE_SYSTEM},
-                        {"role": "user", "content": r["content"]},
-                    ],
-                    max_tokens=1024,
-                )
-                translated = (resp.choices[0].message.content or "").strip()
-                if not translated:
-                    raise ValueError("empty response")
                 unit = WikiUnit(
                     id=r["id"], type=r["type"], topic=r["topic"],
                     subtopic=r["subtopic"] or "",
-                    content=translated,
+                    content=text,
                     problem_ids=[] if r["problem_ids"] is None else _json.loads(r["problem_ids"]),
                 )
                 await pg_db.upsert_wiki_unit(
                     pool, unit,
                     source=r["source"], source_url=r["source_url"],
                     editor="fix_english_wiki_units",
-                    reason="Translated English content to Vietnamese (PROMPT_INGEST language rule was missing)",
+                    reason="Translated English content to Vietnamese (bulk migration)",
+                    embedding=emb,
                 )
                 ok += 1
+                if ok % 100 == 0:
+                    logger.info("fix-english-wiki phase3: %d/%d written", ok, len(translated))
             except Exception as exc:
-                logger.warning("fix-english-wiki: failed %s — %s", r["id"], exc)
-                failed += 1
+                logger.warning("fix-english-wiki: write failed %s — %s", r["id"], exc)
+                failed_ids.append(r["id"])
 
-        logger.info("fix-english-wiki complete: translated=%d failed=%d", ok, failed)
-        if failed == 0:
+        logger.info("fix-english-wiki complete: translated=%d failed=%d", ok, len(failed_ids))
+        if not failed_ids:
             await _hf_set_space_variable("WIKI_FIX_ENGLISH_ENABLED", "false")
         else:
-            logger.warning("fix-english-wiki: %d failures — flag not auto-disabled", failed)
+            logger.warning("fix-english-wiki: %d failures — flag not auto-disabled (will retry on next boot)",
+                           len(failed_ids))
     except Exception as exc:
         logger.error("fix-english-wiki failed: %s", exc)
 

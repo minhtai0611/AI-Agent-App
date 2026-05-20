@@ -159,7 +159,7 @@ export default function TutorChat({ open, onClose, examContext }) {
               >
                 {msg.role === 'user' ? msg.content : (
                   <Markdown
-                    remarkPlugins={[remarkMath, remarkGfm]}
+                    remarkPlugins={[[remarkMath, { singleDollarTextMath: true }], remarkGfm]}
                     rehypePlugins={[rehypeKatex]}
                     components={{
                       p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,

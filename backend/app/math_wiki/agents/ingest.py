@@ -49,8 +49,10 @@ async def ingest_exam(
         for unit in output.wiki_units:
             content_hash = hashlib.md5(unit.content.encode()).hexdigest()
             if content_hash in existing_hashes:
+                logger.info("ingest: skipped %s — duplicate content hash", unit.id)
                 continue
             if await is_near_duplicate_pg(pool, unit.content):
+                logger.info("ingest: skipped %s — near-duplicate by embedding (similarity>0.92)", unit.id)
                 continue
             await pg_db.upsert_wiki_unit(pool, unit, source=source, source_url=source_url)
             existing_hashes.add(content_hash)
