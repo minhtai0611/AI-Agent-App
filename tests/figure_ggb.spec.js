@@ -12,6 +12,7 @@ async function stubGeoGebra(page) {
     window._ggbInjectCount = 0
     window._ggbAppName = null
     window._ggbParams = null
+    window._ggbSetCoordCount = 0
     window.GGBApplet = class {
       constructor(params) {
         this._p = params
@@ -23,6 +24,11 @@ async function stubGeoGebra(page) {
           setVisible: (name, v) => push(`setVisible(${name},${v})`),
           setFilling: (name, v) => push(`setFilling(${name},${v})`),
           setColor:   (name, r, g, b) => push(`setColor(${name},${r},${g},${b})`),
+          getAllObjectNames: () => [],
+          getXcoord: () => 0,
+          getYcoord: () => 0,
+          setCoordSystem: () => { window._ggbSetCoordCount++ },
+          isDefined: () => true,
         }
       }
       inject(_idOrEl) { window._ggbInjectCount++ }
@@ -89,8 +95,7 @@ test.describe('A: Geometry', () => {
     const cmds = await page.evaluate(() => window._ggbCommands)
     expect(cmds.some(c => c.includes('A = (0, 4)'))).toBe(true)
     expect(cmds.some(c => /Segment/.test(c))).toBe(true)
-    expect(cmds.some(c => /Circumcircle/.test(c))).toBe(true)
-    expect(cmds.some(c => c === 'ZoomIn(1)')).toBe(true)
+    expect(cmds.some(c => /Circumcircle|PerpendicularBisector/.test(c))).toBe(true)
     await expect(page.getByText('Không thể tải GeoGebra')).not.toBeVisible()
   })
 
@@ -124,9 +129,9 @@ test.describe('A: Geometry', () => {
     await waitForCommands(page)
 
     const cmds = await page.evaluate(() => window._ggbCommands)
-    expect(cmds.some(c => /PerpendicularFoot/.test(c))).toBe(true)
+    expect(cmds.some(c => /PerpendicularFoot|PerpendicularLine/.test(c))).toBe(true)
     expect(cmds.some(c => /Intersect/.test(c))).toBe(true)
-    expect(cmds.some(c => /HideObject/.test(c))).toBe(true)
+    expect(cmds.some(c => /setVisible.*false/.test(c))).toBe(true)
     // Must never contain the banned Foot() function
     expect(cmds.every(c => !/\bFoot\(/.test(c))).toBe(true)
   })
@@ -163,8 +168,8 @@ test.describe('A: Geometry', () => {
 
     const cmds = await page.evaluate(() => window._ggbCommands)
     expect(cmds.some(c => /Polygon/.test(c))).toBe(true)
-    expect(cmds.some(c => /Circumcircle/.test(c))).toBe(true)
-    expect(cmds.some(c => /SetColor/.test(c))).toBe(true)
+    expect(cmds.some(c => /Circumcircle|PerpendicularBisector/.test(c))).toBe(true)
+    expect(cmds.some(c => /setColor/.test(c))).toBe(true)
     // Ensure the banned Circle(Midpoint…) pattern was not used
     expect(cmds.every(c => !/Circle\(Midpoint/.test(c))).toBe(true)
   })
@@ -257,7 +262,6 @@ test.describe('B: Functions and Calculus', () => {
     const cmds = await page.evaluate(() => window._ggbCommands)
     expect(cmds.some(c => /f\(x\).*=/.test(c))).toBe(true)
     expect(cmds.some(c => /Root/.test(c))).toBe(true)
-    expect(cmds.some(c => c === 'ZoomIn(1)')).toBe(true)
   })
 
   test('B2: tangent line at a point', async ({ page }) => {
@@ -448,8 +452,8 @@ test.describe('D: Edge cases', () => {
     await waitForCommands(page)
 
     const cmds = await page.evaluate(() => window._ggbCommands)
-    expect(cmds.length).toBe(4)
-    expect(cmds[cmds.length - 1]).toBe('ZoomIn(1)')
+    expect(cmds.length).toBe(3)
+    expect(cmds[cmds.length - 1]).toBe('Segment(A, B)')
   })
 
   test('D5: commands forwarded in exact order', async ({ page }) => {
@@ -461,7 +465,7 @@ test.describe('D: Edge cases', () => {
     await waitForCommands(page)
 
     const cmds = await page.evaluate(() => window._ggbCommands)
-    expect(cmds).toEqual(ordered)
+    expect(cmds).toEqual(ordered.filter(c => c !== 'ZoomIn(1)'))
   })
 
   test('D6: GeoGebra applet params — classic, language vi, no toolbar', async ({ page }) => {
@@ -512,12 +516,12 @@ test.describe('D: Edge cases', () => {
     await submitQuestion(page)
     await page.waitForFunction(
       n => window._ggbCommands?.length >= n,
-      lines.length,
+      lines.length - 1,
       { timeout: 3000 }
     )
 
     const cmds = await page.evaluate(() => window._ggbCommands)
-    expect(cmds.length).toBe(lines.length)
+    expect(cmds.length).toBe(lines.length - 1)
   })
 
   test('D9: empty lines in commands are skipped', async ({ page }) => {
@@ -533,7 +537,7 @@ test.describe('D: Edge cases', () => {
     expect(cmds.every(c => c.trim() !== '')).toBe(true)
     expect(cmds).toContain('A = (0,0)')
     expect(cmds).toContain('B = (3,4)')
-    expect(cmds).toContain('ZoomIn(1)')
+    expect(cmds).toContain('Segment(A, B)')
   })
 
   test('D10: Vietnamese number theory problem — no figure section', async ({ page }) => {
@@ -594,15 +598,27 @@ test.describe('D: Edge cases', () => {
     await submitQuestion(page)
     await page.waitForFunction(
       n => window._ggbCommands?.length >= n,
-      commands.length,
+      commands.length - 1,
       { timeout: 3000 }
     )
 
     const cmds = await page.evaluate(() => window._ggbCommands)
-    expect(cmds.length).toBe(commands.length)
+    expect(cmds.length).toBe(commands.length - 1)
     expect(cmds.every(c => !/\bFoot\(/.test(c))).toBe(true)
     expect(cmds.every(c => !/Circle\(Midpoint/.test(c))).toBe(true)
-    expect(cmds.some(c => /Circumcircle/.test(c))).toBe(true)
+    expect(cmds.some(c => /Circumcircle|PerpendicularBisector/.test(c))).toBe(true)
     expect(cmds.some(c => /Incircle/.test(c))).toBe(true)
+  })
+
+  test('D6b: auto-fit fires setCoordSystem for function-only figure (no discrete points)', async ({ page }) => {
+    await stubGeoGebra(page)
+    await page.goto(BASE)
+    await mockSolve(page, geoPayload('f(x) = x^2\nRoot(f)', { label: 'functions' }))
+    await submitQuestion(page)
+    await expect(page.getByText('Hình minh họa', { exact: false })).toBeVisible()
+    await waitForCommands(page)
+
+    const count = await page.evaluate(() => window._ggbSetCoordCount)
+    expect(count).toBeGreaterThan(0)
   })
 })

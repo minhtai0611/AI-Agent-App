@@ -51,6 +51,7 @@ Quy tắc bắt buộc:
 - Tối đa 2 câu, viết liền mạch, không xuống dòng
 - KHÔNG dùng markdown, KHÔNG dùng số thứ tự, KHÔNG dùng gạch đầu dòng
 - KHÔNG tiết lộ đáp án hay ký hiệu A/B/C/D
+- KÝ HIỆU TOÁN: Bọc MỌI biểu thức toán học trong $...$. Không dùng Unicode toán học ngoài dấu dollar.
 Chủ đề: {safe_topic} | Mức độ: {safe_difficulty} | Lần {attempt_count}/3
 Câu hỏi: {safe_question}{prev_context}
 Trả về đúng định dạng JSON sau, không thêm text nào khác:

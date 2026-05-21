@@ -156,8 +156,11 @@ async def generate_figure(
     question: str,
     label: str,
     solver_output: SolverOutput,
+    image_bytes: bytes | None = None,
+    image_mime: str | None = None,
 ) -> FigureOutput | None:
     """Return FigureOutput or None (for NO_FIGURE). Never raises."""
+    import base64 as _b64
     from app.config import get_settings
     settings = get_settings()
 
@@ -177,9 +180,15 @@ async def generate_figure(
                 extra_hint=f"\nPrevious attempt failed: {extra_hint}\nFix those issues." if extra_hint else "",
             )
 
+            user_content: list = []
+            if image_bytes and image_mime:
+                data_uri = f"data:{image_mime};base64,{_b64.b64encode(image_bytes).decode()}"
+                user_content.append({"type": "image_url", "image_url": {"url": data_uri}})
+            user_content.append({"type": "text", "text": prompt})
+
             resp = await client.chat.completions.create(
                 model=settings.default_model,
-                messages=[{"role": "user", "content": prompt}],
+                messages=[{"role": "user", "content": user_content}],
                 max_tokens=900,
                 temperature=0,
             )

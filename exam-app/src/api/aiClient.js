@@ -155,8 +155,21 @@ export function generateStudyPlan(payload) {
   return wrapRetry(() => slowClient.post('/study-plan', payload))
 }
 
-export function solveMath(question) {
-  return wrap(slowClient.post('/math-solve', { question }))
+export async function solveMath(question, imageFile) {
+  let imagePayload = {}
+  if (imageFile) {
+    try {
+      const buf = await imageFile.arrayBuffer()
+      const bytes = new Uint8Array(buf)
+      let binary = ''
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+      imagePayload = {
+        image_base64: btoa(binary),
+        image_mime: imageFile.type || 'image/jpeg',
+      }
+    } catch { /* ignore serialisation errors — proceed without image */ }
+  }
+  return wrap(slowClient.post('/math-solve', { question, ...imagePayload }))
 }
 
 export function getMathStats() {

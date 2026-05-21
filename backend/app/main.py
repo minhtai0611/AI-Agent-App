@@ -749,6 +749,8 @@ class MathIngestRequest(BaseModel):
 
 class MathSolveRequest(BaseModel):
     question: str
+    image_base64: str | None = None
+    image_mime: str | None = None
 
 
 class MathSolveResponse(BaseModel):
@@ -1373,11 +1375,31 @@ async def math_solve(
         if (today_uses["cnt"] or 0) >= 5:
             raise HTTPException(403, detail={"code": "tier_required", "message": "Đã dùng hết 5 lượt Oracle hôm nay — nâng cấp để dùng không giới hạn"})
     await pool.execute("INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, 0, 'math_solve')", current_user.user_id)
+    image_bytes: bytes | None = None
+    if req.image_base64:
+        try:
+            import base64 as _b64
+            raw = req.image_base64
+            # Strip data URI prefix if present
+            if ',' in raw:
+                raw = raw.split(',', 1)[1]
+            decoded = _b64.b64decode(raw)
+            if len(decoded) > 4 * 1024 * 1024:
+                raise HTTPException(status_code=400, detail="Image too large (max 4 MB)")
+            image_bytes = decoded
+        except Exception as exc:
+            if isinstance(exc, HTTPException):
+                raise
+            raise HTTPException(status_code=400, detail=f"Invalid image_base64: {exc}")
+
     client = get_ai_client()
     from app.math_wiki.pipeline import run_pipeline
     for attempt in range(2):
         try:
-            return await asyncio.wait_for(run_pipeline(pool, client, req.question), timeout=55)
+            return await asyncio.wait_for(
+                run_pipeline(pool, client, req.question, image_bytes=image_bytes, image_mime=req.image_mime or "image/jpeg"),
+                timeout=55,
+            )
         except asyncio.TimeoutError:
             if attempt == 0:
                 logger.warning("math-solve attempt 1 timed out, retrying")

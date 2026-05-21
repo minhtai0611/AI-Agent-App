@@ -46,6 +46,7 @@ class SolverOutput(BaseModel):
     final_answer: str
     confidence: str  # high | medium | low
     figure: "FigureOutput | None" = None
+    figures: "dict[str, FigureOutput]" = {}
 
 
 class ValidationResult(BaseModel):

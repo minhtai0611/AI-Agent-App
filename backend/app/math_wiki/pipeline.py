@@ -11,7 +11,7 @@ from app.math_wiki.agents.classifier import classify_problem
 from app.math_wiki.agents.reranker import rerank
 from app.math_wiki.agents.solver import solve
 from app.math_wiki.agents.validator import validate
-from app.math_wiki.schemas import ValidationResult, FigureOutput, Problem
+from app.math_wiki.schemas import ValidationResult, FigureOutput, Problem, SolverOutput
 from app.math_wiki.utils import InsufficientKnowledgeError
 from app.math_wiki.figures import generate_figure
 
@@ -79,7 +79,28 @@ def _problem_hash(question: str) -> str:
     return hashlib.sha256(normalized.encode()).hexdigest()
 
 
-async def run_pipeline(pool, client: AsyncOpenAI, question: str) -> dict:
+_PART_HEADER_RE = re.compile(r'^\*\*Phần\s+([a-d])\w*\)\*\*$')
+
+def _split_parts(steps: list[str]) -> dict[str, list[str]]:
+    parts: dict[str, list[str]] = {}
+    current: str | None = None
+    for s in steps:
+        m = _PART_HEADER_RE.match(s)
+        if m:
+            current = m.group(1)
+            parts[current] = []
+        elif current:
+            parts[current].append(s)
+    return parts
+
+
+async def run_pipeline(
+    pool,
+    client: AsyncOpenAI,
+    question: str,
+    image_bytes: bytes | None = None,
+    image_mime: str | None = None,
+) -> dict:
     await asyncio.wait_for(_bm25_ready_event.wait(), timeout=120)
 
     label = await classify_problem(client, question)
@@ -102,6 +123,52 @@ async def run_pipeline(pool, client: AsyncOpenAI, question: str) -> dict:
         if solver_output.confidence == "low":
             logger.debug("Skipping figure: low confidence")
             return
+
+        parts = _split_parts(solver_output.steps)
+        if len(parts) > 1:
+            # Multi-part problem: generate one figure per part (cap at 3)
+            part_labels = list(parts.keys())[:3]
+
+            async def _gen_part(part_label: str) -> tuple[str, FigureOutput | None]:
+                part_hash = _problem_hash(question + ":part:" + part_label)
+                if pool:
+                    cached = await pg_db.get_cached_figure(pool, part_hash)
+                    if cached is not None:
+                        cached_data, cached_type = cached
+                        return part_label, FigureOutput(type=cached_type, data=cached_data)
+                part_solver = SolverOutput(
+                    problem_type=solver_output.problem_type,
+                    used_knowledge_ids=solver_output.used_knowledge_ids,
+                    steps=parts[part_label],
+                    final_answer=solver_output.final_answer,
+                    confidence=solver_output.confidence,
+                )
+                part_fig = await generate_figure(client, question, label, part_solver, image_bytes, image_mime)
+                if part_fig and part_fig.data and pool:
+                    stub = Problem(
+                        problem_id=part_hash[:16],
+                        problem_text=question,
+                        topic=label,
+                        subtopic=label,
+                        difficulty="medium",
+                        problem_type=label,
+                    )
+                    await pg_db.upsert_problem(pool, stub, figure_svg=part_fig.data, problem_hash=part_hash, figure_type=part_fig.type)
+                return part_label, part_fig
+
+            results_parts = await asyncio.gather(*[_gen_part(pl) for pl in part_labels], return_exceptions=True)
+            for res in results_parts:
+                if isinstance(res, Exception):
+                    logger.warning("Per-part figure generation failed: %s", res)
+                    continue
+                pl, pf = res
+                if pf is not None:
+                    solver_output.figures[pl] = pf
+            if solver_output.figures:
+                figure = next(iter(solver_output.figures.values()))
+            return
+
+        # Single-part path (original logic)
         if pool:
             cached = await pg_db.get_cached_figure(pool, prob_hash)
             if cached is not None:
@@ -110,7 +177,7 @@ async def run_pipeline(pool, client: AsyncOpenAI, question: str) -> dict:
                 figure = FigureOutput(type=cached_type, data=cached_data)
                 return
         try:
-            figure = await generate_figure(client, question, label, solver_output)
+            figure = await generate_figure(client, question, label, solver_output, image_bytes, image_mime)
             if figure and figure.data and pool:
                 stub = Problem(
                     problem_id=prob_hash[:16],

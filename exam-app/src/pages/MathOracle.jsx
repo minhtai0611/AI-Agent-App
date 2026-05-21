@@ -286,12 +286,7 @@ function hasMath(text) {
 // them as a block instead of showing raw backslash tokens.
 // Plain-text lines (Vietnamese prose, numbers) pass through unchanged.
 function preparePreview(text) {
-  if (!text) return ''
-  if (text.includes('$')) return text
-  return text
-    .split('\n')
-    .map(line => (/\\[a-zA-Z]/.test(line) ? `$$${line.trim()}$$` : line))
-    .join('\n\n')
+  return normalizeMath(text ?? '')
 }
 
 function MathPreview({ text }) {
@@ -324,17 +319,21 @@ const CONFIDENCE_LABEL = { high: 'Chắc chắn', medium: 'Khả năng cao', low
 
 const PART_HEADER_RE = /^\*\*Phần\s+[a-dA-D]\w*\)\*\*$/
 
-function StepList({ steps }) {
+function StepList({ steps, figures = {} }) {
   let stepCounter = 0
   return (
     <ol className="flex flex-col gap-3">
       {steps.map((s, i) => {
-        if (PART_HEADER_RE.test(s.trim())) {
+        const trimmed = s.trim()
+        const partMatch = trimmed.match(/^\*\*Phần\s+([a-dA-D])\w*\)\*\*$/)
+        if (partMatch) {
+          const partKey = partMatch[1].toLowerCase()
           return (
             <li key={i} className="mt-2 mb-1">
               <span className="font-jakarta text-[11px] font-semibold text-[#F2A20C] tracking-widest uppercase">
-                {s.replace(/\*\*/g, '')}
+                {trimmed.replace(/\*\*/g, '')}
               </span>
+              {figures[partKey] && <FigureBlock figure={figures[partKey]} />}
             </li>
           )
         }
@@ -354,13 +353,13 @@ function StepList({ steps }) {
   )
 }
 
-function StepReveal({ steps }) {
+function StepReveal({ steps, figures = {} }) {
   const [revealed, setRevealed] = useState(1)
   const total = steps.length
   const showing = Math.min(revealed, total)
   return (
     <div className="flex flex-col gap-4">
-      <StepList steps={steps.slice(0, showing)} />
+      <StepList steps={steps.slice(0, showing)} figures={figures} />
       {showing < total && (
         <div className="flex items-center gap-3 pt-1">
           <button onClick={() => setRevealed(r => r + 1)}
@@ -415,6 +414,7 @@ function loadGeoGebraScript() {
 function GeoGebraEmbed({ commands, onError }) {
   const wrapRef = useRef(null)
   const [status, setStatus] = useState('loading') // loading | ready | error
+  const [undefinedObjs, setUndefinedObjs] = useState([])
 
   useEffect(() => {
     if (!commands || !wrapRef.current) return
@@ -432,8 +432,15 @@ function GeoGebraEmbed({ commands, onError }) {
         // appletOnLoad string callbacks are unreliable for GeoGebra Classic;
         // polling is robust across all app types and browser environments.
         let appletRef = null
+        const startTime = Date.now()
         const tid = setInterval(() => {
           if (cancelled) { clearInterval(tid); return }
+          // Fix 2: 10s timeout to avoid infinite spinner on load failure
+          if (Date.now() - startTime > 10_000) {
+            clearInterval(tid)
+            if (!cancelled) setStatus('error')
+            return
+          }
           const api = appletRef?.getAppletObject?.()
           if (!api?.evalCommand) return
           clearInterval(tid)
@@ -463,25 +470,32 @@ function GeoGebraEmbed({ commands, onError }) {
               api.evalCommand(cmd)
             }
           })
-          // Auto-fit viewport to all defined points
+          // Auto-fit viewport: use point coords when available, fallback for function-only figures
           try {
-            const names = api.getAllObjectNames('point')
-            if (names && names.length > 0) {
-              let xMin = Infinity, xMax = -Infinity, yMin = Infinity, yMax = -Infinity
-              for (const n of names) {
-                if (n.startsWith('_aux_')) continue
-                const x = api.getXcoord(n), y = api.getYcoord(n)
-                if (isFinite(x) && isFinite(y)) {
-                  xMin = Math.min(xMin, x); xMax = Math.max(xMax, x)
-                  yMin = Math.min(yMin, y); yMax = Math.max(yMax, y)
-                }
-              }
-              if (isFinite(xMin)) {
-                const pad = Math.max((xMax - xMin) * 0.25, (yMax - yMin) * 0.25, 1.5)
-                api.setCoordSystem(xMin - pad, xMax + pad, yMin - pad, yMax + pad)
+            const names = api.getAllObjectNames?.('point') ?? []
+            let xMin = Infinity, xMax = -Infinity, yMin = Infinity, yMax = -Infinity
+            for (const n of names) {
+              if (n.startsWith('_aux_')) continue
+              const x = api.getXcoord(n), y = api.getYcoord(n)
+              if (isFinite(x) && isFinite(y)) {
+                xMin = Math.min(xMin, x); xMax = Math.max(xMax, x)
+                yMin = Math.min(yMin, y); yMax = Math.max(yMax, y)
               }
             }
+            if (isFinite(xMin)) {
+              const pad = Math.max((xMax - xMin) * 0.25, (yMax - yMin) * 0.25, 1.5)
+              api.setCoordSystem(xMin - pad, xMax + pad, yMin - pad, yMax + pad)
+            } else {
+              // No discrete points — function-only figure; use a default teaching range
+              api.setCoordSystem(-5, 10, -3, 15)
+            }
           } catch (_) { /* ignore if API unavailable */ }
+          // Fix 6: post-render check for undefined objects
+          try {
+            const named = [...commands.matchAll(/^([A-Za-z_]\w*)\s*=/gm)].map(m => m[1])
+            const failed = named.filter(n => !n.startsWith('_aux_') && api.isDefined && !api.isDefined(n))
+            if (failed.length > 0) setUndefinedObjs(failed)
+          } catch (_) { /* ignore */ }
           setStatus('ready')
         }, 300)
 
@@ -496,15 +510,21 @@ function GeoGebraEmbed({ commands, onError }) {
           enableRightClick: false,
           enableShiftDragZoom: true,
           showResetIcon: true,
-          language: 'en',
+          language: 'vi',
           errorDialogsActive: false,
         }
         appletRef = new window.GGBApplet(params, true)
         appletRef.inject(uid)
       })
-      .catch(() => { if (!cancelled) { setStatus('error'); onError?.() } })
+      .catch(() => {
+        _ggbScriptPromise = null  // Fix 3: allow retry on next mount
+        if (!cancelled) { setStatus('error'); onError?.() }
+      })
 
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+      if (wrapRef.current) wrapRef.current.innerHTML = ''  // Fix 5: destroy injected iframe
+    }
   }, [commands])
 
   return (
@@ -519,6 +539,11 @@ function GeoGebraEmbed({ commands, onError }) {
         </div>
       )}
       {status === 'error' && null}
+      {undefinedObjs.length > 0 && (
+        <p className="font-jakarta text-[10px] text-[#F2A20C] mt-1">
+          ⚠ {undefinedObjs.length} đối tượng không dựng được: {undefinedObjs.join(', ')}
+        </p>
+      )}
     </div>
   )
 }
@@ -575,8 +600,11 @@ function AnswerCard({ result, problem }) {
         </div>
       )}
 
-      {/* Figure (geometry diagram or function plot) */}
-      <FigureBlock figure={answer.figure} />
+      {/* Figure: top-level only when no per-part figures exist */}
+      {!answer.figures || Object.keys(answer.figures).length === 0
+        ? <FigureBlock figure={answer.figure} />
+        : null
+      }
 
       {/* Unverified warning banner */}
       {showUnverifiedWarning && (
@@ -611,7 +639,7 @@ function AnswerCard({ result, problem }) {
               )}
             </div>
           </div>
-          <StepReveal steps={answer.steps} />
+          <StepReveal steps={answer.steps} figures={answer.figures ?? {}} />
         </div>
       )}
 
@@ -852,6 +880,13 @@ export default function MathOracle() {
   const [history, setHistory] = useState(() => loadHistory())
   const [historyOpen, setHistoryOpen] = useState(false) // mobile dropdown
 
+  const deleteHistory = id => {
+    const updated = history.filter(h => h.id !== id)
+    saveHistory(updated)
+    setHistory(updated)
+  }
+  const clearHistory = () => { saveHistory([]); setHistory([]) }
+
   // Pre-fill from ?q= URL param (e.g. navigating from Landing page Oracle input)
   useEffect(() => {
     const q = searchParams.get('q')
@@ -868,6 +903,7 @@ export default function MathOracle() {
   const cameraInputRef = useRef(null)
   const solutionFileInputRef = useRef(null)
   const solutionCameraInputRef = useRef(null)
+  const ocrFileRef = useRef(null) // last OCR'd file — passed to solveMath for multimodal figure generation
 
   const { status: wikiStatus } = useWikiStatus()
   const wikiReady  = wikiStatus?.phase === 'ready'
@@ -969,7 +1005,9 @@ export default function MathOracle() {
     setLoading(true)
     setRetryAttempt(attempt)
     setLastSolveQuestion(text)
-    const { data, error: err } = await solveMath(text)
+    const imgFile = ocrFileRef.current
+    ocrFileRef.current = null  // consume once
+    const { data, error: err } = await solveMath(text, imgFile)
     if (err) {
       const isTimeout = /timed out|504|timeout|không kết nối|network error/i.test(err)
       if (isTimeout && attempt < MAX_RETRIES) {
@@ -1083,6 +1121,7 @@ export default function MathOracle() {
     setOcring(false)
     if (err) { setError(err); return }
     const text = data?.text || ''
+    ocrFileRef.current = file  // store for multimodal figure generation
     const ta = textareaRef.current
     if (ta) { ta.value = text; autoResize(ta); ta.focus() }
     setQuestion(text)
@@ -1128,21 +1167,34 @@ export default function MathOracle() {
 
       {/* ── C3: Desktop history sidebar (lg+) ────────────────────────────── */}
       {history.length > 0 && (
-        <div className="hidden lg:flex flex-col gap-2 fixed left-4 top-24 w-48 max-h-[70vh] overflow-y-auto z-20">
-          <p className="font-jakarta text-[10px] font-semibold text-[#334155] tracking-widest uppercase px-1 mb-1">
-            Lịch sử
-          </p>
-          {history.map(item => (
-            <button key={item.id}
-              onClick={() => {
-                const ta = textareaRef.current
-                if (ta) { ta.value = item.problem; autoResize(ta); ta.focus() }
-                setQuestion(item.problem)
-              }}
-              className="text-left font-jakarta text-[11px] text-[#475569] hover:text-[#94A3B8] hover:bg-[#0F1726] border border-transparent hover:border-[#2A3A5E] rounded-lg px-2.5 py-1.5 transition truncate"
-              title={item.problem}>
-              {item.problem}
+        <div className="hidden lg:flex flex-col gap-1 fixed left-4 top-24 w-48 max-h-[70vh] overflow-y-auto z-20">
+          <div className="flex items-center justify-between px-1 mb-1">
+            <p className="font-jakarta text-[10px] font-semibold text-[#334155] tracking-widest uppercase">
+              Lịch sử
+            </p>
+            <button onClick={clearHistory}
+              title="Xoá tất cả"
+              className="text-[#334155] hover:text-[#EF4444] transition text-[14px] leading-none">
+              ✕
             </button>
+          </div>
+          {history.map(item => (
+            <div key={item.id} className="group flex items-center gap-1">
+              <button
+                onClick={() => {
+                  const ta = textareaRef.current
+                  if (ta) { ta.value = item.problem; autoResize(ta); ta.focus() }
+                  setQuestion(item.problem)
+                }}
+                className="flex-1 text-left font-jakarta text-[11px] text-[#475569] hover:text-[#94A3B8] hover:bg-[#0F1726] border border-transparent hover:border-[#2A3A5E] rounded-lg px-2.5 py-1.5 transition truncate"
+                title={item.problem}>
+                {item.problem}
+              </button>
+              <button onClick={() => deleteHistory(item.id)}
+                className="shrink-0 opacity-0 group-hover:opacity-100 text-[#334155] hover:text-[#EF4444] transition text-[11px] px-1">
+                ×
+              </button>
+            </div>
           ))}
         </div>
       )}
@@ -1214,17 +1266,29 @@ export default function MathOracle() {
                   <div className="fixed inset-0 z-10" onClick={() => setHistoryOpen(false)} />
                   <div className="absolute right-0 top-full mt-1 z-20 rounded-xl border border-[#2A3A5E] bg-[#0F1726] shadow-xl overflow-hidden" style={{ minWidth: 220 }}>
                     {history.slice(0, 5).map(item => (
-                      <button key={item.id}
-                        onClick={() => {
-                          setHistoryOpen(false)
-                          const ta = textareaRef.current
-                          if (ta) { ta.value = item.problem; autoResize(ta); ta.focus() }
-                          setQuestion(item.problem)
-                        }}
-                        className="w-full text-left px-4 py-2.5 font-jakarta text-[12px] text-[#94A3B8] hover:bg-[#1E2D45] transition truncate border-b border-[#1E2D45] last:border-0">
-                        {item.problem}
-                      </button>
+                      <div key={item.id} className="flex items-center border-b border-[#1E2D45] last:border-0">
+                        <button
+                          onClick={() => {
+                            setHistoryOpen(false)
+                            const ta = textareaRef.current
+                            if (ta) { ta.value = item.problem; autoResize(ta); ta.focus() }
+                            setQuestion(item.problem)
+                          }}
+                          className="flex-1 text-left px-4 py-2.5 font-jakarta text-[12px] text-[#94A3B8] hover:bg-[#1E2D45] transition truncate">
+                          {item.problem}
+                        </button>
+                        <button onClick={() => deleteHistory(item.id)}
+                          className="shrink-0 px-3 py-2.5 text-[#334155] hover:text-[#EF4444] transition text-[13px]">
+                          ×
+                        </button>
+                      </div>
                     ))}
+                    {history.length > 0 && (
+                      <button onClick={() => { clearHistory(); setHistoryOpen(false) }}
+                        className="w-full px-4 py-2 font-jakarta text-[11px] text-[#475569] hover:text-[#EF4444] transition text-center border-t border-[#2A3A5E]">
+                        Xoá tất cả
+                      </button>
+                    )}
                   </div>
                 </>
               )}

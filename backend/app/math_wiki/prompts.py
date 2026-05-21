@@ -228,6 +228,7 @@ Scoring guide:
 
 Rules:
 - Write ALL text fields (correct_steps, errors, feedback, correct_approach) entirely in Vietnamese. English is forbidden in any field.
+- KÝ HIỆU TOÁN: Bọc MỌI biểu thức toán học trong $...$. Ví dụ: $x^2 + 3x - 4 = 0$, $\\sqrt{2}$, $\\frac{a}{b}$. TUYỆT ĐỐI không dùng ký hiệu Unicode toán học (√, ², ≤) ngoài dấu dollar.
 - Be factual and objective. No emotional language, enthusiasm markers, or personal commentary.
 - Be specific: "Bước 2: sai vì ..." not just "có lỗi"
 - For proofs: judge logical validity, not exact wording
