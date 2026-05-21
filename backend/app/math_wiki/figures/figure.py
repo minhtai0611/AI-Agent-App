@@ -1,5 +1,6 @@
 """Universal GeoGebra figure generator — one LLM call, all math domains."""
 import logging
+import math
 from app.math_wiki.schemas import FigureOutput, SolverOutput
 
 logger = logging.getLogger(__name__)
@@ -9,7 +10,7 @@ You are a GeoGebra Classic expert. Read the math problem below and write GeoGebr
 
 Output exactly NO_FIGURE (nothing else) when the problem has no geometric object to draw — e.g. pure arithmetic, number theory, or combinatorics counting problems.
 
-══ GEOGEBRA CLASSIC 5 — VALID COMMANDS ══
+══ GEOGEBRA CLASSIC 5 — 2D COMMANDS ══
 Point:                P = (x, y)
 Segment:              Segment(A, B)
 Line through 2 pts:   l = Line(A, B)
@@ -23,11 +24,26 @@ Polygon:              poly = Polygon(A, B, C, D)
 Angle bisector:       b = AngleBisector(B, A, C)
 Perp bisector:        pb = PerpendicularBisector(A, B)
 Function:             f(x) = <expr>
-Tangent line:         Tangent(f, (x0, f(x0)))
-Integral region:      Integral(f, a, b)
+Multiple functions:   f(x) = <expr1>    (then on separate lines) g(x) = <expr2>   h(x) = <expr3>
+Tangent line:         t = Tangent(f, (x0, f(x0)))
+Integral region:      I = Integral(f, a, b)
 Vector:               v = Vector((0,0), (3,4))
 Hide object:          HideObject(obj)
 Color / fill:         SetColor(obj, "SteelBlue")  /  SetFilling(obj, 0.15)
+
+══ 3D COMMANDS — use for pyramids, prisms, cuboids, spheres, cones, cylinders ══
+3D Point:             A = (x, y, z)           ← 3 coordinates; place base face in z=0 plane
+Segment (3D):         e = Segment(A, B)       ← same command works in 3D
+Polygon (face):       base = Polygon(A, B, C, D)
+Pyramid:              p = Pyramid(base, S)    ← base polygon + apex point S
+Prism:                pr = Prism(base, A1)    ← base polygon + top-face image of 1st vertex
+  Example prism: A=(0,0,0) B=(2,0,0) C=(1,1.73,0) A1=(0,0,3) base=Polygon(A,B,C) pr=Prism(base,A1)
+Cube:                 cu = Cube(A, B)         ← A and B are adjacent base vertices
+Sphere:               sp = Sphere(M, r)       ← center M + radius (number)
+Cone:                 cn = Cone(A, B, r)      ← apex A, base center B, base radius r
+Cylinder:             cy = Cylinder(A, B, r)  ← bottom center A, top center B, radius r
+Plane:                pl = Plane(A, B, C)     ← plane through 3 points
+Cross-section:        cs = IntersectPath(solid, pl)  ← polygon cross-section of a solid with a plane
 
 ══ BANNED COMMANDS (cause runtime errors — never use) ══
 PerpendicularFoot   Circumcircle   CircumscribedCircle   Circumcenter   Foot
@@ -40,6 +56,8 @@ PerpendicularFoot   Circumcircle   CircumscribedCircle   Circumcenter   Foot
 5. Draw only what the problem explicitly mentions or needs for the proof — nothing decorative.
 6. Do NOT include any ZoomIn or ZoomOut command — the viewer auto-fits.
 7. Your ENTIRE response must be GeoGebra commands — no preamble, no explanation, no "Let me…" sentences. The very first character must start a command.
+8. For function graphs, ALWAYS use the named function form: f(x) = <expr>. NEVER write y = <expr> — that creates an implicit curve object, not a function. Use f, g, h, p, q for multiple functions.
+9. For 3D geometry (hình chóp, lăng trụ, hình hộp, hình cầu…): use 3D coordinates (x,y,z). Place the base face in z=0. Compute all vertex coordinates numerically from the given edge lengths before writing any command. A right pyramid S.ABCD with square base side a and SA⊥base: A=(0,0,0), B=(a,0,0), C=(a,a,0), D=(0,a,0), S=(a/2,a/2,h). A right prism: base in z=0, corresponding top vertices at z=height.
 
 ══ PROBLEM ══
 {problem_text}
@@ -59,6 +77,7 @@ _CMD_RE = _re.compile(
     r'|^\s*(?:Segment|Line|Circle|Circumcircle|Incircle|Midpoint|Polygon|'
     r'AngleBisector|PerpendicularBisector|PerpendicularLine|PerpendicularFoot|Intersect|'
     r'Tangent|Integral|Root|Asymptote|Vector|Reflect|Rotate|Translate|'
+    r'Pyramid|Prism|Cube|Sphere|Cone|Cylinder|Plane|IntersectPath|'
     r'HideObject|ShowObject|SetColor|SetFilling|SetVisible|SetLineThickness|'
     r'ZoomIn|ZoomOut)\s*[\(\[]',
     _re.IGNORECASE,
@@ -151,6 +170,70 @@ def _fix_unsupported_commands(commands: str) -> str:
     return "\n".join(out)
 
 
+_PT3D_RE = _re.compile(
+    r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)',
+)
+
+def _parse_3d_points(commands: str) -> dict[str, tuple[float, float, float]]:
+    pts: dict[str, tuple[float, float, float]] = {}
+    for line in commands.splitlines():
+        m = _PT3D_RE.match(line.strip())
+        if m:
+            try:
+                pts[m.group(1)] = (float(m.group(2)), float(m.group(3)), float(m.group(4)))
+            except ValueError:
+                pass
+    return pts
+
+
+def _dist3(a, b):
+    return math.sqrt(sum((a[i] - b[i]) ** 2 for i in range(3)))
+
+
+def _vec3(a, b):
+    return (b[0] - a[0], b[1] - a[1], b[2] - a[2])
+
+
+_EDGE_RE = _re.compile(
+    r'(?:cạnh|AB|BC|CD|SA|SB|SC|SD|a\s*=|b\s*=|c\s*=|h\s*=)[^\d]*(\d+(?:[.,]\d+)?)',
+    _re.IGNORECASE,
+)
+_SA_PERP_RE = _re.compile(
+    r'SA\s*(?:⊥|vuông\s*góc)\s*(?:đáy|base|ABCD|ABC|\(ABCD\)|\(ABC\))',
+    _re.IGNORECASE,
+)
+
+
+def _check_3d_constraints(problem: str, commands: str) -> str | None:
+    """Return an error hint string if geometric constraints are violated, else None."""
+    pts = _parse_3d_points(commands)
+    if not pts:
+        return None
+
+    issues: list[str] = []
+
+    # Check SA⊥base: apex S must lie directly above the base centroid
+    if _SA_PERP_RE.search(problem):
+        s = pts.get('S')
+        base_pts = {k: v for k, v in pts.items() if k != 'S' and not k.startswith('_')}
+        if s and len(base_pts) >= 3:
+            base_z_ok = all(abs(v[2]) < 0.05 for v in base_pts.values())
+            if base_z_ok:
+                cx = sum(v[0] for v in base_pts.values()) / len(base_pts)
+                cy = sum(v[1] for v in base_pts.values()) / len(base_pts)
+                lateral_offset = math.sqrt((s[0] - cx) ** 2 + (s[1] - cy) ** 2)
+                if lateral_offset > 0.15:
+                    issues.append(
+                        f"SA⊥base violated: apex S=({s[0]:.2f},{s[1]:.2f},{s[2]:.2f}) "
+                        f"is offset {lateral_offset:.3f} from base centroid ({cx:.2f},{cy:.2f}). "
+                        f"Place S directly above the base centroid at ({cx:.2f},{cy:.2f},h)."
+                    )
+
+    if not issues:
+        return None
+    return " | ".join(issues)
+
+
 async def generate_figure(
     client,
     question: str,
@@ -206,6 +289,13 @@ async def generate_figure(
                 raise ValueError("LLM returned empty GeoGebra commands")
 
             commands = _fix_unsupported_commands(commands)
+
+            constraint_err = _check_3d_constraints(question, commands)
+            if constraint_err and attempt < MAX_RETRIES:
+                extra_hint = constraint_err
+                logger.debug("3D constraint violation on attempt %d: %s", attempt + 1, constraint_err)
+                continue
+
             return FigureOutput(type="geogebra", data=commands)
 
         except Exception as exc:
