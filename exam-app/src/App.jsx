@@ -8,6 +8,7 @@ import { loadExamById, loadQuestionsByIds } from './api/index.js'
 import Navbar from './components/Navbar.jsx'
 import AuthModal from './components/AuthModal.jsx'
 import ProfileOnboarding from './components/ProfileOnboarding.jsx'
+import ExtendedOnboarding from './components/ExtendedOnboarding.jsx'
 import LowCreditBanner from './components/LowCreditBanner.jsx'
 import OfflineBanner from './components/OfflineBanner.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
@@ -26,16 +27,15 @@ const Mistakes = lazy(() => import('./pages/Mistakes.jsx'))
 const AdaptivePractice = lazy(() => import('./pages/AdaptivePractice.jsx'))
 const DailyChallenge = lazy(() => import('./pages/DailyChallenge.jsx'))
 const BattleMistakes = lazy(() => import('./pages/BattleMistakes.jsx'))
-const FlashMode = lazy(() => import('./pages/FlashMode.jsx'))
-const ReverseMode = lazy(() => import('./pages/ReverseMode.jsx'))
 const StreakSurvival = lazy(() => import('./pages/StreakSurvival.jsx'))
 const Admin = lazy(() => import('./pages/Admin.jsx'))
 const ShareView = lazy(() => import('./pages/ShareView.jsx'))
 const ChallengeLanding = lazy(() => import('./pages/ChallengeLanding.jsx'))
 const ClassDashboard = lazy(() => import('./pages/ClassDashboard.jsx'))
-const WarmupMode = lazy(() => import('./pages/WarmupMode.jsx'))
 const DiagnosticTest = lazy(() => import('./pages/DiagnosticTest.jsx'))
 const GenerateExam = lazy(() => import('./pages/GenerateExam.jsx'))
+const Progress = lazy(() => import('./pages/Progress.jsx'))
+const AdaptiveStudyPlan = lazy(() => import('./pages/AdaptiveStudyPlan.jsx'))
 
 const PageFallback = () => <div className="min-h-screen bg-[#0A0E1A]" />
 
@@ -119,6 +119,7 @@ function AppInner() {
   }, [resumeBanner, dispatch, navigate])
 
   const showOnboarding = !loading && user && !user.grade
+  const showExtendedOnboarding = !loading && user && user.grade && !user.extended_onboarding_done
   const showLowCredit = !loading && user && (user.credits_balance ?? 0) < 10
   const showSuspension = !loading && Boolean(user?.is_suspended)
   const showLocked = !loading && Boolean(user?.is_locked)
@@ -143,6 +144,9 @@ function AppInner() {
       {!showDeactivated && !showLocked && !showSuspension && showOnboarding && (
         <ProfileOnboarding onDone={() => {}} />
       )}
+      {!showDeactivated && !showLocked && !showSuspension && !showOnboarding && showExtendedOnboarding && (
+        <ExtendedOnboarding onDone={() => {}} />
+      )}
       <div className={`min-h-screen bg-[#0A0E1A] text-gray-900${isAdminRoute ? '' : ' pt-12'}`}>
         {showLowCredit && !showOnboarding && !showDeactivated && !showLocked && !showSuspension && (
           <LowCreditBanner balance={user.credits_balance} />
@@ -163,16 +167,15 @@ function AppInner() {
             <Route path="/practice/adaptive" element={<AdaptivePractice />} />
             <Route path="/daily" element={<DailyChallenge />} />
             <Route path="/battle" element={<BattleMistakes />} />
-            <Route path="/flash" element={<FlashMode />} />
-            <Route path="/reverse" element={<ReverseMode />} />
             <Route path="/survival" element={<StreakSurvival />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/share" element={<ShareView />} />
             <Route path="/challenge" element={<ChallengeLanding />} />
             <Route path="/class" element={<ClassDashboard />} />
-            <Route path="/warmup" element={<WarmupMode />} />
             <Route path="/diagnostic" element={<DiagnosticTest />} />
             <Route path="/generate-exam" element={<GenerateExam />} />
+            <Route path="/progress" element={<Progress />} />
+            <Route path="/study-plan/adaptive" element={<AdaptiveStudyPlan />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

@@ -1,6 +1,6 @@
 # AI Agent App
 
-Vietnamese aluminum/glass door sales chatbot backend (FastAPI + Claude via ai-router proxy) **+ AI-powered exam app frontend**.
+Zenith — AI-native adaptive learning system for Vietnamese students (FastAPI + Claude via ai-router proxy).
 
 ## Stack
 
@@ -32,19 +32,17 @@ backend/app/
   dependencies.py    # get_ai_client() singleton (AsyncOpenAI)
   middleware.py      # RateLimitMiddleware — IP (20/min) + per-user (60/min) + rapid-fire hint detection
   abuse_detector.py # Background loop (5 min) — credit velocity, burst, score anomaly, new-account checks
-  main.py            # FastAPI routes: /chat /compress /analyze /hint /explain /tutor /study-plan /health
+  main.py            # FastAPI routes: /analyze /hint /explain /tutor /study-plan /health
                      #   + /auth/google, /users/me, /users/me/profile, /users/me/credits/log
                      #   + /admin/users/{id}/subscription|credits|suspend|unsuspend
                      #   + GET /admin/security-events
   agent/
-    core.py          # run_agent(), call_with_retry(), system prompt builder
-    memory.py        # compress_conversation() via Haiku
+    core.py          # call_with_retry() — tenacity retry wrapper for all AI calls
+    memory.py        # compress_conversation() via Haiku (used by tutor memory update)
     exam_analyzer.py # analyze_exam_result() — grade+province → location-aware school recs
     hint_generator.py# generate_hint() — Socratic hints via Haiku
-    exam_tutor.py    # run_tutor() — tutoring chat with exam context injected (no UI but kept)
+    exam_tutor.py    # run_tutor() — tutoring chat with exam context injected
     study_planner.py # generate_study_plan() — 4-week study plan with JSON fallback
-  tools/
-    registry.py      # Tool schemas (ALL_TOOLS), handle_tool_call(), PRICE_TABLE
   tests/
     test_ai_endpoints.py  # 9 pytest tests covering all AI endpoints (LLM mocked)
 
@@ -150,9 +148,7 @@ Admin key rotates automatically (default: weekly). Get current key from `/data/a
 
 **Error handling** — wrap all `client.chat.completions.create()` with `call_with_retry()` from `agent/core.py`. Catches `RateLimitError` (retry), `APIConnectionError`, `APIStatusError`.
 
-**Prefix caching** — static system prompt content first (`STATIC_BASE_INSTRUCTIONS`, `STATIC_PRODUCT_CATALOG`); dynamic context (customer name, funnel stage) appended last.
-
-**Tool loop** — `run_agent()` in `core.py` handles multi-turn tool calls until `finish_reason != "tool_calls"`.
+**Prefix caching** — static system prompt content first (e.g. `STATIC_EXAM_ANALYSIS_INSTRUCTIONS`); dynamic context (student name, score, weak topics) appended last.
 
 **Pricing** — `PRICE_TABLE` in `tools/registry.py` maps product type → VND/m². Default fallback: 1,600,000 VND/m².
 
@@ -205,7 +201,7 @@ Indexed as **AI-Agent-App** — re-index with `gitnexus analyze /mnt/d/AI-Agent-
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **AI-Agent-App** (4600 symbols, 12613 relationships, 253 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **AI-Agent-App** (4906 symbols, 14150 relationships, 275 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

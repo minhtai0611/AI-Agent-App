@@ -104,12 +104,19 @@ export default function Navbar({ onOpenAuth }) {
                   {initials(user.custom_display_name || user.display_name)}
                 </div>
               )}
-              <span
-                className="text-gray-300 text-sm cursor-pointer hover:text-white transition"
+              <button
                 onClick={() => navigate('/account')}
+                className="flex items-center gap-1.5 hover:opacity-80 transition"
               >
-                {user.custom_display_name || user.display_name}
-              </span>
+                <span className="text-gray-300 text-sm">
+                  {user.custom_display_name || user.display_name}
+                </span>
+                {user.mastery_rank && user.mastery_rank !== 'Pemula' && (
+                  <span className="font-jakarta text-[10px] font-semibold px-1.5 py-0.5 rounded-md border border-[#6366F130] bg-[#6366F10A] text-[#818CF8]">
+                    {user.mastery_rank}
+                  </span>
+                )}
+              </button>
               <button
                 onClick={handleLogout}
                 className="text-sm text-gray-400 hover:text-white transition-colors"

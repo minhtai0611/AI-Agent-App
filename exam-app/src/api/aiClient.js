@@ -198,8 +198,49 @@ export function googleSignIn(idToken, ref) {
   return wrap(client.post('/auth/google', { id_token: idToken, ...(ref ? { ref } : {}) }))
 }
 
+// ── Learning Graph / Review endpoints ────────────────────────────────────────
+
+export function migrateReviewItems(items) {
+  return wrap(client.post('/users/me/review-items', { items }))
+}
+
+export function getDueReviewItems() {
+  return wrap(client.get('/users/me/review-items/due'))
+}
+
+export function answerReviewItem(itemId, quality, responseTimeSeconds = null) {
+  return wrap(client.post(`/users/me/review-items/${itemId}/answer`, {
+    quality,
+    response_time_seconds: responseTimeSeconds,
+  }))
+}
+
+export function getConceptMastery() {
+  return wrap(client.get('/users/me/concept-mastery'))
+}
+
+export function getSessionToday() {
+  return wrap(client.get('/users/me/session/today'))
+}
+
+export function completeSession() {
+  return wrap(client.post('/users/me/session/complete'))
+}
+
+export function getAdaptiveStudyPlan() {
+  return wrap(client.get('/users/me/adaptive-study-plan'))
+}
+
+export function seedDiagnostic(weights) {
+  return wrap(client.post('/users/me/diagnostic-seed', { weights }))
+}
+
 export function getMe() {
   return wrap(client.get('/users/me'))
+}
+
+export function updateExtendedProfile(payload) {
+  return wrap(client.post('/users/me/profile/extended', payload))
 }
 
 export function updateProfile(payload) {

@@ -366,23 +366,7 @@ export default function ExamSelect({ onOpenAuth }) {
                     style={{ background: '#A78BFA22', color: '#A78BFA' }}>SM-2</span>
                 </div>
               </motion.button>
-              {/* Warm-up */}
-              <motion.button variants={cardVariants}
-                onClick={() => navigate('/warmup')}
-                className="w-full text-left bg-[#0D1521] rounded-2xl p-5 flex items-center justify-between gap-4 border transition"
-                style={{ borderColor: '#F2A20C22' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#F2A20C66'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = '#F2A20C22'}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">⚡</span>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Khởi động 5 phút</span>
-                    <span className="font-jakarta text-[12px] text-[#64748B]">5 câu hỏi — ôn nhanh trước khi bắt đầu học</span>
-                  </div>
-                </div>
-                <span className="font-jakarta text-[12px] font-semibold text-[#F2A20C] flex-shrink-0">Bắt đầu →</span>
-              </motion.button>
+              {/* Warm-up hidden — replaced by Daily Learning Session in Sprint 2 */}
               {/* Diagnostic test */}
               <motion.button variants={cardVariants}
                 onClick={() => navigate('/diagnostic')}
@@ -408,10 +392,8 @@ export default function ExamSelect({ onOpenAuth }) {
               <span className="font-jakarta text-[11px] font-bold tracking-[3px] uppercase text-[#475569]">Chế độ chơi</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { icon: '⚡', label: 'Flash Mode', desc: '20 câu · 10 giây mỗi câu · nhanh tay hay chậm chân', route: '/flash', accent: '#818CF8', tag: 'Tốc độ' },
                   { icon: '🗡️', label: 'Boss Battle', desc: 'Chinh phục các câu sai · tích lũy chuỗi đúng để đánh bại boss', route: '/battle', accent: '#EF4444', tag: 'Battle' },
                   { icon: '❤️‍🔥', label: 'Streak Survival', desc: 'Đừng để mất mạng · chuỗi 5 câu đúng nhân đôi điểm', route: '/survival', accent: '#FB7185', tag: 'Survival' },
-                  { icon: '🔄', label: 'Reverse Mode', desc: 'Cho trước đáp án · tìm đúng câu hỏi', route: '/reverse', accent: '#34D399', tag: 'Tư duy' },
                 ].map(m => (
                   <motion.button key={m.route} variants={cardVariants}
                     onClick={() => navigate(m.route)}

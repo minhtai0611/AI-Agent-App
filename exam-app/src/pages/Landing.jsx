@@ -9,6 +9,7 @@ import { computeStreak } from '../utils/streak.js'
 import { getDaysUntilExam, getExamYear } from '../utils/examCountdown.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { loadQuestions } from '../api/index.js'
+import { getSessionToday } from '../api/aiClient.js'
 import ZenithLogo from '../components/ZenithLogo.jsx'
 
 const PLANS_MONTHLY = [
@@ -32,27 +33,22 @@ const TOPUP_PACKAGES = [
   { price: '59,000đ', credits: 800 },
 ]
 
-function getDueCount(uid) {
-  try {
-    const queue = JSON.parse(localStorage.getItem(`review_queue-${uid ?? 'guest'}`) ?? '{}')
-    const today = new Date().toISOString().slice(0, 10)
-    return Object.values(queue).filter(e => e.dueDate <= today).length
-  } catch { return 0 }
-}
-
 export default function Landing({ onOpenAuth }) {
   usePageTitle('')
   const navigate = useNavigate()
   const { user } = useAuth()
   const { results } = useHistory()
   const [searchParams] = useSearchParams()
-  const [dueCount, setDueCount] = useState(0)
+  const [session, setSession] = useState(null) // server session data for logged-in users
   const [questionMap, setQuestionMap] = useState({})
   const streak = useMemo(() => computeStreak(results), [results])
   const daysUntil = user ? getDaysUntilExam(user.province) : null
   const readiness = useReadiness(results, questionMap)
 
-  useEffect(() => { setDueCount(getDueCount(user?.id)) }, [user?.id])
+  useEffect(() => {
+    if (!user?.id) { setSession(null); return }
+    getSessionToday().then(({ data }) => { if (data) setSession(data) }).catch(() => {})
+  }, [user?.id])
 
   useEffect(() => {
     if (!user || !results.length) return
@@ -156,17 +152,25 @@ export default function Landing({ onOpenAuth }) {
           <motion.div variants={itemVariants}
             className="w-full max-w-xl bg-[#0D1527] border border-[#1E2A44] rounded-2xl px-5 py-4 flex items-center gap-5 flex-wrap"
           >
-            {streak > 0 && (
-              <span className="font-jakarta text-[13px] font-semibold text-[#F2A20C]">🔥 {streak} ngày</span>
+            {(session?.learning_streak > 0 || streak > 0) && (
+              <span className="font-jakarta text-[13px] font-semibold text-[#F2A20C]">
+                🔥 {session?.learning_streak ?? streak} ngày
+              </span>
             )}
             {daysUntil != null && (
               <span className="font-jakarta text-[13px] font-semibold text-[#818CF8]">📅 Còn {daysUntil} ngày</span>
             )}
-            {dueCount > 0 && (
+            {(session?.due_count > 0) && (
               <button onClick={() => navigate('/review')}
                 className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-[#34D399] hover:opacity-80 transition">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] animate-pulse" />
-                {dueCount} câu cần ôn
+                {session.due_count} câu cần ôn
+              </button>
+            )}
+            {session?.advance_concept && !session?.is_complete && (
+              <button onClick={() => navigate('/practice/adaptive')}
+                className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-[#818CF8] hover:opacity-80 transition">
+                ✦ Học {session.advance_concept.name_vi}
               </button>
             )}
             {readiness != null && (
@@ -174,19 +178,25 @@ export default function Landing({ onOpenAuth }) {
                 📊 {readiness.readiness}% sẵn sàng
               </span>
             )}
+            {session?.predicted_score != null && (
+              <button
+                onClick={() => navigate('/study-plan/adaptive')}
+                className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold hover:opacity-80 transition"
+                style={{ color: session.on_track ? '#34D399' : '#F2A20C' }}
+              >
+                {session.on_track ? '↗' : '⚠'} Dự kiến {session.predicted_score?.toFixed(1)}
+              </button>
+            )}
+            <button onClick={() => navigate('/progress')}
+              className="font-jakarta text-[12px] text-[#475569] hover:text-[#94A3B8] transition">
+              Bản đồ
+            </button>
             <button onClick={() => navigate('/history')}
               className="ml-auto font-jakarta text-[12px] text-[#475569] hover:text-[#94A3B8] transition">
               Lịch sử →
             </button>
           </motion.div>
         )}
-
-        {/* Warm-up CTA */}
-        <motion.button variants={itemVariants}
-          onClick={() => navigate('/warmup')}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#818CF822] font-jakarta text-[13px] font-semibold text-[#818CF8] hover:border-[#818CF855] hover:bg-[#818CF808] transition">
-          ⚡ Khởi động 5 phút
-        </motion.button>
 
         {/* Proof strip */}
         <motion.div variants={itemVariants}
@@ -195,7 +205,7 @@ export default function Landing({ onOpenAuth }) {
             { value: '1,104', label: 'câu từ đề thi thật', color: '#F2A20C' },
             { value: '63', label: 'tỉnh thành', color: '#F2A20C' },
             { value: '6', label: 'dạng toán có Oracle AI', color: '#818CF8' },
-            { value: 'SM-2', label: 'ghi nhớ thông minh', color: '#34D399' },
+            { value: 'FSRS', label: 'ghi nhớ thông minh', color: '#34D399' },
           ].map(({ value, label, color }, i, arr) => (
             <span key={label} className="flex items-center gap-1.5">
               <span className="font-fraunces font-bold text-[15px]" style={{ color }}>{value}</span>

@@ -15,8 +15,6 @@ from openai import AsyncOpenAI, APIStatusError, APIConnectionError, RateLimitErr
 from app.config import get_settings
 from app.dependencies import get_ai_client, get_current_user, CurrentUser
 from app.middleware import RateLimitMiddleware
-from app.agent.core import run_agent
-from app.agent.memory import compress_conversation
 from app.math_wiki.admin_router import router as admin_router
 from app.auth import verify_google_token, create_jwt
 from app.admin_auth import validate_admin_key, derive_key, get_window_label, get_expiry_date
@@ -292,6 +290,92 @@ _SCHEMA_DDL = [
     )""",
     "CREATE INDEX IF NOT EXISTS idx_eq_exam ON exam_questions(exam_id)",
     "CREATE INDEX IF NOT EXISTS idx_q_topic ON questions(topic)",
+    # Sprint 1 — Learning Graph Foundation
+    """CREATE TABLE IF NOT EXISTS concepts (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        name_vi TEXT NOT NULL,
+        grade INTEGER NOT NULL CHECK(grade IN (9, 10, 11, 12)),
+        topic TEXT NOT NULL,
+        prerequisite_ids TEXT NOT NULL DEFAULT '[]',
+        exam_weight REAL NOT NULL DEFAULT 1.0,
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    """CREATE TABLE IF NOT EXISTS concept_mastery (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        concept_id TEXT NOT NULL REFERENCES concepts(id),
+        mastery_score REAL NOT NULL DEFAULT 0.0,
+        stage INTEGER NOT NULL DEFAULT 0 CHECK(stage BETWEEN 0 AND 5),
+        velocity REAL NOT NULL DEFAULT 0.0,
+        last_practiced TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        updated_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(user_id, concept_id)
+    )""",
+    """CREATE TABLE IF NOT EXISTS review_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        question_id TEXT NOT NULL,
+        concept_id TEXT REFERENCES concepts(id),
+        stability REAL NOT NULL DEFAULT 1.0,
+        difficulty REAL NOT NULL DEFAULT 5.0,
+        elapsed INTEGER NOT NULL DEFAULT 1,
+        interval INTEGER NOT NULL DEFAULT 1,
+        next_review_date TEXT NOT NULL,
+        quality_last INTEGER,
+        created_at TEXT DEFAULT (datetime('now')),
+        updated_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(user_id, question_id)
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_review_items_due ON review_items(user_id, next_review_date)",
+    "CREATE INDEX IF NOT EXISTS idx_concept_mastery_user ON concept_mastery(user_id)",
+    # concept_id on questions — nullable; backfilled gradually as concepts are tagged
+    "ALTER TABLE questions ADD COLUMN concept_id TEXT REFERENCES concepts(id)",
+    # Sprint 2 — Daily Engine
+    """CREATE TABLE IF NOT EXISTS concept_elo (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        concept_id TEXT NOT NULL REFERENCES concepts(id),
+        rating REAL NOT NULL DEFAULT 1000.0,
+        updated_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(user_id, concept_id)
+    )""",
+    """CREATE TABLE IF NOT EXISTS learning_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        completed_at TEXT NOT NULL DEFAULT (datetime('now')),
+        sm2_reviewed INTEGER NOT NULL DEFAULT 0,
+        advance_concept_id TEXT,
+        session_date TEXT NOT NULL
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_concept_elo_user ON concept_elo(user_id)",
+    "CREATE INDEX IF NOT EXISTS idx_learning_sessions_user ON learning_sessions(user_id, session_date)",
+    "ALTER TABLE concept_mastery ADD COLUMN review_count INTEGER NOT NULL DEFAULT 0",
+    # Sprint 3 — Oracle Memory Layer
+    """CREATE TABLE IF NOT EXISTS concept_memory (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        concept_id TEXT NOT NULL REFERENCES concepts(id),
+        preferred_style TEXT NOT NULL DEFAULT 'formula' CHECK(preferred_style IN ('visual','formula','example','analogy')),
+        updated_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(user_id, concept_id)
+    )""",
+    """CREATE TABLE IF NOT EXISTS error_patterns (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        concept_id TEXT REFERENCES concepts(id),
+        error_type TEXT NOT NULL,
+        count INTEGER NOT NULL DEFAULT 1,
+        last_seen TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE(user_id, concept_id, error_type)
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_error_patterns_user ON error_patterns(user_id, concept_id)",
+    # Sprint 4 — Extended Onboarding fields (additive, all nullable)
+    "ALTER TABLE users ADD COLUMN target_school TEXT",
+    "ALTER TABLE users ADD COLUMN exam_date TEXT",
+    "ALTER TABLE users ADD COLUMN weekly_study_hours INTEGER",
+    "ALTER TABLE users ADD COLUMN extended_onboarding_done INTEGER NOT NULL DEFAULT 0",
 ]
 
 
@@ -605,6 +689,25 @@ async def _seed_from_json(pool) -> None:
         logger.warning("_seed_from_json failed: %s", exc)
 
 
+async def _seed_concepts(pool) -> None:
+    """Seed the concepts table with the initial 20-concept taxonomy (INSERT OR IGNORE)."""
+    import json as _json
+    from app.data.concepts import CONCEPTS
+    try:
+        async with pool.acquire() as conn:
+            for c in CONCEPTS:
+                await conn.execute(
+                    """INSERT OR IGNORE INTO concepts
+                       (id, name, name_vi, grade, topic, prerequisite_ids, exam_weight)
+                       VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                    c["id"], c["name"], c["name_vi"], c["grade"], c["topic"],
+                    _json.dumps(c["prerequisite_ids"]), c["exam_weight"],
+                )
+        logger.info("_seed_concepts: seeded %d concepts", len(CONCEPTS))
+    except Exception as exc:
+        logger.warning("_seed_concepts failed: %s", exc)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from app.db import AsyncSQLitePool
@@ -619,6 +722,7 @@ async def lifespan(app: FastAPI):
     exam_count = (await app.state.pool.fetchrow("SELECT COUNT(*) AS cnt FROM exams"))
     if exam_count and exam_count["cnt"] == 0:
         await _seed_from_json(app.state.pool)
+    await _seed_concepts(app.state.pool)
 
     _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
     asyncio.ensure_future(_ensure_bm25(app.state.pool))
@@ -659,24 +763,22 @@ app.add_middleware(
 
 # ── Models ───────────────────────────────────────────────────────────────────
 
-class ChatRequest(BaseModel):
-    messages: list[dict]
-    customer_name: str = ""
-    funnel_stage: str = ""
+# ── Review / Learning Graph models ───────────────────────────────────────────
 
+class ReviewItemIn(BaseModel):
+    question_id: str
+    stability: float = 1.0
+    difficulty: float = 5.0
+    elapsed: int = 1
+    interval: int = 1
+    next_review_date: str  # YYYY-MM-DD
 
-class ChatResponse(BaseModel):
-    reply: str
-    messages: list[dict]
+class ReviewItemsBulkRequest(BaseModel):
+    items: list[ReviewItemIn]
 
-
-class CompressRequest(BaseModel):
-    messages: list[dict]
-
-
-class CompressResponse(BaseModel):
-    summary: str
-
+class ReviewAnswerRequest(BaseModel):
+    quality: int              # 1 (forgot) | 3 (good) | 5 (easy)
+    response_time_seconds: int | None = None  # collected for future velocity signal
 
 # ── Exam AI models ───────────────────────────────────────────────────────────
 
@@ -802,29 +904,6 @@ async def health():
 async def wiki_status():
     from app.math_wiki.pipeline import get_wiki_status
     return get_wiki_status()
-
-
-@app.post("/chat", response_model=ChatResponse)
-async def chat(
-    req: ChatRequest,
-    client: AsyncOpenAI = Depends(get_ai_client),
-):
-    reply, updated = await run_agent(
-        client,
-        req.messages,
-        customer_name=req.customer_name,
-        funnel_stage=req.funnel_stage,
-    )
-    return ChatResponse(reply=reply, messages=updated)
-
-
-@app.post("/compress", response_model=CompressResponse)
-async def compress(
-    req: CompressRequest,
-    client: AsyncOpenAI = Depends(get_ai_client),
-):
-    summary = await compress_conversation(client, req.messages)
-    return CompressResponse(summary=summary)
 
 
 # ── Exam AI routes ───────────────────────────────────────────────────────────
@@ -977,14 +1056,44 @@ async def tutor(
     tier_t = tier_row_t["subscription_tier"] if tier_row_t else "basic"
     await _spend_credits(pool, current_user.user_id, 1, "tutor")
     from app.agent.exam_tutor import run_tutor
-    # Prepend learning history for Complete users
-    memory_prefix = ""
+
+    # Build memory prefix — layers stack in order: long-term session, concept style, error patterns
+    memory_parts: list[str] = []
+
+    # Layer 1: session memory (Complete only)
     if tier_t == "complete":
         mem_row = await pool.fetchrow(
             "SELECT summary FROM tutor_memory WHERE user_id = ?", current_user.user_id
         )
         if mem_row and mem_row["summary"]:
-            memory_prefix = f"[Lịch sử học của học sinh: {mem_row['summary']}]\n\n"
+            memory_parts.append(f"Lịch sử học: {mem_row['summary']}")
+
+    # Layer 2: concept explanation style preference (all tiers)
+    concept_id = req.exam_context.get("concept_id") if req.exam_context else None
+    if concept_id:
+        style_row = await pool.fetchrow(
+            "SELECT preferred_style FROM concept_memory WHERE user_id = ? AND concept_id = ?",
+            current_user.user_id, concept_id,
+        )
+        if style_row:
+            style_map = {"visual": "hình ảnh/sơ đồ", "formula": "công thức trước", "example": "ví dụ cụ thể", "analogy": "so sánh tương tự"}
+            memory_parts.append(f"Phong cách giải thích hiệu quả với học sinh này: {style_map.get(style_row['preferred_style'], 'công thức trước')}")
+
+        # Layer 3: error patterns on this concept (all tiers)
+        err_rows = await pool.fetch(
+            """SELECT error_type, count FROM error_patterns
+               WHERE user_id = ? AND concept_id = ? AND count >= 2
+               ORDER BY count DESC LIMIT 3""",
+            current_user.user_id, concept_id,
+        )
+        if err_rows:
+            err_type_vi = {"sign_error": "sai dấu", "formula_confusion": "nhầm công thức",
+                           "procedural_slip": "sai quy trình", "conceptual_gap": "lỗ hổng khái niệm", "calculation": "lỗi tính toán"}
+            errs = ", ".join(f"{err_type_vi.get(r['error_type'], r['error_type'])} ({r['count']} lần)" for r in err_rows)
+            memory_parts.append(f"Lỗi hay gặp ở chủ đề này: {errs}")
+
+    memory_prefix = f"[{' | '.join(memory_parts)}]\n\n" if memory_parts else ""
+
     reply, updated = await run_tutor(
         client, req.messages, req.exam_context, req.student_name,
         memory_prefix=memory_prefix,
@@ -1655,7 +1764,8 @@ async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Dep
                   credits_balance, credits_reset_at,
                   is_suspended, suspension_reason, tos_accepted_at,
                   trial_used, trial_expires_at,
-                  is_deactivated, is_locked, lock_reason
+                  is_deactivated, is_locked, lock_reason,
+                  target_school, exam_date, weekly_study_hours, extended_onboarding_done
            FROM users WHERE id = $1""",
         current_user.user_id,
     )
@@ -1672,6 +1782,22 @@ async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Dep
                 current_user.user_id,
             )
             row["subscription_tier"] = "basic"
+    # Compute mastery rank from solid concept count
+    solid_row = await pool.fetchrow(
+        "SELECT COUNT(*) AS cnt FROM concept_mastery WHERE user_id=$1 AND stage >= 4",
+        current_user.user_id,
+    )
+    solid_count = solid_row["cnt"] if solid_row else 0
+    if solid_count >= 56:
+        mastery_rank = "Chuyên gia"
+    elif solid_count >= 36:
+        mastery_rank = "Sinh viên"
+    elif solid_count >= 16:
+        mastery_rank = "Học sinh"
+    else:
+        mastery_rank = "Pemula"
+    row["mastery_rank"] = mastery_rank
+    row["solid_concept_count"] = solid_count
     return row
 
 
@@ -1783,6 +1909,38 @@ async def update_profile(
     return dict(row)
 
 
+class ExtendedProfileRequest(BaseModel):
+    target_school: str | None = None
+    exam_date: str | None = None       # YYYY-MM-DD
+    weekly_study_hours: int | None = None
+
+
+@app.post("/users/me/profile/extended", status_code=204)
+async def update_extended_profile(
+    body: ExtendedProfileRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Save optional post-onboarding fields. Always marks extended_onboarding_done=1."""
+    sets, params = ["extended_onboarding_done = 1"], []
+    if body.target_school is not None:
+        sets.append("target_school = ?"); params.append(body.target_school[:200].strip())
+    if body.exam_date is not None:
+        # Validate YYYY-MM-DD format
+        import re as _re
+        if not _re.match(r"^\d{4}-\d{2}-\d{2}$", body.exam_date):
+            raise HTTPException(status_code=422, detail="exam_date must be YYYY-MM-DD")
+        sets.append("exam_date = ?"); params.append(body.exam_date)
+    if body.weekly_study_hours is not None:
+        hours = max(1, min(168, body.weekly_study_hours))
+        sets.append("weekly_study_hours = ?"); params.append(hours)
+    params.append(current_user.user_id)
+    await pool.execute(
+        f"UPDATE users SET {', '.join(sets)} WHERE id = ?",  # noqa: S608
+        *params,
+    )
+
+
 @app.post("/users/me/tos-accept", status_code=204)
 async def accept_tos(
     current_user: CurrentUser = Depends(get_current_user),
@@ -1792,6 +1950,605 @@ async def accept_tos(
         "UPDATE users SET tos_accepted_at = datetime('now') WHERE id = ? AND tos_accepted_at IS NULL",
         current_user.user_id,
     )
+
+
+# ── Review / Learning Graph endpoints ────────────────────────────────────────
+
+@app.post("/users/me/review-items", status_code=201)
+async def bulk_create_review_items(
+    body: ReviewItemsBulkRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Migrate localStorage review queue to server. INSERT OR IGNORE (idempotent)."""
+    inserted = 0
+    for item in body.items:
+        result = await pool.execute(
+            """INSERT OR IGNORE INTO review_items
+               (user_id, question_id, stability, difficulty, interval, next_review_date)
+               VALUES ($1, $2, $3, $4, $5, $6)""",
+            current_user.user_id,
+            item.question_id,
+            item.stability,
+            item.difficulty,
+            item.interval,
+            item.next_review_date,
+        )
+        if result != "INSERT OR IGNORE 0":
+            inserted += 1
+    return {"inserted": inserted, "total": len(body.items)}
+
+
+@app.get("/users/me/review-items/due")
+async def get_due_review_items(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Return all review items due today or overdue, ordered by most overdue first."""
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    rows = await pool.fetch(
+        """SELECT ri.id, ri.question_id, ri.stability, ri.difficulty,
+                  ri.interval, ri.repetitions, ri.next_review_date, ri.concept_id
+           FROM review_items ri
+           WHERE ri.user_id = $1 AND ri.next_review_date <= $2
+           ORDER BY ri.next_review_date ASC
+           LIMIT 50""",
+        current_user.user_id,
+        today,
+    )
+    return {"items": [dict(r) for r in rows], "due_count": len(rows)}
+
+
+@app.post("/users/me/review-items/{item_id}/answer")
+async def answer_review_item(
+    item_id: int,
+    body: ReviewAnswerRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Apply FSRS update to a review item and update concept mastery."""
+    from datetime import datetime, timezone, timedelta
+    from app.agent.fsrs import fsrs_update
+
+    if body.quality not in (1, 3, 5):
+        raise HTTPException(status_code=422, detail="quality must be 1, 3, or 5")
+
+    row = await pool.fetchrow(
+        "SELECT * FROM review_items WHERE id = $1 AND user_id = $2",
+        item_id, current_user.user_id,
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="Review item not found")
+
+    today = datetime.now(timezone.utc).date()
+    last_reviewed = datetime.fromisoformat(row["next_review_date"]).date() if row["next_review_date"] else today
+    elapsed = max(1, (today - last_reviewed).days + row["interval"])
+
+    new_stability, new_difficulty, interval = fsrs_update(
+        row["stability"], row["difficulty"], elapsed, body.quality
+    )
+    next_date = (today + timedelta(days=interval)).isoformat()
+
+    await pool.execute(
+        """UPDATE review_items
+           SET stability=$1, difficulty=$2, interval=$3, repetitions=repetitions+1,
+               next_review_date=$4, quality_last=$5, updated_at=NOW()
+           WHERE id=$6""",
+        new_stability, new_difficulty, interval, next_date, body.quality, item_id,
+    )
+
+    # Update concept mastery if concept_id is set; track stage advance for mastery moment
+    concept_id = row["concept_id"]
+    stage_advanced = False
+    new_stage = None
+    concept_name_vi = None
+
+    if concept_id:
+        mastery_row = await pool.fetchrow(
+            "SELECT mastery_score, stage, review_count FROM concept_mastery WHERE user_id=$1 AND concept_id=$2",
+            current_user.user_id, concept_id,
+        )
+        if mastery_row:
+            old_stage = mastery_row["stage"]
+            delta = 5 if body.quality >= 3 else -8
+            new_mastery = max(0, min(100, mastery_row["mastery_score"] + delta))
+            new_stage = _mastery_to_stage(new_mastery)
+            stage_advanced = new_stage > old_stage
+            await pool.execute(
+                """UPDATE concept_mastery
+                   SET mastery_score=$1, stage=$2, review_count=review_count+1,
+                       last_practiced=NOW(), updated_at=NOW()
+                   WHERE user_id=$3 AND concept_id=$4""",
+                new_mastery, new_stage, current_user.user_id, concept_id,
+            )
+        else:
+            initial_mastery = 20 if body.quality >= 3 else 5
+            new_stage = _mastery_to_stage(initial_mastery)
+            stage_advanced = new_stage > 0
+            await pool.execute(
+                """INSERT INTO concept_mastery (user_id, concept_id, mastery_score, stage, review_count)
+                   VALUES ($1, $2, $3, $4, 1)""",
+                current_user.user_id, concept_id, initial_mastery, new_stage,
+            )
+
+        if stage_advanced:
+            c_row = await pool.fetchrow("SELECT name_vi FROM concepts WHERE id=$1", concept_id)
+            concept_name_vi = c_row["name_vi"] if c_row else concept_id
+
+    # Update ELO rating for this concept
+    if concept_id:
+        elo_row = await pool.fetchrow(
+            "SELECT rating FROM concept_elo WHERE user_id=$1 AND concept_id=$2",
+            current_user.user_id, concept_id,
+        )
+        student_elo = elo_row["rating"] if elo_row else 1000.0
+        # Map FSRS difficulty (1-10) to question ELO (800-1340)
+        q_elo = 800 + (row["difficulty"] - 1) * 60
+        K = 32
+        expected = 1 / (1 + 10 ** ((q_elo - student_elo) / 400))
+        outcome = 1.0 if body.quality >= 3 else 0.0
+        new_elo = max(600.0, min(2000.0, student_elo + K * (outcome - expected)))
+        if elo_row:
+            await pool.execute(
+                "UPDATE concept_elo SET rating=$1, updated_at=NOW() WHERE user_id=$2 AND concept_id=$3",
+                new_elo, current_user.user_id, concept_id,
+            )
+        else:
+            await pool.execute(
+                "INSERT INTO concept_elo (user_id, concept_id, rating) VALUES ($1, $2, $3)",
+                current_user.user_id, concept_id, new_elo,
+            )
+
+    return {
+        "item_id": item_id,
+        "new_stability": round(new_stability, 3),
+        "new_difficulty": round(new_difficulty, 3),
+        "interval": interval,
+        "next_review_date": next_date,
+        "stage_advanced": stage_advanced,
+        "new_stage": new_stage,
+        "concept_name_vi": concept_name_vi,
+    }
+
+
+def _mastery_to_stage(score: int) -> int:
+    if score <= 0:   return 0
+    if score <= 20:  return 1
+    if score <= 40:  return 2
+    if score <= 60:  return 3
+    if score <= 80:  return 4
+    return 5
+
+
+@app.get("/users/me/concept-mastery")
+async def get_concept_mastery(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Return all concepts with user's current mastery (0 if not started)."""
+    rows = await pool.fetch(
+        """SELECT c.id, c.name, c.name_vi, c.grade, c.topic, c.exam_weight,
+                  c.prerequisite_ids,
+                  COALESCE(cm.mastery_score, 0) AS mastery_score,
+                  COALESCE(cm.stage, 0) AS stage,
+                  cm.last_practiced, cm.review_count
+           FROM concepts c
+           LEFT JOIN concept_mastery cm ON cm.concept_id = c.id AND cm.user_id = $1
+           ORDER BY c.grade, c.topic, c.id""",
+        current_user.user_id,
+    )
+    import json
+    concepts = []
+    for r in rows:
+        d = dict(r)
+        if isinstance(d.get("prerequisite_ids"), str):
+            try:
+                d["prerequisite_ids"] = json.loads(d["prerequisite_ids"])
+            except Exception:
+                d["prerequisite_ids"] = []
+        concepts.append(d)
+    return {"concepts": concepts}
+
+
+# ── Session / Daily Engine endpoints ─────────────────────────────────────────
+
+@app.get("/users/me/session/today")
+async def get_session_today(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Compose today's learning session: SM-2 due count, advance concept, remediation, challenge."""
+    from datetime import datetime, timezone
+    import json as _json
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    uid = current_user.user_id
+
+    # SM-2 due count
+    due_row = await pool.fetchrow(
+        "SELECT COUNT(*) AS cnt FROM review_items WHERE user_id=$1 AND next_review_date<=$2",
+        uid, today,
+    )
+    due_count = due_row["cnt"] if due_row else 0
+
+    # Check if session already completed today
+    session_row = await pool.fetchrow(
+        "SELECT id FROM learning_sessions WHERE user_id=$1 AND session_date=$2",
+        uid, today,
+    )
+    is_complete = session_row is not None
+
+    # Advance concept: highest mastery SOLID (stage 4) concept whose successors are unstarted
+    mastery_rows = await pool.fetch(
+        """SELECT cm.concept_id, cm.mastery_score, cm.stage, c.prerequisite_ids, c.name_vi, c.exam_weight
+           FROM concept_mastery cm JOIN concepts c ON c.id = cm.concept_id
+           WHERE cm.user_id=$1 AND cm.stage >= 3
+           ORDER BY cm.mastery_score DESC""",
+        uid,
+    )
+    all_concepts = await pool.fetch("SELECT id, prerequisite_ids, name_vi, grade, topic FROM concepts")
+    mastered_ids = {r["concept_id"] for r in mastery_rows}
+
+    advance_concept = None
+    for concept in all_concepts:
+        prereqs = _json.loads(concept["prerequisite_ids"]) if isinstance(concept["prerequisite_ids"], str) else (concept["prerequisite_ids"] or [])
+        if concept["id"] in mastered_ids:
+            continue
+        if prereqs and all(p in mastered_ids for p in prereqs):
+            advance_concept = {"id": concept["id"], "name_vi": concept["name_vi"],
+                               "grade": concept["grade"], "topic": concept["topic"]}
+            break
+
+    # Remediation: prefer concepts with high error counts (>=3) at stage <=3,
+    # then fall back to stage-2 concepts with lowest mastery
+    remediaton_row = await pool.fetchrow(
+        """SELECT cm.concept_id, c.name_vi, cm.mastery_score, cm.stage,
+                  COALESCE(ep.total_errors, 0) AS error_count,
+                  ep.top_error_type
+           FROM concept_mastery cm
+           JOIN concepts c ON c.id = cm.concept_id
+           LEFT JOIN (
+               SELECT concept_id,
+                      SUM(count) AS total_errors,
+                      error_type AS top_error_type
+               FROM error_patterns
+               WHERE user_id=$1
+               GROUP BY concept_id, error_type
+               ORDER BY total_errors DESC
+               LIMIT 1
+           ) ep ON ep.concept_id = cm.concept_id
+           WHERE cm.user_id=$1 AND cm.stage <= 3 AND cm.stage >= 1
+           ORDER BY
+             CASE WHEN COALESCE(ep.total_errors, 0) >= 3 THEN 0 ELSE 1 END,
+             COALESCE(ep.total_errors, 0) DESC,
+             cm.mastery_score ASC
+           LIMIT 1""",
+        uid,
+    )
+    remediation_concept = dict(remediaton_row) if remediaton_row else None
+
+    # Compute learning streak (consecutive days with sessions)
+    streak_rows = await pool.fetch(
+        "SELECT session_date FROM learning_sessions WHERE user_id=$1 ORDER BY session_date DESC LIMIT 60",
+        uid,
+    )
+    streak = 0
+    from datetime import date, timedelta
+    check = date.today()
+    session_dates = {r["session_date"] for r in streak_rows}
+    while str(check) in session_dates or (streak == 0 and str(check - timedelta(days=1)) in session_dates):
+        if str(check) in session_dates:
+            streak += 1
+        check -= timedelta(days=1)
+
+    # Trajectory: predict exam score from mastery velocity + exam_date
+    user_row = await pool.fetchrow(
+        "SELECT exam_date, weekly_study_hours FROM users WHERE id=$1", uid
+    )
+    days_remaining = None
+    predicted_score = None
+    on_track = None
+    if user_row and user_row["exam_date"]:
+        try:
+            from datetime import date as _date
+            exam_dt = _date.fromisoformat(user_row["exam_date"])
+            days_remaining = (exam_dt - _date.today()).days
+            if days_remaining > 0:
+                solid_row = await pool.fetchrow(
+                    "SELECT COUNT(*) AS cnt FROM concept_mastery WHERE user_id=$1 AND stage>=4", uid
+                )
+                total_row = await pool.fetchrow("SELECT COUNT(*) AS cnt FROM concepts")
+                solid_count = solid_row["cnt"] if solid_row else 0
+                total_concepts = total_row["cnt"] if total_row else 20
+                weekly_hours = (user_row["weekly_study_hours"] or 5)
+                concepts_per_week = max(0.3, weekly_hours / 3.5)
+                weeks_remaining = max(1, days_remaining // 7)
+                predicted_solid = min(total_concepts, solid_count + concepts_per_week * weeks_remaining)
+                if total_concepts > 0:
+                    predicted_score = round(5 + (predicted_solid / total_concepts) * 5, 1)
+                    predicted_score = min(10.0, max(5.0, predicted_score))
+                on_track = (predicted_score or 0) >= 8.0
+        except Exception:
+            pass
+
+    return {
+        "due_count": due_count,
+        "is_complete": is_complete,
+        "advance_concept": advance_concept,
+        "remediation_concept": remediation_concept,
+        "learning_streak": streak,
+        "session_date": today,
+        "days_remaining": days_remaining,
+        "predicted_score": predicted_score,
+        "on_track": on_track,
+    }
+
+
+@app.post("/users/me/session/complete", status_code=201)
+async def complete_session(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Mark today's learning session as complete (idempotent)."""
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    uid = current_user.user_id
+
+    existing = await pool.fetchrow(
+        "SELECT id FROM learning_sessions WHERE user_id=$1 AND session_date=$2",
+        uid, today,
+    )
+    if existing:
+        return {"already_complete": True, "session_date": today}
+
+    # Count how many SM-2 items were reviewed today
+    reviewed_row = await pool.fetchrow(
+        "SELECT COUNT(*) AS cnt FROM review_items WHERE user_id=$1 AND updated_at >= $2",
+        uid, today,
+    )
+    sm2_count = reviewed_row["cnt"] if reviewed_row else 0
+
+    await pool.execute(
+        """INSERT INTO learning_sessions (user_id, session_date, sm2_reviewed)
+           VALUES ($1, $2, $3)""",
+        uid, today, sm2_count,
+    )
+    return {"already_complete": False, "session_date": today, "sm2_reviewed": sm2_count}
+
+
+@app.get("/users/me/adaptive-study-plan")
+async def get_adaptive_study_plan(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Return a data-driven adaptive study plan computed from the Learning Graph."""
+    from datetime import date as _date
+    import json as _json
+
+    uid = current_user.user_id
+
+    user_row = await pool.fetchrow(
+        "SELECT exam_date, weekly_study_hours FROM users WHERE id=$1", uid
+    )
+    exam_date_str = user_row["exam_date"] if user_row else None
+    weekly_hours = (user_row["weekly_study_hours"] if user_row else None) or 5
+
+    days_remaining = None
+    weeks_remaining = 4
+    if exam_date_str:
+        try:
+            exam_dt = _date.fromisoformat(exam_date_str)
+            days_remaining = (exam_dt - _date.today()).days
+            weeks_remaining = max(1, days_remaining // 7)
+        except Exception:
+            pass
+
+    mastery_rows = await pool.fetch(
+        """SELECT cm.concept_id, cm.mastery_score, cm.stage, cm.review_count,
+                  c.name_vi, c.grade, c.topic, c.exam_weight, c.prerequisite_ids
+           FROM concept_mastery cm
+           JOIN concepts c ON c.id = cm.concept_id
+           WHERE cm.user_id=$1""",
+        uid,
+    )
+    all_concept_rows = await pool.fetch(
+        "SELECT id, name_vi, grade, topic, exam_weight, prerequisite_ids FROM concepts"
+    )
+    error_rows = await pool.fetch(
+        "SELECT concept_id, error_type, count FROM error_patterns WHERE user_id=$1 ORDER BY count DESC",
+        uid,
+    )
+
+    error_by_concept: dict[str, list] = {}
+    for er in error_rows:
+        cid = er["concept_id"]
+        if cid not in error_by_concept:
+            error_by_concept[cid] = []
+        error_by_concept[cid].append({"type": er["error_type"], "count": er["count"]})
+
+    mastery_dict = {r["concept_id"]: dict(r) for r in mastery_rows}
+    mastered_ids = {cid for cid, m in mastery_dict.items() if m["stage"] >= 4}
+    solid_count = len(mastered_ids)
+    total_concepts = len(all_concept_rows)
+    in_progress_count = sum(1 for m in mastery_dict.values() if 1 <= m["stage"] <= 3)
+
+    # Trajectory
+    concepts_per_week = max(0.3, weekly_hours / 3.5)
+    predicted_solid = solid_count
+    if days_remaining is not None and days_remaining > 0:
+        predicted_solid = min(total_concepts, solid_count + concepts_per_week * weeks_remaining)
+
+    if total_concepts > 0:
+        predicted_score = round(5 + (predicted_solid / total_concepts) * 5, 1)
+        predicted_score = min(10.0, max(5.0, predicted_score))
+    else:
+        predicted_score = 5.0
+    on_track = predicted_score >= 8.0
+
+    if days_remaining is not None and days_remaining > 0:
+        if on_track:
+            trajectory_message = (
+                f"Với tốc độ hiện tại, bạn dự kiến đạt {predicted_score:.1f} vào kỳ thi. Đang đúng hướng!"
+            )
+        else:
+            needed = max(0, round((8.0 - 5) / 5 * (total_concepts or 1)) - solid_count)
+            hours_needed = max(weekly_hours + 2, 7)
+            trajectory_message = (
+                f"Cần thêm {needed} khái niệm vững để đạt 8.0. "
+                f"Hãy tăng thời gian luyện tập lên {hours_needed} giờ/tuần."
+            )
+    else:
+        trajectory_message = "Nhập ngày thi để xem dự đoán điểm số của bạn."
+
+    # Build priority-ranked focus pool
+    focus_pool = []
+    started_ids = set(mastery_dict.keys())
+
+    for r in mastery_rows:
+        m = dict(r)
+        if m["stage"] == 0 or m["stage"] >= 5:
+            continue
+        priority = (100 - m["mastery_score"]) * m["exam_weight"] / max(1, m["stage"])
+        focus_pool.append({
+            "concept_id": m["concept_id"],
+            "name_vi": m["name_vi"],
+            "grade": m["grade"],
+            "topic": m["topic"],
+            "mastery_score": round(m["mastery_score"]),
+            "stage": m["stage"],
+            "exam_weight": m["exam_weight"],
+            "priority": round(priority, 2),
+            "error_types": [e["type"] for e in error_by_concept.get(m["concept_id"], [])[:2]],
+        })
+
+    # Also include unlocked but unstarted concepts
+    for r in all_concept_rows:
+        if r["id"] in started_ids:
+            continue
+        prereqs = _json.loads(r["prerequisite_ids"]) if isinstance(r["prerequisite_ids"], str) else (r["prerequisite_ids"] or [])
+        if prereqs and not all(p in mastered_ids for p in prereqs):
+            continue
+        focus_pool.append({
+            "concept_id": r["id"],
+            "name_vi": r["name_vi"],
+            "grade": r["grade"],
+            "topic": r["topic"],
+            "mastery_score": 0,
+            "stage": 0,
+            "exam_weight": r["exam_weight"],
+            "priority": 0.5 * r["exam_weight"],
+            "error_types": [],
+        })
+
+    focus_pool.sort(key=lambda x: -x["priority"])
+
+    # Build interleaved weekly schedule (up to 4 weeks, 3 concepts/week)
+    DAYS = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"]
+    concepts_per_week_slot = 3
+    weekly_schedule = []
+
+    for week_idx in range(min(weeks_remaining, 4)):
+        week_concepts = focus_pool[
+            week_idx * concepts_per_week_slot: (week_idx + 1) * concepts_per_week_slot
+        ]
+        if not week_concepts:
+            break
+
+        daily_plan = []
+        for day_idx, day_name in enumerate(DAYS):
+            day_items = []
+            if day_idx in (0, 2, 4):  # Mon/Wed/Fri: include SM-2 review
+                day_items.append({"type": "sm2", "label": "Ôn lại (FSRS)"})
+            concept_today = week_concepts[day_idx % len(week_concepts)]
+            day_items.append({
+                "type": "concept",
+                "concept_id": concept_today["concept_id"],
+                "name_vi": concept_today["name_vi"],
+            })
+            if day_idx == 5:  # Saturday: add challenge
+                day_items.append({"type": "challenge", "label": "Bài khó"})
+            daily_plan.append({"day": day_name, "items": day_items})
+
+        weekly_schedule.append({
+            "week": week_idx + 1,
+            "focus_concepts": week_concepts,
+            "daily_plan": daily_plan,
+        })
+
+    return {
+        "solid_count": solid_count,
+        "total_concepts": total_concepts,
+        "in_progress_count": in_progress_count,
+        "days_remaining": days_remaining,
+        "weeks_remaining": weeks_remaining if days_remaining else None,
+        "predicted_score": predicted_score,
+        "on_track": on_track,
+        "trajectory_message": trajectory_message,
+        "weekly_schedule": weekly_schedule,
+        "focus_concepts": focus_pool[:6],
+    }
+
+
+class DiagnosticSeedRequest(BaseModel):
+    weights: dict  # {topic: weight} where weight = 1 - accuracy (high = weak)
+
+
+@app.post("/users/me/diagnostic-seed", status_code=201)
+async def diagnostic_seed(
+    body: DiagnosticSeedRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Seed the Learning Graph from diagnostic test results.
+
+    For each concept matching a topic, create an initial concept_mastery row
+    calibrated from the diagnostic accuracy. Only seeds concepts that haven't
+    been started (stage = 0 or no row). Never overwrites existing progress.
+    """
+    if not body.weights:
+        return {"seeded": 0}
+
+    uid = current_user.user_id
+    concept_rows = await pool.fetch(
+        "SELECT id, topic FROM concepts"
+    )
+
+    seeded = 0
+    for c in concept_rows:
+        topic = c["topic"]
+        weight = body.weights.get(topic)
+        if weight is None:
+            continue
+        # weight is (1 - accuracy): 0.1 = perfect, 1.0 = all wrong
+        # mastery_score = accuracy * 50 = (1 - weight) * 50, range 5-45
+        accuracy = max(0.0, min(1.0, 1.0 - weight))
+        mastery_score = round(accuracy * 50)
+
+        existing = await pool.fetchrow(
+            "SELECT stage FROM concept_mastery WHERE user_id=$1 AND concept_id=$2",
+            uid, c["id"],
+        )
+        if existing and existing["stage"] > 0:
+            continue  # never overwrite real progress
+
+        stage = _mastery_to_stage(mastery_score)
+        if existing:
+            await pool.execute(
+                """UPDATE concept_mastery
+                   SET mastery_score=$1, stage=$2, updated_at=NOW()
+                   WHERE user_id=$3 AND concept_id=$4""",
+                mastery_score, stage, uid, c["id"],
+            )
+        else:
+            await pool.execute(
+                """INSERT INTO concept_mastery (user_id, concept_id, mastery_score, stage)
+                   VALUES ($1, $2, $3, $4)""",
+                uid, c["id"], mastery_score, stage,
+            )
+        seeded += 1
+
+    return {"seeded": seeded}
 
 
 async def _spend_credits(pool, user_id: int, amount: int, reason: str) -> None:
@@ -2460,6 +3217,7 @@ class ClassifyErrorRequest(BaseModel):
     question: str
     wrong_choice: str
     correct_choice: str
+    concept_id: str | None = None  # optional; when set, error is persisted to error_patterns
 
 
 @app.post("/classify-error")
@@ -2468,7 +3226,7 @@ async def classify_error(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
-    """Classify the error type for a wrong answer using Haiku."""
+    """Classify the error type for a wrong answer using Haiku; persist to error_patterns."""
     client = get_ai_client()
     settings = get_settings()
     prompt = (
@@ -2489,9 +3247,22 @@ async def classify_error(
         valid = {"sign_error", "formula_confusion", "procedural_slip", "conceptual_gap", "calculation"}
         if category not in valid:
             category = "procedural_slip"
-        return {"category": category, "confidence": 0.8}
     except Exception:
         return {"category": None, "confidence": 0.0}
+
+    # Persist to error_patterns (upsert: increment count on conflict)
+    try:
+        await pool.execute(
+            """INSERT INTO error_patterns (user_id, concept_id, error_type, count, last_seen)
+               VALUES ($1, $2, $3, 1, datetime('now'))
+               ON CONFLICT(user_id, concept_id, error_type)
+               DO UPDATE SET count = count + 1, last_seen = datetime('now')""",
+            current_user.user_id, req.concept_id, category,
+        )
+    except Exception:
+        pass  # non-fatal — classification still returns
+
+    return {"category": category, "confidence": 0.8}
 
 
 class SuspendRequest(BaseModel):

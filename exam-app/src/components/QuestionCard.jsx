@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, memo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { getHint, getExplanation, reportQuestion } from '../api/aiClient.js'
 import { sanitizeSvg } from '../utils/sanitizeSvg.js'
@@ -104,6 +105,7 @@ function ReportButton({ questionId }) {
 }
 
 function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hintState, onHint }) {
+  const navigate = useNavigate()
   const showFeedback = practiceMode && chosen !== null && chosen !== undefined
   const [hintLoading, setHintLoading] = useState(false)
   const [hintError, setHintError] = useState(null)
@@ -244,6 +246,33 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
       )}
 
       <ReportButton questionId={question.id} />
+
+      {/* Struggle support — shown when answer is wrong */}
+      {showFeedback && aiResult !== null && !isCorrect && (
+        <div className="mt-3 px-4 py-3 rounded-xl border border-[#2A1A24] bg-[#160A0E] flex items-start gap-3">
+          <span className="text-base flex-shrink-0">💡</span>
+          <div className="flex flex-col gap-1.5">
+            <span className="font-jakarta text-[12px] font-semibold text-[#F87171]">
+              Bài này khó — đừng nản!
+            </span>
+            <span className="font-jakarta text-[11px] text-[#64748B] leading-relaxed">
+              Hãy đọc kỹ giải thích trên, sau đó thử lại bài tương tự. Oracle có thể giúp bạn hiểu sâu hơn.
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Oracle button — always visible in practice mode */}
+      {practiceMode && !submitted && (
+        <div className="mt-3 flex justify-end">
+          <button
+            onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#6366F133] bg-[#6366F108] font-jakarta text-[11px] font-semibold text-[#818CF8] hover:border-[#6366F166] hover:bg-[#6366F114] transition"
+          >
+            <span className="text-[10px]">✦</span> Oracle
+          </button>
+        </div>
+      )}
 
       {/* Hint button — practice mode only, before answer is chosen */}
       {practiceMode && !submitted && !showFeedback && (

@@ -59,6 +59,7 @@ function MdMath({ children }) {
 
 function MistakeRow({ question, userAnswer, examTitle }) {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [expanded, setExpanded] = useState(false)
   const [explanation, setExplanation] = useState(null)
   const [explLoading, setExplLoading] = useState(false)
@@ -167,6 +168,12 @@ function MistakeRow({ question, userAnswer, examTitle }) {
                 {t.label}
               </button>
             ))}
+            <button
+              onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
+              className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#6366F133] bg-[#6366F108] font-jakarta text-[11px] font-semibold text-[#818CF8] hover:border-[#6366F166] hover:bg-[#6366F114] transition"
+            >
+              <span className="text-[9px]">✦</span> Oracle
+            </button>
           </div>
         </div>
       )}

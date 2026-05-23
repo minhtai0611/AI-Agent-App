@@ -47,6 +47,9 @@ class Settings(BaseSettings):
     admin_key_log_enabled: bool = True
     cron_secret: str = ""
     sqlite_path: str = "/data/app.db"
+    payment_bank_name: str = ""
+    payment_account_number: str = ""
+    payment_account_name: str = ""
 
     def __init__(self, **data):
         super().__init__(**data)

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -8,6 +8,7 @@ import { usePageTitle } from '../hooks/usePageTitle.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { MathText } from '../components/MathText.jsx'
 import { QuestionCardSkeleton } from '../components/Skeleton.jsx'
+import { migrateReviewItems, getDueReviewItems, answerReviewItem } from '../api/aiClient.js'
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10)
@@ -89,44 +90,107 @@ export default function ReviewSession() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const uid = user?.id ?? null
+  const isLoggedIn = Boolean(user?.id)
   const [questions, setQuestions] = useState([])
+  const [serverItems, setServerItems] = useState([]) // [{id, question_id, ...}] for logged-in users
   const [loading, setLoading] = useState(true)
   const [index, setIndex] = useState(0)
   const [revealed, setRevealed] = useState(false)
   const [chosen, setChosen] = useState(null)
   const [results, setResults] = useState([])
   const [done, setDone] = useState(false)
+  const [masteryMoment, setMasteryMoment] = useState(null) // {name_vi, new_stage}
+  const startTimeRef = useRef(null)
 
   useEffect(() => {
-    const queue = getQueue(uid)
-    const today = todayStr()
-    const dueIds = Object.entries(queue)
-      .filter(([, entry]) => entry.dueDate <= today)
-      .map(([id]) => id)
-    loadQuestionsByIds(dueIds).then(loaded => {
-      setQuestions(loaded)
-      if (loaded.length === 0) setDone(true)
+    async function load() {
+      if (isLoggedIn) {
+        // Migrate localStorage queue to server (idempotent — server uses INSERT OR IGNORE)
+        const localQueue = getQueue(uid)
+        const localEntries = Object.entries(localQueue)
+        if (localEntries.length > 0) {
+          const items = localEntries.map(([question_id, entry]) => {
+            const migrated = migrateEntry(entry)
+            return {
+              question_id,
+              stability: migrated.stability ?? 1.0,
+              difficulty: migrated.difficulty ?? 5.0,
+              elapsed: migrated.elapsed ?? 1,
+              interval: migrated.interval ?? 1,
+              next_review_date: migrated.dueDate ?? todayStr(),
+            }
+          })
+          try {
+            await migrateReviewItems(items)
+            // Only clear localStorage after confirmed server 2xx
+            localStorage.removeItem(QUEUE_KEY(uid))
+          } catch { /* migration failed silently — localStorage preserved */ }
+        }
+
+        // Load due items from server
+        try {
+          const { data } = await getDueReviewItems()
+          const items = data?.items ?? []
+          setServerItems(items)
+          const qIds = items.map(it => it.question_id)
+          const loaded = await loadQuestionsByIds(qIds)
+          setQuestions(loaded)
+          if (loaded.length === 0) setDone(true)
+        } catch {
+          setDone(true)
+        }
+      } else {
+        // Guest: localStorage only
+        const queue = getQueue(uid)
+        const today = todayStr()
+        const dueIds = Object.entries(queue)
+          .filter(([, entry]) => entry.dueDate <= today)
+          .map(([id]) => id)
+        const loaded = await loadQuestionsByIds(dueIds)
+        setQuestions(loaded)
+        if (loaded.length === 0) setDone(true)
+      }
       setLoading(false)
-    })
+    }
+    load()
   }, [])
 
   const question = questions[index]
 
   function handleAnswer(choiceIdx) {
     if (revealed) return
+    startTimeRef.current = startTimeRef.current ?? Date.now()
     setChosen(choiceIdx)
     setRevealed(true)
   }
 
-  function handleNext(quality) {
-    const queue = getQueue(uid)
-    const qId = question.id
-    const entry = queue[qId] ?? {}
-    queue[qId] = updateSM2(entry, quality)
-    saveQueue(queue, uid)
+  async function handleNext(quality) {
+    const responseTimeSec = startTimeRef.current
+      ? Math.round((Date.now() - startTimeRef.current) / 1000)
+      : null
+    startTimeRef.current = null
 
     const markCorrect = typeof quality === 'number' ? quality >= 3 : Boolean(quality)
     setResults(r => [...r, markCorrect ? 'correct' : 'wrong'])
+
+    if (isLoggedIn) {
+      // Find the server review_item id for this question
+      const serverItem = serverItems.find(it => it.question_id === question.id)
+      if (serverItem) {
+        try {
+          const { data } = await answerReviewItem(serverItem.id, quality, responseTimeSec)
+          if (data?.stage_advanced && data?.concept_name_vi) {
+            setMasteryMoment({ name_vi: data.concept_name_vi, new_stage: data.new_stage })
+          }
+        } catch { /* non-fatal — progress still advances */ }
+      }
+    } else {
+      // Guest: update localStorage
+      const queue = getQueue(uid)
+      const entry = queue[question.id] ?? {}
+      queue[question.id] = updateSM2(entry, quality)
+      saveQueue(queue, uid)
+    }
 
     if (index + 1 >= questions.length) {
       setDone(true)
@@ -198,11 +262,50 @@ export default function ReviewSession() {
 
   const isCorrect = chosen === question.correct
 
+  const STAGE_NAMES = ['', 'Mới tiếp cận', 'Đang học', 'Luyện tập', 'Vững', 'Thành thạo']
+
   return (
     <motion.div
       className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden"
       variants={pageVariants} initial="hidden" animate="show"
     >
+      {/* Mastery moment overlay */}
+      <AnimatePresence>
+        {masteryMoment && (
+          <motion.div
+            key="mastery"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4"
+            onClick={() => setMasteryMoment(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="flex flex-col items-center gap-5 text-center max-w-sm"
+              onClick={e => e.stopPropagation()}
+            >
+              <span className="text-6xl">🎯</span>
+              <div className="flex flex-col gap-2">
+                <span className="font-fraunces text-[26px] font-bold text-[#F8FAFC]">Tiến bộ!</span>
+                <span className="font-jakarta text-[16px] text-[#F2A20C] font-semibold">{masteryMoment.name_vi}</span>
+                <span className="font-jakarta text-[14px] text-[#94A3B8]">
+                  Đã đạt giai đoạn: <span className="text-[#10B981] font-semibold">{STAGE_NAMES[masteryMoment.new_stage] ?? 'Tiếp theo'}</span>
+                </span>
+              </div>
+              <button
+                onClick={() => setMasteryMoment(null)}
+                className="px-8 py-3 rounded-xl font-jakarta text-[14px] font-bold text-[#0A0E1A]"
+                style={{ background: 'linear-gradient(180deg, #10B981 0%, #059669 100%)' }}
+              >
+                Tiếp tục →
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="absolute pointer-events-none rounded-full"
         style={{ width: 500, height: 500, right: -100, top: -50,
           background: 'radial-gradient(circle, #6366F112 0%, transparent 100%)' }} />
@@ -284,6 +387,15 @@ export default function ReviewSession() {
                       : `Đáp án đúng: ${String.fromCharCode(65 + question.correct)}. ${question.choices[question.correct]}`}
                   </span>
                 </div>
+
+                {/* Oracle button — shown after reveal, especially useful on wrong answers */}
+                <button
+                  onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
+                  className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#6366F133] bg-[#6366F108] font-jakarta text-[11px] font-semibold text-[#818CF8] hover:border-[#6366F166] hover:bg-[#6366F114] transition"
+                >
+                  <span className="text-[10px]">✦</span> Hỏi Oracle
+                </button>
+
                 <div className="flex flex-col gap-2">
                   <span className="font-jakarta text-[11px] text-[#475569] text-center">Mức độ tự tin:</span>
                   <div className="flex gap-2">

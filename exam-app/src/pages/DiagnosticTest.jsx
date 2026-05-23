@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { loadQuestions } from '../api/index.js'
+import { seedDiagnostic } from '../api/aiClient.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { MathText } from '../components/MathText.jsx'
@@ -95,6 +96,8 @@ export default function DiagnosticTest() {
       const weights = computeDiagnosticWeights(questions, newAnswers)
       const payload = { ...weights, completedAt: new Date().toISOString().slice(0, 10) }
       try { localStorage.setItem(DIAGNOSTIC_KEY(user?.id), JSON.stringify(payload)) } catch {}
+      // Seed the Learning Graph for logged-in users (fire-and-forget)
+      if (user?.id) seedDiagnostic(weights).catch(() => {})
       setPhase('results')
     }
   }
