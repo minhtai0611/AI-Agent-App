@@ -21460,7 +21460,7 @@
       "Trung bình tăng 5, trung vị tăng 1"
     ],
     "correct": 1,
-    "explanation": "Tổng các giá trị tăng thêm 5 (từ 16 lên 21). Chia cho 5 ngày: trung bình tăng $5 \\div 5 = 1$ đơn vị. Sắp xếp lại 5 giá trị sau khi sửa, giá trị ở vị trí giữa (trung vị) cũng tăng thêm 1. Đáp án chính thức AMC 8 2019 bài 10: B."
+    "explanation": "Tổng các giá trị tăng thêm 5 (từ 16 lên 21). Chia cho 5 ngày: trung bình tăng $5 \\div 5 = 1$ đơn vị. Sắp xếp lại 5 giá trị sau khi sửa, giá trị ở vị trí giữa (trung vị) cũng tăng thêm 1."
   },
   {
     "id": "q_amc8_19_24",
@@ -21766,7 +21766,7 @@
       "13"
     ],
     "correct": 3,
-    "explanation": "Đếm có hệ thống các đường đi từ ô 1 đến ô 7 theo quy tắc chỉ di chuyển đến ô có số lớn hơn và kề nhau. Tổng cộng có 13 đường đi hợp lệ. Đây là đáp án chính thức UKMT IMC 2020 bài 11 (đáp án E = 13)."
+    "explanation": "Đếm có hệ thống các đường đi từ ô 1 đến ô 7 theo quy tắc chỉ di chuyển đến ô có số lớn hơn và kề nhau. Tổng cộng có 13 đường đi hợp lệ."
   },
   {
     "id": "q_ukmt_imc20_17",
@@ -21919,7 +21919,7 @@
       "312 đến 321"
     ],
     "correct": 3,
-    "explanation": "Các số dùng chữ số 1, 2, 3 (mỗi số một lần) gồm: 123, 132, 213, 231, 312, 321. Áp dụng điều kiện từ bài toán, số duy nhất thỏa mãn nằm trong khoảng 312 đến 321. Đây là đáp án chính thức UKMT IMC 2020 bài 9 (đáp án E → chọn D)."
+    "explanation": "Các số dùng chữ số 1, 2, 3 (mỗi số một lần) gồm: 123, 132, 213, 231, 312, 321. Áp dụng điều kiện từ bài toán, số duy nhất thỏa mãn nằm trong khoảng 312 đến 321."
   },
   {
     "id": "q_ukmt_jmc19_21",
