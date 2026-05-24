@@ -1,15 +1,16 @@
 import { describe, it, expect } from 'vitest'
 import questions from '../../data/questions.json'
 
-// T1: question.image field — data shape contract
+// T1/T8: question.image field — data shape contract
 describe('question.image field', () => {
-  it('smoke-test question exists in questions.json', () => {
-    const q = questions.find(q => q.id === 'q_img_smoke_test')
-    expect(q).toBeDefined()
+  it('at least one real image question exists', () => {
+    const withImage = questions.filter(q => q.image != null)
+    expect(withImage.length).toBeGreaterThanOrEqual(35)
   })
 
-  it('smoke-test question has a valid image URL', () => {
-    const q = questions.find(q => q.id === 'q_img_smoke_test')
+  it('first AMC 8 2019 figure question has a valid image URL', () => {
+    const q = questions.find(q => q.id === 'q_amc8_19_21')
+    expect(q).toBeDefined()
     expect(q.image).toMatch(/^\/images\/questions\/.+\.png$/)
   })
 

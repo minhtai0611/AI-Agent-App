@@ -21412,23 +21412,6 @@
     "explanation": "Tổng tất cả: $1+2+\\cdots+15 = 120$. Mỗi số ở góc được tính $2$ lần. Nếu tổng mỗi cạnh $= S$, tổng $3$ cạnh $= 3S = 120 + $ (tổng $3$ góc). Tối đa khi $3$ góc lớn nhất: $13+14+15=42$. Vậy $3S = 162 \\Rightarrow S = 54$. Nhưng kiểm tra tính khả thi, đáp án tối đa là $D = 52$."
   },
   {
-    "id": "q_img_smoke_test",
-    "source": "Internal smoke test",
-    "year": 2024,
-    "topic": "algebra",
-    "difficulty": "easy",
-    "image": "/images/questions/smoke_test.png",
-    "question": "Hình bên minh hoạ phép tính nào?",
-    "choices": [
-      "$1 + 1 = 2$",
-      "$2 \\times 2 = 4$",
-      "$3 - 1 = 2$",
-      "$4 \\div 2 = 2$"
-    ],
-    "correct": 0,
-    "explanation": "Đây là câu hỏi kiểm tra hiển thị hình ảnh."
-  },
-  {
     "id": "q_amc8_19_21",
     "source": "Mathematical Association of America — AMC 8 2019",
     "year": 2019,
