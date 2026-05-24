@@ -19977,7 +19977,7 @@
     "year": 2019,
     "topic": "arithmetic",
     "difficulty": "easy",
-    "question": "Ike và Mike có tổng cộng $30.00\\$ $. Mỗi chiếc bánh sandwich giá $4.50\\$ $ và mỗi lon nước ngọt giá $1.00\\$ $. Họ mua nhiều bánh sandwich nhất có thể, rồi dùng số tiền còn lại mua nước ngọt. Hỏi tổng số món họ mua được là bao nhiêu?",
+    "question": "Ike và Mike có tổng cộng \\$30,00. Mỗi chiếc bánh sandwich giá \\$4,50 và mỗi lon nước ngọt giá \\$1,00. Họ mua nhiều bánh sandwich nhất có thể, rồi dùng số tiền còn lại mua nước ngọt. Hỏi tổng số món họ mua được là bao nhiêu?",
     "choices": [
       "6",
       "7",
@@ -19985,7 +19985,7 @@
       "9"
     ],
     "correct": 3,
-    "explanation": "$30 \\div 4.50 = 6$ (mua được 6 bánh sandwich, tốn $27\\$$). Còn lại $3\\$$, mua được 3 lon nước ngọt. Tổng: $6 + 3 = 9$ món."
+    "explanation": "$30 \\div 4.50 = 6$ (mua được 6 bánh sandwich, tốn \\$27). Còn lại \\$3, mua được 3 lon nước ngọt. Tổng: $6 + 3 = 9$ món."
   },
   {
     "id": "q_amc8_19_02",
