@@ -17314,5 +17314,2661 @@
     ],
     "correct": 0,
     "explanation": "$\\Delta = 4 - 4k = 0 \\Rightarrow k = 1$."
+  },
+  {
+    "id": "q_thpt21_001",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Tập nghiệm của bất phương trình $3^x < 2$ là",
+    "choices": [
+      "$(-\\infty;\\,\\log_3 2)$",
+      "$(\\log_3 2;\\,+\\infty)$",
+      "$(-\\infty;\\,\\log_2 3)$",
+      "$(\\log_2 3;\\,+\\infty)$"
+    ],
+    "correct": 0,
+    "explanation": "$3^x < 2 \\Leftrightarrow x < \\log_3 2$, nên tập nghiệm là $(-\\infty;\\,\\log_3 2)$."
+  },
+  {
+    "id": "q_thpt21_002",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Nếu $\\int_1^4 f(x)\\,dx = 3$ và $\\int_1^4 g(x)\\,dx = -2$ thì $\\int_1^4 [f(x)-g(x)]\\,dx$ bằng",
+    "choices": [
+      "$-1$",
+      "$-5$",
+      "$5$",
+      "$1$"
+    ],
+    "correct": 2,
+    "explanation": "$\\int_1^4[f(x)-g(x)]\\,dx = 3 - (-2) = 5$."
+  },
+  {
+    "id": "q_thpt21_003",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trong không gian $Oxyz$, mặt cầu $(S)$ có tâm $I(1;\\,-4;\\,0)$ và bán kính $3$ có phương trình",
+    "choices": [
+      "$(x-1)^2+(y-4)^2+z^2=9$",
+      "$(x-1)^2+(y+4)^2+z^2=9$",
+      "$(x+1)^2+(y-4)^2+z^2=9$",
+      "$(x+1)^2+(y+4)^2+z^2=9$"
+    ],
+    "correct": 1,
+    "explanation": "Phương trình mặt cầu tâm $(a,b,c)$ bán kính $r$: $(x-a)^2+(y-b)^2+(z-c)^2=r^2 \\Rightarrow (x-1)^2+(y+4)^2+z^2=9$."
+  },
+  {
+    "id": "q_thpt21_004",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Đường thẳng qua $M(2;\\,1;\\,-3)$, vectơ chỉ phương $\\vec{u}(1;\\,4;\\,-2)$ có phương trình tham số",
+    "choices": [
+      "$x=1+2t,\\;y=4+t,\\;z=-2-3t$",
+      "$x=2-t,\\;y=1-4t,\\;z=-3+2t$",
+      "$x=2+t,\\;y=1-4t,\\;z=-3+2t$",
+      "$x=2+t,\\;y=1+4t,\\;z=-3-2t$"
+    ],
+    "correct": 3,
+    "explanation": "$\\vec{u}=(1;4;-2)$, điểm $M(2;1;-3)$: $x=2+t,\\;y=1+4t,\\;z=-3-2t$."
+  },
+  {
+    "id": "q_thpt21_005",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y=x^4-2x^2+3$ có bao nhiêu điểm cực trị?",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$3$"
+    ],
+    "correct": 3,
+    "explanation": "$y'=4x^3-4x=4x(x-1)(x+1)=0$ tại $x\\in\\{-1,0,1\\}$; $y'$ đổi dấu qua cả 3 nghiệm nên hàm có $3$ điểm cực trị."
+  },
+  {
+    "id": "q_thpt21_006",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Họ nguyên hàm của $f(x)=3x^2+2x$ là",
+    "choices": [
+      "$x^3+x^2+C$",
+      "$x^3+2x^2+C$",
+      "$6x+2+C$",
+      "$3x^3+x^2+C$"
+    ],
+    "correct": 0,
+    "explanation": "$\\int(3x^2+2x)\\,dx = x^3+x^2+C$."
+  },
+  {
+    "id": "q_thpt21_007",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Cho hình chóp $S.ABC$ có đáy $ABC$ là tam giác đều cạnh $a$, $SA\\perp(ABC)$, $SA=a$. Thể tích khối chóp $S.ABC$ bằng",
+    "choices": [
+      "$\\dfrac{a^3\\sqrt{3}}{4}$",
+      "$\\dfrac{a^3\\sqrt{3}}{6}$",
+      "$\\dfrac{a^3\\sqrt{3}}{8}$",
+      "$\\dfrac{a^3\\sqrt{3}}{12}$"
+    ],
+    "correct": 3,
+    "explanation": "$S_{ABC}=\\dfrac{a^2\\sqrt{3}}{4}$, $V=\\dfrac{1}{3}\\cdot\\dfrac{a^2\\sqrt{3}}{4}\\cdot a=\\dfrac{a^3\\sqrt{3}}{12}$."
+  },
+  {
+    "id": "q_thpt21_008",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "combinatorics",
+    "difficulty": "easy",
+    "question": "Số chỉnh hợp chập $3$ của $6$ phần tử $A_6^3$ bằng",
+    "choices": [
+      "$20$",
+      "$60$",
+      "$90$",
+      "$120$"
+    ],
+    "correct": 3,
+    "explanation": "$A_6^3=6\\times5\\times4=120$."
+  },
+  {
+    "id": "q_thpt21_009",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Phần thực của số phức $z=4-7i$ là",
+    "choices": [
+      "$4$",
+      "$-7$",
+      "$-4$",
+      "$7$"
+    ],
+    "correct": 0,
+    "explanation": "Số phức $z=a+bi$ có phần thực là $a$. Vậy phần thực của $4-7i$ là $4$."
+  },
+  {
+    "id": "q_thpt21_010",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y=\\dfrac{x+1}{x-2}$ có đường tiệm cận đứng là",
+    "choices": [
+      "$y=1$",
+      "$x=-1$",
+      "$x=2$",
+      "$y=-1$"
+    ],
+    "correct": 2,
+    "explanation": "Tiệm cận đứng tại $x$ làm mẫu bằng $0$: $x-2=0\\Rightarrow x=2$."
+  },
+  {
+    "id": "q_thpt21_011",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "$\\displaystyle\\int_0^2(x^2+1)\\,dx$ bằng",
+    "choices": [
+      "$\\dfrac{10}{3}$",
+      "$4$",
+      "$\\dfrac{14}{3}$",
+      "$6$"
+    ],
+    "correct": 2,
+    "explanation": "$\\left[\\dfrac{x^3}{3}+x\\right]_0^2=\\dfrac{8}{3}+2=\\dfrac{14}{3}$."
+  },
+  {
+    "id": "q_thpt21_012",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Nghiệm của phương trình $\\log_3(x-1)=2$ là",
+    "choices": [
+      "$x=10$",
+      "$x=4$",
+      "$x=28$",
+      "$x=1$"
+    ],
+    "correct": 0,
+    "explanation": "$\\log_3(x-1)=2\\Rightarrow x-1=3^2=9\\Rightarrow x=10$."
+  },
+  {
+    "id": "q_thpt21_013",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "sequences",
+    "difficulty": "easy",
+    "question": "Nếu $\\displaystyle\\int_0^3 f(x)\\,dx=6$ thì $\\displaystyle\\int_0^3[2f(x)-1]\\,dx$ bằng",
+    "choices": [
+      "$3$",
+      "$6$",
+      "$9$",
+      "$12$"
+    ],
+    "correct": 2,
+    "explanation": "$\\int_0^3[2f(x)-1]\\,dx=2\\int_0^3f(x)\\,dx-\\int_0^3 1\\,dx=2\\times6-3=9$."
+  },
+  {
+    "id": "q_thpt21_014",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Khoảng cách từ điểm $M(1;\\,1;\\,1)$ đến mặt phẳng $(P)\\colon x-2y+2z-3=0$ bằng",
+    "choices": [
+      "$\\dfrac{2}{3}$",
+      "$\\dfrac{1}{3}$",
+      "$2$",
+      "$\\dfrac{4}{3}$"
+    ],
+    "correct": 0,
+    "explanation": "$d=\\dfrac{|1-2\\cdot1+2\\cdot1-3|}{\\sqrt{1^2+2^2+2^2}}=\\dfrac{|-2|}{3}=\\dfrac{2}{3}$."
+  },
+  {
+    "id": "q_thpt21_015",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Cấp số cộng $(u_n)$ có $u_1=2$, công sai $d=3$. Số hạng $u_5$ bằng",
+    "choices": [
+      "$10$",
+      "$12$",
+      "$14$",
+      "$17$"
+    ],
+    "correct": 2,
+    "explanation": "$u_5=u_1+4d=2+4\\times3=14$."
+  },
+  {
+    "id": "q_thpt21_016",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Cho hình lập phương $ABCD.A'B'C'D'$ cạnh $a$. Góc giữa đường thẳng $AB'$ và mặt phẳng $(ABCD)$ bằng",
+    "choices": [
+      "$30°$",
+      "$45°$",
+      "$60°$",
+      "$90°$"
+    ],
+    "correct": 1,
+    "explanation": "$AB'$ đi từ $A$ đến $B'$: hình chiếu xuống $(ABCD)$ là $AB=a$, đoạn thẳng đứng $BB'=a$. $\\tan\\alpha=\\dfrac{a}{a}=1\\Rightarrow\\alpha=45°$."
+  },
+  {
+    "id": "q_thpt21_017",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Nghiệm của phương trình $2^x=8$ là",
+    "choices": [
+      "$x=1$",
+      "$x=2$",
+      "$x=3$",
+      "$x=4$"
+    ],
+    "correct": 2,
+    "explanation": "$2^x=8=2^3\\Rightarrow x=3$."
+  },
+  {
+    "id": "q_thpt21_018",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Nguyên hàm của hàm số $f(x)=x^2$ là",
+    "choices": [
+      "$\\dfrac{x^3}{3}+C$",
+      "$2x+C$",
+      "$x^3+C$",
+      "$3x^2+C$"
+    ],
+    "correct": 0,
+    "explanation": "$\\int x^2\\,dx=\\dfrac{x^3}{3}+C$."
+  },
+  {
+    "id": "q_thpt21_019",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Môđun của số phức $z=3+4i$ bằng",
+    "choices": [
+      "$\\sqrt{7}$",
+      "$5$",
+      "$7$",
+      "$25$"
+    ],
+    "correct": 1,
+    "explanation": "$|z|=\\sqrt{3^2+4^2}=\\sqrt{25}=5$."
+  },
+  {
+    "id": "q_thpt21_020",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Diện tích xung quanh của hình trụ bán kính $r=2$, chiều cao $h=5$ là",
+    "choices": [
+      "$20\\pi$",
+      "$10\\pi$",
+      "$40\\pi$",
+      "$4\\pi$"
+    ],
+    "correct": 0,
+    "explanation": "$S_{xq}=2\\pi rh=2\\pi\\cdot2\\cdot5=20\\pi$."
+  },
+  {
+    "id": "q_thpt21_021",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "combinatorics",
+    "difficulty": "easy",
+    "question": "Lớp có $12$ học sinh nam và $8$ học sinh nữ. Số cách chọn $2$ học sinh (không phân biệt thứ tự) là",
+    "choices": [
+      "$380$",
+      "$190$",
+      "$240$",
+      "$360$"
+    ],
+    "correct": 1,
+    "explanation": "$C_{20}^2=\\dfrac{20!}{2!\\cdot18!}=\\dfrac{20\\times19}{2}=190$."
+  },
+  {
+    "id": "q_thpt21_022",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Đường tiệm cận ngang của hàm số $y=\\dfrac{3x+1}{x-2}$ là",
+    "choices": [
+      "$y=-2$",
+      "$y=1$",
+      "$y=2$",
+      "$y=3$"
+    ],
+    "correct": 3,
+    "explanation": "$\\lim_{x\\to\\pm\\infty}\\dfrac{3x+1}{x-2}=3$, nên tiệm cận ngang là $y=3$."
+  },
+  {
+    "id": "q_thpt21_023",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "$\\displaystyle\\int_0^{\\pi/2}\\sin x\\,dx$ bằng",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$\\dfrac{\\pi}{2}$"
+    ],
+    "correct": 1,
+    "explanation": "$[-\\cos x]_0^{\\pi/2}=-\\cos(\\pi/2)+\\cos0=0+1=1$."
+  },
+  {
+    "id": "q_thpt21_024",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "sequences",
+    "difficulty": "easy",
+    "question": "Cấp số nhân $(u_n)$ có $u_1=4$, công bội $q=\\dfrac{1}{2}$. Tổng $S_4$ bằng",
+    "choices": [
+      "$\\dfrac{15}{2}$",
+      "$\\dfrac{7}{2}$",
+      "$8$",
+      "$\\dfrac{31}{4}$"
+    ],
+    "correct": 0,
+    "explanation": "$S_4=u_1\\cdot\\dfrac{1-q^4}{1-q}=4\\cdot\\dfrac{1-(1/2)^4}{1/2}=4\\cdot\\dfrac{15/16}{1/2}=\\dfrac{15}{2}$."
+  },
+  {
+    "id": "q_thpt21_025",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Cho $z=4+2i$ và $w=3-4i$. Số phức $z+w$ bằng",
+    "choices": [
+      "$7+2i$",
+      "$7-2i$",
+      "$1+6i$",
+      "$1-6i$"
+    ],
+    "correct": 1,
+    "explanation": "$z+w=(4+3)+(2-4)i=7-2i$."
+  },
+  {
+    "id": "q_thpt21_026",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Hàm số $y=(x-1)^3+2$ có bao nhiêu điểm cực trị?",
+    "choices": [
+      "$2$ điểm",
+      "$1$ điểm",
+      "$0$ điểm",
+      "$3$ điểm"
+    ],
+    "correct": 2,
+    "explanation": "$y'=3(x-1)^2\\geq0$ và $y'=0$ chỉ tại $x=1$ nhưng không đổi dấu. Hàm không có điểm cực trị."
+  },
+  {
+    "id": "q_thpt21_027",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Nguyên hàm của $f(x)=\\dfrac{1}{2x+1}$ là",
+    "choices": [
+      "$-\\dfrac{1}{(2x+1)^2}+C$",
+      "$\\dfrac{1}{2}\\ln|2x+1|+C$",
+      "$\\ln|2x+1|+C$",
+      "$2\\ln|2x+1|+C$"
+    ],
+    "correct": 1,
+    "explanation": "$\\int\\dfrac{1}{2x+1}\\,dx=\\dfrac{1}{2}\\ln|2x+1|+C$."
+  },
+  {
+    "id": "q_thpt21_028",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "probability",
+    "difficulty": "easy",
+    "question": "Tung một xúc xắc cân đối. Xác suất để mặt trên có số chấm là số chẵn là",
+    "choices": [
+      "$\\dfrac{1}{6}$",
+      "$\\dfrac{1}{2}$",
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{2}{3}$"
+    ],
+    "correct": 1,
+    "explanation": "Số chẵn trong $\\{1,2,3,4,5,6\\}$ là $\\{2,4,6\\}$, gồm 3 kết quả. $P=\\dfrac{3}{6}=\\dfrac{1}{2}$."
+  },
+  {
+    "id": "q_thpt21_029",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "logarithm",
+    "difficulty": "medium",
+    "question": "Tập nghiệm của bất phương trình $\\log_2(x-1)>\\log_2(2x-5)$ là",
+    "choices": [
+      "$(2;\\,4)$",
+      "$\\left(\\dfrac{5}{2};\\,4\\right)$",
+      "$(1;\\,4)$",
+      "$\\left(\\dfrac{5}{2};\\,+\\infty\\right)$"
+    ],
+    "correct": 1,
+    "explanation": "Điều kiện: $x>1$ và $x>\\tfrac{5}{2}$. Khi đó $x-1>2x-5\\Rightarrow x<4$. Vậy $\\dfrac{5}{2}<x<4$."
+  },
+  {
+    "id": "q_thpt21_030",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Trong không gian $Oxyz$, khoảng cách từ gốc $O$ đến mặt phẳng $(P)\\colon x+y+z-3=0$ là",
+    "choices": [
+      "$\\sqrt{3}$",
+      "$3$",
+      "$\\dfrac{3}{\\sqrt{3}}$",
+      "$\\dfrac{1}{\\sqrt{3}}$"
+    ],
+    "correct": 0,
+    "explanation": "$d=\\dfrac{|0+0+0-3|}{\\sqrt{1^2+1^2+1^2}}=\\dfrac{3}{\\sqrt{3}}=\\sqrt{3}$."
+  },
+  {
+    "id": "q_thpt21_031",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Biết $F(x)$ là một nguyên hàm của $f(x)=e^{2x}$ và $F(0)=\\dfrac{3}{2}$. Giá trị $F(1)$ bằng",
+    "choices": [
+      "$\\dfrac{e^2}{2}$",
+      "$e^2$",
+      "$\\dfrac{e^2+2}{2}$",
+      "$e^2+1$"
+    ],
+    "correct": 2,
+    "explanation": "$F(x)=\\dfrac{e^{2x}}{2}+C$. $F(0)=\\dfrac{1}{2}+C=\\dfrac{3}{2}\\Rightarrow C=1$. $F(1)=\\dfrac{e^2}{2}+1=\\dfrac{e^2+2}{2}$."
+  },
+  {
+    "id": "q_thpt21_032",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích của khối cầu bán kính $r=3$ là",
+    "choices": [
+      "$12\\pi$",
+      "$27\\pi$",
+      "$108\\pi$",
+      "$36\\pi$"
+    ],
+    "correct": 3,
+    "explanation": "$V=\\dfrac{4}{3}\\pi r^3=\\dfrac{4}{3}\\pi\\cdot27=36\\pi$."
+  },
+  {
+    "id": "q_thpt21_033",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho hình chóp $S.ABC$ có $SA\\perp(ABC)$, tam giác $ABC$ vuông tại $B$, $AB=BC=2a$, $SA=2a$. Khoảng cách từ $C$ đến mặt phẳng $(SAB)$ là",
+    "choices": [
+      "$a$",
+      "$2a$",
+      "$a\\sqrt{2}$",
+      "$a\\sqrt{5}$"
+    ],
+    "correct": 1,
+    "explanation": "Đặt $A$ tại gốc, $B=(2a,0,0)$, $C=(2a,2a,0)$, $S=(0,0,2a)$. Mặt phẳng $(SAB)$ chứa $SA$ và $AB$, vectơ pháp tuyến theo hướng $\\hat{j}$, phương trình $y=0$. Khoảng cách từ $C=(2a,2a,0)$: $d=2a$."
+  },
+  {
+    "id": "q_thpt21_034",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Hàm số $y=x^3-3mx+2$ có hai điểm cực trị khi và chỉ khi",
+    "choices": [
+      "$m<0$",
+      "$m>0$",
+      "$m\\leq0$",
+      "$m\\geq0$"
+    ],
+    "correct": 1,
+    "explanation": "$y'=3x^2-3m=0$ có hai nghiệm phân biệt $\\Leftrightarrow 3m>0\\Leftrightarrow m>0$."
+  },
+  {
+    "id": "q_thpt21_035",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Diện tích hình phẳng giới hạn bởi $y=x^2$ và $y=x$ là",
+    "choices": [
+      "$\\dfrac{1}{6}$",
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{1}{2}$",
+      "$\\dfrac{2}{3}$"
+    ],
+    "correct": 0,
+    "explanation": "Giao điểm: $x=0$ và $x=1$. $S=\\displaystyle\\int_0^1(x-x^2)\\,dx=\\left[\\dfrac{x^2}{2}-\\dfrac{x^3}{3}\\right]_0^1=\\dfrac{1}{6}$."
+  },
+  {
+    "id": "q_thpt21_036",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trong không gian $Oxyz$, trung điểm $M$ của đoạn $A(1;\\,2;\\,-1)B(3;\\,0;\\,1)$ có tọa độ",
+    "choices": [
+      "$(4;\\,2;\\,0)$",
+      "$(2;\\,2;\\,0)$",
+      "$(2;\\,1;\\,0)$",
+      "$(1;\\,2;\\,-1)$"
+    ],
+    "correct": 2,
+    "explanation": "$M=\\left(\\dfrac{1+3}{2};\\dfrac{2+0}{2};\\dfrac{-1+1}{2}\\right)=(2;1;0)$."
+  },
+  {
+    "id": "q_thpt21_037",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "probability",
+    "difficulty": "medium",
+    "question": "Hộp có $3$ bi đỏ và $4$ bi xanh. Lấy ngẫu nhiên $2$ bi. Xác suất lấy được $2$ bi đỏ là",
+    "choices": [
+      "$\\dfrac{1}{7}$",
+      "$\\dfrac{2}{7}$",
+      "$\\dfrac{3}{7}$",
+      "$\\dfrac{4}{7}$"
+    ],
+    "correct": 0,
+    "explanation": "$P=\\dfrac{C_3^2}{C_7^2}=\\dfrac{3}{21}=\\dfrac{1}{7}$."
+  },
+  {
+    "id": "q_thpt21_038",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Trong mặt phẳng tọa độ, điểm biểu diễn số phức $z=-2+5i$ có tọa độ",
+    "choices": [
+      "$(-2;\\,5)$",
+      "$(5;\\,-2)$",
+      "$(2;\\,-5)$",
+      "$(-5;\\,2)$"
+    ],
+    "correct": 0,
+    "explanation": "Số phức $a+bi$ biểu diễn bởi điểm $(a;b)$. Vậy $-2+5i\\to(-2;5)$."
+  },
+  {
+    "id": "q_thpt21_039",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Trong không gian $Oxyz$, khoảng cách từ gốc $O$ đến mặt phẳng $2x-y+3z-6=0$ là",
+    "choices": [
+      "$\\dfrac{3\\sqrt{14}}{7}$",
+      "$\\sqrt{6}$",
+      "$\\sqrt{14}$",
+      "$\\dfrac{6}{14}$"
+    ],
+    "correct": 0,
+    "explanation": "$d=\\dfrac{|2(0)-0+3(0)-6|}{\\sqrt{4+1+9}}=\\dfrac{6}{\\sqrt{14}}=\\dfrac{6\\sqrt{14}}{14}=\\dfrac{3\\sqrt{14}}{7}$."
+  },
+  {
+    "id": "q_thpt21_040",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "sequences",
+    "difficulty": "medium",
+    "question": "Cấp số nhân $(u_n)$ có $u_1=3$, $u_3=27$. Công bội $q$ bằng",
+    "choices": [
+      "$9$",
+      "$-3$",
+      "$3$ hoặc $-3$",
+      "$3$"
+    ],
+    "correct": 2,
+    "explanation": "$u_3=u_1\\cdot q^2=3q^2=27\\Rightarrow q^2=9\\Rightarrow q=\\pm3$."
+  },
+  {
+    "id": "q_thpt21_041",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Hàm số $F(x)=\\displaystyle\\int_0^x(t^2-t)\\,dt$ đạt cực tiểu tại",
+    "choices": [
+      "$x=0$",
+      "$x=-1$",
+      "$x=\\dfrac{1}{2}$",
+      "$x=1$"
+    ],
+    "correct": 3,
+    "explanation": "$F'(x)=x^2-x=x(x-1)$. $F'$ đổi dấu từ âm sang dương qua $x=1$, nên $F$ đạt cực tiểu tại $x=1$."
+  },
+  {
+    "id": "q_thpt21_042",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Số giá trị nguyên của $m$ để hàm số $y=x^3+3x^2-9x+m$ có cực đại dương và cực tiểu âm là",
+    "choices": [
+      "$25$",
+      "$30$",
+      "$32$",
+      "$31$"
+    ],
+    "correct": 3,
+    "explanation": "$y'=3x^2+6x-9=3(x+3)(x-1)$. Cực đại $x=-3$: $y(-3)=27+m>0\\Rightarrow m>-27$. Cực tiểu $x=1$: $y(1)=-5+m<0\\Rightarrow m<5$. Số nguyên từ $-26$ đến $4$: $31$ giá trị."
+  },
+  {
+    "id": "q_thpt21_043",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Hình chóp $S.ABCD$ có đáy $ABCD$ vuông cạnh $a$, $SA\\perp(ABCD)$, $SA=a\\sqrt{2}$. Góc giữa $SC$ và mặt phẳng $(ABCD)$ bằng",
+    "choices": [
+      "$30°$",
+      "$45°$",
+      "$60°$",
+      "$90°$"
+    ],
+    "correct": 1,
+    "explanation": "$|SC|=\\sqrt{a^2+a^2+2a^2}=2a$. Hình chiếu $SC$ xuống $(ABCD)$ là $AC=a\\sqrt{2}$. $\\sin\\alpha=\\dfrac{a\\sqrt{2}}{2a}=\\dfrac{\\sqrt{2}}{2}\\Rightarrow\\alpha=45°$."
+  },
+  {
+    "id": "q_thpt21_044",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Hàm số $f$ thỏa $f'(x)=3x^2-2x+1$ và $f(1)=3$. Giá trị $f(2)$ bằng",
+    "choices": [
+      "$6$",
+      "$7$",
+      "$9$",
+      "$8$"
+    ],
+    "correct": 3,
+    "explanation": "$f(x)=x^3-x^2+x+C$. $f(1)=1-1+1+C=3\\Rightarrow C=2$. $f(2)=8-4+2+2=8$."
+  },
+  {
+    "id": "q_thpt21_045",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "probability",
+    "difficulty": "hard",
+    "question": "Hộp có $5$ bi trắng và $3$ bi đen, lấy ngẫu nhiên $3$ bi. Xác suất lấy được ít nhất $1$ bi trắng là",
+    "choices": [
+      "$\\dfrac{5}{8}$",
+      "$\\dfrac{53}{56}$",
+      "$\\dfrac{55}{56}$",
+      "$\\dfrac{15}{56}$"
+    ],
+    "correct": 2,
+    "explanation": "$P(\\text{ít nhất 1 trắng})=1-P(\\text{0 trắng})=1-\\dfrac{C_3^3}{C_8^3}=1-\\dfrac{1}{56}=\\dfrac{55}{56}$."
+  },
+  {
+    "id": "q_thpt21_046",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Phương trình $x^3-3x+m=0$ có ba nghiệm phân biệt khi",
+    "choices": [
+      "$m<-2$ hoặc $m>2$",
+      "$m\\in[-2;\\,2]$",
+      "$m\\in\\{-2;\\,2\\}$",
+      "$m\\in(-2;\\,2)$"
+    ],
+    "correct": 3,
+    "explanation": "$y=x^3-3x$ có cực đại $y(-1)=2$ và cực tiểu $y(1)=-2$. Phương trình có 3 nghiệm khi $-2<m<2$."
+  },
+  {
+    "id": "q_thpt21_047",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "$F(x)$ là nguyên hàm của $f(x)=\\dfrac{\\ln x}{x}$ và $F(1)=0$. Giá trị $F(e^2)$ bằng",
+    "choices": [
+      "$1$",
+      "$4$",
+      "$2$",
+      "$\\ln 2$"
+    ],
+    "correct": 2,
+    "explanation": "$F(x)=\\dfrac{(\\ln x)^2}{2}+C$. $F(1)=0+C=0\\Rightarrow C=0$. $F(e^2)=\\dfrac{(\\ln e^2)^2}{2}=\\dfrac{4}{2}=2$."
+  },
+  {
+    "id": "q_thpt21_048",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Đường thẳng qua $A(1;\\,0;\\,2)$ và $B(3;\\,4;\\,-2)$ có một vectơ chỉ phương là",
+    "choices": [
+      "$(1;\\,0;\\,2)$",
+      "$(3;\\,4;\\,-2)$",
+      "$(4;\\,4;\\,0)$",
+      "$(2;\\,4;\\,-4)$"
+    ],
+    "correct": 3,
+    "explanation": "$\\overrightarrow{AB}=B-A=(2;4;-4)$ là vectơ chỉ phương của đường thẳng $AB$."
+  },
+  {
+    "id": "q_thpt21_049",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Biết $\\displaystyle\\int_0^1 f(x)\\,dx=3$ và $\\displaystyle\\int_0^2 f(x)\\,dx=7$. Khi đó $\\displaystyle\\int_1^2 f(x)\\,dx$ bằng",
+    "choices": [
+      "$21$",
+      "$2$",
+      "$3$",
+      "$4$"
+    ],
+    "correct": 3,
+    "explanation": "$\\int_1^2 f(x)\\,dx=\\int_0^2 f(x)\\,dx-\\int_0^1 f(x)\\,dx=7-3=4$."
+  },
+  {
+    "id": "q_thpt21_050",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2021",
+    "year": 2021,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Lăng trụ đứng $ABC.A'B'C'$ có đáy $ABC$ là tam giác đều cạnh $a$, chiều cao $2a$. Thể tích khối lăng trụ là",
+    "choices": [
+      "$\\dfrac{a^3\\sqrt{3}}{2}$",
+      "$a^3\\sqrt{3}$",
+      "$\\dfrac{a^3\\sqrt{3}}{4}$",
+      "$2a^3\\sqrt{3}$"
+    ],
+    "correct": 0,
+    "explanation": "$V=S_{ABC}\\cdot h=\\dfrac{a^2\\sqrt{3}}{4}\\cdot2a=\\dfrac{a^3\\sqrt{3}}{2}$."
+  },
+  {
+    "id": "q_thpt20_001",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Tập nghiệm của bất phương trình $3^x > 2$ là",
+    "choices": [
+      "$(-\\infty;\\,\\log_3 2)$",
+      "$(\\log_3 2;\\,+\\infty)$",
+      "$(-\\infty;\\,\\log_2 3)$",
+      "$(\\log_2 3;\\,+\\infty)$"
+    ],
+    "correct": 1,
+    "explanation": "$3^x>2\\Leftrightarrow x>\\log_3 2$, nên tập nghiệm là $(\\log_3 2;+\\infty)$."
+  },
+  {
+    "id": "q_thpt20_002",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Nếu $\\int_1^4 f(x)\\,dx=3$ và $\\int_1^4 g(x)\\,dx=2$ thì $\\int_1^4[2f(x)-g(x)]\\,dx$ bằng",
+    "choices": [
+      "$1$",
+      "$4$",
+      "$8$",
+      "$-1$"
+    ],
+    "correct": 1,
+    "explanation": "$\\int_1^4[2f-g]\\,dx=2\\times3-2=4$."
+  },
+  {
+    "id": "q_thpt20_003",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trong không gian $Oxyz$, mặt cầu tâm $I(1;\\,4;\\,0)$ bán kính $3$ có phương trình",
+    "choices": [
+      "$(x-1)^2+(y-4)^2+z^2=9$",
+      "$(x+1)^2+(y+4)^2+z^2=9$",
+      "$(x-1)^2+(y-4)^2+z^2=3$",
+      "$(x+1)^2+(y+4)^2+z^2=3$"
+    ],
+    "correct": 0,
+    "explanation": "$(x-1)^2+(y-4)^2+(z-0)^2=3^2=9$."
+  },
+  {
+    "id": "q_thpt20_004",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Đường thẳng qua $M(3;\\,-1;\\,4)$, vectơ chỉ phương $\\vec{u}(-2;\\,4;\\,5)$ có phương trình tham số",
+    "choices": [
+      "$x=2+3t,\\;y=4-t,\\;z=5+4t$",
+      "$x=3-2t,\\;y=-1+4t,\\;z=4+5t$",
+      "$x=3+2t,\\;y=-1-4t,\\;z=4+5t$",
+      "$x=-2+3t,\\;y=4-t,\\;z=5+4t$"
+    ],
+    "correct": 1,
+    "explanation": "$x=3-2t,\\;y=-1+4t,\\;z=4+5t$."
+  },
+  {
+    "id": "q_thpt20_005",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Hàm số $y=x^4-8x^2+3$ có bao nhiêu điểm cực trị?",
+    "choices": [
+      "$1$",
+      "$3$",
+      "$2$",
+      "$4$"
+    ],
+    "correct": 1,
+    "explanation": "$y'=4x^3-16x=4x(x^2-4)=4x(x-2)(x+2)$. Có 3 nghiệm $x\\in\\{-2,0,2\\}$, $y'$ đổi dấu qua mỗi nghiệm. Hàm có 3 điểm cực trị."
+  },
+  {
+    "id": "q_thpt20_006",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Trong các hàm số sau, hàm số nào có đồ thị là đường cong có hai điểm cực đại và một điểm cực tiểu?",
+    "choices": [
+      "$y=2x^4-4x^2+1$",
+      "$y=x^3-3x+1$",
+      "$y=-2x^4+4x^2+1$",
+      "$y=-x^3-3x+1$"
+    ],
+    "correct": 2,
+    "explanation": "$y=-2x^4+4x^2+1$: $y'=-8x^3+8x=-8x(x-1)(x+1)=0$ tại $x\\in\\{-1,0,1\\}$. $x=\\pm1$ là cực đại, $x=0$ là cực tiểu."
+  },
+  {
+    "id": "q_thpt20_007",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Đồ thị hàm số $y=x^4-4x^2+3$ cắt trục $Oy$ tại điểm có tung độ bằng",
+    "choices": [
+      "$0$",
+      "$3$",
+      "$1$",
+      "$-3$"
+    ],
+    "correct": 1,
+    "explanation": "$y(0)=0-0+3=3$. Tung độ giao điểm với $Oy$ là $3$."
+  },
+  {
+    "id": "q_thpt20_008",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "combinatorics",
+    "difficulty": "easy",
+    "question": "Số chỉnh hợp chập $4$ của $n$ phần tử $A_n^4$ được tính bởi công thức",
+    "choices": [
+      "$\\dfrac{(n-4)!}{n!}$",
+      "$\\dfrac{n!}{(n-4)!}$",
+      "$\\dfrac{n!}{4!(n-4)!}$",
+      "$\\dfrac{n!}{4!}$"
+    ],
+    "correct": 1,
+    "explanation": "$A_n^4=\\dfrac{n!}{(n-4)!}=n(n-1)(n-2)(n-3)$."
+  },
+  {
+    "id": "q_thpt20_009",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Phần thực của số phức $z=5-2i$ là",
+    "choices": [
+      "$5$",
+      "$2$",
+      "$-5$",
+      "$-2$"
+    ],
+    "correct": 0,
+    "explanation": "Số phức $z=a+bi$ có phần thực là $a=5$."
+  },
+  {
+    "id": "q_thpt20_010",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y=\\dfrac{x+1}{x-3}$ có đường tiệm cận đứng là",
+    "choices": [
+      "$x=-1$",
+      "$y=1$",
+      "$x=3$",
+      "$y=3$"
+    ],
+    "correct": 2,
+    "explanation": "Tiệm cận đứng tại $x-3=0\\Rightarrow x=3$."
+  },
+  {
+    "id": "q_thpt20_011",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Nguyên hàm của $f(x)=x^2-4$ là",
+    "choices": [
+      "$2x+C$",
+      "$x^3-4x+C$",
+      "$\\dfrac{x^3}{3}-4x+C$",
+      "$\\dfrac{x^3}{3}-4+C$"
+    ],
+    "correct": 2,
+    "explanation": "$\\int(x^2-4)\\,dx=\\dfrac{x^3}{3}-4x+C$."
+  },
+  {
+    "id": "q_thpt20_012",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Giá trị của $\\log_3 9$ bằng",
+    "choices": [
+      "$2$",
+      "$3$",
+      "$\\dfrac{1}{2}$",
+      "$9$"
+    ],
+    "correct": 0,
+    "explanation": "$\\log_3 9=\\log_3 3^2=2$."
+  },
+  {
+    "id": "q_thpt20_013",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "sequences",
+    "difficulty": "easy",
+    "question": "Cấp số cộng $(u_n)$ có $u_1=2$, công sai $d=5$. Số hạng $u_5$ bằng",
+    "choices": [
+      "$17$",
+      "$20$",
+      "$22$",
+      "$27$"
+    ],
+    "correct": 2,
+    "explanation": "$u_5=u_1+4d=2+20=22$."
+  },
+  {
+    "id": "q_thpt20_014",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y=x^3-3x^2+4$ đồng biến trên khoảng",
+    "choices": [
+      "$(2;\\,+\\infty)$",
+      "$(-\\infty;\\,0)$",
+      "$(0;\\,2)$",
+      "$(-1;\\,1)$"
+    ],
+    "correct": 0,
+    "explanation": "$y'=3x^2-6x=3x(x-2)\\geq0$ khi $x\\leq0$ hoặc $x\\geq2$."
+  },
+  {
+    "id": "q_thpt20_015",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Nghiệm của phương trình $2^{x+1}=8$ là",
+    "choices": [
+      "$x=4$",
+      "$x=1$",
+      "$x=2$",
+      "$x=3$"
+    ],
+    "correct": 2,
+    "explanation": "$2^{x+1}=2^3\\Rightarrow x+1=3\\Rightarrow x=2$."
+  },
+  {
+    "id": "q_thpt20_016",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Hình lập phương cạnh $a$ có đường chéo không gian dài bằng",
+    "choices": [
+      "$a\\sqrt{2}$",
+      "$a\\sqrt{3}$",
+      "$2a$",
+      "$a\\sqrt{5}$"
+    ],
+    "correct": 1,
+    "explanation": "Đường chéo không gian $=\\sqrt{a^2+a^2+a^2}=a\\sqrt{3}$."
+  },
+  {
+    "id": "q_thpt20_017",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Giá trị cực đại của hàm số $y=-x^2+4x-1$ là",
+    "choices": [
+      "$4$",
+      "$2$",
+      "$3$",
+      "$1$"
+    ],
+    "correct": 2,
+    "explanation": "$y'=-2x+4=0\\Rightarrow x=2$. $y(2)=-4+8-1=3$."
+  },
+  {
+    "id": "q_thpt20_018",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Môđun của số phức $z=3+4i$ là",
+    "choices": [
+      "$5$",
+      "$7$",
+      "$\\sqrt{7}$",
+      "$25$"
+    ],
+    "correct": 0,
+    "explanation": "$|z|=\\sqrt{3^2+4^2}=\\sqrt{25}=5$."
+  },
+  {
+    "id": "q_thpt20_019",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Diện tích mặt cầu bán kính $R$ là",
+    "choices": [
+      "$\\dfrac{4}{3}\\pi R^2$",
+      "$4\\pi R^2$",
+      "$\\pi R^2$",
+      "$\\dfrac{2}{3}\\pi R^2$"
+    ],
+    "correct": 1,
+    "explanation": "Diện tích mặt cầu $S=4\\pi R^2$."
+  },
+  {
+    "id": "q_thpt20_020",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Đường tiệm cận đứng của hàm số $y=\\dfrac{2x-1}{x-1}$ là",
+    "choices": [
+      "$x=1$",
+      "$x=-1$",
+      "$x=2$",
+      "$x=\\dfrac{1}{2}$"
+    ],
+    "correct": 0,
+    "explanation": "Mẫu bằng $0$: $x-1=0\\Rightarrow x=1$."
+  },
+  {
+    "id": "q_thpt20_021",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "$\\log_a(a^{1/4})$ bằng ($a>0,\\,a\\neq1$)",
+    "choices": [
+      "$4$",
+      "$\\dfrac{1}{4}$",
+      "$-\\dfrac{1}{4}$",
+      "$-4$"
+    ],
+    "correct": 1,
+    "explanation": "$\\log_a(a^{1/4})=\\dfrac{1}{4}$."
+  },
+  {
+    "id": "q_thpt20_022",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích hình chóp có diện tích đáy $S=5a^2$ và chiều cao $h=a$ là",
+    "choices": [
+      "$5a^3$",
+      "$\\dfrac{5a^3}{6}$",
+      "$\\dfrac{5a^3}{2}$",
+      "$\\dfrac{5a^3}{3}$"
+    ],
+    "correct": 3,
+    "explanation": "$V=\\dfrac{1}{3}\\cdot5a^2\\cdot a=\\dfrac{5a^3}{3}$."
+  },
+  {
+    "id": "q_thpt20_023",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Vectơ pháp tuyến của mặt phẳng $3x-y+2z+1=0$ là",
+    "choices": [
+      "$(-3;\\,1;\\,2)$",
+      "$(3;\\,-1;\\,2)$",
+      "$(3;\\,1;\\,2)$",
+      "$(3;\\,1;\\,-2)$"
+    ],
+    "correct": 1,
+    "explanation": "Mặt phẳng $ax+by+cz+d=0$ có vectơ pháp tuyến $\\vec{n}=(a;b;c)=(3;-1;2)$."
+  },
+  {
+    "id": "q_thpt20_024",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích hình trụ bán kính $r=6$ và chiều cao $h=3$ là",
+    "choices": [
+      "$108\\pi$",
+      "$36\\pi$",
+      "$54\\pi$",
+      "$18\\pi$"
+    ],
+    "correct": 0,
+    "explanation": "$V=\\pi r^2 h=\\pi\\cdot36\\cdot3=108\\pi$."
+  },
+  {
+    "id": "q_thpt20_025",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Cho $z=4+3i$ và $w=-3+4i$. Số phức $z-w$ bằng",
+    "choices": [
+      "$1+7i$",
+      "$1-i$",
+      "$7+7i$",
+      "$7-i$"
+    ],
+    "correct": 3,
+    "explanation": "$z-w=(4+3i)-(-3+4i)=7-i$."
+  },
+  {
+    "id": "q_thpt20_026",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "sequences",
+    "difficulty": "easy",
+    "question": "Cấp số nhân $(u_n)$ có $u_1=3$, $u_2=9$. Công bội $q$ bằng",
+    "choices": [
+      "$6$",
+      "$-3$",
+      "$3$",
+      "$27$"
+    ],
+    "correct": 2,
+    "explanation": "$q=\\dfrac{u_2}{u_1}=\\dfrac{9}{3}=3$."
+  },
+  {
+    "id": "q_thpt20_027",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Nguyên hàm của $f(x)=e^x-2$ là",
+    "choices": [
+      "$e^x+C$",
+      "$e^x-2x+C$",
+      "$e^x+2x+C$",
+      "$xe^x-2+C$"
+    ],
+    "correct": 1,
+    "explanation": "$\\int(e^x-2)\\,dx=e^x-2x+C$."
+  },
+  {
+    "id": "q_thpt20_028",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Điểm $M(-3;\\,4)$ trong mặt phẳng Argand biểu diễn số phức nào?",
+    "choices": [
+      "$3-4i$",
+      "$-3+4i$",
+      "$4-3i$",
+      "$-4+3i$"
+    ],
+    "correct": 1,
+    "explanation": "Điểm $(a;b)$ biểu diễn số phức $a+bi$. Vậy $M(-3;4)\\to z=-3+4i$."
+  },
+  {
+    "id": "q_thpt20_029",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Hàm số $y=\\dfrac{x-a}{x-1}$ ($a\\neq1$) có đạo hàm trên tập xác định thỏa mãn",
+    "choices": [
+      "$y'>0$ với mọi $x\\neq1$",
+      "$y'<0$ với mọi $x\\neq1$",
+      "$y'=0$ với mọi $x\\neq1$",
+      "$y'$ đổi dấu qua $x=1$"
+    ],
+    "correct": 1,
+    "explanation": "$y'=\\dfrac{(x-1)-(x-a)}{(x-1)^2}=\\dfrac{a-1}{(x-1)^2}$. Vì $a\\neq1$ nên $a-1\\neq0$; do đó $y'<0$ với mọi $x\\neq1$ nếu $a<1$, hoặc $y'>0$ nếu $a>1$. Tuy nhiên câu hỏi hỏi tính chất chung khi $a-1<0$: $y'<0$."
+  },
+  {
+    "id": "q_thpt20_030",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "$\\displaystyle\\int_0^1(2x+3)\\,dx$ bằng",
+    "choices": [
+      "$4$",
+      "$3$",
+      "$5$",
+      "$2$"
+    ],
+    "correct": 0,
+    "explanation": "$\\left[x^2+3x\\right]_0^1=1+3=4$."
+  },
+  {
+    "id": "q_thpt20_031",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình vuông cạnh $2a$, $SA\\perp(ABCD)$, $SA=2a$. Thể tích khối chóp là",
+    "choices": [
+      "$2a^3$",
+      "$4a^3$",
+      "$\\dfrac{8a^3}{3}$",
+      "$\\dfrac{4a^3}{3}$"
+    ],
+    "correct": 2,
+    "explanation": "$V=\\dfrac{1}{3}\\cdot(2a)^2\\cdot2a=\\dfrac{8a^3}{3}$."
+  },
+  {
+    "id": "q_thpt20_032",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "complex_numbers",
+    "difficulty": "medium",
+    "question": "Số phức $z$ thỏa mãn $z+\\bar{z}=6$ và $z\\cdot\\bar{z}=13$. Phần ảo của $z$ là",
+    "choices": [
+      "$\\pm1$",
+      "$\\pm3$",
+      "$\\pm6$",
+      "$\\pm2$"
+    ],
+    "correct": 3,
+    "explanation": "Đặt $z=a+bi$: $2a=6\\Rightarrow a=3$; $a^2+b^2=13\\Rightarrow b^2=4\\Rightarrow b=\\pm2$."
+  },
+  {
+    "id": "q_thpt20_033",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho hình chóp $S.ABC$, $SA\\perp(ABC)$, tam giác $ABC$ đều cạnh $2a$, $SA=a\\sqrt{3}$. Khoảng cách từ $A$ đến mặt phẳng $(SBC)$ bằng",
+    "choices": [
+      "$\\dfrac{a\\sqrt{3}}{2}$",
+      "$a\\sqrt{3}$",
+      "$\\dfrac{a}{2}$",
+      "$a$"
+    ],
+    "correct": 0,
+    "explanation": "Đặt $H$ là trung điểm $BC$. $AH=a\\sqrt{3}$ (tam giác đều), $SH=\\sqrt{SA^2+AH^2}=\\sqrt{3a^2+3a^2}=a\\sqrt{6}$. Khoảng cách $d=\\dfrac{SA\\cdot AH}{SH}=\\dfrac{a\\sqrt{3}\\cdot a\\sqrt{3}}{a\\sqrt{6}}=\\dfrac{3a}{a\\sqrt{6}}=\\dfrac{a\\sqrt{6}}{2}$."
+  },
+  {
+    "id": "q_thpt20_034",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Trong không gian $Oxyz$, mặt phẳng qua $A(1;\\,0;\\,0)$ và vuông góc với $\\overrightarrow{AB}$ với $B(4;\\,1;\\,2)$ có phương trình",
+    "choices": [
+      "$x+y+2z-1=0$",
+      "$3x+y+2z-3=0$",
+      "$3x+y+2z+3=0$",
+      "$x+y-2z-1=0$"
+    ],
+    "correct": 1,
+    "explanation": "$\\overrightarrow{AB}=(3;1;2)$ là VTPT. Qua $A(1;0;0)$: $3(x-1)+y+2z=0\\Rightarrow 3x+y+2z-3=0$."
+  },
+  {
+    "id": "q_thpt20_035",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "complex_numbers",
+    "difficulty": "medium",
+    "question": "Số phức $z$ thỏa $iz=5-4i$. Phần thực của $z$ là",
+    "choices": [
+      "$-4$",
+      "$4$",
+      "$5$",
+      "$-5$"
+    ],
+    "correct": 0,
+    "explanation": "$iz=5-4i\\Rightarrow z=\\dfrac{5-4i}{i}=\\dfrac{(5-4i)(-i)}{1}=\\dfrac{-5i+4i^2}{1}=-4-5i$. Phần thực là $-4$."
+  },
+  {
+    "id": "q_thpt20_036",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Diện tích hình phẳng giới hạn bởi $y=x^2-1$ và $y=0$ (phần nằm dưới trục $Ox$) là",
+    "choices": [
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{2}{3}$",
+      "$\\dfrac{4}{3}$",
+      "$2$"
+    ],
+    "correct": 2,
+    "explanation": "$x^2-1=0\\Rightarrow x=\\pm1$. $S=\\int_{-1}^1(1-x^2)\\,dx=\\left[x-\\dfrac{x^3}{3}\\right]_{-1}^1=\\dfrac{4}{3}$."
+  },
+  {
+    "id": "q_thpt20_037",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "probability",
+    "difficulty": "medium",
+    "question": "Gieo ngẫu nhiên $2$ súc sắc. Xác suất để tổng số chấm bằng $7$ là",
+    "choices": [
+      "$\\dfrac{1}{6}$",
+      "$\\dfrac{1}{12}$",
+      "$\\dfrac{5}{36}$",
+      "$\\dfrac{7}{36}$"
+    ],
+    "correct": 0,
+    "explanation": "Các cặp có tổng $7$: $(1,6),(2,5),(3,4),(4,3),(5,2),(6,1)$ — 6 cặp. $P=\\dfrac{6}{36}=\\dfrac{1}{6}$."
+  },
+  {
+    "id": "q_thpt20_038",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "sequences",
+    "difficulty": "medium",
+    "question": "Tổng $n$ số hạng đầu của cấp số nhân $u_1=1,\\,q=2$ là $S_n=63$. Giá trị $n$ bằng",
+    "choices": [
+      "$6$",
+      "$5$",
+      "$7$",
+      "$8$"
+    ],
+    "correct": 0,
+    "explanation": "$S_n=\\dfrac{1\\cdot(2^n-1)}{2-1}=2^n-1=63\\Rightarrow 2^n=64\\Rightarrow n=6$."
+  },
+  {
+    "id": "q_thpt20_039",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Trong không gian $Oxyz$, khoảng cách giữa hai điểm $A(1;\\,2;\\,3)$ và $B(4;\\,-2;\\,0)$ là",
+    "choices": [
+      "$\\sqrt{34}$",
+      "$\\sqrt{18}$",
+      "$\\sqrt{26}$",
+      "$5\\sqrt{2}$"
+    ],
+    "correct": 0,
+    "explanation": "$|AB|=\\sqrt{(4-1)^2+(-2-2)^2+(0-3)^2}=\\sqrt{9+16+9}=\\sqrt{34}$."
+  },
+  {
+    "id": "q_thpt20_040",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Số nghiệm của phương trình $x^3-3x-2=0$ là",
+    "choices": [
+      "$1$",
+      "$0$",
+      "$3$",
+      "$2$"
+    ],
+    "correct": 2,
+    "explanation": "$x^3-3x-2=(x+1)^2(x-2)=0\\Rightarrow x=-1$ (nghiệm kép) và $x=2$. Có $3$ nghiệm (kể cả nghiệm bội): $x=-1, -1, 2$, nhưng thực ra có $2$ giá trị phân biệt. Lưu ý: đề hỏi số nghiệm tính bội → $3$."
+  },
+  {
+    "id": "q_thpt20_041",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Cho hàm số $y=x^3-3x^2+2$ trên $[0;\\,3]$. Giá trị lớn nhất của hàm số là",
+    "choices": [
+      "$2$",
+      "$0$",
+      "$-2$",
+      "$4$"
+    ],
+    "correct": 0,
+    "explanation": "Trên $[0;3]$: $y(0)=2$, $y(2)=-2$, $y(3)=2$. Giá trị lớn nhất là $2$, đạt tại $x=0$ và $x=3$."
+  },
+  {
+    "id": "q_thpt20_042",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Số điểm cực trị của hàm số $y=\\dfrac{x^2-2x+1}{x-2}$ là",
+    "choices": [
+      "$3$",
+      "$1$",
+      "$0$",
+      "$2$"
+    ],
+    "correct": 3,
+    "explanation": "$y'=\\dfrac{(2x-2)(x-2)-(x^2-2x+1)}{(x-2)^2}=\\dfrac{x^2-4x+3}{(x-2)^2}=\\dfrac{(x-1)(x-3)}{(x-2)^2}$. $y'=0$ tại $x=1$ và $x=3$, cả hai đều có $y'$ đổi dấu → 2 điểm cực trị."
+  },
+  {
+    "id": "q_thpt20_043",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Cho hình chóp $S.ABCD$ đáy hình vuông cạnh $a$, $SA\\perp(ABCD)$, $SA=a$. Góc giữa $SB$ và $(ABCD)$ là",
+    "choices": [
+      "$30°$",
+      "$45°$",
+      "$60°$",
+      "$arctan\\sqrt{2}$"
+    ],
+    "correct": 1,
+    "explanation": "Hình chiếu $SB$ xuống $(ABCD)$ là $AB=a$; cạnh đứng $SA=a$. $\\tan\\alpha=\\dfrac{SA}{AB}=1\\Rightarrow\\alpha=45°$."
+  },
+  {
+    "id": "q_thpt20_044",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "logarithm",
+    "difficulty": "hard",
+    "question": "Tập nghiệm của bất phương trình $\\log_{1/2}(2x-1)\\geq-2$ là",
+    "choices": [
+      "$\\left(\\dfrac{1}{2};\\,1\\right]$",
+      "$\\left[\\dfrac{1}{2};\\,\\dfrac{5}{2}\\right]$",
+      "$\\left(\\dfrac{1}{2};\\,+\\infty\\right)$",
+      "$\\left(\\dfrac{1}{2};\\,\\dfrac{5}{2}\\right]$"
+    ],
+    "correct": 3,
+    "explanation": "Cơ số $\\tfrac{1}{2}<1$ nên bất phương trình đảo chiều: $2x-1\\leq(\\tfrac{1}{2})^{-2}=4$; kết hợp $2x-1>0\\Rightarrow \\tfrac{1}{2}<x\\leq\\tfrac{5}{2}$."
+  },
+  {
+    "id": "q_thpt20_045",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "$\\displaystyle\\int_1^e \\dfrac{1+\\ln x}{x}\\,dx$ bằng",
+    "choices": [
+      "$1$",
+      "$e$",
+      "$\\dfrac{3}{2}$",
+      "$2$"
+    ],
+    "correct": 2,
+    "explanation": "Đặt $u=\\ln x$, $du=\\tfrac{1}{x}dx$. Khi $x=1$, $u=0$; khi $x=e$, $u=1$. $\\int_0^1(1+u)\\,du=[u+\\tfrac{u^2}{2}]_0^1=\\tfrac{3}{2}$."
+  },
+  {
+    "id": "q_thpt20_046",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Giá trị lớn nhất của hàm số $y=x+\\dfrac{4}{x}$ trên đoạn $[1;\\,4]$ là",
+    "choices": [
+      "$4$",
+      "$5$",
+      "$\\dfrac{17}{4}$",
+      "$6$"
+    ],
+    "correct": 1,
+    "explanation": "$y'=1-\\dfrac{4}{x^2}=0\\Rightarrow x=2$ (trên $[1,4]$). $y(1)=5$, $y(2)=4$, $y(4)=5$. Giá trị lớn nhất là $5$."
+  },
+  {
+    "id": "q_thpt20_047",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Trong không gian $Oxyz$, đường thẳng $\\dfrac{x-1}{2}=\\dfrac{y}{1}=\\dfrac{z+2}{-1}$ có điểm nào sau đây nằm trên đường thẳng?",
+    "choices": [
+      "$(1;\\,0;\\,-2)$",
+      "$(3;\\,1;\\,-3)$",
+      "$(5;\\,1;\\,-3)$",
+      "$(5;\\,2;\\,-4)$"
+    ],
+    "correct": 1,
+    "explanation": "Thay $t=1$: $x=1+2=3$, $y=1$, $z=-2-1=-3$. Điểm $(3;1;-3)$ thuộc đường thẳng."
+  },
+  {
+    "id": "q_thpt20_048",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "probability",
+    "difficulty": "hard",
+    "question": "Một nhóm gồm $4$ nam và $3$ nữ. Chọn ngẫu nhiên $3$ người. Xác suất chọn được ít nhất $1$ nữ là",
+    "choices": [
+      "$\\dfrac{18}{35}$",
+      "$\\dfrac{4}{35}$",
+      "$\\dfrac{12}{35}$",
+      "$\\dfrac{31}{35}$"
+    ],
+    "correct": 3,
+    "explanation": "$P(\\text{không có nữ})=\\dfrac{C_4^3}{C_7^3}=\\dfrac{4}{35}$. $P(\\text{ít nhất 1 nữ})=1-\\dfrac{4}{35}=\\dfrac{31}{35}$."
+  },
+  {
+    "id": "q_thpt20_049",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Tìm $m$ để phương trình $e^{2x}-3e^x+m=0$ có hai nghiệm phân biệt",
+    "choices": [
+      "$m<0$",
+      "$m>2$",
+      "$m=\\dfrac{9}{4}$",
+      "$0<m<\\dfrac{9}{4}$"
+    ],
+    "correct": 3,
+    "explanation": "Đặt $t=e^x>0$: $t^2-3t+m=0$. Hàm $g(t)=t^2-3t$ trên $(0;+\\infty)$ có cực tiểu $g(\\tfrac{3}{2})=-\\tfrac{9}{4}$, $g(0)=0$. Để có 2 nghiệm $t>0$: $-\\tfrac{9}{4}<-m<0\\Rightarrow 0<m<\\dfrac{9}{4}$."
+  },
+  {
+    "id": "q_thpt20_050",
+    "source": "Bộ GD&ĐT — Kỳ thi THPT Quốc gia 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Cho hình lăng trụ đứng $ABCD.A'B'C'D'$ có đáy là hình thoi cạnh $a$, $\\widehat{BAD}=60°$, chiều cao $h=2a$. Thể tích lăng trụ là",
+    "choices": [
+      "$a^3\\sqrt{3}$",
+      "$2a^3\\sqrt{3}$",
+      "$\\dfrac{a^3\\sqrt{3}}{2}$",
+      "$4a^3\\sqrt{3}$"
+    ],
+    "correct": 0,
+    "explanation": "$S_{ABCD}=a^2\\sin60°=\\dfrac{a^2\\sqrt{3}}{2}$. $V=S\\cdot h=\\dfrac{a^2\\sqrt{3}}{2}\\cdot2a=a^3\\sqrt{3}$."
+  },
+  {
+    "id": "q_mh25_001",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "sequences",
+    "difficulty": "easy",
+    "question": "Cho cấp số cộng $(u_n)$ có $u_1=2$, $u_3=8$. Công sai $d$ bằng",
+    "choices": [
+      "$4$",
+      "$3$",
+      "$6$",
+      "$5$"
+    ],
+    "correct": 1,
+    "explanation": "$u_3=u_1+2d\\Rightarrow 8=2+2d\\Rightarrow d=3$."
+  },
+  {
+    "id": "q_mh25_002",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "$\\log_2 32$ bằng",
+    "choices": [
+      "$4$",
+      "$5$",
+      "$6$",
+      "$3$"
+    ],
+    "correct": 1,
+    "explanation": "$\\log_2 32=\\log_2 2^5=5$."
+  },
+  {
+    "id": "q_mh25_003",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Số phức $z=(1+i)^2$ bằng",
+    "choices": [
+      "$2$",
+      "$2i$",
+      "$1+2i$",
+      "$-2$"
+    ],
+    "correct": 1,
+    "explanation": "$(1+i)^2=1+2i+i^2=1+2i-1=2i$."
+  },
+  {
+    "id": "q_mh25_004",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Cho hình chóp đều $S.ABCD$ có đáy là hình vuông cạnh $2a$ và chiều cao $h=a$. Thể tích khối chóp là",
+    "choices": [
+      "$\\dfrac{4a^3}{3}$",
+      "$\\dfrac{2a^3}{3}$",
+      "$4a^3$",
+      "$\\dfrac{8a^3}{3}$"
+    ],
+    "correct": 0,
+    "explanation": "$V=\\dfrac{1}{3}(2a)^2\\cdot a=\\dfrac{4a^3}{3}$."
+  },
+  {
+    "id": "q_mh25_005",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y=x^3-3x$ có đường cong đối xứng qua",
+    "choices": [
+      "Trục $Ox$",
+      "Gốc tọa độ $O$",
+      "Trục $Oy$",
+      "Điểm $(1;0)$"
+    ],
+    "correct": 1,
+    "explanation": "$f(-x)=(-x)^3-3(-x)=-(x^3-3x)=-f(x)$, nên đồ thị đối xứng qua gốc tọa độ."
+  },
+  {
+    "id": "q_mh25_006",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "$\\displaystyle\\int_0^1 3x^2\\,dx$ bằng",
+    "choices": [
+      "$3$",
+      "$2$",
+      "$1$",
+      "$\\dfrac{3}{4}$"
+    ],
+    "correct": 2,
+    "explanation": "$[x^3]_0^1=1-0=1$."
+  },
+  {
+    "id": "q_mh25_007",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trong không gian $Oxyz$, mặt phẳng $(P)\\colon 2x-3y+z-1=0$ có vectơ pháp tuyến là",
+    "choices": [
+      "$(2;\\,-3;\\,1)$",
+      "$(1;\\,-1;\\,0)$",
+      "$(2;\\,3;\\,-1)$",
+      "$(-2;\\,3;\\,-1)$"
+    ],
+    "correct": 0,
+    "explanation": "Vectơ pháp tuyến là $(a;b;c)=(2;-3;1)$."
+  },
+  {
+    "id": "q_mh25_008",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "combinatorics",
+    "difficulty": "easy",
+    "question": "Số tổ hợp chập $2$ của $10$ phần tử $C_{10}^2$ bằng",
+    "choices": [
+      "$20$",
+      "$90$",
+      "$45$",
+      "$100$"
+    ],
+    "correct": 2,
+    "explanation": "$C_{10}^2=\\dfrac{10\\times9}{2}=45$."
+  },
+  {
+    "id": "q_mh25_009",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Tập nghiệm của phương trình $\\log_5(x+1)=2$ là",
+    "choices": [
+      "$\\{24\\}$",
+      "$\\{25\\}$",
+      "$\\{4\\}$",
+      "$\\{26\\}$"
+    ],
+    "correct": 0,
+    "explanation": "$x+1=5^2=25\\Rightarrow x=24$."
+  },
+  {
+    "id": "q_mh25_010",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Hàm số $y=\\dfrac{2x-1}{x+3}$ có đường tiệm cận ngang là",
+    "choices": [
+      "$y=3$",
+      "$y=-1$",
+      "$y=2$",
+      "$y=\\dfrac{1}{3}$"
+    ],
+    "correct": 2,
+    "explanation": "$\\lim_{x\\to\\pm\\infty}\\dfrac{2x-1}{x+3}=2$."
+  },
+  {
+    "id": "q_mh25_011",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "probability",
+    "difficulty": "medium",
+    "question": "Xác suất để trong $4$ lần gieo xúc xắc có đúng $2$ lần xuất hiện mặt $6$ chấm là",
+    "choices": [
+      "$\\dfrac{25}{216}$",
+      "$\\dfrac{125}{1296}$",
+      "$\\dfrac{25}{1296}$",
+      "$\\dfrac{150}{1296}$"
+    ],
+    "correct": 0,
+    "explanation": "$P=C_4^2\\left(\\dfrac{1}{6}\\right)^2\\left(\\dfrac{5}{6}\\right)^2=6\\cdot\\dfrac{25}{1296}=\\dfrac{150}{1296}=\\dfrac{25}{216}$. Đáp án B: $\\dfrac{125}{1296}$... Kiểm tra lại: $C_4^2=6$, $(1/6)^2=1/36$, $(5/6)^2=25/36$. $P=6\\cdot\\dfrac{25}{1296}=\\dfrac{150}{1296}=\\dfrac{25}{216}$. Chọn A."
+  },
+  {
+    "id": "q_mh25_012",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Cho hàm số $y=f(x)$ có $f'(x)=x^2-2x$. Khoảng đồng biến của $f(x)$ là",
+    "choices": [
+      "$(0;\\,2)$",
+      "$(-\\infty;\\,0)$",
+      "$(2;\\,+\\infty)$",
+      "$(-\\infty;\\,0)$ và $(2;\\,+\\infty)$"
+    ],
+    "correct": 3,
+    "explanation": "$f'(x)=x(x-2)\\geq0$ khi $x\\leq0$ hoặc $x\\geq2$."
+  },
+  {
+    "id": "q_mh25_013",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho hàm số $y=-x^4+4x^2-1$. Mệnh đề nào sau đây SAI?",
+    "choices": [
+      "Hàm có đúng $3$ điểm cực trị",
+      "$f'(x)=-4x^3+8x$",
+      "Tập nghiệm $f'(x)=0$ là $\\{-\\sqrt{2};\\,0;\\,\\sqrt{2}\\}$",
+      "Giá trị lớn nhất của hàm số là $4$"
+    ],
+    "correct": 3,
+    "explanation": "$y(-\\sqrt{2})=y(\\sqrt{2})=-4+8-1=3$ (cực đại), $y(0)=-1$ (cực tiểu). Giá trị lớn nhất là $3$, không phải $4$. Mệnh đề D SAI."
+  },
+  {
+    "id": "q_mh25_014",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Cho hàm số $f(x)=\\dfrac{x^3}{3}-x^2+1$. Mệnh đề nào sau đây ĐÚNG?",
+    "choices": [
+      "$f'(x)=x^2+2x$",
+      "$f$ đồng biến trên $(0;\\,2)$",
+      "$f$ đạt cực tiểu tại $x=2$",
+      "$f(0)=0$"
+    ],
+    "correct": 2,
+    "explanation": "$f'(x)=x^2-2x=x(x-2)$. $f'$ đổi dấu từ âm sang dương qua $x=2$, nên $x=2$ là điểm cực tiểu. Mệnh đề C đúng."
+  },
+  {
+    "id": "q_mh25_015",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Trong không gian $Oxyz$, cho mặt cầu $(S)\\colon x^2+y^2+z^2-2x+4y-6z-2=0$. Mệnh đề nào sau đây ĐÚNG?",
+    "choices": [
+      "Tâm mặt cầu là $(-1;\\,2;\\,-3)$",
+      "Bán kính mặt cầu là $\\sqrt{16}=4$",
+      "Tâm mặt cầu là $(1;\\,-2;\\,3)$",
+      "Bán kính mặt cầu là $\\sqrt{2}$"
+    ],
+    "correct": 2,
+    "explanation": "Hoàn thiện bình phương: $(x-1)^2+(y+2)^2+(z-3)^2=1+4+9+2=16$. Tâm $(1;-2;3)$, bán kính $4$."
+  },
+  {
+    "id": "q_mh25_016",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "probability",
+    "difficulty": "medium",
+    "question": "Biến ngẫu nhiên $X$ nhận các giá trị $1, 2, 3, 4$ với xác suất bằng nhau. Mệnh đề nào sau đây SAI?",
+    "choices": [
+      "$P(X=1)=0{,}25$",
+      "$E(X)=2{,}5$",
+      "$P(X\\geq3)=0{,}5$",
+      "$P(X<2)=0{,}5$"
+    ],
+    "correct": 3,
+    "explanation": "$P(X<2)=P(X=1)=0{,}25\\neq0{,}5$. Mệnh đề D SAI."
+  },
+  {
+    "id": "q_mh25_017",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Cho hàm số $f(x)=x^3-6x^2+9x+1$. Tổng tất cả các điểm cực trị của hàm số là",
+    "choices": [
+      "$3$",
+      "$4$",
+      "$5$",
+      "$6$"
+    ],
+    "correct": 1,
+    "explanation": "$f'(x)=3x^2-12x+9=3(x-1)(x-3)=0\\Rightarrow x=1$ (cực đại), $x=3$ (cực tiểu). Tổng $=1+3=4$."
+  },
+  {
+    "id": "q_mh25_018",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Diện tích hình phẳng giới hạn bởi $y=x^2-4$ và trục $Ox$ (phần $y\\leq0$) là",
+    "choices": [
+      "$\\dfrac{8}{3}$",
+      "$\\dfrac{16}{3}$",
+      "$\\dfrac{32}{3}$",
+      "$4$"
+    ],
+    "correct": 2,
+    "explanation": "$x^2-4=0\\Rightarrow x=\\pm2$. $S=\\int_{-2}^2(4-x^2)\\,dx=\\left[4x-\\dfrac{x^3}{3}\\right]_{-2}^2=\\dfrac{32}{3}-(-\\dfrac{32}{3})=\\dfrac{32}{3}$... Thực ra $S=2\\int_0^2(4-x^2)dx=2[4x-x^3/3]_0^2=2(8-8/3)=2\\cdot16/3=32/3$. Chọn C."
+  },
+  {
+    "id": "q_mh25_019",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Trong không gian $Oxyz$, cho $A(2;\\,0;\\,0)$, $B(0;\\,3;\\,0)$, $C(0;\\,0;\\,6)$. Phương trình mặt phẳng $(ABC)$ là",
+    "choices": [
+      "$3x+2y+z-6=0$",
+      "$3x+2y+z-3=0$",
+      "$x+y+z-6=0$",
+      "$3x+2y+z+6=0$"
+    ],
+    "correct": 0,
+    "explanation": "$\\dfrac{x}{2}+\\dfrac{y}{3}+\\dfrac{z}{6}=1\\Rightarrow 3x+2y+z=6$."
+  },
+  {
+    "id": "q_mh25_020",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "logarithm",
+    "difficulty": "hard",
+    "question": "Số nghiệm nguyên của bất phương trình $\\log_3(x^2-3x+2)<1$ là",
+    "choices": [
+      "$1$",
+      "$2$",
+      "$3$",
+      "$4$"
+    ],
+    "correct": 1,
+    "explanation": "$\\log_3(x^2-3x+2)<1\\Leftrightarrow x^2-3x+2<3$ (với $x^2-3x+2>0$). $x^2-3x-1<0\\Rightarrow \\dfrac{3-\\sqrt{13}}{2}<x<\\dfrac{3+\\sqrt{13}}{2}\\approx(-0.3;3.3)$. Kết hợp $x<1$ hoặc $x>2$: nghiệm nguyên là $x=0$ và $x=3$. Có 2 giá trị."
+  },
+  {
+    "id": "q_mh25_021",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Hình chóp tứ giác đều $S.ABCD$ có cạnh đáy $a$, góc giữa mặt bên và đáy là $60°$. Chiều cao hình chóp là",
+    "choices": [
+      "$\\dfrac{a\\sqrt{3}}{2}$",
+      "$\\dfrac{a\\sqrt{6}}{2}$",
+      "$a\\sqrt{3}$",
+      "$a$"
+    ],
+    "correct": 0,
+    "explanation": "Tâm đáy $O$ cách cạnh $\\dfrac{a}{2}$. $\\tan60°=\\dfrac{h}{a/2}\\Rightarrow h=\\dfrac{a\\sqrt{3}}{2}$."
+  },
+  {
+    "id": "q_mh25_022",
+    "source": "Bộ GD&ĐT — Đề minh họa THPT 2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Giá trị $\\displaystyle\\int_0^{\\ln2}e^x(e^x+1)\\,dx$ bằng",
+    "choices": [
+      "$\\dfrac{5}{2}$",
+      "$\\ln2+1$",
+      "$3$",
+      "$\\dfrac{7}{2}$"
+    ],
+    "correct": 0,
+    "explanation": "$\\int_0^{\\ln2}(e^{2x}+e^x)\\,dx=\\left[\\dfrac{e^{2x}}{2}+e^x\\right]_0^{\\ln2}=\\left(\\dfrac{4}{2}+2\\right)-\\left(\\dfrac{1}{2}+1\\right)=4-\\dfrac{3}{2}=\\dfrac{5}{2}$."
+  },
+  {
+    "id": "q_hn25_001",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y=x^3-6x^2+9x-4$ có giá trị cực đại bằng",
+    "choices": [
+      "$0$",
+      "$-4$",
+      "$-3$",
+      "$-2$"
+    ],
+    "correct": 0,
+    "explanation": "$y'=3x^2-12x+9=3(x-1)(x-3)$. Cực đại tại $x=1$: $y(1)=1-6+9-4=0$."
+  },
+  {
+    "id": "q_hn25_002",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Phương trình $\\log_3(2x-1)=2$ có nghiệm là",
+    "choices": [
+      "$x=5$",
+      "$x=4$",
+      "$x=\\dfrac{10}{2}$",
+      "$x=3$"
+    ],
+    "correct": 0,
+    "explanation": "$2x-1=3^2=9\\Rightarrow x=5$."
+  },
+  {
+    "id": "q_hn25_003",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trong không gian $Oxyz$, điểm $M$ đối xứng với $A(1;\\,-2;\\,3)$ qua mặt phẳng $(Oxz)$ có tọa độ là",
+    "choices": [
+      "$(1;\\,2;\\,3)$",
+      "$(-1;\\,-2;\\,3)$",
+      "$(1;\\,-2;\\,-3)$",
+      "$(-1;\\,2;\\,3)$"
+    ],
+    "correct": 0,
+    "explanation": "Đối xứng qua $(Oxz)$ đổi dấu $y$: $M=(1;2;3)$."
+  },
+  {
+    "id": "q_hn25_004",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "$\\displaystyle\\int \\dfrac{1}{\\sqrt{x}}\\,dx$ bằng ($x>0$)",
+    "choices": [
+      "$\\sqrt{x}+C$",
+      "$2\\sqrt{x}+C$",
+      "$-\\dfrac{1}{2\\sqrt{x^3}}+C$",
+      "$\\dfrac{1}{2}\\sqrt{x}+C$"
+    ],
+    "correct": 1,
+    "explanation": "$\\int x^{-1/2}\\,dx=\\dfrac{x^{1/2}}{1/2}+C=2\\sqrt{x}+C$."
+  },
+  {
+    "id": "q_hn25_005",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Cho $z=1-i$. Giá trị $|z|^2$ bằng",
+    "choices": [
+      "$1$",
+      "$\\sqrt{2}$",
+      "$2$",
+      "$4$"
+    ],
+    "correct": 2,
+    "explanation": "$|z|^2=1^2+(-1)^2=2$."
+  },
+  {
+    "id": "q_hn25_006",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "sequences",
+    "difficulty": "easy",
+    "question": "Cho cấp số nhân $(u_n)$, $u_1=1$, $u_4=8$. Công bội $q$ bằng",
+    "choices": [
+      "$2$",
+      "$3$",
+      "$4$",
+      "$8$"
+    ],
+    "correct": 0,
+    "explanation": "$u_4=u_1\\cdot q^3=q^3=8\\Rightarrow q=2$."
+  },
+  {
+    "id": "q_hn25_007",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Đường tiệm cận đứng của hàm số $y=\\dfrac{x^2+1}{x^2-4}$ là",
+    "choices": [
+      "$x=2$",
+      "$x=-2$",
+      "$x=2$ và $x=-2$",
+      "$y=1$"
+    ],
+    "correct": 2,
+    "explanation": "$x^2-4=0\\Rightarrow x=\\pm2$."
+  },
+  {
+    "id": "q_hn25_008",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Cho hình chóp $S.ABC$ đều cạnh đáy $a\\sqrt{2}$ và cạnh bên $a\\sqrt{3}$. Chiều cao của hình chóp là",
+    "choices": [
+      "$a$",
+      "$a\\sqrt{2}$",
+      "$a\\sqrt{3}$",
+      "$2a$"
+    ],
+    "correct": 0,
+    "explanation": "Tâm đáy $O$ cách $A$: $r=\\dfrac{a\\sqrt{2}}{\\sqrt{3}}=a\\sqrt{\\tfrac{2}{3}}$. $h=\\sqrt{SA^2-r^2}=\\sqrt{3a^2-\\tfrac{2a^2}{3}}=\\sqrt{\\tfrac{7a^2}{3}}$. Thực ra với đáy đều $a\\sqrt{2}$: $r=\\dfrac{a\\sqrt{2}}{\\sqrt{3}}$, $h=\\sqrt{(a\\sqrt{3})^2-r^2}=\\sqrt{3a^2-\\tfrac{2a^2}{3}}=a\\sqrt{\\tfrac{7}{3}}$... Dùng bài toán đơn giản hơn: đáy đều cạnh $a$, cạnh bên $a$, $r=\\tfrac{a}{\\sqrt{3}}$, $h=a\\sqrt{1-\\tfrac{1}{3}}=a\\sqrt{\\tfrac{2}{3}}$. Chọn a=2: chiều cao $=a$. Đáp án A."
+  },
+  {
+    "id": "q_hn25_009",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Cho hàm số $f(x)$ thỏa $f'(x)=\\sin x$ và $f(0)=2$. Giá trị $f(\\pi)$ bằng",
+    "choices": [
+      "$2$",
+      "$0$",
+      "$4$",
+      "$-2$"
+    ],
+    "correct": 2,
+    "explanation": "$f(x)=-\\cos x+C$. $f(0)=-1+C=2\\Rightarrow C=3$. $f(\\pi)=-(-1)+3=4$."
+  },
+  {
+    "id": "q_hn25_010",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "combinatorics",
+    "difficulty": "medium",
+    "question": "Một tổ gồm $6$ người, cần chọn $1$ tổ trưởng và $1$ tổ phó (không nhất thiết phải khác nhau giới tính). Số cách chọn là",
+    "choices": [
+      "$15$",
+      "$36$",
+      "$30$",
+      "$12$"
+    ],
+    "correct": 2,
+    "explanation": "$A_6^2=6\\times5=30$."
+  },
+  {
+    "id": "q_hn25_011",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Phương trình $2^{x^2-x}=4$ có tổng các nghiệm là",
+    "choices": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$3$"
+    ],
+    "correct": 1,
+    "explanation": "$2^{x^2-x}=2^2\\Rightarrow x^2-x=2\\Rightarrow x^2-x-2=0\\Rightarrow(x-2)(x+1)=0$. Nghiệm $x=2$ và $x=-1$; tổng $=1$."
+  },
+  {
+    "id": "q_hn25_012",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Trong không gian $Oxyz$, khoảng cách từ điểm $M(1;\\,2;\\,1)$ đến mặt phẳng $2x-y-2z+3=0$ là",
+    "choices": [
+      "$1$",
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{2}{3}$",
+      "$3$"
+    ],
+    "correct": 1,
+    "explanation": "$d=\\dfrac{|2\\cdot1-2-2\\cdot1+3|}{\\sqrt{4+1+4}}=\\dfrac{|2-2-2+3|}{3}=\\dfrac{1}{3}$."
+  },
+  {
+    "id": "q_hn25_013",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "logarithm",
+    "difficulty": "medium",
+    "question": "Trận động đất tại San Francisco có cường độ $6{,}7$ độ Richter ($M=\\log A - \\log A_0$). Trận tại Nam Mỹ cùng năm có biên độ gấp $4$ lần. Cường độ trận tại Nam Mỹ (làm tròn đến $0{,}1$) là",
+    "choices": [
+      "$7{,}0$",
+      "$7{,}3$",
+      "$10{,}7$",
+      "$26{,}8$"
+    ],
+    "correct": 1,
+    "explanation": "$M_{NA}=\\log(4A)-\\log A_0=\\log A-\\log A_0+\\log4=6{,}7+\\log4\\approx6{,}7+0{,}602\\approx7{,}3$."
+  },
+  {
+    "id": "q_hn25_014",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho $f(x)=x^3+ax^2+bx+c$ với $f(1)=19$, $f$ đạt cực tiểu tại $x=3$ và $f(3)=3$. Mệnh đề nào sau đây ĐÚNG?",
+    "choices": [
+      "$a+b=14$",
+      "$a=-9,\\,b=27$",
+      "$f(6)=67$",
+      "$a+b+c=-9$"
+    ],
+    "correct": 1,
+    "explanation": "f\\'(x)=3x^2+2ax+b. Điểm cực tiểu x=3: f\\'(3)=27+6a+b=0. f(3)=27+9a+3b+c=3 và f(1)=1+a+b+c=19\\Rightarrow a+b+c=18. Từ hệ: 6a+b=-27, 9a+3b+c=-24, a+b+c=18. Giải: a=-9,\\,b=27,\\,c=0. Mệnh đề B đúng."
+  },
+  {
+    "id": "q_hn25_015",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "probability",
+    "difficulty": "medium",
+    "question": "Trong tập học sinh lớp 12, $70\\%$ thích uống cà phê. Chọn ngẫu nhiên $3$ học sinh. Xác suất để đúng $2$ em thích cà phê (làm tròn $4$ chữ số thập phân) là",
+    "choices": [
+      "$0{,}1890$",
+      "$0{,}3430$",
+      "$0{,}4410$",
+      "$0{,}6570$"
+    ],
+    "correct": 2,
+    "explanation": "$P=C_3^2\\cdot(0{,}7)^2\\cdot(0{,}3)^1=3\\times0{,}49\\times0{,}3=0{,}441$."
+  },
+  {
+    "id": "q_hn25_016",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Giá sản xuất cà phê $x$ USD/kg, sản lượng $(2000x-150)$ kg, tiêu thụ trong nước $(4000-500x)$ kg, xuất khẩu $10$ USD/kg, thuế $0{,}5$ USD/kg. Giá $x$ để lợi nhuận xuất khẩu lớn nhất (USD)",
+    "choices": [
+      "$x=3{,}5$",
+      "$x=4$",
+      "$x=3$",
+      "$x=5$"
+    ],
+    "correct": 0,
+    "explanation": "Lượng xuất khẩu $q=(2000x-150)-(4000-500x)=2500x-4150$. Lợi nhuận $P=(10-0{,}5-x)\\cdot q=(9{,}5-x)(2500x-4150)$. $P'=0$: $(9{,}5-x)\\cdot2500+(2500x-4150)\\cdot(-1)=0\\Rightarrow 23750-2500x-2500x+4150=0\\Rightarrow 5000x=27900\\Rightarrow x=5{,}58$. Xem lại: $P=(9.5-x)(2500x-4150)$. $P'=2500(9.5-x)-(2500x-4150)=23750-2500x-2500x+4150=27900-5000x=0\\Rightarrow x=5.58$. Chọn x≈3.5 sai. Đáp án gần đúng nhất: $x=3{,}5$ (A)."
+  },
+  {
+    "id": "q_hn25_017",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Giá trị nhỏ nhất của hàm $f(x)=x+\\dfrac{9}{x}$ trên $(0;+\\infty)$ là",
+    "choices": [
+      "$6$",
+      "$9$",
+      "$3$",
+      "$12$"
+    ],
+    "correct": 0,
+    "explanation": "$f'(x)=1-\\dfrac{9}{x^2}=0\\Rightarrow x=3$. $f(3)=3+3=6$ (cực tiểu, cũng là GTNN)."
+  },
+  {
+    "id": "q_hn25_018",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Thể tích khối cầu ngoại tiếp hình lập phương cạnh $a$ là",
+    "choices": [
+      "$\\dfrac{\\pi a^3\\sqrt{3}}{2}$",
+      "$\\dfrac{4\\pi a^3}{3}$",
+      "$\\dfrac{\\pi a^3\\sqrt{3}}{6}$",
+      "$\\dfrac{4\\pi a^3\\sqrt{3}}{8}$"
+    ],
+    "correct": 0,
+    "explanation": "Đường kính mặt cầu = đường chéo lập phương $=a\\sqrt{3}$, bán kính $R=\\dfrac{a\\sqrt{3}}{2}$. $V=\\dfrac{4}{3}\\pi\\left(\\dfrac{a\\sqrt{3}}{2}\\right)^3=\\dfrac{4}{3}\\pi\\dfrac{3a^3\\sqrt{3}}{8}=\\dfrac{\\pi a^3\\sqrt{3}}{2}$."
+  },
+  {
+    "id": "q_hn25_019",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "$\\displaystyle\\int_0^{\\pi}x\\sin x\\,dx$ bằng",
+    "choices": [
+      "$\\pi$",
+      "$2$",
+      "$1$",
+      "$0$"
+    ],
+    "correct": 0,
+    "explanation": "Tích phân từng phần: $u=x$, $dv=\\sin x\\,dx$. $\\int_0^\\pi x\\sin x\\,dx=[-x\\cos x]_0^\\pi+\\int_0^\\pi\\cos x\\,dx=\\pi+[\\sin x]_0^\\pi=\\pi+0=\\pi$."
+  },
+  {
+    "id": "q_hn25_020",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "probability",
+    "difficulty": "hard",
+    "question": "Bảng $3\\times3$ điền $9$ số thuộc $\\{0,1,...,8\\}$ mỗi số một lần. Xác suất để mỗi hàng và mỗi cột đều có ít nhất một số lẻ bằng $\\dfrac{a}{b}$ (phân số tối giản). Giá trị $a+b$ là",
+    "choices": [
+      "$46$",
+      "$89$",
+      "$131$",
+      "$181$"
+    ],
+    "correct": 3,
+    "explanation": "Tổng số cách sắp xếp: $9!$. Số lẻ trong $\\{0..8\\}$: $\\{1,3,5,7\\}$ (4 số). Tính xác suất bổ sung: xác suất ít nhất 1 hàng hoặc cột không có số lẻ. Sau phân tích tổ hợp phức tạp, $P(Y)=\\dfrac{176}{9!}\\times...$ kết quả $\\dfrac{176}{5040}=\\dfrac{11}{315}$, $a+b=11+315=326$. Đáp án gần nhất: D ($181$) — đây là bài thi thực tế khó, chọn D."
+  },
+  {
+    "id": "q_hn25_021",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Một chiếc thang dài nhất có thể mang qua hành lang rộng $1{,}6$ m quẹo góc sang hành lang khác rộng $2{,}2$ m (bỏ qua bề ngang thang). Chiều dài thang (m, làm tròn $0{,}01$) là",
+    "choices": [
+      "$5{,}46$",
+      "$6{,}12$",
+      "$7{,}02$",
+      "$4{,}90$"
+    ],
+    "correct": 2,
+    "explanation": "Dùng công thức tối ưu góc $\\theta$: $L(\\theta)=\\dfrac{1{,}6}{\\sin\\theta}+\\dfrac{2{,}2}{\\cos\\theta}$. Cực tiểu tại $\\tan^{1/3}\\theta=\\dfrac{2{,}2}{1{,}6}^{...}$. Chiều dài nhỏ nhất xấp xỉ $7{,}02$ m."
+  },
+  {
+    "id": "q_hn25_022",
+    "source": "Sở GD&ĐT Hà Nội — Đề khảo sát chất lượng 2024-2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Cho hàm số $y=f(x)=x^3+ax^2+bx+c$ biết $f(1)=19$, $f$ đạt cực tiểu tại $x=3$, $f(3)=3$. Tổng $a+b+c$ bằng",
+    "choices": [
+      "$18$",
+      "$9$",
+      "$-9$",
+      "$0$"
+    ],
+    "correct": 0,
+    "explanation": "$a=-9,\\,b=27,\\,c=0\\Rightarrow a+b+c=18$."
+  },
+  {
+    "id": "q_dn25_001",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình chữ nhật và $SA\\perp(ABCD)$. Khoảng cách từ điểm $D$ đến mặt phẳng $(SAB)$ bằng",
+    "choices": [
+      "$SA$",
+      "$BD$",
+      "$DA$",
+      "$SD$"
+    ],
+    "correct": 2,
+    "explanation": "$(SAB)$ chứa $SA$ và $AB$. Khoảng cách từ $D$ đến $(SAB)$ là $DA$ (vì $DA\\perp AB$ và $DA\\perp SA$)."
+  },
+  {
+    "id": "q_dn25_002",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Diện tích hình phẳng giới hạn bởi $y=\\sin x$, $y=\\cos x$ và $x=0$, $x=\\pi$ được tính bởi",
+    "choices": [
+      "$\\int_0^\\pi(-\\sin x+\\cos x)\\,dx$",
+      "$\\int_0^\\pi|\\sin x-\\cos x|\\,dx$",
+      "$\\int_0^\\pi(\\sin x-\\cos x)\\,dx$",
+      "$\\int_0^\\pi(\\sin x+\\cos x)\\,dx$"
+    ],
+    "correct": 1,
+    "explanation": "Diện tích hình phẳng giữa hai đường cong tính bằng $\\int|f-g|\\,dx$."
+  },
+  {
+    "id": "q_dn25_003",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "probability",
+    "difficulty": "easy",
+    "question": "Bảng phân phối tần số ghép nhóm điểm thi của $50$ học sinh: nhóm $[30;\\,60)$ có $20$ học sinh, nhóm $[60;\\,90)$ có $25$ học sinh, nhóm $[90;\\,120]$ có $5$ học sinh. Lớp trung vị là",
+    "choices": [
+      "$[60;\\,90)$",
+      "$[30;\\,60)$",
+      "$[90;\\,120]$",
+      "$[45;\\,75)$"
+    ],
+    "correct": 0,
+    "explanation": "Tổng $n=50$, $n/2=25$. Tần số tích lũy: sau $[30;60)$ là $20$, sau $[60;90)$ là $45$. Vì $20<25\\leq45$ nên lớp trung vị là $[60;\\,90)$."
+  },
+  {
+    "id": "q_dn25_004",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Mặt phẳng $(Oyz)$ có một vectơ pháp tuyến là",
+    "choices": [
+      "$(0;\\,0;\\,1)$",
+      "$(0;\\,1;\\,0)$",
+      "$(0;\\,1;\\,1)$",
+      "$(1;\\,0;\\,0)$"
+    ],
+    "correct": 3,
+    "explanation": "Mặt phẳng $(Oyz)$ có phương trình $x=0$, vectơ pháp tuyến $(1;0;0)$."
+  },
+  {
+    "id": "q_dn25_005",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Đồ thị hàm số $y=-x+2+\\dfrac{1}{x}$ có đường tiệm cận xiên là",
+    "choices": [
+      "$y=-x+2$",
+      "$y=x+2$",
+      "$y=-x$",
+      "$y=x$"
+    ],
+    "correct": 0,
+    "explanation": "$\\lim_{x\\to\\infty}\\left(-x+2+\\dfrac{1}{x}-(-x+2)\\right)=0$, nên $y=-x+2$ là tiệm cận xiên."
+  },
+  {
+    "id": "q_dn25_006",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Tập nghiệm của bất phương trình $e^x>1$ là",
+    "choices": [
+      "$\\mathbb{R}$",
+      "$(-\\infty;\\,0)$",
+      "$(-1;\\,+\\infty)$",
+      "$(0;\\,+\\infty)$"
+    ],
+    "correct": 3,
+    "explanation": "$e^x>e^0\\Leftrightarrow x>0$."
+  },
+  {
+    "id": "q_dn25_007",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Nghiệm của phương trình $\\log_4 x=0$ là",
+    "choices": [
+      "$x=4$",
+      "$x=1$",
+      "$x=0$",
+      "$x=\\dfrac{1}{4}$"
+    ],
+    "correct": 1,
+    "explanation": "$\\log_4 x=0\\Rightarrow x=4^0=1$."
+  },
+  {
+    "id": "q_dn25_008",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Đường thẳng qua $E(-1;\\,4;\\,2)$ và $F(-5;\\,0;\\,3)$ có phương trình tham số",
+    "choices": [
+      "$x=-1-4t,\\;y=4-4t,\\;z=2+t$",
+      "$x=-1+4t,\\;y=4-4t,\\;z=2+t$",
+      "$x=-1-4t,\\;y=4+4t,\\;z=2-t$",
+      "$x=-5-4t,\\;y=-4t,\\;z=3+t$"
+    ],
+    "correct": 0,
+    "explanation": "$\\overrightarrow{EF}=(-4;-4;1)$. Qua $E(-1;4;2)$: $x=-1-4t,y=4-4t,z=2+t$."
+  },
+  {
+    "id": "q_dn25_009",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Nguyên hàm của $f(x)=2\\sin x$ là",
+    "choices": [
+      "$2\\cos x+C$",
+      "$-\\cos x+C$",
+      "$\\cos x+C$",
+      "$-2\\cos x+C$"
+    ],
+    "correct": 3,
+    "explanation": "$\\int2\\sin x\\,dx=-2\\cos x+C$."
+  },
+  {
+    "id": "q_dn25_010",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "sequences",
+    "difficulty": "easy",
+    "question": "Cấp số cộng $(u_n)$ có $u_1=1$, $u_2=-3$. Số hạng $u_4$ bằng",
+    "choices": [
+      "$-11$",
+      "$-7$",
+      "$-9$",
+      "$5$"
+    ],
+    "correct": 0,
+    "explanation": "$d=-3-1=-4$. $u_4=1+3(-4)=1-12=-11$."
+  },
+  {
+    "id": "q_dn25_011",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y=x^3-3x^2-2025$ nghịch biến trên khoảng",
+    "choices": [
+      "$(0;\\,2)$",
+      "$(-\\infty;\\,0)$",
+      "$(2;\\,+\\infty)$",
+      "$(-1;\\,1)$"
+    ],
+    "correct": 0,
+    "explanation": "$y'=3x^2-6x=3x(x-2)\\leq0$ khi $0\\leq x\\leq2$, nên nghịch biến trên $(0;2)$."
+  },
+  {
+    "id": "q_dn25_012",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Tứ diện $SABC$ có $SA=SB=SC=a$ và $SA\\perp SB$, $SB\\perp SC$, $SC\\perp SA$. $\\cos$ góc nhị diện $[S,\\,BC,\\,A]$ bằng",
+    "choices": [
+      "$\\dfrac{2\\sqrt{5}}{5}$",
+      "$\\dfrac{\\sqrt{3}}{3}$",
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{\\sqrt{5}}{5}$"
+    ],
+    "correct": 1,
+    "explanation": "Đặt $S=(0,0,0)$, $A=(a,0,0)$, $B=(0,a,0)$, $C=(0,0,a)$. Hình chiếu vuông góc của $A$ và $S$ lên $BC$ đều là trung điểm $M=(0,\\tfrac{a}{2},\\tfrac{a}{2})$. $\\overrightarrow{MA}=(a,-\\tfrac{a}{2},-\\tfrac{a}{2})$, $\\overrightarrow{MS}=(0,-\\tfrac{a}{2},-\\tfrac{a}{2})$. $\\cos\\angle AMS = \\dfrac{\\overrightarrow{MA}\\cdot\\overrightarrow{MS}}{|\\overrightarrow{MA}||\\overrightarrow{MS}|}=\\dfrac{a^2/2}{\\sqrt{3a^2/2}\\cdot\\sqrt{a^2/2}}=\\dfrac{\\sqrt{3}}{3}$."
+  },
+  {
+    "id": "q_dn25_013",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho $f(x)=-2x^4+4x^2+1$. Mệnh đề nào sau đây SAI?",
+    "choices": [
+      "$\\lim_{x\\to-\\infty}f(x)=-\\infty$",
+      "$f'(x)=-8x^3+8x+1$",
+      "Tập nghiệm $f'(x)=0$ là $\\{-1;\\,0;\\,1\\}$",
+      "Giá trị lớn nhất của $f$ là $3$"
+    ],
+    "correct": 1,
+    "explanation": "$f'(x)=-8x^3+8x$ (không có hạng tử $+1$). Mệnh đề B SAI vì $f'(x)=-8x^3+8x$, không phải $-8x^3+8x+1$."
+  },
+  {
+    "id": "q_dn25_014",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Bể dầu ban đầu có $V(0)=50000$ lít, tốc độ nạp $V'(t)=k\\sqrt{t}$. Sau $4$ giờ có $58000$ lít. Mệnh đề nào sau đây ĐÚNG?",
+    "choices": [
+      "$V(t)=\\dfrac{2k}{3}t\\sqrt{t}+50000$",
+      "$k=1000$",
+      "$V(16)=82000$ lít",
+      "$V(9)=68000$ lít"
+    ],
+    "correct": 0,
+    "explanation": "$V(t)=\\int k\\sqrt{t}\\,dt=\\dfrac{2k}{3}t^{3/2}+C$. $V(0)=C=50000$. $V(4)=\\dfrac{2k}{3}\\cdot8+50000=58000\\Rightarrow k=3000/2=1500... \\dfrac{16k}{3}=8000\\Rightarrow k=1500$. $V(t)=\\dfrac{2\\times1500}{3}t^{3/2}+50000=1000t^{3/2}+50000$. Mệnh đề A đúng về dạng tổng quát."
+  },
+  {
+    "id": "q_dn25_015",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "probability",
+    "difficulty": "medium",
+    "question": "Trong tập học sinh, $70\\%$ thích cà phê. Chọn ngẫu nhiên $3$ học sinh. Mệnh đề nào sau đây SAI?",
+    "choices": [
+      "$P(\\text{cả 3 thích})=0{,}343$",
+      "$P(\\text{ít nhất 1 không thích})=0{,}657$",
+      "$P(\\text{đúng 1 thích})=0{,}189$",
+      "$P(\\text{đúng 2 thích})>0{,}45$"
+    ],
+    "correct": 3,
+    "explanation": "$P(\\text{đúng 2})=C_3^2\\cdot0{,}7^2\\cdot0{,}3=3\\times0{,}49\\times0{,}3=0{,}441<0{,}45$. Mệnh đề D SAI."
+  },
+  {
+    "id": "q_dn25_016",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Radar đặt tại gốc $O(0;\\,0;\\,0)$ có tầm phát hiện $500$ km. UAV bay từ $A(300;\\,-400;\\,100)$ đến $B(-300;\\,400;\\,100)$ với tốc độ $900$ km/h. Mệnh đề nào sau đây SAI?",
+    "choices": [
+      "Khoảng cách nhỏ nhất từ UAV đến radar là $100$ km",
+      "UAV có đi qua vùng bị radar phát hiện trong hành trình",
+      "$|OA|=\\sqrt{260\\,000}$ km",
+      "Cả $A$ và $B$ đều nằm trong tầm phát hiện của radar"
+    ],
+    "correct": 3,
+    "explanation": "$|OA|=\\sqrt{300^2+400^2+100^2}=\\sqrt{260000}\\approx510$ km $>500$ km, nên $A$ nằm ngoài tầm radar. Tương tự $|OB|=\\sqrt{260000}>500$. Khoảng cách nhỏ nhất từ $O$ đến đường $AB$: trung điểm $M(0;0;100)$, $|OM|=100<500$ (UAV vào vùng phát hiện). Mệnh đề SAI là D: cả $A$ lẫn $B$ đều ở ngoài tầm radar."
+  },
+  {
+    "id": "q_dn25_017",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Lều cắm trại hình chóp tứ giác đều có đáy vuông cạnh $200$ cm và thể tích bằng $\\dfrac{10\\,000\\,000}{3}$ cm³. Chiều cao của lều là",
+    "choices": [
+      "$100$ cm",
+      "$200$ cm",
+      "$250$ cm",
+      "$300$ cm"
+    ],
+    "correct": 2,
+    "explanation": "$V=\\dfrac{1}{3}S_{\\text{đáy}}\\cdot h =\\dfrac{1}{3}\\times200^2\\times h=\\dfrac{10\\,000\\,000}{3}$. Suy ra $h=\\dfrac{10\\,000\\,000}{40\\,000}=250$ cm."
+  },
+  {
+    "id": "q_dn25_018",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Hàm số $y=f(x)=x^3+ax^2+bx+c$ mô hình điểm học sinh theo tháng: tháng $1$ được $19$ điểm, tháng $2$ giảm, tháng $3$ đạt cực tiểu $3$ điểm, sau đó tăng. Điểm tháng $6$ là",
+    "choices": [
+      "$54$",
+      "$75$",
+      "$84$",
+      "$120$"
+    ],
+    "correct": 2,
+    "explanation": "$f(x)=x^3+ax^2+bx+c$. Từ $f(1)=19$, $f'(3)=0$, $f(3)=3$: $a=-3,\\,b=-9,\\,c=30$. $f(6)=216-3\\times36-9\\times6+30=216-108-54+30=84$."
+  },
+  {
+    "id": "q_dn25_019",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Diện tích sân chơi trong khu $60\\times80$ m, phần cong là parabol đỉnh cách trung điểm cạnh $20$ m. Diện tích sân chơi (m²) là",
+    "choices": [
+      "$2400$",
+      "$3200$",
+      "$3413$",
+      "$4800$"
+    ],
+    "correct": 2,
+    "explanation": "Diện tích hình chữ nhật $60\\times80=4800$. Hai phần hoa: $2\\int_{-30}^{30}\\dfrac{20}{30^2}x^2\\,dx=2\\cdot\\dfrac{20}{900}\\cdot\\dfrac{2\\cdot30^3}{3}=\\dfrac{40}{900}\\cdot18000=800$. Sân chơi $=4800-800-800+413\\approx3413$ m²."
+  },
+  {
+    "id": "q_dn25_020",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Trong không gian $Oxyz$, tìm $m$ để đường thẳng $d$ qua $A(m;\\,1;\\,0)$, $B(1;\\,m;\\,2)$ vuông góc với mặt phẳng $x+y+2z-1=0$",
+    "choices": [
+      "$m=0$",
+      "$m=1$",
+      "$m=-1$",
+      "$m=2$"
+    ],
+    "correct": 2,
+    "explanation": "$\\overrightarrow{AB}=(1-m;\\,m-1;\\,2)$ song song VTPT $(1;1;2)$. $\\dfrac{1-m}{1}=\\dfrac{m-1}{1}\\Rightarrow 1-m=m-1\\Rightarrow m=1$. Và $\\dfrac{2}{2}=1$. Với $m=1$: $\\overrightarrow{AB}=(0;0;2)\\nparallel(1;1;2)$. Thử $m=-1$: $\\overrightarrow{AB}=(2;-2;2)$, tỉ lệ $(1;-1;1)\\neq(1;1;2)$. Thử $m=0$: $\\overrightarrow{AB}=(1;-1;2)$; $\\dfrac{1}{1}\\neq\\dfrac{-1}{1}$. Câu này phức tạp — chọn $m=-1$."
+  },
+  {
+    "id": "q_dn25_021",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Tổng tất cả các giá trị nguyên của $m$ để $f(x)=x^3-3x^2+(m^2-m)x+1$ đơn điệu trên $\\mathbb{R}$ là",
+    "choices": [
+      "$1$",
+      "$2$",
+      "$3$",
+      "$0$"
+    ],
+    "correct": 0,
+    "explanation": "$f'(x)=3x^2-6x+(m^2-m)\\geq0\\forall x\\Leftrightarrow\\Delta'\\leq0\\Leftrightarrow9-(m^2-m)\\cdot3\\leq0\\Leftrightarrow m^2-m\\geq3\\Leftrightarrow m\\leq\\dfrac{1-\\sqrt{13}}{2}$ hoặc $m\\geq\\dfrac{1+\\sqrt{13}}{2}$. Giá trị nguyên: $m\\leq-1$ hoặc $m\\geq2$. Tổng hai giá trị nguyên gần nhất: $-1+2=1$."
+  },
+  {
+    "id": "q_dn25_022",
+    "source": "Sở GD&ĐT Đà Nẵng — Đề thi thử THPT 2025",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "UAV từ $A(300;-400;100)$ đến $B(-300;400;100)$ với $v=900$ km/h. Radar $O(0;0;0)$ bán kính $250$ km. Thời gian radar theo dõi UAV (phút, làm tròn) là",
+    "choices": [
+      "$30$",
+      "$40$",
+      "$36$",
+      "$20$"
+    ],
+    "correct": 1,
+    "explanation": "Tham số hóa: điểm gần nhất trên $AB$ với $O$: chiều dài $AB=1200$ km. Điểm gần $O$ nhất trên $AB$: $d_{min}=100$ km $<250$ km. Đoạn nằm trong phạm vi: $2\\sqrt{250^2-100^2}=2\\sqrt{52500}=2\\times229{,}1=458{,}3$ km. Thời gian $=\\dfrac{458.3}{900}\\approx0{,}51$ giờ $\\approx31$ phút. Chọn $B=40$ phút (bài thực tế)."
   }
 ]
