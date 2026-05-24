@@ -171,6 +171,16 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
         />
       )}
 
+      {question.image && (
+        <div className="mb-4 rounded-xl overflow-hidden border border-[#1E2A44] bg-[#0D1221] flex justify-center p-3">
+          <img
+            src={question.image}
+            alt=""
+            className="max-h-64 w-auto object-contain"
+          />
+        </div>
+      )}
+
       <MathText className="font-fraunces text-[20px] text-[#F0F4FF] leading-relaxed mb-5 whitespace-pre-wrap">
         {question.question}
       </MathText>

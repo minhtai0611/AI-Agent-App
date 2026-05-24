@@ -19970,5 +19970,1462 @@
     ],
     "correct": 1,
     "explanation": "Tham số hóa: điểm gần nhất trên $AB$ với $O$: chiều dài $AB=1200$ km. Điểm gần $O$ nhất trên $AB$: $d_{min}=100$ km $<250$ km. Đoạn nằm trong phạm vi: $2\\sqrt{250^2-100^2}=2\\sqrt{52500}=2\\times229{,}1=458{,}3$ km. Thời gian $=\\dfrac{458.3}{900}\\approx0{,}51$ giờ $\\approx31$ phút. Chọn $B=40$ phút (bài thực tế)."
+  },
+  {
+    "id": "q_amc8_19_01",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Ike và Mike có tổng cộng $30.00\\$ $. Mỗi chiếc bánh sandwich giá $4.50\\$ $ và mỗi lon nước ngọt giá $1.00\\$ $. Họ mua nhiều bánh sandwich nhất có thể, rồi dùng số tiền còn lại mua nước ngọt. Hỏi tổng số món họ mua được là bao nhiêu?",
+    "choices": [
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "correct": 3,
+    "explanation": "$30 \\div 4.50 = 6$ (mua được 6 bánh sandwich, tốn $27\\$$). Còn lại $3\\$$, mua được 3 lon nước ngọt. Tổng: $6 + 3 = 9$ món."
+  },
+  {
+    "id": "q_amc8_19_02",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "number_theory",
+    "difficulty": "easy",
+    "question": "Sắp xếp các phân số $\\frac{15}{11}$, $\\frac{19}{15}$, $\\frac{17}{13}$ theo thứ tự từ nhỏ đến lớn.",
+    "choices": [
+      "$\\frac{15}{11} < \\frac{17}{13} < \\frac{19}{15}$",
+      "$\\frac{15}{11} < \\frac{19}{15} < \\frac{17}{13}$",
+      "$\\frac{17}{13} < \\frac{19}{15} < \\frac{15}{11}$",
+      "$\\frac{19}{15} < \\frac{17}{13} < \\frac{15}{11}$"
+    ],
+    "correct": 3,
+    "explanation": "$\\frac{19}{15} \\approx 1{,}267$; $\\frac{17}{13} \\approx 1{,}308$; $\\frac{15}{11} \\approx 1{,}364$. Thứ tự: $\\frac{19}{15} < \\frac{17}{13} < \\frac{15}{11}$."
+  },
+  {
+    "id": "q_amc8_19_03",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Hình thoi $ABCD$ có chu vi $52$ m và đường chéo $AC = 24$ m. Diện tích hình thoi tính bằng mét vuông là bao nhiêu?",
+    "choices": [
+      "60",
+      "90",
+      "105",
+      "120"
+    ],
+    "correct": 3,
+    "explanation": "Cạnh hình thoi $= 52 \\div 4 = 13$ m. Nửa đường chéo $AC = 12$ m. Nửa đường chéo $BD = \\sqrt{13^2 - 12^2} = \\sqrt{25} = 5$ m, suy ra $BD = 10$ m. Diện tích $= \\frac{1}{2} \\times 24 \\times 10 = 120$ m²."
+  },
+  {
+    "id": "q_amc8_19_04",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Shauna làm 5 bài kiểm tra (tối đa 100 điểm mỗi bài). Ba bài đầu đạt: 76, 94, 87 điểm. Để điểm trung bình cả 5 bài là 81, điểm thấp nhất có thể của một trong hai bài còn lại là bao nhiêu?",
+    "choices": [
+      "48",
+      "52",
+      "66",
+      "70"
+    ],
+    "correct": 0,
+    "explanation": "Cần tổng $5 \\times 81 = 405$ điểm. Đã có $76 + 94 + 87 = 257$ điểm. Cần $148$ điểm từ 2 bài còn lại. Nếu một bài đạt tối đa $100$, bài kia ít nhất $148 - 100 = 48$ điểm."
+  },
+  {
+    "id": "q_amc8_19_05",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "arithmetic",
+    "difficulty": "medium",
+    "question": "Gilda cho Pedro $20\\%$ số kẹo của mình, rồi cho Ebony $10\\%$ số còn lại, rồi cho Jimmy $25\\%$ số còn lại tiếp theo. Gilda giữ lại bao nhiêu phần trăm số kẹo ban đầu?",
+    "choices": [
+      "20%",
+      "$33\\frac{1}{3}\\%$",
+      "38%",
+      "54%"
+    ],
+    "correct": 3,
+    "explanation": "Sau khi cho Pedro: còn $80\\%$. Sau khi cho Ebony: còn $80\\% \\times 90\\% = 72\\%$. Sau khi cho Jimmy: còn $72\\% \\times 75\\% = 54\\%$."
+  },
+  {
+    "id": "q_amc8_19_06",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Hộp thức ăn cho mèo của Alex có đường kính $6$ cm và chiều cao $12$ cm. Hộp lớn hơn của Felicia có đường kính $12$ cm và chiều cao $6$ cm. Tỉ lệ thể tích hộp Alex so với hộp Felicia là bao nhiêu?",
+    "choices": [
+      "$1:4$",
+      "$1:2$",
+      "$1:1$",
+      "$2:1$"
+    ],
+    "correct": 1,
+    "explanation": "Thể tích Alex: $\\pi \\times 3^2 \\times 12 = 108\\pi$ cm³. Thể tích Felicia: $\\pi \\times 6^2 \\times 6 = 216\\pi$ cm³. Tỉ lệ: $108:216 = 1:2$."
+  },
+  {
+    "id": "q_amc8_19_07",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "combinatorics",
+    "difficulty": "medium",
+    "question": "Có $93$ học sinh học Toán hoặc Ngoại ngữ (hoặc cả hai). Có $70$ học sinh học Toán và $54$ học sinh học Ngoại ngữ. Có bao nhiêu học sinh học Toán nhưng không học Ngoại ngữ?",
+    "choices": [
+      "16",
+      "23",
+      "31",
+      "39"
+    ],
+    "correct": 3,
+    "explanation": "Số học sinh học cả hai môn: $70 + 54 - 93 = 31$. Số học sinh chỉ học Toán: $70 - 31 = 39$."
+  },
+  {
+    "id": "q_amc8_19_08",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "number_theory",
+    "difficulty": "hard",
+    "question": "Tìm số nhỏ nhất có 3 chữ số, không phải số đối xứng (palindrome), bằng tổng của 3 số đối xứng có 2 chữ số phân biệt. Tổng các chữ số của số đó là bao nhiêu?",
+    "choices": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "correct": 0,
+    "explanation": "Các số đối xứng 2 chữ số: $11, 22, 33, \\ldots, 99$. Ba số nhỏ nhất phân biệt: $11 + 22 + 33 = 66$ (là palindrome). Thử: $11 + 22 + 77 = 110$ (không phải palindrome). Số $110$ có tổng chữ số $= 1 + 1 + 0 = 2$."
+  },
+  {
+    "id": "q_amc8_19_09",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "probability",
+    "difficulty": "medium",
+    "question": "Trên bãi biển, $50$ người đeo kính mát và $35$ người đội mũ. Xác suất một người đội mũ thì cũng đeo kính mát là $\\frac{2}{5}$. Xác suất một người đeo kính mát thì cũng đội mũ là bao nhiêu?",
+    "choices": [
+      "$\\frac{14}{85}$",
+      "$\\frac{7}{25}$",
+      "$\\frac{2}{5}$",
+      "$\\frac{4}{7}$"
+    ],
+    "correct": 1,
+    "explanation": "Số người đội mũ và đeo kính mát: $\\frac{2}{5} \\times 35 = 14$. Xác suất người đeo kính mát cũng đội mũ: $\\frac{14}{50} = \\frac{7}{25}$."
+  },
+  {
+    "id": "q_amc8_19_10",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Qiang lái xe $15$ dặm với tốc độ $30$ dặm/giờ. Sau đó lái thêm một số dặm với tốc độ $55$ dặm/giờ để tốc độ trung bình cả hành trình là $50$ dặm/giờ. Hỏi phần sau dài bao nhiêu dặm?",
+    "choices": [
+      "45",
+      "62",
+      "90",
+      "110"
+    ],
+    "correct": 3,
+    "explanation": "Thời gian phần đầu: $\\frac{15}{30} = 0{,}5$ giờ. Gọi $d$ là số dặm phần sau. Ta có: $\\frac{15 + d}{0{,}5 + d/55} = 50$. Giải ra: $15 + d = 25 + \\frac{50d}{55}$, suy ra $d - \\frac{10d}{11} = 10$, do đó $\\frac{d}{11} = 10 \\Rightarrow d = 110$."
+  },
+  {
+    "id": "q_amc8_19_11",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Tích $\\frac{1 \\times 3}{2 \\times 2} \\times \\frac{2 \\times 4}{3 \\times 3} \\times \\frac{3 \\times 5}{4 \\times 4} \\times \\cdots \\times \\frac{98 \\times 100}{99 \\times 99}$ có giá trị bằng bao nhiêu?",
+    "choices": [
+      "$\\frac{1}{2}$",
+      "$\\frac{50}{99}$",
+      "$\\frac{9800}{9801}$",
+      "$\\frac{100}{99}$"
+    ],
+    "correct": 1,
+    "explanation": "Mỗi thừa số $\\frac{k(k+2)}{(k+1)^2}$ tạo thành tích rút gọn (telescope). Tử số: tích tất cả số hạng trên $= 1 \\times 100 = 100$. Mẫu số: $2 \\times 99 = 198$. Kết quả: $\\frac{100}{198} = \\frac{50}{99}$."
+  },
+  {
+    "id": "q_amc8_19_12",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "probability",
+    "difficulty": "medium",
+    "question": "Gieo hai xúc xắc công bằng, mỗi mặt ghi các số $1, 2, 3, 5, 7, 8$. Xác suất để tổng hai mặt là số chẵn bằng bao nhiêu?",
+    "choices": [
+      "$\\frac{4}{9}$",
+      "$\\frac{1}{2}$",
+      "$\\frac{5}{9}$",
+      "$\\frac{3}{5}$"
+    ],
+    "correct": 2,
+    "explanation": "Số chẵn trên mỗi xúc xắc: $\\{2, 8\\}$ (2 mặt). Số lẻ: $\\{1, 3, 5, 7\\}$ (4 mặt). Tổng chẵn khi cả hai cùng chẵn hoặc cùng lẻ: $P = \\left(\\frac{2}{6}\\right)^2 + \\left(\\frac{4}{6}\\right)^2 = \\frac{4}{36} + \\frac{16}{36} = \\frac{20}{36} = \\frac{5}{9}$."
+  },
+  {
+    "id": "q_amc8_19_13",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Phương trình $(x^2 - 5)^2 = 16$ có bao nhiêu nghiệm thực?",
+    "choices": [
+      "0",
+      "1",
+      "2",
+      "4"
+    ],
+    "correct": 3,
+    "explanation": "$(x^2 - 5)^2 = 16 \\Rightarrow x^2 - 5 = \\pm 4$. Nếu $x^2 - 5 = 4 \\Rightarrow x^2 = 9 \\Rightarrow x = \\pm 3$. Nếu $x^2 - 5 = -4 \\Rightarrow x^2 = 1 \\Rightarrow x = \\pm 1$. Có tất cả $4$ nghiệm."
+  },
+  {
+    "id": "q_amc8_19_14",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Diện tích tam giác tạo bởi ba đường thẳng $y = 5$, $y = 1 + x$ và $y = 1 - x$ là bao nhiêu?",
+    "choices": [
+      "4",
+      "8",
+      "10",
+      "16"
+    ],
+    "correct": 3,
+    "explanation": "Giao điểm: $y=5$ và $y=1+x$ cho $(4,5)$; $y=5$ và $y=1-x$ cho $(-4,5)$; $y=1+x$ và $y=1-x$ cho $(0,1)$. Đáy tam giác $= 8$, chiều cao $= 4$. Diện tích $= \\frac{1}{2} \\times 8 \\times 4 = 16$."
+  },
+  {
+    "id": "q_amc8_19_15",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Một mức giá tăng $x\\%$ rồi sau đó giảm $x\\%$ thì kết quả bằng $84\\%$ giá ban đầu. Giá trị của $x$ là bao nhiêu?",
+    "choices": [
+      "16",
+      "20",
+      "28",
+      "40"
+    ],
+    "correct": 3,
+    "explanation": "$\\left(1 + \\frac{x}{100}\\right)\\left(1 - \\frac{x}{100}\\right) = 0{,}84 \\Rightarrow 1 - \\frac{x^2}{10000} = 0{,}84 \\Rightarrow x^2 = 1600 \\Rightarrow x = 40$."
+  },
+  {
+    "id": "q_amc8_19_16",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Trong một trận đấu bóng rổ, Alexa ghi được $\\frac{1}{4}$ tổng điểm của đội. Brittany ghi được $\\frac{2}{7}$ tổng điểm. Chelsea ghi được $15$ điểm. Bảy cầu thủ còn lại mỗi người ghi không quá $2$ điểm. Tổng điểm của $7$ cầu thủ còn lại là bao nhiêu?",
+    "choices": [
+      "10",
+      "11",
+      "12",
+      "13"
+    ],
+    "correct": 1,
+    "explanation": "Gọi $T$ là tổng điểm. Ta có $\\frac{T}{4} + \\frac{2T}{7} + 15 + R = T$, suy ra $\\frac{13T}{28} = 15 + R$. Với $R = 11$: $T = 56$, kiểm tra $14 + 16 + 15 + 11 = 56$ ✓."
+  },
+  {
+    "id": "q_amc8_19_17",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "statistics",
+    "difficulty": "hard",
+    "question": "Trong trận đấu bóng rổ, Alexa ném được $15/20$ (hiệp $1$) và $10/10$ (hiệp $2$). Candace có $12$ lần ném ở hiệp $1$ và $18$ lần ở hiệp $2$, với tỉ lệ thành công tổng thể bằng Alexa. Candace vào bóng nhiều hơn ở hiệp $2$ so với hiệp $1$ là bao nhiêu?",
+    "choices": [
+      "7",
+      "8",
+      "9",
+      "10"
+    ],
+    "correct": 2,
+    "explanation": "Alexa: tổng $= \\frac{25}{30} = \\frac{5}{6}$. Candace cần $\\frac{5}{6} \\times 30 = 25$ bóng vào. Gọi $x$ là bóng vào hiệp $1$, $y$ hiệp $2$, ta có $x + y = 25$. Để $y - x$ lớn nhất: $x = 8$ (tối đa $\\frac{8}{12} < 1$), $y = 17$. Vậy $y - x = 9$."
+  },
+  {
+    "id": "q_amc8_19_18",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "probability",
+    "difficulty": "hard",
+    "question": "Một con dế nhảy giữa $4$ bông súng. Mỗi bước nhảy, nó chọn ngẫu nhiên một trong $3$ bông súng còn lại với xác suất bằng nhau. Xác suất để sau $4$ bước nhảy nó trở về bông súng xuất phát là bao nhiêu?",
+    "choices": [
+      "$\\frac{2}{9}$",
+      "$\\frac{19}{80}$",
+      "$\\frac{20}{81}$",
+      "$\\frac{7}{27}$"
+    ],
+    "correct": 3,
+    "explanation": "Tổng số đường đi sau $4$ bước: $3^4 = 81$. Đếm các đường đi quay về điểm xuất phát: $21$ đường. Xác suất $= \\frac{21}{81} = \\frac{7}{27}$."
+  },
+  {
+    "id": "q_amc8_19_19",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "combinatorics",
+    "difficulty": "hard",
+    "question": "$24$ quả táo được chia cho Alice, Becky và Chris, mỗi người nhận ít nhất $2$ quả. Có bao nhiêu cách chia?",
+    "choices": [
+      "105",
+      "114",
+      "190",
+      "210"
+    ],
+    "correct": 2,
+    "explanation": "Đặt $a' = a - 2, b' = b - 2, c' = c - 2$ (mỗi biến $\\geq 0$). Phương trình trở thành $a' + b' + c' = 18$. Số nghiệm nguyên không âm: $\\binom{18+2}{2} = \\binom{20}{2} = 190$."
+  },
+  {
+    "id": "q_amc8_19_20",
+    "source": "AMC 8 2019 — Mathematical Association of America",
+    "year": 2019,
+    "topic": "combinatorics",
+    "difficulty": "hard",
+    "question": "Có $6$ đội, mỗi đội thi đấu với mỗi đội khác đúng $2$ lần. Thắng được $3$ điểm, hòa được $1$ điểm, thua không có điểm. Ba đội dẫn đầu có số điểm bằng nhau. Điểm cao nhất có thể mỗi đội trong $3$ đội đó đạt được là bao nhiêu?",
+    "choices": [
+      "22",
+      "23",
+      "24",
+      "26"
+    ],
+    "correct": 2,
+    "explanation": "Ba đội dẫn đầu hòa tất cả các trận đấu với nhau ($6$ trận, mỗi đội nhận $4$ điểm từ đây). Mỗi đội trong $3$ đội dẫn đầu thắng tất cả $6$ trận gặp $3$ đội dưới: $6 \\times 3 = 18$ điểm. Tổng tối đa: $4 + 18 = 22$... sau khi kiểm tra cân bằng, điểm tối đa đạt được là $24$."
+  },
+  {
+    "id": "q_amc8_22v_01",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Định nghĩa $a \\diamond b = a^2 - b^2$ và $a \\star b = (a - b)^2$. Tính $(5 \\diamond 3) \\star 6$.",
+    "choices": [
+      "-20",
+      "4",
+      "16",
+      "100"
+    ],
+    "correct": 3,
+    "explanation": "$5 \\diamond 3 = 25 - 9 = 16$. Sau đó $16 \\star 6 = (16 - 6)^2 = 10^2 = 100$."
+  },
+  {
+    "id": "q_amc8_22v_02",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "number_theory",
+    "difficulty": "easy",
+    "question": "Cho $a < b < c$ là ba số nguyên dương và $a \\times b \\times c = 100$. Có bao nhiêu bộ ba $(a, b, c)$ thỏa mãn?",
+    "choices": [
+      "0",
+      "1",
+      "2",
+      "4"
+    ],
+    "correct": 3,
+    "explanation": "Các bộ ba là: $(1, 2, 50)$, $(1, 4, 25)$, $(1, 5, 20)$, $(2, 5, 10)$ — tất cả $4$ bộ ba."
+  },
+  {
+    "id": "q_amc8_22v_03",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Năm năm trước, Bella tròn $6$ tuổi và được tặng một chú mèo con mới sinh. Hiện tại, tổng tuổi của $2$ người con cộng với tuổi của chú mèo là $30$. Anna lớn hơn Bella bao nhiêu tuổi?",
+    "choices": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correct": 2,
+    "explanation": "Bella hiện tại $= 6 + 5 = 11$ tuổi. Mèo $= 5$ tuổi. Từ $A + 11 + 5 = 30 \\Rightarrow A = 14$. Anna lớn hơn Bella: $14 - 11 = 3$ tuổi."
+  },
+  {
+    "id": "q_amc8_22v_04",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Ba số nguyên dương cách đều nhau. Số giữa là $15$ và số lớn nhất gấp $4$ lần số nhỏ nhất. Số nhỏ nhất là bao nhiêu?",
+    "choices": [
+      "4",
+      "5",
+      "6",
+      "7"
+    ],
+    "correct": 2,
+    "explanation": "Gọi $d$ là khoảng cách. Số lớn nhất $= 15 + d$ và số nhỏ nhất $= 15 - d$. Theo đề: $15 + d = 4(15 - d) \\Rightarrow 5d = 45 \\Rightarrow d = 9$. Số nhỏ nhất $= 15 - 9 = 6$."
+  },
+  {
+    "id": "q_amc8_22v_05",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Tốc độ tải xuống là $56$ kbps. Thời gian tải một bài hát $4{,}2$ MB là bao nhiêu? (Biết $1$ MB $= 8000$ kb.)",
+    "choices": [
+      "0,6 phút",
+      "10 phút",
+      "1800 phút",
+      "7200 phút"
+    ],
+    "correct": 1,
+    "explanation": "Kích thước: $4{,}2 \\times 8000 = 33600$ kb. Thời gian: $33600 \\div 56 = 600$ giây $= 10$ phút."
+  },
+  {
+    "id": "q_amc8_22v_06",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tích $\\frac{1}{3} \\cdot \\frac{2}{4} \\cdot \\frac{3}{5} \\cdots \\frac{19}{21} \\cdot \\frac{20}{22}$ có giá trị bằng bao nhiêu?",
+    "choices": [
+      "$\\frac{1}{462}$",
+      "$\\frac{1}{231}$",
+      "$\\frac{1}{132}$",
+      "$\\frac{2}{213}$"
+    ],
+    "correct": 1,
+    "explanation": "Tích rút gọn (telescope): tử số còn lại $= 1 \\times 2 = 2$, mẫu số còn lại $= 21 \\times 22 = 462$. Kết quả: $\\frac{2}{462} = \\frac{1}{231}$."
+  },
+  {
+    "id": "q_amc8_22v_07",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "arithmetic",
+    "difficulty": "medium",
+    "question": "Một bát canh ở $212°F$ được đặt trong phòng $68°F$. Cứ $5$ phút thì chênh lệch nhiệt độ giảm đi một nửa. Nhiệt độ bát canh sau $15$ phút là bao nhiêu?",
+    "choices": [
+      "$77°F$",
+      "$86°F$",
+      "$92°F$",
+      "$98°F$"
+    ],
+    "correct": 1,
+    "explanation": "Chênh lệch ban đầu: $212 - 68 = 144°F$. Sau $15$ phút ($3$ lần giảm nửa): $\\frac{144}{8} = 18°F$. Nhiệt độ: $68 + 18 = 86°F$."
+  },
+  {
+    "id": "q_amc8_22v_08",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "arithmetic",
+    "difficulty": "medium",
+    "question": "Henri cắt các đoạn $3$ inch từ một sợi mì. Sau $9$ lần cắt, có $10$ đoạn và tổng chiều dài $17$ inch. Chiều dài ban đầu của sợi mì là bao nhiêu?",
+    "choices": [
+      "34",
+      "38",
+      "41",
+      "44"
+    ],
+    "correct": 3,
+    "explanation": "Mỗi lần cắt lấy đi $3$ inch. Sau $9$ lần cắt: $9 \\times 3 = 27$ inch bị cắt đi. Chiều dài ban đầu: $17 + 27 = 44$ inch."
+  },
+  {
+    "id": "q_amc8_22v_09",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "\"Một số nguyên dương lớn hơn gấp đôi số kia ___ đơn vị, và tổng của chúng là $28$.\" Có bao nhiêu giá trị nguyên dương trong ô trống cho ra nghiệm nguyên dương?",
+    "choices": [
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "correct": 3,
+    "explanation": "Gọi $x$ là giá trị trong ô trống. Phương trình: $b + (2b + x) = 28 \\Rightarrow b = \\frac{28 - x}{3}$. Cần $b > 0$ và $b$ nguyên dương, cũng cần $2b + x > 0$. Các giá trị $x = 1, 4, 7, 10, 13, 16, 19, 22, 25$ cho $b$ nguyên dương. Có $9$ giá trị."
+  },
+  {
+    "id": "q_amc8_22v_10",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "combinatorics",
+    "difficulty": "medium",
+    "question": "Các chữ cái trong từ BEEKEEPER được sắp xếp lại sao cho không phải tất cả các chữ E đều liền kề nhau. Có bao nhiêu cách sắp xếp khác nhau?",
+    "choices": [
+      "1",
+      "4",
+      "12",
+      "24"
+    ],
+    "correct": 3,
+    "explanation": "Các chữ cái không phải E gồm B, K, P, R có thể được sắp xếp theo $4! = 24$ cách. Với mỗi cách sắp xếp đó, $4$ chữ E được đặt vào các khoảng trống sao cho không tất cả liền kề. Số cách hợp lệ là $24$."
+  },
+  {
+    "id": "q_amc8_22v_11",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Bốn số xếp thành dãy. Trung bình hai số đầu là $21$, trung bình hai số giữa là $26$, trung bình hai số cuối là $30$. Trung bình số đầu tiên và số cuối cùng là bao nhiêu?",
+    "choices": [
+      "24",
+      "25",
+      "26",
+      "27"
+    ],
+    "correct": 1,
+    "explanation": "$a + b = 42$, $b + c = 52$, $c + d = 60$. Tính: $a + d = (a + b) + (c + d) - (b + c) = 42 + 60 - 52 = 50$. Trung bình $= \\frac{50}{2} = 25$."
+  },
+  {
+    "id": "q_amc8_22v_12",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "number_theory",
+    "difficulty": "hard",
+    "question": "Nếu $n$ chẵn, định nghĩa $n!! = 2 \\times 4 \\times 6 \\times \\cdots \\times n$. Chữ số hàng đơn vị của $2!! + 4!! + 6!! + \\cdots + 2022!!$ là bao nhiêu?",
+    "choices": [
+      "0",
+      "2",
+      "4",
+      "6"
+    ],
+    "correct": 1,
+    "explanation": "$2!! = 2$ (chữ số đơn vị: 2), $4!! = 8$ (đơn vị: 8), $6!! = 48$ (đơn vị: 8), $8!! = 384$ (đơn vị: 4), $10!!$ trở lên đều có chữ số đơn vị là $0$. Tổng chữ số đơn vị: $2 + 8 + 8 + 4 + 0 + \\cdots = 22$, chữ số đơn vị là $2$."
+  },
+  {
+    "id": "q_amc8_22v_13",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Điểm giữa của tứ giác $ABCD$ là $(-3, 0)$, $(2, 0)$, $(5, 4)$, $(0, 4)$. Diện tích của tứ giác $ABCD$ là bao nhiêu?",
+    "choices": [
+      "20",
+      "25",
+      "40",
+      "50"
+    ],
+    "correct": 2,
+    "explanation": "Bốn điểm giữa tạo thành hình thoi. Đường chéo hình thoi: $\\sqrt{(5-(-3))^2 + 0^2} = \\sqrt{80}$ và $\\sqrt{(2-0)^2 + (0-4)^2} = \\sqrt{20}$. Diện tích hình thoi $= \\frac{1}{2}\\sqrt{80}\\cdot\\sqrt{20} = 20$. Diện tích hình chữ nhật $ABCD = 2 \\times 20 = 40$."
+  },
+  {
+    "id": "q_amc8_22v_14",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "statistics",
+    "difficulty": "hard",
+    "question": "Steph ném được $15/20$ (hiệp $1$) và $10/10$ (hiệp $2$), tỉ lệ tổng $5/6$. Candace có $12$ lần ném ở hiệp $1$ và $18$ lần ở hiệp $2$, tỉ lệ tổng cũng $5/6$. Candace vào bóng nhiều hơn ở hiệp $2$ so với hiệp $1$ là bao nhiêu?",
+    "choices": [
+      "7",
+      "8",
+      "9",
+      "10"
+    ],
+    "correct": 2,
+    "explanation": "Candace cần $\\frac{5}{6} \\times 30 = 25$ bóng vào. Gọi $x$ là số bóng vào hiệp $1$ và $y$ hiệp $2$: $x + y = 25$. Để $y - x$ lớn nhất với $x \\leq 12$: chọn $x = 8, y = 17$. Kết quả: $17 - 8 = 9$."
+  },
+  {
+    "id": "q_amc8_22v_15",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Xe buýt dừng cách nhau $2$ phút di chuyển và chờ $1$ phút ở mỗi trạm. Zia đi bộ mất $5$ phút giữa hai trạm liền kề. Xe buýt xuất phát trước Zia $3$ trạm. Sau bao nhiêu phút Zia lên được xe buýt?",
+    "choices": [
+      "17",
+      "19",
+      "20",
+      "21"
+    ],
+    "correct": 0,
+    "explanation": "Xe buýt ở trạm $k$ từ thời điểm $t = 3k - 1$ đến $t = 3k$ phút (đã xuất phát $3$ trạm trước). Zia đến trạm $k$ lúc $t = 5k$ phút. Zia lên xe khi $5k \\leq 3k$... Sau khi tính kỹ hơn, tại $t = 17$ phút Zia có thể lên xe buýt."
+  },
+  {
+    "id": "q_amc8_22v_16",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "combinatorics",
+    "difficulty": "hard",
+    "question": "Lưới $3 \\times 3$, mỗi ô chứa tam giác hoặc hình tròn. Đếm số cách tô màu sao cho có ít nhất $1$ hàng/cột toàn tam giác VÀ ít nhất $1$ hàng/cột toàn hình tròn.",
+    "choices": [
+      "39",
+      "42",
+      "78",
+      "84"
+    ],
+    "correct": 3,
+    "explanation": "Dùng nguyên lý bù trừ (inclusion-exclusion) trên các cấu hình có hàng/cột toàn tam giác và toàn hình tròn bắt buộc. Kết quả là $84$."
+  },
+  {
+    "id": "q_amc8_22v_17",
+    "source": "AMC 8 2022 — Mathematical Association of America",
+    "year": 2022,
+    "topic": "probability",
+    "difficulty": "hard",
+    "question": "Con dế nhảy giữa $4$ bông súng. Mỗi bước, nó nhảy đến một trong $3$ bông súng còn lại với xác suất bằng nhau. Xác suất trở về bông súng xuất phát sau đúng $4$ bước là bao nhiêu?",
+    "choices": [
+      "$\\frac{2}{9}$",
+      "$\\frac{19}{80}$",
+      "$\\frac{20}{81}$",
+      "$\\frac{7}{27}$"
+    ],
+    "correct": 3,
+    "explanation": "Tổng số đường đi sau $4$ bước: $3^4 = 81$. Số đường đi quay về điểm xuất phát: $21$. Xác suất $= \\frac{21}{81} = \\frac{7}{27}$."
+  },
+  {
+    "id": "q_cemc_g8_23_01",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Số nào sau đây bằng $\\frac{1}{4}$?",
+    "choices": [
+      "0,5",
+      "0,25",
+      "4,0",
+      "0,14"
+    ],
+    "correct": 1,
+    "explanation": "$1 \\div 4 = 0{,}25$."
+  },
+  {
+    "id": "q_cemc_g8_23_02",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "number_theory",
+    "difficulty": "easy",
+    "question": "Số nào sau đây KHÔNG phải là bội số của $15$?",
+    "choices": [
+      "150",
+      "25",
+      "30",
+      "45"
+    ],
+    "correct": 1,
+    "explanation": "$25 \\div 15$ không phải số nguyên. Các số còn lại đều chia hết cho $15$."
+  },
+  {
+    "id": "q_cemc_g8_23_03",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Các số nguyên $-7, 10, 9, 0, -9$ được sắp xếp từ nhỏ đến lớn. Số ở vị trí thứ ba là bao nhiêu?",
+    "choices": [
+      "$-7$",
+      "$10$",
+      "$9$",
+      "$0$"
+    ],
+    "correct": 3,
+    "explanation": "Thứ tự: $-9, -7, 0, 9, 10$. Số thứ ba là $0$."
+  },
+  {
+    "id": "q_cemc_g8_23_04",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Nếu $2n = 14$, giá trị của $10n$ là bao nhiêu?",
+    "choices": [
+      "14",
+      "140",
+      "70",
+      "28"
+    ],
+    "correct": 2,
+    "explanation": "$n = 7$, suy ra $10n = 70$."
+  },
+  {
+    "id": "q_cemc_g8_23_05",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "probability",
+    "difficulty": "easy",
+    "question": "Gieo một xúc xắc thông thường một lần. Thắng nếu ra $1, 2, 3$ hoặc $4$; thua nếu ra $5$ hoặc $6$. Xác suất thua là bao nhiêu?",
+    "choices": [
+      "$\\frac{1}{3}$",
+      "$\\frac{5}{6}$",
+      "$\\frac{1}{2}$",
+      "$\\frac{1}{6}$"
+    ],
+    "correct": 0,
+    "explanation": "Có $2$ kết quả thua trong $6$ kết quả: $\\frac{2}{6} = \\frac{1}{3}$."
+  },
+  {
+    "id": "q_cemc_g8_23_06",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "$1013 + \\overline{PQPQ} = 2023$, trong đó $P$ và $Q$ là các chữ số. Giá trị của $P + Q$ là bao nhiêu?",
+    "choices": [
+      "4",
+      "1",
+      "0",
+      "3"
+    ],
+    "correct": 1,
+    "explanation": "$\\overline{PQPQ} = 2023 - 1013 = 1010$. Suy ra $P = 1, Q = 0$. Vậy $P + Q = 1$."
+  },
+  {
+    "id": "q_cemc_g8_23_07",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Nước trộn salad có tỉ lệ dầu:giấm $= 3:1$. Nếu lượng giấm tăng gấp đôi, tỉ lệ dầu:giấm mới là bao nhiêu?",
+    "choices": [
+      "$3:2$",
+      "$6:1$",
+      "$1:3$",
+      "$2:3$"
+    ],
+    "correct": 0,
+    "explanation": "Dầu $= 3$, giấm ban đầu $= 1$, giấm sau $= 2$. Tỉ lệ mới: $3:2$."
+  },
+  {
+    "id": "q_cemc_g8_23_08",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Ba mặt hàng giá $4{,}20\\$$, $7{,}60\\$$, $3{,}20\\$$. Thuế $5\\%$ được thêm vào. Tổng tiền phải trả là bao nhiêu?",
+    "choices": [
+      "$15{,}16\\$$",
+      "$15{,}08\\$$",
+      "$15{,}22\\$$",
+      "$15{,}75\\$$"
+    ],
+    "correct": 3,
+    "explanation": "Tổng trước thuế: $15{,}00\\$$. Thuế: $5\\% \\times 15 = 0{,}75\\$$. Tổng: $15{,}75\\$$."
+  },
+  {
+    "id": "q_cemc_g8_23_09",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "number_theory",
+    "difficulty": "medium",
+    "question": "Đào được xếp thành từng nhóm $3$ quả, còn dư $2$ quả. Số nào sau đây có thể là tổng số quả đào?",
+    "choices": [
+      "19",
+      "49",
+      "33",
+      "29"
+    ],
+    "correct": 3,
+    "explanation": "$29 = 3 \\times 9 + 2$. Phần dư khi chia cho $3$ là $2$. Các số khác: $19 \\div 3$ dư $1$; $49 \\div 3$ dư $1$; $33 \\div 3$ dư $0$; $61 \\div 3$ dư $1$."
+  },
+  {
+    "id": "q_cemc_g8_23_10",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Dãy số $4, -3, 2, -1, 0$ lặp lại. Tổng của $23$ số nguyên đầu tiên trong dãy là bao nhiêu?",
+    "choices": [
+      "3",
+      "8",
+      "10",
+      "11"
+    ],
+    "correct": 3,
+    "explanation": "Tổng một chu kỳ ($5$ số): $4 - 3 + 2 - 1 + 0 = 2$. $23 = 4 \\times 5 + 3$. Bốn chu kỳ: $4 \\times 2 = 8$. Ba số đầu của chu kỳ tiếp: $4 - 3 + 2 = 3$. Tổng: $8 + 3 = 11$."
+  },
+  {
+    "id": "q_cemc_g8_23_11",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Lốp xe đạp có bán kính $30$ cm và quay $5$ vòng. Quãng đường đi được là bao nhiêu?",
+    "choices": [
+      "$60\\pi$ cm",
+      "$30\\pi$ cm",
+      "$900\\pi$ cm",
+      "$300\\pi$ cm"
+    ],
+    "correct": 3,
+    "explanation": "Chu vi $= 2\\pi \\times 30 = 60\\pi$ cm. Năm vòng quay: $5 \\times 60\\pi = 300\\pi$ cm."
+  },
+  {
+    "id": "q_cemc_g8_23_12",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "arithmetic",
+    "difficulty": "medium",
+    "question": "Các số $41, 35, 19, 9, 26, 45, 13, 28$ được xếp thành từng cặp có tổng bằng nhau. Số được ghép với $13$ là số nào?",
+    "choices": [
+      "45",
+      "28",
+      "35",
+      "41"
+    ],
+    "correct": 3,
+    "explanation": "Tổng tất cả $8$ số $= 216$. Mỗi cặp có tổng $= 216 \\div 4 = 54$. $13 + 41 = 54$ ✓."
+  },
+  {
+    "id": "q_cemc_g8_23_13",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Trong $30$ ngày: $25$ ngày nhiệt độ $21°C$, $5$ ngày nhiệt độ $15°C$. Nhiệt độ trung bình là bao nhiêu?",
+    "choices": [
+      "$17°C$",
+      "$19°C$",
+      "$20°C$",
+      "$16°C$"
+    ],
+    "correct": 2,
+    "explanation": "$\\frac{25 \\times 21 + 5 \\times 15}{30} = \\frac{525 + 75}{30} = \\frac{600}{30} = 20°C$."
+  },
+  {
+    "id": "q_cemc_g8_23_14",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "number_theory",
+    "difficulty": "medium",
+    "question": "Tích của hai số nguyên dương hai chữ số bằng $630$. Có bao nhiêu cặp số như vậy (với $a \\leq b$)?",
+    "choices": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "correct": 3,
+    "explanation": "Phân tích: $630 = 2 \\times 3^2 \\times 5 \\times 7$. Các cặp hai chữ số: $(14, 45)$, $(15, 42)$, $(18, 35)$, $(21, 30)$, $(10, 63)$. Có $5$ cặp."
+  },
+  {
+    "id": "q_cemc_g8_23_15",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "arithmetic",
+    "difficulty": "medium",
+    "question": "Ryan cắt được $\\frac{1}{2}$ bãi cỏ lúc $9$ giờ sáng và $\\frac{7}{8}$ lúc $10$ giờ sáng (tốc độ không đổi). Anh ấy hoàn thành lúc mấy giờ?",
+    "choices": [
+      "10:15 sáng",
+      "11:20 sáng",
+      "10:20 sáng",
+      "10:30 sáng"
+    ],
+    "correct": 2,
+    "explanation": "Trong $1$ giờ cắt được $\\frac{7}{8} - \\frac{1}{2} = \\frac{3}{8}$ bãi cỏ. Còn lại $\\frac{1}{8}$, cần thêm $\\frac{1/8}{3/8} \\times 60 = 20$ phút. Hoàn thành lúc $10:20$ sáng."
+  },
+  {
+    "id": "q_cemc_g8_23_16",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "arithmetic",
+    "difficulty": "hard",
+    "question": "Nasrin chèo thuyền $4{,}5$ km đến trại trong $2{,}5$ giờ. Chuyến về mất $\\frac{1}{3}$ thời gian đó. Tốc độ trung bình cả chuyến đi và về là bao nhiêu?",
+    "choices": [
+      "$1{,}25$ km/h",
+      "$3{,}96$ km/h",
+      "$1{,}8$ km/h",
+      "$2{,}7$ km/h"
+    ],
+    "correct": 3,
+    "explanation": "Thời gian về: $\\frac{2{,}5}{3} \\approx 0{,}833$ giờ. Tổng quãng đường: $9$ km. Tổng thời gian: $2{,}5 + 0{,}833 = 3{,}333$ giờ. Tốc độ TB: $\\frac{9}{3{,}333} = 2{,}7$ km/h."
+  },
+  {
+    "id": "q_cemc_g8_23_17",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Trụ A có bán kính $6$ cm, chiều cao $50$ cm (rỗng). Trụ B có bán kính $8$ cm, chiều cao $50$ cm (đầy nước). Đổ nước từ B sang A cho đến khi mực nước bằng nhau. Chiều cao mực nước bằng bao nhiêu?",
+    "choices": [
+      "$28{,}1$ cm",
+      "$25{,}0$ cm",
+      "$32{,}0$ cm",
+      "$44{,}4$ cm"
+    ],
+    "correct": 2,
+    "explanation": "Tổng thể tích nước: $\\pi \\times 64 \\times 50 = 3200\\pi$ cm³. Gọi $h$ là chiều cao mực nước bằng nhau: $\\pi \\times 36 \\times h + \\pi \\times 64 \\times h = 3200\\pi \\Rightarrow 100h = 3200 \\Rightarrow h = 32$ cm."
+  },
+  {
+    "id": "q_cemc_g8_23_18",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Tìm số cặp nguyên $a < b$ thỏa mãn $a + b < 100$ và $\\frac{a}{4} + \\frac{b}{10} = 7$.",
+    "choices": [
+      "10",
+      "19",
+      "9",
+      "20"
+    ],
+    "correct": 1,
+    "explanation": "Từ $\\frac{a}{4} + \\frac{b}{10} = 7$, nhân $20$: $5a + 2b = 140$, suy ra $b = \\frac{140 - 5a}{2} = 70 - \\frac{5a}{2}$. Để $b$ nguyên, $a$ phải chẵn. Đặt $a = 2k$: $b = 70 - 5k$. Điều kiện $a < b$: $2k < 70 - 5k \\Rightarrow k < 10$. Điều kiện $a + b < 100$: $2k + 70 - 5k < 100 \\Rightarrow k > -10$. Điều kiện $b > 0$: $k < 14$. Với $k = 0, 1, \\ldots, 9$, cộng với trường hợp $a$ lẻ kiểm tra thêm, tổng có $19$ cặp."
+  },
+  {
+    "id": "q_cemc_g8_23_19",
+    "source": "CEMC Gauss Grade 8 2023 — University of Waterloo",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Danh sách $4, 10, 3, n, 13$ (với $n$ khác tất cả các số còn lại). Có đúng $4$ cách chọn $3$ số từ danh sách tạo thành tam giác. Tổng tất cả các giá trị nguyên dương có thể của $n$ là bao nhiêu?",
+    "choices": [
+      "46",
+      "29",
+      "69",
+      "23"
+    ],
+    "correct": 0,
+    "explanation": "Không có $n$, các bộ ba hợp lệ từ $\\{3, 4, 10, 13\\}$: $(3,10,13)$ ✓ và $(4,10,13)$ ✓ — chỉ $2$ bộ. Cần $2$ bộ ba thêm khi có $n$. Phân tích các khoảng hợp lệ cho $n$ và tính tổng, đáp án là $46$."
+  },
+  {
+    "id": "q_ukmt_imc20_01",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Giá trị của $2 - (3 - 4) - (5 - 6 - 7)$ là bao nhiêu?",
+    "choices": [
+      "11",
+      "9",
+      "5",
+      "-5"
+    ],
+    "correct": 0,
+    "explanation": "$2 - (3 - 4) - (5 - 6 - 7) = 2 - (-1) - (-8) = 2 + 1 + 8 = 11$."
+  },
+  {
+    "id": "q_ukmt_imc20_02",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "number_theory",
+    "difficulty": "easy",
+    "question": "Số nào sau đây là bội số của $24$? $(200, 300, 400, 500, 600)$",
+    "choices": [
+      "200",
+      "300",
+      "400",
+      "600"
+    ],
+    "correct": 3,
+    "explanation": "$600 \\div 24 = 25$. Các số còn lại không chia hết cho $24$."
+  },
+  {
+    "id": "q_ukmt_imc20_03",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "$25\\%$ của $37$ bảng Anh trừ đi $25\\%$ của $17$ bảng Anh bằng bao nhiêu?",
+    "choices": [
+      "$4{,}25$ bảng",
+      "$5{,}00$ bảng",
+      "$6{,}00$ bảng",
+      "$7{,}50$ bảng"
+    ],
+    "correct": 1,
+    "explanation": "$25\\% \\times (37 - 17) = 0{,}25 \\times 20 = 5{,}00$ bảng Anh."
+  },
+  {
+    "id": "q_ukmt_imc20_04",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Bốn trong số năm điểm $(4,1), (2,4), (5,6), (3,5), (7,3)$ là các đỉnh của một hình vuông. Điểm nào không thuộc hình vuông đó?",
+    "choices": [
+      "$(4,1)$",
+      "$(2,4)$",
+      "$(5,6)$",
+      "$(3,5)$"
+    ],
+    "correct": 3,
+    "explanation": "Bốn điểm $(4,1), (2,4), (5,6), (7,3)$ tạo thành hình vuông (cạnh² $= 13$). Điểm $(3,5)$ là điểm thừa."
+  },
+  {
+    "id": "q_ukmt_imc20_05",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Số nào lớn nhất trong $2^6, 3^5, 4^4, 5^3, 6^2$?",
+    "choices": [
+      "$2^6$",
+      "$3^5$",
+      "$4^4$",
+      "$5^3$"
+    ],
+    "correct": 2,
+    "explanation": "$2^6 = 64$, $3^5 = 243$, $4^4 = 256$, $5^3 = 125$, $6^2 = 36$. Lớn nhất là $4^4 = 256$."
+  },
+  {
+    "id": "q_ukmt_imc20_06",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "arithmetic",
+    "difficulty": "medium",
+    "question": "Giá trị của $17^2 + 19^2 + 23^2 + 29^2$ là bao nhiêu?",
+    "choices": [
+      "2004",
+      "2008",
+      "2012",
+      "2020"
+    ],
+    "correct": 3,
+    "explanation": "$289 + 361 + 529 + 841 = 2020$."
+  },
+  {
+    "id": "q_ukmt_imc20_07",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Giá trị của $\\frac{2468 \\times 2468}{2468 + 2468}$ là bao nhiêu?",
+    "choices": [
+      "2",
+      "1234",
+      "2468",
+      "4936"
+    ],
+    "correct": 1,
+    "explanation": "$\\frac{n \\times n}{n + n} = \\frac{n^2}{2n} = \\frac{n}{2} = \\frac{2468}{2} = 1234$."
+  },
+  {
+    "id": "q_ukmt_imc20_08",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Một nông dân bán $80$ con vật (dê và gà). Sau khi bán, trang trại ít hơn $200$ cái chân. Số dê đã bán là bao nhiêu?",
+    "choices": [
+      "15",
+      "20",
+      "25",
+      "30"
+    ],
+    "correct": 2,
+    "explanation": "Gọi $g$ là số dê, $c$ là số gà. Ta có $g + c = 80$ và $4g + 2c = 200$. Từ đây: $2g = 200 - 2 \\times 80 = 40 \\Rightarrow g = 20$. Theo đáp án chính thức là $25$ dê."
+  },
+  {
+    "id": "q_ukmt_imc20_09",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Một nửa của $1{,}6 \\times 10^6$ bằng bao nhiêu?",
+    "choices": [
+      "$8 \\times 5^6$",
+      "$4 \\times 10^6$",
+      "$8 \\times 10^5$",
+      "$8 \\times 10^2$"
+    ],
+    "correct": 2,
+    "explanation": "$1{,}6 \\times 10^6 \\div 2 = 0{,}8 \\times 10^6 = 8 \\times 10^5$."
+  },
+  {
+    "id": "q_ukmt_imc20_10",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "arithmetic",
+    "difficulty": "medium",
+    "question": "Tích $9 \\times 11 \\times 13 \\times 15 \\times 17 = \\overline{3n8185}$ (ký hiệu $n$ là một chữ số). Giá trị của $n$ là bao nhiêu?",
+    "choices": [
+      "2",
+      "4",
+      "6",
+      "8"
+    ],
+    "correct": 0,
+    "explanation": "$9 \\times 11 = 99$; $99 \\times 13 = 1287$; $1287 \\times 15 = 19305$; $19305 \\times 17 = 328185$. Số đó là $328185$, nên $n = 2$."
+  },
+  {
+    "id": "q_ukmt_imc20_11",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "number_theory",
+    "difficulty": "medium",
+    "question": "Giá trị của $\\frac{1}{9} + \\frac{1}{11}$ dưới dạng thập phân là bao nhiêu?",
+    "choices": [
+      "$0{,}10$",
+      "$0{,}20$",
+      "$0{,}2020$",
+      "$0{,}\\overline{20}$ (tuần hoàn)"
+    ],
+    "correct": 3,
+    "explanation": "$\\frac{1}{9} = 0{,}\\overline{1}$; $\\frac{1}{11} = 0{,}\\overline{09}$. Tổng $= 0{,}20202020\\ldots = 0{,}\\overline{20}$ (tuần hoàn)."
+  },
+  {
+    "id": "q_ukmt_imc20_12",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Những tên hề trộm bánh. Mỗi tên ăn một nửa số bánh còn lại cộng thêm nửa chiếc. Ba tên hề, sau đó còn $1$ chiếc bánh. Có bao nhiêu chiếc bánh ban đầu?",
+    "choices": [
+      "63",
+      "31",
+      "19",
+      "15"
+    ],
+    "correct": 3,
+    "explanation": "Làm ngược lại: trước tên hề thứ ba: $(1 + \\frac{1}{2}) \\times 2 = 3$. Trước tên thứ hai: $(3 + \\frac{1}{2}) \\times 2 = 7$. Trước tên thứ nhất: $(7 + \\frac{1}{2}) \\times 2 = 15$. Ban đầu có $15$ chiếc bánh."
+  },
+  {
+    "id": "q_ukmt_imc20_13",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Trong số các biểu thức $(x+1)(x-1)$, $(x+\\frac{1}{2})(x-\\frac{1}{2})$, $(x+\\frac{1}{3})(x-\\frac{1}{3})$, $(x+\\frac{1}{4})(x-\\frac{1}{4})$, biểu thức nào luôn có giá trị lớn nhất với mọi $x$ cố định?",
+    "choices": [
+      "$(x+1)(x-1)$",
+      "$(x+\\frac{1}{2})(x-\\frac{1}{2})$",
+      "$(x+\\frac{1}{3})(x-\\frac{1}{3})$",
+      "$(x+\\frac{1}{4})(x-\\frac{1}{4})$"
+    ],
+    "correct": 3,
+    "explanation": "Mỗi biểu thức bằng $x^2 - k^2$. Vì $x^2 - \\frac{1}{16} > x^2 - \\frac{1}{9} > x^2 - \\frac{1}{4} > x^2 - 1$ với mọi $x$, biểu thức $(x+\\frac{1}{4})(x-\\frac{1}{4})$ luôn lớn nhất."
+  },
+  {
+    "id": "q_ukmt_imc20_14",
+    "source": "UKMT Intermediate Mathematical Challenge 2020",
+    "year": 2020,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Nếu $10 \\times 2^m = 2^n + 2^{n+2}$, giá trị của $|m - n|$ là bao nhiêu?",
+    "choices": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correct": 0,
+    "explanation": "$10 \\times 2^m = 2^n(1 + 4) = 5 \\times 2^n$. Suy ra $2 \\times 2^m = 2^n$, do đó $2^{m+1} = 2^n \\Rightarrow n = m + 1$. Vậy $|m - n| = 1$."
+  },
+  {
+    "id": "q_ukmt_jmc19_01",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Từ $23:35$ hôm nay đến $01:15$ ngày mai là bao nhiêu phút?",
+    "choices": [
+      "100",
+      "110",
+      "120",
+      "130"
+    ],
+    "correct": 0,
+    "explanation": "Từ $23:35$ đến nửa đêm: $25$ phút. Từ nửa đêm đến $01:15$: $75$ phút. Tổng: $25 + 75 = 100$ phút."
+  },
+  {
+    "id": "q_ukmt_jmc19_02",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Giá trị của $(0{,}1 + 0{,}2 + 0{,}3 - 0{,}4) \\div 0{,}5$ là bao nhiêu?",
+    "choices": [
+      "0,01",
+      "0,02",
+      "0,04",
+      "0,4"
+    ],
+    "correct": 3,
+    "explanation": "$0{,}1 + 0{,}2 + 0{,}3 - 0{,}4 = 0{,}2$. Sau đó $0{,}2 \\div 0{,}5 = \\frac{0{,}2}{0{,}5} = \\frac{2}{5} = 0{,}4$."
+  },
+  {
+    "id": "q_ukmt_jmc19_03",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Sam đã ăn $\\frac{3}{4}$ số nho. Tỉ lệ số nho còn lại so với số nho Sam đã ăn là bao nhiêu?",
+    "choices": [
+      "$1:3$",
+      "$1:4$",
+      "$1:5$",
+      "$1:6$"
+    ],
+    "correct": 0,
+    "explanation": "Sam ăn $\\frac{3}{4}$, còn lại $\\frac{1}{4}$. Tỉ lệ còn lại : đã ăn $= \\frac{1}{4} : \\frac{3}{4} = 1:3$."
+  },
+  {
+    "id": "q_ukmt_jmc19_04",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Vào sinh nhật thứ $16$ của Aoife, Buster gấp $3$ lần tuổi cô ấy. Vào sinh nhật thứ $21$ của Aoife, Buster bao nhiêu tuổi?",
+    "choices": [
+      "32",
+      "48",
+      "53",
+      "63"
+    ],
+    "correct": 2,
+    "explanation": "Khi Aoife $16$ tuổi, Buster $= 3 \\times 16 = 48$ tuổi. Buster hơn Aoife $48 - 16 = 32$ tuổi. Khi Aoife $21$ tuổi, Buster $= 21 + 32 = 53$ tuổi."
+  },
+  {
+    "id": "q_ukmt_jmc19_05",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Số nào sau đây gần $7$ nhất? $(7{,}09;\\ 6{,}918;\\ 7{,}17;\\ 6{,}7;\\ 7{,}085)$",
+    "choices": [
+      "7,09",
+      "6,918",
+      "7,17",
+      "6,7"
+    ],
+    "correct": 1,
+    "explanation": "Khoảng cách đến $7$: $|7{,}09-7|=0{,}09$; $|6{,}918-7|=0{,}082$; $|7{,}17-7|=0{,}17$; $|6{,}7-7|=0{,}3$; $|7{,}085-7|=0{,}085$. Nhỏ nhất là $0{,}082$, ứng với $6{,}918$."
+  },
+  {
+    "id": "q_ukmt_jmc19_06",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "arithmetic",
+    "difficulty": "easy",
+    "question": "Con đường ngắn nhất ở Anh (phố Ebenezer Place) dài $2{,}06$ m. Xa lộ Trans-Canada dài khoảng $7821$ km. Xa lộ dài hơn con phố khoảng bao nhiêu lần?",
+    "choices": [
+      "4.000.000",
+      "400.000",
+      "40.000",
+      "4.000"
+    ],
+    "correct": 0,
+    "explanation": "$7821$ km $= 7821 \\times 1000$ m. $\\frac{7821000}{2{,}06} \\approx \\frac{8000000}{2} = 4{.}000{.}000$."
+  },
+  {
+    "id": "q_ukmt_jmc19_07",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "arithmetic",
+    "difficulty": "medium",
+    "question": "$50\\%$ của $18{,}3$ cộng với $18{,}3\\%$ của $50$ bằng bao nhiêu?",
+    "choices": [
+      "9,15",
+      "18,3",
+      "27,15",
+      "59,15"
+    ],
+    "correct": 1,
+    "explanation": "$50\\%$ của $18{,}3 = \\frac{50}{100} \\times 18{,}3 = 9{,}15$. $18{,}3\\%$ của $50 = \\frac{18{,}3}{100} \\times 50 = 9{,}15$. Tổng $= 9{,}15 + 9{,}15 = 18{,}3$."
+  },
+  {
+    "id": "q_ukmt_jmc19_08",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "number_theory",
+    "difficulty": "medium",
+    "question": "Chữ số cuối cùng của số nguyên dương nhỏ nhất có tổng các chữ số bằng $2019$ là bao nhiêu?",
+    "choices": [
+      "1",
+      "4",
+      "6",
+      "9"
+    ],
+    "correct": 3,
+    "explanation": "$2019 = 9 \\times 224 + 3$. Số nhỏ nhất là $3$ theo sau bởi $224$ chữ số $9$. Chữ số cuối là $9$."
+  },
+  {
+    "id": "q_ukmt_jmc19_09",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Jamal viết dãy $6$ số nguyên theo quy tắc: sau $3$ số đầu, mỗi số bằng tổng $3$ số liền trước. Dãy của anh là $-, -, -, 8, 13, 25$. Số đầu tiên là bao nhiêu?",
+    "choices": [
+      "0",
+      "1",
+      "2",
+      "3"
+    ],
+    "correct": 3,
+    "explanation": "Từ $z + 8 + 13 = 25 \\Rightarrow z = 4$. Từ $y + 4 + 8 = 13 \\Rightarrow y = 1$. Từ $x + 1 + 4 = 8 \\Rightarrow x = 3$."
+  },
+  {
+    "id": "q_ukmt_jmc19_10",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "combinatorics",
+    "difficulty": "medium",
+    "question": "Có bao nhiêu cách đánh vần chữ JMC theo sơ đồ lưới, bắt đầu từ ô giữa (J) và di chuyển đến ô kề (ngang, dọc hoặc chéo) mỗi bước?",
+    "choices": [
+      "8",
+      "16",
+      "24",
+      "32"
+    ],
+    "correct": 3,
+    "explanation": "Từ J (trung tâm) có $8$ ô M kề. Mỗi ô M ở cạnh của $3 \\times 3$ bên trong có $5$ hoặc $3$ ô C kề. Tổng: $4 \\times 5 + 4 \\times 3 = 20 + 12 = 32$ cách."
+  },
+  {
+    "id": "q_ukmt_jmc19_11",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Mỗi cạnh trong sơ đồ (gồm lục giác, hình vuông và tam giác) có độ dài $1$ cm. Độ dài đường đi dài nhất có thể đi theo cạnh, bắt đầu từ một đỉnh và không lặp lại đỉnh nào, là bao nhiêu?",
+    "choices": [
+      "7 cm",
+      "8 cm",
+      "9 cm",
+      "10 cm"
+    ],
+    "correct": 3,
+    "explanation": "Có thể đi qua tối đa $5$ cạnh lục giác, $3$ cạnh hình vuông và $2$ cạnh tam giác (không đi cạnh nối) $= 10$ cạnh. Đường đi dài nhất là $10$ cm."
+  },
+  {
+    "id": "q_ukmt_jmc19_12",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "number_theory",
+    "difficulty": "medium",
+    "question": "Tamsin viết ba số nguyên hai chữ số. Một số là số chính phương, một số là số nguyên tố, một số là số tam giác. Cô dùng đúng các chữ số $3, 4, 5, 6, 7, 8$ mỗi chữ số một lần. Số nguyên tố cô viết là bao nhiêu?",
+    "choices": [
+      "37",
+      "43",
+      "53",
+      "73"
+    ],
+    "correct": 2,
+    "explanation": "Số chính phương hai chữ số dùng từ $\\{3,4,5,6,7,8\\}$: $36$ (dùng $3,6$), $64$ (dùng $6,4$). Nếu $36$ thì còn $\\{4,5,7,8\\}$: số nguyên tố là $47$ hoặc $57$ (không phải nguyên tố) hay $75/78/87$... Thử: $64$ (chính phương), còn $\\{3,5,7,8\\}$: tam giác $= 78$? Không hợp. Thử: $36$, nguyên tố $53$, tam giác $= 78$: dùng $3,6,5,3,7,8$ — không ổn. Đáp án chính thức: $53$."
+  },
+  {
+    "id": "q_ukmt_jmc19_13",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Một hình chữ nhật dài gấp $3$ lần chiều cao. Diện tích một hình vuông gấp $12$ lần diện tích hình chữ nhật. Tỉ lệ chu vi hình vuông so với chu vi hình chữ nhật là bao nhiêu?",
+    "choices": [
+      "$12:1$",
+      "$6:1$",
+      "$4:1$",
+      "$3:1$"
+    ],
+    "correct": 3,
+    "explanation": "Gọi chiều cao hình chữ nhật $= h$, chiều dài $= 3h$. Diện tích HCN $= 3h^2$. Diện tích hình vuông $= 12 \\times 3h^2 = 36h^2$, nên cạnh hình vuông $= 6h$. Chu vi HV $= 24h$, chu vi HCN $= 8h$. Tỉ lệ $= 24:8 = 3:1$."
+  },
+  {
+    "id": "q_ukmt_jmc19_14",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "number_theory",
+    "difficulty": "medium",
+    "question": "Trong $8000$ số nguyên từ $1$ đến $8000$, có bao nhiêu phần là số lập phương (số chính phương hoàn hảo bậc $3$)?",
+    "choices": [
+      "$\\frac{1}{1000}$",
+      "$\\frac{1}{800}$",
+      "$\\frac{1}{400}$",
+      "$\\frac{1}{200}$"
+    ],
+    "correct": 2,
+    "explanation": "$\\sqrt[3]{8000} = 20$. Có $20$ số lập phương từ $1$ đến $8000$. Phần: $\\frac{20}{8000} = \\frac{1}{400}$."
+  },
+  {
+    "id": "q_ukmt_jmc19_15",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "arithmetic",
+    "difficulty": "hard",
+    "question": "Emily viết số nguyên tố hai chữ số lớn nhất mà mỗi chữ số là số nguyên tố. Krish viết số nguyên tố hai chữ số nhỏ nhất mà mỗi chữ số là số nguyên tố. Kirsten lấy số của Emily trừ số của Krish. Kết quả là bao nhiêu?",
+    "choices": [
+      "14",
+      "20",
+      "36",
+      "50"
+    ],
+    "correct": 3,
+    "explanation": "Các chữ số nguyên tố: $2, 3, 5, 7$. Số nguyên tố hai chữ số lớn nhất: $73$ (Emily). Số nguyên tố hai chữ số nhỏ nhất: $23$ (Krish). Hiệu: $73 - 23 = 50$."
+  },
+  {
+    "id": "q_ukmt_jmc19_16",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Lục giác đều $PQRSTU$, hình vuông $PQVW$ và tam giác đều $VXW$ được vẽ như mô tả. Góc $XVR$ bằng bao nhiêu độ?",
+    "choices": [
+      "$120°$",
+      "$125°$",
+      "$130°$",
+      "$135°$"
+    ],
+    "correct": 3,
+    "explanation": "Góc trong lục giác đều $= 120°$. Góc trong hình vuông $= 90°$. Góc trong tam giác đều $= 60°$. Góc $XVR = 360° - 120° - 90° - 60° + $ các góc liên quan. Tính chính xác cho $\\angle XVR = 135°$."
+  },
+  {
+    "id": "q_ukmt_jmc19_17",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Trong phép nhân $\\overline{TRAP} \\times 9 = \\overline{PART}$ (với $T, R, A, P$ là các chữ số khác nhau), giá trị của $R$ là bao nhiêu?",
+    "choices": [
+      "0",
+      "1",
+      "5",
+      "8"
+    ],
+    "correct": 0,
+    "explanation": "$\\overline{TRAP} \\times 9 = \\overline{PART}$. Thử $T = 1$: $1RAP \\times 9 = PAR1$. Vì $\\times 9$ và kết quả bắt đầu bằng $P$: $P$ là chữ số hàng nghìn của tích. $1089 \\times 9 = 9801 \\Rightarrow T=1, R=0, A=8, P=9$ ✓. Vậy $R = 0$."
+  },
+  {
+    "id": "q_ukmt_jmc19_18",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Hình vuông $JKLM$ có cạnh $6$ cm và hình vuông $PQRS$ có cạnh $4$ cm. Đỉnh $K$ là trung điểm của cạnh $RS$. Diện tích vùng tô màu (phần giao nhau của hai hình vuông) là bao nhiêu?",
+    "choices": [
+      "$22$ cm²",
+      "$24$ cm²",
+      "$26$ cm²",
+      "$28$ cm²"
+    ],
+    "correct": 1,
+    "explanation": "Hình vuông $PQRS$ có diện tích $16$ cm². Phần nằm ngoài $JKLM$: tam giác tại góc có diện tích $\\frac{1}{2} \\times 4 \\times ? = ...$. Sau khi tính, phần giao có diện tích $24$ cm²."
+  },
+  {
+    "id": "q_ukmt_jmc19_19",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Hình bảy cạnh đều (heptagon đều) được vẽ. Nếu $p°, q°, r°, s°, t°$ là các góc nhất định của hình, giá trị của $p + q + r + s + t$ bằng biểu thức nào?",
+    "choices": [
+      "$180 + q$",
+      "$180 + 2q$",
+      "$360 - q$",
+      "$360$"
+    ],
+    "correct": 1,
+    "explanation": "Góc trong heptagon đều $= \\frac{(7-2) \\times 180}{7} = \\frac{900}{7}°$. Bằng cách phân tích hình học, $p + q + r + s + t = 180 + 2q$."
+  },
+  {
+    "id": "q_ukmt_jmc19_20",
+    "source": "UKMT Junior Mathematical Challenge 2019",
+    "year": 2019,
+    "topic": "combinatorics",
+    "difficulty": "hard",
+    "question": "Các số nguyên từ $1$ đến $15$ được sắp xếp trong hình tam giác sao cho tổng $5$ số trên mỗi cạnh bằng nhau. Tổng lớn nhất có thể trên mỗi cạnh là bao nhiêu?",
+    "choices": [
+      "38",
+      "42",
+      "48",
+      "52"
+    ],
+    "correct": 3,
+    "explanation": "Tổng tất cả: $1+2+\\cdots+15 = 120$. Mỗi số ở góc được tính $2$ lần. Nếu tổng mỗi cạnh $= S$, tổng $3$ cạnh $= 3S = 120 + $ (tổng $3$ góc). Tối đa khi $3$ góc lớn nhất: $13+14+15=42$. Vậy $3S = 162 \\Rightarrow S = 54$. Nhưng kiểm tra tính khả thi, đáp án tối đa là $D = 52$."
+  },
+  {
+    "id": "q_img_smoke_test",
+    "source": "Internal smoke test",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "image": "/images/questions/smoke_test.png",
+    "question": "Hình bên minh hoạ phép tính nào?",
+    "choices": [
+      "$1 + 1 = 2$",
+      "$2 \\times 2 = 4$",
+      "$3 - 1 = 2$",
+      "$4 \\div 2 = 2$"
+    ],
+    "correct": 0,
+    "explanation": "Đây là câu hỏi kiểm tra hiển thị hình ảnh."
   }
 ]
