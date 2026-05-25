@@ -8,7 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { loadQuestions } from '../api/index.js'
-import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze } from '../api/aiClient.js'
+import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights } from '../api/aiClient.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
@@ -298,6 +298,11 @@ export default function Account() {
   // ── Heatmap scroll ref ──
   const heatScrollRef = useRef(null)
 
+  // ── AI chart insights (Sprint 16) ──
+  const [chartInsights,        setChartInsights]        = useState(null)
+  const [chartInsightsLoading, setChartInsightsLoading] = useState(false)
+  const chartInsightsFetched = useRef(false)
+
   const toast = useToast()
 
   // ── Data fetching ──
@@ -317,6 +322,42 @@ export default function Account() {
       heatScrollRef.current.scrollLeft = heatScrollRef.current.scrollWidth
     }
   }, [activeTab])
+
+  // Fetch AI chart insights once when analytics tab opens with enough data
+  useEffect(() => {
+    if (activeTab !== TAB_ANALYTICS) return
+    if (results.length < 5) return
+    if (chartInsightsFetched.current) return
+    chartInsightsFetched.current = true
+
+    const sparkPayload = [...results]
+      .sort((a, b) => new Date(a.finishedAt) - new Date(b.finishedAt))
+      .slice(-10)
+      .map(r => ({ date: r.finishedAt, score: r.score ?? 0 }))
+
+    const radarPayload = aggregateTopicAccuracy(results).map(({ topic, score }) => ({
+      topic,
+      score: score / 100,
+    }))
+
+    const heatCells = buildHeatmap(results)
+    const activeDays = heatCells.filter(c => c.count > 0).length
+    const streakDays = (() => {
+      let best = 0, cur = 0
+      for (const c of heatCells) { if (c.count > 0) { cur++; best = Math.max(best, cur) } else cur = 0 }
+      return best
+    })()
+    const heatPayload = {
+      total_sessions: results.length,
+      active_days: activeDays,
+      best_streak: streakDays,
+    }
+
+    setChartInsightsLoading(true)
+    getChartInsights({ spark_data: sparkPayload, radar_data: radarPayload, heatmap_summary: heatPayload })
+      .then(({ data }) => { if (data) setChartInsights(data) })
+      .finally(() => setChartInsightsLoading(false))
+  }, [activeTab, results])
 
   // ── Loading skeleton ──
   if (loading || !user) {
@@ -1319,6 +1360,11 @@ export default function Account() {
                       <span className="font-jakarta text-[12px] text-[#34D399]">{scoreProjection.summary}</span>
                     </div>
                   )}
+                  {(chartInsightsLoading || chartInsights?.spark_insight) && (
+                    <p className="font-jakarta text-[12px] italic text-[#64748B] mt-1">
+                      {chartInsightsLoading ? '...' : chartInsights.spark_insight}
+                    </p>
+                  )}
                 </section>
 
                 {/* Topic radar */}
@@ -1337,6 +1383,11 @@ export default function Account() {
                         <span className="text-[13px] mt-px">💡</span>
                         <span className="font-jakarta text-[12px] text-[#94A3B8]">{radarInsight}</span>
                       </div>
+                    )}
+                    {(chartInsightsLoading || chartInsights?.radar_insight) && (
+                      <p className="font-jakarta text-[12px] italic text-[#64748B] mt-1">
+                        {chartInsightsLoading ? '...' : chartInsights.radar_insight}
+                      </p>
                     )}
                   </section>
                 )}
@@ -1427,6 +1478,11 @@ export default function Account() {
                       <span className="text-[13px] mt-px">💡</span>
                       <span className="font-jakarta text-[12px] text-[#94A3B8]">{heatmapInsight}</span>
                     </div>
+                  )}
+                  {(chartInsightsLoading || chartInsights?.heatmap_insight) && (
+                    <p className="font-jakarta text-[12px] italic text-[#64748B] mt-1">
+                      {chartInsightsLoading ? '...' : chartInsights.heatmap_insight}
+                    </p>
                   )}
                 </section>
 

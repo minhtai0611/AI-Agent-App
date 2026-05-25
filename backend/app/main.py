@@ -897,6 +897,18 @@ class WeekQuizResponse(BaseModel):
     questions: list[dict]
 
 
+class ChartInsightsRequest(BaseModel):
+    spark_data: list[dict] = []
+    radar_data: list[dict] = []
+    heatmap_summary: dict = {}
+
+
+class ChartInsightsResponse(BaseModel):
+    spark_insight: str
+    radar_insight: str
+    heatmap_insight: str
+
+
 # ── Existing routes ──────────────────────────────────────────────────────────
 
 @app.api_route("/health", methods=["GET", "HEAD"])
@@ -1354,6 +1366,76 @@ async def study_plan_quiz(
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Quiz generation failed: {exc}")
     return WeekQuizResponse(questions=questions)
+
+
+# Static prefix-cache-friendly system prompt (placed first for prefix caching)
+_CHART_INSIGHTS_SYSTEM = (
+    "You are a Vietnamese study advisor. Given exam performance data, generate exactly 3 "
+    "one-line insights in Vietnamese. Each must be ≤25 words and end with a concrete action "
+    "recommendation. Return JSON with keys: spark_insight, radar_insight, heatmap_insight."
+)
+
+_CHART_INSIGHTS_FALLBACKS = {
+    "spark_insight": "Chưa đủ dữ liệu điểm số. Hoàn thành thêm bài thi để xem xu hướng.",
+    "radar_insight": "Chưa đủ dữ liệu chủ đề. Làm thêm bài thi đa dạng chủ đề để xem phân tích.",
+    "heatmap_insight": "Chưa có dữ liệu hoạt động. Bắt đầu học đều đặn mỗi ngày để xây chuỗi.",
+}
+
+
+@app.post("/insights/charts", response_model=ChartInsightsResponse)
+async def chart_insights(
+    req: ChartInsightsRequest,
+    client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    """Generate free Haiku-powered one-line insights for the three main analytics charts.
+    No credit deduction — this endpoint is FREE.
+    """
+    from app.agent.core import call_with_retry
+
+    # Return fallbacks immediately when all data is empty
+    has_spark = bool(req.spark_data)
+    has_radar = bool(req.radar_data)
+    has_heatmap = bool(req.heatmap_summary.get("total_sessions") or req.heatmap_summary.get("active_days"))
+
+    if not has_spark and not has_radar and not has_heatmap:
+        return ChartInsightsResponse(**_CHART_INSIGHTS_FALLBACKS)
+
+    settings = get_settings()
+
+    # Build dynamic user data payload (appended last, after static prefix)
+    spark_text = json.dumps(req.spark_data[-10:], ensure_ascii=False) if has_spark else "[]"
+    radar_text = json.dumps(req.radar_data, ensure_ascii=False) if has_radar else "[]"
+    heatmap_text = json.dumps(req.heatmap_summary, ensure_ascii=False)
+
+    user_content = (
+        f"Score trend data (last 10 exams, score 0–10): {spark_text}\n"
+        f"Topic accuracy data (score 0–100 = %): {radar_text}\n"
+        f"Activity heatmap summary: {heatmap_text}\n\n"
+        "Return JSON only, no other text."
+    )
+
+    try:
+        resp = await call_with_retry(
+            client,
+            model=settings.haiku_model,
+            max_tokens=300,
+            messages=[
+                {"role": "system", "content": _CHART_INSIGHTS_SYSTEM},
+                {"role": "user", "content": user_content},
+            ],
+            response_format={"type": "json_object"},
+        )
+        raw = (resp.choices[0].message.content or "{}").strip()
+        parsed = json.loads(raw)
+        return ChartInsightsResponse(
+            spark_insight=parsed.get("spark_insight") or _CHART_INSIGHTS_FALLBACKS["spark_insight"],
+            radar_insight=parsed.get("radar_insight") or _CHART_INSIGHTS_FALLBACKS["radar_insight"],
+            heatmap_insight=parsed.get("heatmap_insight") or _CHART_INSIGHTS_FALLBACKS["heatmap_insight"],
+        )
+    except Exception as exc:
+        logger.warning("chart_insights failed: %s", exc)
+        return ChartInsightsResponse(**_CHART_INSIGHTS_FALLBACKS)
 
 
 @app.post("/math-ingest")

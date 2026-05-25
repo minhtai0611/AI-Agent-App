@@ -378,3 +378,6 @@ export const examStrategy = () =>
 
 export const compareProvince = () =>
   wrap(client.get('/compare/province'))
+
+export const getChartInsights = (payload) =>
+  wrap(client.post('/insights/charts', payload))
