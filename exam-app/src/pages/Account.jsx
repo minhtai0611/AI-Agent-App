@@ -36,6 +36,7 @@ import { getSessionPatterns } from '../utils/sessionPatterns.js'
 import { getAdvisorMessage } from '../utils/advisorMessage.js'
 import { getSimulationMode, getScoreConfidenceInterval, getDailySimulationPlan } from '../utils/examSimulation.js'
 import { getProvinceNarrative } from '../utils/provinceNarrative.js'
+import { getProvincialContext, getDifficultyInsight } from '../utils/provincialData.js'
 import { getTierGap } from '../utils/tierGap.js'
 import { getUpgradeContext } from '../utils/upgradeContext.js'
 import { getStreakFreezeInfo } from '../utils/streakFreeze.js'
@@ -604,6 +605,13 @@ export default function Account() {
   // Sprint 12: province narrative, tier gap, upgrade context
   const provinceNarrative = useMemo(() => getProvinceNarrative(provinceData), [provinceData])
   const tierGap = useMemo(() => getTierGap(tier), [tier])
+
+  // MOAT2: provincial difficulty context
+  const provincialCtx = useMemo(() => getProvincialContext(user?.province), [user?.province])
+  const difficultyInsight = useMemo(
+    () => getDifficultyInsight(user?.province, parseFloat(avgScore) || null),
+    [user?.province, avgScore]
+  )
 
   // Daily spend rate (last 7 days from creditLog)
   const runwayDays = useMemo(() => {
@@ -1192,6 +1200,19 @@ export default function Account() {
                           </span>
                         </div>
                       </div>
+                      {/* MOAT2: provincial difficulty intelligence */}
+                      {provincialCtx && (
+                        <div className="flex flex-col gap-1.5 px-4 py-3 rounded-xl bg-[#0A0E1A] border border-[#1E2A44]">
+                          <span className="font-jakarta text-[11px] text-[#475569]">
+                            Độ khó tỉnh {user.province}: <span className="text-[#F2A20C] font-semibold">{provincialCtx.difficultyLabel}</span>
+                            {' · '}Điểm chuẩn TB: <span className="text-[#94A3B8] font-semibold">{provincialCtx.typical_cutoff}</span>
+                            {' · '}Trường top: <span className="text-[#10B981] font-semibold">{provincialCtx.top_schools_cutoff}</span>
+                          </span>
+                          {difficultyInsight && (
+                            <span className="font-jakarta text-[11px] text-[#64748B] italic leading-snug">{difficultyInsight}</span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

@@ -11,7 +11,17 @@ Khi phân tích kết quả thi THPT:
 - Ưu tiên gợi ý trường phù hợp với điểm thực tế, không chỉ trường mơ ước
 """
 
-STATIC_EXAM_ANALYSIS_INSTRUCTIONS = THPT_ANALYSIS_CONTEXT + """Bạn là chuyên gia phân tích kết quả học tập cho học sinh ôn thi Toán.
+PROVINCIAL_DIFFICULTY_CONTEXT = """
+Provincial THPT difficulty context (2024 data):
+- Hà Nội, TP.HCM: difficulty 4/5, typical Math cutoff ~8.0, top schools require 9.0+
+- Đà Nẵng, Hải Phòng, Cần Thơ: difficulty 3/5, typical cutoff ~7.0-7.2
+- Most other provinces: difficulty 2-3/5, typical cutoff 6.4-6.8
+- National average THPT Math 2024: 6.51
+When province data is provided, calibrate school recommendations to provincial difficulty.
+A score of 8.0 in Hà Nội is harder to achieve than 8.0 in a lower-difficulty province.
+"""
+
+STATIC_EXAM_ANALYSIS_INSTRUCTIONS = THPT_ANALYSIS_CONTEXT + PROVINCIAL_DIFFICULTY_CONTEXT + """Bạn là chuyên gia phân tích kết quả học tập cho học sinh ôn thi Toán.
 Phân tích kết quả thi, các câu trả lời đúng/sai cụ thể, và gợi ý trường phù hợp dựa trên điểm số.
 Trả lời bằng tiếng Việt. Luôn trả về JSON hợp lệ theo đúng định dạng yêu cầu, không có text ngoài JSON."""
 
