@@ -34,6 +34,20 @@ const REASON_LABELS = {
 }
 
 const TIER_LABELS  = { basic: 'Cơ bản', student: 'Học sinh', complete: 'Toàn diện' }
+
+// Display names for mastery ranks (backend values → Vietnamese learner labels)
+const MASTERY_RANK_LABELS = {
+  'Pemula':    'Tân học viên',
+  'Học sinh':  'Học sinh Tiến bộ',
+  'Sinh viên': 'Chiến sĩ Tri thức',
+  'Chuyên gia':'Ngôi sao Zenith',
+}
+const MASTERY_RANK_COLORS = {
+  'Pemula':    '#64748B',
+  'Học sinh':  '#818CF8',
+  'Sinh viên': '#F2A20C',
+  'Chuyên gia':'#10B981',
+}
 const TIER_COLORS  = { basic: '#64748B', student: '#F2A20C', complete: '#10B981' }
 const TIER_ALLOC   = { basic: 50, student: 500, complete: 2000 }
 const GRADE_LABELS = { '9': 'Lớp 9 trở xuống', '10': 'Lớp 10', '11': 'Lớp 11', '12': 'Lớp 12' }
@@ -410,22 +424,35 @@ export default function Account() {
               {((user.custom_display_name || user.display_name) || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || '?'}
             </div>
           )}
-          {/* Name + email */}
+          {/* Name + mastery rank + email */}
           <div className="flex-1 min-w-0">
-            <p className="font-fraunces text-[18px] font-bold text-[#F8FAFC] truncate">{user.custom_display_name || user.display_name}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-fraunces text-[18px] font-bold text-[#F8FAFC] truncate">{user.custom_display_name || user.display_name}</p>
+              {user.mastery_rank && (
+                <span
+                  className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                  style={{
+                    background: (MASTERY_RANK_COLORS[user.mastery_rank] ?? '#64748B') + '22',
+                    color: MASTERY_RANK_COLORS[user.mastery_rank] ?? '#64748B',
+                  }}
+                >
+                  {MASTERY_RANK_LABELS[user.mastery_rank] ?? user.mastery_rank}
+                </span>
+              )}
+            </div>
             <p className="font-jakarta text-[12px] text-[#64748B] truncate">{user.email}</p>
           </div>
-          {/* Actions */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Actions — secondary, muted */}
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={() => { setActiveTab(TAB_PROGRESS); setEditMode(true); setEditGrade(user.grade || ''); setEditProvince(user.province || '') }}
-              className="px-3 py-1.5 rounded-lg font-jakarta text-[12px] text-amber-400 border border-amber-400/30 hover:bg-amber-400/10 transition"
+              className="px-2.5 py-1.5 rounded-lg font-jakarta text-[11px] text-amber-400 hover:bg-amber-400/10 transition"
             >
-              ✏️ Chỉnh sửa
+              ✏️ Sửa
             </button>
             <button
               onClick={logout}
-              className="px-3 py-1.5 rounded-lg font-jakarta text-[12px] text-[#64748B] border border-[#1E2A44] hover:text-[#F8FAFC] transition"
+              className="px-2.5 py-1.5 rounded-lg font-jakarta text-[11px] text-[#475569] hover:text-[#94A3B8] transition"
             >
               Đăng xuất
             </button>
@@ -440,7 +467,13 @@ export default function Account() {
           <div className="w-px h-8 bg-[#1E2A44]" />
           <StatChip icon="⭐" value={avgScore} label="điểm tb" />
           <div className="w-px h-8 bg-[#1E2A44]" />
-          <StatChip icon="⚡" value={user.credits_balance ?? 0} label="Tia" />
+          <StatChip icon="⚡" value={formatCreditSessions(user.credits_balance ?? 0)} label="AI còn lại" />
+          {(user.solid_concept_count ?? 0) > 0 && (
+            <>
+              <div className="w-px h-8 bg-[#1E2A44]" />
+              <StatChip icon="🧠" value={user.solid_concept_count} label="khái niệm" />
+            </>
+          )}
         </div>
 
         {/* Tab bar + settings gear icon */}
