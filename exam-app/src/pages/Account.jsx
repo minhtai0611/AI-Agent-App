@@ -23,6 +23,9 @@ import { interpretScoreTrend, interpretTopicRadar, interpretHeatmap, getTodayFoc
 import { getMasteryProgress, MASTERY_TIERS } from '../utils/masteryRank.js'
 import { generateWeeklyReport } from '../utils/weeklyReport.js'
 import { getStudyNudge } from '../utils/studyNudge.js'
+import { classifyLearner } from '../utils/learnerArchetype.js'
+import { getLearnerTimeline } from '../utils/learnerTimeline.js'
+import { getScoreProjection } from '../utils/scoreProjection.js'
 import { useAIPreferences } from '../hooks/useAIPreferences.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -346,6 +349,11 @@ export default function Account() {
     : daysUntil <= 14 ? '#F97316'
     : daysUntil <= 30 ? '#F2A20C'
     : '#818CF8'
+
+  // Sprint 5: learner identity + score projection
+  const archetype       = useMemo(() => classifyLearner(results), [results])
+  const timeline        = useMemo(() => getLearnerTimeline(results), [results])
+  const scoreProjection = useMemo(() => getScoreProjection(sparkData, daysUntil), [sparkData, daysUntil])
 
   // Daily spend rate (last 7 days from creditLog)
   const runwayDays = useMemo(() => {
@@ -774,6 +782,20 @@ export default function Account() {
               </section>
             )}
 
+            {/* Learner archetype */}
+            {archetype && (
+              <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-[#818CF81A] border border-[#818CF833] flex items-center justify-center text-[28px] flex-shrink-0">
+                  {archetype.icon}
+                </div>
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className="font-jakarta text-[10px] font-semibold text-[#818CF8] uppercase tracking-wide">Phong cách học của bạn</span>
+                  <span className="font-fraunces text-[16px] font-bold text-[#F8FAFC]">{archetype.label}</span>
+                  <span className="font-jakarta text-[12px] text-[#94A3B8] leading-snug">{archetype.desc}</span>
+                </div>
+              </section>
+            )}
+
             {/* Next milestone */}
             {nextMilestone && (
               <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-3">
@@ -826,6 +848,34 @@ export default function Account() {
                 })}
               </div>
             </section>
+
+            {/* Learner timeline */}
+            {timeline.length > 0 && (
+              <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Hành trình học tập</span>
+                <div className="flex flex-col gap-0">
+                  {timeline.map((event, idx) => (
+                    <div key={event.type} className="flex gap-3 relative">
+                      {/* Vertical line */}
+                      {idx < timeline.length - 1 && (
+                        <div className="absolute left-[19px] top-8 bottom-0 w-px bg-[#1E2A44]" />
+                      )}
+                      <div className="w-10 h-10 rounded-full bg-[#0A0E1A] border border-[#1E2A44] flex items-center justify-center text-[16px] flex-shrink-0 z-10">
+                        {event.icon}
+                      </div>
+                      <div className="flex flex-col gap-0.5 pb-4 min-w-0">
+                        <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">
+                          {event.label}{event.extra ? ` — ${event.extra} điểm` : ''}
+                        </span>
+                        <span className="font-jakarta text-[11px] text-[#475569]">
+                          {new Date(event.date).toLocaleDateString('vi-VN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
           </>
         )}
 
@@ -906,6 +956,12 @@ export default function Account() {
                       <span className="font-jakarta text-[12px] text-[#94A3B8]">{trendInsight}</span>
                     </div>
                   )}
+                  {scoreProjection && (
+                    <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[#10B9810D] border border-[#10B98133]">
+                      <span className="text-[13px] mt-px">🎯</span>
+                      <span className="font-jakarta text-[12px] text-[#34D399]">{scoreProjection.summary}</span>
+                    </div>
+                  )}
                 </section>
 
                 {/* Topic radar */}
@@ -925,6 +981,34 @@ export default function Account() {
                         <span className="font-jakarta text-[12px] text-[#94A3B8]">{radarInsight}</span>
                       </div>
                     )}
+                  </section>
+                )}
+
+                {/* Learning DNA grid */}
+                {radarData.length > 0 && (
+                  <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+                    <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Learning DNA</span>
+                    <span className="font-jakarta text-[11px] text-[#475569]">Bản đồ điểm mạnh và điểm yếu của bạn</span>
+                    <div className="flex flex-col gap-2">
+                      {[...radarData].sort((a, b) => b.score - a.score).map(({ topic, score }) => {
+                        const color = score >= 70 ? '#10B981' : score >= 45 ? '#F2A20C' : '#EF4444'
+                        const label = score >= 70 ? 'Mạnh' : score >= 45 ? 'Trung bình' : 'Cần ôn'
+                        return (
+                          <div key={topic} className="flex items-center gap-3">
+                            <span className="font-jakarta text-[11px] text-[#94A3B8] w-28 flex-shrink-0 truncate">{topic}</span>
+                            <div className="flex-1 h-2 bg-[#1E2A44] rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{ width: `${score}%`, background: color }}
+                              />
+                            </div>
+                            <span className="font-jakarta text-[10px] font-semibold w-16 text-right flex-shrink-0" style={{ color }}>
+                              {score}% · {label}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
                   </section>
                 )}
 
