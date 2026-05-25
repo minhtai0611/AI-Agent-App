@@ -8,7 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { loadQuestions } from '../api/index.js'
-import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince } from '../api/aiClient.js'
+import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile } from '../api/aiClient.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
@@ -28,6 +28,7 @@ import { getLearnerTimeline } from '../utils/learnerTimeline.js'
 import { getScoreProjection } from '../utils/scoreProjection.js'
 import { useAIPreferences } from '../hooks/useAIPreferences.js'
 import { getTopupRecommendation, getTrialUrgency, getAnnualSavingsDays } from '../utils/monetization.js'
+import { getGoalStatus } from '../utils/goalAlignment.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -266,6 +267,13 @@ export default function Account() {
   )
   const { preferences: aiPrefs, setPreferences: setAIPrefs, isCustomized: aiIsCustomized } = useAIPreferences()
 
+  // ── Goal settings form ──
+  const [goalExamDate,    setGoalExamDate]    = useState(() => user?.exam_date ?? '')
+  const [goalSchool,      setGoalSchool]      = useState(() => user?.target_school ?? '')
+  const [goalHours,       setGoalHours]       = useState(() => user?.weekly_study_hours?.toString() ?? '')
+  const [goalSaving,      setGoalSaving]      = useState(false)
+  const [goalSaved,       setGoalSaved]       = useState(false)
+
   // ── Heatmap scroll ref ──
   const heatScrollRef = useRef(null)
 
@@ -361,6 +369,9 @@ export default function Account() {
   const trialUrgency  = useMemo(() => getTrialUrgency(user), [user])
   const studentSavingsDays  = useMemo(() => getAnnualSavingsDays(29000, 261000), [])
   const completeSavingsDays = useMemo(() => getAnnualSavingsDays(59000, 531000), [])
+
+  // Sprint 7: goal-aligned intelligence
+  const goalStatus = useMemo(() => getGoalStatus(user, sparkData), [user, sparkData])
 
   // Daily spend rate (last 7 days from creditLog)
   const runwayDays = useMemo(() => {
@@ -590,6 +601,61 @@ export default function Account() {
                     <span className="font-jakarta text-[12px] text-[#64748B]">đến kỳ thi vào lớp 10</span>
                   </div>
                 )}
+              </section>
+            )}
+
+            {/* Goal alignment card */}
+            {goalStatus && (
+              <section className={`border rounded-2xl p-6 flex flex-col gap-3 ${
+                goalStatus.status === 'at_risk'
+                  ? 'bg-[#1A0A0A] border-red-500/40'
+                  : goalStatus.status === 'steady'
+                  ? 'bg-[#0D1521] border-[#1E2A44]'
+                  : goalStatus.status === 'ahead'
+                  ? 'bg-[#0A1A12] border-emerald-500/40'
+                  : 'bg-[#0D1521] border-[#1E2A44]'
+              }`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex flex-col gap-1 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-fraunces text-[14px] font-semibold text-[#F8FAFC]">
+                        {goalStatus.status === 'ahead' ? '🎯' : goalStatus.status === 'at_risk' ? '⚠️' : goalStatus.status === 'no_data' ? '📋' : '📈'}
+                        {' '}{goalStatus.headline}
+                      </span>
+                    </div>
+                    <p className="font-jakarta text-[12px] text-[#94A3B8] leading-snug">{goalStatus.detail}</p>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab(TAB_SETTINGS)}
+                    className="font-jakarta text-[11px] text-[#475569] hover:text-[#64748B] transition flex-shrink-0"
+                  >
+                    Sửa mục tiêu →
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg bg-[#0A0E1A] border border-[#1E2A44]">
+                    <span className="font-jakarta text-[10px] text-[#475569]">Còn lại</span>
+                    <span className="font-fraunces text-[14px] font-bold" style={{ color: urgencyColor }}>{goalStatus.daysUntil} ngày</span>
+                  </div>
+                  {goalStatus.projectedScore != null && (
+                    <div className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg bg-[#0A0E1A] border border-[#1E2A44]">
+                      <span className="font-jakarta text-[10px] text-[#475569]">Dự đoán</span>
+                      <span className="font-fraunces text-[14px] font-bold text-emerald-400">{goalStatus.projectedScore.toFixed(1)}</span>
+                    </div>
+                  )}
+                  {goalStatus.targetSchool && (
+                    <div className="flex flex-col gap-0.5 px-3 py-2 rounded-lg bg-[#0A0E1A] border border-[#1E2A44] max-w-[200px]">
+                      <span className="font-jakarta text-[10px] text-[#475569]">Trường mục tiêu</span>
+                      <span className="font-jakarta text-[12px] font-semibold text-[#F0F4FF] truncate">{goalStatus.targetSchool}</span>
+                    </div>
+                  )}
+                  {goalStatus.weeklyHours && (
+                    <div className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg bg-[#0A0E1A] border border-[#1E2A44]">
+                      <span className="font-jakarta text-[10px] text-[#475569]">Giờ/tuần</span>
+                      <span className="font-fraunces text-[14px] font-bold text-[#818CF8]">{goalStatus.weeklyHours}h</span>
+                    </div>
+                  )}
+                </div>
               </section>
             )}
 
@@ -1459,6 +1525,68 @@ export default function Account() {
                   <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${aiPrefs.weak_topic_focus ? 'translate-x-7' : 'translate-x-1'}`} />
                 </button>
               </div>
+            </section>
+
+            {/* Learning goals */}
+            <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+              <div className="flex items-center justify-between">
+                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Mục tiêu học tập</span>
+                {goalSaved && (
+                  <span className="font-jakarta text-[11px] text-emerald-400">Đã lưu ✓</span>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="font-jakarta text-[12px] font-semibold text-[#94A3B8]">Ngày thi dự kiến</label>
+                <input
+                  type="date"
+                  value={goalExamDate}
+                  onChange={e => { setGoalExamDate(e.target.value); setGoalSaved(false) }}
+                  min={new Date().toISOString().slice(0, 10)}
+                  className="w-full px-4 py-3 rounded-xl border border-[#1E2A44] bg-[#0A0E1A] font-jakarta text-[13px] text-[#F0F4FF] focus:outline-none focus:border-[#F2A20C] transition [color-scheme:dark]"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="font-jakarta text-[12px] font-semibold text-[#94A3B8]">Trường mục tiêu</label>
+                <input
+                  type="text"
+                  value={goalSchool}
+                  onChange={e => { setGoalSchool(e.target.value); setGoalSaved(false) }}
+                  placeholder="VD: THPT Chuyên Lê Hồng Phong"
+                  maxLength={200}
+                  className="w-full px-4 py-3 rounded-xl border border-[#1E2A44] bg-[#0A0E1A] font-jakarta text-[13px] text-[#F0F4FF] placeholder-[#475569] focus:outline-none focus:border-[#F2A20C] transition"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="font-jakarta text-[12px] font-semibold text-[#94A3B8]">Số giờ học mỗi tuần</label>
+                <input
+                  type="number"
+                  value={goalHours}
+                  onChange={e => { setGoalHours(e.target.value); setGoalSaved(false) }}
+                  min={1} max={168} placeholder="VD: 10"
+                  className="w-full px-4 py-3 rounded-xl border border-[#1E2A44] bg-[#0A0E1A] font-jakarta text-[13px] text-[#F0F4FF] placeholder-[#475569] focus:outline-none focus:border-[#F2A20C] transition"
+                />
+              </div>
+
+              <button
+                disabled={goalSaving}
+                onClick={async () => {
+                  setGoalSaving(true); setGoalSaved(false)
+                  await updateExtendedProfile({
+                    exam_date:           goalExamDate || undefined,
+                    target_school:       goalSchool.trim() || undefined,
+                    weekly_study_hours:  goalHours ? parseInt(goalHours) : undefined,
+                  })
+                  await refreshUser()
+                  setGoalSaving(false); setGoalSaved(true)
+                }}
+                className="self-start px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold transition"
+                style={{ background: goalSaving ? '#1E2A44' : '#F2A20C', color: goalSaving ? '#475569' : '#0A0E1A' }}
+              >
+                {goalSaving ? 'Đang lưu...' : 'Lưu mục tiêu'}
+              </button>
             </section>
 
             {/* Account status */}
