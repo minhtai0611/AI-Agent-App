@@ -807,7 +807,7 @@ export default function Account() {
       </div>
 
       {/* ── Tab content ───────────────────────────────────────────────── */}
-      <div className="max-w-2xl mx-auto w-full px-4 py-8 flex flex-col gap-6">
+      <div className="max-w-2xl lg:max-w-5xl mx-auto w-full px-4 py-8 flex flex-col gap-6">
 
         {/* ── AI Advisor Message — always visible ───────────────────────── */}
         {advisorMsg && (
@@ -1524,6 +1524,23 @@ export default function Account() {
               </div>
             ) : (
               <>
+                {/* Advisor message card */}
+                {advisorMsg && (
+                  <section className="rounded-2xl p-5 flex items-start gap-4"
+                    style={{ background: '#0D1521', border: '1px solid #1E2A44' }}>
+                    <span className="text-2xl mt-0.5">🤖</span>
+                    <div className="flex flex-col gap-1">
+                      <p className="text-xs font-semibold uppercase tracking-wider"
+                        style={{ color: '#818CF8' }}>
+                        Nhận xét AI
+                      </p>
+                      <p className="text-sm leading-relaxed" style={{ color: '#CBD5E1' }}>
+                        {advisorMsg.message}
+                      </p>
+                    </div>
+                  </section>
+                )}
+
                 {/* Score sparkline */}
                 <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-3">
                   <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Xu hướng điểm số</span>
