@@ -38,6 +38,7 @@ import { getProvinceNarrative } from '../utils/provinceNarrative.js'
 import { getTierGap } from '../utils/tierGap.js'
 import { getUpgradeContext } from '../utils/upgradeContext.js'
 import { getStreakFreezeInfo } from '../utils/streakFreeze.js'
+import { getTopicNodes, getPriorityTopics } from '../utils/learningGraph.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -395,6 +396,8 @@ export default function Account() {
   const readinessLabel = readinessPct >= 70 ? 'Sẵn sàng tốt' : readinessPct >= 40 ? 'Đang tiến bộ' : 'Cần luyện thêm'
 
   const radarData    = useMemo(() => aggregateTopicAccuracy(results), [results])
+  const topicNodes   = useMemo(() => getTopicNodes(radarData), [radarData])
+  const priorityTopics = useMemo(() => getPriorityTopics(topicNodes), [topicNodes])
   const heatmapCells = useMemo(() => buildHeatmap(results), [results])
   const sparkData    = useMemo(() => {
     const sorted = [...results].sort((a, b) => new Date(a.finishedAt) - new Date(b.finishedAt)).slice(-10)
@@ -1551,6 +1554,103 @@ export default function Account() {
                     </div>
                   </section>
                 )}
+
+                {/* ─── MOAT 1: Learning Graph ─────────────────────────────── */}
+                <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+                  <div className="flex flex-col gap-1">
+                    <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Lộ trình học tập — Điểm mấu chốt tiếp theo</span>
+                    <span className="font-jakarta text-[11px] text-[#475569]">Các chủ đề bạn cần chinh phục để mở khoá kiến thức nâng cao</span>
+                  </div>
+
+                  {/* Priority topics (up to 3) */}
+                  {priorityTopics.length === 0 ? (
+                    <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[#0A0E1A] border border-[#1E2A44]">
+                      <span className="text-[13px]">📊</span>
+                      <span className="font-jakarta text-[12px] text-[#64748B]">Chưa đủ dữ liệu — làm thêm bài thi để xem gợi ý</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      {priorityTopics.map(node => {
+                        const prereqLabels = node.prereqs
+                          .map(pid => topicNodes.find(n => n.id === pid)?.label ?? pid)
+                        return (
+                          <div key={node.id} className="flex flex-col gap-2 px-4 py-3 rounded-xl bg-[#0A0E1A] border border-[#1E2A44]">
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">{node.label}</span>
+                              <span
+                                className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                                style={{ background: '#EF444420', color: '#EF4444', border: '1px solid #EF444440' }}
+                              >
+                                Yếu
+                              </span>
+                            </div>
+                            {/* Mastery bar */}
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1 h-1.5 bg-[#1E2A44] rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full transition-all duration-500"
+                                  style={{ width: `${Math.round((node.mastery ?? 0) * 100)}%`, background: '#EF4444' }}
+                                />
+                              </div>
+                              <span className="font-jakarta text-[10px] text-[#EF4444] font-semibold flex-shrink-0">
+                                {Math.round((node.mastery ?? 0) * 100)}%
+                              </span>
+                            </div>
+                            {prereqLabels.length > 0 && (
+                              <span className="font-jakarta text-[11px] text-[#475569]">
+                                Cần học trước: <span className="text-[#94A3B8]">{prereqLabels.join(', ')}</span>
+                              </span>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* All nodes compact grid */}
+                  <div className="flex flex-col gap-2">
+                    <span className="font-jakarta text-[11px] text-[#475569] font-semibold uppercase tracking-wide">Tổng quan tất cả chủ đề</span>
+                    <div className="grid grid-cols-2 gap-2">
+                      {topicNodes.map(node => {
+                        const dotColor =
+                          node.masteryLevel === 'mastered' ? '#10B981' :
+                          node.masteryLevel === 'learning' ? '#F2A20C' :
+                          node.masteryLevel === 'weak'     ? '#EF4444' :
+                          '#374151'
+                        const masteryPct = node.mastery !== null ? Math.round(node.mastery * 100) : null
+                        return (
+                          <div
+                            key={node.id}
+                            className="flex items-center gap-2 px-3 py-2 rounded-lg border"
+                            style={{
+                              background: '#0A0E1A',
+                              borderColor: node.unlocked ? '#1E2A44' : '#0F1729',
+                              opacity: node.unlocked ? 1 : 0.55,
+                            }}
+                          >
+                            <span
+                              className="w-2 h-2 rounded-full flex-shrink-0"
+                              style={{ background: dotColor }}
+                            />
+                            <span className="font-jakarta text-[11px] text-[#CBD5E1] flex-1 leading-tight truncate">
+                              {node.label}
+                            </span>
+                            {!node.unlocked && (
+                              <span className="text-[10px] flex-shrink-0" title="Cần hoàn thành chủ đề trước">🔒</span>
+                            )}
+                            <span
+                              className="font-jakarta text-[10px] font-semibold flex-shrink-0"
+                              style={{ color: dotColor }}
+                            >
+                              {masteryPct !== null ? `${masteryPct}%` : '?'}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </section>
+                {/* ─── end Learning Graph ─────────────────────────────────── */}
               </>
             )}
           </>
