@@ -8,7 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { loadQuestions } from '../api/index.js'
-import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getClassInfo, joinTeacherClass, getMemoryData, getWeeklyInsight, getPartnerCandidates, connectPartner, getMyPartners, respondToPartner } from '../api/aiClient.js'
+import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getClassInfo, joinTeacherClass, getMemoryData, getWeeklyInsight, getPartnerCandidates, connectPartner, getMyPartners, respondToPartner, getSimulationBriefing } from '../api/aiClient.js'
 import { getClassRankDisplay } from '../utils/classRank.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
@@ -34,7 +34,7 @@ import { getExamPhase } from '../utils/examUrgency.js'
 import { generateProgressReport, reportToText } from '../utils/progressReport.js'
 import { getSessionPatterns } from '../utils/sessionPatterns.js'
 import { getAdvisorMessage } from '../utils/advisorMessage.js'
-import { getSimulationMode } from '../utils/examSimulation.js'
+import { getSimulationMode, getScoreConfidenceInterval, getDailySimulationPlan } from '../utils/examSimulation.js'
 import { getProvinceNarrative } from '../utils/provinceNarrative.js'
 import { getTierGap } from '../utils/tierGap.js'
 import { getUpgradeContext } from '../utils/upgradeContext.js'
@@ -325,6 +325,10 @@ export default function Account() {
   const [weeklyAISummaryLoading, setWeeklyAISummaryLoading] = useState(false)
   const weeklyAISummaryFetched = useRef(false)
 
+  // ── Simulation briefing (MOAT 6) ──
+  const [simBriefing, setSimBriefing] = useState(null)
+  const simBriefingFetched = useRef(false)
+
   // ── Study partner state (Sprint 21 / MOAT 5) ──
   const [partnerCandidates, setPartnerCandidates] = useState(null)
   const [myPartners,        setMyPartners]        = useState(null)
@@ -466,6 +470,23 @@ export default function Account() {
       .finally(() => setPartnerLoading(false))
   }, [activeTab, user?.subscription_tier])
 
+  // ── Simulation briefing fetch (MOAT 6) ──
+  useEffect(() => {
+    if (!simulationMode) return
+    if (simBriefingFetched.current) return
+    simBriefingFetched.current = true
+    const payload = {
+      days_until_exam: simulationMode.daysUntil,
+      projected_score: scoreCI?.projectedScore ?? null,
+      target_score: user?.target_score ?? null,
+      weak_topics: weakTopics.slice(0, 3),
+      exam_count: results.length,
+    }
+    getSimulationBriefing(payload).then(({ data }) => {
+      if (data?.briefing) setSimBriefing(data.briefing)
+    })
+  }, [simulationMode, scoreCI, user?.target_score, weakTopics, results.length])
+
   // ── Loading skeleton ──
   if (loading || !user) {
     return (
@@ -535,6 +556,14 @@ export default function Account() {
   const examPhase      = useMemo(() => getExamPhase(daysUntil), [daysUntil])
   const simulationMode = useMemo(() => getSimulationMode(daysUntil), [daysUntil])
   const urgencyColor = examPhase?.colorPrimary ?? '#818CF8'
+
+  // MOAT6: score confidence interval + daily plan
+  const weakTopics = useMemo(
+    () => [...radarData].sort((a, b) => a.score - b.score).slice(0, 2).map(d => d.topic),
+    [radarData]
+  )
+  const scoreCI    = useMemo(() => getScoreConfidenceInterval(sparkData, user?.target_score ?? null), [sparkData, user?.target_score])
+  const dailyPlan  = useMemo(() => getDailySimulationPlan(simulationMode, weakTopics.slice(0, 2)), [simulationMode, weakTopics])
 
   // Sprint 5: learner identity + score projection
   const archetype       = useMemo(() => classifyLearner(results), [results])
@@ -837,6 +866,7 @@ export default function Account() {
                   background: simulationMode.intensity === 'max' ? '#1A0505' : simulationMode.intensity === 'high' ? '#1A0A05' : '#1A1205',
                   borderColor: simulationMode.intensity === 'max' ? '#EF444480' : simulationMode.intensity === 'high' ? '#F9731680' : '#F2A20C80',
                 }}>
+                {/* Header row: intensity badge + CTA button */}
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div className="flex items-center gap-2">
                     <span className="text-[18px]">{simulationMode.intensity === 'max' ? '🚨' : simulationMode.intensity === 'high' ? '🔴' : '🟠'}</span>
@@ -851,8 +881,24 @@ export default function Account() {
                     Thi thử ngay →
                   </button>
                 </div>
+                {/* Existing briefing + focus tip */}
                 <p className="font-jakarta text-[13px] text-[#F0F4FF] leading-snug">{simulationMode.briefing}</p>
                 <p className="font-jakarta text-[12px] text-[#94A3B8] leading-snug">{simulationMode.focusTip}</p>
+                {/* Score confidence interval */}
+                {scoreCI && (
+                  <p className="font-jakarta text-[12px] leading-snug"
+                    style={{ color: scoreCI.onTrack ? '#4ADE80' : '#FBBF24' }}>
+                    Dự đoán điểm thi: <strong>{scoreCI.projectedScore.toFixed(1)}</strong> (khoảng {scoreCI.low.toFixed(1)}–{scoreCI.high.toFixed(1)}) · Độ tin cậy: {scoreCI.confidenceLabel}
+                  </p>
+                )}
+                {/* Daily simulation plan */}
+                {dailyPlan && (
+                  <p className="font-jakarta text-[12px] text-[#CBD5E1] leading-snug">{dailyPlan.todayMessage}</p>
+                )}
+                {/* AI briefing */}
+                {simBriefing && (
+                  <p className="font-jakarta text-[12px] text-[#94A3B8] leading-snug italic">{simBriefing}</p>
+                )}
               </section>
             )}
 

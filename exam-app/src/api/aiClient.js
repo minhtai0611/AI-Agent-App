@@ -416,3 +416,6 @@ export const getMyPartners = () =>
 
 export const respondToPartner = (request_id, action) =>
   wrap(client.post('/study-partners/respond', { request_id, action }))
+
+export const getSimulationBriefing = (payload) =>
+  wrap(client.post('/insights/simulation-brief', payload))

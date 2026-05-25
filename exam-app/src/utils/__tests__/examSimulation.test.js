@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getSimulationMode } from '../examSimulation.js'
+import { getSimulationMode, getScoreConfidenceInterval, getDailySimulationPlan } from '../examSimulation.js'
 
 describe('getSimulationMode', () => {
   describe('null cases', () => {
@@ -99,5 +99,137 @@ describe('getSimulationMode', () => {
       expect(result.intensity).toBe('max')
       expect(result.briefing).toBeTruthy()
     })
+  })
+})
+
+// ─── getScoreConfidenceInterval ───────────────────────────────────────────────
+
+const makeSparkData = (scores) => scores.map((score, i) => ({ score, date: `2024-01-${String(i + 1).padStart(2, '0')}` }))
+
+describe('getScoreConfidenceInterval', () => {
+  it('returns null when fewer than 5 data points', () => {
+    expect(getScoreConfidenceInterval(makeSparkData([7, 8, 7.5, 8]), 9)).toBeNull()
+  })
+
+  it('returns null when sparkData is empty', () => {
+    expect(getScoreConfidenceInterval([], 9)).toBeNull()
+  })
+
+  it('returns null when sparkData is null', () => {
+    expect(getScoreConfidenceInterval(null, 9)).toBeNull()
+  })
+
+  it('projectedScore is average of last 3 scores', () => {
+    const sparkData = makeSparkData([5, 6, 7, 8, 9])
+    const result = getScoreConfidenceInterval(sparkData, null)
+    // last 3: 7, 8, 9 → avg = 8
+    expect(result.projectedScore).toBeCloseTo(8, 5)
+  })
+
+  it('high >= projectedScore >= low', () => {
+    const sparkData = makeSparkData([6, 7, 6.5, 7.5, 8, 7])
+    const result = getScoreConfidenceInterval(sparkData, null)
+    expect(result.high).toBeGreaterThanOrEqual(result.projectedScore)
+    expect(result.projectedScore).toBeGreaterThanOrEqual(result.low)
+  })
+
+  it('onTrack is true when projectedScore >= targetScore', () => {
+    const sparkData = makeSparkData([7, 8, 8, 8.5, 9])
+    const result = getScoreConfidenceInterval(sparkData, 8)
+    expect(result.onTrack).toBe(true)
+  })
+
+  it('onTrack is false when projectedScore < targetScore', () => {
+    const sparkData = makeSparkData([5, 5.5, 6, 6, 6])
+    const result = getScoreConfidenceInterval(sparkData, 9)
+    expect(result.onTrack).toBe(false)
+  })
+
+  it('onTrack is true when targetScore is null', () => {
+    const sparkData = makeSparkData([5, 5, 5, 5, 5])
+    const result = getScoreConfidenceInterval(sparkData, null)
+    expect(result.onTrack).toBe(true)
+  })
+
+  it('confidenceLabel is cao when std dev < 0.5 (very consistent scores)', () => {
+    // Scores with very small variance
+    const sparkData = makeSparkData([8, 8.1, 7.9, 8, 8.05, 8.02])
+    const result = getScoreConfidenceInterval(sparkData, null)
+    expect(result.confidenceLabel).toBe('cao')
+  })
+
+  it('low is clamped to 0', () => {
+    const sparkData = makeSparkData([0, 0, 0, 0, 0])
+    const result = getScoreConfidenceInterval(sparkData, null)
+    expect(result.low).toBeGreaterThanOrEqual(0)
+  })
+
+  it('high is clamped to 10', () => {
+    const sparkData = makeSparkData([10, 10, 10, 10, 10])
+    const result = getScoreConfidenceInterval(sparkData, null)
+    expect(result.high).toBeLessThanOrEqual(10)
+  })
+})
+
+// ─── getDailySimulationPlan ───────────────────────────────────────────────────
+
+describe('getDailySimulationPlan', () => {
+  it('returns null when simulationMode is null', () => {
+    expect(getDailySimulationPlan(null, ['Đại số'])).toBeNull()
+  })
+
+  it('sessionCount=3 for intensity max', () => {
+    const mode = getSimulationMode(2) // max
+    const result = getDailySimulationPlan(mode, [])
+    expect(result.sessionCount).toBe(3)
+  })
+
+  it('sessionCount=2 for intensity high', () => {
+    const mode = getSimulationMode(5) // high
+    const result = getDailySimulationPlan(mode, [])
+    expect(result.sessionCount).toBe(2)
+  })
+
+  it('sessionCount=1 for intensity medium', () => {
+    const mode = getSimulationMode(10) // medium
+    const result = getDailySimulationPlan(mode, [])
+    expect(result.sessionCount).toBe(1)
+  })
+
+  it('timePerSession=45 for max', () => {
+    const mode = getSimulationMode(2)
+    const result = getDailySimulationPlan(mode, [])
+    expect(result.timePerSession).toBe(45)
+  })
+
+  it('timePerSession=40 for high', () => {
+    const mode = getSimulationMode(5)
+    const result = getDailySimulationPlan(mode, [])
+    expect(result.timePerSession).toBe(40)
+  })
+
+  it('timePerSession=30 for medium', () => {
+    const mode = getSimulationMode(10)
+    const result = getDailySimulationPlan(mode, [])
+    expect(result.timePerSession).toBe(30)
+  })
+
+  it('focusTopics limited to 2 items max', () => {
+    const mode = getSimulationMode(5)
+    const result = getDailySimulationPlan(mode, ['A', 'B', 'C', 'D'])
+    expect(result.focusTopics.length).toBeLessThanOrEqual(2)
+  })
+
+  it('todayMessage is a non-empty string', () => {
+    const mode = getSimulationMode(5)
+    const result = getDailySimulationPlan(mode, ['Đại số'])
+    expect(typeof result.todayMessage).toBe('string')
+    expect(result.todayMessage.length).toBeGreaterThan(0)
+  })
+
+  it('focusTopics includes provided weak topics', () => {
+    const mode = getSimulationMode(5)
+    const result = getDailySimulationPlan(mode, ['Đại số', 'Hình học'])
+    expect(result.focusTopics).toEqual(['Đại số', 'Hình học'])
   })
 })

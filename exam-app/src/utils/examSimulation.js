@@ -41,3 +41,64 @@ export function getSimulationMode(daysUntil) {
     focusTip: FOCUS_TIPS[intensity],
   }
 }
+
+/**
+ * Compute a score confidence interval from recent spark data.
+ * @param {Array<{score: number, date: string}>} sparkData
+ * @param {number|null} targetScore
+ * @returns {{ projectedScore: number, low: number, high: number, onTrack: boolean, confidenceLabel: string } | null}
+ */
+export function getScoreConfidenceInterval(sparkData, targetScore) {
+  if (!sparkData || sparkData.length < 5) return null
+
+  // projectedScore: average of last 3 scores
+  const last3 = sparkData.slice(-3)
+  const projectedScore = last3.reduce((sum, d) => sum + d.score, 0) / last3.length
+
+  // std dev from all sparkData
+  const mean = sparkData.reduce((sum, d) => sum + d.score, 0) / sparkData.length
+  const variance = sparkData.reduce((sum, d) => sum + (d.score - mean) ** 2, 0) / sparkData.length
+  const stdDev = Math.sqrt(variance)
+
+  const low = Math.max(0, projectedScore - stdDev)
+  const high = Math.min(10, projectedScore + stdDev)
+
+  const onTrack = targetScore == null ? true : projectedScore >= targetScore
+
+  let confidenceLabel
+  if (stdDev < 0.5) {
+    confidenceLabel = 'cao'
+  } else if (stdDev < 1.0) {
+    confidenceLabel = 'trung bình'
+  } else {
+    confidenceLabel = 'thấp'
+  }
+
+  return { projectedScore, low, high, onTrack, confidenceLabel }
+}
+
+const SESSION_COUNTS = { max: 3, high: 2, medium: 1 }
+const TIME_PER_SESSION = { max: 45, high: 40, medium: 30 }
+
+/**
+ * Compute a daily simulation plan based on intensity and weak topics.
+ * @param {{ intensity: 'max'|'high'|'medium', daysUntil: number } | null} simulationMode
+ * @param {string[]} weakTopics
+ * @returns {{ sessionCount: number, focusTopics: string[], timePerSession: number, todayMessage: string } | null}
+ */
+export function getDailySimulationPlan(simulationMode, weakTopics) {
+  if (!simulationMode) return null
+
+  const { intensity } = simulationMode
+  const sessionCount = SESSION_COUNTS[intensity] ?? 1
+  const timePerSession = TIME_PER_SESSION[intensity] ?? 30
+  const focusTopics = (weakTopics ?? []).slice(0, 2)
+
+  const topicsPart = focusTopics.length > 0
+    ? `Tập trung: ${focusTopics.join(', ')}`
+    : 'Ôn tập tổng hợp'
+
+  const todayMessage = `Hôm nay: ${sessionCount} buổi · ${timePerSession} phút/buổi · ${topicsPart}`
+
+  return { sessionCount, focusTopics, timePerSession, todayMessage }
+}

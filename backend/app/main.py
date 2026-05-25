@@ -4242,3 +4242,80 @@ async def get_learner_memory(
         "first_snapshot_date": first_snapshot_date,
         "snapshot_count": len(rows),
     }
+
+
+# ─── Exam-day simulation brief ───────────────────────────────────────────────
+
+# Static prefix-cache-friendly system prompt
+_SIMULATION_BRIEF_SYSTEM = (
+    "You are a Vietnamese exam coach. The student is preparing for THPT. "
+    "Write a 2-sentence motivational briefing in Vietnamese that is specific to their situation. "
+    "Be direct and action-oriented. No markdown."
+)
+
+
+class SimulationBriefRequest(BaseModel):
+    days_until_exam: int
+    projected_score: float | None = None
+    target_score: float | None = None
+    weak_topics: list[str] = []
+    exam_count: int = 0
+
+
+class SimulationBriefResponse(BaseModel):
+    briefing: str
+
+
+@app.post("/insights/simulation-brief", response_model=SimulationBriefResponse)
+async def simulation_brief(
+    req: SimulationBriefRequest,
+    client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    """Generate a free Haiku-powered daily simulation briefing in Vietnamese.
+    Auth required. No credit deduction — this endpoint is FREE.
+    """
+    from app.agent.core import call_with_retry
+
+    settings = get_settings()
+
+    weak_topics_str = ", ".join(req.weak_topics[:3]) if req.weak_topics else "chưa xác định"
+    score_info = (
+        f"projected_score={req.projected_score:.1f}" if req.projected_score is not None else "no_score_data"
+    )
+    target_info = (
+        f"target_score={req.target_score:.1f}" if req.target_score is not None else "no_target"
+    )
+
+    user_content = (
+        f"days_until_exam={req.days_until_exam}, "
+        f"{score_info}, {target_info}, "
+        f"weak_topics=[{weak_topics_str}], "
+        f"total_exams_completed={req.exam_count}"
+    )
+
+    def _fallback() -> SimulationBriefResponse:
+        first_topic = req.weak_topics[0] if req.weak_topics else "các chủ đề yếu"
+        text = (
+            f"Còn {req.days_until_exam} ngày — mỗi buổi thi thử hôm nay đều quan trọng. "
+            f"Tập trung vào {first_topic} để tăng điểm nhanh nhất."
+        )
+        return SimulationBriefResponse(briefing=text)
+
+    try:
+        resp = await call_with_retry(
+            client,
+            model=settings.haiku_model,
+            max_tokens=150,
+            messages=[
+                {"role": "system", "content": _SIMULATION_BRIEF_SYSTEM},
+                {"role": "user", "content": user_content},
+            ],
+        )
+        text = (resp.choices[0].message.content or "").strip()
+        if not text:
+            return _fallback()
+        return SimulationBriefResponse(briefing=text)
+    except Exception as exc:
+        logger.warning("simulation_brief failed: %s", exc)
+        return _fallback()
