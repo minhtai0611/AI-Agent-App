@@ -8,7 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { loadQuestions } from '../api/index.js'
-import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getClassInfo, joinTeacherClass } from '../api/aiClient.js'
+import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getClassInfo, joinTeacherClass, getMemoryData } from '../api/aiClient.js'
 import { getClassRankDisplay } from '../utils/classRank.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
@@ -41,6 +41,7 @@ import { getUpgradeContext } from '../utils/upgradeContext.js'
 import { getStreakFreezeInfo } from '../utils/streakFreeze.js'
 import { getTopicNodes, getPriorityTopics } from '../utils/learningGraph.js'
 import { getSocialProofMessage } from '../utils/socialProof.js'
+import { getMemoryInsights } from '../utils/learnerMemory.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -311,6 +312,8 @@ export default function Account() {
   const chartInsightsFetched = useRef(false)
   const [peerStats, setPeerStats] = useState(null)
   const peerStatsFetched = useRef(false)
+  const [memoryData, setMemoryData] = useState(null)
+  const memoryFetched = useRef(false)
 
   const toast = useToast()
 
@@ -379,6 +382,13 @@ export default function Account() {
     getPeerStats().then(({ data }) => { if (data) setPeerStats(data) })
   }, [activeTab])
 
+  useEffect(() => {
+    if (activeTab !== TAB_ANALYTICS) return
+    if (memoryFetched.current) return
+    memoryFetched.current = true
+    getMemoryData().then(({ data }) => { if (data) setMemoryData(data) })
+  }, [activeTab])
+
   // ── Loading skeleton ──
   if (loading || !user) {
     return (
@@ -413,6 +423,9 @@ export default function Account() {
     () => getSocialProofMessage(peerStats, parseFloat(avgScore) || 0),
     [peerStats, avgScore]
   )
+
+  // Sprint 20: longitudinal learner memory insights
+  const memoryInsights = useMemo(() => getMemoryInsights(memoryData), [memoryData])
 
   // Readiness display helpers
   const readinessPct   = readiness?.readiness ?? 0
@@ -1704,6 +1717,49 @@ export default function Account() {
                   </section>
                 )}
                 {/* ─── end Social Proof ───────────────────────────────────── */}
+
+                {/* ─── MOAT 4: Learning Journey ────────────────────────────── */}
+                <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+                  <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Hành trình học tập</span>
+                  {!memoryInsights ? (
+                    <p className="font-jakarta text-[13px] text-[#64748B]">
+                      Dữ liệu hành trình sẽ hiện sau khi bạn làm thêm bài thi
+                    </p>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      {memoryInsights.hasLongHistory && (
+                        <p className="font-jakarta text-[13px] text-[#94A3B8]">
+                          Bạn đã học{' '}
+                          <span className="font-semibold text-[#F2A20C]">{memoryInsights.weeksSinceStart} tuần</span>
+                          {' '}— hành trình của bạn đang được ghi lại
+                        </p>
+                      )}
+                      {memoryInsights.mostImproved && (
+                        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                          <span className="font-jakarta text-[12px] text-[#94A3B8] flex-1">Tiến bộ nhất</span>
+                          <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">
+                            {memoryInsights.mostImproved.label}
+                          </span>
+                          <span className="font-jakarta text-[12px] font-bold text-emerald-400">
+                            +{memoryInsights.mostImproved.gainPct.toFixed(0)}%
+                          </span>
+                        </div>
+                      )}
+                      {memoryInsights.mostConsistent && (
+                        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-500/5 border border-indigo-500/20">
+                          <span className="font-jakarta text-[12px] text-[#94A3B8] flex-1">Vững nhất</span>
+                          <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">
+                            {memoryInsights.mostConsistent.label}
+                          </span>
+                          <span className="font-jakarta text-[12px] font-bold text-[#818CF8]">
+                            TB {memoryInsights.mostConsistent.avgMastery.toFixed(0)}%
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </section>
+                {/* ─── end Learning Journey ─────────────────────────────────── */}
               </>
             )}
           </>

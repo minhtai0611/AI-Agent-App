@@ -392,6 +392,16 @@ _SCHEMA_DDL = [
         joined_at TEXT DEFAULT (datetime('now')),
         PRIMARY KEY (class_id, user_id)
     )""",
+    # Sprint 20 — MOAT 4: Longitudinal Learner Memory
+    """CREATE TABLE IF NOT EXISTS learner_memory (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER REFERENCES users(id),
+        snapshot_date TEXT DEFAULT (datetime('now')),
+        topic_id TEXT NOT NULL,
+        mastery_score REAL NOT NULL,
+        exam_count_at_snapshot INTEGER DEFAULT 0
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_learner_memory_user_topic ON learner_memory(user_id, topic_id, snapshot_date)",
 ]
 
 
@@ -3864,3 +3874,80 @@ async def admin_reset_user(
     )
     from app.dependencies import invalidate_account_cache
     invalidate_account_cache(user_id)
+
+
+# ── Sprint 20: MOAT 4 — Longitudinal Learner Memory ─────────────────────────
+
+class LearnerMemorySnapshotItem(BaseModel):
+    topic_id: str
+    mastery_score: float = Field(..., ge=0.0, le=1.0)
+    exam_count: int = 0
+
+
+class LearnerMemorySnapshotRequest(BaseModel):
+    snapshots: list[LearnerMemorySnapshotItem]
+
+
+@app.post("/learner-memory/snapshot")
+async def record_learner_memory_snapshot(
+    body: LearnerMemorySnapshotRequest,
+    user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Record per-topic mastery snapshots for the current user.
+    Deduplicates: if a snapshot for user+topic already exists today, UPDATE it.
+    """
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    recorded = 0
+    for item in body.snapshots:
+        existing = await pool.fetchrow(
+            "SELECT id FROM learner_memory WHERE user_id = ? AND topic_id = ? AND date(snapshot_date) = ?",
+            user.id, item.topic_id, today,
+        )
+        if existing:
+            await pool.execute(
+                "UPDATE learner_memory SET mastery_score = ?, exam_count_at_snapshot = ?, snapshot_date = datetime('now') WHERE id = ?",
+                item.mastery_score, item.exam_count, existing["id"],
+            )
+        else:
+            await pool.execute(
+                "INSERT INTO learner_memory (user_id, topic_id, mastery_score, exam_count_at_snapshot) VALUES (?, ?, ?, ?)",
+                user.id, item.topic_id, item.mastery_score, item.exam_count,
+            )
+        recorded += 1
+    return {"recorded": recorded}
+
+
+@app.get("/learner-memory/me")
+async def get_learner_memory(
+    user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Return all mastery snapshots for the current user, grouped by topic_id."""
+    rows = await pool.fetchall(
+        """SELECT topic_id, date(snapshot_date) AS snap_date, mastery_score, exam_count_at_snapshot
+           FROM learner_memory
+           WHERE user_id = ?
+           ORDER BY snapshot_date ASC""",
+        user.id,
+    )
+    if not rows:
+        return {"topics": {}, "first_snapshot_date": None, "snapshot_count": 0}
+
+    topics: dict[str, list[dict]] = {}
+    for row in rows:
+        tid = row["topic_id"]
+        if tid not in topics:
+            topics[tid] = []
+        topics[tid].append({
+            "date": row["snap_date"],
+            "mastery": row["mastery_score"],
+            "exam_count": row["exam_count_at_snapshot"],
+        })
+
+    first_snapshot_date = rows[0]["snap_date"]
+    return {
+        "topics": topics,
+        "first_snapshot_date": first_snapshot_date,
+        "snapshot_count": len(rows),
+    }

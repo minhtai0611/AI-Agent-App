@@ -367,6 +367,13 @@ export const submitDailyScore = (answers, time_seconds) =>
 export const getDailyChallengeLeaderboard = () =>
   wrap(client.get('/daily-challenge/leaderboard'))
 
+// Sprint 20: MOAT 4 — Longitudinal Learner Memory
+export const recordMemorySnapshot = (snapshots) =>
+  wrap(client.post('/learner-memory/snapshot', { snapshots }))
+
+export const getMemoryData = () =>
+  wrap(client.get('/learner-memory/me'))
+
 export const generateExam = (topicFocus, difficulty = 'medium', count = 10) =>
   wrap(client.post('/generate-exam', { topic_focus: topicFocus, difficulty, count }))
 
