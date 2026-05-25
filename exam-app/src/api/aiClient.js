@@ -232,6 +232,10 @@ export function completeSession() {
   return wrap(client.post('/users/me/session/complete'))
 }
 
+export function useStreakFreeze() {
+  return wrap(client.post('/users/me/streak-freeze'))
+}
+
 export function getAdaptiveStudyPlan() {
   return wrap(client.get('/users/me/adaptive-study-plan'))
 }

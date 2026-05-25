@@ -8,7 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { loadQuestions } from '../api/index.js'
-import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile } from '../api/aiClient.js'
+import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze } from '../api/aiClient.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
@@ -37,6 +37,7 @@ import { getSimulationMode } from '../utils/examSimulation.js'
 import { getProvinceNarrative } from '../utils/provinceNarrative.js'
 import { getTierGap } from '../utils/tierGap.js'
 import { getUpgradeContext } from '../utils/upgradeContext.js'
+import { getStreakFreezeInfo } from '../utils/streakFreeze.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -290,6 +291,9 @@ export default function Account() {
   const [goalHours,       setGoalHours]       = useState(() => user?.weekly_study_hours?.toString() ?? '')
   const [goalSaving,      setGoalSaving]      = useState(false)
   const [goalSaved,       setGoalSaved]       = useState(false)
+  const [freezeLoading,   setFreezeLoading]   = useState(false)
+  const [freezeError,     setFreezeError]     = useState('')
+  const [freezeSuccess,   setFreezeSuccess]   = useState(false)
 
   // ── Heatmap scroll ref ──
   const heatScrollRef = useRef(null)
@@ -1782,6 +1786,82 @@ export default function Account() {
         {/* ════════════════ CÀI ĐẶT (via gear icon) ════════════════ */}
         {activeTab === TAB_SETTINGS && (
           <>
+            {/* Streak Freeze */}
+            {(() => {
+              const freezeInfo = getStreakFreezeInfo(user)
+              const tierLabel = { basic: 'Basic', student: 'Student', complete: 'Complete' }[user.subscription_tier] ?? user.subscription_tier
+              return (
+                <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-[20px]">🧊</span>
+                    <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Streak Freeze</span>
+                    {user.subscription_tier === 'basic' && (
+                      <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400 border border-amber-400/30">
+                        Cần nâng cấp
+                      </span>
+                    )}
+                  </div>
+                  <p className="font-jakarta text-[12px] text-[#64748B] leading-relaxed">
+                    Dùng freeze để bảo vệ streak khi bạn bỏ lỡ một ngày. Gói {tierLabel} được {freezeInfo.weeklyQuota} freeze/tuần.
+                  </p>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-jakarta text-[12px] font-semibold text-[#94A3B8]">Số freeze còn lại</span>
+                      <span className="font-fraunces text-[22px] font-bold text-[#F0F4FF]">
+                        {freezeInfo.balance}
+                        <span className="font-jakarta text-[13px] font-normal text-[#475569] ml-1">/ {freezeInfo.weeklyQuota} tuần</span>
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <button
+                        disabled={!freezeInfo.canFreeze || freezeLoading}
+                        title={
+                          freezeInfo.lockedReason === 'upgrade'
+                            ? 'Nâng cấp lên Student hoặc Complete để dùng tính năng này'
+                            : freezeInfo.lockedReason === 'empty'
+                            ? 'Bạn đã hết freeze cho tuần này'
+                            : ''
+                        }
+                        onClick={async () => {
+                          setFreezeLoading(true)
+                          setFreezeError('')
+                          setFreezeSuccess(false)
+                          const { data, error } = await useStreakFreeze()
+                          if (error) {
+                            setFreezeError(
+                              error === 'streak_freeze_not_available'
+                                ? 'Tính năng này yêu cầu gói Student hoặc Complete.'
+                                : error === 'no_freezes_remaining'
+                                ? 'Bạn đã hết freeze cho tuần này.'
+                                : 'Không thể dùng freeze. Thử lại sau.'
+                            )
+                          } else {
+                            setFreezeSuccess(true)
+                            await refreshUser()
+                          }
+                          setFreezeLoading(false)
+                        }}
+                        className="px-4 py-2.5 rounded-xl font-jakarta text-[13px] font-bold transition disabled:cursor-not-allowed"
+                        style={{
+                          background: freezeInfo.canFreeze && !freezeLoading ? '#3B82F6' : '#1E2A44',
+                          color: freezeInfo.canFreeze && !freezeLoading ? '#F8FAFC' : '#475569',
+                          opacity: freezeLoading ? 0.7 : 1,
+                        }}
+                      >
+                        {freezeLoading ? 'Đang xử lý...' : 'Dùng freeze hôm nay'}
+                      </button>
+                      {freezeSuccess && (
+                        <span className="font-jakarta text-[11px] text-emerald-400">Đã dùng freeze ✓</span>
+                      )}
+                      {freezeError && (
+                        <span className="font-jakarta text-[11px] text-red-400">{freezeError}</span>
+                      )}
+                    </div>
+                  </div>
+                </section>
+              )
+            })()}
+
             {/* AI Learning Preferences */}
             <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center gap-3">

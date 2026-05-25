@@ -198,6 +198,7 @@ _SCHEMA_DDL = [
         suspension_reason TEXT,
         tos_accepted_at TEXT,
         last_ip TEXT,
+        streak_freeze_count INTEGER NOT NULL DEFAULT 0,
         created_at TEXT DEFAULT (datetime('now')),
         updated_at TEXT DEFAULT (datetime('now'))
     )""",
@@ -376,6 +377,7 @@ _SCHEMA_DDL = [
     "ALTER TABLE users ADD COLUMN exam_date TEXT",
     "ALTER TABLE users ADD COLUMN weekly_study_hours INTEGER",
     "ALTER TABLE users ADD COLUMN extended_onboarding_done INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE users ADD COLUMN streak_freeze_count INTEGER NOT NULL DEFAULT 0",
 ]
 
 
@@ -1767,7 +1769,8 @@ async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Dep
                   is_suspended, suspension_reason, tos_accepted_at,
                   trial_used, trial_expires_at,
                   is_deactivated, is_locked, lock_reason,
-                  target_school, exam_date, weekly_study_hours, extended_onboarding_done
+                  target_school, exam_date, weekly_study_hours, extended_onboarding_done,
+                  streak_freeze_count
            FROM users WHERE id = $1""",
         current_user.user_id,
     )
@@ -1801,6 +1804,39 @@ async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Dep
     row["mastery_rank"] = mastery_rank
     row["solid_concept_count"] = solid_count
     return row
+
+
+@app.post("/users/me/streak-freeze")
+async def use_streak_freeze(current_user: CurrentUser = Depends(get_current_user), pool=Depends(get_pool)):
+    """Spend one streak freeze charge. Returns updated balance."""
+    row = await pool.fetchrow(
+        "SELECT subscription_tier, streak_freeze_count FROM users WHERE id = $1",
+        current_user.user_id,
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    tier = row["subscription_tier"]
+    if tier == "basic":
+        raise HTTPException(status_code=400, detail="streak_freeze_not_available")
+
+    current_balance = row["streak_freeze_count"] or 0
+    if current_balance <= 0:
+        raise HTTPException(status_code=400, detail="no_freezes_remaining")
+
+    await pool.execute(
+        "UPDATE users SET streak_freeze_count = streak_freeze_count - 1 WHERE id = $1",
+        current_user.user_id,
+    )
+    new_balance = current_balance - 1
+
+    # Record credit-style event for auditing
+    await pool.execute(
+        "INSERT INTO ai_credits_log (user_id, delta, reason) VALUES ($1, $2, $3)",
+        current_user.user_id, 0, "streak_freeze_used",
+    )
+
+    return {"streak_freeze_count": new_balance}
 
 
 @app.get("/users/me/referral")
