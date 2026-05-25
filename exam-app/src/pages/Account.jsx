@@ -309,6 +309,11 @@ export default function Account() {
     ? (results.reduce((s, r) => s + (r.score ?? 0), 0) / results.length).toFixed(1)
     : '—'
 
+  // Readiness display helpers
+  const readinessPct   = readiness?.readiness ?? 0
+  const readinessColor = readinessPct >= 70 ? '#34D399' : readinessPct >= 40 ? '#F2A20C' : '#EF4444'
+  const readinessLabel = readinessPct >= 70 ? 'Sẵn sàng tốt' : readinessPct >= 40 ? 'Đang tiến bộ' : 'Cần luyện thêm'
+
   const radarData    = useMemo(() => aggregateTopicAccuracy(results), [results])
   const heatmapCells = useMemo(() => buildHeatmap(results), [results])
   const sparkData    = useMemo(() => {
@@ -515,6 +520,35 @@ export default function Account() {
         {/* ════════════════ TAB 1: TIẾN ĐỘ ════════════════ */}
         {activeTab === TAB_PROGRESS && (
           <>
+            {/* ── Readiness hero ───────────────────────────────────────── */}
+            {readiness != null && (
+              <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col items-center gap-4">
+                {/* Large ring */}
+                <svg width="88" height="88" viewBox="0 0 88 88">
+                  <circle cx="44" cy="44" r="36" fill="none" stroke="#1E2A44" strokeWidth="7" />
+                  <circle cx="44" cy="44" r="36" fill="none" stroke={readinessColor} strokeWidth="7"
+                    strokeDasharray={`${2 * Math.PI * 36}`}
+                    strokeDashoffset={`${2 * Math.PI * 36 * (1 - readinessPct / 100)}`}
+                    strokeLinecap="round"
+                    transform="rotate(-90 44 44)"
+                    style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+                  />
+                  <text x="44" y="49" textAnchor="middle" fill={readinessColor} fontSize="18" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="700">{readinessPct}%</text>
+                </svg>
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="font-fraunces text-[18px] font-bold" style={{ color: readinessColor }}>{readinessLabel}</span>
+                  <span className="font-jakarta text-[12px] text-[#64748B]">Mức sẵn sàng · 30 ngày gần nhất</span>
+                </div>
+                {daysUntil != null && (
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[#6366F133] bg-[#0A0E1A]">
+                    <span className="text-[15px]">📅</span>
+                    <span className="font-fraunces text-[15px] font-bold text-[#818CF8]">{daysUntil} ngày</span>
+                    <span className="font-jakarta text-[12px] text-[#64748B]">đến kỳ thi vào lớp 10</span>
+                  </div>
+                )}
+              </section>
+            )}
+
             {/* Profile card */}
             <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center justify-between">
@@ -572,36 +606,6 @@ export default function Account() {
                 </div>
               )}
 
-              {/* Countdown + Readiness row */}
-              <div className="flex items-center gap-3 flex-wrap">
-                {daysUntil != null && (
-                  <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#6366F133] bg-[#0D0D1A]">
-                    <span className="text-[18px]">📅</span>
-                    <div className="flex flex-col">
-                      <span className="font-fraunces text-[16px] font-bold text-[#818CF8]">{daysUntil} ngày</span>
-                      <span className="font-jakarta text-[11px] text-[#64748B]">Đến kỳ thi vào lớp 10</span>
-                    </div>
-                  </div>
-                )}
-                {readiness != null && (
-                  <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl border border-[#34D39933] bg-[#0D0D1A]">
-                    {/* SVG ring */}
-                    <svg width="40" height="40" viewBox="0 0 40 40">
-                      <circle cx="20" cy="20" r="16" fill="none" stroke="#1E2A44" strokeWidth="4" />
-                      <circle cx="20" cy="20" r="16" fill="none" stroke="#34D399" strokeWidth="4"
-                        strokeDasharray={`${2 * Math.PI * 16}`}
-                        strokeDashoffset={`${2 * Math.PI * 16 * (1 - readiness.readiness / 100)}`}
-                        strokeLinecap="round"
-                        transform="rotate(-90 20 20)" />
-                      <text x="20" y="24" textAnchor="middle" fill="#34D399" fontSize="10" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="700">{readiness.readiness}%</text>
-                    </svg>
-                    <div className="flex flex-col">
-                      <span className="font-jakarta text-[13px] font-semibold text-[#34D399]">Sẵn sàng</span>
-                      <span className="font-jakarta text-[11px] text-[#64748B]">30 ngày qua</span>
-                    </div>
-                  </div>
-                )}
-              </div>
             </section>
 
             {/* Username card */}
