@@ -644,53 +644,6 @@ export default function Account() {
               {usernameError && <p className="font-jakarta text-[12px] text-red-400">{usernameError}</p>}
             </section>
 
-            {/* Referral card */}
-            {referral?.referral_code && (
-              <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Mời bạn bè</span>
-                  <span className="font-jakarta text-[12px] text-[#64748B]">
-                    Bạn và người được mời đều nhận <span className="text-amber-400">⚡ 50 Tia</span> khi họ đăng ký.
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    readOnly value={referralUrl}
-                    className="flex-1 px-3 py-2 rounded-lg border border-[#1E2A44] bg-[#0A0E1A] font-jakarta text-[11px] text-[#64748B] select-all"
-                  />
-                  <button
-                    onClick={() => {
-                      navigator.clipboard?.writeText(referralUrl)
-                        .then(() => toast.success('Đã sao chép link giới thiệu'))
-                        .catch(() => {})
-                    }}
-                    className="px-3 py-2 rounded-lg font-jakarta text-[12px] font-bold flex-shrink-0"
-                    style={{ background: '#F2A20C', color: '#0A0E1A' }}
-                  >
-                    Sao chép
-                  </button>
-                </div>
-                {/* WhatsApp share */}
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Zenith nhé! Dùng link này để nhận 50 Tia miễn phí: ${referralUrl}`)}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-jakarta text-[12px] font-semibold bg-[#25D366] text-white hover:opacity-90 transition"
-                >
-                  <span>💬</span> Chia sẻ qua WhatsApp
-                </a>
-                {(referral.successful_referrals ?? 0) > 0 && (
-                  <div className="flex items-center gap-3 pt-1 border-t border-[#1E2A44]">
-                    <span className="font-jakarta text-[12px] text-[#64748B]">
-                      <span className="text-amber-400 font-bold">{referral.successful_referrals}</span> người đã tham gia qua link
-                    </span>
-                    <span className="font-jakarta text-[12px] text-amber-400">
-                      ⚡ {(referral.successful_referrals ?? 0) * 50} Tia đã kiếm
-                    </span>
-                  </div>
-                )}
-              </section>
-            )}
-
             {/* Complete tier features: Strategy + Province Comparison */}
             {user.subscription_tier === 'complete' && (
               <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
@@ -1135,6 +1088,52 @@ export default function Account() {
                 Vào lớp →
               </button>
             </section>
+
+            {/* Share & Earn — referral */}
+            {referral?.referral_code && (
+              <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Chia sẻ & Kiếm Tia</span>
+                  <span className="font-jakarta text-[12px] text-[#64748B]">
+                    Bạn và người được mời đều nhận <span className="text-amber-400">⚡ 50 Tia</span> khi họ đăng ký.
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    readOnly value={referralUrl}
+                    className="flex-1 px-3 py-2 rounded-lg border border-[#1E2A44] bg-[#0A0E1A] font-jakarta text-[11px] text-[#64748B] select-all"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard?.writeText(referralUrl)
+                        .then(() => toast.success('Đã sao chép link giới thiệu'))
+                        .catch(() => {})
+                    }}
+                    className="px-3 py-2 rounded-lg font-jakarta text-[12px] font-bold flex-shrink-0"
+                    style={{ background: '#F2A20C', color: '#0A0E1A' }}
+                  >
+                    Sao chép
+                  </button>
+                </div>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Zenith nhé! Dùng link này để nhận 50 Tia miễn phí: ${referralUrl}`)}`}
+                  target="_blank" rel="noopener noreferrer"
+                  className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-jakarta text-[12px] font-semibold bg-[#25D366] text-white hover:opacity-90 transition"
+                >
+                  <span>💬</span> Chia sẻ qua WhatsApp
+                </a>
+                {(referral.successful_referrals ?? 0) > 0 && (
+                  <div className="flex items-center gap-3 pt-1 border-t border-[#1E2A44]">
+                    <span className="font-jakarta text-[12px] text-[#64748B]">
+                      <span className="text-amber-400 font-bold">{referral.successful_referrals}</span> người đã tham gia qua link
+                    </span>
+                    <span className="font-jakarta text-[12px] text-amber-400">
+                      ⚡ {(referral.successful_referrals ?? 0) * 50} Tia đã kiếm
+                    </span>
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Danger Zone — collapsed by default */}
             <section className="bg-[#0D1521] border border-red-500/20 rounded-2xl p-7 flex flex-col gap-4">
