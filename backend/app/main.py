@@ -804,6 +804,7 @@ class HintRequest(BaseModel):
     question: dict
     attempt_count: int = 1
     previous_hints: list[str] = []
+    ai_preferences: dict = {}
 
 
 class HintResponse(BaseModel):
@@ -825,6 +826,7 @@ class TutorChatResponse(BaseModel):
 class ExplainRequest(BaseModel):
     question: dict
     chosen_index: int
+    ai_preferences: dict = {}
 
 
 class ExplainResponse(BaseModel):
@@ -1003,7 +1005,7 @@ async def hint(
     await _spend_credits(pool, current_user.user_id, 1, "hint")
     from app.agent.hint_generator import generate_hint
     try:
-        data = await generate_hint(client, req.question, req.attempt_count, req.previous_hints)
+        data = await generate_hint(client, req.question, req.attempt_count, req.previous_hints, req.ai_preferences)
         return HintResponse(
             hint=data.get("hint", ""),
             difficulty_note=data.get("difficulty_note", ""),
@@ -1300,7 +1302,7 @@ async def explain(
     await _spend_credits(pool, current_user.user_id, 1, "explain")
     from app.agent.exam_explainer import generate_explanation
     try:
-        data = await generate_explanation(client, req.question, req.chosen_index)
+        data = await generate_explanation(client, req.question, req.chosen_index, req.ai_preferences)
         return ExplainResponse(
             correct_index=data.get("correct_index", 0),
             explanation=data.get("explanation", ""),

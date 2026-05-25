@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { loadPreferences } from '../utils/aiPreferences.js'
 
 const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
@@ -83,8 +84,12 @@ async function wrapOptimistic(cost, fn) {
   return result
 }
 
+function withAIPrefs(payload) {
+  return { ai_preferences: loadPreferences(), ...payload }
+}
+
 export function analyzeResult(payload) {
-  return wrapOptimistic(3, () => client.post('/analyze', payload))
+  return wrapOptimistic(3, () => client.post('/analyze', withAIPrefs(payload)))
 }
 
 // Streams the AI analysis as SSE tokens.
@@ -102,7 +107,7 @@ export async function analyzeResultStream(payload, onToken, signal) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(withAIPrefs(payload)),
       signal,
     })
     if (!res.ok) {
@@ -140,11 +145,11 @@ export async function analyzeResultStream(payload, onToken, signal) {
 }
 
 export function getHint(payload) {
-  return wrapOptimistic(1, () => client.post('/hint', payload))
+  return wrapOptimistic(1, () => client.post('/hint', withAIPrefs(payload)))
 }
 
 export function getExplanation(payload) {
-  return wrapOptimistic(1, () => client.post('/explain', payload))
+  return wrapOptimistic(1, () => client.post('/explain', withAIPrefs(payload)))
 }
 
 export function sendTutorMessage(payload) {

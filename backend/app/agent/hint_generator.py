@@ -27,11 +27,33 @@ def _strip_code_fence(text: str) -> str:
     return text.strip()
 
 
+def _prefs_context(prefs: dict) -> str:
+    """Return a short instruction fragment derived from user AI preferences."""
+    if not prefs:
+        return ""
+    parts = []
+    hint_style = prefs.get("hint_style", "socratic")
+    if hint_style == "direct":
+        parts.append("Phong cách: trả lời trực tiếp, giải thích rõ ràng")
+    elif hint_style == "visual":
+        parts.append("Phong cách: trực quan, chia từng bước rõ ràng")
+    # socratic is the default — no extra instruction needed
+    depth = prefs.get("explanation_depth", "detailed")
+    if depth == "brief":
+        parts.append("Độ chi tiết: rất ngắn gọn (tối đa 1 câu)")
+    elif depth == "step-by-step":
+        parts.append("Độ chi tiết: từng bước cụ thể")
+    if prefs.get("language_mix") == "mixed":
+        parts.append("Ngôn ngữ: có thể dùng thuật ngữ toán tiếng Anh khi cần")
+    return (" " + "; ".join(parts) + ".") if parts else ""
+
+
 async def generate_hint(
     client: AsyncOpenAI,
     question: dict,
     attempt_count: int = 1,
     previous_hints: list[str] | None = None,
+    ai_preferences: dict | None = None,
 ) -> dict:
     settings = get_settings()
     level = _DETAIL_LEVEL.get(min(attempt_count, 3), _DETAIL_LEVEL[3])
@@ -44,9 +66,10 @@ async def generate_hint(
     safe_question = _safe(question.get('question', ''))
     safe_topic = _safe(question.get('topic', ''), 50)
     safe_difficulty = _safe(question.get('difficulty', ''), 30)
+    prefs_note = _prefs_context(ai_preferences or {})
 
     prompt = f"""Tôi cần bạn tạo một GỢI Ý ngắn (KHÔNG phải lời giải) cho câu hỏi toán sau.
-Yêu cầu ({level}): Đặt 1–2 câu hỏi gợi mở hoặc nhắc 1 khái niệm liên quan để học sinh tự suy nghĩ.
+Yêu cầu ({level}): Đặt 1–2 câu hỏi gợi mở hoặc nhắc 1 khái niệm liên quan để học sinh tự suy nghĩ.{prefs_note}
 Quy tắc bắt buộc:
 - Tối đa 2 câu, viết liền mạch, không xuống dòng
 - KHÔNG dùng markdown, KHÔNG dùng số thứ tự, KHÔNG dùng gạch đầu dòng

@@ -23,10 +23,27 @@ def _extract_json(text: str) -> str:
     return text.strip()
 
 
+def _prefs_context(prefs: dict) -> str:
+    if not prefs:
+        return ""
+    parts = []
+    depth = prefs.get("explanation_depth", "detailed")
+    if depth == "brief":
+        parts.append("Giải thích rất ngắn gọn (tối đa 1–2 câu)")
+    elif depth == "step-by-step":
+        parts.append("Giải thích từng bước cụ thể")
+    if prefs.get("hint_style") == "direct":
+        parts.append("Phong cách trực tiếp, rõ ràng")
+    if prefs.get("language_mix") == "mixed":
+        parts.append("Có thể dùng thuật ngữ toán tiếng Anh")
+    return ("\n[Tùy chỉnh: " + "; ".join(parts) + "]") if parts else ""
+
+
 async def generate_explanation(
     client: AsyncOpenAI,
     question: dict,
     chosen_index: int,
+    ai_preferences: dict | None = None,
 ) -> dict:
     settings = get_settings()
     choices = question.get("choices", [])
@@ -54,6 +71,8 @@ async def generate_explanation(
             "explanation": student_context + base_explanation,
         }
 
+    prefs_note = _prefs_context(ai_preferences or {})
+
     # No pre-written explanation — ask AI to explain, but correct_index is already known
     prompt = f"""Câu hỏi trắc nghiệm toán lớp 10:
 {question.get('question', '')}
@@ -63,7 +82,7 @@ Các lựa chọn:
 
 Chủ đề: {question.get('topic', '')} | Mức độ: {question.get('difficulty', '')}
 Học sinh đã chọn: {chosen_label}
-Đáp án đúng: {correct_label} (index {correct_index}) — đây là sự thật, không được thay đổi.
+Đáp án đúng: {correct_label} (index {correct_index}) — đây là sự thật, không được thay đổi.{prefs_note}
 
 QUAN TRỌNG: Chỉ trả về JSON, không có bất kỳ văn bản nào khác trước hoặc sau.
 Giải thích ngắn gọn tại sao đáp án {correct_label} đúng:
