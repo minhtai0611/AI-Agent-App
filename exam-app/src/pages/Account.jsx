@@ -32,6 +32,7 @@ import { getGoalStatus } from '../utils/goalAlignment.js'
 import { getExamPhase } from '../utils/examUrgency.js'
 import { generateProgressReport, reportToText } from '../utils/progressReport.js'
 import { getSessionPatterns } from '../utils/sessionPatterns.js'
+import { getAdvisorMessage } from '../utils/advisorMessage.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -382,6 +383,19 @@ export default function Account() {
   // Sprint 10: session timing patterns
   const sessionPatterns = useMemo(() => getSessionPatterns(results), [results])
 
+  // Sprint 11: advisor message — context synthesis across all analytics
+  const advisorMsg = useMemo(() => getAdvisorMessage({
+    results,
+    streak,
+    streakPB,
+    sessionPatterns,
+    scoreProjection,
+    goalStatus,
+    weeklyReport,
+    examPhase,
+    progressReport,
+  }), [results, streak, streakPB, sessionPatterns, scoreProjection, goalStatus, weeklyReport, examPhase, progressReport])
+
   // Daily spend rate (last 7 days from creditLog)
   const runwayDays = useMemo(() => {
     if (!creditLog.length) return null
@@ -577,6 +591,29 @@ export default function Account() {
 
       {/* ── Tab content ───────────────────────────────────────────────── */}
       <div className="max-w-2xl mx-auto w-full px-4 py-8 flex flex-col gap-6">
+
+        {/* ── AI Advisor Message — always visible ───────────────────────── */}
+        {advisorMsg && (
+          <div className={`flex items-start gap-3 px-5 py-4 rounded-2xl border ${
+            advisorMsg.category === 'urgent'
+              ? 'border-red-500/40 bg-[#1A0808]'
+              : advisorMsg.category === 'optimization'
+              ? 'border-[#818CF840] bg-[#818CF808]'
+              : advisorMsg.category === 'goal'
+              ? 'border-emerald-500/40 bg-[#0A1A12]'
+              : 'border-[#F2A20C33] bg-[#F2A20C08]'
+          }`}>
+            <span className="text-[18px] flex-shrink-0 mt-0.5">
+              {advisorMsg.category === 'urgent' ? '🚨'
+                : advisorMsg.category === 'optimization' ? '💡'
+                : advisorMsg.category === 'goal' ? '🎯'
+                : advisorMsg.category === 'progress' ? '📈'
+                : advisorMsg.category === 'consistency' ? '🔄'
+                : '✨'}
+            </span>
+            <p className="font-jakarta text-[13px] text-[#F0F4FF] leading-snug">{advisorMsg.message}</p>
+          </div>
+        )}
 
         {/* ════════════════ TAB 1: TIẾN ĐỘ ════════════════ */}
         {activeTab === TAB_PROGRESS && (
