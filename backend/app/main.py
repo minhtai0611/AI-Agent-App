@@ -1481,6 +1481,72 @@ async def chart_insights(
         return ChartInsightsResponse(**_CHART_INSIGHTS_FALLBACKS)
 
 
+_WEEKLY_INSIGHT_SYSTEM = (
+    "You are a Vietnamese study advisor writing a weekly learning summary for a high school student. "
+    "Write exactly 2 sentences in Vietnamese. Be specific, encouraging, and actionable. "
+    "Focus on what improved and what to prioritize next week. Do not use markdown."
+)
+
+
+class WeeklyInsightRequest(BaseModel):
+    exam_count: int
+    avg_score: float
+    score_delta: float
+    top_weak_topic: str | None = None
+    streak: int
+    days_studied: int
+
+
+class WeeklyInsightResponse(BaseModel):
+    summary: str
+
+
+@app.post("/insights/weekly", response_model=WeeklyInsightResponse)
+async def weekly_insight(
+    req: WeeklyInsightRequest,
+    client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    """Generate a free Haiku-powered weekly learning summary in Vietnamese.
+    No credit deduction — this endpoint is FREE.
+    """
+    from app.agent.core import call_with_retry
+
+    settings = get_settings()
+
+    delta_str = f"+{req.score_delta:.1f}" if req.score_delta >= 0 else f"{req.score_delta:.1f}"
+    user_content = (
+        f"exams_this_week={req.exam_count}, avg_score={req.avg_score:.1f}, "
+        f"score_delta_vs_last_week={delta_str}, "
+        f"top_weak_topic={req.top_weak_topic or 'none'}, "
+        f"streak_days={req.streak}, days_studied_this_week={req.days_studied}"
+    )
+
+    def _fallback() -> WeeklyInsightResponse:
+        text = f"Tuần này bạn đã làm {req.exam_count} bài thi với điểm TB {req.avg_score:.1f}."
+        if req.top_weak_topic:
+            text += f" Tuần tới tập trung ôn {req.top_weak_topic} để tăng điểm nhanh nhất."
+        return WeeklyInsightResponse(summary=text)
+
+    try:
+        resp = await call_with_retry(
+            client,
+            model=settings.haiku_model,
+            max_tokens=200,
+            messages=[
+                {"role": "system", "content": _WEEKLY_INSIGHT_SYSTEM},
+                {"role": "user", "content": user_content},
+            ],
+        )
+        text = (resp.choices[0].message.content or "").strip()
+        if not text:
+            return _fallback()
+        return WeeklyInsightResponse(summary=text)
+    except Exception as exc:
+        logger.warning("weekly_insight failed: %s", exc)
+        return _fallback()
+
+
 @app.get("/insights/peer-stats")
 async def peer_stats(
     current_user: CurrentUser = Depends(get_current_user),

@@ -8,7 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { loadQuestions } from '../api/index.js'
-import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getClassInfo, joinTeacherClass, getMemoryData } from '../api/aiClient.js'
+import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getClassInfo, joinTeacherClass, getMemoryData, getWeeklyInsight } from '../api/aiClient.js'
 import { getClassRankDisplay } from '../utils/classRank.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
@@ -315,6 +315,11 @@ export default function Account() {
   const [memoryData, setMemoryData] = useState(null)
   const memoryFetched = useRef(false)
 
+  // ── Weekly AI summary ──
+  const [weeklyAISummary,        setWeeklyAISummary]        = useState(null)
+  const [weeklyAISummaryLoading, setWeeklyAISummaryLoading] = useState(false)
+  const weeklyAISummaryFetched = useRef(false)
+
   const toast = useToast()
 
   // ── Class rank display (Sprint 19) ──
@@ -388,6 +393,43 @@ export default function Account() {
     memoryFetched.current = true
     getMemoryData().then(({ data }) => { if (data) setMemoryData(data) })
   }, [activeTab])
+
+  // Fetch AI weekly summary once when analytics tab opens with weeklyReport data
+  useEffect(() => {
+    if (activeTab !== TAB_ANALYTICS) return
+    if (!weeklyReport) return
+    if (weeklyAISummaryFetched.current) return
+    weeklyAISummaryFetched.current = true
+
+    const prevWeek = results.filter(r => {
+      const t = new Date(r.finishedAt).getTime()
+      const now = Date.now()
+      return t >= now - 14 * 24 * 60 * 60 * 1000 && t < now - 7 * 24 * 60 * 60 * 1000
+    })
+    const prevAvg = prevWeek.length
+      ? prevWeek.reduce((s, r) => s + (r.score ?? 0), 0) / prevWeek.length
+      : parseFloat(weeklyReport.avgScore)
+    const scoreDelta = parseFloat(weeklyReport.avgScore) - prevAvg
+
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000
+    const recentDates = new Set(
+      results
+        .filter(r => new Date(r.finishedAt).getTime() >= cutoff)
+        .map(r => new Date(r.finishedAt).toDateString())
+    )
+
+    setWeeklyAISummaryLoading(true)
+    getWeeklyInsight({
+      exam_count: weeklyReport.examCount,
+      avg_score: parseFloat(weeklyReport.avgScore),
+      score_delta: scoreDelta,
+      top_weak_topic: weeklyReport.topWeakTopic ?? null,
+      streak,
+      days_studied: recentDates.size,
+    })
+      .then(({ data }) => { if (data?.summary) setWeeklyAISummary(data.summary) })
+      .finally(() => setWeeklyAISummaryLoading(false))
+  }, [activeTab, weeklyReport, results, streak])
 
   // ── Loading skeleton ──
   if (loading || !user) {
@@ -1364,6 +1406,11 @@ export default function Account() {
                     </>
                   )}
                 </div>
+                {(weeklyAISummaryLoading || weeklyAISummary) && (
+                  <p className="font-jakarta text-[12px] italic text-[#64748B] leading-relaxed mt-1">
+                    {weeklyAISummaryLoading ? '...' : weeklyAISummary}
+                  </p>
+                )}
               </section>
             )}
 
