@@ -29,6 +29,7 @@ import { getScoreProjection } from '../utils/scoreProjection.js'
 import { useAIPreferences } from '../hooks/useAIPreferences.js'
 import { getTopupRecommendation, getTrialUrgency, getAnnualSavingsDays } from '../utils/monetization.js'
 import { getGoalStatus } from '../utils/goalAlignment.js'
+import { getExamPhase } from '../utils/examUrgency.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -353,11 +354,8 @@ export default function Account() {
     : null, [user.mastery_rank, user.solid_concept_count])
   const weeklyReport    = useMemo(() => generateWeeklyReport(results, radarData), [results, radarData])
   const studyNudge      = useMemo(() => getStudyNudge(results), [results])
-  const urgencyColor    = daysUntil == null ? '#818CF8'
-    : daysUntil <= 7  ? '#EF4444'
-    : daysUntil <= 14 ? '#F97316'
-    : daysUntil <= 30 ? '#F2A20C'
-    : '#818CF8'
+  const examPhase    = useMemo(() => getExamPhase(daysUntil), [daysUntil])
+  const urgencyColor = examPhase?.colorPrimary ?? '#818CF8'
 
   // Sprint 5: learner identity + score projection
   const archetype       = useMemo(() => classifyLearner(results), [results])
@@ -591,16 +589,42 @@ export default function Account() {
                   <span className="font-fraunces text-[18px] font-bold" style={{ color: readinessColor }}>{readinessLabel}</span>
                   <span className="font-jakarta text-[12px] text-[#64748B]">Mức sẵn sàng · 30 ngày gần nhất</span>
                 </div>
-                {daysUntil != null && (
+                {daysUntil != null && examPhase && (
                   <div
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl border bg-[#0A0E1A]"
-                    style={{ borderColor: urgencyColor + '33' }}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl border"
+                    style={{ borderColor: urgencyColor + '33', background: examPhase.bg }}
                   >
-                    <span className="text-[15px]">{daysUntil <= 7 ? '🚨' : daysUntil <= 14 ? '⚠️' : '📅'}</span>
+                    <span className="text-[15px]">{examPhase.icon}</span>
                     <span className="font-fraunces text-[15px] font-bold" style={{ color: urgencyColor }}>{daysUntil} ngày</span>
-                    <span className="font-jakarta text-[12px] text-[#64748B]">đến kỳ thi vào lớp 10</span>
+                    <span className="font-jakarta text-[12px]" style={{ color: urgencyColor + 'CC' }}>{examPhase.label}</span>
                   </div>
                 )}
+              </section>
+            )}
+
+            {/* Exam urgency phase banner — shown for <60 days */}
+            {examPhase && daysUntil != null && daysUntil < 60 && (
+              <section
+                className="border rounded-2xl p-5 flex items-center justify-between gap-4 flex-wrap"
+                style={{ background: examPhase.bg, borderColor: examPhase.border }}
+              >
+                <div className="flex flex-col gap-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[16px]">{examPhase.icon}</span>
+                    <span className="font-jakarta text-[11px] font-bold px-2 py-0.5 rounded-full"
+                      style={{ background: urgencyColor + '22', color: urgencyColor }}>
+                      {examPhase.label}
+                    </span>
+                  </div>
+                  <span className="font-jakarta text-[13px] text-[#F0F4FF] leading-snug mt-1">{examPhase.headline}</span>
+                </div>
+                <button
+                  onClick={() => navigate('/exam-select')}
+                  className="px-4 py-2 rounded-xl font-jakarta text-[12px] font-bold transition flex-shrink-0"
+                  style={{ background: urgencyColor, color: '#0A0E1A' }}
+                >
+                  {examPhase.cta}
+                </button>
               </section>
             )}
 
