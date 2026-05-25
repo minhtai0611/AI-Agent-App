@@ -25,7 +25,7 @@ const GROUPS = {
   ],
   practice: [
     { category: 'grade10', label: 'Luyện tập vào lớp 10', description: 'Đề thi tuyển sinh quốc tế — Ghana BECE & Ấn Độ CBSE', accent: '#3B82F6', tag: 'Lớp 10' },
-    { category: 'thpt', label: 'Luyện tập THPT & Đại học', description: 'Đề quốc tế tương đương trình độ lớp 11–12 và đại học', accent: '#F2A20C', tag: 'THPT' },
+    { category: 'thpt', label: 'Luyện tập THPT & Đại học', description: 'SAT, ACT, A-Level, AMC 12, HSC Úc, Singapore H2 & nhiều đề quốc tế khác', accent: '#F2A20C', tag: 'THPT' },
   ],
 }
 
