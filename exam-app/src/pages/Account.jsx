@@ -18,6 +18,7 @@ import { getDaysUntilExam } from '../utils/examCountdown.js'
 import { computeBadges, BADGE_DEFS } from '../utils/badges.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { requestStudyReminder } from '../utils/studyReminder.js'
+import { getInitialTab, formatCreditSessions, TAB_PROGRESS, TAB_ANALYTICS, TAB_AITIA, TAB_SETTINGS } from '../utils/accountHelpers.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -190,10 +191,9 @@ export default function Account() {
   const readiness = useReadiness(results, questionMap)
 
   // ── Tab state ──
-  const [activeTab, setActiveTab] = useState(() => {
-    if (typeof window !== 'undefined' && window.location.hash === '#topup') return 'billing'
-    return 'profile'
-  })
+  const [activeTab, setActiveTab] = useState(() =>
+    typeof window !== 'undefined' ? getInitialTab(window.location.hash) : TAB_PROGRESS
+  )
 
   // ── API data ──
   const [creditLog,  setCreditLog]  = useState([])
@@ -258,9 +258,9 @@ export default function Account() {
     if (!loading && !user) navigate('/', { replace: true })
   }, [loading, user, navigate])
 
-  // Auto-scroll heatmap to today (right edge) when stats tab opens
+  // Auto-scroll heatmap to today (right edge) when analytics tab opens
   useEffect(() => {
-    if (activeTab === 'stats' && heatScrollRef.current) {
+    if (activeTab === TAB_ANALYTICS && heatScrollRef.current) {
       heatScrollRef.current.scrollLeft = heatScrollRef.current.scrollWidth
     }
   }, [activeTab])
@@ -418,7 +418,7 @@ export default function Account() {
           {/* Actions */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
-              onClick={() => { setActiveTab('profile'); setEditMode(true); setEditGrade(user.grade || ''); setEditProvince(user.province || '') }}
+              onClick={() => { setActiveTab(TAB_PROGRESS); setEditMode(true); setEditGrade(user.grade || ''); setEditProvince(user.province || '') }}
               className="px-3 py-1.5 rounded-lg font-jakarta text-[12px] text-amber-400 border border-amber-400/30 hover:bg-amber-400/10 transition"
             >
               ✏️ Chỉnh sửa
@@ -443,13 +443,12 @@ export default function Account() {
           <StatChip icon="⚡" value={user.credits_balance ?? 0} label="Tia" />
         </div>
 
-        {/* Tab bar */}
-        <div className="max-w-2xl mx-auto px-4 pb-0 flex gap-0">
+        {/* Tab bar + settings gear icon */}
+        <div className="max-w-2xl mx-auto px-4 pb-0 flex items-end gap-0">
           {[
-            ['profile',  'Hồ sơ'],
-            ['stats',    'Thống kê'],
-            ['billing',  'Gói & Tia'],
-            ['settings', 'Cài đặt'],
+            [TAB_PROGRESS,  'Tiến Độ'],
+            [TAB_ANALYTICS, 'Phân Tích'],
+            [TAB_AITIA,     'AI & Tia'],
           ].map(([key, label]) => (
             <button
               key={key}
@@ -463,14 +462,25 @@ export default function Account() {
               {label}
             </button>
           ))}
+          <button
+            onClick={() => setActiveTab(TAB_SETTINGS)}
+            title="Cài đặt"
+            className={`px-4 py-3 border-b-2 transition text-[15px] ${
+              activeTab === TAB_SETTINGS
+                ? 'border-[#F2A20C] text-[#F2A20C]'
+                : 'border-transparent text-[#64748B] hover:text-[#94A3B8]'
+            }`}
+          >
+            ⚙
+          </button>
         </div>
       </div>
 
       {/* ── Tab content ───────────────────────────────────────────────── */}
       <div className="max-w-2xl mx-auto w-full px-4 py-8 flex flex-col gap-6">
 
-        {/* ════════════════ TAB 1: HỒ SƠ ════════════════ */}
-        {activeTab === 'profile' && (
+        {/* ════════════════ TAB 1: TIẾN ĐỘ ════════════════ */}
+        {activeTab === TAB_PROGRESS && (
           <>
             {/* Profile card */}
             <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
@@ -735,8 +745,8 @@ export default function Account() {
           </>
         )}
 
-        {/* ════════════════ TAB 2: THỐNG KÊ ════════════════ */}
-        {activeTab === 'stats' && (
+        {/* ════════════════ TAB 2: PHÂN TÍCH ════════════════ */}
+        {activeTab === TAB_ANALYTICS && (
           <>
             {results.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
@@ -834,8 +844,8 @@ export default function Account() {
           </>
         )}
 
-        {/* ════════════════ TAB 3: GÓI & TIA ════════════════ */}
-        {activeTab === 'billing' && (
+        {/* ════════════════ TAB 3: AI & TIA ════════════════ */}
+        {activeTab === TAB_AITIA && (
           <>
             {/* Credit gauge + runway */}
             <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4 items-center">
@@ -1017,8 +1027,8 @@ export default function Account() {
           </>
         )}
 
-        {/* ════════════════ TAB 4: CÀI ĐẶT ════════════════ */}
-        {activeTab === 'settings' && (
+        {/* ════════════════ CÀI ĐẶT (via gear icon) ════════════════ */}
+        {activeTab === TAB_SETTINGS && (
           <>
             {/* Account status */}
             <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
