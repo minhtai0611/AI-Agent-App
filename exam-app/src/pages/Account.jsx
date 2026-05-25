@@ -31,6 +31,7 @@ import { getTopupRecommendation, getTrialUrgency, getAnnualSavingsDays } from '.
 import { getGoalStatus } from '../utils/goalAlignment.js'
 import { getExamPhase } from '../utils/examUrgency.js'
 import { generateProgressReport, reportToText } from '../utils/progressReport.js'
+import { getSessionPatterns } from '../utils/sessionPatterns.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -377,6 +378,9 @@ export default function Account() {
     () => generateProgressReport(user, results, streak, streakPB, radarData),
     [user, results, streak, streakPB, radarData]
   )
+
+  // Sprint 10: session timing patterns
+  const sessionPatterns = useMemo(() => getSessionPatterns(results), [results])
 
   // Daily spend rate (last 7 days from creditLog)
   const runwayDays = useMemo(() => {
@@ -1240,6 +1244,50 @@ export default function Account() {
                     </div>
                   )}
                 </section>
+
+                {/* Session timing patterns */}
+                {sessionPatterns && (
+                  <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+                    <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Nhịp học tập theo ngày</span>
+
+                    {/* Day-of-week mini bar chart */}
+                    <div className="flex items-end gap-1.5 h-16">
+                      {sessionPatterns.dayPattern.map(day => {
+                        const maxCount = Math.max(...sessionPatterns.dayPattern.map(d => d.count), 1)
+                        const heightPct = day.count === 0 ? 4 : Math.max(12, Math.round((day.count / maxCount) * 100))
+                        const isActive = day.dayIndex === sessionPatterns.mostActiveDay.dayIndex
+                        const isBest   = sessionPatterns.bestScoreDay?.dayIndex === day.dayIndex
+                        return (
+                          <div key={day.dayIndex} className="flex flex-col items-center gap-1 flex-1">
+                            <div
+                              className="w-full rounded-sm transition-all"
+                              style={{
+                                height: `${heightPct}%`,
+                                background: isBest ? '#10B981' : isActive ? '#F2A20C' : day.count > 0 ? '#818CF8' : '#1E2A44',
+                                opacity: day.count === 0 ? 0.4 : 1,
+                              }}
+                            />
+                            <span className="font-jakarta text-[9px] text-[#475569]">
+                              {day.dayName.replace('Chủ nhật', 'CN').replace('Thứ ', '')}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    <div className="flex flex-wrap gap-3 text-[11px] font-jakarta text-[#64748B]">
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[#F2A20C] inline-block" /> Tích cực nhất</span>
+                      {sessionPatterns.bestScoreDay && (
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-emerald-400 inline-block" /> Điểm cao nhất</span>
+                      )}
+                    </div>
+
+                    <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[#0A0E1A] border border-[#1E2A44]">
+                      <span className="text-[13px] mt-px">💡</span>
+                      <span className="font-jakarta text-[12px] text-[#94A3B8]">{sessionPatterns.insight}</span>
+                    </div>
+                  </section>
+                )}
 
                 {/* Today's focus */}
                 {todayFocus && (
