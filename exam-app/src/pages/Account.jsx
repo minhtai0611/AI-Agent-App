@@ -708,7 +708,7 @@ export default function Account() {
       {/* ── Persistent header ──────────────────────────────────────────── */}
       <div className="bg-[#0D1521] border-b border-[#1E2A44]">
         {/* Top row: avatar + name + actions */}
-        <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex items-center gap-4">
+        <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex items-center gap-4 relative">
           {/* Avatar */}
           {user.avatar_url && !avatarErr ? (
             <img
@@ -754,6 +754,18 @@ export default function Account() {
               Đăng xuất
             </button>
           </div>
+          {/* Settings gear — mobile only */}
+          <button
+            className="lg:hidden absolute top-4 right-4 p-2 rounded-xl"
+            style={{ color: '#64748B', background: '#0D1521' }}
+            onClick={() => setActiveTab(TAB_SETTINGS)}
+            aria-label="Cài đặt"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
         </div>
 
         {/* Stat chips */}
@@ -774,7 +786,7 @@ export default function Account() {
         </div>
 
         {/* Tab bar + settings gear icon */}
-        <div className="max-w-2xl mx-auto px-4 pb-0 flex items-end gap-0">
+        <div className="max-w-2xl mx-auto px-4 pb-0 hidden lg:flex items-end gap-0">
           {[
             [TAB_PROGRESS,  'Tiến Độ'],
             [TAB_ANALYTICS, 'Phân Tích'],
@@ -807,7 +819,7 @@ export default function Account() {
       </div>
 
       {/* ── Tab content ───────────────────────────────────────────────── */}
-      <div className="max-w-2xl lg:max-w-5xl mx-auto w-full px-4 py-8 flex flex-col gap-6">
+      <div className="max-w-2xl lg:max-w-5xl mx-auto w-full px-4 py-8 flex flex-col gap-6 pb-20 lg:pb-0">
 
         {/* ── AI Advisor Message — always visible ───────────────────────── */}
         {advisorMsg && (
@@ -3002,6 +3014,30 @@ export default function Account() {
           to   { transform: scale(1); }
         }
       `}</style>
+
+      {/* Mobile bottom navigation — hidden on lg+ */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 pb-safe"
+        style={{ background: '#0A0E1A', borderTop: '1px solid #1E2A44', paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
+        {[
+          { id: TAB_PROGRESS,  label: 'Tiến Độ',   icon: '📈' },
+          { id: TAB_ANALYTICS, label: 'Phân Tích',  icon: '🧠' },
+          { id: TAB_AITIA,     label: 'AI & Tia',   icon: '⚡' },
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className="flex flex-col items-center gap-0.5 py-2 px-4 rounded-xl transition-colors"
+            style={{
+              color: activeTab === tab.id ? '#818CF8' : '#64748B',
+              background: activeTab === tab.id ? '#818CF822' : 'transparent',
+              minWidth: 72,
+            }}
+          >
+            <span className="text-xl">{tab.icon}</span>
+            <span className="text-[10px] font-semibold">{tab.label}</span>
+          </button>
+        ))}
+      </nav>
 
     </motion.div>
   )
