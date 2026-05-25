@@ -33,6 +33,7 @@ import { getExamPhase } from '../utils/examUrgency.js'
 import { generateProgressReport, reportToText } from '../utils/progressReport.js'
 import { getSessionPatterns } from '../utils/sessionPatterns.js'
 import { getAdvisorMessage } from '../utils/advisorMessage.js'
+import { getSimulationMode } from '../utils/examSimulation.js'
 import { getProvinceNarrative } from '../utils/provinceNarrative.js'
 import { getTierGap } from '../utils/tierGap.js'
 import { getUpgradeContext } from '../utils/upgradeContext.js'
@@ -369,7 +370,8 @@ export default function Account() {
     : null, [user.mastery_rank, user.solid_concept_count])
   const weeklyReport    = useMemo(() => generateWeeklyReport(results, radarData), [results, radarData])
   const studyNudge      = useMemo(() => getStudyNudge(results), [results])
-  const examPhase    = useMemo(() => getExamPhase(daysUntil), [daysUntil])
+  const examPhase      = useMemo(() => getExamPhase(daysUntil), [daysUntil])
+  const simulationMode = useMemo(() => getSimulationMode(daysUntil), [daysUntil])
   const urgencyColor = examPhase?.colorPrimary ?? '#818CF8'
 
   // Sprint 5: learner identity + score projection
@@ -663,6 +665,32 @@ export default function Account() {
                     <span className="font-jakarta text-[12px]" style={{ color: urgencyColor + 'CC' }}>{examPhase.label}</span>
                   </div>
                 )}
+              </section>
+            )}
+
+            {/* Exam simulation mode — shown for daysUntil ≤ 14 */}
+            {simulationMode && (
+              <section className="border rounded-2xl p-6 flex flex-col gap-3"
+                style={{
+                  background: simulationMode.intensity === 'max' ? '#1A0505' : simulationMode.intensity === 'high' ? '#1A0A05' : '#1A1205',
+                  borderColor: simulationMode.intensity === 'max' ? '#EF444480' : simulationMode.intensity === 'high' ? '#F9731680' : '#F2A20C80',
+                }}>
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[18px]">{simulationMode.intensity === 'max' ? '🚨' : simulationMode.intensity === 'high' ? '🔴' : '🟠'}</span>
+                    <span className="font-jakarta text-[11px] font-bold px-2.5 py-1 rounded-full"
+                      style={{ background: simulationMode.intensity === 'max' ? '#EF444422' : simulationMode.intensity === 'high' ? '#F9731622' : '#F2A20C22', color: simulationMode.intensity === 'max' ? '#EF4444' : simulationMode.intensity === 'high' ? '#F97316' : '#F2A20C' }}>
+                      CHẾ ĐỘ ÔN THI — {simulationMode.intensity === 'max' ? 'TỐI ĐA' : simulationMode.intensity === 'high' ? 'CAO' : 'TRUNG BÌNH'}
+                    </span>
+                  </div>
+                  <button onClick={() => navigate('/exam-select')}
+                    className="px-4 py-2 rounded-xl font-jakarta text-[12px] font-bold transition flex-shrink-0"
+                    style={{ background: simulationMode.intensity === 'max' ? '#EF4444' : simulationMode.intensity === 'high' ? '#F97316' : '#F2A20C', color: '#0A0E1A' }}>
+                    Thi thử ngay →
+                  </button>
+                </div>
+                <p className="font-jakarta text-[13px] text-[#F0F4FF] leading-snug">{simulationMode.briefing}</p>
+                <p className="font-jakarta text-[12px] text-[#94A3B8] leading-snug">{simulationMode.focusTip}</p>
               </section>
             )}
 
