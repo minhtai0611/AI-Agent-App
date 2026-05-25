@@ -32,12 +32,23 @@ def _extract_json(text: str) -> str:
     return text.strip()
 
 
+_EXPLANATION_DEPTH_INSTRUCTIONS = {
+    "brief": "Giải thích ngắn gọn — chỉ 2-3 câu nêu bật ý chính.",
+    "detailed": "Giải thích đầy đủ, chi tiết để học sinh hiểu rõ.",
+    "step-by-step": "Trình bày giải thích theo các bước đánh số. Mỗi bước trên một dòng riêng.",
+}
+
+
 async def generate_explanation(
     client: AsyncOpenAI,
     question: dict,
     chosen_index: int,
+    ai_preferences: dict | None = None,
 ) -> dict:
     settings = get_settings()
+
+    explanation_depth = (ai_preferences or {}).get("explanation_depth", "detailed")
+    depth_instruction = _EXPLANATION_DEPTH_INSTRUCTIONS.get(explanation_depth, _EXPLANATION_DEPTH_INSTRUCTIONS["detailed"])
     choices = question.get("choices", [])
 
     # Ground truth from question data — never let AI guess the correct answer
@@ -83,7 +94,7 @@ Giải thích ngắn gọn tại sao đáp án {correct_label} đúng:
         model=settings.haiku_model,
         max_tokens=400,
         messages=[
-            {"role": "system", "content": THPT_CONTEXT + STATIC_EXPLAIN_INSTRUCTIONS},
+            {"role": "system", "content": THPT_CONTEXT + STATIC_EXPLAIN_INSTRUCTIONS + "\n" + depth_instruction},
             {"role": "user", "content": prompt},
         ],
     )

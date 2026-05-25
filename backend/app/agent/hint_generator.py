@@ -31,14 +31,25 @@ def _strip_code_fence(text: str) -> str:
     return text.strip()
 
 
+_HINT_STYLE_INSTRUCTIONS = {
+    "socratic": "Hướng dẫn bằng cách đặt câu hỏi gợi mở, KHÔNG tiết lộ đáp án — hãy để học sinh tự khám phá.",
+    "direct": "Đưa ra gợi ý trực tiếp, rõ ràng về cách tiếp cận từng bước. Hãy cụ thể và rõ ràng.",
+    "visual": "Trình bày gợi ý theo các bước đánh số rõ ràng. Dùng ký hiệu toán học chuẩn và nhãn bước rõ ràng.",
+}
+
+
 async def generate_hint(
     client: AsyncOpenAI,
     question: dict,
     attempt_count: int = 1,
     previous_hints: list[str] | None = None,
+    ai_preferences: dict | None = None,
 ) -> dict:
     settings = get_settings()
     level = _DETAIL_LEVEL.get(min(attempt_count, 3), _DETAIL_LEVEL[3])
+
+    hint_style = (ai_preferences or {}).get("hint_style", "socratic")
+    style_instruction = _HINT_STYLE_INSTRUCTIONS.get(hint_style, _HINT_STYLE_INSTRUCTIONS["socratic"])
 
     prev_context = ""
     if previous_hints:
@@ -61,7 +72,7 @@ Trả về đúng định dạng JSON sau, không thêm text nào khác:
         model=settings.hint_model,
         max_tokens=512,
         messages=[
-            {"role": "system", "content": THPT_CONTEXT + STATIC_HINT_INSTRUCTIONS},
+            {"role": "system", "content": THPT_CONTEXT + STATIC_HINT_INSTRUCTIONS + "\n" + style_instruction},
             {"role": "user", "content": prompt},
         ],
     )
