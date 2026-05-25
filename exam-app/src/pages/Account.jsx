@@ -186,7 +186,7 @@ function CreditGauge({ balance, tier }) {
           / {alloc.toLocaleString()}
         </text>
       </svg>
-      <span className="font-jakarta text-[11px] text-[#475569]">Tia còn lại tháng này</span>
+      <span className="font-jakarta text-[11px] text-[#475569]">Năng lượng học tập còn lại</span>
     </div>
   )
 }
@@ -842,7 +842,7 @@ export default function Account() {
               <CreditGauge balance={user.credits_balance ?? 0} tier={tier} />
               {runwayDays !== null && (
                 <p className="font-jakarta text-[12px] text-[#64748B] text-center">
-                  Theo tốc độ hiện tại, đủ dùng ~<span className="text-amber-400 font-semibold">{runwayDays} ngày</span>.
+                  Theo tốc độ học hiện tại, đủ cho ~<span className="text-amber-400 font-semibold">{runwayDays} ngày</span> học tập AI.
                 </p>
               )}
               <div className="flex gap-6 flex-wrap justify-center">
@@ -878,9 +878,9 @@ export default function Account() {
             {tier === 'basic' && !user.trial_used && !trialDone && (
               <section className="bg-gradient-to-br from-[#1A2A10] to-[#0D1521] border border-[#2D4A1A] rounded-2xl p-6 flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
-                  <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Dùng thử 7 ngày miễn phí</span>
+                  <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Trải nghiệm AI học tập đầy đủ — 7 ngày miễn phí</span>
                   <p className="font-jakarta text-[13px] text-[#94A3B8]">
-                    Trải nghiệm gói Học sinh trong 7 ngày — đề thi đầy đủ, kế hoạch học AI và 500 Tia mỗi tháng.
+                    Mở khóa toàn bộ AI hỗ trợ trong 7 ngày: kế hoạch học cá nhân hoá, phân tích không giới hạn và 500 năng lượng học tập.
                   </p>
                 </div>
                 {trialError && <p className="font-jakarta text-[12px] text-red-400">{trialError}</p>}
