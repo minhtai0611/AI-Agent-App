@@ -22,6 +22,7 @@ import { getInitialTab, formatCreditSessions, TAB_PROGRESS, TAB_ANALYTICS, TAB_A
 import { interpretScoreTrend, interpretTopicRadar, interpretHeatmap, getTodayFocus, getNextMilestone } from '../utils/insights.js'
 import { getMasteryProgress, MASTERY_TIERS } from '../utils/masteryRank.js'
 import { generateWeeklyReport } from '../utils/weeklyReport.js'
+import { getStudyNudge } from '../utils/studyNudge.js'
 import { useAIPreferences } from '../hooks/useAIPreferences.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -339,6 +340,7 @@ export default function Account() {
     ? getMasteryProgress(user.mastery_rank, user.solid_concept_count ?? 0)
     : null, [user.mastery_rank, user.solid_concept_count])
   const weeklyReport    = useMemo(() => generateWeeklyReport(results, radarData), [results, radarData])
+  const studyNudge      = useMemo(() => getStudyNudge(results), [results])
   const urgencyColor    = daysUntil == null ? '#818CF8'
     : daysUntil <= 7  ? '#EF4444'
     : daysUntil <= 14 ? '#F97316'
@@ -830,6 +832,22 @@ export default function Account() {
         {/* ════════════════ TAB 2: PHÂN TÍCH ════════════════ */}
         {activeTab === TAB_ANALYTICS && (
           <>
+            {/* Adaptive study nudge */}
+            {studyNudge && (
+              <div className="flex items-start gap-3 px-5 py-4 rounded-2xl border border-[#F2A20C33] bg-[#F2A20C0A]">
+                <span className="text-[20px] flex-shrink-0 mt-px">💪</span>
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <span className="font-jakarta text-[13px] text-[#F0F4FF] leading-snug">{studyNudge}</span>
+                  <button
+                    onClick={() => navigate('/exam-select')}
+                    className="self-start mt-1.5 px-3 py-1 rounded-lg font-jakarta text-[11px] font-semibold bg-[#F2A20C] text-[#0A0E1A] hover:bg-[#F59E0B] transition-colors"
+                  >
+                    Ôn luyện ngay →
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Weekly report card */}
             {weeklyReport && (
               <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-3">
