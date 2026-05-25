@@ -1438,6 +1438,93 @@ async def chart_insights(
         return ChartInsightsResponse(**_CHART_INSIGHTS_FALLBACKS)
 
 
+@app.get("/insights/peer-stats")
+async def peer_stats(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Return anonymized peer performance stats for students in the same grade.
+    Only includes paying users (student/complete tier) for meaningful data.
+    FREE — no credit deduction.
+    """
+    # Get current user's grade
+    user_row = await pool.fetchrow(
+        "SELECT grade FROM users WHERE id = ?", current_user.user_id
+    )
+    if not user_row or not user_row["grade"]:
+        return {"sample_size": 0, "message": None}
+
+    grade = user_row["grade"]
+
+    # Fetch last 20 exam results for each peer (same grade, paying tier, excluding self)
+    peer_rows = await pool.fetch(
+        """SELECT er.user_id, er.score, er.created_at
+           FROM exam_results er
+           JOIN users u ON u.id = er.user_id
+           WHERE u.grade = ?
+             AND u.subscription_tier IN ('student', 'complete')
+             AND er.user_id != ?
+             AND er.score IS NOT NULL
+           ORDER BY er.user_id, er.created_at DESC""",
+        grade, current_user.user_id,
+    )
+
+    # Group into per-user result lists (take last 20 per user)
+    from collections import defaultdict
+    user_results: dict[int, list[float]] = defaultdict(list)
+    for row in peer_rows:
+        uid = row["user_id"]
+        if len(user_results[uid]) < 20:
+            user_results[uid].append(row["score"])
+
+    sample_size = len(user_results)
+    if sample_size < 5:
+        return {"sample_size": 0, "message": None}
+
+    # avg_improvement: compare first 5 vs last 5 for users with >=10 exams
+    # Note: rows are DESC by created_at, so index 0 = most recent (last 5), last indices = oldest (first 5)
+    improvements = []
+    for scores in user_results.values():
+        if len(scores) >= 10:
+            # scores[0..4] = last 5 (most recent), scores[-5:] = first 5 (oldest)
+            recent_avg = sum(scores[:5]) / 5
+            early_avg = sum(scores[-5:]) / 5
+            improvements.append(recent_avg - early_avg)
+
+    avg_improvement = round(sum(improvements) / len(improvements), 1) if improvements else 0.0
+
+    # avg_weekly_exams: total results / (weeks spanned), approximate via total count / users / ~4 weeks
+    total_exams = sum(len(s) for s in user_results.values())
+    avg_weekly_exams = round((total_exams / sample_size) / 4, 1)
+
+    # top_percentile_threshold: 80th percentile of peer avg scores
+    peer_avgs = sorted(
+        sum(scores) / len(scores) for scores in user_results.values()
+    )
+    p80_idx = max(0, int(len(peer_avgs) * 0.8) - 1)
+    top_percentile_threshold = round(peer_avgs[p80_idx], 1)
+
+    # Build message
+    grade_label = f"lớp {grade}"
+    if avg_improvement > 0:
+        message = (
+            f"Học sinh {grade_label} cải thiện trung bình {avg_improvement} điểm "
+            f"sau 4-6 tuần luyện tập đều đặn."
+        )
+    else:
+        message = (
+            f"Học sinh {grade_label} luyện tập trung bình {avg_weekly_exams} bài/tuần."
+        )
+
+    return {
+        "sample_size": sample_size,
+        "avg_improvement": avg_improvement,
+        "avg_weekly_exams": avg_weekly_exams,
+        "top_percentile_threshold": top_percentile_threshold,
+        "message": message,
+    }
+
+
 @app.post("/math-ingest")
 async def math_ingest(
     req: MathIngestRequest,

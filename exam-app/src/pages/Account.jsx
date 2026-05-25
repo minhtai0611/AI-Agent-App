@@ -8,7 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { loadQuestions } from '../api/index.js'
-import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights } from '../api/aiClient.js'
+import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats } from '../api/aiClient.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
@@ -39,6 +39,7 @@ import { getTierGap } from '../utils/tierGap.js'
 import { getUpgradeContext } from '../utils/upgradeContext.js'
 import { getStreakFreezeInfo } from '../utils/streakFreeze.js'
 import { getTopicNodes, getPriorityTopics } from '../utils/learningGraph.js'
+import { getSocialProofMessage } from '../utils/socialProof.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -303,6 +304,8 @@ export default function Account() {
   const [chartInsights,        setChartInsights]        = useState(null)
   const [chartInsightsLoading, setChartInsightsLoading] = useState(false)
   const chartInsightsFetched = useRef(false)
+  const [peerStats, setPeerStats] = useState(null)
+  const peerStatsFetched = useRef(false)
 
   const toast = useToast()
 
@@ -360,6 +363,13 @@ export default function Account() {
       .finally(() => setChartInsightsLoading(false))
   }, [activeTab, results])
 
+  useEffect(() => {
+    if (activeTab !== TAB_ANALYTICS) return
+    if (peerStatsFetched.current) return
+    peerStatsFetched.current = true
+    getPeerStats().then(({ data }) => { if (data) setPeerStats(data) })
+  }, [activeTab])
+
   // ── Loading skeleton ──
   if (loading || !user) {
     return (
@@ -389,6 +399,11 @@ export default function Account() {
   const avgScore = results.length
     ? (results.reduce((s, r) => s + (r.score ?? 0), 0) / results.length).toFixed(1)
     : '—'
+
+  const socialProof = useMemo(
+    () => getSocialProofMessage(peerStats, parseFloat(avgScore) || 0),
+    [peerStats, avgScore]
+  )
 
   // Readiness display helpers
   const readinessPct   = readiness?.readiness ?? 0
@@ -1651,6 +1666,35 @@ export default function Account() {
                   </div>
                 </section>
                 {/* ─── end Learning Graph ─────────────────────────────────── */}
+
+                {/* ─── MOAT 5: Social Proof "Students Like You" ───────────── */}
+                {socialProof && (
+                  <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Học sinh cùng lớp</span>
+                      <span className="font-jakarta text-[12px] text-[#64748B]">{socialProof.headline}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <p
+                        className="font-jakarta text-[13px] font-semibold"
+                        style={{ color: socialProof.isAboveBenchmark ? '#10B981' : '#F2A20C' }}
+                      >
+                        {socialProof.detail}
+                      </p>
+                      <span
+                        className="font-jakarta text-[11px] font-semibold px-3 py-1 rounded-full flex-shrink-0"
+                        style={{
+                          background: '#818CF820',
+                          color: '#818CF8',
+                          border: '1px solid #818CF840',
+                        }}
+                      >
+                        {socialProof.benchmarkLabel}
+                      </span>
+                    </div>
+                  </section>
+                )}
+                {/* ─── end Social Proof ───────────────────────────────────── */}
               </>
             )}
           </>

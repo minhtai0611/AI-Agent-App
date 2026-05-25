@@ -381,3 +381,6 @@ export const compareProvince = () =>
 
 export const getChartInsights = (payload) =>
   wrap(client.post('/insights/charts', payload))
+
+export const getPeerStats = () =>
+  wrap(client.get('/insights/peer-stats'))
