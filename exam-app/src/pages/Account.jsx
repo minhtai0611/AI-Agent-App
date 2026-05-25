@@ -13,13 +13,15 @@ import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { useToast } from '../context/ToastContext.jsx'
-import { computeStreak } from '../utils/streak.js'
+import { computeStreak, computeStreakPersonalBest } from '../utils/streak.js'
 import { getDaysUntilExam } from '../utils/examCountdown.js'
 import { computeBadges, BADGE_DEFS } from '../utils/badges.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { requestStudyReminder } from '../utils/studyReminder.js'
 import { getInitialTab, formatCreditSessions, TAB_PROGRESS, TAB_ANALYTICS, TAB_AITIA, TAB_SETTINGS } from '../utils/accountHelpers.js'
 import { interpretScoreTrend, interpretTopicRadar, interpretHeatmap, getTodayFocus, getNextMilestone } from '../utils/insights.js'
+import { getMasteryProgress, MASTERY_TIERS } from '../utils/masteryRank.js'
+import { generateWeeklyReport } from '../utils/weeklyReport.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -329,6 +331,18 @@ export default function Account() {
   const todayFocus      = useMemo(() => getTodayFocus(radarData), [radarData])
   const nextMilestone   = useMemo(() => getNextMilestone(results, earnedBadgeIds), [results, earnedBadgeIds])
 
+  // Sprint 3: streak personal best, mastery progression, weekly report, urgency
+  const streakPB        = useMemo(() => computeStreakPersonalBest(results), [results])
+  const masteryProgress = useMemo(() => user.mastery_rank
+    ? getMasteryProgress(user.mastery_rank, user.solid_concept_count ?? 0)
+    : null, [user.mastery_rank, user.solid_concept_count])
+  const weeklyReport    = useMemo(() => generateWeeklyReport(results, radarData), [results, radarData])
+  const urgencyColor    = daysUntil == null ? '#818CF8'
+    : daysUntil <= 7  ? '#EF4444'
+    : daysUntil <= 14 ? '#F97316'
+    : daysUntil <= 30 ? '#F2A20C'
+    : '#818CF8'
+
   // Daily spend rate (last 7 days from creditLog)
   const runwayDays = useMemo(() => {
     if (!creditLog.length) return null
@@ -474,7 +488,7 @@ export default function Account() {
 
         {/* Stat chips */}
         <div className="max-w-2xl mx-auto px-4 pb-4 flex items-center justify-around border-t border-[#1E2A44] pt-3">
-          <StatChip icon="🔥" value={streak || 0} label="ngày streak" />
+          <StatChip icon="🔥" value={streak || 0} label={streakPB > streak ? `ngày (PB ${streakPB})` : 'ngày streak'} />
           <div className="w-px h-8 bg-[#1E2A44]" />
           <StatChip icon="📊" value={results.length} label="bài thi" />
           <div className="w-px h-8 bg-[#1E2A44]" />
@@ -548,12 +562,53 @@ export default function Account() {
                   <span className="font-jakarta text-[12px] text-[#64748B]">Mức sẵn sàng · 30 ngày gần nhất</span>
                 </div>
                 {daysUntil != null && (
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[#6366F133] bg-[#0A0E1A]">
-                    <span className="text-[15px]">📅</span>
-                    <span className="font-fraunces text-[15px] font-bold text-[#818CF8]">{daysUntil} ngày</span>
+                  <div
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl border bg-[#0A0E1A]"
+                    style={{ borderColor: urgencyColor + '33' }}
+                  >
+                    <span className="text-[15px]">{daysUntil <= 7 ? '🚨' : daysUntil <= 14 ? '⚠️' : '📅'}</span>
+                    <span className="font-fraunces text-[15px] font-bold" style={{ color: urgencyColor }}>{daysUntil} ngày</span>
                     <span className="font-jakarta text-[12px] text-[#64748B]">đến kỳ thi vào lớp 10</span>
                   </div>
                 )}
+              </section>
+            )}
+
+            {/* Mastery rank progression */}
+            {masteryProgress && (
+              <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Cấp độ học tập</span>
+                  {masteryProgress.next && (
+                    <span className="font-jakarta text-[11px] text-[#64748B]">
+                      còn {masteryProgress.needed} khái niệm đến {masteryProgress.next.label}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-[24px] flex-shrink-0"
+                    style={{ background: (MASTERY_TIERS.find(t => t.id === user.mastery_rank)?.id ? '#818CF81A' : '#64748B1A') }}>
+                    {masteryProgress.current.icon}
+                  </div>
+                  <div className="flex flex-col gap-2 flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-fraunces text-[14px] font-bold text-[#F8FAFC]">{masteryProgress.current.label}</span>
+                      {masteryProgress.next && (
+                        <span className="font-jakarta text-[12px] text-[#64748B]">{masteryProgress.next.icon} {masteryProgress.next.label}</span>
+                      )}
+                    </div>
+                    <div className="w-full h-2 bg-[#1E2A44] rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-[#818CF8] transition-all duration-700"
+                        style={{ width: `${Math.round(masteryProgress.pct * 100)}%` }}
+                      />
+                    </div>
+                    <span className="font-jakarta text-[11px] text-[#64748B]">
+                      {user.solid_concept_count ?? 0} khái niệm vững chắc
+                      {masteryProgress.next ? ` · mục tiêu ${masteryProgress.next.minSolid}` : ' · cấp cao nhất'}
+                    </span>
+                  </div>
+                </div>
               </section>
             )}
 
@@ -773,6 +828,37 @@ export default function Account() {
         {/* ════════════════ TAB 2: PHÂN TÍCH ════════════════ */}
         {activeTab === TAB_ANALYTICS && (
           <>
+            {/* Weekly report card */}
+            {weeklyReport && (
+              <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Báo cáo tuần này</span>
+                  <span className="font-jakarta text-[11px] text-[#475569]">7 ngày qua</span>
+                </div>
+                <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{weeklyReport.summary}</p>
+                <div className="flex gap-4 pt-1">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-fraunces text-[20px] font-bold text-[#F8FAFC]">{weeklyReport.examCount}</span>
+                    <span className="font-jakarta text-[11px] text-[#64748B]">bài thi</span>
+                  </div>
+                  <div className="w-px bg-[#1E2A44]" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-fraunces text-[20px] font-bold text-[#F8FAFC]">{weeklyReport.avgScore}</span>
+                    <span className="font-jakarta text-[11px] text-[#64748B]">điểm trung bình</span>
+                  </div>
+                  {weeklyReport.topWeakTopic && (
+                    <>
+                      <div className="w-px bg-[#1E2A44]" />
+                      <div className="flex flex-col gap-0.5 min-w-0">
+                        <span className="font-fraunces text-[14px] font-bold text-[#F2A20C] truncate">{weeklyReport.topWeakTopic}</span>
+                        <span className="font-jakarta text-[11px] text-[#64748B]">cần ôn nhất</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </section>
+            )}
+
             {results.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
                 <span className="text-[48px]">📊</span>
