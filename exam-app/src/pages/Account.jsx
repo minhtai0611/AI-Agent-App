@@ -21,7 +21,7 @@ import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { requestStudyReminder } from '../utils/studyReminder.js'
 import { getInitialTab, formatCreditSessions, TAB_PROGRESS, TAB_ANALYTICS, TAB_AITIA, TAB_SETTINGS } from '../utils/accountHelpers.js'
 import { interpretScoreTrend, interpretTopicRadar, interpretHeatmap, getTodayFocus, getNextMilestone } from '../utils/insights.js'
-import { getMasteryProgress, MASTERY_TIERS } from '../utils/masteryRank.js'
+import { getMasteryProgress, MASTERY_TIERS, didRankAdvance } from '../utils/masteryRank.js'
 import { generateWeeklyReport } from '../utils/weeklyReport.js'
 import { getStudyNudge } from '../utils/studyNudge.js'
 import { classifyLearner } from '../utils/learnerArchetype.js'
@@ -306,6 +306,10 @@ export default function Account() {
   // ── Heatmap scroll ref ──
   const heatScrollRef = useRef(null)
 
+  // ── Mastery rank advancement animation ──
+  const [showRankUp, setShowRankUp] = useState(false)
+  const prevRankRef = useRef(user?.mastery_rank)
+
   // ── AI chart insights (Sprint 16) ──
   const [chartInsights,        setChartInsights]        = useState(null)
   const [chartInsightsLoading, setChartInsightsLoading] = useState(false)
@@ -343,6 +347,15 @@ export default function Account() {
       heatScrollRef.current.scrollLeft = heatScrollRef.current.scrollWidth
     }
   }, [activeTab])
+
+  // Mastery rank advancement detection — show celebration overlay on rank-up
+  useEffect(() => {
+    if (didRankAdvance(prevRankRef.current, user?.mastery_rank)) {
+      setShowRankUp(true)
+      setTimeout(() => setShowRankUp(false), 3000)
+    }
+    prevRankRef.current = user?.mastery_rank
+  }, [user?.mastery_rank])
 
   // Fetch AI chart insights once when analytics tab opens with enough data
   useEffect(() => {
@@ -2715,6 +2728,36 @@ export default function Account() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── Mastery rank advancement celebration overlay ────────────────── */}
+      {showRankUp && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none"
+          style={{ animation: 'fadeInOut 3s ease-in-out forwards' }}
+        >
+          <div
+            className="bg-[#0D1521] border border-[#818CF8] rounded-2xl px-8 py-6 flex flex-col items-center gap-3 shadow-2xl"
+            style={{ animation: 'scaleIn 0.3s ease-out' }}
+          >
+            <span className="text-4xl">⭐</span>
+            <p className="font-jakarta font-bold text-white text-xl">Thăng hạng!</p>
+            <p className="text-[#818CF8] text-sm font-medium">{MASTERY_RANK_LABELS[user?.mastery_rank] ?? user?.mastery_rank}</p>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeInOut {
+          0%   { opacity: 0; }
+          15%  { opacity: 1; }
+          75%  { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        @keyframes scaleIn {
+          from { transform: scale(0.8); }
+          to   { transform: scale(1); }
+        }
+      `}</style>
 
     </motion.div>
   )

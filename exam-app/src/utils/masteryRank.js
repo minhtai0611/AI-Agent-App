@@ -5,6 +5,14 @@ export const MASTERY_TIERS = [
   { id: 'Chuyên gia',label: 'Ngôi sao Zenith',   icon: '⭐', minSolid: 56 },
 ]
 
+export function didRankAdvance(prevRank, newRank) {
+  if (prevRank == null || newRank == null) return false
+  const prevIdx = MASTERY_TIERS.findIndex(t => t.id === prevRank)
+  const newIdx  = MASTERY_TIERS.findIndex(t => t.id === newRank)
+  if (prevIdx === -1 || newIdx === -1) return false
+  return newIdx > prevIdx
+}
+
 export function getMasteryProgress(rank, solidCount) {
   const idx = MASTERY_TIERS.findIndex(t => t.id === rank)
   const current = MASTERY_TIERS[idx] ?? MASTERY_TIERS[0]

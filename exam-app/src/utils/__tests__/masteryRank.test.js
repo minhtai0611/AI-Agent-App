@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getMasteryProgress, MASTERY_TIERS } from '../masteryRank.js'
+import { getMasteryProgress, MASTERY_TIERS, didRankAdvance } from '../masteryRank.js'
 
 describe('MASTERY_TIERS', () => {
   it('exports an array of 4 tiers in ascending order', () => {
@@ -57,5 +57,37 @@ describe('getMasteryProgress', () => {
     expect(p.pct).toBeGreaterThanOrEqual(0)
     const p2 = getMasteryProgress('Sinh viên', 99)
     expect(p2.pct).toBeLessThanOrEqual(1)
+  })
+})
+
+describe('didRankAdvance', () => {
+  it('returns false when prevRank is null', () => {
+    expect(didRankAdvance(null, 'Pemula')).toBe(false)
+  })
+
+  it('returns false when newRank is null', () => {
+    expect(didRankAdvance('Pemula', null)).toBe(false)
+  })
+
+  it('returns true when rank advances from Pemula to Học sinh', () => {
+    expect(didRankAdvance('Pemula', 'Học sinh')).toBe(true)
+  })
+
+  it('returns false when rank downgrades from Học sinh to Pemula', () => {
+    expect(didRankAdvance('Học sinh', 'Pemula')).toBe(false)
+  })
+
+  it('returns false when rank stays the same', () => {
+    expect(didRankAdvance('Học sinh', 'Học sinh')).toBe(false)
+  })
+
+  it('returns true for multi-step advance', () => {
+    expect(didRankAdvance('Pemula', 'Sinh viên')).toBe(true)
+    expect(didRankAdvance('Học sinh', 'Chuyên gia')).toBe(true)
+  })
+
+  it('returns false when either rank id is unrecognized', () => {
+    expect(didRankAdvance('Rank 0', 'Học sinh')).toBe(false)
+    expect(didRankAdvance('Pemula', 'Rank 1')).toBe(false)
   })
 })
