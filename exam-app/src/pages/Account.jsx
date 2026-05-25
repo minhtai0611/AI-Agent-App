@@ -8,7 +8,8 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { loadQuestions } from '../api/index.js'
-import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats } from '../api/aiClient.js'
+import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getClassInfo, joinTeacherClass } from '../api/aiClient.js'
+import { getClassRankDisplay } from '../utils/classRank.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
@@ -273,6 +274,10 @@ export default function Account() {
   const [reactivating,        setReactivating]        = useState(false)
 
   // ── Settings ──
+  const [classInfo,        setClassInfo]        = useState(null)
+  const [classJoinCode,    setClassJoinCode]    = useState('')
+  const [classJoinLoading, setClassJoinLoading] = useState(false)
+  const [classJoinError,   setClassJoinError]   = useState('')
   const [reminderEnabled, setReminderEnabled] = useState(
     () => !!localStorage.getItem('study_reminder_enabled')
   )
@@ -309,11 +314,15 @@ export default function Account() {
 
   const toast = useToast()
 
+  // ── Class rank display (Sprint 19) ──
+  const classRankDisplay = useMemo(() => getClassRankDisplay(classInfo), [classInfo])
+
   // ── Data fetching ──
   useEffect(() => {
     if (!user) return
     getCreditLog().then(({ data }) => { if (data) setCreditLog(data) })
     getReferral().then(  ({ data }) => { if (data) setReferral(data) })
+    getClassInfo().then( ({ data }) => { if (data) setClassInfo(data) })
   }, [user])
 
   useEffect(() => {
@@ -2287,18 +2296,74 @@ export default function Account() {
               )}
             </section>
 
-            {/* Lớp học */}
-            <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-6 flex items-center justify-between gap-4">
-              <div className="flex flex-col gap-1">
-                <span className="font-jakarta text-[14px] font-semibold text-[#F8FAFC]">Lớp học</span>
-                <span className="font-jakarta text-[12px] text-[#64748B]">Tham gia lớp học hoặc quản lý lớp (giáo viên)</span>
+            {/* Lớp học — Sprint 19 */}
+            <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-6 flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-[18px]">🏫</span>
+                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Lớp học</span>
               </div>
-              <button
-                onClick={() => navigate('/class')}
-                className="flex-shrink-0 px-5 py-2 rounded-lg font-jakarta text-[13px] font-bold text-[#F8FAFC] bg-[#6366F1] hover:opacity-90 transition"
-              >
-                Vào lớp →
-              </button>
+              {classRankDisplay ? (
+                /* ── In a class — show rank card ── */
+                <div className="flex flex-col gap-3">
+                  <p className="font-jakarta text-[13px] text-[#94A3B8]">
+                    Lớp học: <span className="text-[#F8FAFC] font-semibold">{classRankDisplay.teacherName}</span> — {classRankDisplay.subject}
+                  </p>
+                  <p className="font-jakarta text-[13px] text-[#94A3B8]">
+                    Thứ hạng của bạn:{' '}
+                    <span className="text-[#F8FAFC] font-bold">#{classRankDisplay.rank}</span>
+                    {' / '}{classRankDisplay.memberCount} học sinh
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span className="font-jakarta text-[12px] font-bold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                      {classRankDisplay.badge}
+                    </span>
+                  </div>
+                  <p className="font-jakarta text-[12px] text-[#64748B]">
+                    Điểm TB lớp: <span className="text-[#94A3B8]">{classRankDisplay.classAvg.toFixed(1)}</span>
+                    {' | '}Điểm của bạn: <span className="text-amber-400 font-semibold">{classRankDisplay.avgScore.toFixed(1)}</span>
+                  </p>
+                </div>
+              ) : (
+                /* ── Not in a class — show join form ── */
+                <div className="flex flex-col gap-3">
+                  <p className="font-jakarta text-[12px] text-[#64748B]">
+                    Nhập mã lớp của giáo viên để tham gia và xem thứ hạng của bạn.
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <input
+                      value={classJoinCode}
+                      onChange={e => { setClassJoinCode(e.target.value.toUpperCase()); setClassJoinError('') }}
+                      placeholder="Mã lớp (VD: ZENITH)"
+                      maxLength={10}
+                      className="flex-1 px-3 py-2 rounded-lg border border-[#1E2A44] bg-[#0A0E1A] font-jakarta text-[13px] text-[#F8FAFC] placeholder-[#475569] focus:outline-none focus:border-indigo-500"
+                    />
+                    <button
+                      disabled={classJoinLoading || !classJoinCode.trim()}
+                      onClick={async () => {
+                        setClassJoinLoading(true)
+                        setClassJoinError('')
+                        const { data, error, status } = await joinTeacherClass(classJoinCode.trim())
+                        setClassJoinLoading(false)
+                        if (data) {
+                          // Refresh class info after joining
+                          getClassInfo().then(({ data: d }) => { if (d) setClassInfo(d) })
+                          setClassJoinCode('')
+                        } else if (status === 404) {
+                          setClassJoinError('Mã lớp không tồn tại.')
+                        } else {
+                          setClassJoinError(typeof error === 'string' ? error : 'Không thể tham gia lớp.')
+                        }
+                      }}
+                      className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-[13px] font-bold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 transition"
+                    >
+                      {classJoinLoading ? '…' : 'Tham gia'}
+                    </button>
+                  </div>
+                  {classJoinError && (
+                    <p className="font-jakarta text-[12px] text-red-400">{classJoinError}</p>
+                  )}
+                </div>
+              )}
             </section>
 
             {/* Share & Earn — referral */}

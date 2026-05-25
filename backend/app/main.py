@@ -378,6 +378,20 @@ _SCHEMA_DDL = [
     "ALTER TABLE users ADD COLUMN weekly_study_hours INTEGER",
     "ALTER TABLE users ADD COLUMN extended_onboarding_done INTEGER NOT NULL DEFAULT 0",
     "ALTER TABLE users ADD COLUMN streak_freeze_count INTEGER NOT NULL DEFAULT 0",
+    # Sprint 19 — MOAT 3: Teacher/Class Integration Foundation
+    """CREATE TABLE IF NOT EXISTS teacher_classes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        class_code TEXT UNIQUE NOT NULL,
+        teacher_name TEXT NOT NULL,
+        subject TEXT NOT NULL DEFAULT 'Toán',
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    """CREATE TABLE IF NOT EXISTS teacher_class_members (
+        class_id INTEGER REFERENCES teacher_classes(id),
+        user_id INTEGER REFERENCES users(id),
+        joined_at TEXT DEFAULT (datetime('now')),
+        PRIMARY KEY (class_id, user_id)
+    )""",
 ]
 
 
@@ -691,6 +705,20 @@ async def _seed_from_json(pool) -> None:
         logger.warning("_seed_from_json failed: %s", exc)
 
 
+async def _seed_teacher_classes(pool) -> None:
+    """Seed one demo teacher class for Sprint 19 testing (INSERT OR IGNORE)."""
+    try:
+        async with pool.acquire() as conn:
+            await conn.execute(
+                """INSERT OR IGNORE INTO teacher_classes (class_code, teacher_name, subject)
+                   VALUES (?, ?, ?)""",
+                "ZENITH", "Giáo viên Demo", "Toán",
+            )
+        logger.info("_seed_teacher_classes: demo class seeded")
+    except Exception as exc:
+        logger.warning("_seed_teacher_classes failed: %s", exc)
+
+
 async def _seed_concepts(pool) -> None:
     """Seed the concepts table with the initial 20-concept taxonomy (INSERT OR IGNORE)."""
     import json as _json
@@ -725,6 +753,7 @@ async def lifespan(app: FastAPI):
     if exam_count and exam_count["cnt"] == 0:
         await _seed_from_json(app.state.pool)
     await _seed_concepts(app.state.pool)
+    await _seed_teacher_classes(app.state.pool)
 
     _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
     asyncio.ensure_future(_ensure_bm25(app.state.pool))
@@ -3342,6 +3371,97 @@ async def deactivate_class(
     if cls["teacher_id"] != current_user.user_id:
         raise HTTPException(status_code=403, detail="Forbidden")
     await pool.execute("UPDATE classes SET active = 0 WHERE id = $1", class_id)
+
+
+# ── Sprint 19: Teacher class join & rank endpoints ────────────────────────────
+
+class TeacherClassJoinRequest(BaseModel):
+    class_code: str = Field(..., min_length=1, max_length=10)
+
+
+@app.post("/teacher-classes/join")
+async def teacher_class_join(
+    body: TeacherClassJoinRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Join a teacher class by its 6-char class_code."""
+    cls = await pool.fetchrow(
+        "SELECT id, teacher_name, subject FROM teacher_classes WHERE class_code = ?",
+        body.class_code.upper(),
+    )
+    if not cls:
+        raise HTTPException(status_code=404, detail="Class not found")
+
+    await pool.execute(
+        "INSERT OR IGNORE INTO teacher_class_members (class_id, user_id) VALUES (?, ?)",
+        cls["id"], current_user.user_id,
+    )
+    member_count_row = await pool.fetchrow(
+        "SELECT COUNT(*) AS cnt FROM teacher_class_members WHERE class_id = ?", cls["id"]
+    )
+    member_count = member_count_row["cnt"] if member_count_row else 0
+    return {
+        "class_id": cls["id"],
+        "teacher_name": cls["teacher_name"],
+        "subject": cls["subject"],
+        "member_count": member_count,
+    }
+
+
+@app.get("/teacher-classes/me")
+async def teacher_class_me(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Return the class the current user belongs to plus their rank. 200 with class_id=null if not enrolled."""
+    membership = await pool.fetchrow(
+        """SELECT tc.id, tc.class_code, tc.teacher_name, tc.subject
+           FROM teacher_class_members tcm
+           JOIN teacher_classes tc ON tc.id = tcm.class_id
+           WHERE tcm.user_id = ?""",
+        current_user.user_id,
+    )
+    if not membership:
+        return {"class_id": None}
+
+    class_id = membership["id"]
+
+    # All members with their avg score
+    members = await pool.fetch(
+        """SELECT tcm.user_id,
+                  COALESCE(AVG(er.score), 0.0) AS avg_score
+           FROM teacher_class_members tcm
+           LEFT JOIN exam_results er ON er.user_id = tcm.user_id
+           WHERE tcm.class_id = ?
+           GROUP BY tcm.user_id
+           ORDER BY avg_score DESC""",
+        class_id,
+    )
+
+    member_count = len(members)
+    your_rank = 1
+    your_avg = 0.0
+    class_total = 0.0
+
+    for i, m in enumerate(members):
+        if m["user_id"] == current_user.user_id:
+            your_rank = i + 1
+            your_avg = m["avg_score"]
+        class_total += m["avg_score"]
+
+    class_avg = class_total / member_count if member_count else 0.0
+
+    return {
+        "class_id": class_id,
+        "class_code": membership["class_code"],
+        "teacher_name": membership["teacher_name"],
+        "subject": membership["subject"],
+        "member_count": member_count,
+        "your_rank": your_rank,
+        "your_avg_score": round(your_avg, 2),
+        "class_avg_score": round(class_avg, 2),
+    }
 
 
 # ── Adaptive practice ─────────────────────────────────────────────────────────

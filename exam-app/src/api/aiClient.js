@@ -384,3 +384,11 @@ export const getChartInsights = (payload) =>
 
 export const getPeerStats = () =>
   wrap(client.get('/insights/peer-stats'))
+
+// ── Sprint 19: Teacher class integration ─────────────────────────────────────
+
+export const getClassInfo = () =>
+  wrap(client.get('/teacher-classes/me'))
+
+export const joinTeacherClass = (class_code) =>
+  wrap(client.post('/teacher-classes/join', { class_code }))
