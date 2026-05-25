@@ -33,6 +33,9 @@ import { getExamPhase } from '../utils/examUrgency.js'
 import { generateProgressReport, reportToText } from '../utils/progressReport.js'
 import { getSessionPatterns } from '../utils/sessionPatterns.js'
 import { getAdvisorMessage } from '../utils/advisorMessage.js'
+import { getProvinceNarrative } from '../utils/provinceNarrative.js'
+import { getTierGap } from '../utils/tierGap.js'
+import { getUpgradeContext } from '../utils/upgradeContext.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -269,7 +272,16 @@ export default function Account() {
   const [reminderEnabled, setReminderEnabled] = useState(
     () => !!localStorage.getItem('study_reminder_enabled')
   )
+  const [reminderHour, setReminderHour] = useState(
+    () => {
+      const stored = localStorage.getItem('study_reminder_hour')
+      return stored ? parseInt(stored, 10) : 20
+    }
+  )
   const { preferences: aiPrefs, setPreferences: setAIPrefs, isCustomized: aiIsCustomized } = useAIPreferences()
+
+  // ── Upgrade context inline messages ──
+  const [upgradeCtxVisible, setUpgradeCtxVisible] = useState({}) // featureId → bool
 
   // ── Goal settings form ──
   const [goalExamDate,    setGoalExamDate]    = useState(() => user?.exam_date ?? '')
@@ -395,6 +407,10 @@ export default function Account() {
     examPhase,
     progressReport,
   }), [results, streak, streakPB, sessionPatterns, scoreProjection, goalStatus, weeklyReport, examPhase, progressReport])
+
+  // Sprint 12: province narrative, tier gap, upgrade context
+  const provinceNarrative = useMemo(() => getProvinceNarrative(provinceData), [provinceData])
+  const tierGap = useMemo(() => getTierGap(tier), [tier])
 
   // Daily spend rate (last 7 days from creditLog)
   const runwayDays = useMemo(() => {
@@ -905,25 +921,125 @@ export default function Account() {
                       {provinceLoading ? 'Đang tải...' : 'So sánh'}
                     </button>
                   </div>
-                  {provinceData && (
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="flex flex-col gap-0.5 bg-[#0A0E1A] border border-[#1E2A44] rounded-xl px-4 py-3">
-                        <span className="font-jakarta text-[10px] text-[#475569]">Điểm của bạn</span>
-                        <span className="font-jakarta text-[17px] font-bold text-[#F2A20C]">{provinceData.your_avg}</span>
+                  {provinceData && provinceNarrative && (
+                    <div className="flex flex-col gap-3">
+                      {/* Narrative card */}
+                      <div className={`flex flex-col gap-2 px-4 py-4 rounded-xl border ${
+                        provinceNarrative.sentiment === 'above' ? 'border-emerald-500/40 bg-emerald-500/5' :
+                        provinceNarrative.sentiment === 'below' ? 'border-amber-400/40 bg-amber-400/5' :
+                        'border-[#818CF8]/40 bg-[#818CF8]/5'
+                      }`}>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">{provinceNarrative.headline}</span>
+                          {provinceNarrative.badge && (
+                            <span className={`font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              provinceNarrative.sentiment === 'above' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-400/20 text-amber-400'
+                            }`}>{provinceNarrative.badge}</span>
+                          )}
+                        </div>
+                        <span className="font-jakarta text-[12px] text-[#94A3B8] leading-snug">{provinceNarrative.detail}</span>
                       </div>
-                      <div className="flex flex-col gap-0.5 bg-[#0A0E1A] border border-[#1E2A44] rounded-xl px-4 py-3">
-                        <span className="font-jakarta text-[10px] text-[#475569]">TB {provinceData.province}</span>
-                        <span className="font-jakarta text-[17px] font-bold text-[#94A3B8]">{provinceData.province_avg}</span>
-                      </div>
-                      <div className="flex flex-col gap-0.5 bg-[#0A0E1A] border border-[#1E2A44] rounded-xl px-4 py-3">
-                        <span className="font-jakarta text-[10px] text-[#475569]">Phần trăm xếp</span>
-                        <span className="font-jakarta text-[17px] font-bold text-[#10B981]">
-                          {provinceData.percentile != null ? `Top ${100 - provinceData.percentile}%` : '—'}
-                        </span>
+                      {/* Secondary numbers */}
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="flex flex-col gap-0.5 bg-[#0A0E1A] border border-[#1E2A44] rounded-xl px-4 py-3">
+                          <span className="font-jakarta text-[10px] text-[#475569]">Điểm của bạn</span>
+                          <span className="font-jakarta text-[17px] font-bold text-[#F2A20C]">{provinceData.your_avg}</span>
+                        </div>
+                        <div className="flex flex-col gap-0.5 bg-[#0A0E1A] border border-[#1E2A44] rounded-xl px-4 py-3">
+                          <span className="font-jakarta text-[10px] text-[#475569]">TB {provinceData.province}</span>
+                          <span className="font-jakarta text-[17px] font-bold text-[#94A3B8]">{provinceData.province_avg}</span>
+                        </div>
+                        <div className="flex flex-col gap-0.5 bg-[#0A0E1A] border border-[#1E2A44] rounded-xl px-4 py-3">
+                          <span className="font-jakarta text-[10px] text-[#475569]">Phần trăm xếp</span>
+                          <span className="font-jakarta text-[17px] font-bold text-[#10B981]">
+                            {provinceData.percentile != null ? `Top ${100 - provinceData.percentile}%` : '—'}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   )}
                 </div>
+              </section>
+            )}
+
+            {/* Upgrade context — strategy + province for non-complete users */}
+            {user.subscription_tier !== 'complete' && (
+              <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Tính năng AI nâng cao</span>
+
+                {/* Strategy upgrade context */}
+                {(() => {
+                  const ctx = getUpgradeContext(tier, 'strategy')
+                  return (
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Tư vấn chiến lược thi</span>
+                          <span className="font-jakarta text-[11px] text-[#475569]">AI phân tích điểm yếu và lên kế hoạch ôn thi cá nhân hoá · 1 lần/tháng</span>
+                        </div>
+                        <button
+                          onClick={() => setUpgradeCtxVisible(v => ({ ...v, strategy: !v.strategy }))}
+                          className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-[12px] font-bold transition opacity-60 cursor-not-allowed"
+                          style={{ background: '#1E2A44', color: '#64748B' }}
+                        >
+                          Lấy chiến lược
+                        </button>
+                      </div>
+                      {upgradeCtxVisible.strategy && ctx && (
+                        <div className="flex flex-col gap-2 px-4 py-3 rounded-xl border border-[#818CF8]/30 bg-[#818CF8]/5">
+                          <span className="font-jakarta text-[12px] text-[#A5B4FC] leading-snug">{ctx.pitch}</span>
+                          <button
+                            onClick={() => {
+                              setActiveTab(TAB_AITIA)
+                              setTimeout(() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' }), 100)
+                            }}
+                            className="self-start font-jakarta text-[12px] font-bold text-[#818CF8] hover:text-[#A5B4FC] transition"
+                          >
+                            Nâng cấp →
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+
+                <div className="border-t border-[#1E2A44]" />
+
+                {/* Province upgrade context */}
+                {(() => {
+                  const ctx = getUpgradeContext(tier, 'province')
+                  return (
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">So sánh với tỉnh thành</span>
+                          <span className="font-jakarta text-[11px] text-[#475569]">Xem bạn đứng ở vị trí nào so với học sinh cùng tỉnh · 30 ngày qua</span>
+                        </div>
+                        <button
+                          onClick={() => setUpgradeCtxVisible(v => ({ ...v, province: !v.province }))}
+                          className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-[12px] font-bold transition opacity-60 cursor-not-allowed"
+                          style={{ background: '#1E2A44', color: '#64748B' }}
+                        >
+                          So sánh
+                        </button>
+                      </div>
+                      {upgradeCtxVisible.province && ctx && (
+                        <div className="flex flex-col gap-2 px-4 py-3 rounded-xl border border-[#818CF8]/30 bg-[#818CF8]/5">
+                          <span className="font-jakarta text-[12px] text-[#A5B4FC] leading-snug">{ctx.pitch}</span>
+                          <button
+                            onClick={() => {
+                              setActiveTab(TAB_AITIA)
+                              setTimeout(() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' }), 100)
+                            }}
+                            className="self-start font-jakarta text-[12px] font-bold text-[#818CF8] hover:text-[#A5B4FC] transition"
+                          >
+                            Nâng cấp →
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
               </section>
             )}
 
@@ -1453,8 +1569,29 @@ export default function Account() {
               </section>
             )}
 
+            {/* Tier gap — "Bạn đang bỏ lỡ..." card */}
+            {tierGap && (
+              <section className="bg-[#0D1521] border border-[#818CF8]/30 rounded-2xl p-6 flex flex-col gap-4">
+                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Bạn đang bỏ lỡ...</span>
+                <div className="flex flex-wrap gap-2">
+                  {tierGap.missingFeatures.map(f => (
+                    <span key={f} className="font-jakarta text-[11px] px-3 py-1.5 rounded-full border border-[#818CF8]/40 bg-[#818CF8]/8 text-[#A5B4FC]">
+                      {f}
+                    </span>
+                  ))}
+                </div>
+                <button
+                  onClick={() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="self-start px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold transition"
+                  style={{ background: '#818CF8', color: '#0A0E1A' }}
+                >
+                  {tierGap.ctaLabel} →
+                </button>
+              </section>
+            )}
+
             {/* Plan cards */}
-            <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+            <section id="upgrade-plans" className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Nâng cấp gói</span>
                 <div className="flex items-center gap-1 bg-[#111827] rounded-full p-1">
@@ -1822,6 +1959,24 @@ export default function Account() {
                   <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${reminderEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
                 </button>
               </div>
+              {reminderEnabled && (
+                <div className="flex items-center gap-3 pt-1">
+                  <span className="font-jakarta text-[12px] text-[#94A3B8]">Giờ nhắc nhở:</span>
+                  <select
+                    value={reminderHour}
+                    onChange={e => {
+                      const h = parseInt(e.target.value, 10)
+                      setReminderHour(h)
+                      localStorage.setItem('study_reminder_hour', String(h))
+                    }}
+                    className="px-3 py-1.5 rounded-lg border border-[#1E2A44] bg-[#111827] font-jakarta text-[12px] text-[#F0F4FF] focus:outline-none focus:border-amber-400/60"
+                  >
+                    {Array.from({ length: 18 }, (_, i) => i + 6).map(h => (
+                      <option key={h} value={h}>{h}:00</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </section>
 
             {/* Lớp học */}
