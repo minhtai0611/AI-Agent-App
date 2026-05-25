@@ -19,6 +19,7 @@ import { computeBadges, BADGE_DEFS } from '../utils/badges.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { requestStudyReminder } from '../utils/studyReminder.js'
 import { getInitialTab, formatCreditSessions, TAB_PROGRESS, TAB_ANALYTICS, TAB_AITIA, TAB_SETTINGS } from '../utils/accountHelpers.js'
+import { interpretScoreTrend, interpretTopicRadar, interpretHeatmap, getTodayFocus, getNextMilestone } from '../utils/insights.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -320,6 +321,13 @@ export default function Account() {
     const sorted = [...results].sort((a, b) => new Date(a.finishedAt) - new Date(b.finishedAt)).slice(-10)
     return sorted.map((r, i) => ({ i, score: r.score ?? 0 }))
   }, [results])
+
+  // Insight interpretations (deterministic, no LLM cost)
+  const trendInsight    = useMemo(() => interpretScoreTrend(sparkData), [sparkData])
+  const radarInsight    = useMemo(() => interpretTopicRadar(radarData), [radarData])
+  const heatmapInsight  = useMemo(() => interpretHeatmap(results), [results])
+  const todayFocus      = useMemo(() => getTodayFocus(radarData), [radarData])
+  const nextMilestone   = useMemo(() => getNextMilestone(results, earnedBadgeIds), [results, earnedBadgeIds])
 
   // Daily spend rate (last 7 days from creditLog)
   const runwayDays = useMemo(() => {
@@ -707,6 +715,33 @@ export default function Account() {
               </section>
             )}
 
+            {/* Next milestone */}
+            {nextMilestone && (
+              <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-3">
+                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Mục tiêu tiếp theo</span>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-[#818CF81A] border border-[#818CF833] flex items-center justify-center flex-shrink-0">
+                    <span className="text-[22px]">{nextMilestone.icon}</span>
+                  </div>
+                  <div className="flex flex-col gap-1 flex-1 min-w-0">
+                    <span className="font-fraunces text-[14px] font-bold text-[#F8FAFC]">{nextMilestone.label}</span>
+                    <span className="font-jakarta text-[12px] text-[#94A3B8]">{nextMilestone.progress}</span>
+                    <div className="w-full h-1.5 bg-[#1E2A44] rounded-full overflow-hidden mt-0.5">
+                      <div
+                        className="h-full rounded-full bg-[#818CF8] transition-all duration-700"
+                        style={{ width: `${Math.round(nextMilestone.pct * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                  {nextMilestone.remaining != null && (
+                    <span className="font-jakarta text-[11px] text-[#818CF8] font-semibold flex-shrink-0">
+                      còn {nextMilestone.remaining}
+                    </span>
+                  )}
+                </div>
+              </section>
+            )}
+
             {/* Badges grid */}
             <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
               <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Huy hiệu</span>
@@ -759,6 +794,12 @@ export default function Account() {
                       />
                     </LineChart>
                   </ResponsiveContainer>
+                  {trendInsight && (
+                    <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[#0A0E1A] border border-[#1E2A44]">
+                      <span className="text-[13px] mt-px">💡</span>
+                      <span className="font-jakarta text-[12px] text-[#94A3B8]">{trendInsight}</span>
+                    </div>
+                  )}
                 </section>
 
                 {/* Topic radar */}
@@ -772,6 +813,12 @@ export default function Account() {
                         <Radar dataKey="score" stroke="#F2A20C" fill="#F2A20C" fillOpacity={0.18} />
                       </RadarChart>
                     </ResponsiveContainer>
+                    {radarInsight && (
+                      <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[#0A0E1A] border border-[#1E2A44]">
+                        <span className="text-[13px] mt-px">💡</span>
+                        <span className="font-jakarta text-[12px] text-[#94A3B8]">{radarInsight}</span>
+                      </div>
+                    )}
                   </section>
                 )}
 
@@ -828,7 +875,35 @@ export default function Account() {
                     ))}
                     <span className="font-jakarta text-[11px] text-[#475569]">Nhiều</span>
                   </div>
+                  {heatmapInsight && (
+                    <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[#0A0E1A] border border-[#1E2A44]">
+                      <span className="text-[13px] mt-px">💡</span>
+                      <span className="font-jakarta text-[12px] text-[#94A3B8]">{heatmapInsight}</span>
+                    </div>
+                  )}
                 </section>
+
+                {/* Today's focus */}
+                {todayFocus && (
+                  <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-3">
+                    <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Trọng tâm hôm nay</span>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-[#F2A20C1A] border border-[#F2A20C33] flex items-center justify-center flex-shrink-0">
+                        <span className="text-[22px]">🎯</span>
+                      </div>
+                      <div className="flex flex-col gap-0.5 flex-1">
+                        <span className="font-fraunces text-[16px] font-bold text-[#F8FAFC]">{todayFocus.topic}</span>
+                        <span className="font-jakarta text-[12px] text-[#94A3B8]">Độ chính xác hiện tại: <span className="text-[#F2A20C] font-semibold">{todayFocus.score}%</span></span>
+                      </div>
+                      <button
+                        onClick={() => navigate('/exam-select')}
+                        className="px-3 py-1.5 rounded-lg bg-[#F2A20C] text-[#0A0E1A] font-jakarta text-[12px] font-semibold hover:bg-[#F59E0B] transition-colors flex-shrink-0"
+                      >
+                        Luyện ngay
+                      </button>
+                    </div>
+                  </section>
+                )}
               </>
             )}
           </>
