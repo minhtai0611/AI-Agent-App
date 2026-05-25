@@ -22,6 +22,7 @@ import { getInitialTab, formatCreditSessions, TAB_PROGRESS, TAB_ANALYTICS, TAB_A
 import { interpretScoreTrend, interpretTopicRadar, interpretHeatmap, getTodayFocus, getNextMilestone } from '../utils/insights.js'
 import { getMasteryProgress, MASTERY_TIERS } from '../utils/masteryRank.js'
 import { generateWeeklyReport } from '../utils/weeklyReport.js'
+import { useAIPreferences } from '../hooks/useAIPreferences.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -258,6 +259,7 @@ export default function Account() {
   const [reminderEnabled, setReminderEnabled] = useState(
     () => !!localStorage.getItem('study_reminder_enabled')
   )
+  const { preferences: aiPrefs, setPreferences: setAIPrefs, isCustomized: aiIsCustomized } = useAIPreferences()
 
   // ── Heatmap scroll ref ──
   const heatScrollRef = useRef(null)
@@ -1181,6 +1183,96 @@ export default function Account() {
         {/* ════════════════ CÀI ĐẶT (via gear icon) ════════════════ */}
         {activeTab === TAB_SETTINGS && (
           <>
+            {/* AI Learning Preferences */}
+            <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
+              <div className="flex items-center gap-3">
+                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Tùy chỉnh AI học tập</span>
+                {aiIsCustomized && (
+                  <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#818CF820] text-[#818CF8] border border-[#818CF833]">
+                    Đã tùy chỉnh
+                  </span>
+                )}
+              </div>
+
+              {/* hint_style */}
+              <div className="flex flex-col gap-2">
+                <span className="font-jakarta text-[12px] font-semibold text-[#94A3B8]">Phong cách gợi ý</span>
+                <div className="flex gap-2 flex-wrap">
+                  {[
+                    { v: 'socratic', label: 'Socratic',   desc: 'Đặt câu hỏi gợi mở' },
+                    { v: 'direct',   label: 'Trực tiếp',  desc: 'Giải thích rõ ràng' },
+                    { v: 'visual',   label: 'Trực quan',  desc: 'Từng bước có sơ đồ' },
+                  ].map(({ v, label, desc }) => (
+                    <button
+                      key={v}
+                      onClick={() => setAIPrefs({ ...aiPrefs, hint_style: v })}
+                      className={`flex flex-col items-start px-4 py-2.5 rounded-xl border transition text-left ${
+                        aiPrefs.hint_style === v
+                          ? 'border-[#818CF8] bg-[#818CF81A] text-[#F8FAFC]'
+                          : 'border-[#1E2A44] bg-[#0A0E1A] text-[#64748B] hover:border-[#818CF850]'
+                      }`}
+                    >
+                      <span className="font-jakarta text-[12px] font-semibold">{label}</span>
+                      <span className="font-jakarta text-[10px] mt-0.5">{desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* explanation_depth */}
+              <div className="flex flex-col gap-2">
+                <span className="font-jakarta text-[12px] font-semibold text-[#94A3B8]">Độ chi tiết giải thích</span>
+                <div className="flex gap-2 flex-wrap">
+                  {[
+                    { v: 'brief',        label: 'Ngắn gọn',    desc: '1–2 câu' },
+                    { v: 'detailed',     label: 'Chi tiết',     desc: 'Giải thích rõ ràng' },
+                    { v: 'step-by-step', label: 'Từng bước',    desc: 'Phân tích từng phần' },
+                  ].map(({ v, label, desc }) => (
+                    <button
+                      key={v}
+                      onClick={() => setAIPrefs({ ...aiPrefs, explanation_depth: v })}
+                      className={`flex flex-col items-start px-4 py-2.5 rounded-xl border transition text-left ${
+                        aiPrefs.explanation_depth === v
+                          ? 'border-[#10B981] bg-[#10B9811A] text-[#F8FAFC]'
+                          : 'border-[#1E2A44] bg-[#0A0E1A] text-[#64748B] hover:border-[#10B98150]'
+                      }`}
+                    >
+                      <span className="font-jakarta text-[12px] font-semibold">{label}</span>
+                      <span className="font-jakarta text-[10px] mt-0.5">{desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* language_mix */}
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">Pha tiếng Anh thuật ngữ toán</span>
+                  <span className="font-jakarta text-[11px] text-[#64748B]">AI có thể dùng thuật ngữ toán tiếng Anh khi cần rõ hơn.</span>
+                </div>
+                <button
+                  onClick={() => setAIPrefs({ ...aiPrefs, language_mix: aiPrefs.language_mix === 'mixed' ? 'vietnamese-only' : 'mixed' })}
+                  className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${aiPrefs.language_mix === 'mixed' ? 'bg-[#818CF8]' : 'bg-[#1E2A44]'}`}
+                >
+                  <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${aiPrefs.language_mix === 'mixed' ? 'translate-x-7' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
+              {/* weak_topic_focus */}
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">Ưu tiên chủ đề yếu</span>
+                  <span className="font-jakarta text-[11px] text-[#64748B]">AI tự động nhấn mạnh vào khu vực bạn còn yếu nhất.</span>
+                </div>
+                <button
+                  onClick={() => setAIPrefs({ ...aiPrefs, weak_topic_focus: !aiPrefs.weak_topic_focus })}
+                  className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${aiPrefs.weak_topic_focus ? 'bg-[#F2A20C]' : 'bg-[#1E2A44]'}`}
+                >
+                  <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${aiPrefs.weak_topic_focus ? 'translate-x-7' : 'translate-x-1'}`} />
+                </button>
+              </div>
+            </section>
+
             {/* Account status */}
             <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
               <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Trạng thái tài khoản</span>
