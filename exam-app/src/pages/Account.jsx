@@ -27,6 +27,7 @@ import { classifyLearner } from '../utils/learnerArchetype.js'
 import { getLearnerTimeline } from '../utils/learnerTimeline.js'
 import { getScoreProjection } from '../utils/scoreProjection.js'
 import { useAIPreferences } from '../hooks/useAIPreferences.js'
+import { getTopupRecommendation, getTrialUrgency, getAnnualSavingsDays } from '../utils/monetization.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -354,6 +355,12 @@ export default function Account() {
   const archetype       = useMemo(() => classifyLearner(results), [results])
   const timeline        = useMemo(() => getLearnerTimeline(results), [results])
   const scoreProjection = useMemo(() => getScoreProjection(sparkData, daysUntil), [sparkData, daysUntil])
+
+  // Sprint 6: monetization intelligence
+  const topupRec      = useMemo(() => getTopupRecommendation(creditLog, user.credits_balance ?? 0, TOPUP_PACKAGES), [creditLog, user.credits_balance])
+  const trialUrgency  = useMemo(() => getTrialUrgency(user), [user])
+  const studentSavingsDays  = useMemo(() => getAnnualSavingsDays(29000, 261000), [])
+  const completeSavingsDays = useMemo(() => getAnnualSavingsDays(59000, 531000), [])
 
   // Daily spend rate (last 7 days from creditLog)
   const runwayDays = useMemo(() => {
@@ -1174,6 +1181,32 @@ export default function Account() {
               </div>
             )}
 
+            {/* Trial urgency banner */}
+            {trialUrgency && (
+              <section className="border rounded-2xl p-5 flex flex-col gap-3"
+                style={{ background: 'linear-gradient(135deg, #1A0E0A 0%, #0D1521 100%)', borderColor: trialUrgency.daysLeft <= 1 ? '#EF444460' : '#F2A20C60' }}>
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <div className="flex flex-col gap-1">
+                    <span className="font-fraunces text-[14px] font-semibold text-[#F0F4FF]">{trialUrgency.message}</span>
+                    <span className="font-jakarta text-[12px] text-[#94A3B8]">Sau khi hết hạn bạn sẽ mất quyền truy cập vào:</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    {Array.from({ length: 7 }).map((_, i) => (
+                      <div key={i} className="w-2 h-2 rounded-full transition-colors"
+                        style={{ background: i < (7 - trialUrgency.daysLeft) ? '#F2A20C' : '#1E2A44' }} />
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {trialUrgency.lossItems.map(item => (
+                    <span key={item} className="font-jakarta text-[11px] px-2.5 py-1 rounded-full bg-[#F2A20C15] border border-[#F2A20C30] text-[#F2A20C]">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* Plan cards */}
             <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center justify-between flex-wrap gap-3">
@@ -1216,7 +1249,21 @@ export default function Account() {
                           ))}
                         </div>
                       )}
-                      {plan.effective && <span className="font-jakarta text-[11px] text-[#475569]">≈ {plan.effective}</span>}
+                      {plan.effective && (
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-jakarta text-[11px] text-[#475569]">≈ {plan.effective}</span>
+                          {billing === 'annual' && plan.tier === 'student' && studentSavingsDays > 0 && (
+                            <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
+                              +{studentSavingsDays} ngày học tập AI miễn phí
+                            </span>
+                          )}
+                          {billing === 'annual' && plan.tier === 'complete' && completeSavingsDays > 0 && (
+                            <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
+                              +{completeSavingsDays} ngày học tập AI miễn phí
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
                       <span className="font-fraunces text-[15px] font-bold text-[#F0F4FF]">{plan.price}</span>
@@ -1239,19 +1286,58 @@ export default function Account() {
             {/* Top-up packages */}
             <section id="topup" className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
               <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Nạp thêm Tia</span>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {TOPUP_PACKAGES.map(pkg => (
+
+              {/* Personalized recommendation */}
+              {topupRec ? (
+                <div className="flex flex-col gap-3">
+                  <p className="font-jakarta text-[12px] text-[#94A3B8]">{topupRec.reasoning}</p>
                   <button
-                    key={pkg.price}
-                    onClick={() => setTopupPkg(pkg)}
-                    className="flex flex-col items-center gap-1.5 px-4 py-4 rounded-xl border border-[#1E2A44] bg-[#111827] hover:border-amber-400/50 hover:bg-amber-400/5 transition"
+                    onClick={() => setTopupPkg(topupRec.pack)}
+                    className="flex items-center justify-between gap-4 px-5 py-4 rounded-xl border border-amber-400/50 bg-amber-400/5 hover:bg-amber-400/10 transition w-full text-left"
                   >
-                    <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#1E2A44] text-[#94A3B8]">{pkg.label}</span>
-                    <span className="font-fraunces text-[18px] font-bold text-amber-400">⚡ {pkg.credits}</span>
-                    <span className="font-jakarta text-[12px] text-[#F0F4FF]">{pkg.price}</span>
+                    <div className="flex flex-col gap-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400">{topupRec.pack.label}</span>
+                        <span className="font-jakarta text-[11px] text-[#64748B]">Gợi ý cho bạn</span>
+                      </div>
+                      <span className="font-fraunces text-[18px] font-bold text-amber-400">⚡ {topupRec.pack.credits} Tia</span>
+                      <span className="font-jakarta text-[11px] text-[#64748B]">Đủ cho ~{topupRec.coversDays} ngày học tập AI</span>
+                    </div>
+                    <span className="font-fraunces text-[16px] font-bold text-[#F0F4FF] flex-shrink-0">{topupRec.pack.price}</span>
                   </button>
-                ))}
-              </div>
+                  <button
+                    onClick={() => {}}
+                    className="font-jakarta text-[11px] text-[#475569] hover:text-[#64748B] transition text-center"
+                    onClickCapture={(e) => { e.preventDefault(); e.stopPropagation() }}
+                  >
+                    Xem tất cả gói →
+                  </button>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 hidden" aria-hidden="true">
+                    {TOPUP_PACKAGES.map(pkg => (
+                      <button key={pkg.price} onClick={() => setTopupPkg(pkg)}
+                        className="flex flex-col items-center gap-1.5 px-4 py-4 rounded-xl border border-[#1E2A44] bg-[#111827] hover:border-amber-400/50 hover:bg-amber-400/5 transition">
+                        <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#1E2A44] text-[#94A3B8]">{pkg.label}</span>
+                        <span className="font-fraunces text-[18px] font-bold text-amber-400">⚡ {pkg.credits}</span>
+                        <span className="font-jakarta text-[12px] text-[#F0F4FF]">{pkg.price}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {TOPUP_PACKAGES.map(pkg => (
+                    <button
+                      key={pkg.price}
+                      onClick={() => setTopupPkg(pkg)}
+                      className="flex flex-col items-center gap-1.5 px-4 py-4 rounded-xl border border-[#1E2A44] bg-[#111827] hover:border-amber-400/50 hover:bg-amber-400/5 transition"
+                    >
+                      <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#1E2A44] text-[#94A3B8]">{pkg.label}</span>
+                      <span className="font-fraunces text-[18px] font-bold text-amber-400">⚡ {pkg.credits}</span>
+                      <span className="font-jakarta text-[12px] text-[#F0F4FF]">{pkg.price}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </section>
 
             {/* Credit log */}
