@@ -18,6 +18,48 @@ export function computeStreak(results) {
   return streak
 }
 
+/**
+ * Returns recovery status when a student missed exactly 1 day.
+ *
+ * @param {string|null} lastExamDate - ISO date string (YYYY-MM-DD or full ISO)
+ * @param {number} currentStreak - current streak count
+ * @param {number} todayExamCount - number of exams completed today
+ * @returns {null|{canRecover: boolean, sessionsNeeded: number, reason: string}}
+ */
+export function getStreakRecoveryStatus(lastExamDate, currentStreak, todayExamCount) {
+  if (!lastExamDate || currentStreak === 0) return null
+
+  const today = new Date()
+  const todayStr = today.toISOString().slice(0, 10)
+  const lastStr = lastExamDate.slice(0, 10)
+  const last = new Date(lastStr + 'T00:00:00Z')
+  const todayDate = new Date(todayStr + 'T00:00:00Z')
+  const diffDays = Math.round((todayDate - last) / 86400000)
+
+  const sessionsNeeded = Math.max(0, 2 - todayExamCount)
+
+  if (diffDays === 2) {
+    if (todayExamCount >= 2) {
+      return {
+        canRecover: false,
+        sessionsNeeded: 0,
+        reason: 'Streak đã được khôi phục!',
+      }
+    }
+    return {
+      canRecover: true,
+      sessionsNeeded,
+      reason: `Bạn vắng 1 ngày — làm thêm ${sessionsNeeded} bài để khôi phục streak!`,
+    }
+  }
+
+  return {
+    canRecover: false,
+    sessionsNeeded,
+    reason: diffDays === 1 ? 'Không có ngày bị bỏ lỡ.' : 'Đã quá hạn khôi phục streak.',
+  }
+}
+
 export function computeStreakPersonalBest(results) {
   if (!results || results.length === 0) return 0
   const days = [...new Set(

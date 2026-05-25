@@ -413,6 +413,8 @@ _SCHEMA_DDL = [
     )""",
     "CREATE INDEX IF NOT EXISTS idx_spr_requester ON study_partner_requests(requester_id, status)",
     "CREATE INDEX IF NOT EXISTS idx_spr_partner ON study_partner_requests(partner_id, status)",
+    # Streak mechanics — weekly freeze replenishment tracking
+    "ALTER TABLE users ADD COLUMN streak_freeze_reset_at TEXT DEFAULT NULL",
 ]
 
 
@@ -2048,6 +2050,43 @@ async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
 
 # ── User endpoints ────────────────────────────────────────────────────────────
 
+# Weekly streak freeze quota by tier
+_FREEZE_QUOTA = {"basic": 0, "student": 1, "complete": 3}
+
+
+async def _replenish_streak_freeze(pool, user_id: int, tier: str, current_reset_at) -> int | None:
+    """Top up streak_freeze_count to the weekly quota if 7+ days have elapsed.
+
+    Returns the new freeze count if a replenishment occurred, else None.
+    """
+    quota = _FREEZE_QUOTA.get(tier, 0)
+    if quota == 0:
+        return None
+
+    now = datetime.utcnow()
+    should_replenish = (current_reset_at is None)
+    if not should_replenish and current_reset_at:
+        try:
+            last_reset = datetime.fromisoformat(str(current_reset_at))
+            should_replenish = (now - last_reset).days >= 7
+        except (ValueError, TypeError):
+            should_replenish = True
+
+    if not should_replenish:
+        return None
+
+    await pool.execute(
+        """UPDATE users
+           SET streak_freeze_count = $1,
+               streak_freeze_reset_at = $2
+           WHERE id = $3""",
+        quota,
+        now.strftime("%Y-%m-%dT%H:%M:%S"),
+        user_id,
+    )
+    return quota
+
+
 @app.get("/users/me")
 async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Depends(get_pool)):
     row = await pool.fetchrow(
@@ -2059,13 +2098,22 @@ async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Dep
                   trial_used, trial_expires_at,
                   is_deactivated, is_locked, lock_reason,
                   target_school, exam_date, weekly_study_hours, extended_onboarding_done,
-                  streak_freeze_count
+                  streak_freeze_count, streak_freeze_reset_at
            FROM users WHERE id = $1""",
         current_user.user_id,
     )
     if not row:
         raise HTTPException(status_code=404, detail="User not found")
     row = dict(row)
+    # Weekly streak freeze replenishment
+    new_freeze_count = await _replenish_streak_freeze(
+        pool,
+        current_user.user_id,
+        row.get("subscription_tier", "basic"),
+        row.get("streak_freeze_reset_at"),
+    )
+    if new_freeze_count is not None:
+        row["streak_freeze_count"] = new_freeze_count
     # Enforce trial expiry: downgrade to basic if 7-day trial has elapsed
     if row.get("trial_used") and row.get("subscription_tier") == "student" and row.get("trial_expires_at"):
         from datetime import datetime, timezone
@@ -3092,14 +3140,14 @@ class HistoryEntry(BaseModel):
     created_at: str | None = None
 
 
-@app.post("/users/me/history", status_code=204)
+@app.post("/users/me/history")
 async def post_history(
     entries: list[HistoryEntry],
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
     if not entries:
-        return
+        return {"streak_recovered": False}
     for entry in entries:
         if entry.score is not None and not (0 <= entry.score <= 10):
             raise HTTPException(status_code=422, detail=f"score must be between 0 and 10, got {entry.score}")
@@ -3107,6 +3155,19 @@ async def post_history(
             acc = entry.payload.get("accuracy")
             if acc is not None and not (0 <= float(acc) <= 1):
                 raise HTTPException(status_code=422, detail=f"accuracy must be between 0 and 1, got {acc}")
+
+    # Streak recovery: check BEFORE inserting new results
+    user_streak_row = await pool.fetchrow(
+        "SELECT streak_freeze_count FROM users WHERE id = $1",
+        current_user.user_id,
+    )
+    # Get the last exam date before the new entries
+    last_exam_row = await pool.fetchrow(
+        "SELECT created_at FROM exam_results WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1",
+        current_user.user_id,
+    )
+    today_str = datetime.utcnow().strftime("%Y-%m-%d")
+
     async with pool.acquire() as conn:
         for entry in entries:
             await conn.execute(
@@ -3141,6 +3202,43 @@ async def post_history(
                     entry.exam_id,
                     entry.score,
                 )
+
+    # Streak recovery check: missed exactly 1 day + 2+ exams today after insert
+    streak_recovered = False
+    new_streak = None
+    if last_exam_row and last_exam_row["created_at"]:
+        last_date_str = str(last_exam_row["created_at"])[:10]
+        try:
+            last_date = datetime.strptime(last_date_str, "%Y-%m-%d")
+            today_date = datetime.strptime(today_str, "%Y-%m-%d")
+            gap_days = (today_date - last_date).days
+        except (ValueError, TypeError):
+            gap_days = 0
+
+        if gap_days == 2:
+            # Count today's results after the insert
+            today_count_row = await pool.fetchrow(
+                """SELECT COUNT(*) AS cnt FROM exam_results
+                   WHERE user_id = $1 AND created_at >= $2""",
+                current_user.user_id,
+                today_str + "T00:00:00",
+            )
+            today_count = today_count_row["cnt"] if today_count_row else 0
+            if today_count >= 2:
+                # Fetch current streak from learning_sessions (best proxy)
+                # Use exam_results count of consecutive days as an approximation
+                streak_count_row = await pool.fetchrow(
+                    """SELECT COUNT(DISTINCT substr(created_at, 1, 10)) AS cnt
+                       FROM exam_results WHERE user_id = $1
+                       AND created_at >= datetime('now', '-30 days')""",
+                    current_user.user_id,
+                )
+                base_streak = streak_count_row["cnt"] if streak_count_row else 0
+                # Restore: +1 for missed day +1 for today (both count)
+                new_streak = base_streak
+                streak_recovered = True
+
+    return {"streak_recovered": streak_recovered, "streak": new_streak}
 
 
 @app.get("/results/{exam_id}/percentile")
