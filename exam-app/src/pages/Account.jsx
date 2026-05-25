@@ -30,6 +30,7 @@ import { useAIPreferences } from '../hooks/useAIPreferences.js'
 import { getTopupRecommendation, getTrialUrgency, getAnnualSavingsDays } from '../utils/monetization.js'
 import { getGoalStatus } from '../utils/goalAlignment.js'
 import { getExamPhase } from '../utils/examUrgency.js'
+import { generateProgressReport, reportToText } from '../utils/progressReport.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -370,6 +371,12 @@ export default function Account() {
 
   // Sprint 7: goal-aligned intelligence
   const goalStatus = useMemo(() => getGoalStatus(user, sparkData), [user, sparkData])
+
+  // Sprint 9: progress share report
+  const progressReport = useMemo(
+    () => generateProgressReport(user, results, streak, streakPB, radarData),
+    [user, results, streak, streakPB, radarData]
+  )
 
   // Daily spend rate (last 7 days from creditLog)
   const runwayDays = useMemo(() => {
@@ -945,6 +952,70 @@ export default function Account() {
                 })}
               </div>
             </section>
+
+            {/* Progress share card */}
+            {progressReport && (
+              <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Báo cáo học tập</span>
+                  <button
+                    onClick={() => {
+                      const text = reportToText(progressReport)
+                      if (navigator.share) {
+                        navigator.share({ title: 'Báo cáo học tập Zenith', text }).catch(() => {})
+                      } else {
+                        navigator.clipboard?.writeText(text)
+                          .then(() => toast.success('Đã sao chép báo cáo'))
+                          .catch(() => {})
+                      }
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-jakarta text-[12px] font-semibold bg-[#818CF820] text-[#818CF8] border border-[#818CF833] hover:bg-[#818CF830] transition"
+                  >
+                    <span>📤</span> Chia sẻ
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="flex flex-col items-center gap-0.5 px-3 py-3 rounded-xl bg-[#0A0E1A] border border-[#1E2A44]">
+                    <span className="font-fraunces text-[20px] font-bold text-[#F0F4FF]">{progressReport.totalExams}</span>
+                    <span className="font-jakarta text-[10px] text-[#64748B]">Bài thi</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5 px-3 py-3 rounded-xl bg-[#0A0E1A] border border-[#1E2A44]">
+                    <span className="font-fraunces text-[20px] font-bold text-amber-400">{progressReport.avgScore}</span>
+                    <span className="font-jakarta text-[10px] text-[#64748B]">Điểm TB</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5 px-3 py-3 rounded-xl bg-[#0A0E1A] border border-[#1E2A44]">
+                    <span className={`font-fraunces text-[20px] font-bold ${progressReport.scoreImprovement > 0 ? 'text-emerald-400' : progressReport.scoreImprovement < 0 ? 'text-red-400' : 'text-[#F0F4FF]'}`}>
+                      {progressReport.scoreImprovement > 0 ? '+' : ''}{progressReport.scoreImprovement}
+                    </span>
+                    <span className="font-jakarta text-[10px] text-[#64748B]">Cải thiện</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5 px-3 py-3 rounded-xl bg-[#0A0E1A] border border-[#1E2A44]">
+                    <span className="font-fraunces text-[20px] font-bold text-[#F0F4FF]">{progressReport.streakDays}</span>
+                    <span className="font-jakarta text-[10px] text-[#64748B]">Streak ngày</span>
+                  </div>
+                </div>
+                {progressReport.topTopics.length > 0 && (
+                  <div className="flex flex-col gap-1.5">
+                    <span className="font-jakarta text-[11px] font-semibold text-[#94A3B8]">Điểm mạnh</span>
+                    <div className="flex flex-wrap gap-2">
+                      {progressReport.topTopics.map(t => (
+                        <span key={t} className="font-jakarta text-[11px] px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {progressReport.weakTopics.length > 0 && (
+                  <div className="flex flex-col gap-1.5">
+                    <span className="font-jakarta text-[11px] font-semibold text-[#94A3B8]">Cần ôn thêm</span>
+                    <div className="flex flex-wrap gap-2">
+                      {progressReport.weakTopics.map(t => (
+                        <span key={t} className="font-jakarta text-[11px] px-2.5 py-1 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-400">{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Learner timeline */}
             {timeline.length > 0 && (
