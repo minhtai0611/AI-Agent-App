@@ -402,3 +402,17 @@ export const getClassInfo = () =>
 
 export const joinTeacherClass = (class_code) =>
   wrap(client.post('/teacher-classes/join', { class_code }))
+
+// ── Sprint 21: MOAT 5 — Study Partner Matching ────────────────────────────────
+
+export const getPartnerCandidates = () =>
+  wrap(client.get('/study-partners/candidates'))
+
+export const connectPartner = (partner_id) =>
+  wrap(client.post('/study-partners/connect', { partner_id }))
+
+export const getMyPartners = () =>
+  wrap(client.get('/study-partners/me'))
+
+export const respondToPartner = (request_id, action) =>
+  wrap(client.post('/study-partners/respond', { request_id, action }))

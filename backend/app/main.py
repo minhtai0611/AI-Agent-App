@@ -402,6 +402,17 @@ _SCHEMA_DDL = [
         exam_count_at_snapshot INTEGER DEFAULT 0
     )""",
     "CREATE INDEX IF NOT EXISTS idx_learner_memory_user_topic ON learner_memory(user_id, topic_id, snapshot_date)",
+    # Sprint 21 — MOAT 5: Study Partner Matching
+    """CREATE TABLE IF NOT EXISTS study_partner_requests (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        requester_id INTEGER REFERENCES users(id),
+        partner_id INTEGER REFERENCES users(id),
+        status TEXT DEFAULT 'pending',
+        created_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(requester_id, partner_id)
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_spr_requester ON study_partner_requests(requester_id, status)",
+    "CREATE INDEX IF NOT EXISTS idx_spr_partner ON study_partner_requests(partner_id, status)",
 ]
 
 
@@ -3542,6 +3553,216 @@ async def teacher_class_me(
         "your_avg_score": round(your_avg, 2),
         "class_avg_score": round(class_avg, 2),
     }
+
+
+# ── MOAT 5: Study Partner Matching ───────────────────────────────────────────
+
+class ConnectPartnerRequest(BaseModel):
+    partner_id: int
+
+class RespondPartnerRequest(BaseModel):
+    request_id: int
+    action: str  # 'accept' | 'decline'
+
+
+def _partner_display_name(province: str | None) -> str:
+    return f"Học sinh {province}" if province else "Học sinh"
+
+
+@app.get("/study-partners/candidates")
+async def get_partner_candidates(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Find up to 3 study partner candidates. Complete tier only. FREE."""
+    user_row = await pool.fetchrow(
+        "SELECT grade, province, subscription_tier FROM users WHERE id = ?",
+        current_user.user_id,
+    )
+    if not user_row or user_row["subscription_tier"] != "complete":
+        raise HTTPException(status_code=403, detail="complete_tier_required")
+
+    grade = user_row["grade"]
+    province = user_row["province"]
+
+    # Compute current user's avg score
+    self_avg_row = await pool.fetchrow(
+        "SELECT AVG(score) AS avg FROM exam_results WHERE user_id = ? AND score IS NOT NULL",
+        current_user.user_id,
+    )
+    self_avg = self_avg_row["avg"] if self_avg_row and self_avg_row["avg"] is not None else None
+
+    # Build province filter clause
+    if province:
+        province_clause = "AND u.province = ?"
+        province_params = [province]
+    else:
+        province_clause = ""
+        province_params = []
+
+    query = f"""
+        SELECT
+            u.id AS partner_id,
+            u.province,
+            u.grade,
+            AVG(er.score) AS avg_score,
+            COUNT(er.result_id) AS exam_count
+        FROM users u
+        LEFT JOIN exam_results er ON er.user_id = u.id AND er.score IS NOT NULL
+        WHERE u.grade = ?
+          {province_clause}
+          AND u.subscription_tier IN ('student', 'complete')
+          AND u.id != ?
+          AND u.id NOT IN (
+              SELECT partner_id FROM study_partner_requests
+              WHERE requester_id = ? AND status = 'accepted'
+              UNION
+              SELECT requester_id FROM study_partner_requests
+              WHERE partner_id = ? AND status = 'accepted'
+          )
+        GROUP BY u.id
+        LIMIT 20
+    """
+    params = [grade] + province_params + [current_user.user_id, current_user.user_id, current_user.user_id]
+    rows = await pool.fetch(query, *params)
+
+    # Sort by closeness to self_avg; if no score data, keep original order
+    def _sort_key(r):
+        avg = r["avg_score"]
+        if self_avg is not None and avg is not None:
+            return abs(avg - self_avg)
+        return 0
+
+    sorted_rows = sorted(rows, key=_sort_key)[:3]
+
+    candidates = []
+    for r in sorted_rows:
+        avg = r["avg_score"]
+        score_diff = round(abs(avg - self_avg), 1) if (avg is not None and self_avg is not None) else None
+        candidates.append({
+            "partner_id": r["partner_id"],
+            "display_name": _partner_display_name(r["province"]),
+            "grade": r["grade"],
+            "province": r["province"],
+            "avg_score": round(avg, 1) if avg is not None else None,
+            "exam_count": r["exam_count"] or 0,
+            "score_diff": score_diff,
+        })
+
+    return {"candidates": candidates}
+
+
+@app.post("/study-partners/connect")
+async def connect_partner(
+    req: ConnectPartnerRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Send a study partner connection request. Auth required."""
+    partner = await pool.fetchrow("SELECT id FROM users WHERE id = ?", req.partner_id)
+    if not partner:
+        raise HTTPException(status_code=404, detail="partner_not_found")
+
+    await pool.execute(
+        "INSERT OR IGNORE INTO study_partner_requests (requester_id, partner_id, status) VALUES (?, ?, 'pending')",
+        current_user.user_id, req.partner_id,
+    )
+    return {"status": "pending", "partner_id": req.partner_id}
+
+
+@app.get("/study-partners/me")
+async def get_my_partners(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Return accepted connections + pending requests for current user."""
+    uid = current_user.user_id
+
+    # Accepted: either requester or partner side
+    accepted_rows = await pool.fetch(
+        """SELECT spr.id AS request_id,
+                  CASE WHEN spr.requester_id = ? THEN spr.partner_id ELSE spr.requester_id END AS partner_id,
+                  u.grade, u.province,
+                  AVG(er.score) AS avg_score
+           FROM study_partner_requests spr
+           JOIN users u ON u.id = CASE WHEN spr.requester_id = ? THEN spr.partner_id ELSE spr.requester_id END
+           LEFT JOIN exam_results er ON er.user_id = u.id AND er.score IS NOT NULL
+           WHERE (spr.requester_id = ? OR spr.partner_id = ?) AND spr.status = 'accepted'
+           GROUP BY spr.id, partner_id, u.grade, u.province""",
+        uid, uid, uid, uid,
+    )
+
+    # Pending sent
+    pending_sent_rows = await pool.fetch(
+        """SELECT spr.partner_id, u.grade, u.province
+           FROM study_partner_requests spr
+           JOIN users u ON u.id = spr.partner_id
+           WHERE spr.requester_id = ? AND spr.status = 'pending'""",
+        uid,
+    )
+
+    # Pending received
+    pending_received_rows = await pool.fetch(
+        """SELECT spr.id AS request_id, spr.requester_id AS partner_id, u.grade, u.province
+           FROM study_partner_requests spr
+           JOIN users u ON u.id = spr.requester_id
+           WHERE spr.partner_id = ? AND spr.status = 'pending'""",
+        uid,
+    )
+
+    def _fmt_accepted(r):
+        avg = r["avg_score"]
+        return {
+            "partner_id": r["partner_id"],
+            "display_name": _partner_display_name(r["province"]),
+            "grade": r["grade"],
+            "province": r["province"],
+            "avg_score": round(avg, 1) if avg is not None else None,
+        }
+
+    def _fmt_pending(r):
+        return {
+            "partner_id": r["partner_id"],
+            "display_name": _partner_display_name(r["province"]),
+        }
+
+    def _fmt_received(r):
+        return {
+            "partner_id": r["partner_id"],
+            "display_name": _partner_display_name(r["province"]),
+            "request_id": r["request_id"],
+        }
+
+    return {
+        "accepted": [_fmt_accepted(r) for r in accepted_rows],
+        "pending_sent": [_fmt_pending(r) for r in pending_sent_rows],
+        "pending_received": [_fmt_received(r) for r in pending_received_rows],
+    }
+
+
+@app.post("/study-partners/respond")
+async def respond_to_partner(
+    req: RespondPartnerRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Accept or decline an incoming partner request."""
+    if req.action not in ("accept", "decline"):
+        raise HTTPException(status_code=422, detail="action must be 'accept' or 'decline'")
+
+    row = await pool.fetchrow(
+        "SELECT id FROM study_partner_requests WHERE id = ? AND partner_id = ?",
+        req.request_id, current_user.user_id,
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="request_not_found")
+
+    new_status = "accepted" if req.action == "accept" else "declined"
+    await pool.execute(
+        "UPDATE study_partner_requests SET status = ? WHERE id = ?",
+        new_status, req.request_id,
+    )
+    return {"status": new_status, "request_id": req.request_id}
 
 
 # ── Adaptive practice ─────────────────────────────────────────────────────────

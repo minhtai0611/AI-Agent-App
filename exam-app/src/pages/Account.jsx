@@ -8,7 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { loadQuestions } from '../api/index.js'
-import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getClassInfo, joinTeacherClass, getMemoryData, getWeeklyInsight } from '../api/aiClient.js'
+import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getClassInfo, joinTeacherClass, getMemoryData, getWeeklyInsight, getPartnerCandidates, connectPartner, getMyPartners, respondToPartner } from '../api/aiClient.js'
 import { getClassRankDisplay } from '../utils/classRank.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
@@ -42,6 +42,7 @@ import { getStreakFreezeInfo } from '../utils/streakFreeze.js'
 import { getTopicNodes, getPriorityTopics } from '../utils/learningGraph.js'
 import { getSocialProofMessage } from '../utils/socialProof.js'
 import { getMemoryInsights } from '../utils/learnerMemory.js'
+import { canUseStudyPartners, getPartnerMatchLabel } from '../utils/studyPartner.js'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -324,6 +325,12 @@ export default function Account() {
   const [weeklyAISummaryLoading, setWeeklyAISummaryLoading] = useState(false)
   const weeklyAISummaryFetched = useRef(false)
 
+  // ── Study partner state (Sprint 21 / MOAT 5) ──
+  const [partnerCandidates, setPartnerCandidates] = useState(null)
+  const [myPartners,        setMyPartners]        = useState(null)
+  const [partnerLoading,    setPartnerLoading]    = useState(false)
+  const partnerFetched = useRef(false)
+
   const toast = useToast()
 
   // ── Class rank display (Sprint 19) ──
@@ -443,6 +450,21 @@ export default function Account() {
       .then(({ data }) => { if (data?.summary) setWeeklyAISummary(data.summary) })
       .finally(() => setWeeklyAISummaryLoading(false))
   }, [activeTab, weeklyReport, results, streak])
+
+  // Fetch study partner data once when AITIA tab opens (complete tier only)
+  useEffect(() => {
+    if (activeTab !== TAB_AITIA) return
+    if (!canUseStudyPartners(user?.subscription_tier)) return
+    if (partnerFetched.current) return
+    partnerFetched.current = true
+    setPartnerLoading(true)
+    Promise.all([getPartnerCandidates(), getMyPartners()])
+      .then(([cRes, mRes]) => {
+        if (cRes.data) setPartnerCandidates(cRes.data.candidates ?? [])
+        if (mRes.data) setMyPartners(mRes.data)
+      })
+      .finally(() => setPartnerLoading(false))
+  }, [activeTab, user?.subscription_tier])
 
   // ── Loading skeleton ──
   if (loading || !user) {
@@ -1946,6 +1968,144 @@ export default function Account() {
                 </button>
               </section>
             )}
+
+            {/* Study Partners — MOAT 5 */}
+            <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Tìm bạn học</span>
+                <span className="font-jakarta text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold">Toàn diện</span>
+              </div>
+              {!canUseStudyPartners(tier) ? (
+                <div className="flex flex-col gap-3">
+                  <p className="font-jakarta text-[13px] text-[#94A3B8]">
+                    Kết nối với học sinh cùng lớp, cùng tỉnh và điểm số tương đương để học tập cùng nhau.
+                  </p>
+                  {tierGap && (
+                    <button
+                      onClick={() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' })}
+                      className="self-start px-4 py-2 rounded-xl font-jakarta text-[12px] font-bold transition bg-[#818CF8] text-[#0A0E1A]"
+                    >
+                      {tierGap.ctaLabel} →
+                    </button>
+                  )}
+                </div>
+              ) : partnerLoading ? (
+                <div className="flex flex-col gap-2">
+                  {[0, 1, 2].map(i => (
+                    <div key={i} className="skeleton h-10 rounded-xl" />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {/* Accepted partners */}
+                  {myPartners?.accepted?.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      <span className="font-jakarta text-[12px] font-semibold text-[#64748B] uppercase tracking-wide">Bạn học của bạn</span>
+                      {myPartners.accepted.map(p => (
+                        <div key={p.partner_id} className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">{p.display_name}</span>
+                            <span className="font-jakarta text-[11px] text-[#64748B]">{getPartnerMatchLabel(p)}</span>
+                          </div>
+                          <span className="font-jakarta text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">Đã kết nối</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Pending received requests */}
+                  {myPartners?.pending_received?.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      <span className="font-jakarta text-[12px] font-semibold text-[#64748B] uppercase tracking-wide">Lời mời kết nối</span>
+                      {myPartners.pending_received.map(p => (
+                        <div key={p.request_id} className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-[#111827] border border-[#1E2A44]">
+                          <span className="font-jakarta text-[13px] text-[#F0F4FF]">{p.display_name}</span>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={async () => {
+                                await respondToPartner(p.request_id, 'accept')
+                                partnerFetched.current = false
+                                setPartnerLoading(true)
+                                Promise.all([getPartnerCandidates(), getMyPartners()])
+                                  .then(([cRes, mRes]) => {
+                                    if (cRes.data) setPartnerCandidates(cRes.data.candidates ?? [])
+                                    if (mRes.data) setMyPartners(mRes.data)
+                                  })
+                                  .finally(() => setPartnerLoading(false))
+                              }}
+                              className="px-3 py-1.5 rounded-lg font-jakarta text-[11px] font-bold bg-emerald-500 text-[#0A0E1A] transition hover:bg-emerald-400"
+                            >
+                              Chấp nhận
+                            </button>
+                            <button
+                              onClick={async () => {
+                                await respondToPartner(p.request_id, 'decline')
+                                setMyPartners(prev => prev ? { ...prev, pending_received: prev.pending_received.filter(r => r.request_id !== p.request_id) } : prev)
+                              }}
+                              className="px-3 py-1.5 rounded-lg font-jakarta text-[11px] font-bold bg-[#1E2A44] text-[#94A3B8] transition hover:bg-[#2D3A54]"
+                            >
+                              Từ chối
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Candidates */}
+                  {partnerCandidates?.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      <span className="font-jakarta text-[12px] font-semibold text-[#64748B] uppercase tracking-wide">Gợi ý bạn học</span>
+                      {partnerCandidates.map(c => (
+                        <div key={c.partner_id} className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-[#111827] border border-[#1E2A44]">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">{c.display_name}</span>
+                            <span className="font-jakarta text-[11px] text-[#64748B]">{getPartnerMatchLabel(c)}</span>
+                          </div>
+                          {myPartners?.pending_sent?.some(s => s.partner_id === c.partner_id) ? (
+                            <span className="font-jakarta text-[11px] px-3 py-1.5 rounded-lg bg-[#1E2A44] text-[#64748B]">Đã gửi</span>
+                          ) : (
+                            <button
+                              onClick={async () => {
+                                const { error } = await connectPartner(c.partner_id)
+                                if (!error) {
+                                  setMyPartners(prev => prev ? {
+                                    ...prev,
+                                    pending_sent: [...(prev.pending_sent ?? []), { partner_id: c.partner_id, display_name: c.display_name }]
+                                  } : prev)
+                                }
+                              }}
+                              className="px-3 py-1.5 rounded-lg font-jakarta text-[11px] font-bold bg-[#818CF8] text-[#0A0E1A] transition hover:bg-[#A5B4FC]"
+                            >
+                              Kết nối
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Pending sent */}
+                  {myPartners?.pending_sent?.length > 0 && !partnerCandidates?.length && (
+                    <div className="flex flex-col gap-2">
+                      <span className="font-jakarta text-[12px] font-semibold text-[#64748B] uppercase tracking-wide">Đã gửi lời mời</span>
+                      {myPartners.pending_sent.map(p => (
+                        <div key={p.partner_id} className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-[#111827] border border-[#1E2A44]">
+                          <span className="font-jakarta text-[13px] text-[#F0F4FF]">{p.display_name}</span>
+                          <span className="font-jakarta text-[11px] px-3 py-1.5 rounded-lg bg-[#1E2A44] text-[#64748B]">Chờ phản hồi</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {partnerCandidates?.length === 0 && myPartners?.accepted?.length === 0 && myPartners?.pending_received?.length === 0 && (
+                    <p className="font-jakarta text-[13px] text-[#64748B]">
+                      Chưa tìm thấy bạn học phù hợp. Hãy quay lại sau khi có thêm học sinh tham gia hệ thống.
+                    </p>
+                  )}
+                </div>
+              )}
+            </section>
 
             {/* Plan cards */}
             <section id="upgrade-plans" className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
