@@ -36,13 +36,21 @@ export default function Navbar({ onOpenAuth }) {
     return () => window.removeEventListener('storage', onStorage)
   }, [])
 
-  // Fetch pending study partner requests (complete tier only)
+  // Fetch pending study partner requests (complete tier only), polling every 60s
   useEffect(() => {
     if (!user || user.subscription_tier !== 'complete') return
-    getMyPartners()
-      .then(({ data }) => setPartnerRequestCount(data?.pending_received?.length ?? 0))
-      .catch(() => {})
-  }, [user?.id])
+
+    const fetchCount = () => {
+      if (document.visibilityState !== 'visible') return
+      getMyPartners()
+        .then(data => setPartnerRequestCount(data?.pending_received?.length ?? 0))
+        .catch(() => {})
+    }
+
+    fetchCount() // immediate
+    const interval = setInterval(fetchCount, 60_000) // then every 60s
+    return () => clearInterval(interval) // cleanup on unmount
+  }, [user?.id, user?.subscription_tier])
 
   // Close drawer on navigation
   useEffect(() => { setMenuOpen(false) }, [])

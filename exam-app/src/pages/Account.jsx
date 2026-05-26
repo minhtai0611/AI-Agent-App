@@ -916,7 +916,7 @@ export default function Account() {
             )}
 
             {/* Exam simulation mode — shown for daysUntil ≤ 14 */}
-            {simulationMode && (
+            {simulationMode ? (
               <section className="border rounded-2xl p-6 flex flex-col gap-3"
                 style={{
                   background: simulationMode.intensity === 'max' ? '#1A0505' : simulationMode.intensity === 'high' ? '#1A0A05' : '#1A1205',
@@ -956,6 +956,22 @@ export default function Account() {
                   <p className="font-jakarta text-[12px] text-[#94A3B8] leading-snug italic">{simBriefing}</p>
                 )}
               </section>
+            ) : (
+              /* No exam date set → prompt user to configure one */
+              !user?.exam_date ? (
+                <section className="rounded-2xl p-5 flex items-center gap-4"
+                  style={{ background: '#0D1521', border: '1px solid #1E2A44' }}>
+                  <span className="text-2xl">📅</span>
+                  <div>
+                    <p className="text-sm font-semibold" style={{ color: '#CBD5E1' }}>
+                      Đặt ngày thi để kích hoạt chế độ ôn thi
+                    </p>
+                    <p className="text-xs mt-0.5" style={{ color: '#475569' }}>
+                      Cài đặt → Mục tiêu học tập → Ngày thi
+                    </p>
+                  </div>
+                </section>
+              ) : null  // has exam_date but > 14 days away — show nothing (simulation not needed yet)
             )}
 
             {/* Exam urgency phase banner — shown for <60 days */}
