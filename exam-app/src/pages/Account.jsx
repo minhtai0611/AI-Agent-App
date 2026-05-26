@@ -344,6 +344,11 @@ export default function Account() {
   const [myPartners,        setMyPartners]        = useState(null)
   const [partnerLoading,    setPartnerLoading]    = useState(false)
   const partnerFetched = useRef(false)
+  const [connectingId,      setConnectingId]      = useState(null)
+
+  // ── Heatmap tooltip state ──
+  const [heatTooltip, setHeatTooltip] = useState(null)
+  // heatTooltip: { date: string, count: number } | null
 
   const toast = useToast()
 
@@ -418,7 +423,7 @@ export default function Account() {
     if (activeTab !== TAB_ANALYTICS) return
     if (peerStatsFetched.current) return
     peerStatsFetched.current = true
-    getPeerStats().then(({ data }) => { if (data) setPeerStats(data) })
+    getPeerStats().then(({ data }) => { if (data) setPeerStats(data) }).catch(() => setPeerStats(null))
   }, [activeTab])
 
   useEffect(() => {
@@ -1701,7 +1706,16 @@ export default function Account() {
                 {/* Activity heatmap */}
                 <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
                   <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Hoạt động học tập</span>
-                  <div className="flex gap-3">
+                  <div className="flex gap-3" style={{ position: 'relative' }}>
+                    {/* Heatmap tooltip */}
+                    {heatTooltip && (
+                      <div
+                        className="text-xs px-2 py-1 rounded-lg pointer-events-none"
+                        style={{ background: '#1E2A44', color: '#CBD5E1', position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 10, whiteSpace: 'nowrap' }}
+                      >
+                        {heatTooltip.date}: {heatTooltip.count} bài thi
+                      </div>
+                    )}
                     {/* Day-of-week labels */}
                     <div className="flex flex-col gap-[2px] pt-5 flex-shrink-0">
                       {['', 'T2', '', 'T4', '', 'T6', ''].map((label, i) => (
@@ -1735,6 +1749,13 @@ export default function Account() {
                                   title={`${key}: ${count} bài thi`}
                                   className="w-3.5 h-3.5 rounded-sm flex-shrink-0"
                                   style={{ background: heatColor(count) }}
+                                  onMouseEnter={() => setHeatTooltip({ date: key, count })}
+                                  onMouseLeave={() => setHeatTooltip(null)}
+                                  onTouchStart={(e) => {
+                                    e.preventDefault()
+                                    setHeatTooltip({ date: key, count })
+                                  }}
+                                  onTouchEnd={() => setTimeout(() => setHeatTooltip(null), 1500)}
                                 />
                               ))}
                             </div>
@@ -2249,17 +2270,28 @@ export default function Account() {
                           ) : (
                             <button
                               onClick={async () => {
-                                const { error } = await connectPartner(c.partner_id)
-                                if (!error) {
-                                  setMyPartners(prev => prev ? {
-                                    ...prev,
-                                    pending_sent: [...(prev.pending_sent ?? []), { partner_id: c.partner_id, display_name: c.display_name }]
-                                  } : prev)
+                                if (connectingId) return
+                                setConnectingId(c.partner_id)
+                                try {
+                                  const { error } = await connectPartner(c.partner_id)
+                                  if (!error) {
+                                    setMyPartners(prev => prev ? {
+                                      ...prev,
+                                      pending_sent: [...(prev.pending_sent ?? []), { partner_id: c.partner_id, display_name: c.display_name }]
+                                    } : prev)
+                                  }
+                                } finally {
+                                  setConnectingId(null)
                                 }
                               }}
+                              disabled={connectingId === c.partner_id}
                               className="px-3 py-1.5 rounded-lg font-jakarta text-[11px] font-bold bg-[#818CF8] text-[#0A0E1A] transition hover:bg-[#A5B4FC]"
+                              style={{
+                                opacity: connectingId === c.partner_id ? 0.5 : 1,
+                                cursor: connectingId === c.partner_id ? 'not-allowed' : 'pointer',
+                              }}
                             >
-                              Kết nối
+                              {connectingId === c.partner_id ? '...' : 'Kết nối'}
                             </button>
                           )}
                         </div>
