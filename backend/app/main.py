@@ -2612,7 +2612,7 @@ async def get_session_today(
              COALESCE(ep.total_errors, 0) DESC,
              cm.mastery_score ASC
            LIMIT 1""",
-        uid,
+        uid, uid,
     )
     remediation_concept = dict(remediaton_row) if remediaton_row else None
 
