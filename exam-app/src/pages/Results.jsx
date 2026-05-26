@@ -14,6 +14,7 @@ import {
 } from 'recharts'
 import { loadExamById, loadQuestionsByIds, buildStudyPlanPayload, buildAnalyzePayload, recommendNextExam } from '../api/index.js'
 import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPlan, getPercentile, predictScore, recordMemorySnapshot, postHistory } from '../api/aiClient.js'
+import { loadPreferences } from '../utils/aiPreferences.js'
 import AIInsights from '../components/AIInsights.jsx'
 import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
 import { usePageTitle } from '../hooks/usePageTitle.js'
@@ -177,7 +178,7 @@ export default function Results({ onOpenAuth }) {
   const [allQuestions, setAllQuestions] = useState([])
   const [analysis, setAnalysis] = useState(null)
   const [aiLoading, setAiLoading] = useState(false)
-  const [aiError, setAiError] = useState(false)
+  const [aiError, setAiError] = useState(null)
   const [retryKey, setRetryKey] = useState(0)
   const [planReady, setPlanReady] = useState(false)
   const [wrongAccordion, setWrongAccordion] = useState({})
@@ -225,6 +226,7 @@ export default function Results({ onOpenAuth }) {
         }
         postHistory([historyEntry]).then(({ data }) => {
           if (data?.streak_recovered) setStreakRecovered(true)
+          sessionStorage.removeItem('zenith_weekly_summary')
         })
       }
       addResult(scored).then(id => {
@@ -291,7 +293,7 @@ export default function Results({ onOpenAuth }) {
           window[prefetchFlag] = true
           const _archetype = classifyLearner(results)
           buildStudyPlanPayload(result, allPast).then(payload =>
-            generateStudyPlan({ ...payload, learner_archetype: _archetype?.id ?? null }).then(({ data }) => {
+            generateStudyPlan({ ...payload, learner_archetype: _archetype?.id ?? null, ai_preferences: loadPreferences() }).then(({ data }) => {
               delete window[prefetchFlag]
               if (data && !cancelled) { localStorage.setItem(planCacheKey, JSON.stringify(data)); setPlanReady(true) }
             })
@@ -326,7 +328,7 @@ export default function Results({ onOpenAuth }) {
       if (!cancelled) {
         setAnalysis(localAnalysis)
         setAiLoading(true)
-        setAiError(false)
+        setAiError(null)
       }
       const obj = examObj || {}
       const archetype = classifyLearner(results)
@@ -382,7 +384,7 @@ export default function Results({ onOpenAuth }) {
                   return { topic_id: topicId, mastery_score: tb.accuracy ?? 0, exam_count: results?.length ?? 1 }
                 })
                 .filter(Boolean)
-              if (snapshots.length > 0) {
+              if (user?.id && snapshots.length > 0) {
                 recordMemorySnapshot({ snapshots }).catch(() => {})
               }
             }
@@ -397,7 +399,7 @@ export default function Results({ onOpenAuth }) {
                   const aiAnalysis = { ...data, _source: 'ai' }
                   safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
                   setAnalysis(aiAnalysis)
-                  setAiError(false)
+                  setAiError(null)
                   refreshUser()
                 })
               }
@@ -405,16 +407,23 @@ export default function Results({ onOpenAuth }) {
           }
         } else {
           const failed = !!error || rawText === ''
-          setAiError(failed)
+          if (streamStatus === 402 || err?.response?.status === 402) {
+            setAiError('Không đủ Tia để phân tích. Nạp thêm Tia trong trang Tài khoản.')
+          } else {
+            setAiError(failed ? true : null)
+          }
           // Only fall back to non-streaming if the stream itself never connected (not HTTP 200)
-          if (failed && !streamHttpOk && !cancelled) {
+          if (failed && !streamHttpOk && streamStatus !== 402 && !cancelled) {
             refundCredits(3)
-            aiAnalyzeResult(payload).then(({ data }) => {
-              if (cancelled || !data) return
+            aiAnalyzeResult(payload).then(({ data, status: fbStatus }) => {
+              if (cancelled || !data) {
+                if (fbStatus === 402) setAiError('Không đủ Tia để phân tích. Nạp thêm Tia trong trang Tài khoản.')
+                return
+              }
               const aiAnalysis = { ...data, _source: 'ai' }
               safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
               setAnalysis(aiAnalysis)
-              setAiError(false)
+              setAiError(null)
               refreshUser()
             })
           }

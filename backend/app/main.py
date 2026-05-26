@@ -903,6 +903,7 @@ class StudyPlanRequest(BaseModel):
     topic_miss_counts: dict = {}
     student_name: str = ""
     learner_archetype: str | None = None
+    ai_preferences: dict = {}
 
 
 class StudyPlanResponse(BaseModel):
@@ -1412,7 +1413,8 @@ async def study_plan(
         )
     await _spend_credits(pool, current_user.user_id, 5, "study-plan")
     from app.agent.study_planner import generate_study_plan
-    data = await generate_study_plan(client, req.result, req.history, req.wrong_questions, req.topic_miss_counts, req.student_name, learner_archetype=req.learner_archetype)
+    session_length_pref = int(req.ai_preferences.get("session_length_pref", 30))
+    data = await generate_study_plan(client, req.result, req.history, req.wrong_questions, req.topic_miss_counts, req.student_name, learner_archetype=req.learner_archetype, session_length_pref=session_length_pref)
     return StudyPlanResponse(
         plan=data.get("plan", ""),
         weekly_schedule=data.get("weekly_schedule", []),

@@ -48,6 +48,14 @@ describe('getProvincialContext', () => {
     expect(ctx.difficulty).toBe(4)
     expect(ctx.difficultyLabel).toBe('Khó')
   })
+
+  it('returns non-null for Hà Giang (newly added remote province)', () => {
+    expect(getProvincialContext('Hà Giang')).not.toBeNull()
+  })
+
+  it('returns non-null for Cà Mau (newly added remote province)', () => {
+    expect(getProvincialContext('Cà Mau')).not.toBeNull()
+  })
 })
 
 // ─── getDifficultyInsight ─────────────────────────────────────────────────────

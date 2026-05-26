@@ -32,6 +32,7 @@ async def generate_study_plan(
     topic_miss_counts: dict | None = None,
     student_name: str = "",
     learner_archetype: str | None = None,
+    session_length_pref: int = 30,
 ) -> dict:
     settings = get_settings()
 
@@ -73,6 +74,9 @@ async def generate_study_plan(
         weak = [t for t, tb in topic_breakdown.items() if tb.get("accuracy", 1) < 0.6]
         lines.append(f"Chủ đề yếu: {', '.join(weak) or 'Không có'}")
         lines.append("\nTạo kế hoạch học tập 4 tuần dựa trên thông tin trên.")
+
+    session_note = f"Preferred session length: {session_length_pref} minutes per session."
+    lines.append(session_note)
 
     prompt = "\n".join(lines) + """
 
