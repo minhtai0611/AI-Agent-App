@@ -38,6 +38,12 @@ _EXPLANATION_DEPTH_INSTRUCTIONS = {
     "step-by-step": "Trình bày giải thích theo các bước đánh số. Mỗi bước trên một dòng riêng.",
 }
 
+_ENCOURAGEMENT_INSTRUCTIONS = {
+    'minimal': 'Be concise and direct. Skip praise.',
+    'moderate': 'Brief encouragement is welcome.',
+    'high': 'Be warm and encouraging throughout.',
+}
+
 
 async def generate_explanation(
     client: AsyncOpenAI,
@@ -49,6 +55,8 @@ async def generate_explanation(
 
     explanation_depth = (ai_preferences or {}).get("explanation_depth", "detailed")
     depth_instruction = _EXPLANATION_DEPTH_INSTRUCTIONS.get(explanation_depth, _EXPLANATION_DEPTH_INSTRUCTIONS["detailed"])
+    encouragement_level = (ai_preferences or {}).get("encouragement_level", "moderate")
+    encouragement_instruction = _ENCOURAGEMENT_INSTRUCTIONS.get(encouragement_level, _ENCOURAGEMENT_INSTRUCTIONS["moderate"])
     choices = question.get("choices", [])
 
     # Ground truth from question data — never let AI guess the correct answer
@@ -94,7 +102,7 @@ Giải thích ngắn gọn tại sao đáp án {correct_label} đúng:
         model=settings.haiku_model,
         max_tokens=400,
         messages=[
-            {"role": "system", "content": THPT_CONTEXT + STATIC_EXPLAIN_INSTRUCTIONS + "\n" + depth_instruction},
+            {"role": "system", "content": THPT_CONTEXT + STATIC_EXPLAIN_INSTRUCTIONS + "\n" + depth_instruction + "\n" + encouragement_instruction},
             {"role": "user", "content": prompt},
         ],
     )

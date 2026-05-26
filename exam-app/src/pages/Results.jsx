@@ -13,12 +13,13 @@ import {
   LineChart, Line, XAxis, Tooltip,
 } from 'recharts'
 import { loadExamById, loadQuestionsByIds, buildStudyPlanPayload, buildAnalyzePayload, recommendNextExam } from '../api/index.js'
-import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPlan, getPercentile, predictScore } from '../api/aiClient.js'
+import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPlan, getPercentile, predictScore, recordMemorySnapshot, postHistory } from '../api/aiClient.js'
 import AIInsights from '../components/AIInsights.jsx'
 import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { MathText } from '../components/MathText.jsx'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
+import { TOPIC_ID_MAP } from '../utils/learningGraph.js'
 import { safeSetItem } from '../utils/storageManager.js'
 import { requestStudyReminder, checkAndShowStudyReminder } from '../utils/studyReminder.js'
 import ResultShareCard from '../components/ResultShareCard.jsx'
@@ -184,6 +185,7 @@ export default function Results({ onOpenAuth }) {
   const [showShareCard, setShowShareCard] = useState(false)
   const [percentile, setPercentile] = useState(null)
   const [predictedScoreData, setPredictedScoreData] = useState(null)
+  const [streakRecovered, setStreakRecovered] = useState(false)
   const toast = useToast()
   const _rawStreamRef = useRef('')
   const challengerData = location.state?.challengerScore != null ? {
@@ -210,6 +212,19 @@ export default function Results({ onOpenAuth }) {
         devtools_detected: location.state?.devtools_detected ?? 0,
       }
       setResult(scored)
+      // Post history directly to capture streak_recovered from server response
+      if (navigator.onLine) {
+        const historyEntry = {
+          result_id: scored.id,
+          exam_id: scored.examId ?? null,
+          score: scored.score ?? null,
+          payload: { ...scored, durationSeconds: scored.timeSpent ?? null },
+          created_at: scored.createdAt ?? null,
+        }
+        postHistory([historyEntry]).then(({ data }) => {
+          if (data?.streak_recovered) setStreakRecovered(true)
+        })
+      }
       addResult(scored).then(id => {
         navigate(`/results/${id}`, { replace: true, state: { result: scored } })
       })
@@ -348,6 +363,20 @@ export default function Results({ onOpenAuth }) {
             safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
             setAnalysis(aiAnalysis)
             refreshUser()
+            // Fire-and-forget: record learner memory snapshot from radar data
+            if (result?.topicBreakdown) {
+              const snapshots = Object.entries(result.topicBreakdown)
+                .map(([rawTopic, tb]) => {
+                  const label = TOPIC_LABELS[rawTopic] ?? rawTopic
+                  const topicId = TOPIC_ID_MAP[label]
+                  if (!topicId) return null
+                  return { topic_id: topicId, mastery_score: tb.accuracy ?? 0, exam_count: results?.length ?? 1 }
+                })
+                .filter(Boolean)
+              if (snapshots.length > 0) {
+                recordMemorySnapshot({ snapshots }).catch(() => {})
+              }
+            }
           } catch {
             // JSON parse failed but stream was HTTP 200 — credits already charged, show retry
             setAiError(true)
@@ -615,6 +644,18 @@ export default function Results({ onOpenAuth }) {
           </button>
         </div>
       </nav>
+
+      {streakRecovered && (
+        <div className="relative z-10 max-w-3xl mx-auto w-full px-4 pt-4">
+          <div className="rounded-xl px-4 py-3 flex items-center gap-3"
+            style={{ background: '#1A0A05', border: '1px solid #F9731680' }}>
+            <span>🔥</span>
+            <p className="text-sm font-semibold" style={{ color: '#F97316' }}>
+              Streak khôi phục! Bạn đã làm 2 bài hôm nay — streak của bạn tiếp tục.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="relative z-10 flex flex-col gap-5 max-w-3xl mx-auto w-full px-4 py-8">
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { getHint, getExplanation, reportQuestion } from '../api/aiClient.js'
+import { loadPreferences } from '../utils/aiPreferences.js'
 import { sanitizeSvg } from '../utils/sanitizeSvg.js'
 import { MathText } from './MathText.jsx'
 
@@ -130,7 +131,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
     const cacheKey = `${question.id}-${chosen}`
     if (fetchedForRef.current === cacheKey) return
     fetchedForRef.current = cacheKey
-    getExplanation({ question, chosen_index: chosen }).then(({ data }) => {
+    getExplanation({ question, chosen_index: chosen, ai_preferences: loadPreferences() }).then(({ data }) => {
       if (data) setAiResult({ correct_index: data.correct_index, explanation: data.explanation })
     })
   }, [showFeedback, question.id, chosen])

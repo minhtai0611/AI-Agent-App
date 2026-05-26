@@ -37,6 +37,12 @@ _HINT_STYLE_INSTRUCTIONS = {
     "visual": "Trình bày gợi ý theo các bước đánh số rõ ràng. Dùng ký hiệu toán học chuẩn và nhãn bước rõ ràng.",
 }
 
+_ENCOURAGEMENT_INSTRUCTIONS = {
+    'minimal': 'Be concise and direct. Skip praise.',
+    'moderate': 'Brief encouragement is welcome.',
+    'high': 'Be warm and encouraging throughout.',
+}
+
 
 async def generate_hint(
     client: AsyncOpenAI,
@@ -50,6 +56,8 @@ async def generate_hint(
 
     hint_style = (ai_preferences or {}).get("hint_style", "socratic")
     style_instruction = _HINT_STYLE_INSTRUCTIONS.get(hint_style, _HINT_STYLE_INSTRUCTIONS["socratic"])
+    encouragement_level = (ai_preferences or {}).get("encouragement_level", "moderate")
+    encouragement_instruction = _ENCOURAGEMENT_INSTRUCTIONS.get(encouragement_level, _ENCOURAGEMENT_INSTRUCTIONS["moderate"])
 
     prev_context = ""
     if previous_hints:
@@ -72,7 +80,7 @@ Trả về đúng định dạng JSON sau, không thêm text nào khác:
         model=settings.hint_model,
         max_tokens=512,
         messages=[
-            {"role": "system", "content": THPT_CONTEXT + STATIC_HINT_INSTRUCTIONS + "\n" + style_instruction},
+            {"role": "system", "content": THPT_CONTEXT + STATIC_HINT_INSTRUCTIONS + "\n" + style_instruction + "\n" + encouragement_instruction},
             {"role": "user", "content": prompt},
         ],
     )
