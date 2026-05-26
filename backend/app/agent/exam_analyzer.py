@@ -11,19 +11,46 @@ Khi phân tích kết quả thi THPT:
 - Ưu tiên gợi ý trường phù hợp với điểm thực tế, không chỉ trường mơ ước
 """
 
-PROVINCIAL_DIFFICULTY_CONTEXT = """
-Provincial THPT difficulty context (2024 data):
-- Hà Nội, TP.HCM: difficulty 4/5, typical Math cutoff ~8.0, top schools require 9.0+
-- Đà Nẵng, Hải Phòng, Cần Thơ: difficulty 3/5, typical cutoff ~7.0-7.2
-- Most other provinces: difficulty 2-3/5, typical cutoff 6.4-6.8
-- National average THPT Math 2024: 6.51
-When province data is provided, calibrate school recommendations to provincial difficulty.
-A score of 8.0 in Hà Nội is harder to achieve than 8.0 in a lower-difficulty province.
-"""
-
-STATIC_EXAM_ANALYSIS_INSTRUCTIONS = THPT_ANALYSIS_CONTEXT + PROVINCIAL_DIFFICULTY_CONTEXT + """Bạn là chuyên gia phân tích kết quả học tập cho học sinh ôn thi Toán.
+STATIC_EXAM_ANALYSIS_INSTRUCTIONS = THPT_ANALYSIS_CONTEXT + """Bạn là chuyên gia phân tích kết quả học tập cho học sinh ôn thi Toán.
 Phân tích kết quả thi, các câu trả lời đúng/sai cụ thể, và gợi ý trường phù hợp dựa trên điểm số.
 Trả lời bằng tiếng Việt. Luôn trả về JSON hợp lệ theo đúng định dạng yêu cầu, không có text ngoài JSON."""
+
+# Per-province difficulty data (mirrors provincialData.js)
+_PROVINCE_DATA = {
+    'Hà Nội':             {'difficulty': 4, 'typical_cutoff': 8.0, 'top_schools_cutoff': 9.2},
+    'TP.HCM':             {'difficulty': 4, 'typical_cutoff': 7.8, 'top_schools_cutoff': 9.0},
+    'Đà Nẵng':            {'difficulty': 3, 'typical_cutoff': 7.2, 'top_schools_cutoff': 8.5},
+    'Hải Phòng':          {'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.2},
+    'Cần Thơ':            {'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 8.0},
+    'Bình Dương':         {'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.2},
+    'Đồng Nai':           {'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 8.0},
+    'Khánh Hòa':          {'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8},
+    'Nghệ An':            {'difficulty': 3, 'typical_cutoff': 6.6, 'top_schools_cutoff': 7.8},
+    'Thanh Hóa':          {'difficulty': 2, 'typical_cutoff': 6.4, 'top_schools_cutoff': 7.5},
+    'Hà Tĩnh':            {'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8},
+    'Bắc Ninh':           {'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.2},
+    'Vĩnh Phúc':          {'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8},
+    'Hà Giang':           {'difficulty': 1, 'typical_cutoff': 5.8, 'top_schools_cutoff': 6.8},
+    'Điện Biên':          {'difficulty': 1, 'typical_cutoff': 5.6, 'top_schools_cutoff': 6.6},
+    'Lai Châu':           {'difficulty': 1, 'typical_cutoff': 5.6, 'top_schools_cutoff': 6.6},
+    'Sơn La':             {'difficulty': 1, 'typical_cutoff': 5.8, 'top_schools_cutoff': 6.8},
+    'Cà Mau':             {'difficulty': 1, 'typical_cutoff': 5.8, 'top_schools_cutoff': 6.8},
+    'Kiên Giang':         {'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2},
+    'Bà Rịa - Vũng Tàu': {'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.0},
+}
+_DIFFICULTY_LABELS = {1: 'Dễ', 2: 'Trung bình', 3: 'Khá', 4: 'Khó', 5: 'Rất khó'}
+
+
+def _get_province_context(province: str | None) -> str:
+    if not province or province not in _PROVINCE_DATA:
+        return "National average THPT Math 2024: 6.51. Calibrate recommendations to general Vietnamese exam standards."
+    d = _PROVINCE_DATA[province]
+    label = _DIFFICULTY_LABELS.get(d['difficulty'], 'Trung bình')
+    return (
+        f"Province: {province} | Difficulty: {label} ({d['difficulty']}/5) | "
+        f"Typical Math cutoff: {d['typical_cutoff']} | Top schools require: {d['top_schools_cutoff']}+ | "
+        f"National avg: 6.51. Calibrate school recommendations to {province} standards specifically."
+    )
 
 
 def _strip_code_fence(text: str) -> str:
@@ -35,8 +62,7 @@ def _strip_code_fence(text: str) -> str:
     return text.strip()
 
 
-async def analyze_exam_result(
-    client: AsyncOpenAI,
+def build_analyze_prompt(
     result: dict,
     history: list[dict],
     student_name: str = "",
@@ -45,9 +71,7 @@ async def analyze_exam_result(
     exam_category: str = "",
     user_profile: dict = None,
     learner_archetype: str | None = None,
-) -> dict:
-    settings = get_settings()
-
+) -> str:
     topic_breakdown = result.get("topicBreakdown", {})
     weak_topics = [t for t, tb in topic_breakdown.items() if tb.get("accuracy", 1) < 0.6]
 
@@ -97,6 +121,10 @@ async def analyze_exam_result(
     if learner_archetype:
         dynamic_parts.append(f"Learner type: {learner_archetype}")
 
+    # Append per-province difficulty context (dynamic, not in static system prompt)
+    province_ctx = _get_province_context(province or None)
+    dynamic_parts.append(f"Provincial context: {province_ctx}")
+
     school_json_field = ""
     if school_recommendations:
         if grade and grade.isdigit() and int(grade) <= 9:
@@ -114,6 +142,30 @@ Trả về JSON (không có text ngoài JSON):
   "weak_topics": ["topic_key1", "topic_key2"],
   "recommendations": ["khuyến nghị 1", "khuyến nghị 2", "khuyến nghị 3"]{school_json_field}
 }}"""
+    return prompt
+
+
+async def analyze_exam_result(
+    client: AsyncOpenAI,
+    result: dict,
+    history: list[dict],
+    student_name: str = "",
+    wrong_questions: list[dict] = None,
+    school_recommendations: list[dict] = None,
+    exam_category: str = "",
+    user_profile: dict = None,
+    learner_archetype: str | None = None,
+) -> dict:
+    settings = get_settings()
+
+    prompt = build_analyze_prompt(
+        result, history, student_name,
+        wrong_questions=wrong_questions,
+        school_recommendations=school_recommendations,
+        exam_category=exam_category,
+        user_profile=user_profile,
+        learner_archetype=learner_archetype,
+    )
 
     response = await call_with_retry(
         client,

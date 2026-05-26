@@ -504,7 +504,7 @@ export default function Account() {
     }
     getSimulationBriefing(payload).then(({ data }) => {
       if (data?.briefing) setSimBriefing(data.briefing)
-    })
+    }).catch(() => { simBriefingFetched.current = false })
   }, [simulationMode, scoreCI, user?.target_score, weakTopics, results.length])
 
   // ── Loading skeleton ──
@@ -2881,7 +2881,7 @@ export default function Account() {
                         setClassJoinLoading(false)
                         if (data) {
                           // Refresh class info after joining
-                          getClassInfo().then(({ data: d }) => { if (d) setClassInfo(d) })
+                          getClassInfo().then(({ data: d }) => { if (d) setClassInfo(d) }).catch(() => {})
                           setClassJoinCode('')
                         } else if (status === 404) {
                           setClassJoinError('Mã lớp không tồn tại.')
