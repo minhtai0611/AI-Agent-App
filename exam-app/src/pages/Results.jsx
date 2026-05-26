@@ -19,6 +19,7 @@ import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { MathText } from '../components/MathText.jsx'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
+import { classifyLearner } from '../utils/learnerArchetype.js'
 import { TOPIC_ID_MAP } from '../utils/learningGraph.js'
 import { safeSetItem } from '../utils/storageManager.js'
 import { requestStudyReminder, checkAndShowStudyReminder } from '../utils/studyReminder.js'
@@ -186,6 +187,7 @@ export default function Results({ onOpenAuth }) {
   const [percentile, setPercentile] = useState(null)
   const [predictedScoreData, setPredictedScoreData] = useState(null)
   const [streakRecovered, setStreakRecovered] = useState(false)
+  const [studyPlanError, setStudyPlanError] = useState(null)
   const toast = useToast()
   const _rawStreamRef = useRef('')
   const challengerData = location.state?.challengerScore != null ? {
@@ -283,13 +285,18 @@ export default function Results({ onOpenAuth }) {
       if (planCached) {
         setPlanReady(true)
       } else if (!window[prefetchFlag]) {
-        window[prefetchFlag] = true
-        buildStudyPlanPayload(result, allPast).then(payload =>
-          generateStudyPlan(payload).then(({ data }) => {
-            delete window[prefetchFlag]
-            if (data && !cancelled) { localStorage.setItem(planCacheKey, JSON.stringify(data)); setPlanReady(true) }
-          })
-        )
+        if ((user?.credits_balance ?? 0) < 5) {
+          setStudyPlanError('Không đủ Tia. Cần ít nhất 5 Tia để tạo kế hoạch.')
+        } else {
+          window[prefetchFlag] = true
+          const _archetype = classifyLearner(results)
+          buildStudyPlanPayload(result, allPast).then(payload =>
+            generateStudyPlan({ ...payload, learner_archetype: _archetype?.id ?? null }).then(({ data }) => {
+              delete window[prefetchFlag]
+              if (data && !cancelled) { localStorage.setItem(planCacheKey, JSON.stringify(data)); setPlanReady(true) }
+            })
+          )
+        }
       }
 
       const localAnalysis = analyzeResult(result, allPast, [])
@@ -322,10 +329,12 @@ export default function Results({ onOpenAuth }) {
         setAiError(false)
       }
       const obj = examObj || {}
+      const archetype = classifyLearner(results)
       const payload = await buildAnalyzePayload(
         result, allPast, [], obj.category || '',
         { location: user.province || '', province: user.province || '', grade: user.grade || '', display_name: user.display_name || '' }
       )
+      payload.learner_archetype = archetype?.id ?? null
       if (cancelled) return
       _rawStreamRef.current = ''
       let _streamBuf = ''
@@ -1188,15 +1197,24 @@ export default function Results({ onOpenAuth }) {
               <p className="font-jakarta text-[13px] text-[#64748B] leading-relaxed">
                 AI sẽ tạo lịch ôn tập cá nhân hóa dựa trên điểm yếu và lịch sử làm bài của bạn.
               </p>
+              {studyPlanError && (
+                <p className="font-jakarta text-[13px] text-[#FB7185] px-1">{studyPlanError}</p>
+              )}
               <button
-                onClick={() => navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })}
+                onClick={() => {
+                  if ((user?.credits_balance ?? 0) < 5) {
+                    setStudyPlanError('Không đủ Tia. Cần ít nhất 5 Tia để tạo kế hoạch.')
+                    return
+                  }
+                  navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })
+                }}
                 className={`w-full py-3.5 rounded-xl font-jakarta text-[14px] font-bold transition flex items-center justify-center gap-2 ${
                   planReady ? 'text-[#0A0E1A] hover:opacity-90' : 'text-[#475569] border border-[#1E2A44]'
                 }`}
                 style={planReady ? { background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' } : {}}
               >
-                {!planReady && <span className="w-3.5 h-3.5 rounded-full border border-[#2A3A50] border-t-[#F2A20C] animate-spin" />}
-                {planReady ? 'Xem kế hoạch học tập ⚡5' : 'Đang chuẩn bị…'}
+                {!planReady && !studyPlanError && <span className="w-3.5 h-3.5 rounded-full border border-[#2A3A50] border-t-[#F2A20C] animate-spin" />}
+                {planReady ? 'Xem kế hoạch học tập ⚡5' : studyPlanError ? 'Không đủ Tia' : 'Đang chuẩn bị…'}
               </button>
             </div>
             <button onClick={() => { dispatch({ type: 'RESET' }); navigate('/exams') }}

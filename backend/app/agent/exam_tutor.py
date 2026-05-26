@@ -139,16 +139,44 @@ async def _is_math_question(client: AsyncOpenAI, question: str, haiku_model: str
         return True  # fail open: let main model handle it
 
 
+_TUTOR_HINT_STYLE_INSTRUCTIONS = {
+    "socratic": "Hướng dẫn bằng cách đặt câu hỏi gợi mở, để học sinh tự khám phá.",
+    "direct": "Trả lời trực tiếp, rõ ràng, giải thích từng bước cụ thể.",
+    "visual": "Ưu tiên trình bày theo các bước đánh số, dùng ký hiệu toán học rõ ràng.",
+}
+
+_TUTOR_ENCOURAGEMENT_INSTRUCTIONS = {
+    "minimal": "Ngắn gọn, không khen ngợi.",
+    "moderate": "Khuyến khích nhẹ nhàng khi phù hợp.",
+    "high": "Nhiệt tình, tích cực động viên học sinh.",
+}
+
+
 async def run_tutor(
     client: AsyncOpenAI,
     messages: list[dict],
     exam_context: dict,
     student_name: str = "",
     memory_prefix: str = "",
+    ai_preferences: dict | None = None,
 ) -> tuple[str, list[dict]]:
     settings = get_settings()
     base_prompt = build_tutor_system_prompt(exam_context, student_name)
-    system_msg = {"role": "system", "content": memory_prefix + base_prompt}
+
+    # Append style instruction from ai_preferences (dynamic — appended after static content)
+    style_suffix = ""
+    if ai_preferences:
+        hint_style = ai_preferences.get("hint_style", "socratic")
+        encouragement_level = ai_preferences.get("encouragement_level", "moderate")
+        style_parts = []
+        if hint_style in _TUTOR_HINT_STYLE_INSTRUCTIONS:
+            style_parts.append(_TUTOR_HINT_STYLE_INSTRUCTIONS[hint_style])
+        if encouragement_level in _TUTOR_ENCOURAGEMENT_INSTRUCTIONS:
+            style_parts.append(_TUTOR_ENCOURAGEMENT_INSTRUCTIONS[encouragement_level])
+        if style_parts:
+            style_suffix = "\n\n[Tùy chỉnh phong cách: " + " ".join(style_parts) + "]"
+
+    system_msg = {"role": "system", "content": memory_prefix + base_prompt + style_suffix}
 
     # Hard scope guard: classify the latest user message before hitting the main model.
     if messages:

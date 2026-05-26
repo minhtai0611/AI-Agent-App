@@ -153,7 +153,7 @@ export function getExplanation(payload) {
 }
 
 export function sendTutorMessage(payload) {
-  return wrapOptimistic(1, () => client.post('/tutor', payload))
+  return wrapOptimistic(1, () => client.post('/tutor', withAIPrefs(payload)))
 }
 
 export function generateStudyPlan(payload) {

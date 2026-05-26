@@ -844,6 +844,7 @@ class ExamAnalyzeRequest(BaseModel):
     school_recommendations: list[dict] = []
     exam_category: str = ""
     user_profile: dict = {}
+    learner_archetype: str | None = None
 
 
 class ExamAnalyzeResponse(BaseModel):
@@ -873,6 +874,7 @@ class TutorChatRequest(BaseModel):
     messages: list[dict]
     exam_context: dict = {}
     student_name: str = ""
+    ai_preferences: dict = {}
 
 
 class TutorChatResponse(BaseModel):
@@ -900,6 +902,7 @@ class StudyPlanRequest(BaseModel):
     wrong_questions: list[dict] = []
     topic_miss_counts: dict = {}
     student_name: str = ""
+    learner_archetype: str | None = None
 
 
 class StudyPlanResponse(BaseModel):
@@ -1000,6 +1003,7 @@ async def analyze(
             school_recommendations=req.school_recommendations,
             exam_category=req.exam_category,
             user_profile=req.user_profile,
+            learner_archetype=req.learner_archetype,
         )
         return ExamAnalyzeResponse(
             insights=data.get("insights", ""),
@@ -1035,6 +1039,8 @@ async def analyze_stream(
         exam_category=req.exam_category,
         user_profile=req.user_profile,
     )
+    if req.learner_archetype:
+        prompt += f"\nLearner type: {req.learner_archetype}"
     settings = get_settings()
 
     async def event_stream():
@@ -1172,6 +1178,7 @@ async def tutor(
     reply, updated = await run_tutor(
         client, req.messages, req.exam_context, req.student_name,
         memory_prefix=memory_prefix,
+        ai_preferences=req.ai_preferences,
     )
     # Async memory update after ≥4 turns for Complete users
     if tier_t == "complete" and len(req.messages) >= 4:
@@ -1405,7 +1412,7 @@ async def study_plan(
         )
     await _spend_credits(pool, current_user.user_id, 5, "study-plan")
     from app.agent.study_planner import generate_study_plan
-    data = await generate_study_plan(client, req.result, req.history, req.wrong_questions, req.topic_miss_counts, req.student_name)
+    data = await generate_study_plan(client, req.result, req.history, req.wrong_questions, req.topic_miss_counts, req.student_name, learner_archetype=req.learner_archetype)
     return StudyPlanResponse(
         plan=data.get("plan", ""),
         weekly_schedule=data.get("weekly_schedule", []),

@@ -44,6 +44,7 @@ async def analyze_exam_result(
     school_recommendations: list[dict] = None,
     exam_category: str = "",
     user_profile: dict = None,
+    learner_archetype: str | None = None,
 ) -> dict:
     settings = get_settings()
 
@@ -93,6 +94,8 @@ async def analyze_exam_result(
         dynamic_parts.append(f"Lớp học sinh: {grade}")
     if province:
         dynamic_parts.append(f"Tỉnh/thành phố: {province}")
+    if learner_archetype:
+        dynamic_parts.append(f"Learner type: {learner_archetype}")
 
     school_json_field = ""
     if school_recommendations:

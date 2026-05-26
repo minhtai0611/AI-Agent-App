@@ -31,6 +31,7 @@ async def generate_study_plan(
     wrong_questions: list[dict] | None = None,
     topic_miss_counts: dict | None = None,
     student_name: str = "",
+    learner_archetype: str | None = None,
 ) -> dict:
     settings = get_settings()
 
@@ -39,6 +40,8 @@ async def generate_study_plan(
         lines.append(f"Học sinh: {student_name}")
     lines.append(f"Điểm: {result.get('score', 0)}/10 ({round(result.get('accuracy', 0) * 100)}% đúng)")
     lines.append(f"Số đề đã thi: {len(history)}")
+    if learner_archetype:
+        lines.append(f"Learner type: {learner_archetype}")
 
     if wrong_questions:
         # Full miss picture per topic
