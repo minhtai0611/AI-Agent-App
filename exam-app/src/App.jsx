@@ -29,6 +29,7 @@ const DailyChallenge = lazy(() => import('./pages/DailyChallenge.jsx'))
 const BattleMistakes = lazy(() => import('./pages/BattleMistakes.jsx'))
 const StreakSurvival = lazy(() => import('./pages/StreakSurvival.jsx'))
 const Admin = lazy(() => import('./pages/Admin.jsx'))
+const AdminSecurityEvents = lazy(() => import('./pages/AdminSecurityEvents.jsx'))
 const ShareView = lazy(() => import('./pages/ShareView.jsx'))
 const ChallengeLanding = lazy(() => import('./pages/ChallengeLanding.jsx'))
 const ClassDashboard = lazy(() => import('./pages/ClassDashboard.jsx'))
@@ -66,7 +67,7 @@ function AppInner() {
   const dispatch = useExamDispatch()
   const navigate = useNavigate()
   const location = useLocation()
-  const isAdminRoute = location.pathname === '/admin'
+  const isAdminRoute = location.pathname === '/admin' || location.pathname === '/admin/security-events'
 
   const [resumeBanner] = useState(() => {
     try {
@@ -169,6 +170,7 @@ function AppInner() {
             <Route path="/battle" element={<BattleMistakes />} />
             <Route path="/survival" element={<StreakSurvival />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/security-events" element={<AdminSecurityEvents />} />
             <Route path="/share" element={<ShareView />} />
             <Route path="/challenge" element={<ChallengeLanding />} />
             <Route path="/class" element={<ClassDashboard />} />
