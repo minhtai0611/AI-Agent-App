@@ -189,6 +189,7 @@ export default function Results({ onOpenAuth }) {
   const [predictedScoreData, setPredictedScoreData] = useState(null)
   const [streakRecovered, setStreakRecovered] = useState(false)
   const [studyPlanError, setStudyPlanError] = useState(null)
+  const [studyPlanLoading, setStudyPlanLoading] = useState(false)
   const toast = useToast()
   const _rawStreamRef = useRef('')
   const challengerData = location.state?.challengerScore != null ? {
@@ -291,11 +292,13 @@ export default function Results({ onOpenAuth }) {
           setStudyPlanError('Không đủ Tia. Cần ít nhất 5 Tia để tạo kế hoạch.')
         } else {
           window[prefetchFlag] = true
+          if (!cancelled) setStudyPlanLoading(true)
           const _archetype = classifyLearner(results)
           buildStudyPlanPayload(result, allPast).then(payload =>
             generateStudyPlan({ ...payload, learner_archetype: _archetype?.id ?? null, ai_preferences: loadPreferences() }).then(({ data }) => {
               delete window[prefetchFlag]
               if (data && !cancelled) { localStorage.setItem(planCacheKey, JSON.stringify(data)); setPlanReady(true) }
+              if (!cancelled) setStudyPlanLoading(false)
             })
           )
         }
@@ -602,7 +605,7 @@ export default function Results({ onOpenAuth }) {
     { id: 'overview', label: 'Tổng quan' },
     { id: 'wrong', label: wrongCount > 0 ? `Câu sai (${wrongCount})` : 'Câu sai' },
     { id: 'schools', label: 'Trường phù hợp' },
-    { id: 'plan', label: 'Kế hoạch' },
+    { id: 'plan', label: 'Kế hoạch', loading: studyPlanLoading && !planReady },
     ...(isPaidUser ? [{ id: 'trends', label: 'Xu hướng 30 ngày' }] : []),
   ]
 
@@ -818,10 +821,14 @@ export default function Results({ onOpenAuth }) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className="relative px-4 py-2.5 font-jakarta text-[13px] font-medium transition-colors"
+              className="relative px-4 py-2.5 font-jakarta text-[13px] font-medium transition-colors flex items-center gap-1"
               style={{ color: activeTab === tab.id ? '#F2A20C' : '#64748B' }}
             >
               {tab.label}
+              {tab.loading && (
+                <span className="ml-1 inline-block w-3 h-3 rounded-full border-2 animate-spin flex-shrink-0"
+                  style={{ borderColor: '#818CF8', borderTopColor: 'transparent' }} />
+              )}
               {activeTab === tab.id && (
                 <motion.div layoutId="tab-underline"
                   className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F2A20C]" />

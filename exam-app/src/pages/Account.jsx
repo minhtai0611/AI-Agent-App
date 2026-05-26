@@ -358,9 +358,9 @@ export default function Account() {
   // ── Data fetching ──
   useEffect(() => {
     if (!user) return
-    getCreditLog().then(({ data }) => { if (data) setCreditLog(data) })
-    getReferral().then(  ({ data }) => { if (data) setReferral(data) })
-    getClassInfo().then( ({ data }) => { if (data) setClassInfo(data) })
+    getCreditLog().then(({ data }) => { if (data) setCreditLog(data) }).catch(() => {})
+    getReferral().then(  ({ data }) => { if (data) setReferral(data) }).catch(() => {})
+    getClassInfo().then( ({ data }) => { if (data) setClassInfo(data) }).catch(() => {})
   }, [user])
 
   useEffect(() => {
@@ -430,7 +430,7 @@ export default function Account() {
     if (activeTab !== TAB_ANALYTICS) return
     if (memoryFetched.current) return
     memoryFetched.current = true
-    getMemoryData().then(({ data }) => { if (data) setMemoryData(data) })
+    getMemoryData().then(({ data }) => { if (data) setMemoryData(data) }).catch(() => {})
   }, [activeTab])
 
   // Fetch AI weekly summary once when analytics tab opens with weeklyReport data
@@ -1978,12 +1978,12 @@ export default function Account() {
                 {/* ─── end Social Proof ───────────────────────────────────── */}
 
                 {/* ─── Learner Timeline ────────────────────────────────────── */}
-                {timeline?.length > 0 && (
-                  <section className="rounded-2xl p-5 flex flex-col gap-3"
-                    style={{ background: '#0D1521', border: '1px solid #1E2A44' }}>
-                    <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#818CF8' }}>
-                      Hành trình học tập
-                    </p>
+                <section className="rounded-2xl p-5 flex flex-col gap-3"
+                  style={{ background: '#0D1521', border: '1px solid #1E2A44' }}>
+                  <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#818CF8' }}>
+                    Hành trình học tập
+                  </p>
+                  {timeline?.length > 0 ? (
                     <div className="flex flex-col gap-2">
                       {timeline.slice(0, 5).map((entry, i) => (
                         <div key={i} className="flex items-start gap-3">
@@ -1999,8 +1999,12 @@ export default function Account() {
                         </div>
                       ))}
                     </div>
-                  </section>
-                )}
+                  ) : (
+                    <p className="text-sm" style={{ color: '#475569' }}>
+                      Chưa có các bước ngoặt — hoàn thành 3+ bài thi để thấy hành trình của bạn.
+                    </p>
+                  )}
+                </section>
                 {/* ─── end Learner Timeline ────────────────────────────────── */}
 
                 {/* ─── MOAT 4: Learning Journey ────────────────────────────── */}
