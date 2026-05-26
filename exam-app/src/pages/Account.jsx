@@ -326,6 +326,15 @@ export default function Account() {
   const [weeklyAISummaryLoading, setWeeklyAISummaryLoading] = useState(false)
   const weeklyAISummaryFetched = useRef(false)
 
+  // Pre-populate weekly summary from sessionStorage on mount (prevents re-fetch on tab switch)
+  useEffect(() => {
+    const cached = sessionStorage.getItem('zenith_weekly_summary')
+    if (cached) {
+      setWeeklyAISummary(cached)
+      weeklyAISummaryFetched.current = true
+    }
+  }, [])
+
   // ── Simulation briefing (MOAT 6) ──
   const [simBriefing, setSimBriefing] = useState(null)
   const simBriefingFetched = useRef(false)
@@ -452,7 +461,12 @@ export default function Account() {
       streak,
       days_studied: recentDates.size,
     })
-      .then(({ data }) => { if (data?.summary) setWeeklyAISummary(data.summary) })
+      .then(({ data }) => {
+        if (data?.summary) {
+          setWeeklyAISummary(data.summary)
+          sessionStorage.setItem('zenith_weekly_summary', data.summary)
+        }
+      })
       .finally(() => setWeeklyAISummaryLoading(false))
   }, [activeTab, weeklyReport, results, streak])
 

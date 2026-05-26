@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ZenithLogo from './ZenithLogo'
+import { getMyPartners } from '../api/aiClient'
 
 export default function Navbar({ onOpenAuth }) {
   const { user, logout } = useAuth()
@@ -13,6 +14,7 @@ export default function Navbar({ onOpenAuth }) {
   const [pendingSync, setPendingSync] = useState(
     parseInt(localStorage.getItem('offline_queue_size') ?? '0', 10)
   )
+  const [partnerRequestCount, setPartnerRequestCount] = useState(0)
 
   useEffect(() => {
     function onScroll() {
@@ -33,6 +35,14 @@ export default function Navbar({ onOpenAuth }) {
     window.addEventListener('storage', onStorage)
     return () => window.removeEventListener('storage', onStorage)
   }, [])
+
+  // Fetch pending study partner requests (complete tier only)
+  useEffect(() => {
+    if (!user || user.subscription_tier !== 'complete') return
+    getMyPartners()
+      .then(({ data }) => setPartnerRequestCount(data?.pending_received?.length ?? 0))
+      .catch(() => {})
+  }, [user?.id])
 
   // Close drawer on navigation
   useEffect(() => { setMenuOpen(false) }, [])
@@ -74,6 +84,16 @@ export default function Navbar({ onOpenAuth }) {
                 <span className="font-jakarta text-[10px] text-amber-400/70 border border-amber-400/30 rounded px-1.5 py-0.5">
                   {pendingSync} chờ đồng bộ
                 </span>
+              )}
+              {partnerRequestCount > 0 && (
+                <button
+                  onClick={() => navigate('/account#aitia')}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-full font-jakarta text-xs font-semibold transition"
+                  style={{ background: '#818CF822', color: '#818CF8', border: '1px solid #818CF840' }}
+                  title="Lời mời học nhóm"
+                >
+                  👥 {partnerRequestCount} lời mời
+                </button>
               )}
               {user.credits_balance != null && (
                 <button
