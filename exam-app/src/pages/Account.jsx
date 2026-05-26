@@ -355,6 +355,108 @@ export default function Account() {
   // ── Class rank display (Sprint 19) ──
   const classRankDisplay = useMemo(() => getClassRankDisplay(classInfo), [classInfo])
 
+  // ── All derived memos — MUST be before any conditional return (Rules of Hooks) ──
+  const tier   = user?.subscription_tier || 'basic'
+  const radarData     = useMemo(() => aggregateTopicAccuracy(results), [results])
+  const sparkData     = useMemo(() => {
+    const sorted = [...results].sort((a, b) => new Date(a.finishedAt) - new Date(b.finishedAt)).slice(-10)
+    return sorted.map((r, i) => ({ i, score: r.score ?? 0 }))
+  }, [results])
+  const daysUntil     = user ? getDaysUntilExam(user.province) : null
+  const streak        = useMemo(() => computeStreak(results), [results])
+  const earnedBadgeIds = useMemo(() => new Set(computeBadges(results).map(b => b.id)), [results])
+  const avgScore = results.length
+    ? (results.reduce((s, r) => s + (r.score ?? 0), 0) / results.length).toFixed(1)
+    : '—'
+  const socialProof   = useMemo(
+    () => getSocialProofMessage(peerStats, parseFloat(avgScore) || 0),
+    [peerStats, avgScore]
+  )
+  const memoryInsights = useMemo(() => getMemoryInsights(memoryData), [memoryData])
+  const heatmapCells  = useMemo(() => buildHeatmap(results), [results])
+  const topicNodes    = useMemo(() => getTopicNodes(radarData), [radarData])
+  const priorityTopics = useMemo(() => getPriorityTopics(topicNodes), [topicNodes])
+  const trendInsight  = useMemo(() => interpretScoreTrend(sparkData), [sparkData])
+  const radarInsight  = useMemo(() => interpretTopicRadar(radarData), [radarData])
+  const heatmapInsight = useMemo(() => interpretHeatmap(results), [results])
+  const todayFocus    = useMemo(() => getTodayFocus(radarData), [radarData])
+  const nextMilestone = useMemo(() => getNextMilestone(results, earnedBadgeIds), [results, earnedBadgeIds])
+  const streakPB      = useMemo(() => computeStreakPersonalBest(results), [results])
+  const masteryProgress = useMemo(() => user?.mastery_rank
+    ? getMasteryProgress(user.mastery_rank, user.solid_concept_count ?? 0)
+    : null, [user?.mastery_rank, user?.solid_concept_count])
+  const weeklyReport  = useMemo(() => generateWeeklyReport(results, radarData), [results, radarData])
+  const studyNudge    = useMemo(() => getStudyNudge(results), [results])
+  const examPhase     = useMemo(() => getExamPhase(daysUntil), [daysUntil])
+  const simulationMode = useMemo(() => getSimulationMode(daysUntil), [daysUntil])
+  const weakTopics    = useMemo(
+    () => [...radarData].sort((a, b) => a.score - b.score).slice(0, 2).map(d => d.topic),
+    [radarData]
+  )
+  const scoreCI       = useMemo(() => getScoreConfidenceInterval(sparkData, user?.target_score ?? null), [sparkData, user?.target_score])
+  const dailyPlan     = useMemo(() => getDailySimulationPlan(simulationMode, weakTopics.slice(0, 2)), [simulationMode, weakTopics])
+  const archetype     = useMemo(() => classifyLearner(results), [results])
+  const timeline      = useMemo(() => getLearnerTimeline(results), [results])
+  const scoreProjection = useMemo(() => getScoreProjection(sparkData, daysUntil), [sparkData, daysUntil])
+  const topupRec      = useMemo(() => getTopupRecommendation(creditLog, user?.credits_balance ?? 0, TOPUP_PACKAGES), [creditLog, user?.credits_balance])
+  const trialUrgency  = useMemo(() => getTrialUrgency(user), [user])
+  const studentSavingsDays  = useMemo(() => getAnnualSavingsDays(29000, 261000), [])
+  const completeSavingsDays = useMemo(() => getAnnualSavingsDays(59000, 531000), [])
+  const goalStatus    = useMemo(() => getGoalStatus(user, sparkData), [user, sparkData])
+  const sessionPatterns = useMemo(() => getSessionPatterns(results), [results])
+  const progressReport = useMemo(
+    () => generateProgressReport(user, results, streak, streakPB, radarData),
+    [user, results, streak, streakPB, radarData]
+  )
+  const advisorMsg    = useMemo(() => getAdvisorMessage({
+    results, streak, streakPB, sessionPatterns, scoreProjection, goalStatus,
+    weeklyReport, examPhase, progressReport,
+  }), [results, streak, streakPB, sessionPatterns, scoreProjection, goalStatus, weeklyReport, examPhase, progressReport])
+  const provinceNarrative = useMemo(() => getProvinceNarrative(provinceData), [provinceData])
+  const tierGap = useMemo(() => getTierGap(tier), [tier])
+  const provincialCtx = useMemo(() => getProvincialContext(user?.province), [user?.province])
+  const difficultyInsight = useMemo(
+    () => getDifficultyInsight(user?.province, parseFloat(avgScore) || null),
+    [user?.province, avgScore]
+  )
+  const runwayDays = useMemo(() => {
+    if (!creditLog.length) return null
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000
+    const spent = creditLog
+      .filter(e => e.delta < 0 && new Date(e.created_at).getTime() > cutoff)
+      .reduce((s, e) => s + Math.abs(e.delta), 0)
+    if (!spent) return null
+    const dailyRate = spent / 7
+    return Math.round((user?.credits_balance ?? 0) / dailyRate)
+  }, [creditLog, user?.credits_balance])
+  const weeks = useMemo(() => {
+    const w = []
+    for (let i = 0; i < 52; i++) w.push(heatmapCells.slice(i * 7, i * 7 + 7))
+    return w
+  }, [heatmapCells])
+  const monthLabels = useMemo(() => {
+    const labels = {}
+    for (let w = 0; w < weeks.length; w++) {
+      const first = weeks[w][0]
+      if (!first) continue
+      const prevFirst = w > 0 ? weeks[w - 1][0] : null
+      if (!prevFirst || first.month !== prevFirst.month) {
+        labels[w] = `T${first.month + 1}`
+      }
+    }
+    return labels
+  }, [weeks])
+  const lastExamDate = results.length > 0 ? results[results.length - 1].finishedAt : null
+  const todayExamCount = results.filter(r => {
+    const d = new Date(r.finishedAt)
+    const today = new Date()
+    return d.getFullYear() === today.getFullYear() &&
+           d.getMonth() === today.getMonth() &&
+           d.getDate() === today.getDate()
+  }).length
+  const streakRecovery = getStreakRecoveryStatus(lastExamDate, streak, todayExamCount)
+  const urgencyColor  = examPhase?.colorPrimary ?? '#818CF8'
+
   // ── Data fetching ──
   useEffect(() => {
     if (!user) return
@@ -527,154 +629,11 @@ export default function Account() {
     )
   }
 
-  // ── Derived values ──
-  const tier   = user.subscription_tier || 'basic'
+  // ── Additional non-hook derived values (all useMemos declared above early-return) ──
   const plans  = billing === 'annual' ? PLANS_ANNUAL : PLANS_MONTHLY
-  const streak = useMemo(() => computeStreak(results), [results])
-  const daysUntil = user ? getDaysUntilExam(user.province) : null
-  const earnedBadgeIds = useMemo(() => new Set(computeBadges(results).map(b => b.id)), [results])
-  const avgScore = results.length
-    ? (results.reduce((s, r) => s + (r.score ?? 0), 0) / results.length).toFixed(1)
-    : '—'
-
-  const socialProof = useMemo(
-    () => getSocialProofMessage(peerStats, parseFloat(avgScore) || 0),
-    [peerStats, avgScore]
-  )
-
-  // Sprint 20: longitudinal learner memory insights
-  const memoryInsights = useMemo(() => getMemoryInsights(memoryData), [memoryData])
-
-  // Readiness display helpers
   const readinessPct   = readiness?.readiness ?? 0
   const readinessColor = readinessPct >= 70 ? '#34D399' : readinessPct >= 40 ? '#F2A20C' : '#EF4444'
   const readinessLabel = readinessPct >= 70 ? 'Sẵn sàng tốt' : readinessPct >= 40 ? 'Đang tiến bộ' : 'Cần luyện thêm'
-
-  const radarData    = useMemo(() => aggregateTopicAccuracy(results), [results])
-  const topicNodes   = useMemo(() => getTopicNodes(radarData), [radarData])
-  const priorityTopics = useMemo(() => getPriorityTopics(topicNodes), [topicNodes])
-  const heatmapCells = useMemo(() => buildHeatmap(results), [results])
-  const sparkData    = useMemo(() => {
-    const sorted = [...results].sort((a, b) => new Date(a.finishedAt) - new Date(b.finishedAt)).slice(-10)
-    return sorted.map((r, i) => ({ i, score: r.score ?? 0 }))
-  }, [results])
-
-  // Insight interpretations (deterministic, no LLM cost)
-  const trendInsight    = useMemo(() => interpretScoreTrend(sparkData), [sparkData])
-  const radarInsight    = useMemo(() => interpretTopicRadar(radarData), [radarData])
-  const heatmapInsight  = useMemo(() => interpretHeatmap(results), [results])
-  const todayFocus      = useMemo(() => getTodayFocus(radarData), [radarData])
-  const nextMilestone   = useMemo(() => getNextMilestone(results, earnedBadgeIds), [results, earnedBadgeIds])
-
-  // Sprint 3: streak personal best, mastery progression, weekly report, urgency
-  const streakPB        = useMemo(() => computeStreakPersonalBest(results), [results])
-  const masteryProgress = useMemo(() => user.mastery_rank
-    ? getMasteryProgress(user.mastery_rank, user.solid_concept_count ?? 0)
-    : null, [user.mastery_rank, user.solid_concept_count])
-  const weeklyReport    = useMemo(() => generateWeeklyReport(results, radarData), [results, radarData])
-  const studyNudge      = useMemo(() => getStudyNudge(results), [results])
-  const examPhase      = useMemo(() => getExamPhase(daysUntil), [daysUntil])
-  const simulationMode = useMemo(() => getSimulationMode(daysUntil), [daysUntil])
-  const urgencyColor = examPhase?.colorPrimary ?? '#818CF8'
-
-  // MOAT6: score confidence interval + daily plan
-  const weakTopics = useMemo(
-    () => [...radarData].sort((a, b) => a.score - b.score).slice(0, 2).map(d => d.topic),
-    [radarData]
-  )
-  const scoreCI    = useMemo(() => getScoreConfidenceInterval(sparkData, user?.target_score ?? null), [sparkData, user?.target_score])
-  const dailyPlan  = useMemo(() => getDailySimulationPlan(simulationMode, weakTopics.slice(0, 2)), [simulationMode, weakTopics])
-
-  // Streak recovery
-  const lastExamDate = results.length > 0 ? results[results.length - 1].finishedAt : null
-  const todayExamCount = results.filter(r => {
-    const d = new Date(r.finishedAt)
-    const today = new Date()
-    return d.getFullYear() === today.getFullYear() &&
-           d.getMonth() === today.getMonth() &&
-           d.getDate() === today.getDate()
-  }).length
-  const streakRecovery = getStreakRecoveryStatus(lastExamDate, streak, todayExamCount)
-
-  // Sprint 5: learner identity + score projection
-  const archetype       = useMemo(() => classifyLearner(results), [results])
-  const timeline        = useMemo(() => getLearnerTimeline(results), [results])
-  const scoreProjection = useMemo(() => getScoreProjection(sparkData, daysUntil), [sparkData, daysUntil])
-
-  // Sprint 6: monetization intelligence
-  const topupRec      = useMemo(() => getTopupRecommendation(creditLog, user.credits_balance ?? 0, TOPUP_PACKAGES), [creditLog, user.credits_balance])
-  const trialUrgency  = useMemo(() => getTrialUrgency(user), [user])
-  const studentSavingsDays  = useMemo(() => getAnnualSavingsDays(29000, 261000), [])
-  const completeSavingsDays = useMemo(() => getAnnualSavingsDays(59000, 531000), [])
-
-  // Sprint 7: goal-aligned intelligence
-  const goalStatus = useMemo(() => getGoalStatus(user, sparkData), [user, sparkData])
-
-  // Sprint 9: progress share report
-  const progressReport = useMemo(
-    () => generateProgressReport(user, results, streak, streakPB, radarData),
-    [user, results, streak, streakPB, radarData]
-  )
-
-  // Sprint 10: session timing patterns
-  const sessionPatterns = useMemo(() => getSessionPatterns(results), [results])
-
-  // Sprint 11: advisor message — context synthesis across all analytics
-  const advisorMsg = useMemo(() => getAdvisorMessage({
-    results,
-    streak,
-    streakPB,
-    sessionPatterns,
-    scoreProjection,
-    goalStatus,
-    weeklyReport,
-    examPhase,
-    progressReport,
-  }), [results, streak, streakPB, sessionPatterns, scoreProjection, goalStatus, weeklyReport, examPhase, progressReport])
-
-  // Sprint 12: province narrative, tier gap, upgrade context
-  const provinceNarrative = useMemo(() => getProvinceNarrative(provinceData), [provinceData])
-  const tierGap = useMemo(() => getTierGap(tier), [tier])
-
-  // MOAT2: provincial difficulty context
-  const provincialCtx = useMemo(() => getProvincialContext(user?.province), [user?.province])
-  const difficultyInsight = useMemo(
-    () => getDifficultyInsight(user?.province, parseFloat(avgScore) || null),
-    [user?.province, avgScore]
-  )
-
-  // Daily spend rate (last 7 days from creditLog)
-  const runwayDays = useMemo(() => {
-    if (!creditLog.length) return null
-    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000
-    const spent = creditLog
-      .filter(e => e.delta < 0 && new Date(e.created_at).getTime() > cutoff)
-      .reduce((s, e) => s + Math.abs(e.delta), 0)
-    if (!spent) return null
-    const dailyRate = spent / 7
-    return Math.round((user.credits_balance ?? 0) / dailyRate)
-  }, [creditLog, user.credits_balance])
-
-  // Heatmap: group into 52 weeks, derive month labels
-  const weeks = useMemo(() => {
-    const w = []
-    for (let i = 0; i < 52; i++) w.push(heatmapCells.slice(i * 7, i * 7 + 7))
-    return w
-  }, [heatmapCells])
-
-  const monthLabels = useMemo(() => {
-    // For each week, record month if first cell of week starts a new month
-    const labels = {}
-    for (let w = 0; w < weeks.length; w++) {
-      const first = weeks[w][0]
-      if (!first) continue
-      const prevFirst = w > 0 ? weeks[w - 1][0] : null
-      if (!prevFirst || first.month !== prevFirst.month) {
-        labels[w] = `T${first.month + 1}`
-      }
-    }
-    return labels
-  }, [weeks])
 
   // ── Handlers ──
   async function handleSaveProfile() {

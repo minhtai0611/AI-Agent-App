@@ -91,11 +91,16 @@ self.addEventListener('fetch', e => {
   }
 
   // Everything else — network-first with cache fallback
+  // Only cache same-origin responses to avoid CSP violations on cross-origin URLs
+  // (e.g. Google avatar images at lh3.googleusercontent.com)
+  if (url.origin !== self.location.origin) return
+
   e.respondWith(
     fetch(request)
       .then(res => {
-        if (res.ok && url.origin === self.location.origin) {
-          caches.open(CACHE_ASSETS).then(c => c.put(request, res.clone()))
+        if (res.ok) {
+          const clone = res.clone()
+          caches.open(CACHE_ASSETS).then(c => c.put(request, clone))
         }
         return res
       })
