@@ -1,8 +1,10 @@
 export const DEFAULT_PREFERENCES = {
-  hint_style:        'socratic',       // 'socratic' | 'direct' | 'visual'
-  explanation_depth: 'detailed',       // 'brief' | 'detailed' | 'step-by-step'
-  language_mix:      'vietnamese-only',// 'vietnamese-only' | 'mixed'
-  weak_topic_focus:  true,             // auto-prioritise weak topics in hints
+  hint_style:           'socratic',       // 'socratic' | 'direct' | 'visual'
+  explanation_depth:    'detailed',       // 'brief' | 'detailed' | 'step-by-step'
+  language_mix:         'vietnamese-only',// 'vietnamese-only' | 'mixed'
+  weak_topic_focus:     true,             // auto-prioritise weak topics in hints
+  encouragement_level:  'moderate',       // 'minimal' | 'moderate' | 'high'
+  session_length_pref:  30,               // session length in minutes: 15 | 30 | 45 | 60
 }
 
 export const STORAGE_KEY = 'ai_preferences'

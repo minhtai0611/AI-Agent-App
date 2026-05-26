@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   RadarChart, PolarGrid, PolarAngleAxis, Radar,
-  LineChart, Line, ResponsiveContainer,
+  LineChart, Line, ResponsiveContainer, ReferenceLine,
 } from 'recharts'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
@@ -14,7 +14,7 @@ import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { useToast } from '../context/ToastContext.jsx'
-import { computeStreak, computeStreakPersonalBest } from '../utils/streak.js'
+import { computeStreak, computeStreakPersonalBest, getStreakRecoveryStatus } from '../utils/streak.js'
 import { getDaysUntilExam } from '../utils/examCountdown.js'
 import { computeBadges, BADGE_DEFS } from '../utils/badges.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
@@ -566,6 +566,17 @@ export default function Account() {
   const scoreCI    = useMemo(() => getScoreConfidenceInterval(sparkData, user?.target_score ?? null), [sparkData, user?.target_score])
   const dailyPlan  = useMemo(() => getDailySimulationPlan(simulationMode, weakTopics.slice(0, 2)), [simulationMode, weakTopics])
 
+  // Streak recovery
+  const lastExamDate = results.length > 0 ? results[results.length - 1].finishedAt : null
+  const todayExamCount = results.filter(r => {
+    const d = new Date(r.finishedAt)
+    const today = new Date()
+    return d.getFullYear() === today.getFullYear() &&
+           d.getMonth() === today.getMonth() &&
+           d.getDate() === today.getDate()
+  }).length
+  const streakRecovery = getStreakRecoveryStatus(lastExamDate, streak, todayExamCount)
+
   // Sprint 5: learner identity + score projection
   const archetype       = useMemo(() => classifyLearner(results), [results])
   const timeline        = useMemo(() => getLearnerTimeline(results), [results])
@@ -877,6 +888,17 @@ export default function Account() {
                   </div>
                 )}
               </section>
+            )}
+
+            {/* Streak recovery nudge */}
+            {streakRecovery?.canRecover && (
+              <div className="rounded-xl px-4 py-3 flex items-center gap-3"
+                style={{ background: '#1A1205', border: '1px solid #F2A20C44' }}>
+                <span className="text-lg">🔥</span>
+                <p className="text-sm" style={{ color: '#F2A20C' }}>
+                  {streakRecovery.reason}
+                </p>
+              </div>
             )}
 
             {/* Exam simulation mode — shown for daysUntil ≤ 14 */}
@@ -1564,6 +1586,14 @@ export default function Account() {
                         stroke="#F2A20C" strokeWidth={2}
                         dot={false} isAnimationActive={false}
                       />
+                      {user?.target_score && (
+                        <ReferenceLine
+                          y={user.target_score}
+                          stroke="#818CF8"
+                          strokeDasharray="4 2"
+                          label={{ value: `Mục tiêu ${user.target_score}`, fill: '#818CF8', fontSize: 10, position: 'insideTopRight' }}
+                        />
+                      )}
                     </LineChart>
                   </ResponsiveContainer>
                   {trendInsight && (
@@ -1895,6 +1925,32 @@ export default function Account() {
                   </section>
                 )}
                 {/* ─── end Social Proof ───────────────────────────────────── */}
+
+                {/* ─── Learner Timeline ────────────────────────────────────── */}
+                {timeline?.length > 0 && (
+                  <section className="rounded-2xl p-5 flex flex-col gap-3"
+                    style={{ background: '#0D1521', border: '1px solid #1E2A44' }}>
+                    <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#818CF8' }}>
+                      Hành trình học tập
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      {timeline.slice(0, 5).map((entry, i) => (
+                        <div key={i} className="flex items-start gap-3">
+                          <span className="text-base mt-0.5">{entry.icon ?? '📌'}</span>
+                          <div className="flex flex-col gap-0.5">
+                            <p className="text-sm" style={{ color: '#CBD5E1' }}>
+                              {entry.label}{entry.extra ? ` — ${entry.extra} điểm` : ''}
+                            </p>
+                            <p className="text-xs" style={{ color: '#475569' }}>
+                              {entry.date ? new Date(entry.date).toLocaleDateString('vi-VN', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+                {/* ─── end Learner Timeline ────────────────────────────────── */}
 
                 {/* ─── MOAT 4: Learning Journey ────────────────────────────── */}
                 <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
@@ -2530,6 +2586,47 @@ export default function Account() {
                 >
                   <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${aiPrefs.weak_topic_focus ? 'translate-x-7' : 'translate-x-1'}`} />
                 </button>
+              </div>
+
+              {/* encouragement_level */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-semibold" style={{ color: '#94A3B8' }}>
+                  Mức độ động viên
+                </label>
+                <div className="flex gap-2">
+                  {[
+                    { value: 'minimal',  label: 'Ít' },
+                    { value: 'moderate', label: 'Vừa' },
+                    { value: 'high',     label: 'Nhiều' },
+                  ].map(opt => (
+                    <button key={opt.value}
+                      onClick={() => setAIPrefs({ ...aiPrefs, encouragement_level: opt.value })}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                      style={{
+                        background: aiPrefs.encouragement_level === opt.value ? '#818CF8' : '#1E2A44',
+                        color: aiPrefs.encouragement_level === opt.value ? '#fff' : '#94A3B8',
+                      }}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* session_length_pref */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-semibold" style={{ color: '#94A3B8' }}>
+                  Thời lượng buổi học
+                </label>
+                <select
+                  value={aiPrefs.session_length_pref}
+                  onChange={e => setAIPrefs({ ...aiPrefs, session_length_pref: Number(e.target.value) })}
+                  className="rounded-lg px-3 py-2 text-sm"
+                  style={{ background: '#1E2A44', color: '#CBD5E1', border: '1px solid #334155' }}>
+                  <option value={15}>15 phút</option>
+                  <option value={30}>30 phút</option>
+                  <option value={45}>45 phút</option>
+                  <option value={60}>60 phút</option>
+                </select>
               </div>
             </section>
 
