@@ -1,4 +1,5 @@
 import { useState, lazy, Suspense, useCallback } from 'react'
+import { MotionConfig } from 'framer-motion'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { ExamProvider } from './context/ExamContext.jsx'
 import { HistoryProvider } from './context/HistoryContext.jsx'
@@ -196,10 +197,12 @@ function AppInner() {
 
 export default function App() {
   return (
-    <HistoryProvider>
-      <ExamProvider>
-        <AppInner />
-      </ExamProvider>
-    </HistoryProvider>
+    <MotionConfig reducedMotion="user">
+      <HistoryProvider>
+        <ExamProvider>
+          <AppInner />
+        </ExamProvider>
+      </HistoryProvider>
+    </MotionConfig>
   )
 }

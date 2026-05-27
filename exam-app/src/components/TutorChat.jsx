@@ -114,10 +114,11 @@ export default function TutorChat({ open, onClose, examContext }) {
         role="dialog"
         aria-modal="true"
         aria-label="AI Gia sư"
-        className="fixed top-0 right-0 h-full z-50 flex flex-col bg-[#0D1221] border-l border-[#1E2A44] transition-transform duration-300"
+        className="fixed top-0 right-0 h-full z-50 flex flex-col bg-[#0D1221] border-l border-[#1E2A44] transition-opacity duration-200"
         style={{
           width: panelWidth,
-          transform: open ? 'translateX(0)' : 'translateX(100%)',
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? 'auto' : 'none',
         }}
       >
         {/* Drag handle */}
@@ -184,14 +185,8 @@ export default function TutorChat({ open, onClose, examContext }) {
           ))}
           {loading && (
             <div className="flex justify-start">
-              <div className="bg-[#111827] border border-[#1E2A44] px-4 py-3 rounded-2xl rounded-bl-sm flex gap-1">
-                {[0, 1, 2].map(i => (
-                  <span
-                    key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-[#475569] animate-bounce"
-                    style={{ animationDelay: `${i * 0.15}s` }}
-                  />
-                ))}
+              <div className="bg-[#111827] border border-[#1E2A44] px-4 py-3 rounded-2xl rounded-bl-sm">
+                <span className="font-jakarta text-[13px] text-[#475569]">Đang soạn…</span>
               </div>
             </div>
           )}

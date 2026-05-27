@@ -803,8 +803,7 @@ export default function Results({ onOpenAuth }) {
                   style={{ borderColor: '#818CF8', borderTopColor: 'transparent' }} />
               )}
               {activeTab === tab.id && (
-                <motion.div layoutId="tab-underline"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F2A20C]" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F2A20C]" />
               )}
             </button>
           ))}
@@ -956,8 +955,8 @@ export default function Results({ onOpenAuth }) {
                         </button>
                         <AnimatePresence>
                           {open && (
-                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
                               <div className="px-5 py-4 flex flex-col gap-3 border-t border-[#1E2A44]">
                                 <MathText className="font-jakarta text-[13px] text-[#F0F4FF] leading-relaxed">{q.question}</MathText>
                                 <div className="flex flex-col gap-2">

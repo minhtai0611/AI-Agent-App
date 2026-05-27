@@ -20,7 +20,7 @@ import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { requestStudyReminder } from '../utils/studyReminder.js'
 import { getInitialTab, formatCreditSessions, TAB_PROGRESS, TAB_ANALYTICS, TAB_AITIA, TAB_SETTINGS } from '../utils/accountHelpers.js'
 import { interpretScoreTrend, getTodayFocus, getNextMilestone } from '../utils/insights.js'
-import { getMasteryProgress, MASTERY_TIERS, didRankAdvance } from '../utils/masteryRank.js'
+import { getMasteryProgress, MASTERY_TIERS } from '../utils/masteryRank.js'
 import { generateWeeklyReport } from '../utils/weeklyReport.js'
 import { getStudyNudge } from '../utils/studyNudge.js'
 import { classifyLearner } from '../utils/learnerArchetype.js'
@@ -292,8 +292,6 @@ export default function Account() {
 
   // ── Heatmap scroll ref ──
   // ── Mastery rank advancement animation ──
-  const [showRankUp, setShowRankUp] = useState(false)
-  const prevRankRef = useRef(user?.mastery_rank)
 
   // ── AI chart insights (Sprint 16) ──
   const [chartInsights,        setChartInsights]        = useState(null)
@@ -412,14 +410,6 @@ export default function Account() {
     if (!loading && !user) navigate('/', { replace: true })
   }, [loading, user, navigate])
 
-  // Mastery rank advancement detection — show celebration overlay on rank-up
-  useEffect(() => {
-    if (didRankAdvance(prevRankRef.current, user?.mastery_rank)) {
-      setShowRankUp(true)
-      setTimeout(() => setShowRankUp(false), 3000)
-    }
-    prevRankRef.current = user?.mastery_rank
-  }, [user?.mastery_rank])
 
   // Fetch AI chart insights once when analytics tab opens with enough data
   useEffect(() => {
@@ -2260,9 +2250,10 @@ export default function Account() {
               <AnimatePresence>
                 {dangerOpen && (
                   <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
                     className="overflow-hidden flex flex-col gap-5"
                   >
                     <div className="flex items-start justify-between gap-4 flex-wrap pt-2 border-t border-[#1E2A44]">
@@ -2447,41 +2438,6 @@ export default function Account() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* ── Mastery rank advancement celebration overlay ────────────────── */}
-      {showRankUp && (
-        <div
-          className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none"
-          style={{ animation: 'fadeInOut 3s ease-in-out forwards' }}
-        >
-          <div
-            className="bg-[#0D1521] border border-[#818CF8] rounded-2xl px-8 py-6 flex flex-col items-center gap-3 shadow-2xl max-w-sm text-center"
-            style={{ animation: 'scaleIn 0.3s ease-out' }}
-          >
-            <span className="text-4xl">⭐</span>
-            <p className="font-jakarta font-bold text-white text-xl">Thăng hạng!</p>
-            <p className="text-[#818CF8] text-sm font-medium">{MASTERY_RANK_LABELS[user?.mastery_rank] ?? user?.mastery_rank}</p>
-            {user?.hard_correct_30d > 0 && (
-              <p className="font-jakarta text-[12px] text-[#94A3B8] leading-relaxed">
-                Bạn đã trả lời đúng <span className="text-[#F2A20C] font-semibold">{user.hard_correct_30d} câu hỏi khó</span> trong 30 ngày qua. Đây là lý do bạn lên hạng.
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      <style>{`
-        @keyframes fadeInOut {
-          0%   { opacity: 0; }
-          15%  { opacity: 1; }
-          75%  { opacity: 1; }
-          100% { opacity: 0; }
-        }
-        @keyframes scaleIn {
-          from { transform: scale(0.8); }
-          to   { transform: scale(1); }
-        }
-      `}</style>
 
       {/* Mobile bottom navigation — hidden on lg+ */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 pb-safe"

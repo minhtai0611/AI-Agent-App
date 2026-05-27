@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -27,6 +27,13 @@ function Skeleton() {
 function CheckpointBar({ target, current }) {
   const pct = Math.min(current / target, 1)
   const filled = Math.min(current, target)
+  // Animate the fill exactly once: only when completion is first reached this session.
+  // If already complete on mount (loaded from localStorage), no animation.
+  const wasCompleteOnMount = useRef(pct >= 1)
+  const hasAnimated = useRef(false)
+  const shouldAnimate = pct >= 1 && !wasCompleteOnMount.current && !hasAnimated.current
+  if (shouldAnimate) hasAnimated.current = true
+
   return (
     <div className="flex flex-col gap-1.5 mt-4">
       <div className="flex items-center justify-between">
@@ -35,7 +42,7 @@ function CheckpointBar({ target, current }) {
       </div>
       <div className="h-1.5 bg-[#1E2A44] rounded-full overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-500"
+          className={`h-full rounded-full${shouldAnimate ? ' transition-[width] duration-[250ms] ease-linear' : ''}`}
           style={{ width: `${pct * 100}%`, background: pct >= 1 ? '#10B981' : 'linear-gradient(90deg, #F2A20C, #10B981)' }}
         />
       </div>
@@ -48,18 +55,42 @@ function CheckpointBar({ target, current }) {
 
 function FocusCard({ area, index, streak, onPractice }) {
   const [open, setOpen] = useState(index === 0)
+  const checkpoint = area.checkpoint
+  const isResolved = checkpoint ? streak >= checkpoint.target : false
+  const wasResolvedOnMount = useRef(isResolved)
+
   return (
-    <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl overflow-hidden">
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{
+        background: isResolved ? '#0A1A10' : '#0D1221',
+        border: `1px solid ${isResolved ? '#2D4A1A' : '#1E2A44'}`,
+      }}
+    >
       <button
         type="button"
         className="w-full flex items-center justify-between px-6 py-4 text-left"
         onClick={() => setOpen(v => !v)}
       >
         <div className="flex items-center gap-3">
-          <span className="w-6 h-6 rounded-full bg-[#F2A20C1A] border border-[#F2A20C40] flex items-center justify-center font-jakarta text-[11px] font-bold text-[#F2A20C]">
-            {index + 1}
-          </span>
-          <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">
+          <AnimatePresence mode="wait" initial={false}>
+            {isResolved ? (
+              <motion.span
+                key="resolved"
+                initial={wasResolvedOnMount.current ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.25 }}
+                className="w-6 h-6 rounded-full bg-[#10B9811A] border border-[#10B98140] flex items-center justify-center font-jakarta text-[11px] font-bold text-[#10B981]"
+              >
+                ✓
+              </motion.span>
+            ) : (
+              <span className="w-6 h-6 rounded-full bg-[#F2A20C1A] border border-[#F2A20C40] flex items-center justify-center font-jakarta text-[11px] font-bold text-[#F2A20C]">
+                {index + 1}
+              </span>
+            )}
+          </AnimatePresence>
+          <span className={`font-fraunces text-[15px] font-semibold ${isResolved ? 'text-[#94A3B8]' : 'text-[#F8FAFC]'}`}>
             <MathText>{area.topic}</MathText>
           </span>
         </div>
@@ -196,7 +227,7 @@ export default function StudyPlan() {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
       className="min-h-screen bg-[#0A0E1A] flex flex-col"
     >
       <nav className="flex items-center justify-between px-8 bg-[#0D1221] border-b border-[#1E2A44]" style={{ height: 64 }}>

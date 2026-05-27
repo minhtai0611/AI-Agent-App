@@ -85,6 +85,8 @@ function updateSM2(entry, quality) {
   }
 }
 
+const STAGE_NAMES = ['', 'Mới tiếp cận', 'Đang học', 'Luyện tập', 'Vững', 'Thành thạo']
+
 export default function ReviewSession() {
   usePageTitle('Ôn tập hôm nay')
   const navigate = useNavigate()
@@ -99,7 +101,7 @@ export default function ReviewSession() {
   const [chosen, setChosen] = useState(null)
   const [results, setResults] = useState([])
   const [done, setDone] = useState(false)
-  const [masteryMoment, setMasteryMoment] = useState(null) // {name_vi, new_stage}
+  const [stageLabel, setStageLabel] = useState(null)
   const [wrongStreak, setWrongStreak] = useState(0)
   const startTimeRef = useRef(null)
 
@@ -181,8 +183,8 @@ export default function ReviewSession() {
       if (serverItem) {
         try {
           const { data } = await answerReviewItem(serverItem.id, quality, responseTimeSec)
-          if (data?.stage_advanced && data?.concept_name_vi) {
-            setMasteryMoment({ name_vi: data.concept_name_vi, new_stage: data.new_stage })
+          if (data?.stage_advanced && data?.new_stage) {
+            setStageLabel(STAGE_NAMES[data.new_stage] ?? 'Tiếp theo')
           }
         } catch { /* non-fatal — progress still advances */ }
       }
@@ -264,51 +266,11 @@ export default function ReviewSession() {
 
   const isCorrect = chosen === question.correct
 
-  const STAGE_NAMES = ['', 'Mới tiếp cận', 'Đang học', 'Luyện tập', 'Vững', 'Thành thạo']
-
   return (
     <motion.div
       className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden"
       variants={pageVariants} initial="hidden" animate="show"
     >
-      {/* Mastery moment overlay */}
-      <AnimatePresence>
-        {masteryMoment && (
-          <motion.div
-            key="mastery"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4"
-            onClick={() => setMasteryMoment(null)}
-          >
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="flex flex-col items-center gap-5 text-center max-w-sm"
-              onClick={e => e.stopPropagation()}
-            >
-              <span className="text-6xl">🎯</span>
-              <div className="flex flex-col gap-2">
-                <span className="font-fraunces text-[26px] font-bold text-[#F8FAFC]">Tiến bộ!</span>
-                <span className="font-jakarta text-[16px] text-[#F2A20C] font-semibold">{masteryMoment.name_vi}</span>
-                <span className="font-jakarta text-[14px] text-[#94A3B8]">
-                  Đã đạt giai đoạn: <span className="text-[#10B981] font-semibold">{STAGE_NAMES[masteryMoment.new_stage] ?? 'Tiếp theo'}</span>
-                </span>
-              </div>
-              <button
-                onClick={() => setMasteryMoment(null)}
-                className="px-8 py-3 rounded-xl font-jakarta text-[14px] font-bold text-[#0A0E1A]"
-                style={{ background: 'linear-gradient(180deg, #10B981 0%, #059669 100%)' }}
-              >
-                Tiếp tục →
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
       <div className="absolute pointer-events-none rounded-full"
         style={{ width: 500, height: 500, right: -100, top: -50,
           background: 'radial-gradient(circle, #6366F112 0%, transparent 100%)' }} />
@@ -338,6 +300,18 @@ export default function ReviewSession() {
             {TOPIC_LABELS[question.topic] ?? question.topic}
           </span>
           <span className="font-jakarta text-[11px] text-[#475569]">Spaced Repetition</span>
+          <AnimatePresence mode="wait">
+            {stageLabel && (
+              <motion.span
+                key={stageLabel}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="font-jakarta text-[11px] text-[#34D399]"
+              >
+                → {stageLabel}
+              </motion.span>
+            )}
+          </AnimatePresence>
         </div>
 
         <AnimatePresence mode="wait">

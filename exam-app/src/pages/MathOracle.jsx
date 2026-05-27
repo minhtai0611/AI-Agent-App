@@ -535,7 +535,7 @@ function GeoGebraEmbed({ commands, onError }) {
       {/* Loading overlay — sits on top until GeoGebra is ready */}
       {status === 'loading' && (
         <div className="absolute inset-0 flex items-center justify-center bg-[#0F1726]">
-          <span className="font-jakarta text-[12px] text-[#475569] animate-pulse">Đang tải GeoGebra…</span>
+          <span className="font-jakarta text-[12px] text-[#475569]">Đang tải GeoGebra…</span>
         </div>
       )}
       {status === 'error' && null}
@@ -577,7 +577,7 @@ function AnswerCard({ result, problem }) {
   const showUnverifiedWarning = confidence === 'low' && !validation.valid
 
   return (
-    <div className="flex flex-col gap-5 animate-fade-in-up">
+    <div className="flex flex-col gap-5">
       {/* Problem statement */}
       {problem && (
         <div className="rounded-xl border border-[#2A3A5E] bg-[#0A0F1E] px-5 py-4">
@@ -674,7 +674,7 @@ function ReviewCard({ result, problem, solution }) {
   const verdictLabel = VERDICT_LABEL[result.verdict] || result.verdict
 
   return (
-    <div className="flex flex-col gap-5 animate-fade-in-up">
+    <div className="flex flex-col gap-5">
       {/* Problem */}
       {problem && (
         <div className="rounded-xl border border-[#2A3A5E] bg-[#0A0F1E] px-5 py-4">
@@ -1220,7 +1220,7 @@ export default function MathOracle() {
             </span>
             {/* Wiki status dot */}
             {wikiStatus === null
-              ? <div className="w-1.5 h-1.5 rounded-full bg-[#475569] animate-pulse" title="Đang tải…" />
+              ? <div className="w-1.5 h-1.5 rounded-full bg-[#475569]" title="Đang tải…" />
               : wikiReady
                 ? <div className="w-1.5 h-1.5 rounded-full bg-[#10B981]" title="Tri thức đã sẵn sàng" />
                 : <div className="w-1.5 h-1.5 rounded-full bg-[#334155]" title="" />
@@ -1352,7 +1352,7 @@ export default function MathOracle() {
                   title={listening ? 'Đang nghe...' : 'Nhập bằng giọng nói'}
                   onClick={startListening}
                   disabled={listening || ocring || loading}
-                  className={`p-1.5 transition disabled:opacity-40 ${listening ? 'text-red-400 animate-pulse' : 'text-[#475569] hover:text-[#94A3B8]'}`}
+                  className={`p-1.5 transition disabled:opacity-40 ${listening ? 'text-red-400' : 'text-[#475569] hover:text-[#94A3B8]'}`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
@@ -1486,8 +1486,7 @@ export default function MathOracle() {
 
         {/* OCR loading */}
         {(ocring || ocringS) && (
-          <div className="flex items-center gap-3 font-jakarta text-[14px] text-[#475569] animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-[#6366F1] animate-bounce" />
+          <div className="font-jakarta text-[14px] text-[#475569]">
             {ocringS ? 'Đang nhận diện ảnh lời giải…' : 'Đang nhận diện ảnh…'}
           </div>
         )}
@@ -1551,8 +1550,7 @@ export default function MathOracle() {
 
         {/* Loading */}
         {loading && (
-          <div className="flex items-center gap-3 font-jakarta text-[14px] text-[#475569] animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-[#6366F1] animate-bounce" />
+          <div className="font-jakarta text-[14px] text-[#475569]">
             {retryAttempt > 0
               ? `Đang thử lại sau timeout (lần ${retryAttempt + 1}/${MAX_RETRIES + 1})…`
               : chatMode === 'socratic' ? 'Oracle đang soạn câu hỏi gợi mở…'

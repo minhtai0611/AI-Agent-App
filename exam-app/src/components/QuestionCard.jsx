@@ -175,15 +175,9 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
         {question.choices.map((choice, i) => {
           const s = choiceStyle(i, chosen, showFeedback ? correctIndex : null, showFeedback)
           const isChosen = i === chosen
-          const feedbackAnim = showFeedback && isChosen
-            ? isCorrect
-              ? { scale: [1, 1.04, 1], transition: { duration: 0.35 } }
-              : { x: [-7, 7, -7, 7, 0], transition: { duration: 0.4 } }
-            : {}
           return (
-            <motion.button
+            <button
               key={i}
-              animate={feedbackAnim}
               className="w-full text-left flex items-center gap-3.5 px-[18px] py-3.5 rounded-xl transition-all"
               style={{ background: s.bg, border: `${s.bw} solid ${s.border}` }}
               onClick={() => !showFeedback && !submitted && onAnswer(i)}
@@ -198,7 +192,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
               <MathText className="font-jakarta text-[15px] font-medium" style={{ color: s.text }}>
                 {choice}
               </MathText>
-            </motion.button>
+            </button>
           )
         })}
       </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ZenithLogo from './ZenithLogo'
@@ -6,22 +6,10 @@ export default function Navbar({ onOpenAuth }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [avatarError, setAvatarError] = useState(false)
-  const [visible, setVisible] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
-  const lastScrollY = useRef(0)
   const [pendingSync, setPendingSync] = useState(
     parseInt(localStorage.getItem('offline_queue_size') ?? '0', 10)
   )
-
-  useEffect(() => {
-    function onScroll() {
-      const current = window.scrollY
-      setVisible(current <= 10 || current < lastScrollY.current)
-      lastScrollY.current = current
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
 
   useEffect(() => {
     function onStorage(e) {
@@ -60,8 +48,6 @@ export default function Navbar({ onOpenAuth }) {
         style={{
           height: 48,
           background: 'transparent',
-          transform: visible ? 'translateY(0)' : 'translateY(-100%)',
-          transition: 'transform 0.25s ease',
         }}
       >
         <ZenithLogo variant="nav" onClick={() => navigate('/')} />
