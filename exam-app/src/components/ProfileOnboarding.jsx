@@ -122,8 +122,9 @@ export default function ProfileOnboarding({ onDone }) {
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0A0E1A]/90 backdrop-blur-sm px-4">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25 }}
           className="w-full max-w-md bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-8 flex flex-col gap-6"
         >
           <div className="flex flex-col gap-1">

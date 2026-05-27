@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { pageVariants, listVariants, itemVariants } from '../utils/animations.js'
+import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
@@ -84,42 +84,29 @@ export default function Landing({ onOpenAuth }) {
       variants={pageVariants} initial="hidden" animate="show"
       style={{ background: 'radial-gradient(ellipse 140% 100% at 50% 35%, #1B2B4B 0%, #0A0E1A 100%)' }}
     >
-      {/* Amber glow */}
-      <div className="absolute pointer-events-none rounded-full"
-        style={{ width: 880, height: 560, left: '50%', top: 100, transform: 'translateX(-50%)',
-          background: 'radial-gradient(circle, #F2A20C18 0%, #F2A20C00 100%)' }} />
-
       {/* Hero section */}
-      <motion.div
+      <div
         className="relative z-10 flex flex-col items-center gap-10 text-center px-6 sm:px-8 pt-20 pb-16 w-full"
-        variants={listVariants}
-        initial="hidden"
-        animate="show"
       >
         <div className="flex flex-col items-center gap-5">
-          <motion.div variants={itemVariants}>
-            <ZenithLogo variant="hero" />
-          </motion.div>
-          <motion.span variants={itemVariants}
-            className="font-jakarta text-[11px] font-semibold text-[#F2A20C] tracking-[3px] uppercase">
+          <ZenithLogo variant="hero" />
+          <span className="font-jakarta text-[11px] font-semibold text-[#F2A20C] tracking-[3px] uppercase">
             Kỳ thi tuyển sinh {getExamYear()} · Toán Lớp 10
-          </motion.span>
-          <motion.h1 variants={itemVariants}
-            className="font-fraunces text-[56px] sm:text-[72px] font-bold text-[#F8FAFC] leading-[1.05] text-center">
+          </span>
+          <h1 className="font-fraunces text-[56px] sm:text-[72px] font-bold text-[#F8FAFC] leading-[1.05] text-center">
             Học để hiểu,<br />
             <span style={{ color: '#F2A20C' }}>không học để quên.</span>
-          </motion.h1>
-          <motion.p variants={itemVariants}
-            className="font-jakarta text-[17px] text-[#94A3B8] leading-relaxed max-w-[600px] text-center">
+          </h1>
+          <p className="font-jakarta text-[17px] text-[#94A3B8] leading-relaxed max-w-[600px] text-center">
             Toán Oracle giải từng bước — bạn học cách tư duy, không chỉ học đáp án.<br />
             <span className="text-[#64748B] text-[15px]">
               40+ đề thật từ 63 tỉnh thành · AI phát hiện lỗi sai và chỉ cách sửa.
             </span>
-          </motion.p>
+          </p>
         </div>
 
         {/* Oracle input + secondary links */}
-        <motion.div variants={itemVariants} className="w-full max-w-xl flex flex-col items-center gap-4">
+        <div className="w-full max-w-xl flex flex-col items-center gap-4">
           <form
             className="w-full flex items-center gap-2 bg-[#141D2E] border border-[#6366F144] rounded-xl px-4 py-3 focus-within:border-[#6366F188] transition"
             onSubmit={e => {
@@ -160,24 +147,24 @@ export default function Landing({ onOpenAuth }) {
               Kiểm tra đầu vào
             </button>
           </div>
-        </motion.div>
+        </div>
 
         {/* Today card — logged-in users only */}
         {user && (
-          <motion.div variants={itemVariants}
+          <div
             className="w-full max-w-xl bg-[#0D1527] border border-[#1E2A44] rounded-2xl px-5 py-4 flex items-center gap-5 flex-wrap"
           >
             {session?.placement_needed && (
               <button onClick={() => navigate('/placement')}
                 className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-[#6366F1] hover:opacity-80 transition">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#6366F1] animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#6366F1] " />
                 Bắt đầu kiểm tra năng lực →
               </button>
             )}
             {session?.pending_count > 0 && (
               <button onClick={() => navigate('/daily')}
                 className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-[#F2A20C] hover:opacity-80 transition">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#F2A20C] animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#F2A20C] " />
                 {session.pending_count} câu sai đang chờ — thử lại không?
               </button>
             )}
@@ -192,14 +179,14 @@ export default function Landing({ onOpenAuth }) {
             {(session?.due_count > 0) && (
               <button onClick={() => navigate('/review')}
                 className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-[#34D399] hover:opacity-80 transition">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] " />
                 {session.due_count} câu cần ôn
               </button>
             )}
             {session?.remediation_concept && (session.remediation_concept.error_count ?? 0) >= 3 && (
               <button onClick={() => navigate('/review')}
                 className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-[#FB7185] hover:opacity-80 transition">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#FB7185] animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FB7185] " />
                 Sửa lỗi {session.remediation_concept.name_vi} →
               </button>
             )}
@@ -231,12 +218,11 @@ export default function Landing({ onOpenAuth }) {
               className="ml-auto font-jakarta text-[12px] text-[#475569] hover:text-[#94A3B8] transition">
               Lịch sử →
             </button>
-          </motion.div>
+          </div>
         )}
 
         {/* Proof strip */}
-        <motion.div variants={itemVariants}
-          className="flex items-center gap-2 flex-wrap justify-center font-jakarta text-[13px] text-[#475569]">
+        <div className="flex items-center gap-2 flex-wrap justify-center font-jakarta text-[13px] text-[#475569]">
           {[
             { value: '1,104', label: 'câu từ đề thi thật', color: '#F2A20C' },
             { value: '63', label: 'tỉnh thành', color: '#F2A20C' },
@@ -249,11 +235,10 @@ export default function Landing({ onOpenAuth }) {
               {i < arr.length - 1 && <span className="text-[#1E2A44] mx-2">·</span>}
             </span>
           ))}
-        </motion.div>
+        </div>
 
         {/* Benefits strip */}
-        <motion.div variants={itemVariants}
-          className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-3 gap-3 px-0">
+        <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-3 gap-3 px-0">
           {[
             {
               icon: '✦', iconColor: '#818CF8',
@@ -278,8 +263,8 @@ export default function Landing({ onOpenAuth }) {
               <span className="font-jakarta text-[12px] text-[#64748B] leading-relaxed">{desc}</span>
             </div>
           ))}
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* Pricing section */}
       <div className="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-6 pb-24 flex flex-col gap-10">
@@ -290,16 +275,11 @@ export default function Landing({ onOpenAuth }) {
           <p className="font-jakarta text-[14px] text-[#64748B]">Không cần thẻ ngân hàng · Nâng cấp khi bạn sẵn sàng</p>
         </div>
 
-        <motion.div
-          className="flex flex-col gap-3"
-          variants={listVariants} initial="hidden" whileInView="show" viewport={{ once: true }}
-        >
+        <div className="flex flex-col gap-3">
           {PLANS_MONTHLY.map(plan => (
-            <motion.div
+            <div
               key={plan.tier}
-              variants={itemVariants}
-              whileHover={{ scale: 1.01, borderColor: plan.tier === 'student' ? '#F2A20C88' : '#2A3A5E' }}
-              className="flex items-start justify-between gap-4 px-6 py-5 rounded-2xl border transition-all cursor-default"
+              className="flex items-start justify-between gap-4 px-6 py-5 rounded-2xl border cursor-default"
               style={{
                 background: plan.tier === 'student' ? '#0F1A10' : '#0D1221',
                 border: `1px solid ${plan.tier === 'student' ? '#F2A20C44' : '#1E2A44'}`,
@@ -335,9 +315,9 @@ export default function Landing({ onOpenAuth }) {
                   </button>
                 )}
               </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
 
         {/* Top-up packages */}
         <div className="flex flex-col gap-4">

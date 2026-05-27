@@ -79,9 +79,9 @@ export default function History() {
             {/* Score trend chart */}
             {chartData.length >= 2 && (
               <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.25 }}
                 className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-6 flex flex-col gap-3"
               >
                 <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Xu hướng điểm số</span>
@@ -118,7 +118,6 @@ export default function History() {
                         <motion.div
                           key={result.id}
                           variants={itemVariants}
-                          whileHover={{ scale: 1.01, borderColor: '#2A3A5E' }}
                           className="flex items-center justify-between bg-[#111827] rounded-xl px-6 py-5 cursor-pointer transition-all"
                           style={{ border: `1px solid ${borderColor}` }}
                           onClick={() => navigate(`/results/${result.id}`, { state: { result } })}

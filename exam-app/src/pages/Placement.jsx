@@ -169,7 +169,7 @@ export default function Placement() {
         <AnimatePresence mode="wait">
           <motion.div
             key={question.id}
-            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
             className="bg-[#0D1527] border border-[#1E2A44] rounded-2xl p-6 flex flex-col gap-5"
           >
             <p className="font-jakarta text-[15px] text-[#E2E8F0] leading-relaxed">
@@ -203,7 +203,7 @@ export default function Placement() {
             </div>
 
             {revealed && (
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-3">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} className="flex flex-col gap-3">
                 <div
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl"
                   style={{ background: isCorrect ? '#0D2A1A' : '#2A0F14', border: `1px solid ${isCorrect ? '#10B981' : '#EF4444'}` }}

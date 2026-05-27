@@ -439,7 +439,7 @@ export default function Progress() {
       {selected && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 px-4 pb-4" onClick={() => setSelected(null)}>
           <motion.div
-            initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
             onClick={e => e.stopPropagation()}
             className="w-full max-w-sm bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-6 flex flex-col gap-4"
           >

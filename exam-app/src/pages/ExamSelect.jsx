@@ -11,11 +11,11 @@ import { buildBriefing } from '../utils/examBriefing.js'
 
 const listVariants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.07 } },
+  show: {},
 }
 const cardVariants = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0.2, ease: 'easeOut' } },
 }
 
 const GROUPS = {
@@ -371,7 +371,7 @@ export default function ExamSelect({ onOpenAuth }) {
                 <div className="flex items-center gap-3 flex-shrink-0">
                   {dueCount > 0 ? (
                     <span className="flex items-center gap-1.5 font-jakarta text-[12px] font-semibold text-[#34D399]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] animate-pulse" />{dueCount} câu đến hạn
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#34D399]" />{dueCount} câu đến hạn
                     </span>
                   ) : (
                     <span className="font-jakarta text-[11px] text-[#475569]">Không có câu nào hôm nay</span>
@@ -548,7 +548,6 @@ export default function ExamSelect({ onOpenAuth }) {
                         <motion.div
                           key={exam.id}
                           variants={cardVariants}
-                          whileHover={{ scale: 1.012 }}
                           className="bg-[#0D1521] rounded-xl px-6 py-5 flex flex-col gap-3"
                           style={{ borderLeft: `3px solid ${group.accent}99` }}
                         >
@@ -601,9 +600,10 @@ export default function ExamSelect({ onOpenAuth }) {
             onClick={closePreview}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               transition={{ duration: 0.2 }}
               onClick={e => e.stopPropagation()}
               className="w-full max-w-sm rounded-2xl border border-[#1E2A44] p-7 flex flex-col gap-5"

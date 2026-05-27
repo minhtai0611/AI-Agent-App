@@ -123,7 +123,7 @@ export default function DiagnosticTest() {
   if (phase === 'intro') {
     return (
       <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center px-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
           className="max-w-md w-full bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-8 flex flex-col gap-5 text-center">
           <span className="text-4xl">🧪</span>
           <div>
@@ -184,8 +184,8 @@ export default function DiagnosticTest() {
 
         <AnimatePresence mode="wait">
           <motion.div key={currentIdx}
-            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
             className="w-full max-w-xl">
             <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-6 mb-4">
               <MathText className="font-jakarta text-[15px] text-[#F0F4FF] leading-relaxed">
@@ -226,7 +226,7 @@ export default function DiagnosticTest() {
 
   return (
     <div className="min-h-screen bg-[#0A0E1A] flex flex-col items-center px-4 pt-16 pb-16">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
         className="w-full max-w-xl flex flex-col gap-6">
         <div className="text-center">
           <span className="text-4xl">{overallPct >= 70 ? '🎉' : overallPct >= 40 ? '📊' : '💪'}</span>

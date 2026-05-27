@@ -2308,7 +2308,7 @@ export default function Account() {
             onClick={() => { setTopupPkg(null); setCopyBankDone(false) }}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
               className="max-w-sm w-full bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5"
               onClick={e => e.stopPropagation()}
             >
@@ -2361,7 +2361,7 @@ export default function Account() {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
               className="max-w-sm w-full bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5"
             >
               <span className="font-fraunces text-[16px] font-bold text-[#F8FAFC]">Tạm ngưng tài khoản?</span>
@@ -2404,7 +2404,7 @@ export default function Account() {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
               className="max-w-sm w-full bg-[#0D1521] border border-red-500/30 rounded-2xl p-7 flex flex-col gap-5"
             >
               <span className="font-fraunces text-[16px] font-bold text-red-400">Xóa tài khoản vĩnh viễn</span>

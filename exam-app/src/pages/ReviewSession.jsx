@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import ReactCanvasConfetti from 'react-canvas-confetti'
 import { loadQuestionsByIds } from '../api/index.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
@@ -103,8 +102,6 @@ export default function ReviewSession() {
   const [masteryMoment, setMasteryMoment] = useState(null) // {name_vi, new_stage}
   const [wrongStreak, setWrongStreak] = useState(0)
   const startTimeRef = useRef(null)
-  const fireConfetti = useRef(null)
-  const onConfettiInit = useCallback(({ confetti }) => { fireConfetti.current = confetti }, [])
 
   useEffect(() => {
     async function load() {
@@ -186,7 +183,6 @@ export default function ReviewSession() {
           const { data } = await answerReviewItem(serverItem.id, quality, responseTimeSec)
           if (data?.stage_advanced && data?.concept_name_vi) {
             setMasteryMoment({ name_vi: data.concept_name_vi, new_stage: data.new_stage })
-            fireConfetti.current?.({ particleCount: 120, spread: 80, origin: { y: 0.4 }, colors: ['#10B981', '#F2A20C', '#6366F1'] })
           }
         } catch { /* non-fatal — progress still advances */ }
       }
@@ -275,7 +271,6 @@ export default function ReviewSession() {
       className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden"
       variants={pageVariants} initial="hidden" animate="show"
     >
-      <ReactCanvasConfetti onInit={onConfettiInit} className="fixed inset-0 pointer-events-none z-[60]" />
       {/* Mastery moment overlay */}
       <AnimatePresence>
         {masteryMoment && (
@@ -288,9 +283,10 @@ export default function ReviewSession() {
             onClick={() => setMasteryMoment(null)}
           >
             <motion.div
-              initial={{ scale: 0.8, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               className="flex flex-col items-center gap-5 text-center max-w-sm"
               onClick={e => e.stopPropagation()}
             >
@@ -347,10 +343,10 @@ export default function ReviewSession() {
         <AnimatePresence mode="wait">
           <motion.div
             key={question.id}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
             className="flex flex-col gap-5"
           >
             <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-6">
@@ -384,7 +380,7 @@ export default function ReviewSession() {
             </div>
 
             {revealed && (
-              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-4">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} className="flex flex-col gap-4">
                 <div className="flex items-center gap-3 px-5 py-3 rounded-xl"
                   style={{ background: isCorrect ? '#0D2A1A' : '#2A0F14', border: `1px solid ${isCorrect ? '#10B981' : '#EF4444'}` }}>
                   <span className="text-xl">{isCorrect ? '✓' : '✗'}</span>

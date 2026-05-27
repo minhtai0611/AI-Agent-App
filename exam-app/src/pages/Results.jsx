@@ -1,8 +1,6 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
-import CountUp from 'react-countup'
-import ReactCanvasConfetti from 'react-canvas-confetti'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
@@ -62,8 +60,8 @@ function arcColor(score) {
 }
 
 function scoreLabel(score) {
-  if (score >= 9) return 'Xuất sắc!'
-  if (score >= 8) return 'Rất giỏi!'
+  if (score >= 9) return 'Xuất sắc'
+  if (score >= 8) return 'Rất giỏi'
   if (score >= 6.5) return 'Khá giỏi'
   if (score >= 5) return 'Trung bình'
   return 'Cần cố gắng'
@@ -198,8 +196,6 @@ export default function Results({ onOpenAuth }) {
   } : null
 
   const isCurrent = !resultId || resultId === 'current'
-  const fireConfetti = useRef(null)
-  const onConfettiInit = useCallback(({ confetti }) => { fireConfetti.current = confetti }, [])
   const savedRef = useRef(false)
 
   useEffect(() => {
@@ -240,17 +236,6 @@ export default function Results({ onOpenAuth }) {
     }
   }, [resultId, results]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    if (!result) return
-    if (result.score >= 8 && fireConfetti.current) {
-      setTimeout(() => {
-        fireConfetti.current({
-          particleCount: 140, spread: 80, origin: { y: 0.45 },
-          colors: ['#F2A20C', '#6366F1', '#10B981', '#F8FAFC'],
-        })
-      }, 600)
-    }
-  }, [result?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!result) return
@@ -441,17 +426,6 @@ export default function Results({ onOpenAuth }) {
     } catch { return null }
   })()
 
-  // Trigger amber confetti for personal best
-  useEffect(() => {
-    if (!result || !isPersonalBest || !fireConfetti.current) return
-    setTimeout(() => {
-      fireConfetti.current({
-        particleCount: 80, spread: 60, origin: { y: 0.3 },
-        colors: ['#F2A20C', '#FBBF24', '#FDE68A'],
-      })
-    }, 1200)
-  }, [result?.id]) // eslint-disable-line react-hooks/exhaustive-deps
-
   // Recommend next exam based on weak topics
   useEffect(() => {
     if (!result || !results.length) return
@@ -620,13 +594,6 @@ export default function Results({ onOpenAuth }) {
           onClose={() => setShowShareCard(false)}
         />
       )}
-      <ReactCanvasConfetti
-        onInit={onConfettiInit}
-        style={{ position: 'fixed', pointerEvents: 'none', top: 0, left: 0, width: '100%', height: '100%', zIndex: 100 }}
-      />
-      <div className="absolute pointer-events-none rounded-full"
-        style={{ width: 700, height: 700, right: -200, top: -100,
-          background: 'radial-gradient(circle, #F2A20C10 0%, #F2A20C00 100%)' }} />
 
       {/* NavBar */}
       <nav className="relative z-10 flex items-center justify-between px-8 bg-[#0D1221] border-b border-[#1E2A44]" style={{ height: 64 }}>
@@ -683,18 +650,16 @@ export default function Results({ onOpenAuth }) {
 
         {/* ── Score hero ── */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
           className="flex items-center gap-8 bg-[#0D1221] border border-[#1E2A44] rounded-2xl px-8 py-8"
         >
           <div className="flex-shrink-0">
             <svg width="120" height="120" viewBox="0 0 120 120">
               <circle cx="60" cy="60" r="54" stroke="#1E2A44" strokeWidth="6" fill="none" />
-              <motion.circle
+              <circle
                 cx="60" cy="60" r="54" stroke={color} strokeWidth="6" fill="none"
                 strokeLinecap="round" strokeDasharray={CIRC}
-                initial={{ strokeDashoffset: CIRC }}
-                animate={{ strokeDashoffset: CIRC * (1 - score / 10) }}
-                transition={{ duration: 1.5, ease: 'easeOut', delay: 0.2 }}
+                strokeDashoffset={CIRC * (1 - score / 10)}
                 transform="rotate(-90 60 60)"
               />
               <text x="60" y="66" textAnchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="26" fontWeight="700" fill={color}>
@@ -736,7 +701,7 @@ export default function Results({ onOpenAuth }) {
         {/* Personal best */}
         <AnimatePresence>
           {isPersonalBest && (
-            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="flex flex-col gap-2 px-5 py-3.5 rounded-xl"
               style={{ background: '#1A1200', border: '1px solid #F2A20C60' }}>
               <div className="flex items-center gap-3">
@@ -751,7 +716,7 @@ export default function Results({ onOpenAuth }) {
             </motion.div>
           )}
           {isScoreDrop && (
-            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="flex items-center gap-3 px-5 py-3.5 rounded-xl"
               style={{ background: '#1A0D00', border: '1px solid #F2A20C44' }}>
               <span className="text-xl">💪</span>
@@ -1120,7 +1085,7 @@ export default function Results({ onOpenAuth }) {
                   <span className="font-jakarta text-[11px] text-[#475569]">Điểm Toán: <span className="text-[#F2A20C] font-bold">{score.toFixed(1)}/10</span></span>
                 </div>
                 {aiLoading && !analysis?.school_insight && (
-                  <p className="font-jakarta text-[13px] text-[#475569] animate-pulse">AI đang phân tích...</p>
+                  <p className="font-jakarta text-[13px] text-[#475569]">Đang phân tích...</p>
                 )}
                 {analysis?.school_insight ? (
                   <MarkdownProse>{analysis.school_insight}</MarkdownProse>

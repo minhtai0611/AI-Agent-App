@@ -16,8 +16,7 @@ function Skeleton() {
   return (
     <div className="flex flex-col gap-5 animate-pulse">
       <div className="flex items-center gap-2">
-        <span className="text-[#475569] text-[13px] animate-pulse">⟳</span>
-        <span className="font-jakarta text-[13px] text-[#475569]">Đang phân tích bài thi và tạo kế hoạch phục hồi…</span>
+        <span className="font-jakarta text-[13px] text-[#475569]">Đang tạo kế hoạch phục hồi…</span>
       </div>
       <div className="h-24 bg-[#0D1221] border border-[#1E2A44] rounded-2xl" />
       <div className="h-48 bg-[#0D1221] border border-[#1E2A44] rounded-2xl" />

@@ -25,7 +25,6 @@ export default function TestInterface() {
   const dispatch = useExamDispatch()
   const { user } = useAuth()
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [direction, setDirection] = useState(1)
   const [submitModal, setSubmitModal] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [pauseOverlay, setPauseOverlay] = useState(false)
@@ -205,7 +204,6 @@ export default function TestInterface() {
   function handleNext() {
     if (currentIndex < questions.length - 1) {
       recordTimeForQuestion(question?.id)
-      setDirection(1)
       setCurrentIndex(i => i + 1)
     }
   }
@@ -213,14 +211,12 @@ export default function TestInterface() {
   function handlePrev() {
     if (currentIndex > 0) {
       recordTimeForQuestion(question?.id)
-      setDirection(-1)
       setCurrentIndex(i => i - 1)
     }
   }
 
   function jumpTo(i) {
     recordTimeForQuestion(question?.id)
-    setDirection(i > currentIndex ? 1 : -1)
     setCurrentIndex(i)
   }
 
@@ -341,9 +337,10 @@ export default function TestInterface() {
         <AnimatePresence>
           {showKbHint && (
             <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-[#1E2A44] bg-[#0D1221]"
             >
               <span className="font-jakarta text-[12px] text-[#475569]">
@@ -394,15 +391,14 @@ export default function TestInterface() {
         </div>
 
         {/* Question card with watermark overlay */}
-        <AnimatePresence mode="wait" custom={direction}>
+        <AnimatePresence mode="wait">
           {question && (
             <motion.div
               key={question.id}
-              custom={direction}
-              initial={d => ({ opacity: 0, x: d * 40 })}
-              animate={{ opacity: 1, x: 0 }}
-              exit={d => ({ opacity: 0, x: d * -40 })}
-              transition={{ duration: 0.22, ease: 'easeInOut' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
               className="relative"
             >
               <QuestionCard

@@ -86,17 +86,14 @@ function AIErrorMessage({ error }) {
 
 export default function AIInsights({ analysis, loading, error, score }) {
   if (loading && !analysis?._streaming) return <ResultsInsightsSkeleton />
-  // Streaming in-progress — show partial text with a cursor
+  // Streaming in-progress — show partial text
   if (analysis?._streaming && !analysis?._streaming_done && !error) {
     return (
       <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-[#475569] text-[13px] animate-pulse">⟳</span>
-          <span className="font-jakarta text-[13px] text-[#475569]">AI đang phân tích kết quả của bạn...</span>
-        </div>
+        <span className="font-jakarta text-[13px] text-[#475569]">Đang phân tích...</span>
         {analysis.insights && (
           <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">
-            {analysis.insights}<span className="animate-pulse">▌</span>
+            {analysis.insights}
           </p>
         )}
       </div>
