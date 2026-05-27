@@ -1,6 +1,5 @@
 import asyncio
 import hashlib
-import hmac
 import io
 import json
 import logging
@@ -17,7 +16,6 @@ from app.dependencies import get_ai_client, get_current_user, CurrentUser
 from app.middleware import RateLimitMiddleware
 from app.math_wiki.admin_router import router as admin_router
 from app.auth import verify_google_token, create_jwt
-from app.admin_auth import validate_admin_key, derive_key, get_window_label, get_expiry_date
 
 logger = logging.getLogger(__name__)
 
@@ -392,16 +390,6 @@ _SCHEMA_DDL = [
         joined_at TEXT DEFAULT (datetime('now')),
         PRIMARY KEY (class_id, user_id)
     )""",
-    # Sprint 20 — MOAT 4: Longitudinal Learner Memory
-    """CREATE TABLE IF NOT EXISTS learner_memory (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER REFERENCES users(id),
-        snapshot_date TEXT DEFAULT (datetime('now')),
-        topic_id TEXT NOT NULL,
-        mastery_score REAL NOT NULL,
-        exam_count_at_snapshot INTEGER DEFAULT 0
-    )""",
-    "CREATE INDEX IF NOT EXISTS idx_learner_memory_user_topic ON learner_memory(user_id, topic_id, snapshot_date)",
     # Sprint 21 — MOAT 5: Study Partner Matching
     """CREATE TABLE IF NOT EXISTS study_partner_requests (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -718,14 +706,133 @@ async def _seed_from_json(pool) -> None:
                     )
             for q in questions:
                 await conn.execute(
-                    "INSERT OR IGNORE INTO questions (id, source, year, topic, difficulty, question, choices, correct, explanation) VALUES (?,?,?,?,?,?,?,?,?)",
+                    "INSERT OR IGNORE INTO questions (id, source, year, topic, difficulty, question, choices, correct, explanation, concept_id) VALUES (?,?,?,?,?,?,?,?,?,?)",
                     q["id"], q.get("source"), q.get("year"), q.get("topic"), q.get("difficulty"),
                     q["question"], json.dumps(q.get("choices", []), ensure_ascii=False),
-                    q["correct"], q.get("explanation"),
+                    q["correct"], q.get("explanation"), q.get("concept_id"),
                 )
         logger.info("_seed_from_json: seeded %d exams, %d questions", len(exams), len(questions))
     except Exception as exc:
         logger.warning("_seed_from_json failed: %s", exc)
+
+
+async def _tag_question_concepts(pool) -> None:
+    """Assign concept_id to questions that have none, using topic + keyword matching (idempotent)."""
+    # Direct topic → concept_id
+    DIRECT: dict[str, str] = {
+        "hệ phương trình": "linear_systems",
+        "phương trình bậc hai": "quad_eq",
+        "căn thức": "radicals",
+        "hàm số bậc nhất": "linear_func",
+        "parabol": "quad_func",
+        "sequences": "sequences",
+        "Sequences and Series": "sequences",
+        "financial_math": "financial_math",
+        "Financial Mathematics": "financial_math",
+        "trigonometry": "trig_basic",
+        "Trigonometry": "trig_basic",
+        "lượng giác": "trig_basic",
+        "coordinate_geometry": "coord_geo",
+        "vectors": "vectors",
+        "probability": "prob_basic",
+        "xác suất thống kê": "prob_basic",
+        "xác suất": "prob_basic",
+        "Probability": "prob_basic",
+        "statistics": "stats_basic",
+        "Statistics": "stats_basic",
+        "number_theory": "number_theory",
+        "combinatorics": "combinatorics",
+        "sets": "sets",
+        "arithmetic": "linear_eq",
+        "đại số": "linear_eq",
+        "hình học": "basic_geo",
+        "hình học không gian": "basic_geo",
+        "Geometry": "basic_geo",
+        "Measurement": "basic_geo",
+    }
+
+    def _classify(topic: str, question: str) -> str | None:
+        if topic in DIRECT:
+            return DIRECT[topic]
+        t, q = topic.lower(), question.lower()
+        if "algebra" in t or "đại số" in t:
+            if any(k in q for k in ["bậc hai", "delta", "quadratic", "phương trình bậc 2"]):
+                return "quad_eq"
+            if any(k in q for k in ["bất phương trình", "inequality"]):
+                return "inequalities"
+            if any(k in q for k in ["căn", "√", "radical"]):
+                return "radicals"
+            if any(k in q for k in ["hệ phương trình", "system of"]):
+                return "linear_systems"
+            return "linear_eq"
+        if "geometry" in t or "hình học" in t:
+            if any(k in q for k in ["tọa độ", "trục ox", "coordinate"]):
+                return "coord_geo"
+            if any(k in q for k in ["vectơ", "vector", "\\vec"]):
+                return "vectors"
+            if any(k in q for k in ["sin", "cos", "tan", "lượng giác"]):
+                return "trig_basic"
+            if any(k in q for k in ["đường tròn", "bán kính", "circle", "tiếp tuyến"]):
+                return "circles"
+            if any(k in q for k in ["tam giác", "triangle", "trung tuyến"]):
+                return "triangles"
+            return "basic_geo"
+        if "function" in t or "hàm số" in t:
+            if any(k in q for k in ["bậc hai", "parabol", "quadratic", "ax²", "ax^2"]):
+                return "quad_func"
+            return "linear_func"
+        if "statistic" in t or "thống kê" in t:
+            return "stats_basic"
+        if "probab" in t or "xác suất" in t:
+            return "prob_basic"
+        if "combinat" in t or "tổ hợp" in t:
+            return "combinatorics"
+        if "number" in t or "lý thuyết số" in t:
+            return "number_theory"
+        if "sequence" in t or "dãy số" in t:
+            return "sequences"
+        if "trig" in t or "lượng giác" in t:
+            return "trig_basic"
+        if "vector" in t:
+            return "vectors"
+        if "set" in t or "tập hợp" in t:
+            return "sets"
+        if "financial" in t or "tài chính" in t:
+            return "financial_math"
+        # Vietnamese long-tail topics
+        if any(k in topic for k in ["tam giác", "Diện tích tam giác", "Góc trong tam giác", "phân giác"]):
+            return "triangles"
+        if any(k in topic for k in ["đường tròn", "nội tiếp đường tròn", "tứ giác nội tiếp"]):
+            return "circles"
+        if any(k in topic for k in ["Hình vuông", "Hình chữ nhật", "Chu vi", "Diện tích"]):
+            return "basic_geo"
+        if any(k in topic for k in ["tổ hợp", "Tổ hợp", "hoán vị", "Tổ hợp —"]):
+            return "combinatorics"
+        if any(k in topic for k in ["xác suất", "Xác suất"]):
+            return "prob_basic"
+        if any(k in topic for k in ["lũy thừa", "ước số", "nguyên tố", "số chính phương", "Lý thuyết số"]):
+            return "number_theory"
+        if any(k in topic for k in ["Dãy số"]):
+            return "sequences"
+        if any(k in topic for k in ["đa thức", "hệ phương trình", "Đại số —", "tốc độ", "tỉ lệ"]):
+            return "linear_eq"
+        return None
+
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch("SELECT id, topic, question FROM questions WHERE concept_id IS NULL")
+            tagged = 0
+            for row in rows:
+                cid = _classify(row["topic"] or "", row["question"] or "")
+                if cid:
+                    await conn.execute(
+                        "UPDATE questions SET concept_id=? WHERE id=? AND concept_id IS NULL",
+                        cid, row["id"],
+                    )
+                    tagged += 1
+        logger.info("_tag_question_concepts: tagged %d questions with concept_id", tagged)
+    except Exception as exc:
+        logger.warning("_tag_question_concepts failed: %s", exc)
 
 
 async def _seed_teacher_classes(pool) -> None:
@@ -776,6 +883,7 @@ async def lifespan(app: FastAPI):
     if exam_count and exam_count["cnt"] == 0:
         await _seed_from_json(app.state.pool)
     await _seed_concepts(app.state.pool)
+    await _tag_question_concepts(app.state.pool)
     await _seed_teacher_classes(app.state.pool)
 
     _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
@@ -862,7 +970,6 @@ class HintRequest(BaseModel):
     hint_style: str = "socratic"
     ai_preferences: dict = {}
     encouragement_level: str = "moderate"   # 'minimal' | 'moderate' | 'high'
-    session_length_pref: int = 30           # 15 | 30 | 45 | 60
 
 
 class HintResponse(BaseModel):
@@ -888,7 +995,6 @@ class ExplainRequest(BaseModel):
     explanation_depth: str = "detailed"
     ai_preferences: dict = {}
     encouragement_level: str = "moderate"   # 'minimal' | 'moderate' | 'high'
-    session_length_pref: int = 30           # 15 | 30 | 45 | 60
 
 
 class ExplainResponse(BaseModel):
@@ -903,12 +1009,14 @@ class StudyPlanRequest(BaseModel):
     topic_miss_counts: dict = {}
     student_name: str = ""
     learner_archetype: str | None = None
+    province: str = ""
     ai_preferences: dict = {}
 
 
 class StudyPlanResponse(BaseModel):
-    plan: str
-    weekly_schedule: list[dict]
+    score_gap: str = ""
+    focus_areas: list[dict] = []
+    retake_note: str = ""
 
 
 class MathIngestRequest(BaseModel):
@@ -948,15 +1056,6 @@ class MathReviewResponse(BaseModel):
     correct_approach: str = ""
     retrieved_ids: list[str] = []
 
-
-class WeekQuizRequest(BaseModel):
-    week_focus: str
-    week_tasks: list[str]
-    n: int = 4
-
-
-class WeekQuizResponse(BaseModel):
-    questions: list[dict]
 
 
 class ChartInsightsRequest(BaseModel):
@@ -1084,7 +1183,7 @@ async def hint(
     await _spend_credits(pool, current_user.user_id, 1, "hint")
     from app.agent.hint_generator import generate_hint
     try:
-        merged_prefs = {"hint_style": req.hint_style, "encouragement_level": req.encouragement_level, "session_length_pref": req.session_length_pref, **req.ai_preferences}
+        merged_prefs = {"hint_style": req.hint_style, "encouragement_level": req.encouragement_level, **req.ai_preferences}
         data = await generate_hint(client, req.question, req.attempt_count, req.previous_hints, merged_prefs)
         return HintResponse(
             hint=data.get("hint", ""),
@@ -1383,7 +1482,7 @@ async def explain(
     await _spend_credits(pool, current_user.user_id, 1, "explain")
     from app.agent.exam_explainer import generate_explanation
     try:
-        merged_prefs = {"explanation_depth": req.explanation_depth, "encouragement_level": req.encouragement_level, "session_length_pref": req.session_length_pref, **req.ai_preferences}
+        merged_prefs = {"explanation_depth": req.explanation_depth, "encouragement_level": req.encouragement_level, **req.ai_preferences}
         data = await generate_explanation(client, req.question, req.chosen_index, merged_prefs)
         return ExplainResponse(
             correct_index=data.get("correct_index", 0),
@@ -1413,36 +1512,14 @@ async def study_plan(
         )
     await _spend_credits(pool, current_user.user_id, 5, "study-plan")
     from app.agent.study_planner import generate_study_plan
-    session_length_pref = int(req.ai_preferences.get("session_length_pref", 30))
-    data = await generate_study_plan(client, req.result, req.history, req.wrong_questions, req.topic_miss_counts, req.student_name, learner_archetype=req.learner_archetype, session_length_pref=session_length_pref)
+    data = await generate_study_plan(client, req.result, req.history, req.wrong_questions, req.topic_miss_counts, req.student_name, learner_archetype=req.learner_archetype, province=req.province)
     return StudyPlanResponse(
-        plan=data.get("plan", ""),
-        weekly_schedule=data.get("weekly_schedule", []),
+        score_gap=data.get("score_gap", ""),
+        focus_areas=data.get("focus_areas", []),
+        retake_note=data.get("retake_note", ""),
     )
 
 
-@app.post("/study-plan-quiz", response_model=WeekQuizResponse)
-async def study_plan_quiz(
-    req: WeekQuizRequest,
-    client: AsyncOpenAI = Depends(get_ai_client),
-    current_user: CurrentUser = Depends(get_current_user),
-    pool=Depends(get_pool),
-):
-    from app.math_wiki.agents.quiz_generator import generate_week_quiz
-    n = max(1, min(req.n, 6))
-    try:
-        questions = await generate_week_quiz(client, pool, req.week_focus, req.week_tasks, n)
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Quiz generation failed: {exc}")
-    return WeekQuizResponse(questions=questions)
-
-
-# Static prefix-cache-friendly system prompt (placed first for prefix caching)
-_CHART_INSIGHTS_SYSTEM = (
-    "You are a Vietnamese study advisor. Given exam performance data, generate exactly 3 "
-    "one-line insights in Vietnamese. Each must be ≤25 words and end with a concrete action "
-    "recommendation. Return JSON with keys: spark_insight, radar_insight, heatmap_insight."
-)
 
 _CHART_INSIGHTS_FALLBACKS = {
     "spark_insight": "Chưa đủ dữ liệu điểm số. Hoàn thành thêm bài thi để xem xu hướng.",
@@ -1454,15 +1531,8 @@ _CHART_INSIGHTS_FALLBACKS = {
 @app.post("/insights/charts", response_model=ChartInsightsResponse)
 async def chart_insights(
     req: ChartInsightsRequest,
-    client: AsyncOpenAI = Depends(get_ai_client),
     current_user: CurrentUser = Depends(get_current_user),
 ):
-    """Generate free Haiku-powered one-line insights for the three main analytics charts.
-    No credit deduction — this endpoint is FREE.
-    """
-    from app.agent.core import call_with_retry
-
-    # Return fallbacks immediately when all data is empty
     has_spark = bool(req.spark_data)
     has_radar = bool(req.radar_data)
     has_heatmap = bool(req.heatmap_summary.get("total_sessions") or req.heatmap_summary.get("active_days"))
@@ -1470,48 +1540,41 @@ async def chart_insights(
     if not has_spark and not has_radar and not has_heatmap:
         return ChartInsightsResponse(**_CHART_INSIGHTS_FALLBACKS)
 
-    settings = get_settings()
+    spark_insight = _CHART_INSIGHTS_FALLBACKS["spark_insight"]
+    if has_spark:
+        scores = [s.get("score", 0) for s in req.spark_data[-5:]]
+        if len(scores) >= 2:
+            delta = scores[-1] - scores[0]
+            avg = sum(scores) / len(scores)
+            if delta > 0:
+                spark_insight = f"Điểm số tăng {delta:.1f} điểm trong {len(scores)} bài gần nhất. Tiếp tục duy trì phong độ này!"
+            elif delta < 0:
+                spark_insight = f"Điểm số giảm nhẹ. Điểm TB {avg:.1f} — ôn lại chủ đề yếu để lấy lại phong độ."
+            else:
+                spark_insight = f"Điểm ổn định ở mức {avg:.1f}. Tập trung vào chủ đề yếu để bứt phá."
 
-    # Build dynamic user data payload (appended last, after static prefix)
-    spark_text = json.dumps(req.spark_data[-10:], ensure_ascii=False) if has_spark else "[]"
-    radar_text = json.dumps(req.radar_data, ensure_ascii=False) if has_radar else "[]"
-    heatmap_text = json.dumps(req.heatmap_summary, ensure_ascii=False)
+    radar_insight = _CHART_INSIGHTS_FALLBACKS["radar_insight"]
+    if has_radar:
+        sorted_topics = sorted(req.radar_data, key=lambda t: t.get("score", 100))
+        if sorted_topics:
+            weakest = sorted_topics[0]
+            radar_insight = f"Chủ đề yếu nhất: {weakest.get('topic', 'Không rõ')} ({weakest.get('score', 0):.0f}%). Ưu tiên ôn chủ đề này trước."
 
-    user_content = (
-        f"Score trend data (last 10 exams, score 0–10): {spark_text}\n"
-        f"Topic accuracy data (score 0–100 = %): {radar_text}\n"
-        f"Activity heatmap summary: {heatmap_text}\n\n"
-        "Return JSON only, no other text."
+    heatmap_insight = _CHART_INSIGHTS_FALLBACKS["heatmap_insight"]
+    if has_heatmap:
+        active_days = req.heatmap_summary.get("active_days", 0)
+        if active_days >= 5:
+            heatmap_insight = f"Bạn học {active_days} ngày tuần này — thói quen tuyệt vời! Duy trì đều đặn mỗi ngày."
+        elif active_days >= 2:
+            heatmap_insight = f"Bạn học {active_days} ngày tuần này. Thêm vài buổi ngắn để xây chuỗi học đều."
+        else:
+            heatmap_insight = "Chưa học đều. Bắt đầu bằng 10 phút mỗi ngày để tạo thói quen."
+
+    return ChartInsightsResponse(
+        spark_insight=spark_insight,
+        radar_insight=radar_insight,
+        heatmap_insight=heatmap_insight,
     )
-
-    try:
-        resp = await call_with_retry(
-            client,
-            model=settings.haiku_model,
-            max_tokens=300,
-            messages=[
-                {"role": "system", "content": _CHART_INSIGHTS_SYSTEM},
-                {"role": "user", "content": user_content},
-            ],
-            response_format={"type": "json_object"},
-        )
-        raw = (resp.choices[0].message.content or "{}").strip()
-        parsed = json.loads(raw)
-        return ChartInsightsResponse(
-            spark_insight=parsed.get("spark_insight") or _CHART_INSIGHTS_FALLBACKS["spark_insight"],
-            radar_insight=parsed.get("radar_insight") or _CHART_INSIGHTS_FALLBACKS["radar_insight"],
-            heatmap_insight=parsed.get("heatmap_insight") or _CHART_INSIGHTS_FALLBACKS["heatmap_insight"],
-        )
-    except Exception as exc:
-        logger.warning("chart_insights failed: %s", exc)
-        return ChartInsightsResponse(**_CHART_INSIGHTS_FALLBACKS)
-
-
-_WEEKLY_INSIGHT_SYSTEM = (
-    "You are a Vietnamese study advisor writing a weekly learning summary for a high school student. "
-    "Write exactly 2 sentences in Vietnamese. Be specific, encouraging, and actionable. "
-    "Focus on what improved and what to prioritize next week. Do not use markdown."
-)
 
 
 class WeeklyInsightRequest(BaseModel):
@@ -1530,47 +1593,19 @@ class WeeklyInsightResponse(BaseModel):
 @app.post("/insights/weekly", response_model=WeeklyInsightResponse)
 async def weekly_insight(
     req: WeeklyInsightRequest,
-    client: AsyncOpenAI = Depends(get_ai_client),
     current_user: CurrentUser = Depends(get_current_user),
 ):
-    """Generate a free Haiku-powered weekly learning summary in Vietnamese.
-    No credit deduction — this endpoint is FREE.
-    """
-    from app.agent.core import call_with_retry
-
-    settings = get_settings()
-
-    delta_str = f"+{req.score_delta:.1f}" if req.score_delta >= 0 else f"{req.score_delta:.1f}"
-    user_content = (
-        f"exams_this_week={req.exam_count}, avg_score={req.avg_score:.1f}, "
-        f"score_delta_vs_last_week={delta_str}, "
-        f"top_weak_topic={req.top_weak_topic or 'none'}, "
-        f"streak_days={req.streak}, days_studied_this_week={req.days_studied}"
-    )
-
-    def _fallback() -> WeeklyInsightResponse:
-        text = f"Tuần này bạn đã làm {req.exam_count} bài thi với điểm TB {req.avg_score:.1f}."
-        if req.top_weak_topic:
-            text += f" Tuần tới tập trung ôn {req.top_weak_topic} để tăng điểm nhanh nhất."
+    if req.exam_count == 0:
+        text = "Tuần này chưa có bài thi nào. Làm một bài thi để bắt đầu theo dõi tiến độ của bạn."
         return WeeklyInsightResponse(summary=text)
 
-    try:
-        resp = await call_with_retry(
-            client,
-            model=settings.haiku_model,
-            max_tokens=200,
-            messages=[
-                {"role": "system", "content": _WEEKLY_INSIGHT_SYSTEM},
-                {"role": "user", "content": user_content},
-            ],
-        )
-        text = (resp.choices[0].message.content or "").strip()
-        if not text:
-            return _fallback()
-        return WeeklyInsightResponse(summary=text)
-    except Exception as exc:
-        logger.warning("weekly_insight failed: %s", exc)
-        return _fallback()
+    delta_str = f"tăng {req.score_delta:.1f}" if req.score_delta > 0 else (f"giảm {abs(req.score_delta):.1f}" if req.score_delta < 0 else "giữ nguyên")
+    text = f"Tuần này bạn làm {req.exam_count} bài thi, điểm TB {req.avg_score:.1f} ({delta_str} so với tuần trước)."
+    if req.top_weak_topic:
+        text += f" Tuần tới ưu tiên ôn {req.top_weak_topic} để tăng điểm nhanh nhất."
+    elif req.days_studied >= 5:
+        text += " Bạn học rất đều — tiếp tục duy trì phong độ này!"
+    return WeeklyInsightResponse(summary=text)
 
 
 @app.get("/insights/peer-stats")
@@ -2064,7 +2099,7 @@ async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
 # ── User endpoints ────────────────────────────────────────────────────────────
 
 # Weekly streak freeze quota by tier
-_FREEZE_QUOTA = {"basic": 0, "student": 1, "complete": 3}
+_FREEZE_QUOTA = {"basic": 1, "student": 1, "complete": 3}  # basic gets 1 silent auto-grace/week
 
 
 async def _replenish_streak_freeze(pool, user_id: int, tier: str, current_reset_at) -> int | None:
@@ -2153,6 +2188,15 @@ async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Dep
         mastery_rank = "Pemula"
     row["mastery_rank"] = mastery_rank
     row["solid_concept_count"] = solid_count
+
+    # Hard questions answered correctly in the last 30 days (for rank-up identity message)
+    hard_row = await pool.fetchrow(
+        """SELECT COUNT(*) AS cnt FROM review_items
+           WHERE user_id=$1 AND quality_last >= 3 AND difficulty >= 0.6
+             AND updated_at >= datetime('now', '-30 days')""",
+        current_user.user_id,
+    )
+    row["hard_correct_30d"] = hard_row["cnt"] if hard_row else 0
     return row
 
 
@@ -2349,14 +2393,26 @@ async def bulk_create_review_items(
     pool=Depends(get_pool),
 ):
     """Migrate localStorage review queue to server. INSERT OR IGNORE (idempotent)."""
+    # Resolve concept_id for each question in one query
+    q_ids = [item.question_id for item in body.items]
+    concept_map: dict[str, str | None] = {}
+    if q_ids:
+        placeholders = ",".join(f"${i+1}" for i in range(len(q_ids)))
+        q_rows = await pool.fetch(
+            f"SELECT id, concept_id FROM questions WHERE id IN ({placeholders})", *q_ids
+        )
+        concept_map = {r["id"]: r["concept_id"] for r in q_rows}
+
     inserted = 0
     for item in body.items:
+        cid = concept_map.get(item.question_id)
         result = await pool.execute(
             """INSERT OR IGNORE INTO review_items
-               (user_id, question_id, stability, difficulty, interval, next_review_date)
-               VALUES ($1, $2, $3, $4, $5, $6)""",
+               (user_id, question_id, concept_id, stability, difficulty, interval, next_review_date)
+               VALUES ($1, $2, $3, $4, $5, $6, $7)""",
             current_user.user_id,
             item.question_id,
+            cid,
             item.stability,
             item.difficulty,
             item.interval,
@@ -2372,20 +2428,44 @@ async def get_due_review_items(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
-    """Return all review items due today or overdue, ordered by most overdue first."""
+    """Return all review items due today or overdue.
+    Ordering: most overdue first, then province-weighted topics promoted within same-date groups."""
     from datetime import datetime, timezone
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    uid = current_user.user_id
+
     rows = await pool.fetch(
         """SELECT ri.id, ri.question_id, ri.stability, ri.difficulty,
-                  ri.interval, ri.repetitions, ri.next_review_date, ri.concept_id
+                  ri.interval, ri.repetitions, ri.next_review_date, ri.concept_id,
+                  q.topic
            FROM review_items ri
+           LEFT JOIN questions q ON q.id = ri.question_id
            WHERE ri.user_id = $1 AND ri.next_review_date <= $2
            ORDER BY ri.next_review_date ASC
            LIMIT 50""",
-        current_user.user_id,
+        uid,
         today,
     )
-    return {"items": [dict(r) for r in rows], "due_count": len(rows)}
+
+    # Fetch user province for topic-weight boosting
+    province_weights: dict = {}
+    try:
+        user_row = await pool.fetchrow("SELECT province FROM users WHERE id=$1", uid)
+        user_province = user_row["province"] if user_row else None
+        if user_province and user_province in _PROVINCE_DATA:
+            province_weights = _PROVINCE_DATA[user_province].get("topic_weights", {})
+    except Exception:
+        pass
+
+    items = [dict(r) for r in rows]
+    if province_weights:
+        # Secondary sort: within the same next_review_date, promote high-weight topics
+        items.sort(key=lambda r: (
+            r["next_review_date"],
+            -(province_weights.get(r.get("topic") or "", 0)),
+        ))
+
+    return {"items": items, "due_count": len(items)}
 
 
 @app.post("/users/me/review-items/{item_id}/answer")
@@ -2413,8 +2493,17 @@ async def answer_review_item(
     last_reviewed = datetime.fromisoformat(row["next_review_date"]).date() if row["next_review_date"] else today
     elapsed = max(1, (today - last_reviewed).days + row["interval"])
 
+    # Apply response-time signal to quality
+    effective_quality = body.quality
+    t = body.response_time_seconds
+    if t is not None and body.quality >= 3:
+        if t > 90:   # correct but slow — struggling; don't over-reward
+            effective_quality = 3
+        elif t < 5:  # correct but suspiciously fast — lucky guess
+            effective_quality = 3
+
     new_stability, new_difficulty, interval = fsrs_update(
-        row["stability"], row["difficulty"], elapsed, body.quality
+        row["stability"], row["difficulty"], elapsed, effective_quality
     )
     next_date = (today + timedelta(days=interval)).isoformat()
 
@@ -2423,7 +2512,7 @@ async def answer_review_item(
            SET stability=$1, difficulty=$2, interval=$3, repetitions=repetitions+1,
                next_review_date=$4, quality_last=$5, updated_at=NOW()
            WHERE id=$6""",
-        new_stability, new_difficulty, interval, next_date, body.quality, item_id,
+        new_stability, new_difficulty, interval, next_date, effective_quality, item_id,
     )
 
     # Update concept mastery if concept_id is set; track stage advance for mastery moment
@@ -2464,19 +2553,17 @@ async def answer_review_item(
             c_row = await pool.fetchrow("SELECT name_vi FROM concepts WHERE id=$1", concept_id)
             concept_name_vi = c_row["name_vi"] if c_row else concept_id
 
-    # Update ELO rating for this concept
-    if concept_id:
+        # Update concept ELO: K=16, baseline difficulty=1000
         elo_row = await pool.fetchrow(
             "SELECT rating FROM concept_elo WHERE user_id=$1 AND concept_id=$2",
             current_user.user_id, concept_id,
         )
-        student_elo = elo_row["rating"] if elo_row else 1000.0
-        # Map FSRS difficulty (1-10) to question ELO (800-1340)
-        q_elo = 800 + (row["difficulty"] - 1) * 60
-        K = 32
-        expected = 1 / (1 + 10 ** ((q_elo - student_elo) / 400))
-        outcome = 1.0 if body.quality >= 3 else 0.0
-        new_elo = max(600.0, min(2000.0, student_elo + K * (outcome - expected)))
+        current_elo = elo_row["rating"] if elo_row else 1000.0
+        K = 16.0
+        expected = 1.0 / (1.0 + 10.0 ** ((1000.0 - current_elo) / 400.0))
+        actual = 1.0 if effective_quality >= 3 else 0.0
+        new_elo = round(current_elo + K * (actual - expected), 2)
+
         if elo_row:
             await pool.execute(
                 "UPDATE concept_elo SET rating=$1, updated_at=NOW() WHERE user_id=$2 AND concept_id=$3",
@@ -2660,6 +2747,23 @@ async def get_session_today(
         except Exception:
             pass
 
+    # Unresolved mistakes count (for coaching prompt on home screen)
+    pending_count = 0
+    try:
+        cnt_row = await pool.fetchrow(
+            "SELECT COUNT(*) AS cnt FROM review_items WHERE user_id=$1 AND (quality_last IS NULL OR quality_last < 3)",
+            uid,
+        )
+        pending_count = cnt_row["cnt"] if cnt_row else 0
+    except Exception:
+        pass
+
+    # Placement needed: true when concept_mastery is empty
+    mastery_cnt_row = await pool.fetchrow(
+        "SELECT COUNT(*) AS cnt FROM concept_mastery WHERE user_id=$1", uid
+    )
+    placement_needed = (mastery_cnt_row["cnt"] if mastery_cnt_row else 0) == 0
+
     return {
         "due_count": due_count,
         "is_complete": is_complete,
@@ -2670,6 +2774,8 @@ async def get_session_today(
         "days_remaining": days_remaining,
         "predicted_score": predicted_score,
         "on_track": on_track,
+        "pending_count": pending_count,
+        "placement_needed": placement_needed,
     }
 
 
@@ -2703,6 +2809,71 @@ async def complete_session(
         uid, today, sm2_count,
     )
     return {"already_complete": False, "session_date": today, "sm2_reviewed": sm2_count}
+
+
+class PlacementAnswer(BaseModel):
+    question_id: str
+    correct: bool
+
+
+class PlacementRequest(BaseModel):
+    answers: list[PlacementAnswer]
+
+
+@app.post("/users/me/placement", status_code=201)
+async def submit_placement(
+    body: PlacementRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Create concept_mastery rows from 10 placement answers.
+
+    Maps each answered question's concept_id to a concept_mastery row.
+    Correct answer → mastery_score=60 (stage 3), wrong → mastery_score=20 (stage 1).
+    Never overwrites existing progress.
+    """
+    uid = current_user.user_id
+    if not body.answers:
+        return {"seeded": 0}
+
+    # Build question→concept_id map from DB
+    q_ids = [a.question_id for a in body.answers]
+    placeholders = ",".join(f"${i+1}" for i in range(len(q_ids)))
+    q_rows = await pool.fetch(
+        f"SELECT id, concept_id FROM questions WHERE id IN ({placeholders})", *q_ids
+    )
+    concept_map = {r["id"]: r["concept_id"] for r in q_rows if r["concept_id"]}
+
+    seeded = 0
+    for answer in body.answers:
+        cid = concept_map.get(answer.question_id)
+        if not cid:
+            continue
+
+        existing = await pool.fetchrow(
+            "SELECT stage FROM concept_mastery WHERE user_id=$1 AND concept_id=$2", uid, cid
+        )
+        if existing and existing["stage"] > 0:
+            continue  # never overwrite real progress
+
+        mastery_score = 60 if answer.correct else 20
+        stage = _mastery_to_stage(mastery_score)
+
+        if existing:
+            await pool.execute(
+                """UPDATE concept_mastery SET mastery_score=$1, stage=$2, updated_at=NOW()
+                   WHERE user_id=$3 AND concept_id=$4""",
+                mastery_score, stage, uid, cid,
+            )
+        else:
+            await pool.execute(
+                """INSERT INTO concept_mastery (user_id, concept_id, mastery_score, stage)
+                   VALUES ($1, $2, $3, $4)""",
+                uid, cid, mastery_score, stage,
+            )
+        seeded += 1
+
+    return {"seeded": seeded}
 
 
 @app.get("/users/me/adaptive-study-plan")
@@ -2976,31 +3147,147 @@ async def get_payment_config(current_user: CurrentUser = Depends(get_current_use
 
 
 # ---------------------------------------------------------------------------
-# Daily challenge endpoints (B3 + F3)
+# Daily challenge endpoints
 # ---------------------------------------------------------------------------
 
 @app.get("/daily-challenge")
-async def get_daily_challenge(pool=Depends(get_pool)):
-    """Return today's 5 question IDs (no auth required). Correct answers omitted."""
+async def get_daily_challenge(
+    request: Request,
+    pool=Depends(get_pool),
+):
+    """Return one personalized daily question.
+    Authenticated users get their unresolved mistake or due SR card first.
+    Unauthenticated users get a deterministic daily pick.
+    """
     from datetime import datetime, timezone
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    # Try to identify user from JWT (optional — endpoint is public)
+    user_id: int | None = None
     try:
-        rows = await pool.fetch("SELECT id FROM questions")
-        all_ids = [r["id"] for r in rows]
+        token = request.headers.get("authorization", "").removeprefix("Bearer ").strip()
+        if token:
+            import jwt as _jwt
+            settings_inner = get_settings()
+            payload = _jwt.decode(token, settings_inner.jwt_secret, algorithms=["HS256"])
+            user_id = int(payload.get("sub", 0)) or None
     except Exception:
-        # Fallback to file-based key if DB unavailable
-        all_ids = list(_load_answer_key().keys())
-    if not all_ids:
-        raise HTTPException(status_code=503, detail="question_data_unavailable")
-    daily_ids = _select_daily_questions(all_ids, date_str)
-    return {"date": date_str, "question_ids": daily_ids}
+        pass
+
+    source = "new"
+    days_since_wrong: int | None = None
+    pending_count = 0
+    question_id: str | None = None
+
+    if user_id:
+        # Priority 1 — unresolved mistake (quality_last < 3 or null = never reviewed correctly)
+        row = await pool.fetchrow(
+            """SELECT ri.question_id, ri.updated_at, ri.quality_last
+               FROM review_items ri
+               WHERE ri.user_id = ?
+                 AND (ri.quality_last IS NULL OR ri.quality_last < 3)
+                 AND date(ri.updated_at) < ?
+               ORDER BY ri.updated_at DESC
+               LIMIT 1""",
+            user_id, date_str,
+        )
+        if row:
+            question_id = row["question_id"]
+            source = "mistake_retry"
+            try:
+                then = datetime.fromisoformat(row["updated_at"].replace("Z", "+00:00")).date()
+                days_since_wrong = (datetime.now(timezone.utc).date() - then).days
+            except Exception:
+                days_since_wrong = 1
+            # Count remaining unresolved mistakes
+            cnt_row = await pool.fetchrow(
+                "SELECT COUNT(*) AS cnt FROM review_items WHERE user_id = ? AND (quality_last IS NULL OR quality_last < 3)",
+                user_id,
+            )
+            pending_count = max(0, (cnt_row["cnt"] if cnt_row else 0) - 1)
+
+        # Priority 2 — due SR card (not already selected as mistake)
+        if not question_id:
+            row = await pool.fetchrow(
+                """SELECT question_id FROM review_items
+                   WHERE user_id = ? AND next_review_date <= ? AND (quality_last IS NULL OR quality_last >= 3)
+                   ORDER BY next_review_date ASC LIMIT 1""",
+                user_id, date_str,
+            )
+            if row:
+                question_id = row["question_id"]
+                source = "sr_due"
+
+    # Priority 3 — weak topic question (user has history)
+    weak_topic: str | None = None
+    if not question_id and user_id:
+        try:
+            topic_row = await pool.fetchrow(
+                """SELECT q.topic, COUNT(*) AS miss_count
+                   FROM review_items ri JOIN questions q ON q.id = ri.question_id
+                   WHERE ri.user_id = ? AND (ri.quality_last IS NULL OR ri.quality_last < 3)
+                   GROUP BY q.topic ORDER BY miss_count DESC LIMIT 1""",
+                user_id,
+            )
+            if topic_row and topic_row["topic"]:
+                weak_topic = topic_row["topic"]
+                topic_rows = await pool.fetch(
+                    "SELECT id FROM questions WHERE topic = ? ORDER BY id", weak_topic
+                )
+                if topic_rows:
+                    topic_ids = [r["id"] for r in topic_rows]
+                    seed = (str(user_id) + date_str + weak_topic)
+                    h = 0
+                    for c in seed:
+                        h = (h * 31 + ord(c)) & 0xFFFFFFFF
+                    question_id = topic_ids[h % len(topic_ids)]
+                    source = "weak_topic"
+        except Exception:
+            pass
+
+    # Priority 4 — deterministic daily pick from question bank
+    if not question_id:
+        try:
+            rows = await pool.fetch("SELECT id FROM questions ORDER BY id")
+            all_ids = [r["id"] for r in rows]
+        except Exception:
+            all_ids = list(_load_answer_key().keys())
+        if not all_ids:
+            raise HTTPException(status_code=503, detail="question_data_unavailable")
+        seed = (str(user_id) if user_id else "guest") + date_str
+        h = 0
+        for c in seed:
+            h = (h * 31 + ord(c)) & 0xFFFFFFFF
+        question_id = all_ids[h % len(all_ids)]
+
+    # Province context label — shown when topic is high-weight in user's province
+    province_context: str | None = None
+    if weak_topic and user_id:
+        try:
+            user_row = await pool.fetchrow("SELECT province FROM users WHERE id = ?", user_id)
+            user_province = user_row["province"] if user_row else None
+            if user_province and user_province in _PROVINCE_DATA:
+                tw = _PROVINCE_DATA[user_province].get("topic_weights", {})
+                if tw.get(weak_topic, 0) >= 10:
+                    province_context = f"Đây là dạng bài thường xuất hiện trong đề thi ở {user_province}"
+        except Exception:
+            pass
+
+    return {
+        "date": date_str,
+        "question_id": question_id,
+        "source": source,
+        "days_since_wrong": days_since_wrong,
+        "pending_count": pending_count,
+        "province_context": province_context,
+    }
 
 
-async def _compute_daily_streak(pool, user_id: str, today: str) -> int:
+async def _compute_daily_streak(pool, user_id: int, today: str) -> int:
     from datetime import datetime, timedelta
     rows = await pool.fetch(
         "SELECT date FROM daily_challenge_leaderboard WHERE user_id = ? ORDER BY date DESC",
-        user_id,
+        str(user_id),
     )
     dates = {r["date"] for r in rows}
     count = 0
@@ -3012,8 +3299,8 @@ async def _compute_daily_streak(pool, user_id: str, today: str) -> int:
 
 
 class DailyChallengeScoreRequest(BaseModel):
-    answers: dict[str, int]  # {question_id: chosen_index}
-    time_seconds: int = 0
+    question_id: str
+    correct: bool
 
 
 @app.post("/daily-challenge/score")
@@ -3022,58 +3309,72 @@ async def submit_daily_challenge_score(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
-    """Score the daily challenge server-side and record in leaderboard."""
+    """Record that the student showed up today and attempted the question.
+    Tia is granted on first submission regardless of correctness.
+    """
     from datetime import datetime, timezone
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    # Load answer key from DB; fallback to JSON file if DB unavailable
-    try:
-        rows = await pool.fetch("SELECT id, correct FROM questions")
-        key = {r["id"]: r["correct"] for r in rows}
-        all_ids = list(key.keys())
-    except Exception:
-        key = _load_answer_key()
-        all_ids = list(key.keys())
-    if not key:
-        raise HTTPException(status_code=503, detail="question_data_unavailable")
-    daily_ids = _select_daily_questions(all_ids, date_str)
 
-    # Server-side scoring — never trust client-reported score
-    correct = sum(
-        1 for qid in daily_ids
-        if req.answers.get(qid) == key.get(qid)
-    )
-    total = len(daily_ids)
-    time_s = max(0, min(req.time_seconds, 86400))
-
-    # Check if this is a first submission today (for Tia grant)
     existing = await pool.fetchrow(
-        "SELECT score FROM daily_challenge_leaderboard WHERE user_id = ? AND date = ?",
+        "SELECT id FROM daily_challenge_leaderboard WHERE user_id = ? AND date = ?",
         str(current_user.user_id), date_str,
     )
     first_submission = existing is None
 
-    # Upsert: only keep the better score (higher score, or same score with faster time)
+    # Silent grace day: if the user missed exactly 1 day AND has a freeze available,
+    # silently fill the gap so the streak computation sees no break.
+    if first_submission:
+        from datetime import timedelta
+        yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
+        day_before = (datetime.now(timezone.utc) - timedelta(days=2)).strftime("%Y-%m-%d")
+        has_yesterday = await pool.fetchrow(
+            "SELECT id FROM daily_challenge_leaderboard WHERE user_id = ? AND date = ?",
+            str(current_user.user_id), yesterday,
+        )
+        if not has_yesterday:
+            # Missed yesterday — check if streak was alive the day before
+            had_prior = await pool.fetchrow(
+                "SELECT id FROM daily_challenge_leaderboard WHERE user_id = ? AND date = ?",
+                str(current_user.user_id), day_before,
+            )
+            if had_prior:
+                freeze_row = await pool.fetchrow(
+                    "SELECT streak_freeze_count, streak_freeze_reset_at, subscription_tier FROM users WHERE id = ?",
+                    current_user.user_id,
+                )
+                if freeze_row:
+                    # Replenish first if due
+                    await _replenish_streak_freeze(
+                        pool, current_user.user_id,
+                        freeze_row["subscription_tier"] or "basic",
+                        freeze_row["streak_freeze_reset_at"],
+                    )
+                    fresh = await pool.fetchrow(
+                        "SELECT streak_freeze_count FROM users WHERE id = ?", current_user.user_id
+                    )
+                    if fresh and (fresh["streak_freeze_count"] or 0) > 0:
+                        await pool.execute(
+                            """INSERT OR IGNORE INTO daily_challenge_leaderboard
+                               (user_id, display_name, date, score, total, time_seconds)
+                               VALUES (?, ?, ?, 0, 1, 0)""",
+                            str(current_user.user_id), current_user.display_name or "", yesterday,
+                        )
+                        await pool.execute(
+                            "UPDATE users SET streak_freeze_count = streak_freeze_count - 1 WHERE id = ?",
+                            current_user.user_id,
+                        )
+
     if first_submission:
         await pool.execute(
             """INSERT INTO daily_challenge_leaderboard
                (user_id, display_name, date, score, total, time_seconds)
-               VALUES (?, ?, ?, ?, ?, ?)""",
+               VALUES (?, ?, ?, ?, 1, 0)""",
             str(current_user.user_id),
             current_user.display_name or "",
-            date_str, correct, total, time_s,
+            date_str,
+            1 if req.correct else 0,
         )
-    else:
-        prev_score = existing["score"]
-        if correct > prev_score or (correct == prev_score and time_s < (existing.get("time_seconds") or 86400)):
-            await pool.execute(
-                """UPDATE daily_challenge_leaderboard
-                   SET score = ?, time_seconds = ?, display_name = ?, submitted_at = datetime('now')
-                   WHERE user_id = ? AND date = ?""",
-                correct, time_s, current_user.display_name or "",
-                str(current_user.user_id), date_str,
-            )
 
-    # Grant 1 Tia on first submission (regardless of score)
     tia_earned = 0
     streak = 0
     if first_submission:
@@ -3086,11 +3387,11 @@ async def submit_daily_challenge_score(
             current_user.user_id,
         )
         tia_earned = 1
+        streak = await _compute_daily_streak(pool, current_user.user_id, date_str)
 
-        # Streak bonus for paid tiers
+        # Streak milestone bonuses for paid tiers
         tier_row_dc = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
         if tier_row_dc and tier_row_dc["subscription_tier"] in _PAID_TIERS:
-            streak = await _compute_daily_streak(pool, str(current_user.user_id), date_str)
             bonus_map = {7: 20, 30: 100, 100: 300}
             bonus = bonus_map.get(streak, 0)
             if bonus:
@@ -3104,33 +3405,14 @@ async def submit_daily_challenge_score(
                 )
                 tia_earned += bonus
 
-    return {"score": correct, "total": total, "date": date_str, "tia_earned": tia_earned, "streak": streak}
-
-
-@app.get("/daily-challenge/leaderboard")
-async def get_daily_challenge_leaderboard(pool=Depends(get_pool)):
-    """Top 10 scores for today's daily challenge."""
-    from datetime import datetime, timezone
-    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    rows = await pool.fetch(
-        """SELECT display_name, score, total, time_seconds
-           FROM daily_challenge_leaderboard
-           WHERE date = ?
-           ORDER BY score DESC, time_seconds ASC
-           LIMIT 10""",
-        date_str,
+    # Count remaining unresolved mistakes for the forward-looking message
+    cnt_row = await pool.fetchrow(
+        "SELECT COUNT(*) AS cnt FROM review_items WHERE user_id = ? AND (quality_last IS NULL OR quality_last < 3)",
+        current_user.user_id,
     )
-    entries = [
-        {
-            "rank": i + 1,
-            "display_name": r["display_name"] or "Ẩn danh",
-            "score": r["score"],
-            "total": r["total"],
-            "time_seconds": r["time_seconds"],
-        }
-        for i, r in enumerate(rows)
-    ]
-    return {"date": date_str, "entries": entries}
+    pending_count = max(0, (cnt_row["cnt"] if cnt_row else 0) - (1 if not req.correct else 0))
+
+    return {"tia_earned": tia_earned, "streak": streak, "pending_count": pending_count, "first_submission": first_submission}
 
 
 @app.get("/users/me/credits/log")
@@ -3935,7 +4217,7 @@ async def adaptive_practice(
 def _require_admin(request: Request):
     settings = get_settings()
     key = request.headers.get("x-admin-key", "")
-    if not validate_admin_key(key, settings.admin_master_secret, settings.admin_key_rotation_period):
+    if not settings.admin_key or key != settings.admin_key:
         request.state.admin_key_failed = True
         raise HTTPException(status_code=401, detail="Invalid or missing admin key")
 
@@ -4006,38 +4288,6 @@ async def classify_error(
 
 class SuspendRequest(BaseModel):
     reason: str
-
-
-@app.post("/admin/generate-key-log", status_code=200)
-async def generate_key_log(request: Request):
-    settings = get_settings()
-    cron_secret = settings.cron_secret or ""
-    provided = request.headers.get("x-cron-secret", "")
-    if not cron_secret or not hmac.compare_digest(provided.encode(), cron_secret.encode()):
-        raise HTTPException(status_code=401, detail="Invalid or missing cron secret")
-    if not settings.admin_master_secret or not settings.admin_key_log_enabled:
-        return {"status": "disabled"}
-
-    period = settings.admin_key_rotation_period
-    label = get_window_label(period, offset=0)
-    key = derive_key(settings.admin_master_secret, label)
-    expiry = get_expiry_date(period)
-
-    import datetime as _dt
-    ict = _dt.timezone(_dt.timedelta(hours=7))
-    ts = _dt.datetime.now(ict).strftime("%Y-%m-%d %H:%M:%S")
-    log_line = f"{label}  |  generated: {ts} ICT  |  expires: {expiry}  |  {key}\n"
-
-    log_path = Path(settings.admin_key_log_path)
-    try:
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(log_path, "a") as f:
-            f.write(log_line)
-    except OSError as e:
-        logger.error("Failed to write admin key log: %s", e)
-        raise HTTPException(status_code=500, detail="Failed to write key log")
-
-    return {"status": "ok", "window": label, "expires": expiry}
 
 
 @app.post("/admin/users/{user_id}/subscription", status_code=204)
@@ -4276,83 +4526,6 @@ async def admin_reset_user(
     )
     from app.dependencies import invalidate_account_cache
     invalidate_account_cache(user_id)
-
-
-# ── Sprint 20: MOAT 4 — Longitudinal Learner Memory ─────────────────────────
-
-class LearnerMemorySnapshotItem(BaseModel):
-    topic_id: str
-    mastery_score: float = Field(..., ge=0.0, le=1.0)
-    exam_count: int = 0
-
-
-class LearnerMemorySnapshotRequest(BaseModel):
-    snapshots: list[LearnerMemorySnapshotItem]
-
-
-@app.post("/learner-memory/snapshot")
-async def record_learner_memory_snapshot(
-    body: LearnerMemorySnapshotRequest,
-    user: CurrentUser = Depends(get_current_user),
-    pool=Depends(get_pool),
-):
-    """Record per-topic mastery snapshots for the current user.
-    Deduplicates: if a snapshot for user+topic already exists today, UPDATE it.
-    """
-    today = datetime.utcnow().strftime("%Y-%m-%d")
-    recorded = 0
-    for item in body.snapshots:
-        existing = await pool.fetchrow(
-            "SELECT id FROM learner_memory WHERE user_id = ? AND topic_id = ? AND date(snapshot_date) = ?",
-            user.id, item.topic_id, today,
-        )
-        if existing:
-            await pool.execute(
-                "UPDATE learner_memory SET mastery_score = ?, exam_count_at_snapshot = ?, snapshot_date = datetime('now') WHERE id = ?",
-                item.mastery_score, item.exam_count, existing["id"],
-            )
-        else:
-            await pool.execute(
-                "INSERT INTO learner_memory (user_id, topic_id, mastery_score, exam_count_at_snapshot) VALUES (?, ?, ?, ?)",
-                user.id, item.topic_id, item.mastery_score, item.exam_count,
-            )
-        recorded += 1
-    return {"recorded": recorded}
-
-
-@app.get("/learner-memory/me")
-async def get_learner_memory(
-    user: CurrentUser = Depends(get_current_user),
-    pool=Depends(get_pool),
-):
-    """Return all mastery snapshots for the current user, grouped by topic_id."""
-    rows = await pool.fetchall(
-        """SELECT topic_id, date(snapshot_date) AS snap_date, mastery_score, exam_count_at_snapshot
-           FROM learner_memory
-           WHERE user_id = ?
-           ORDER BY snapshot_date ASC""",
-        user.id,
-    )
-    if not rows:
-        return {"topics": {}, "first_snapshot_date": None, "snapshot_count": 0}
-
-    topics: dict[str, list[dict]] = {}
-    for row in rows:
-        tid = row["topic_id"]
-        if tid not in topics:
-            topics[tid] = []
-        topics[tid].append({
-            "date": row["snap_date"],
-            "mastery": row["mastery_score"],
-            "exam_count": row["exam_count_at_snapshot"],
-        })
-
-    first_snapshot_date = rows[0]["snap_date"]
-    return {
-        "topics": topics,
-        "first_snapshot_date": first_snapshot_date,
-        "snapshot_count": len(rows),
-    }
 
 
 # ─── Exam-day simulation brief ───────────────────────────────────────────────

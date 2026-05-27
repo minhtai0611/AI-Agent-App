@@ -26,17 +26,15 @@ const ReviewSession = lazy(() => import('./pages/ReviewSession.jsx'))
 const Mistakes = lazy(() => import('./pages/Mistakes.jsx'))
 const AdaptivePractice = lazy(() => import('./pages/AdaptivePractice.jsx'))
 const DailyChallenge = lazy(() => import('./pages/DailyChallenge.jsx'))
-const BattleMistakes = lazy(() => import('./pages/BattleMistakes.jsx'))
-const StreakSurvival = lazy(() => import('./pages/StreakSurvival.jsx'))
 const Admin = lazy(() => import('./pages/Admin.jsx'))
 const AdminSecurityEvents = lazy(() => import('./pages/AdminSecurityEvents.jsx'))
 const ShareView = lazy(() => import('./pages/ShareView.jsx'))
 const ChallengeLanding = lazy(() => import('./pages/ChallengeLanding.jsx'))
-const ClassDashboard = lazy(() => import('./pages/ClassDashboard.jsx'))
 const DiagnosticTest = lazy(() => import('./pages/DiagnosticTest.jsx'))
 const GenerateExam = lazy(() => import('./pages/GenerateExam.jsx'))
 const Progress = lazy(() => import('./pages/Progress.jsx'))
 const AdaptiveStudyPlan = lazy(() => import('./pages/AdaptiveStudyPlan.jsx'))
+const Placement = lazy(() => import('./pages/Placement.jsx'))
 
 const PageFallback = () => <div className="min-h-screen bg-[#0A0E1A]" />
 
@@ -167,17 +165,15 @@ function AppInner() {
             <Route path="/mistakes" element={<Mistakes />} />
             <Route path="/practice/adaptive" element={<AdaptivePractice />} />
             <Route path="/daily" element={<DailyChallenge />} />
-            <Route path="/battle" element={<BattleMistakes />} />
-            <Route path="/survival" element={<StreakSurvival />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/security-events" element={<AdminSecurityEvents />} />
             <Route path="/share" element={<ShareView />} />
             <Route path="/challenge" element={<ChallengeLanding />} />
-            <Route path="/class" element={<ClassDashboard />} />
             <Route path="/diagnostic" element={<DiagnosticTest />} />
             <Route path="/generate-exam" element={<GenerateExam />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/study-plan/adaptive" element={<AdaptiveStudyPlan />} />
+            <Route path="/placement" element={<Placement />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

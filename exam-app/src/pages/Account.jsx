@@ -8,8 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { loadQuestions } from '../api/index.js'
-import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getClassInfo, joinTeacherClass, getMemoryData, getWeeklyInsight, getPartnerCandidates, connectPartner, getMyPartners, respondToPartner, getSimulationBriefing } from '../api/aiClient.js'
-import { getClassRankDisplay } from '../utils/classRank.js'
+import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getWeeklyInsight, getSimulationBriefing } from '../api/aiClient.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
@@ -20,12 +19,11 @@ import { computeBadges, BADGE_DEFS } from '../utils/badges.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { requestStudyReminder } from '../utils/studyReminder.js'
 import { getInitialTab, formatCreditSessions, TAB_PROGRESS, TAB_ANALYTICS, TAB_AITIA, TAB_SETTINGS } from '../utils/accountHelpers.js'
-import { interpretScoreTrend, interpretTopicRadar, interpretHeatmap, getTodayFocus, getNextMilestone } from '../utils/insights.js'
+import { interpretScoreTrend, getTodayFocus, getNextMilestone } from '../utils/insights.js'
 import { getMasteryProgress, MASTERY_TIERS, didRankAdvance } from '../utils/masteryRank.js'
 import { generateWeeklyReport } from '../utils/weeklyReport.js'
 import { getStudyNudge } from '../utils/studyNudge.js'
 import { classifyLearner } from '../utils/learnerArchetype.js'
-import { getLearnerTimeline } from '../utils/learnerTimeline.js'
 import { getScoreProjection } from '../utils/scoreProjection.js'
 import { useAIPreferences } from '../hooks/useAIPreferences.js'
 import { getTopupRecommendation, getTrialUrgency, getAnnualSavingsDays } from '../utils/monetization.js'
@@ -41,10 +39,6 @@ import { getTierGap } from '../utils/tierGap.js'
 import { getUpgradeContext } from '../utils/upgradeContext.js'
 import { getStreakFreezeInfo } from '../utils/streakFreeze.js'
 import { getTopicNodes, getPriorityTopics } from '../utils/learningGraph.js'
-import { getSocialProofMessage } from '../utils/socialProof.js'
-import { getMemoryInsights } from '../utils/learnerMemory.js'
-import { canUseStudyPartners, getPartnerMatchLabel } from '../utils/studyPartner.js'
-
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const REASON_LABELS = {
@@ -146,12 +140,7 @@ function aggregateTopicAccuracy(results) {
   }))
 }
 
-function heatColor(count) {
-  if (count === 0) return '#1E2A44'
-  if (count === 1) return 'rgba(180,83,9,0.60)'
-  if (count === 2) return 'rgba(180,83,9,0.70)'
-  return 'rgba(242,162,12,0.80)'
-}
+
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -277,10 +266,6 @@ export default function Account() {
   const [reactivating,        setReactivating]        = useState(false)
 
   // ── Settings ──
-  const [classInfo,        setClassInfo]        = useState(null)
-  const [classJoinCode,    setClassJoinCode]    = useState('')
-  const [classJoinLoading, setClassJoinLoading] = useState(false)
-  const [classJoinError,   setClassJoinError]   = useState('')
   const [reminderEnabled, setReminderEnabled] = useState(
     () => !!localStorage.getItem('study_reminder_enabled')
   )
@@ -306,8 +291,6 @@ export default function Account() {
   const [freezeSuccess,   setFreezeSuccess]   = useState(false)
 
   // ── Heatmap scroll ref ──
-  const heatScrollRef = useRef(null)
-
   // ── Mastery rank advancement animation ──
   const [showRankUp, setShowRankUp] = useState(false)
   const prevRankRef = useRef(user?.mastery_rank)
@@ -318,8 +301,6 @@ export default function Account() {
   const chartInsightsFetched = useRef(false)
   const [peerStats, setPeerStats] = useState(null)
   const peerStatsFetched = useRef(false)
-  const [memoryData, setMemoryData] = useState(null)
-  const memoryFetched = useRef(false)
 
   // ── Weekly AI summary ──
   const [weeklyAISummary,        setWeeklyAISummary]        = useState(null)
@@ -339,21 +320,9 @@ export default function Account() {
   const [simBriefing, setSimBriefing] = useState(null)
   const simBriefingFetched = useRef(false)
 
-  // ── Study partner state (Sprint 21 / MOAT 5) ──
-  const [partnerCandidates, setPartnerCandidates] = useState(null)
-  const [myPartners,        setMyPartners]        = useState(null)
-  const [partnerLoading,    setPartnerLoading]    = useState(false)
-  const partnerFetched = useRef(false)
-  const [connectingId,      setConnectingId]      = useState(null)
-
-  // ── Heatmap tooltip state ──
-  const [heatTooltip, setHeatTooltip] = useState(null)
-  // heatTooltip: { date: string, count: number } | null
 
   const toast = useToast()
 
-  // ── Class rank display (Sprint 19) ──
-  const classRankDisplay = useMemo(() => getClassRankDisplay(classInfo), [classInfo])
 
   // ── All derived memos — MUST be before any conditional return (Rules of Hooks) ──
   const tier   = user?.subscription_tier || 'basic'
@@ -368,17 +337,10 @@ export default function Account() {
   const avgScore = results.length
     ? (results.reduce((s, r) => s + (r.score ?? 0), 0) / results.length).toFixed(1)
     : '—'
-  const socialProof   = useMemo(
-    () => getSocialProofMessage(peerStats, parseFloat(avgScore) || 0),
-    [peerStats, avgScore]
-  )
-  const memoryInsights = useMemo(() => getMemoryInsights(memoryData), [memoryData])
   const heatmapCells  = useMemo(() => buildHeatmap(results), [results])
   const topicNodes    = useMemo(() => getTopicNodes(radarData), [radarData])
   const priorityTopics = useMemo(() => getPriorityTopics(topicNodes), [topicNodes])
   const trendInsight  = useMemo(() => interpretScoreTrend(sparkData), [sparkData])
-  const radarInsight  = useMemo(() => interpretTopicRadar(radarData), [radarData])
-  const heatmapInsight = useMemo(() => interpretHeatmap(results), [results])
   const todayFocus    = useMemo(() => getTodayFocus(radarData), [radarData])
   const nextMilestone = useMemo(() => getNextMilestone(results, earnedBadgeIds), [results, earnedBadgeIds])
   const streakPB      = useMemo(() => computeStreakPersonalBest(results), [results])
@@ -396,7 +358,6 @@ export default function Account() {
   const scoreCI       = useMemo(() => getScoreConfidenceInterval(sparkData, user?.target_score ?? null), [sparkData, user?.target_score])
   const dailyPlan     = useMemo(() => getDailySimulationPlan(simulationMode, weakTopics.slice(0, 2)), [simulationMode, weakTopics])
   const archetype     = useMemo(() => classifyLearner(results), [results])
-  const timeline      = useMemo(() => getLearnerTimeline(results), [results])
   const scoreProjection = useMemo(() => getScoreProjection(sparkData, daysUntil), [sparkData, daysUntil])
   const topupRec      = useMemo(() => getTopupRecommendation(creditLog, user?.credits_balance ?? 0, TOPUP_PACKAGES), [creditLog, user?.credits_balance])
   const trialUrgency  = useMemo(() => getTrialUrgency(user), [user])
@@ -429,23 +390,6 @@ export default function Account() {
     const dailyRate = spent / 7
     return Math.round((user?.credits_balance ?? 0) / dailyRate)
   }, [creditLog, user?.credits_balance])
-  const weeks = useMemo(() => {
-    const w = []
-    for (let i = 0; i < 52; i++) w.push(heatmapCells.slice(i * 7, i * 7 + 7))
-    return w
-  }, [heatmapCells])
-  const monthLabels = useMemo(() => {
-    const labels = {}
-    for (let w = 0; w < weeks.length; w++) {
-      const first = weeks[w][0]
-      if (!first) continue
-      const prevFirst = w > 0 ? weeks[w - 1][0] : null
-      if (!prevFirst || first.month !== prevFirst.month) {
-        labels[w] = `T${first.month + 1}`
-      }
-    }
-    return labels
-  }, [weeks])
   const lastExamDate = results.length > 0 ? results[results.length - 1].finishedAt : null
   const todayExamCount = results.filter(r => {
     const d = new Date(r.finishedAt)
@@ -462,19 +406,11 @@ export default function Account() {
     if (!user) return
     getCreditLog().then(({ data }) => { if (data) setCreditLog(data) }).catch(() => {})
     getReferral().then(  ({ data }) => { if (data) setReferral(data) }).catch(() => {})
-    getClassInfo().then( ({ data }) => { if (data) setClassInfo(data) }).catch(() => {})
   }, [user])
 
   useEffect(() => {
     if (!loading && !user) navigate('/', { replace: true })
   }, [loading, user, navigate])
-
-  // Auto-scroll heatmap to today (right edge) when analytics tab opens
-  useEffect(() => {
-    if (activeTab === TAB_ANALYTICS && heatScrollRef.current) {
-      heatScrollRef.current.scrollLeft = heatScrollRef.current.scrollWidth
-    }
-  }, [activeTab])
 
   // Mastery rank advancement detection — show celebration overlay on rank-up
   useEffect(() => {
@@ -528,13 +464,6 @@ export default function Account() {
     getPeerStats().then(({ data }) => { if (data) setPeerStats(data) }).catch(() => setPeerStats(null))
   }, [activeTab])
 
-  useEffect(() => {
-    if (activeTab !== TAB_ANALYTICS) return
-    if (memoryFetched.current) return
-    memoryFetched.current = true
-    getMemoryData().then(({ data }) => { if (data) setMemoryData(data) }).catch(() => {})
-  }, [activeTab])
-
   // Fetch AI weekly summary once when analytics tab opens with weeklyReport data
   useEffect(() => {
     if (activeTab !== TAB_ANALYTICS) return
@@ -577,20 +506,6 @@ export default function Account() {
       .finally(() => setWeeklyAISummaryLoading(false))
   }, [activeTab, weeklyReport, results, streak])
 
-  // Fetch study partner data once when AITIA tab opens (complete tier only)
-  useEffect(() => {
-    if (activeTab !== TAB_AITIA) return
-    if (!canUseStudyPartners(user?.subscription_tier)) return
-    if (partnerFetched.current) return
-    partnerFetched.current = true
-    setPartnerLoading(true)
-    Promise.all([getPartnerCandidates(), getMyPartners()])
-      .then(([cRes, mRes]) => {
-        if (cRes.data) setPartnerCandidates(cRes.data.candidates ?? [])
-        if (mRes.data) setMyPartners(mRes.data)
-      })
-      .finally(() => setPartnerLoading(false))
-  }, [activeTab, user?.subscription_tier])
 
   // ── Simulation briefing fetch (MOAT 6) ──
   useEffect(() => {
@@ -1459,33 +1374,6 @@ export default function Account() {
               </section>
             )}
 
-            {/* Learner timeline */}
-            {timeline.length > 0 && (
-              <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
-                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Hành trình học tập</span>
-                <div className="flex flex-col gap-0">
-                  {timeline.map((event, idx) => (
-                    <div key={event.type} className="flex gap-3 relative">
-                      {/* Vertical line */}
-                      {idx < timeline.length - 1 && (
-                        <div className="absolute left-[19px] top-8 bottom-0 w-px bg-[#1E2A44]" />
-                      )}
-                      <div className="w-10 h-10 rounded-full bg-[#0A0E1A] border border-[#1E2A44] flex items-center justify-center text-[16px] flex-shrink-0 z-10">
-                        {event.icon}
-                      </div>
-                      <div className="flex flex-col gap-0.5 pb-4 min-w-0">
-                        <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">
-                          {event.label}{event.extra ? ` — ${event.extra} điểm` : ''}
-                        </span>
-                        <span className="font-jakarta text-[11px] text-[#475569]">
-                          {new Date(event.date).toLocaleDateString('vi-VN', { day: 'numeric', month: 'long', year: 'numeric' })}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
           </>
         )}
 
@@ -1609,184 +1497,6 @@ export default function Account() {
                   )}
                 </section>
 
-                {/* Topic radar */}
-                {radarData.length > 0 && (
-                  <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-3">
-                    <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Độ chính xác theo chủ đề</span>
-                    <ResponsiveContainer width="100%" height={220}>
-                      <RadarChart data={radarData}>
-                        <PolarGrid stroke="#1E2A44" />
-                        <PolarAngleAxis dataKey="topic" tick={{ fill: '#64748B', fontSize: 10, fontFamily: 'Plus Jakarta Sans, sans-serif' }} />
-                        <Radar dataKey="score" stroke="#F2A20C" fill="#F2A20C" fillOpacity={0.18} />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                    {radarInsight && (
-                      <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[#0A0E1A] border border-[#1E2A44]">
-                        <span className="text-[13px] mt-px">💡</span>
-                        <span className="font-jakarta text-[12px] text-[#94A3B8]">{radarInsight}</span>
-                      </div>
-                    )}
-                    {(chartInsightsLoading || chartInsights?.radar_insight) && (
-                      <p className="font-jakarta text-[12px] italic text-[#64748B] mt-1">
-                        {chartInsightsLoading ? '...' : chartInsights.radar_insight}
-                      </p>
-                    )}
-                  </section>
-                )}
-
-                {/* Learning DNA grid */}
-                {radarData.length > 0 && (
-                  <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
-                    <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Learning DNA</span>
-                    <span className="font-jakarta text-[11px] text-[#475569]">Bản đồ điểm mạnh và điểm yếu của bạn</span>
-                    <div className="flex flex-col gap-2">
-                      {[...radarData].sort((a, b) => b.score - a.score).map(({ topic, score }) => {
-                        const color = score >= 70 ? '#10B981' : score >= 45 ? '#F2A20C' : '#EF4444'
-                        const label = score >= 70 ? 'Mạnh' : score >= 45 ? 'Trung bình' : 'Cần ôn'
-                        return (
-                          <div key={topic} className="flex items-center gap-3">
-                            <span className="font-jakarta text-[11px] text-[#94A3B8] w-28 flex-shrink-0 truncate">{topic}</span>
-                            <div className="flex-1 h-2 bg-[#1E2A44] rounded-full overflow-hidden">
-                              <div
-                                className="h-full rounded-full transition-all duration-500"
-                                style={{ width: `${score}%`, background: color }}
-                              />
-                            </div>
-                            <span className="font-jakarta text-[10px] font-semibold w-16 text-right flex-shrink-0" style={{ color }}>
-                              {score}% · {label}
-                            </span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </section>
-                )}
-
-                {/* Activity heatmap */}
-                <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
-                  <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Hoạt động học tập</span>
-                  <div className="flex gap-3" style={{ position: 'relative' }}>
-                    {/* Heatmap tooltip */}
-                    {heatTooltip && (
-                      <div
-                        className="text-xs px-2 py-1 rounded-lg pointer-events-none"
-                        style={{ background: '#1E2A44', color: '#CBD5E1', position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 10, whiteSpace: 'nowrap' }}
-                      >
-                        {heatTooltip.date}: {heatTooltip.count} bài thi
-                      </div>
-                    )}
-                    {/* Day-of-week labels */}
-                    <div className="flex flex-col gap-[2px] pt-5 flex-shrink-0">
-                      {['', 'T2', '', 'T4', '', 'T6', ''].map((label, i) => (
-                        <div key={i} className="h-3.5 flex items-center">
-                          <span className="font-jakarta text-[9px] text-[#475569] w-4 text-right">{label}</span>
-                        </div>
-                      ))}
-                    </div>
-                    {/* Grid */}
-                    <div
-                      ref={heatScrollRef}
-                      className="overflow-x-auto flex-1"
-                      style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(242,162,12,0.35) transparent' }}
-                    >
-                      <div style={{ minWidth: weeks.length * 18 }}>
-                        {/* Month labels */}
-                        <div className="flex gap-[2px] mb-1">
-                          {weeks.map((_, wi) => (
-                            <div key={wi} className="w-3.5 flex-shrink-0 font-jakarta text-[9px] text-[#475569]">
-                              {monthLabels[wi] ?? ''}
-                            </div>
-                          ))}
-                        </div>
-                        {/* Week columns */}
-                        <div className="flex gap-[2px]">
-                          {weeks.map((week, wi) => (
-                            <div key={wi} className="flex flex-col gap-[2px]">
-                              {week.map(({ key, count }) => (
-                                <div
-                                  key={key}
-                                  title={`${key}: ${count} bài thi`}
-                                  className="w-3.5 h-3.5 rounded-sm flex-shrink-0"
-                                  style={{ background: heatColor(count) }}
-                                  onMouseEnter={() => setHeatTooltip({ date: key, count })}
-                                  onMouseLeave={() => setHeatTooltip(null)}
-                                  onTouchStart={(e) => {
-                                    e.preventDefault()
-                                    setHeatTooltip({ date: key, count })
-                                  }}
-                                  onTouchEnd={() => setTimeout(() => setHeatTooltip(null), 1500)}
-                                />
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Legend */}
-                  <div className="flex items-center gap-2">
-                    <span className="font-jakarta text-[11px] text-[#475569]">Ít</span>
-                    {[0, 1, 2, 3].map(c => (
-                      <div key={c} className="w-3.5 h-3.5 rounded-sm" style={{ background: heatColor(c) }} />
-                    ))}
-                    <span className="font-jakarta text-[11px] text-[#475569]">Nhiều</span>
-                  </div>
-                  {heatmapInsight && (
-                    <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[#0A0E1A] border border-[#1E2A44]">
-                      <span className="text-[13px] mt-px">💡</span>
-                      <span className="font-jakarta text-[12px] text-[#94A3B8]">{heatmapInsight}</span>
-                    </div>
-                  )}
-                  {(chartInsightsLoading || chartInsights?.heatmap_insight) && (
-                    <p className="font-jakarta text-[12px] italic text-[#64748B] mt-1">
-                      {chartInsightsLoading ? '...' : chartInsights.heatmap_insight}
-                    </p>
-                  )}
-                </section>
-
-                {/* Session timing patterns */}
-                {sessionPatterns && (
-                  <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
-                    <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Nhịp học tập theo ngày</span>
-
-                    {/* Day-of-week mini bar chart */}
-                    <div className="flex items-end gap-1.5 h-16">
-                      {sessionPatterns.dayPattern.map(day => {
-                        const maxCount = Math.max(...sessionPatterns.dayPattern.map(d => d.count), 1)
-                        const heightPct = day.count === 0 ? 4 : Math.max(12, Math.round((day.count / maxCount) * 100))
-                        const isActive = day.dayIndex === sessionPatterns.mostActiveDay.dayIndex
-                        const isBest   = sessionPatterns.bestScoreDay?.dayIndex === day.dayIndex
-                        return (
-                          <div key={day.dayIndex} className="flex flex-col items-center gap-1 flex-1">
-                            <div
-                              className="w-full rounded-sm transition-all"
-                              style={{
-                                height: `${heightPct}%`,
-                                background: isBest ? '#10B981' : isActive ? '#F2A20C' : day.count > 0 ? '#818CF8' : '#1E2A44',
-                                opacity: day.count === 0 ? 0.4 : 1,
-                              }}
-                            />
-                            <span className="font-jakarta text-[9px] text-[#475569]">
-                              {day.dayName.replace('Chủ nhật', 'CN').replace('Thứ ', '')}
-                            </span>
-                          </div>
-                        )
-                      })}
-                    </div>
-
-                    <div className="flex flex-wrap gap-3 text-[11px] font-jakarta text-[#64748B]">
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[#F2A20C] inline-block" /> Tích cực nhất</span>
-                      {sessionPatterns.bestScoreDay && (
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-emerald-400 inline-block" /> Điểm cao nhất</span>
-                      )}
-                    </div>
-
-                    <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[#0A0E1A] border border-[#1E2A44]">
-                      <span className="text-[13px] mt-px">💡</span>
-                      <span className="font-jakarta text-[12px] text-[#94A3B8]">{sessionPatterns.insight}</span>
-                    </div>
-                  </section>
-                )}
 
                 {/* Today's focus */}
                 {todayFocus && (
@@ -1862,152 +1572,16 @@ export default function Account() {
                     </div>
                   )}
 
-                  {/* All nodes compact grid */}
-                  <div className="flex flex-col gap-2">
-                    <span className="font-jakarta text-[11px] text-[#475569] font-semibold uppercase tracking-wide">Tổng quan tất cả chủ đề</span>
-                    <div className="grid grid-cols-2 gap-2">
-                      {topicNodes.map(node => {
-                        const dotColor =
-                          node.masteryLevel === 'mastered' ? '#10B981' :
-                          node.masteryLevel === 'learning' ? '#F2A20C' :
-                          node.masteryLevel === 'weak'     ? '#EF4444' :
-                          '#374151'
-                        const masteryPct = node.mastery !== null ? Math.round(node.mastery * 100) : null
-                        return (
-                          <div
-                            key={node.id}
-                            className="flex items-center gap-2 px-3 py-2 rounded-lg border"
-                            style={{
-                              background: '#0A0E1A',
-                              borderColor: node.unlocked ? '#1E2A44' : '#0F1729',
-                              opacity: node.unlocked ? 1 : 0.55,
-                            }}
-                          >
-                            <span
-                              className="w-2 h-2 rounded-full flex-shrink-0"
-                              style={{ background: dotColor }}
-                            />
-                            <span className="font-jakarta text-[11px] text-[#CBD5E1] flex-1 leading-tight truncate">
-                              {node.label}
-                            </span>
-                            {!node.unlocked && (
-                              <span className="text-[10px] flex-shrink-0" title="Cần hoàn thành chủ đề trước">🔒</span>
-                            )}
-                            <span
-                              className="font-jakarta text-[10px] font-semibold flex-shrink-0"
-                              style={{ color: dotColor }}
-                            >
-                              {masteryPct !== null ? `${masteryPct}%` : '?'}
-                            </span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
+                  <button
+                    onClick={() => navigate('/progress')}
+                    className="self-start font-jakarta text-[12px] text-[#64748B] hover:text-[#94A3B8] transition"
+                  >
+                    Xem bản đồ học tập →
+                  </button>
                 </section>
                 {/* ─── end Learning Graph ─────────────────────────────────── */}
 
-                {/* ─── MOAT 5: Social Proof "Students Like You" ───────────── */}
-                {socialProof && (
-                  <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
-                    <div className="flex flex-col gap-1">
-                      <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Học sinh cùng lớp</span>
-                      <span className="font-jakarta text-[12px] text-[#64748B]">{socialProof.headline}</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                      <p
-                        className="font-jakarta text-[13px] font-semibold"
-                        style={{ color: socialProof.isAboveBenchmark ? '#10B981' : '#F2A20C' }}
-                      >
-                        {socialProof.detail}
-                      </p>
-                      <span
-                        className="font-jakarta text-[11px] font-semibold px-3 py-1 rounded-full flex-shrink-0"
-                        style={{
-                          background: '#818CF820',
-                          color: '#818CF8',
-                          border: '1px solid #818CF840',
-                        }}
-                      >
-                        {socialProof.benchmarkLabel}
-                      </span>
-                    </div>
-                  </section>
-                )}
-                {/* ─── end Social Proof ───────────────────────────────────── */}
 
-                {/* ─── Learner Timeline ────────────────────────────────────── */}
-                <section className="rounded-2xl p-5 flex flex-col gap-3"
-                  style={{ background: '#0D1521', border: '1px solid #1E2A44' }}>
-                  <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#818CF8' }}>
-                    Hành trình học tập
-                  </p>
-                  {timeline?.length > 0 ? (
-                    <div className="flex flex-col gap-2">
-                      {timeline.slice(0, 5).map((entry, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                          <span className="text-base mt-0.5">{entry.icon ?? '📌'}</span>
-                          <div className="flex flex-col gap-0.5">
-                            <p className="text-sm" style={{ color: '#CBD5E1' }}>
-                              {entry.label}{entry.extra ? ` — ${entry.extra} điểm` : ''}
-                            </p>
-                            <p className="text-xs" style={{ color: '#475569' }}>
-                              {entry.date ? new Date(entry.date).toLocaleDateString('vi-VN', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm" style={{ color: '#475569' }}>
-                      Chưa có các bước ngoặt — hoàn thành 3+ bài thi để thấy hành trình của bạn.
-                    </p>
-                  )}
-                </section>
-                {/* ─── end Learner Timeline ────────────────────────────────── */}
-
-                {/* ─── MOAT 4: Learning Journey ────────────────────────────── */}
-                <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
-                  <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Hành trình học tập</span>
-                  {!memoryInsights ? (
-                    <p className="font-jakarta text-[13px] text-[#64748B]">
-                      Dữ liệu hành trình sẽ hiện sau khi bạn làm thêm bài thi
-                    </p>
-                  ) : (
-                    <div className="flex flex-col gap-3">
-                      {memoryInsights.hasLongHistory && (
-                        <p className="font-jakarta text-[13px] text-[#94A3B8]">
-                          Bạn đã học{' '}
-                          <span className="font-semibold text-[#F2A20C]">{memoryInsights.weeksSinceStart} tuần</span>
-                          {' '}— hành trình của bạn đang được ghi lại
-                        </p>
-                      )}
-                      {memoryInsights.mostImproved && (
-                        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
-                          <span className="font-jakarta text-[12px] text-[#94A3B8] flex-1">Tiến bộ nhất</span>
-                          <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">
-                            {memoryInsights.mostImproved.label}
-                          </span>
-                          <span className="font-jakarta text-[12px] font-bold text-emerald-400">
-                            +{memoryInsights.mostImproved.gainPct.toFixed(0)}%
-                          </span>
-                        </div>
-                      )}
-                      {memoryInsights.mostConsistent && (
-                        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-500/5 border border-indigo-500/20">
-                          <span className="font-jakarta text-[12px] text-[#94A3B8] flex-1">Vững nhất</span>
-                          <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">
-                            {memoryInsights.mostConsistent.label}
-                          </span>
-                          <span className="font-jakarta text-[12px] font-bold text-[#818CF8]">
-                            TB {memoryInsights.mostConsistent.avgMastery.toFixed(0)}%
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </section>
-                {/* ─── end Learning Journey ─────────────────────────────────── */}
               </>
             )}
           </>
@@ -2135,154 +1709,6 @@ export default function Account() {
               </section>
             )}
 
-            {/* Study Partners — MOAT 5 */}
-            <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Tìm bạn học</span>
-                <span className="font-jakarta text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold">Toàn diện</span>
-              </div>
-              {!canUseStudyPartners(tier) ? (
-                <div className="flex flex-col gap-3">
-                  <p className="font-jakarta text-[13px] text-[#94A3B8]">
-                    Kết nối với học sinh cùng lớp, cùng tỉnh và điểm số tương đương để học tập cùng nhau.
-                  </p>
-                  {tierGap && (
-                    <button
-                      onClick={() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' })}
-                      className="self-start px-4 py-2 rounded-xl font-jakarta text-[12px] font-bold transition bg-[#818CF8] text-[#0A0E1A]"
-                    >
-                      {tierGap.ctaLabel} →
-                    </button>
-                  )}
-                </div>
-              ) : partnerLoading ? (
-                <div className="flex flex-col gap-2">
-                  {[0, 1, 2].map(i => (
-                    <div key={i} className="skeleton h-10 rounded-xl" />
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col gap-4">
-                  {/* Accepted partners */}
-                  {myPartners?.accepted?.length > 0 && (
-                    <div className="flex flex-col gap-2">
-                      <span className="font-jakarta text-[12px] font-semibold text-[#64748B] uppercase tracking-wide">Bạn học của bạn</span>
-                      {myPartners.accepted.map(p => (
-                        <div key={p.partner_id} className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">{p.display_name}</span>
-                            <span className="font-jakarta text-[11px] text-[#64748B]">{getPartnerMatchLabel(p)}</span>
-                          </div>
-                          <span className="font-jakarta text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">Đã kết nối</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Pending received requests */}
-                  {myPartners?.pending_received?.length > 0 && (
-                    <div className="flex flex-col gap-2">
-                      <span className="font-jakarta text-[12px] font-semibold text-[#64748B] uppercase tracking-wide">Lời mời kết nối</span>
-                      {myPartners.pending_received.map(p => (
-                        <div key={p.request_id} className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-[#111827] border border-[#1E2A44]">
-                          <span className="font-jakarta text-[13px] text-[#F0F4FF]">{p.display_name}</span>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={async () => {
-                                await respondToPartner(p.request_id, 'accept')
-                                partnerFetched.current = false
-                                setPartnerLoading(true)
-                                Promise.all([getPartnerCandidates(), getMyPartners()])
-                                  .then(([cRes, mRes]) => {
-                                    if (cRes.data) setPartnerCandidates(cRes.data.candidates ?? [])
-                                    if (mRes.data) setMyPartners(mRes.data)
-                                  })
-                                  .finally(() => setPartnerLoading(false))
-                              }}
-                              className="px-3 py-1.5 rounded-lg font-jakarta text-[11px] font-bold bg-emerald-500 text-[#0A0E1A] transition hover:bg-emerald-400"
-                            >
-                              Chấp nhận
-                            </button>
-                            <button
-                              onClick={async () => {
-                                await respondToPartner(p.request_id, 'decline')
-                                setMyPartners(prev => prev ? { ...prev, pending_received: prev.pending_received.filter(r => r.request_id !== p.request_id) } : prev)
-                              }}
-                              className="px-3 py-1.5 rounded-lg font-jakarta text-[11px] font-bold bg-[#1E2A44] text-[#94A3B8] transition hover:bg-[#2D3A54]"
-                            >
-                              Từ chối
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Candidates */}
-                  {partnerCandidates?.length > 0 && (
-                    <div className="flex flex-col gap-2">
-                      <span className="font-jakarta text-[12px] font-semibold text-[#64748B] uppercase tracking-wide">Gợi ý bạn học</span>
-                      {partnerCandidates.map(c => (
-                        <div key={c.partner_id} className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-[#111827] border border-[#1E2A44]">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">{c.display_name}</span>
-                            <span className="font-jakarta text-[11px] text-[#64748B]">{getPartnerMatchLabel(c)}</span>
-                          </div>
-                          {myPartners?.pending_sent?.some(s => s.partner_id === c.partner_id) ? (
-                            <span className="font-jakarta text-[11px] px-3 py-1.5 rounded-lg bg-[#1E2A44] text-[#64748B]">Đã gửi</span>
-                          ) : (
-                            <button
-                              onClick={async () => {
-                                if (connectingId) return
-                                setConnectingId(c.partner_id)
-                                try {
-                                  const { error } = await connectPartner(c.partner_id)
-                                  if (!error) {
-                                    setMyPartners(prev => prev ? {
-                                      ...prev,
-                                      pending_sent: [...(prev.pending_sent ?? []), { partner_id: c.partner_id, display_name: c.display_name }]
-                                    } : prev)
-                                  }
-                                } finally {
-                                  setConnectingId(null)
-                                }
-                              }}
-                              disabled={connectingId === c.partner_id}
-                              className="px-3 py-1.5 rounded-lg font-jakarta text-[11px] font-bold bg-[#818CF8] text-[#0A0E1A] transition hover:bg-[#A5B4FC]"
-                              style={{
-                                opacity: connectingId === c.partner_id ? 0.5 : 1,
-                                cursor: connectingId === c.partner_id ? 'not-allowed' : 'pointer',
-                              }}
-                            >
-                              {connectingId === c.partner_id ? '...' : 'Kết nối'}
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Pending sent */}
-                  {myPartners?.pending_sent?.length > 0 && !partnerCandidates?.length && (
-                    <div className="flex flex-col gap-2">
-                      <span className="font-jakarta text-[12px] font-semibold text-[#64748B] uppercase tracking-wide">Đã gửi lời mời</span>
-                      {myPartners.pending_sent.map(p => (
-                        <div key={p.partner_id} className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-[#111827] border border-[#1E2A44]">
-                          <span className="font-jakarta text-[13px] text-[#F0F4FF]">{p.display_name}</span>
-                          <span className="font-jakarta text-[11px] px-3 py-1.5 rounded-lg bg-[#1E2A44] text-[#64748B]">Chờ phản hồi</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {partnerCandidates?.length === 0 && myPartners?.accepted?.length === 0 && myPartners?.pending_received?.length === 0 && (
-                    <p className="font-jakarta text-[13px] text-[#64748B]">
-                      Chưa tìm thấy bạn học phù hợp. Hãy quay lại sau khi có thêm học sinh tham gia hệ thống.
-                    </p>
-                  )}
-                </div>
-              )}
-            </section>
 
             {/* Plan cards */}
             <section id="upgrade-plans" className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-5">
@@ -2637,22 +2063,6 @@ export default function Account() {
                 </div>
               </div>
 
-              {/* session_length_pref */}
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold" style={{ color: '#94A3B8' }}>
-                  Thời lượng buổi học
-                </label>
-                <select
-                  value={aiPrefs.session_length_pref}
-                  onChange={e => setAIPrefs({ ...aiPrefs, session_length_pref: Number(e.target.value) })}
-                  className="rounded-lg px-3 py-2 text-sm"
-                  style={{ background: '#1E2A44', color: '#CBD5E1', border: '1px solid #334155' }}>
-                  <option value={15}>15 phút</option>
-                  <option value={30}>30 phút</option>
-                  <option value={45}>45 phút</option>
-                  <option value={60}>60 phút</option>
-                </select>
-              </div>
             </section>
 
             {/* Learning goals */}
@@ -2790,75 +2200,6 @@ export default function Account() {
               )}
             </section>
 
-            {/* Lớp học — Sprint 19 */}
-            <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-6 flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-[18px]">🏫</span>
-                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Lớp học</span>
-              </div>
-              {classRankDisplay ? (
-                /* ── In a class — show rank card ── */
-                <div className="flex flex-col gap-3">
-                  <p className="font-jakarta text-[13px] text-[#94A3B8]">
-                    Lớp học: <span className="text-[#F8FAFC] font-semibold">{classRankDisplay.teacherName}</span> — {classRankDisplay.subject}
-                  </p>
-                  <p className="font-jakarta text-[13px] text-[#94A3B8]">
-                    Thứ hạng của bạn:{' '}
-                    <span className="text-[#F8FAFC] font-bold">#{classRankDisplay.rank}</span>
-                    {' / '}{classRankDisplay.memberCount} học sinh
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <span className="font-jakarta text-[12px] font-bold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                      {classRankDisplay.badge}
-                    </span>
-                  </div>
-                  <p className="font-jakarta text-[12px] text-[#64748B]">
-                    Điểm TB lớp: <span className="text-[#94A3B8]">{classRankDisplay.classAvg.toFixed(1)}</span>
-                    {' | '}Điểm của bạn: <span className="text-amber-400 font-semibold">{classRankDisplay.avgScore.toFixed(1)}</span>
-                  </p>
-                </div>
-              ) : (
-                /* ── Not in a class — show join form ── */
-                <div className="flex flex-col gap-3">
-                  <p className="font-jakarta text-[12px] text-[#64748B]">
-                    Nhập mã lớp của giáo viên để tham gia và xem thứ hạng của bạn.
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <input
-                      value={classJoinCode}
-                      onChange={e => { setClassJoinCode(e.target.value.toUpperCase()); setClassJoinError('') }}
-                      placeholder="Mã lớp (VD: ZENITH)"
-                      maxLength={10}
-                      className="flex-1 px-3 py-2 rounded-lg border border-[#1E2A44] bg-[#0A0E1A] font-jakarta text-[13px] text-[#F8FAFC] placeholder-[#475569] focus:outline-none focus:border-indigo-500"
-                    />
-                    <button
-                      disabled={classJoinLoading || !classJoinCode.trim()}
-                      onClick={async () => {
-                        setClassJoinLoading(true)
-                        setClassJoinError('')
-                        const { data, error, status } = await joinTeacherClass(classJoinCode.trim())
-                        setClassJoinLoading(false)
-                        if (data) {
-                          // Refresh class info after joining
-                          getClassInfo().then(({ data: d }) => { if (d) setClassInfo(d) }).catch(() => {})
-                          setClassJoinCode('')
-                        } else if (status === 404) {
-                          setClassJoinError('Mã lớp không tồn tại.')
-                        } else {
-                          setClassJoinError(typeof error === 'string' ? error : 'Không thể tham gia lớp.')
-                        }
-                      }}
-                      className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-[13px] font-bold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 transition"
-                    >
-                      {classJoinLoading ? '…' : 'Tham gia'}
-                    </button>
-                  </div>
-                  {classJoinError && (
-                    <p className="font-jakarta text-[12px] text-red-400">{classJoinError}</p>
-                  )}
-                </div>
-              )}
-            </section>
 
             {/* Share & Earn — referral */}
             {referral?.referral_code && (
@@ -3114,12 +2455,17 @@ export default function Account() {
           style={{ animation: 'fadeInOut 3s ease-in-out forwards' }}
         >
           <div
-            className="bg-[#0D1521] border border-[#818CF8] rounded-2xl px-8 py-6 flex flex-col items-center gap-3 shadow-2xl"
+            className="bg-[#0D1521] border border-[#818CF8] rounded-2xl px-8 py-6 flex flex-col items-center gap-3 shadow-2xl max-w-sm text-center"
             style={{ animation: 'scaleIn 0.3s ease-out' }}
           >
             <span className="text-4xl">⭐</span>
             <p className="font-jakarta font-bold text-white text-xl">Thăng hạng!</p>
             <p className="text-[#818CF8] text-sm font-medium">{MASTERY_RANK_LABELS[user?.mastery_rank] ?? user?.mastery_rank}</p>
+            {user?.hard_correct_30d > 0 && (
+              <p className="font-jakarta text-[12px] text-[#94A3B8] leading-relaxed">
+                Bạn đã trả lời đúng <span className="text-[#F2A20C] font-semibold">{user.hard_correct_30d} câu hỏi khó</span> trong 30 ngày qua. Đây là lý do bạn lên hạng.
+              </p>
+            )}
           </div>
         </div>
       )}

@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, memo } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { getHint, getExplanation, reportQuestion } from '../api/aiClient.js'
+import { getHint, reportQuestion } from '../api/aiClient.js'
 import { loadPreferences } from '../utils/aiPreferences.js'
 import { sanitizeSvg } from '../utils/sanitizeSvg.js'
 import { MathText } from './MathText.jsx'
@@ -105,7 +105,7 @@ function ReportButton({ questionId }) {
   )
 }
 
-function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hintState, onHint }) {
+function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hintState, onHint, wrongStreak = 0 }) {
   const navigate = useNavigate()
   const showFeedback = practiceMode && chosen !== null && chosen !== undefined
   const [hintLoading, setHintLoading] = useState(false)
@@ -115,26 +115,15 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
   const hintCount = hintState?.count ?? 0
   const hintTexts = hintState?.texts ?? []
 
-  // null = not yet fetched / loading; { correct_index, explanation } = done
-  const [aiResult, setAiResult] = useState(null)
-  const fetchedForRef = useRef(null)
+  // Level 0: correct answer is known from static data — no AI needed
+  const correctIndex = question.correct
+  const isCorrect = chosen !== null && chosen !== undefined && chosen === correctIndex
 
   useEffect(() => {
     setHintError(null)
     setHintLoading(false)
-    setAiResult(null)
-    fetchedForRef.current = null
+    setShowExplanation(false)
   }, [question.id])
-
-  useEffect(() => {
-    if (!showFeedback) return
-    const cacheKey = `${question.id}-${chosen}`
-    if (fetchedForRef.current === cacheKey) return
-    fetchedForRef.current = cacheKey
-    getExplanation({ question, chosen_index: chosen, ai_preferences: loadPreferences() }).then(({ data }) => {
-      if (data) setAiResult({ correct_index: data.correct_index, explanation: data.explanation })
-    })
-  }, [showFeedback, question.id, chosen])
 
   async function handleGetHint() {
     if (hintLoading || hintCount >= MAX_HINTS) return
@@ -160,9 +149,6 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
     }
   }
 
-  const aiCorrect = aiResult?.correct_index ?? null
-  const isCorrect = aiResult !== null && chosen === aiCorrect
-
   return (
     <div>
       {question.figure?.data && (
@@ -187,9 +173,9 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
       </MathText>
       <div className="flex flex-col gap-2.5">
         {question.choices.map((choice, i) => {
-          const s = choiceStyle(i, chosen, aiCorrect, showFeedback)
+          const s = choiceStyle(i, chosen, showFeedback ? correctIndex : null, showFeedback)
           const isChosen = i === chosen
-          const feedbackAnim = aiResult !== null && isChosen
+          const feedbackAnim = showFeedback && isChosen
             ? isCorrect
               ? { scale: [1, 1.04, 1], transition: { duration: 0.35 } }
               : { x: [-7, 7, -7, 7, 0], transition: { duration: 0.4 } }
@@ -219,73 +205,103 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
 
       {showFeedback && (
         <div
-          className="mt-5 flex items-start gap-3 p-3.5 rounded-xl transition-all"
+          className="mt-5 flex items-start gap-3 p-3.5 rounded-xl"
           style={{
-            border: `1px solid ${aiResult === null ? '#2A3A60' : isCorrect ? '#1A4A2A' : '#4A1A24'}`,
-            background: aiResult === null ? '#111827' : isCorrect ? '#0A1F14' : '#1F0A0E',
+            border: `1px solid ${isCorrect ? '#1A4A2A' : '#4A1A24'}`,
+            background: isCorrect ? '#0A1F14' : '#1F0A0E',
           }}
         >
-          {aiResult === null ? (
-            <>
-              <span className="inline-block w-3 h-3 border border-[#94A3B8] border-t-transparent rounded-full animate-spin flex-shrink-0 mt-0.5" />
-              <span className="font-jakarta text-[12px] text-[#475569]">AI đang phân tích đáp án...</span>
-            </>
-          ) : (
-            <>
-              <span
-                className="text-base leading-none mt-0.5 flex-shrink-0"
-                style={{ color: isCorrect ? '#10B981' : '#FB7185' }}
-              >
-                {isCorrect ? '✓' : '✗'}
-              </span>
-              <div className="flex-1 min-w-0">
-                {!isCorrect && (
-                  <p className="font-jakarta text-[12px] font-semibold text-[#FB7185] mb-1">
-                    Đáp án đúng: {LABELS[aiCorrect] ?? '?'}
-                  </p>
-                )}
-                <MathText
-                  className="font-jakarta text-[13px] leading-relaxed"
-                  style={{ color: isCorrect ? '#6EE7B7' : '#FCA5A5' }}
-                >
-                  {aiResult.explanation}
-                </MathText>
-              </div>
-            </>
-          )}
+          <span className="text-base leading-none mt-0.5 flex-shrink-0" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
+            {isCorrect ? '✓' : '✗'}
+          </span>
+          <div className="flex-1 min-w-0">
+            {!isCorrect && (
+              <p className="font-jakarta text-[12px] font-semibold text-[#FB7185] mb-1">
+                Đáp án đúng: {LABELS[correctIndex] ?? '?'}
+              </p>
+            )}
+            {isCorrect && (
+              <p className="font-jakarta text-[13px] text-[#6EE7B7]">Đúng rồi.</p>
+            )}
+          </div>
         </div>
       )}
 
       <ReportButton questionId={question.id} />
 
-      {/* Struggle support — shown when answer is wrong */}
-      {showFeedback && aiResult !== null && !isCorrect && (
-        <div className="mt-3 px-4 py-3 rounded-xl border border-[#2A1A24] bg-[#160A0E] flex items-start gap-3">
-          <span className="text-base flex-shrink-0">💡</span>
-          <div className="flex flex-col gap-1.5">
-            <span className="font-jakarta text-[12px] font-semibold text-[#F87171]">
-              Bài này khó — đừng nản!
-            </span>
-            <span className="font-jakarta text-[11px] text-[#64748B] leading-relaxed">
-              Hãy đọc kỹ giải thích trên, sau đó thử lại bài tương tự. Oracle có thể giúp bạn hiểu sâu hơn.
-            </span>
-          </div>
+      {/* Struggle support — shown after 2 consecutive wrong across questions */}
+      {practiceMode && !submitted && showFeedback && !isCorrect && wrongStreak >= 2 && (
+        <div className="mt-3 px-4 py-3 rounded-xl border border-[#A78BFA33] bg-[#1A1429]">
+          <p className="font-jakarta text-[12px] text-[#A78BFA] leading-relaxed">
+            Bài này khó với nhiều học sinh. Xem giải thích hoặc hỏi Oracle để hiểu rõ hơn.
+          </p>
         </div>
       )}
 
-      {/* Oracle button — always visible in practice mode */}
-      {practiceMode && !submitted && (
-        <div className="mt-3 flex justify-end">
+      {/* Level 1 — static explanation (after wrong answer, user-requested) */}
+      {practiceMode && !submitted && showFeedback && !isCorrect && (
+        <div className="mt-3 flex flex-col gap-2">
           <button
-            onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#6366F133] bg-[#6366F108] font-jakarta text-[11px] font-semibold text-[#818CF8] hover:border-[#6366F166] hover:bg-[#6366F114] transition"
+            onClick={() => setShowExplanation(v => !v)}
+            className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A3A60] bg-[#111827] font-jakarta text-[12px] text-[#94A3B8] hover:text-[#F8FAFC] hover:border-[#4A5A80] transition"
           >
-            <span className="text-[10px]">✦</span> Oracle
+            <span>📖</span>
+            {showExplanation ? 'Ẩn giải thích' : 'Xem giải thích'}
           </button>
+          {showExplanation && question.explanation && (
+            <div className="p-3.5 rounded-xl border border-[#2A3A60] bg-[#111827]">
+              <MathText className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">
+                {question.explanation}
+              </MathText>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Hint button — practice mode only, before answer is chosen */}
+      {/* Level 2 — Haiku hints (only after explanation viewed AND answer was wrong) */}
+      {practiceMode && !submitted && showFeedback && !isCorrect && showExplanation && (
+        <div className="mt-2 flex flex-col gap-2">
+          {hintCount < MAX_HINTS && (
+            <button
+              onClick={handleGetHint}
+              disabled={hintLoading}
+              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A3A60] bg-[#111827] font-jakarta text-[12px] text-[#94A3B8] hover:text-[#F8FAFC] hover:border-[#4A5A80] transition disabled:opacity-50"
+            >
+              {hintLoading ? (
+                <span className="inline-block w-3 h-3 border border-[#94A3B8] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <span className="text-[#F2A20C]">💡</span>
+              )}
+              Gợi ý ({hintCount}/{MAX_HINTS})
+              <span className="text-[#2A3A60] text-[10px]">⚡1</span>
+            </button>
+          )}
+          {hintError && (
+            <p className="font-jakarta text-[12px] text-[#FB7185]">{hintError}</p>
+          )}
+          {hintTexts.map((text, i) => (
+            <div key={i} className="p-3.5 rounded-xl border border-[#2A3A60] bg-[#111827] flex flex-col gap-2">
+              <MathText className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{text}</MathText>
+              <div className="flex items-center justify-between">
+                <span className="font-jakarta text-[11px] text-[#475569]">Gợi ý {i + 1}/{MAX_HINTS}</span>
+                <AIRating questionId={question.id} hintIndex={i} />
+              </div>
+            </div>
+          ))}
+
+          {/* Level 3 — Oracle escalation (after 2+ hints, or immediately when wrongStreak ≥ 2) */}
+          {(hintCount >= 2 || wrongStreak >= 2) && (
+            <button
+              onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
+              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#6366F144] bg-[#6366F108] font-jakarta text-[12px] font-semibold text-[#818CF8] hover:border-[#6366F188] hover:bg-[#6366F114] transition"
+            >
+              <span className="text-[10px]">✦</span> Vẫn chưa hiểu — hỏi Oracle
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Hint button before answering (unchanged — pre-answer hint still available) */}
       {practiceMode && !submitted && !showFeedback && (
         <div className="mt-4 flex flex-col gap-2">
           {hintCount < MAX_HINTS ? (
@@ -302,22 +318,9 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
               Gợi ý ({hintCount}/{MAX_HINTS})
               <span className="text-[#2A3A60] text-[10px]">⚡1</span>
             </button>
-          ) : (
-            <button
-              onClick={() => setShowExplanation(v => !v)}
-              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A3A60] bg-[#111827] font-jakarta text-[12px] text-[#94A3B8] hover:text-[#F8FAFC] hover:border-[#4A5A80] transition"
-            >
-              <span>📖</span>
-              {showExplanation ? 'Ẩn giải thích' : 'Xem giải thích'}
-            </button>
-          )}
+          ) : null}
           {hintError && (
-            <p className="font-jakarta text-[12px] text-[#FB7185]">{hintError} — thử lại</p>
-          )}
-          {showExplanation && (
-            <div className="p-3.5 rounded-xl border border-[#2A3A60] bg-[#111827]">
-              <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">AI sẽ giải thích sau khi bạn chọn đáp án.</p>
-            </div>
+            <p className="font-jakarta text-[12px] text-[#FB7185]">{hintError}</p>
           )}
           {hintTexts.map((text, i) => (
             <div key={i} className="p-3.5 rounded-xl border border-[#2A3A60] bg-[#111827] flex flex-col gap-2">
@@ -337,7 +340,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
 export default memo(QuestionCard, (prev, next) =>
   prev.question.id === next.question.id &&
   prev.chosen === next.chosen &&
-  prev.mode === next.mode &&
   prev.practiceMode === next.practiceMode &&
-  prev.submitted === next.submitted
+  prev.submitted === next.submitted &&
+  prev.hintState === next.hintState
 )

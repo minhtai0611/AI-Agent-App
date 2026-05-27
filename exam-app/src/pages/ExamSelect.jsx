@@ -106,14 +106,28 @@ export default function ExamSelect({ onOpenAuth }) {
 
   const availableYears = [...new Set(allExams.map(e => e.year).filter(Boolean))].sort((a, b) => b - a)
 
-  const exams = allExams.filter(e => {
-    if (filterYear && e.year !== filterYear) return false
-    if (filterSearch.trim()) {
-      const q = filterSearch.toLowerCase()
-      return (e.title || '').toLowerCase().includes(q) || String(e.year).includes(q) || (e.source || '').toLowerCase().includes(q)
-    }
-    return true
-  })
+  const exams = useMemo(() => {
+    const filtered = allExams.filter(e => {
+      if (filterYear && e.year !== filterYear) return false
+      if (filterSearch.trim()) {
+        const q = filterSearch.toLowerCase()
+        return (e.title || '').toLowerCase().includes(q) || String(e.year).includes(q) || (e.source || '').toLowerCase().includes(q)
+      }
+      return true
+    })
+
+    // Province moat: sort province-matching exams to the top when user has a province set
+    const province = user?.province
+    if (!province || filterSearch.trim()) return filtered
+    const pLower = province.toLowerCase()
+    return [...filtered].sort((a, b) => {
+      const aMatch = (a.title || '').toLowerCase().includes(pLower) || (a.source || '').toLowerCase().includes(pLower)
+      const bMatch = (b.title || '').toLowerCase().includes(pLower) || (b.source || '').toLowerCase().includes(pLower)
+      if (aMatch && !bMatch) return -1
+      if (!aMatch && bMatch) return 1
+      return 0
+    })
+  }, [allExams, filterYear, filterSearch, user?.province])
 
   function setYear(y) {
     setFilterYear(y)
@@ -387,35 +401,6 @@ export default function ExamSelect({ onOpenAuth }) {
               </motion.button>
             </div>
 
-            {/* ── Section: Chế độ chơi ── */}
-            <div className="flex flex-col gap-3">
-              <span className="font-jakarta text-[11px] font-bold tracking-[3px] uppercase text-[#475569]">Chế độ chơi</span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  { icon: '🗡️', label: 'Boss Battle', desc: 'Chinh phục các câu sai · tích lũy chuỗi đúng để đánh bại boss', route: '/battle', accent: '#EF4444', tag: 'Battle' },
-                  { icon: '❤️‍🔥', label: 'Streak Survival', desc: 'Đừng để mất mạng · chuỗi 5 câu đúng nhân đôi điểm', route: '/survival', accent: '#FB7185', tag: 'Survival' },
-                ].map(m => (
-                  <motion.button key={m.route} variants={cardVariants}
-                    onClick={() => navigate(m.route)}
-                    className="group text-left bg-[#0D1521] rounded-2xl p-5 flex flex-col gap-3 border transition"
-                    style={{ borderColor: m.accent + '22' }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = m.accent + '66'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = m.accent + '22'}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl">{m.icon}</span>
-                      <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
-                        style={{ background: m.accent + '22', color: m.accent }}>{m.tag}</span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{m.label}</span>
-                      <span className="font-jakarta text-[12px] text-[#64748B] leading-relaxed">{m.desc}</span>
-                    </div>
-                    <span className="font-jakarta text-[12px] font-semibold mt-auto" style={{ color: m.accent }}>Bắt đầu →</span>
-                  </motion.button>
-                ))}
-              </div>
-            </div>
 
             {/* ── Section: AI Luyện tập ── */}
             <div className="flex flex-col gap-3">

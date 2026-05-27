@@ -1147,6 +1147,11 @@ export default function MathOracle() {
   const rawTopic = lastSolveResult?.result?.answer?.problem_type
   const safeTopic = VALID_TOPICS.includes(rawTopic) ? rawTopic : null
 
+  // ── Socratic turn limit ───────────────────────────────────────────────────
+  const MAX_TUTOR_TURNS = 8
+  const tutorTurnCount = messages.filter(m => m.role === 'oracle' && (m.type === 'socratic' || m.type === 'followup')).length
+  const tutorLimitReached = chatMode === 'socratic' && tutorTurnCount >= MAX_TUTOR_TURNS
+
   // ── Mode toggle labels ────────────────────────────────────────────────────
   const MODE_OPTS = [
     ['solve', 'Giải thẳng'],
@@ -1391,7 +1396,7 @@ export default function MathOracle() {
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleOcrFile} style={{ display: 'none' }} />
               <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleOcrFile} style={{ display: 'none' }} />
               <span className="font-jakarta text-[11px] text-[#334155]">⌘ Enter</span>
-              <button type="submit" disabled={!question.trim() || loading || ocring || ocringS}
+              <button type="submit" disabled={!question.trim() || loading || ocring || ocringS || tutorLimitReached}
                 className="px-4 py-1.5 bg-[#6366F1] text-white font-jakarta font-semibold text-sm rounded-lg disabled:opacity-40 hover:bg-[#4F46E5] transition">
                 {loading
                   ? (chatMode === 'review' ? 'Đang chấm…' : chatMode === 'socratic' ? 'Đang hướng dẫn…' : 'Đang tính…')
@@ -1529,6 +1534,17 @@ export default function MathOracle() {
                 </div>
               )
             })}
+            {tutorLimitReached && (
+              <div className="flex justify-start">
+                <div className="max-w-[90%] rounded-2xl rounded-tl-sm bg-[#0F1726] border border-[#6366F144] px-4 py-3 flex flex-col gap-2">
+                  <p className="font-jakarta text-[13px] text-[#818CF8]">Bạn đã nhận đủ gợi ý cho câu hỏi này.</p>
+                  <button onClick={() => navigate(-1)}
+                    className="self-start font-jakarta text-[12px] font-semibold text-[#818CF8] hover:opacity-80 transition">
+                    ← Quay lại xem giải thích đầy đủ
+                  </button>
+                </div>
+              </div>
+            )}
             <div ref={chatEndRef} />
           </div>
         )}

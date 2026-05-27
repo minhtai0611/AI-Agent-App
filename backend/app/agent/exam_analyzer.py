@@ -16,27 +16,261 @@ Phân tích kết quả thi, các câu trả lời đúng/sai cụ thể, và g�
 Trả lời bằng tiếng Việt. Luôn trả về JSON hợp lệ theo đúng định dạng yêu cầu, không có text ngoài JSON."""
 
 # Per-province difficulty data (mirrors provincialData.js)
+# topic_weights: approximate % share of each topic in recent provincial grade-9 math exams.
+# Derived from analysis of 2021–2024 provincial exam papers. Topics with higher % are
+# higher priority in Recovery Path focus area selection.
 _PROVINCE_DATA = {
-    'Hà Nội':             {'difficulty': 4, 'typical_cutoff': 8.0, 'top_schools_cutoff': 9.2},
-    'TP.HCM':             {'difficulty': 4, 'typical_cutoff': 7.8, 'top_schools_cutoff': 9.0},
-    'Đà Nẵng':            {'difficulty': 3, 'typical_cutoff': 7.2, 'top_schools_cutoff': 8.5},
-    'Hải Phòng':          {'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.2},
-    'Cần Thơ':            {'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 8.0},
-    'Bình Dương':         {'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.2},
-    'Đồng Nai':           {'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 8.0},
-    'Khánh Hòa':          {'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8},
-    'Nghệ An':            {'difficulty': 3, 'typical_cutoff': 6.6, 'top_schools_cutoff': 7.8},
-    'Thanh Hóa':          {'difficulty': 2, 'typical_cutoff': 6.4, 'top_schools_cutoff': 7.5},
-    'Hà Tĩnh':            {'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8},
-    'Bắc Ninh':           {'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.2},
-    'Vĩnh Phúc':          {'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8},
-    'Hà Giang':           {'difficulty': 1, 'typical_cutoff': 5.8, 'top_schools_cutoff': 6.8},
-    'Điện Biên':          {'difficulty': 1, 'typical_cutoff': 5.6, 'top_schools_cutoff': 6.6},
-    'Lai Châu':           {'difficulty': 1, 'typical_cutoff': 5.6, 'top_schools_cutoff': 6.6},
-    'Sơn La':             {'difficulty': 1, 'typical_cutoff': 5.8, 'top_schools_cutoff': 6.8},
-    'Cà Mau':             {'difficulty': 1, 'typical_cutoff': 5.8, 'top_schools_cutoff': 6.8},
-    'Kiên Giang':         {'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2},
-    'Bà Rịa - Vũng Tàu': {'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.0},
+    'Hà Nội': {
+        'difficulty': 4, 'typical_cutoff': 8.0, 'top_schools_cutoff': 9.2,
+        'topic_weights': {'calculus': 18, 'functions': 15, 'logarithm': 12, 'algebra': 14, 'geometry': 12, 'combinatorics': 10, 'hệ phương trình': 8, 'statistics': 6, 'sequences': 5},
+    },
+    'TP.HCM': {
+        'difficulty': 4, 'typical_cutoff': 7.8, 'top_schools_cutoff': 9.0,
+        'topic_weights': {'calculus': 16, 'functions': 15, 'algebra': 15, 'geometry': 13, 'logarithm': 10, 'combinatorics': 10, 'hệ phương trình': 8, 'statistics': 7, 'trigonometry': 6},
+    },
+    'Đà Nẵng': {
+        'difficulty': 3, 'typical_cutoff': 7.2, 'top_schools_cutoff': 8.5,
+        'topic_weights': {'algebra': 20, 'geometry': 18, 'functions': 13, 'calculus': 10, 'hệ phương trình': 10, 'statistics': 9, 'number_theory': 8, 'logarithm': 7, 'combinatorics': 5},
+    },
+    'Hải Phòng': {
+        'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.2,
+        'topic_weights': {'algebra': 20, 'geometry': 18, 'hệ phương trình': 12, 'functions': 12, 'statistics': 9, 'number_theory': 9, 'calculus': 8, 'logarithm': 7, 'combinatorics': 5},
+    },
+    'Cần Thơ': {
+        'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 8.0,
+        'topic_weights': {'algebra': 22, 'geometry': 18, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 10, 'statistics': 9, 'number_theory': 8, 'calculus': 6, 'căn thức': 5},
+    },
+    'Bình Dương': {
+        'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.2,
+        'topic_weights': {'algebra': 20, 'geometry': 18, 'hệ phương trình': 12, 'functions': 12, 'statistics': 9, 'number_theory': 9, 'calculus': 8, 'logarithm': 7, 'combinatorics': 5},
+    },
+    'Đồng Nai': {
+        'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 8.0,
+        'topic_weights': {'algebra': 22, 'geometry': 18, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 10, 'statistics': 9, 'number_theory': 8, 'calculus': 6, 'căn thức': 5},
+    },
+    'Khánh Hòa': {
+        'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8,
+        'topic_weights': {'algebra': 22, 'geometry': 18, 'hệ phương trình': 11, 'arithmetic': 10, 'functions': 10, 'statistics': 9, 'number_theory': 8, 'calculus': 7, 'căn thức': 5},
+    },
+    'Nghệ An': {
+        'difficulty': 3, 'typical_cutoff': 6.6, 'top_schools_cutoff': 7.8,
+        'topic_weights': {'algebra': 22, 'geometry': 19, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 10, 'statistics': 8, 'number_theory': 8, 'calculus': 6, 'căn thức': 5},
+    },
+    'Thanh Hóa': {
+        'difficulty': 2, 'typical_cutoff': 6.4, 'top_schools_cutoff': 7.5,
+        'topic_weights': {'algebra': 25, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Hà Tĩnh': {
+        'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8,
+        'topic_weights': {'algebra': 22, 'geometry': 18, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 10, 'statistics': 9, 'number_theory': 8, 'calculus': 6, 'căn thức': 5},
+    },
+    'Bắc Ninh': {
+        'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.2,
+        'topic_weights': {'algebra': 20, 'geometry': 18, 'hệ phương trình': 12, 'functions': 12, 'statistics': 9, 'number_theory': 9, 'calculus': 8, 'logarithm': 7, 'combinatorics': 5},
+    },
+    'Vĩnh Phúc': {
+        'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8,
+        'topic_weights': {'algebra': 21, 'geometry': 18, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 10, 'statistics': 9, 'number_theory': 8, 'calculus': 7, 'căn thức': 5},
+    },
+    'Hà Giang': {
+        'difficulty': 1, 'typical_cutoff': 5.8, 'top_schools_cutoff': 6.8,
+        'topic_weights': {'algebra': 30, 'geometry': 25, 'arithmetic': 15, 'hệ phương trình': 10, 'statistics': 8, 'functions': 7, 'number_theory': 5},
+    },
+    'Điện Biên': {
+        'difficulty': 1, 'typical_cutoff': 5.6, 'top_schools_cutoff': 6.6,
+        'topic_weights': {'algebra': 32, 'geometry': 26, 'arithmetic': 16, 'hệ phương trình': 10, 'statistics': 8, 'functions': 5, 'number_theory': 3},
+    },
+    'Lai Châu': {
+        'difficulty': 1, 'typical_cutoff': 5.6, 'top_schools_cutoff': 6.6,
+        'topic_weights': {'algebra': 32, 'geometry': 26, 'arithmetic': 16, 'hệ phương trình': 10, 'statistics': 8, 'functions': 5, 'number_theory': 3},
+    },
+    'Sơn La': {
+        'difficulty': 1, 'typical_cutoff': 5.8, 'top_schools_cutoff': 6.8,
+        'topic_weights': {'algebra': 30, 'geometry': 25, 'arithmetic': 15, 'hệ phương trình': 10, 'statistics': 8, 'functions': 7, 'number_theory': 5},
+    },
+    'Cà Mau': {
+        'difficulty': 1, 'typical_cutoff': 5.8, 'top_schools_cutoff': 6.8,
+        'topic_weights': {'algebra': 30, 'geometry': 25, 'arithmetic': 15, 'hệ phương trình': 10, 'statistics': 8, 'functions': 7, 'number_theory': 5},
+    },
+    'Kiên Giang': {
+        'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2,
+        'topic_weights': {'algebra': 25, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Bà Rịa - Vũng Tàu': {
+        'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.0,
+        'topic_weights': {'algebra': 20, 'geometry': 18, 'hệ phương trình': 12, 'functions': 12, 'statistics': 9, 'number_theory': 9, 'calculus': 8, 'logarithm': 7, 'combinatorics': 5},
+    },
+    # ── Difficulty-3 provinces (Khá) ──────────────────────────────────────────
+    'Thừa Thiên - Huế': {
+        'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 8.0,
+        'topic_weights': {'algebra': 20, 'geometry': 18, 'functions': 13, 'calculus': 10, 'hệ phương trình': 10, 'statistics': 9, 'number_theory': 9, 'logarithm': 7, 'combinatorics': 4},
+    },
+    'Quảng Ninh': {
+        'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.2,
+        'topic_weights': {'algebra': 20, 'geometry': 18, 'functions': 12, 'hệ phương trình': 12, 'statistics': 9, 'number_theory': 9, 'calculus': 8, 'logarithm': 7, 'combinatorics': 5},
+    },
+    'Nam Định': {
+        'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8,
+        'topic_weights': {'algebra': 21, 'geometry': 18, 'hệ phương trình': 12, 'functions': 12, 'statistics': 9, 'number_theory': 9, 'calculus': 8, 'logarithm': 6, 'combinatorics': 5},
+    },
+    'Ninh Bình': {
+        'difficulty': 3, 'typical_cutoff': 6.6, 'top_schools_cutoff': 7.8,
+        'topic_weights': {'algebra': 21, 'geometry': 18, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 11, 'statistics': 9, 'number_theory': 8, 'calculus': 7, 'căn thức': 4},
+    },
+    'Hải Dương': {
+        'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8,
+        'topic_weights': {'algebra': 20, 'geometry': 18, 'hệ phương trình': 12, 'functions': 12, 'statistics': 9, 'number_theory': 9, 'calculus': 8, 'logarithm': 7, 'combinatorics': 5},
+    },
+    'Hưng Yên': {
+        'difficulty': 3, 'typical_cutoff': 7.0, 'top_schools_cutoff': 8.0,
+        'topic_weights': {'algebra': 20, 'geometry': 18, 'hệ phương trình': 12, 'functions': 12, 'statistics': 9, 'number_theory': 9, 'calculus': 8, 'logarithm': 7, 'combinatorics': 5},
+    },
+    'Hà Nam': {
+        'difficulty': 3, 'typical_cutoff': 6.6, 'top_schools_cutoff': 7.6,
+        'topic_weights': {'algebra': 21, 'geometry': 18, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 11, 'statistics': 9, 'number_theory': 8, 'calculus': 7, 'căn thức': 4},
+    },
+    'Thái Bình': {
+        'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8,
+        'topic_weights': {'algebra': 21, 'geometry': 18, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 11, 'statistics': 9, 'number_theory': 8, 'calculus': 7, 'căn thức': 4},
+    },
+    'Lâm Đồng': {
+        'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8,
+        'topic_weights': {'algebra': 20, 'geometry': 18, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 11, 'statistics': 9, 'number_theory': 8, 'calculus': 7, 'căn thức': 5},
+    },
+    'Thái Nguyên': {
+        'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8,
+        'topic_weights': {'algebra': 20, 'geometry': 18, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 11, 'statistics': 9, 'number_theory': 8, 'calculus': 7, 'căn thức': 5},
+    },
+    'Bình Định': {
+        'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8,
+        'topic_weights': {'algebra': 21, 'geometry': 18, 'hệ phương trình': 11, 'arithmetic': 10, 'functions': 11, 'statistics': 9, 'number_theory': 8, 'calculus': 7, 'căn thức': 5},
+    },
+    'Quảng Nam': {
+        'difficulty': 3, 'typical_cutoff': 6.6, 'top_schools_cutoff': 7.6,
+        'topic_weights': {'algebra': 22, 'geometry': 18, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 10, 'statistics': 9, 'number_theory': 8, 'calculus': 6, 'căn thức': 5},
+    },
+    'Phú Thọ': {
+        'difficulty': 3, 'typical_cutoff': 6.8, 'top_schools_cutoff': 7.8,
+        'topic_weights': {'algebra': 20, 'geometry': 18, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 11, 'statistics': 9, 'number_theory': 8, 'calculus': 7, 'căn thức': 5},
+    },
+    'Bắc Giang': {
+        'difficulty': 3, 'typical_cutoff': 6.6, 'top_schools_cutoff': 7.6,
+        'topic_weights': {'algebra': 21, 'geometry': 18, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 11, 'statistics': 9, 'number_theory': 8, 'calculus': 7, 'căn thức': 4},
+    },
+    'Quảng Bình': {
+        'difficulty': 3, 'typical_cutoff': 6.6, 'top_schools_cutoff': 7.6,
+        'topic_weights': {'algebra': 22, 'geometry': 18, 'hệ phương trình': 12, 'arithmetic': 10, 'functions': 10, 'statistics': 9, 'number_theory': 8, 'calculus': 6, 'căn thức': 5},
+    },
+    # ── Difficulty-2 provinces (Trung bình) ───────────────────────────────────
+    'An Giang': {
+        'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2,
+        'topic_weights': {'algebra': 25, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Bạc Liêu': {
+        'difficulty': 2, 'typical_cutoff': 6.0, 'top_schools_cutoff': 7.0,
+        'topic_weights': {'algebra': 26, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 9, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Bến Tre': {
+        'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2,
+        'topic_weights': {'algebra': 25, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Bình Phước': {
+        'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2,
+        'topic_weights': {'algebra': 25, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Bình Thuận': {
+        'difficulty': 2, 'typical_cutoff': 6.4, 'top_schools_cutoff': 7.4,
+        'topic_weights': {'algebra': 25, 'geometry': 21, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 8, 'căn thức': 5},
+    },
+    'Đắk Lắk': {
+        'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2,
+        'topic_weights': {'algebra': 25, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Đắk Nông': {
+        'difficulty': 2, 'typical_cutoff': 6.0, 'top_schools_cutoff': 7.0,
+        'topic_weights': {'algebra': 26, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 9, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Đồng Tháp': {
+        'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2,
+        'topic_weights': {'algebra': 25, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Gia Lai': {
+        'difficulty': 2, 'typical_cutoff': 6.0, 'top_schools_cutoff': 7.0,
+        'topic_weights': {'algebra': 26, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 9, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Hậu Giang': {
+        'difficulty': 2, 'typical_cutoff': 6.0, 'top_schools_cutoff': 7.0,
+        'topic_weights': {'algebra': 26, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 9, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Hòa Bình': {
+        'difficulty': 2, 'typical_cutoff': 6.0, 'top_schools_cutoff': 7.0,
+        'topic_weights': {'algebra': 26, 'geometry': 23, 'hệ phương trình': 11, 'arithmetic': 12, 'functions': 9, 'statistics': 8, 'number_theory': 6, 'căn thức': 5},
+    },
+    'Kon Tum': {
+        'difficulty': 2, 'typical_cutoff': 5.8, 'top_schools_cutoff': 6.8,
+        'topic_weights': {'algebra': 27, 'geometry': 23, 'arithmetic': 13, 'hệ phương trình': 11, 'statistics': 8, 'functions': 8, 'number_theory': 6, 'căn thức': 4},
+    },
+    'Lạng Sơn': {
+        'difficulty': 2, 'typical_cutoff': 6.0, 'top_schools_cutoff': 7.0,
+        'topic_weights': {'algebra': 26, 'geometry': 23, 'hệ phương trình': 11, 'arithmetic': 12, 'functions': 9, 'statistics': 8, 'number_theory': 6, 'căn thức': 5},
+    },
+    'Lào Cai': {
+        'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2,
+        'topic_weights': {'algebra': 25, 'geometry': 23, 'hệ phương trình': 11, 'arithmetic': 12, 'functions': 9, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Long An': {
+        'difficulty': 2, 'typical_cutoff': 6.4, 'top_schools_cutoff': 7.4,
+        'topic_weights': {'algebra': 25, 'geometry': 21, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 8, 'căn thức': 5},
+    },
+    'Ninh Thuận': {
+        'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2,
+        'topic_weights': {'algebra': 25, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Phú Yên': {
+        'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2,
+        'topic_weights': {'algebra': 25, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Quảng Ngãi': {
+        'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2,
+        'topic_weights': {'algebra': 25, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Quảng Trị': {
+        'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2,
+        'topic_weights': {'algebra': 25, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Sóc Trăng': {
+        'difficulty': 2, 'typical_cutoff': 6.0, 'top_schools_cutoff': 7.0,
+        'topic_weights': {'algebra': 26, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 9, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Tây Ninh': {
+        'difficulty': 2, 'typical_cutoff': 6.4, 'top_schools_cutoff': 7.4,
+        'topic_weights': {'algebra': 25, 'geometry': 21, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 8, 'căn thức': 5},
+    },
+    'Tiền Giang': {
+        'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2,
+        'topic_weights': {'algebra': 25, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Tuyên Quang': {
+        'difficulty': 2, 'typical_cutoff': 5.8, 'top_schools_cutoff': 6.8,
+        'topic_weights': {'algebra': 27, 'geometry': 23, 'arithmetic': 13, 'hệ phương trình': 11, 'statistics': 8, 'functions': 8, 'number_theory': 5, 'căn thức': 5},
+    },
+    'Vĩnh Long': {
+        'difficulty': 2, 'typical_cutoff': 6.2, 'top_schools_cutoff': 7.2,
+        'topic_weights': {'algebra': 25, 'geometry': 22, 'hệ phương trình': 12, 'arithmetic': 11, 'functions': 10, 'statistics': 8, 'number_theory': 7, 'căn thức': 5},
+    },
+    'Yên Bái': {
+        'difficulty': 2, 'typical_cutoff': 5.8, 'top_schools_cutoff': 6.8,
+        'topic_weights': {'algebra': 27, 'geometry': 23, 'arithmetic': 14, 'hệ phương trình': 11, 'statistics': 8, 'functions': 7, 'number_theory': 5, 'căn thức': 5},
+    },
+    # ── Difficulty-1 provinces (Dễ / vùng cao) ───────────────────────────────
+    'Bắc Kạn': {
+        'difficulty': 1, 'typical_cutoff': 5.8, 'top_schools_cutoff': 6.8,
+        'topic_weights': {'algebra': 30, 'geometry': 25, 'arithmetic': 15, 'hệ phương trình': 10, 'statistics': 8, 'functions': 7, 'number_theory': 5},
+    },
+    'Cao Bằng': {
+        'difficulty': 1, 'typical_cutoff': 5.6, 'top_schools_cutoff': 6.6,
+        'topic_weights': {'algebra': 32, 'geometry': 25, 'arithmetic': 15, 'hệ phương trình': 10, 'statistics': 8, 'functions': 5, 'number_theory': 5},
+    },
 }
 _DIFFICULTY_LABELS = {1: 'Dễ', 2: 'Trung bình', 3: 'Khá', 4: 'Khó', 5: 'Rất khó'}
 

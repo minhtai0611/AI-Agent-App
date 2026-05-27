@@ -2,8 +2,8 @@ const MAX_BYTES = 3 * 1024 * 1024 // 3 MB soft cap
 
 const PRUNE_RULES = [
   { prefix: 'ai-analysis-', maxAge: 7 * 24 * 60 * 60 * 1000 },   // 7 days
-  { prefix: 'study-plan-data-', maxAge: 30 * 24 * 60 * 60 * 1000 }, // 30 days
-  { prefix: 'study-plan-quiz-', maxAge: 30 * 24 * 60 * 60 * 1000 },
+  { prefix: 'study-plan-data-', maxAge: 30 * 24 * 60 * 60 * 1000 }, // 30 days (legacy key)
+  { prefix: 'recovery-path-data-', maxAge: 30 * 24 * 60 * 60 * 1000 },
 ]
 
 function estimateBytes() {

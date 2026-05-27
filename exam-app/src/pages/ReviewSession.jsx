@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
+import ReactCanvasConfetti from 'react-canvas-confetti'
 import { loadQuestionsByIds } from '../api/index.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
@@ -100,7 +101,10 @@ export default function ReviewSession() {
   const [results, setResults] = useState([])
   const [done, setDone] = useState(false)
   const [masteryMoment, setMasteryMoment] = useState(null) // {name_vi, new_stage}
+  const [wrongStreak, setWrongStreak] = useState(0)
   const startTimeRef = useRef(null)
+  const fireConfetti = useRef(null)
+  const onConfettiInit = useCallback(({ confetti }) => { fireConfetti.current = confetti }, [])
 
   useEffect(() => {
     async function load() {
@@ -172,6 +176,7 @@ export default function ReviewSession() {
 
     const markCorrect = typeof quality === 'number' ? quality >= 3 : Boolean(quality)
     setResults(r => [...r, markCorrect ? 'correct' : 'wrong'])
+    setWrongStreak(s => markCorrect ? 0 : s + 1)
 
     if (isLoggedIn) {
       // Find the server review_item id for this question
@@ -181,6 +186,7 @@ export default function ReviewSession() {
           const { data } = await answerReviewItem(serverItem.id, quality, responseTimeSec)
           if (data?.stage_advanced && data?.concept_name_vi) {
             setMasteryMoment({ name_vi: data.concept_name_vi, new_stage: data.new_stage })
+            fireConfetti.current?.({ particleCount: 120, spread: 80, origin: { y: 0.4 }, colors: ['#10B981', '#F2A20C', '#6366F1'] })
           }
         } catch { /* non-fatal — progress still advances */ }
       }
@@ -269,6 +275,7 @@ export default function ReviewSession() {
       className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden"
       variants={pageVariants} initial="hidden" animate="show"
     >
+      <ReactCanvasConfetti onInit={onConfettiInit} className="fixed inset-0 pointer-events-none z-[60]" />
       {/* Mastery moment overlay */}
       <AnimatePresence>
         {masteryMoment && (
@@ -387,6 +394,15 @@ export default function ReviewSession() {
                       : `Đáp án đúng: ${String.fromCharCode(65 + question.correct)}. ${question.choices[question.correct]}`}
                   </span>
                 </div>
+
+                {/* Struggle support — after 2 consecutive wrong */}
+                {!isCorrect && wrongStreak >= 2 && (
+                  <div className="px-4 py-3 rounded-xl border border-[#A78BFA33] bg-[#1A1429]">
+                    <p className="font-jakarta text-[12px] text-[#A78BFA] leading-relaxed">
+                      Bài này khó với nhiều học sinh. Hỏi Oracle để hiểu rõ hơn.
+                    </p>
+                  </div>
+                )}
 
                 {/* Oracle button — shown after reveal, especially useful on wrong answers */}
                 <button

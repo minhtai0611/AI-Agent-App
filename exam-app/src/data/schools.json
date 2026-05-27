@@ -30,7 +30,8 @@
         "total": 29.0
       }
     },
-    "trend": "rising"
+    "trend": "rising",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_tran_dai_nghia",
@@ -63,7 +64,8 @@
         "total": 28.25
       }
     },
-    "trend": "rising"
+    "trend": "rising",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_nguyen_thuong_hien",
@@ -96,7 +98,8 @@
         "total": 26.75
       }
     },
-    "trend": "rising"
+    "trend": "rising",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_nguyen_huu_tho",
@@ -129,7 +132,8 @@
         "total": 25.75
       }
     },
-    "trend": "rising"
+    "trend": "rising",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_phan_boi_chau",
@@ -162,7 +166,8 @@
         "total": 23.0
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_tan_binh",
@@ -195,7 +200,8 @@
         "total": 21.25
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_binh_chanh",
@@ -228,7 +234,8 @@
         "total": 16.75
       }
     },
-    "trend": "falling"
+    "trend": "falling",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_phu_nhuan",
@@ -261,7 +268,8 @@
         "total": 22.75
       }
     },
-    "trend": "rising"
+    "trend": "rising",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_gia_dinh",
@@ -294,7 +302,8 @@
         "total": 24.75
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_nam_ky_khoi_nghia",
@@ -327,7 +336,8 @@
         "total": 19.75
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_nguyen_cong_tru",
@@ -360,7 +370,8 @@
         "total": 21.25
       }
     },
-    "trend": "rising"
+    "trend": "rising",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_binh_tan",
@@ -393,7 +404,8 @@
         "total": 18.25
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_binh_phu",
@@ -426,7 +438,8 @@
         "total": 19.75
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_vo_thi_sau",
@@ -459,7 +472,8 @@
         "total": 21.25
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_nguyen_thi_minh_khai",
@@ -492,7 +506,8 @@
         "total": 26.0
       }
     },
-    "trend": "rising"
+    "trend": "rising",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_nguyen_huu_canh",
@@ -525,7 +540,8 @@
         "total": 21.0
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_hung_vuong",
@@ -558,7 +574,8 @@
         "total": 22.75
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_nguyen_du",
@@ -591,7 +608,8 @@
         "total": 22.25
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_tran_phu",
@@ -624,7 +642,8 @@
         "total": 21.5
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_binh_long",
@@ -657,7 +676,8 @@
         "total": 15.25
       }
     },
-    "trend": "falling"
+    "trend": "falling",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_le_minh_xuan",
@@ -690,7 +710,8 @@
         "total": 16.0
       }
     },
-    "trend": "falling"
+    "trend": "falling",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_dong_du",
@@ -723,7 +744,8 @@
         "total": 18.25
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_le_quy_don",
@@ -756,7 +778,8 @@
         "total": 24.75
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_nguyen_dinh_chieu",
@@ -789,7 +812,8 @@
         "total": 23.0
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_mac_dinh_chi",
@@ -822,7 +846,8 @@
         "total": 21.5
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_binh_dong",
@@ -855,7 +880,8 @@
         "total": 19.75
       }
     },
-    "trend": "stable"
+    "trend": "stable",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_binh_khanh",
@@ -888,7 +914,8 @@
         "total": 22.0
       }
     },
-    "trend": "rising"
+    "trend": "rising",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_thu_thiem",
@@ -921,7 +948,8 @@
         "total": 25.5
       }
     },
-    "trend": "rising"
+    "trend": "rising",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_vo_truong_toan",
@@ -954,7 +982,8 @@
         "total": 21.25
       }
     },
-    "trend": "rising"
+    "trend": "rising",
+    "province": "TP.HCM"
   },
   {
     "id": "thpt_nguyen_viet_hong",
@@ -981,6 +1010,4121 @@
       "2024": {
         "math": 6.0,
         "total": 18.0
+      },
+      "2025": {
+        "math": 6.0,
+        "total": 18.0
+      }
+    },
+    "trend": "stable",
+    "province": "TP.HCM"
+  },
+  {
+    "id": "thpt_chu_van_an",
+    "name": "THPT Chu Văn An",
+    "district": "Quận Tây Hồ",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 8.75,
+        "total": 26.5
+      },
+      "2021": {
+        "math": 8.75,
+        "total": 26.75
+      },
+      "2022": {
+        "math": 9.0,
+        "total": 27.0
+      },
+      "2023": {
+        "math": 9.0,
+        "total": 27.25
+      },
+      "2024": {
+        "math": 9.0,
+        "total": 27.5
+      },
+      "2025": {
+        "math": 9.25,
+        "total": 27.75
+      }
+    },
+    "trend": "rising",
+    "province": "Hà Nội"
+  },
+  {
+    "id": "thpt_phan_dinh_phung",
+    "name": "THPT Phan Đình Phùng",
+    "district": "Quận Ba Đình",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 8.0,
+        "total": 23.5
+      },
+      "2021": {
+        "math": 8.0,
+        "total": 23.75
+      },
+      "2022": {
+        "math": 8.25,
+        "total": 24.0
+      },
+      "2023": {
+        "math": 8.25,
+        "total": 24.25
+      },
+      "2024": {
+        "math": 8.25,
+        "total": 24.5
+      },
+      "2025": {
+        "math": 8.5,
+        "total": 25.0
+      }
+    },
+    "trend": "rising",
+    "province": "Hà Nội"
+  },
+  {
+    "id": "thpt_kim_lien",
+    "name": "THPT Kim Liên",
+    "district": "Quận Đống Đa",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 7.75,
+        "total": 22.75
+      },
+      "2021": {
+        "math": 7.75,
+        "total": 23.0
+      },
+      "2022": {
+        "math": 8.0,
+        "total": 23.25
+      },
+      "2023": {
+        "math": 8.0,
+        "total": 23.5
+      },
+      "2024": {
+        "math": 8.0,
+        "total": 23.75
+      },
+      "2025": {
+        "math": 8.25,
+        "total": 24.25
+      }
+    },
+    "trend": "stable",
+    "province": "Hà Nội"
+  },
+  {
+    "id": "thpt_yen_hoa",
+    "name": "THPT Yên Hòa",
+    "district": "Quận Cầu Giấy",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 8.0,
+        "total": 23.75
+      },
+      "2021": {
+        "math": 8.0,
+        "total": 24.0
+      },
+      "2022": {
+        "math": 8.25,
+        "total": 24.5
+      },
+      "2023": {
+        "math": 8.25,
+        "total": 24.75
+      },
+      "2024": {
+        "math": 8.5,
+        "total": 25.0
+      },
+      "2025": {
+        "math": 8.5,
+        "total": 25.25
+      }
+    },
+    "trend": "rising",
+    "province": "Hà Nội"
+  },
+  {
+    "id": "thpt_viet_duc",
+    "name": "THPT Việt Đức",
+    "district": "Quận Hoàn Kiếm",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 8.0,
+        "total": 23.5
+      },
+      "2021": {
+        "math": 8.0,
+        "total": 23.75
+      },
+      "2022": {
+        "math": 8.25,
+        "total": 24.0
+      },
+      "2023": {
+        "math": 8.25,
+        "total": 24.25
+      },
+      "2024": {
+        "math": 8.25,
+        "total": 24.5
+      },
+      "2025": {
+        "math": 8.5,
+        "total": 24.75
+      }
+    },
+    "trend": "stable",
+    "province": "Hà Nội"
+  },
+  {
+    "id": "thpt_tran_phu_hn",
+    "name": "THPT Trần Phú",
+    "district": "Quận Hoàn Kiếm",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 7.5,
+        "total": 21.75
+      },
+      "2021": {
+        "math": 7.5,
+        "total": 22.0
+      },
+      "2022": {
+        "math": 7.75,
+        "total": 22.25
+      },
+      "2023": {
+        "math": 7.75,
+        "total": 22.5
+      },
+      "2024": {
+        "math": 7.75,
+        "total": 22.75
+      },
+      "2025": {
+        "math": 8.0,
+        "total": 23.0
+      }
+    },
+    "trend": "stable",
+    "province": "Hà Nội"
+  },
+  {
+    "id": "thpt_nguyen_gia_thieu",
+    "name": "THPT Nguyễn Gia Thiều",
+    "district": "Quận Long Biên",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 7.25,
+        "total": 21.0
+      },
+      "2021": {
+        "math": 7.25,
+        "total": 21.25
+      },
+      "2022": {
+        "math": 7.5,
+        "total": 21.5
+      },
+      "2023": {
+        "math": 7.5,
+        "total": 21.75
+      },
+      "2024": {
+        "math": 7.5,
+        "total": 22.0
+      },
+      "2025": {
+        "math": 7.75,
+        "total": 22.25
+      }
+    },
+    "trend": "stable",
+    "province": "Hà Nội"
+  },
+  {
+    "id": "thpt_le_quy_don_hn",
+    "name": "THPT Lê Quý Đôn",
+    "district": "Quận Đống Đa",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 7.5,
+        "total": 21.75
+      },
+      "2021": {
+        "math": 7.5,
+        "total": 22.0
+      },
+      "2022": {
+        "math": 7.75,
+        "total": 22.25
+      },
+      "2023": {
+        "math": 7.75,
+        "total": 22.5
+      },
+      "2024": {
+        "math": 7.75,
+        "total": 22.75
+      },
+      "2025": {
+        "math": 8.0,
+        "total": 23.0
+      }
+    },
+    "trend": "stable",
+    "province": "Hà Nội"
+  },
+  {
+    "id": "thpt_phan_chau_trinh",
+    "name": "THPT Phan Châu Trinh",
+    "district": "Quận Hải Châu",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 7.75,
+        "total": 22.5
+      },
+      "2021": {
+        "math": 8.0,
+        "total": 23.0
+      },
+      "2022": {
+        "math": 8.0,
+        "total": 23.25
+      },
+      "2023": {
+        "math": 8.25,
+        "total": 23.5
+      },
+      "2024": {
+        "math": 8.25,
+        "total": 23.75
+      },
+      "2025": {
+        "math": 8.5,
+        "total": 24.0
+      }
+    },
+    "trend": "rising",
+    "province": "Đà Nẵng"
+  },
+  {
+    "id": "thpt_tran_phu_dn",
+    "name": "THPT Trần Phú",
+    "district": "Quận Hải Châu",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 7.25,
+        "total": 21.0
+      },
+      "2021": {
+        "math": 7.25,
+        "total": 21.25
+      },
+      "2022": {
+        "math": 7.5,
+        "total": 21.5
+      },
+      "2023": {
+        "math": 7.5,
+        "total": 21.75
+      },
+      "2024": {
+        "math": 7.75,
+        "total": 22.0
+      },
+      "2025": {
+        "math": 7.75,
+        "total": 22.25
+      }
+    },
+    "trend": "stable",
+    "province": "Đà Nẵng"
+  },
+  {
+    "id": "thpt_nguyen_hien",
+    "name": "THPT Nguyễn Hiền",
+    "district": "Quận Thanh Khê",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.75,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 7.0,
+        "total": 20.0
+      },
+      "2022": {
+        "math": 7.0,
+        "total": 20.25
+      },
+      "2023": {
+        "math": 7.25,
+        "total": 20.5
+      },
+      "2024": {
+        "math": 7.25,
+        "total": 20.75
+      },
+      "2025": {
+        "math": 7.5,
+        "total": 21.0
+      }
+    },
+    "trend": "stable",
+    "province": "Đà Nẵng"
+  },
+  {
+    "id": "thpt_thai_phien",
+    "name": "THPT Thái Phiên",
+    "district": "Quận Ngô Quyền",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 7.25,
+        "total": 21.0
+      },
+      "2021": {
+        "math": 7.5,
+        "total": 21.5
+      },
+      "2022": {
+        "math": 7.5,
+        "total": 21.75
+      },
+      "2023": {
+        "math": 7.75,
+        "total": 22.0
+      },
+      "2024": {
+        "math": 7.75,
+        "total": 22.25
+      },
+      "2025": {
+        "math": 8.0,
+        "total": 22.5
+      }
+    },
+    "trend": "rising",
+    "province": "Hải Phòng"
+  },
+  {
+    "id": "thpt_le_quy_don_hp",
+    "name": "THPT Lê Quý Đôn",
+    "district": "Quận Hồng Bàng",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 7.0,
+        "total": 20.5
+      },
+      "2021": {
+        "math": 7.0,
+        "total": 20.75
+      },
+      "2022": {
+        "math": 7.25,
+        "total": 21.0
+      },
+      "2023": {
+        "math": 7.25,
+        "total": 21.25
+      },
+      "2024": {
+        "math": 7.5,
+        "total": 21.5
+      },
+      "2025": {
+        "math": 7.5,
+        "total": 21.75
+      }
+    },
+    "trend": "stable",
+    "province": "Hải Phòng"
+  },
+  {
+    "id": "thpt_huynh_thuc_khang",
+    "name": "THPT Huỳnh Thúc Kháng",
+    "district": "TP. Vinh",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 7.0,
+        "total": 20.25
+      },
+      "2021": {
+        "math": 7.25,
+        "total": 20.75
+      },
+      "2022": {
+        "math": 7.25,
+        "total": 21.0
+      },
+      "2023": {
+        "math": 7.5,
+        "total": 21.25
+      },
+      "2024": {
+        "math": 7.5,
+        "total": 21.5
+      },
+      "2025": {
+        "math": 7.75,
+        "total": 22.0
+      }
+    },
+    "trend": "rising",
+    "province": "Nghệ An"
+  },
+  {
+    "id": "thpt_le_viet_thuat",
+    "name": "THPT Lê Viết Thuật",
+    "district": "TP. Vinh",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.0
+      },
+      "2021": {
+        "math": 6.75,
+        "total": 19.5
+      },
+      "2022": {
+        "math": 6.75,
+        "total": 19.75
+      },
+      "2023": {
+        "math": 7.0,
+        "total": 20.0
+      },
+      "2024": {
+        "math": 7.0,
+        "total": 20.25
+      },
+      "2025": {
+        "math": 7.25,
+        "total": 20.75
+      }
+    },
+    "trend": "stable",
+    "province": "Nghệ An"
+  },
+  {
+    "id": "thpt_chau_van_liem_ct",
+    "name": "THPT Châu Văn Liêm",
+    "province": "Cần Thơ",
+    "district": "Ninh Kiều",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.75,
+        "total": 22.5
+      },
+      "2021": {
+        "math": 7.85,
+        "total": 22.75
+      },
+      "2022": {
+        "math": 7.95,
+        "total": 23.0
+      },
+      "2023": {
+        "math": 8.05,
+        "total": 23.25
+      },
+      "2024": {
+        "math": 8.15,
+        "total": 23.5
+      },
+      "2025": {
+        "math": 8.25,
+        "total": 23.75
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_binh_thuy",
+    "name": "THPT Bình Thủy",
+    "province": "Cần Thơ",
+    "district": "Bình Thủy",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.25,
+        "total": 18.5
+      },
+      "2021": {
+        "math": 6.35,
+        "total": 18.7
+      },
+      "2022": {
+        "math": 6.45,
+        "total": 18.9
+      },
+      "2023": {
+        "math": 6.55,
+        "total": 19.1
+      },
+      "2024": {
+        "math": 6.65,
+        "total": 19.3
+      },
+      "2025": {
+        "math": 6.75,
+        "total": 19.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_hung_vuong_bd",
+    "name": "THPT Chuyên Hùng Vương",
+    "province": "Bình Dương",
+    "district": "Thủ Dầu Một",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.75,
+        "total": 22.5
+      },
+      "2021": {
+        "math": 7.85,
+        "total": 22.75
+      },
+      "2022": {
+        "math": 7.95,
+        "total": 23.0
+      },
+      "2023": {
+        "math": 8.05,
+        "total": 23.25
+      },
+      "2024": {
+        "math": 8.15,
+        "total": 23.5
+      },
+      "2025": {
+        "math": 8.25,
+        "total": 23.75
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_nguyen_trai_bd",
+    "name": "THPT Nguyễn Trãi",
+    "province": "Bình Dương",
+    "district": "Thủ Dầu Một",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.25,
+        "total": 18.25
+      },
+      "2021": {
+        "math": 6.35,
+        "total": 18.45
+      },
+      "2022": {
+        "math": 6.45,
+        "total": 18.65
+      },
+      "2023": {
+        "math": 6.55,
+        "total": 18.85
+      },
+      "2024": {
+        "math": 6.65,
+        "total": 19.05
+      },
+      "2025": {
+        "math": 6.75,
+        "total": 19.25
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_luong_the_vinh_dn",
+    "name": "THPT Lương Thế Vinh",
+    "province": "Đồng Nai",
+    "district": "Biên Hòa",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.5,
+        "total": 22.0
+      },
+      "2021": {
+        "math": 7.6,
+        "total": 22.2
+      },
+      "2022": {
+        "math": 7.7,
+        "total": 22.4
+      },
+      "2023": {
+        "math": 7.8,
+        "total": 22.6
+      },
+      "2024": {
+        "math": 7.9,
+        "total": 22.8
+      },
+      "2025": {
+        "math": 8.0,
+        "total": 23.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_thong_nhat",
+    "name": "THPT Thống Nhất",
+    "province": "Đồng Nai",
+    "district": "Trảng Bom",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 17.75
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 17.95
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 18.15
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 18.35
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 18.55
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 18.75
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_vinh_phuc",
+    "name": "THPT Chuyên Vĩnh Phúc",
+    "province": "Vĩnh Phúc",
+    "district": "Vĩnh Yên",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 8.0,
+        "total": 23.5
+      },
+      "2021": {
+        "math": 8.1,
+        "total": 23.75
+      },
+      "2022": {
+        "math": 8.2,
+        "total": 24.0
+      },
+      "2023": {
+        "math": 8.3,
+        "total": 24.25
+      },
+      "2024": {
+        "math": 8.4,
+        "total": 24.5
+      },
+      "2025": {
+        "math": 8.5,
+        "total": 24.75
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_nguyen_viet_xuan",
+    "name": "THPT Nguyễn Viết Xuân",
+    "province": "Vĩnh Phúc",
+    "district": "Vĩnh Yên",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.0
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.2
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.4
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 19.6
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 19.8
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_bac_ninh",
+    "name": "THPT Chuyên Bắc Ninh",
+    "province": "Bắc Ninh",
+    "district": "TP. Bắc Ninh",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 8.0,
+        "total": 23.5
+      },
+      "2021": {
+        "math": 8.1,
+        "total": 23.75
+      },
+      "2022": {
+        "math": 8.2,
+        "total": 24.0
+      },
+      "2023": {
+        "math": 8.3,
+        "total": 24.25
+      },
+      "2024": {
+        "math": 8.4,
+        "total": 24.5
+      },
+      "2025": {
+        "math": 8.5,
+        "total": 24.75
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_han_thuyen",
+    "name": "THPT Hàn Thuyên",
+    "province": "Bắc Ninh",
+    "district": "TP. Bắc Ninh",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.0
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.2
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.4
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 19.6
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 19.8
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_le_quy_don_kh",
+    "name": "THPT Chuyên Lê Quý Đôn",
+    "province": "Khánh Hòa",
+    "district": "Nha Trang",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.5,
+        "total": 22.0
+      },
+      "2021": {
+        "math": 7.6,
+        "total": 22.2
+      },
+      "2022": {
+        "math": 7.7,
+        "total": 22.4
+      },
+      "2023": {
+        "math": 7.8,
+        "total": 22.6
+      },
+      "2024": {
+        "math": 7.9,
+        "total": 22.8
+      },
+      "2025": {
+        "math": 8.0,
+        "total": 23.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_nguyen_van_troi",
+    "name": "THPT Nguyễn Văn Trỗi",
+    "province": "Khánh Hòa",
+    "district": "Nha Trang",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 17.75
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 17.95
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 18.15
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 18.35
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 18.55
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 18.75
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_le_quy_don_brvt",
+    "name": "THPT Chuyên Lê Quý Đôn",
+    "province": "Bà Rịa - Vũng Tàu",
+    "district": "Vũng Tàu",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.75,
+        "total": 22.5
+      },
+      "2021": {
+        "math": 7.85,
+        "total": 22.75
+      },
+      "2022": {
+        "math": 7.95,
+        "total": 23.0
+      },
+      "2023": {
+        "math": 8.05,
+        "total": 23.25
+      },
+      "2024": {
+        "math": 8.15,
+        "total": 23.5
+      },
+      "2025": {
+        "math": 8.25,
+        "total": 23.75
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_chau_thanh_brvt",
+    "name": "THPT Châu Thành",
+    "province": "Bà Rịa - Vũng Tàu",
+    "district": "Châu Đức",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 17.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 17.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 17.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 18.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 18.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 18.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_ha_tinh",
+    "name": "THPT Chuyên Hà Tĩnh",
+    "province": "Hà Tĩnh",
+    "district": "TP. Hà Tĩnh",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 8.0,
+        "total": 23.0
+      },
+      "2021": {
+        "math": 8.1,
+        "total": 23.25
+      },
+      "2022": {
+        "math": 8.2,
+        "total": 23.5
+      },
+      "2023": {
+        "math": 8.3,
+        "total": 23.75
+      },
+      "2024": {
+        "math": 8.4,
+        "total": 24.0
+      },
+      "2025": {
+        "math": 8.5,
+        "total": 24.25
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_phan_dinh_phung_ht",
+    "name": "THPT Phan Đình Phùng",
+    "province": "Hà Tĩnh",
+    "district": "TP. Hà Tĩnh",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.0
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.2
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.4
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 19.6
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 19.8
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_lam_son",
+    "name": "THPT Chuyên Lam Sơn",
+    "province": "Thanh Hóa",
+    "district": "TP. Thanh Hóa",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 8.0,
+        "total": 23.0
+      },
+      "2021": {
+        "math": 8.1,
+        "total": 23.25
+      },
+      "2022": {
+        "math": 8.2,
+        "total": 23.5
+      },
+      "2023": {
+        "math": 8.3,
+        "total": 23.75
+      },
+      "2024": {
+        "math": 8.4,
+        "total": 24.0
+      },
+      "2025": {
+        "math": 8.5,
+        "total": 24.25
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_dao_duy_tu_th",
+    "name": "THPT Đào Duy Từ",
+    "province": "Thanh Hóa",
+    "district": "TP. Thanh Hóa",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.0
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.2
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.4
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 19.6
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 19.8
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_quoc_hoc_hue",
+    "name": "THPT Quốc Học Huế",
+    "province": "Thừa Thiên - Huế",
+    "district": "TP. Huế",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 8.25,
+        "total": 24.0
+      },
+      "2021": {
+        "math": 8.35,
+        "total": 24.25
+      },
+      "2022": {
+        "math": 8.45,
+        "total": 24.5
+      },
+      "2023": {
+        "math": 8.55,
+        "total": 24.75
+      },
+      "2024": {
+        "math": 8.65,
+        "total": 25.0
+      },
+      "2025": {
+        "math": 8.75,
+        "total": 25.25
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_hai_ba_trung_hue",
+    "name": "THPT Hai Bà Trưng",
+    "province": "Thừa Thiên - Huế",
+    "district": "TP. Huế",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.7
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.9
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 20.1
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 20.3
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_ha_long",
+    "name": "THPT Chuyên Hạ Long",
+    "province": "Quảng Ninh",
+    "district": "Hạ Long",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.75,
+        "total": 22.5
+      },
+      "2021": {
+        "math": 7.85,
+        "total": 22.75
+      },
+      "2022": {
+        "math": 7.95,
+        "total": 23.0
+      },
+      "2023": {
+        "math": 8.05,
+        "total": 23.25
+      },
+      "2024": {
+        "math": 8.15,
+        "total": 23.5
+      },
+      "2025": {
+        "math": 8.25,
+        "total": 23.75
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_hon_gai",
+    "name": "THPT Hòn Gai",
+    "province": "Quảng Ninh",
+    "district": "Hạ Long",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.25,
+        "total": 18.5
+      },
+      "2021": {
+        "math": 6.35,
+        "total": 18.7
+      },
+      "2022": {
+        "math": 6.45,
+        "total": 18.9
+      },
+      "2023": {
+        "math": 6.55,
+        "total": 19.1
+      },
+      "2024": {
+        "math": 6.65,
+        "total": 19.3
+      },
+      "2025": {
+        "math": 6.75,
+        "total": 19.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_le_hong_phong_nd",
+    "name": "THPT Chuyên Lê Hồng Phong",
+    "province": "Nam Định",
+    "district": "TP. Nam Định",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 8.25,
+        "total": 24.0
+      },
+      "2021": {
+        "math": 8.35,
+        "total": 24.25
+      },
+      "2022": {
+        "math": 8.45,
+        "total": 24.5
+      },
+      "2023": {
+        "math": 8.55,
+        "total": 24.75
+      },
+      "2024": {
+        "math": 8.65,
+        "total": 25.0
+      },
+      "2025": {
+        "math": 8.75,
+        "total": 25.25
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_tran_hung_dao_nd",
+    "name": "THPT Trần Hưng Đạo",
+    "province": "Nam Định",
+    "district": "TP. Nam Định",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.75,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 6.85,
+        "total": 19.7
+      },
+      "2022": {
+        "math": 6.95,
+        "total": 19.9
+      },
+      "2023": {
+        "math": 7.05,
+        "total": 20.1
+      },
+      "2024": {
+        "math": 7.15,
+        "total": 20.3
+      },
+      "2025": {
+        "math": 7.25,
+        "total": 20.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_luong_van_tuy",
+    "name": "THPT Chuyên Lương Văn Tụy",
+    "province": "Ninh Bình",
+    "district": "TP. Ninh Bình",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.75,
+        "total": 22.5
+      },
+      "2021": {
+        "math": 7.85,
+        "total": 22.75
+      },
+      "2022": {
+        "math": 7.95,
+        "total": 23.0
+      },
+      "2023": {
+        "math": 8.05,
+        "total": 23.25
+      },
+      "2024": {
+        "math": 8.15,
+        "total": 23.5
+      },
+      "2025": {
+        "math": 8.25,
+        "total": 23.75
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_dinh_tien_hoang",
+    "name": "THPT Đinh Tiên Hoàng",
+    "province": "Ninh Bình",
+    "district": "TP. Ninh Bình",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.25,
+        "total": 18.5
+      },
+      "2021": {
+        "math": 6.35,
+        "total": 18.7
+      },
+      "2022": {
+        "math": 6.45,
+        "total": 18.9
+      },
+      "2023": {
+        "math": 6.55,
+        "total": 19.1
+      },
+      "2024": {
+        "math": 6.65,
+        "total": 19.3
+      },
+      "2025": {
+        "math": 6.75,
+        "total": 19.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_nguyen_trai_hd",
+    "name": "THPT Chuyên Nguyễn Trãi",
+    "province": "Hải Dương",
+    "district": "TP. Hải Dương",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.75,
+        "total": 22.5
+      },
+      "2021": {
+        "math": 7.85,
+        "total": 22.75
+      },
+      "2022": {
+        "math": 7.95,
+        "total": 23.0
+      },
+      "2023": {
+        "math": 8.05,
+        "total": 23.25
+      },
+      "2024": {
+        "math": 8.15,
+        "total": 23.5
+      },
+      "2025": {
+        "math": 8.25,
+        "total": 23.75
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_nam_sach",
+    "name": "THPT Nam Sách",
+    "province": "Hải Dương",
+    "district": "Nam Sách",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 17.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 17.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 17.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 18.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 18.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 18.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_hung_yen",
+    "name": "THPT Chuyên Hưng Yên",
+    "province": "Hưng Yên",
+    "district": "TP. Hưng Yên",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.5,
+        "total": 22.0
+      },
+      "2021": {
+        "math": 7.6,
+        "total": 22.25
+      },
+      "2022": {
+        "math": 7.7,
+        "total": 22.5
+      },
+      "2023": {
+        "math": 7.8,
+        "total": 22.75
+      },
+      "2024": {
+        "math": 7.9,
+        "total": 23.0
+      },
+      "2025": {
+        "math": 8.0,
+        "total": 23.25
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_khoai_chau",
+    "name": "THPT Khoái Châu",
+    "province": "Hưng Yên",
+    "district": "Khoái Châu",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.75,
+        "total": 17.0
+      },
+      "2021": {
+        "math": 5.85,
+        "total": 17.2
+      },
+      "2022": {
+        "math": 5.95,
+        "total": 17.4
+      },
+      "2023": {
+        "math": 6.05,
+        "total": 17.6
+      },
+      "2024": {
+        "math": 6.15,
+        "total": 17.8
+      },
+      "2025": {
+        "math": 6.25,
+        "total": 18.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_bien_hoa_hn",
+    "name": "THPT Chuyên Biên Hòa",
+    "province": "Hà Nam",
+    "district": "TP. Phủ Lý",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.5,
+        "total": 22.0
+      },
+      "2021": {
+        "math": 7.6,
+        "total": 22.25
+      },
+      "2022": {
+        "math": 7.7,
+        "total": 22.5
+      },
+      "2023": {
+        "math": 7.8,
+        "total": 22.75
+      },
+      "2024": {
+        "math": 7.9,
+        "total": 23.0
+      },
+      "2025": {
+        "math": 8.0,
+        "total": 23.25
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_ly_nhan",
+    "name": "THPT Lý Nhân",
+    "province": "Hà Nam",
+    "district": "Lý Nhân",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.75,
+        "total": 17.0
+      },
+      "2021": {
+        "math": 5.85,
+        "total": 17.2
+      },
+      "2022": {
+        "math": 5.95,
+        "total": 17.4
+      },
+      "2023": {
+        "math": 6.05,
+        "total": 17.6
+      },
+      "2024": {
+        "math": 6.15,
+        "total": 17.8
+      },
+      "2025": {
+        "math": 6.25,
+        "total": 18.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_thai_binh",
+    "name": "THPT Chuyên Thái Bình",
+    "province": "Thái Bình",
+    "district": "TP. Thái Bình",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.5,
+        "total": 22.0
+      },
+      "2021": {
+        "math": 7.6,
+        "total": 22.25
+      },
+      "2022": {
+        "math": 7.7,
+        "total": 22.5
+      },
+      "2023": {
+        "math": 7.8,
+        "total": 22.75
+      },
+      "2024": {
+        "math": 7.9,
+        "total": 23.0
+      },
+      "2025": {
+        "math": 8.0,
+        "total": 23.25
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_nguyen_du_tb",
+    "name": "THPT Nguyễn Du",
+    "province": "Thái Bình",
+    "district": "TP. Thái Bình",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 17.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 17.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 17.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 18.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 18.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 18.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_thang_long_ld",
+    "name": "THPT Chuyên Thăng Long",
+    "province": "Lâm Đồng",
+    "district": "Đà Lạt",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.5,
+        "total": 22.0
+      },
+      "2021": {
+        "math": 7.6,
+        "total": 22.2
+      },
+      "2022": {
+        "math": 7.7,
+        "total": 22.4
+      },
+      "2023": {
+        "math": 7.8,
+        "total": 22.6
+      },
+      "2024": {
+        "math": 7.9,
+        "total": 22.8
+      },
+      "2025": {
+        "math": 8.0,
+        "total": 23.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_bao_loc",
+    "name": "THPT Bảo Lộc",
+    "province": "Lâm Đồng",
+    "district": "Bảo Lộc",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.75,
+        "total": 17.0
+      },
+      "2021": {
+        "math": 5.85,
+        "total": 17.2
+      },
+      "2022": {
+        "math": 5.95,
+        "total": 17.4
+      },
+      "2023": {
+        "math": 6.05,
+        "total": 17.6
+      },
+      "2024": {
+        "math": 6.15,
+        "total": 17.8
+      },
+      "2025": {
+        "math": 6.25,
+        "total": 18.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_thai_nguyen",
+    "name": "THPT Chuyên Thái Nguyên",
+    "province": "Thái Nguyên",
+    "district": "TP. Thái Nguyên",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.75,
+        "total": 22.5
+      },
+      "2021": {
+        "math": 7.85,
+        "total": 22.75
+      },
+      "2022": {
+        "math": 7.95,
+        "total": 23.0
+      },
+      "2023": {
+        "math": 8.05,
+        "total": 23.25
+      },
+      "2024": {
+        "math": 8.15,
+        "total": 23.5
+      },
+      "2025": {
+        "math": 8.25,
+        "total": 23.75
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_luong_ngoc_quyen",
+    "name": "THPT Lương Ngọc Quyến",
+    "province": "Thái Nguyên",
+    "district": "TP. Thái Nguyên",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 17.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 17.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 17.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 18.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 18.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 18.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_le_quy_don_bdinh",
+    "name": "THPT Chuyên Lê Quý Đôn",
+    "province": "Bình Định",
+    "district": "Quy Nhơn",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.5,
+        "total": 22.0
+      },
+      "2021": {
+        "math": 7.6,
+        "total": 22.2
+      },
+      "2022": {
+        "math": 7.7,
+        "total": 22.4
+      },
+      "2023": {
+        "math": 7.8,
+        "total": 22.6
+      },
+      "2024": {
+        "math": 7.9,
+        "total": 22.8
+      },
+      "2025": {
+        "math": 8.0,
+        "total": 23.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_quoc_hoc_quy_nhon",
+    "name": "THPT Quốc Học Quy Nhơn",
+    "province": "Bình Định",
+    "district": "Quy Nhơn",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 17.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 17.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 17.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 18.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 18.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 18.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_nguyen_binh_khiem_qn",
+    "name": "THPT Chuyên Nguyễn Bỉnh Khiêm",
+    "province": "Quảng Nam",
+    "district": "Tam Kỳ",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.5,
+        "total": 22.0
+      },
+      "2021": {
+        "math": 7.6,
+        "total": 22.2
+      },
+      "2022": {
+        "math": 7.7,
+        "total": 22.4
+      },
+      "2023": {
+        "math": 7.8,
+        "total": 22.6
+      },
+      "2024": {
+        "math": 7.9,
+        "total": 22.8
+      },
+      "2025": {
+        "math": 8.0,
+        "total": 23.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_tran_phu_qn",
+    "name": "THPT Trần Phú",
+    "province": "Quảng Nam",
+    "district": "Tam Kỳ",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.75,
+        "total": 17.0
+      },
+      "2021": {
+        "math": 5.85,
+        "total": 17.2
+      },
+      "2022": {
+        "math": 5.95,
+        "total": 17.4
+      },
+      "2023": {
+        "math": 6.05,
+        "total": 17.6
+      },
+      "2024": {
+        "math": 6.15,
+        "total": 17.8
+      },
+      "2025": {
+        "math": 6.25,
+        "total": 18.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_hung_vuong_pt",
+    "name": "THPT Chuyên Hùng Vương",
+    "province": "Phú Thọ",
+    "district": "Việt Trì",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.75,
+        "total": 22.5
+      },
+      "2021": {
+        "math": 7.85,
+        "total": 22.75
+      },
+      "2022": {
+        "math": 7.95,
+        "total": 23.0
+      },
+      "2023": {
+        "math": 8.05,
+        "total": 23.25
+      },
+      "2024": {
+        "math": 8.15,
+        "total": 23.5
+      },
+      "2025": {
+        "math": 8.25,
+        "total": 23.75
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_viet_tri",
+    "name": "THPT Việt Trì",
+    "province": "Phú Thọ",
+    "district": "Việt Trì",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 17.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 17.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 17.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 18.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 18.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 18.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_bac_giang",
+    "name": "THPT Chuyên Bắc Giang",
+    "province": "Bắc Giang",
+    "district": "TP. Bắc Giang",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.5,
+        "total": 22.0
+      },
+      "2021": {
+        "math": 7.6,
+        "total": 22.25
+      },
+      "2022": {
+        "math": 7.7,
+        "total": 22.5
+      },
+      "2023": {
+        "math": 7.8,
+        "total": 22.75
+      },
+      "2024": {
+        "math": 7.9,
+        "total": 23.0
+      },
+      "2025": {
+        "math": 8.0,
+        "total": 23.25
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_ngo_gia_tu",
+    "name": "THPT Ngô Gia Tự",
+    "province": "Bắc Giang",
+    "district": "TP. Bắc Giang",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 17.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 17.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 17.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 18.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 18.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 18.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_vo_nguyen_giap",
+    "name": "THPT Chuyên Võ Nguyên Giáp",
+    "province": "Quảng Bình",
+    "district": "Đồng Hới",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 7.5,
+        "total": 22.0
+      },
+      "2021": {
+        "math": 7.6,
+        "total": 22.2
+      },
+      "2022": {
+        "math": 7.7,
+        "total": 22.4
+      },
+      "2023": {
+        "math": 7.8,
+        "total": 22.6
+      },
+      "2024": {
+        "math": 7.9,
+        "total": 22.8
+      },
+      "2025": {
+        "math": 8.0,
+        "total": 23.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_dao_duy_tu_qb",
+    "name": "THPT Đào Duy Từ",
+    "province": "Quảng Bình",
+    "district": "Đồng Hới",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.75,
+        "total": 17.0
+      },
+      "2021": {
+        "math": 5.85,
+        "total": 17.2
+      },
+      "2022": {
+        "math": 5.95,
+        "total": 17.4
+      },
+      "2023": {
+        "math": 6.05,
+        "total": 17.6
+      },
+      "2024": {
+        "math": 6.15,
+        "total": 17.8
+      },
+      "2025": {
+        "math": 6.25,
+        "total": 18.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_huynh_man_dat",
+    "name": "THPT Chuyên Huỳnh Mẫn Đạt",
+    "province": "Kiên Giang",
+    "district": "Rạch Giá",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.75,
+        "total": 20.0
+      },
+      "2021": {
+        "math": 6.85,
+        "total": 20.2
+      },
+      "2022": {
+        "math": 6.95,
+        "total": 20.4
+      },
+      "2023": {
+        "math": 7.05,
+        "total": 20.6
+      },
+      "2024": {
+        "math": 7.15,
+        "total": 20.8
+      },
+      "2025": {
+        "math": 7.25,
+        "total": 21.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_nguyen_trung_truc",
+    "name": "THPT Nguyễn Trung Trực",
+    "province": "Kiên Giang",
+    "district": "Rạch Giá",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.5,
+        "total": 16.5
+      },
+      "2021": {
+        "math": 5.6,
+        "total": 16.7
+      },
+      "2022": {
+        "math": 5.7,
+        "total": 16.9
+      },
+      "2023": {
+        "math": 5.8,
+        "total": 17.1
+      },
+      "2024": {
+        "math": 5.9,
+        "total": 17.3
+      },
+      "2025": {
+        "math": 6.0,
+        "total": 17.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_phan_ngoc_hien",
+    "name": "THPT Chuyên Phan Ngọc Hiển",
+    "province": "Cà Mau",
+    "district": "TP. Cà Mau",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.75,
+        "total": 20.0
+      },
+      "2021": {
+        "math": 6.85,
+        "total": 20.2
+      },
+      "2022": {
+        "math": 6.95,
+        "total": 20.4
+      },
+      "2023": {
+        "math": 7.05,
+        "total": 20.6
+      },
+      "2024": {
+        "math": 7.15,
+        "total": 20.8
+      },
+      "2025": {
+        "math": 7.25,
+        "total": 21.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_ho_thi_ky",
+    "name": "THPT Hồ Thị Kỷ",
+    "province": "Cà Mau",
+    "district": "TP. Cà Mau",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.5,
+        "total": 16.25
+      },
+      "2021": {
+        "math": 5.6,
+        "total": 16.45
+      },
+      "2022": {
+        "math": 5.7,
+        "total": 16.65
+      },
+      "2023": {
+        "math": 5.8,
+        "total": 16.85
+      },
+      "2024": {
+        "math": 5.9,
+        "total": 17.05
+      },
+      "2025": {
+        "math": 6.0,
+        "total": 17.25
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_thoai_ngoc_hau",
+    "name": "THPT Chuyên Thoại Ngọc Hầu",
+    "province": "An Giang",
+    "district": "Long Xuyên",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.7
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.9
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 20.1
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 20.3
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_an_giang",
+    "name": "THPT An Giang",
+    "province": "An Giang",
+    "district": "Long Xuyên",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.25,
+        "total": 15.75
+      },
+      "2021": {
+        "math": 5.35,
+        "total": 15.95
+      },
+      "2022": {
+        "math": 5.45,
+        "total": 16.15
+      },
+      "2023": {
+        "math": 5.55,
+        "total": 16.35
+      },
+      "2024": {
+        "math": 5.65,
+        "total": 16.55
+      },
+      "2025": {
+        "math": 5.75,
+        "total": 16.75
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_nguyen_du_dak",
+    "name": "THPT Chuyên Nguyễn Du",
+    "province": "Đắk Lắk",
+    "district": "Buôn Ma Thuột",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.7
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.9
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 20.1
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 20.3
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_buon_ma_thuot",
+    "name": "THPT Buôn Ma Thuột",
+    "province": "Đắk Lắk",
+    "district": "Buôn Ma Thuột",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.25,
+        "total": 15.75
+      },
+      "2021": {
+        "math": 5.35,
+        "total": 15.95
+      },
+      "2022": {
+        "math": 5.45,
+        "total": 16.15
+      },
+      "2023": {
+        "math": 5.55,
+        "total": 16.35
+      },
+      "2024": {
+        "math": 5.65,
+        "total": 16.55
+      },
+      "2025": {
+        "math": 5.75,
+        "total": 16.75
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_hung_vuong_gl",
+    "name": "THPT Chuyên Hùng Vương",
+    "province": "Gia Lai",
+    "district": "Pleiku",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.25,
+        "total": 19.0
+      },
+      "2021": {
+        "math": 6.35,
+        "total": 19.2
+      },
+      "2022": {
+        "math": 6.45,
+        "total": 19.4
+      },
+      "2023": {
+        "math": 6.55,
+        "total": 19.6
+      },
+      "2024": {
+        "math": 6.65,
+        "total": 19.8
+      },
+      "2025": {
+        "math": 6.75,
+        "total": 20.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_pleiku",
+    "name": "THPT Pleiku",
+    "province": "Gia Lai",
+    "district": "Pleiku",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.0,
+        "total": 15.5
+      },
+      "2021": {
+        "math": 5.1,
+        "total": 15.7
+      },
+      "2022": {
+        "math": 5.2,
+        "total": 15.9
+      },
+      "2023": {
+        "math": 5.3,
+        "total": 16.1
+      },
+      "2024": {
+        "math": 5.4,
+        "total": 16.3
+      },
+      "2025": {
+        "math": 5.5,
+        "total": 16.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_nguyen_quang_dieu",
+    "name": "THPT Chuyên Nguyễn Quang Diêu",
+    "province": "Đồng Tháp",
+    "district": "Cao Lãnh",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.7
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.9
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 20.1
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 20.3
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_cao_lanh",
+    "name": "THPT Cao Lãnh",
+    "province": "Đồng Tháp",
+    "district": "Cao Lãnh",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.25,
+        "total": 15.75
+      },
+      "2021": {
+        "math": 5.35,
+        "total": 15.95
+      },
+      "2022": {
+        "math": 5.45,
+        "total": 16.15
+      },
+      "2023": {
+        "math": 5.55,
+        "total": 16.35
+      },
+      "2024": {
+        "math": 5.65,
+        "total": 16.55
+      },
+      "2025": {
+        "math": 5.75,
+        "total": 16.75
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_long_an",
+    "name": "THPT Chuyên Long An",
+    "province": "Long An",
+    "district": "Tân An",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.7
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.9
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 20.1
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 20.3
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_tan_an",
+    "name": "THPT Tân An",
+    "province": "Long An",
+    "district": "Tân An",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.25,
+        "total": 15.75
+      },
+      "2021": {
+        "math": 5.35,
+        "total": 15.95
+      },
+      "2022": {
+        "math": 5.45,
+        "total": 16.15
+      },
+      "2023": {
+        "math": 5.55,
+        "total": 16.35
+      },
+      "2024": {
+        "math": 5.65,
+        "total": 16.55
+      },
+      "2025": {
+        "math": 5.75,
+        "total": 16.75
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_tien_giang",
+    "name": "THPT Chuyên Tiền Giang",
+    "province": "Tiền Giang",
+    "district": "Mỹ Tho",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.7
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.9
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 20.1
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 20.3
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_chuyen_binh_phuoc",
+    "name": "THPT Chuyên Bình Phước",
+    "province": "Bình Phước",
+    "district": "Đồng Xoài",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.25,
+        "total": 19.0
+      },
+      "2021": {
+        "math": 6.35,
+        "total": 19.2
+      },
+      "2022": {
+        "math": 6.45,
+        "total": 19.4
+      },
+      "2023": {
+        "math": 6.55,
+        "total": 19.6
+      },
+      "2024": {
+        "math": 6.65,
+        "total": 19.8
+      },
+      "2025": {
+        "math": 6.75,
+        "total": 20.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_dong_xoai",
+    "name": "THPT Đồng Xoài",
+    "province": "Bình Phước",
+    "district": "Đồng Xoài",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.0,
+        "total": 15.5
+      },
+      "2021": {
+        "math": 5.1,
+        "total": 15.7
+      },
+      "2022": {
+        "math": 5.2,
+        "total": 15.9
+      },
+      "2023": {
+        "math": 5.3,
+        "total": 16.1
+      },
+      "2024": {
+        "math": 5.4,
+        "total": 16.3
+      },
+      "2025": {
+        "math": 5.5,
+        "total": 16.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_hoang_le_kha",
+    "name": "THPT Chuyên Hoàng Lê Kha",
+    "province": "Tây Ninh",
+    "district": "Tây Ninh",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.25,
+        "total": 19.0
+      },
+      "2021": {
+        "math": 6.35,
+        "total": 19.2
+      },
+      "2022": {
+        "math": 6.45,
+        "total": 19.4
+      },
+      "2023": {
+        "math": 6.55,
+        "total": 19.6
+      },
+      "2024": {
+        "math": 6.65,
+        "total": 19.8
+      },
+      "2025": {
+        "math": 6.75,
+        "total": 20.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_tay_ninh",
+    "name": "THPT Tây Ninh",
+    "province": "Tây Ninh",
+    "district": "Tây Ninh",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.0,
+        "total": 15.5
+      },
+      "2021": {
+        "math": 5.1,
+        "total": 15.7
+      },
+      "2022": {
+        "math": 5.2,
+        "total": 15.9
+      },
+      "2023": {
+        "math": 5.3,
+        "total": 16.1
+      },
+      "2024": {
+        "math": 5.4,
+        "total": 16.3
+      },
+      "2025": {
+        "math": 5.5,
+        "total": 16.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_ben_tre",
+    "name": "THPT Chuyên Bến Tre",
+    "province": "Bến Tre",
+    "district": "Bến Tre",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.7
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.9
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 20.1
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 20.3
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_nguyen_dinh_chieu_bt",
+    "name": "THPT Nguyễn Đình Chiểu",
+    "province": "Bến Tre",
+    "district": "Bến Tre",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.25,
+        "total": 15.75
+      },
+      "2021": {
+        "math": 5.35,
+        "total": 15.95
+      },
+      "2022": {
+        "math": 5.45,
+        "total": 16.15
+      },
+      "2023": {
+        "math": 5.55,
+        "total": 16.35
+      },
+      "2024": {
+        "math": 5.65,
+        "total": 16.55
+      },
+      "2025": {
+        "math": 5.75,
+        "total": 16.75
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_nguyen_binh_khiem_vl",
+    "name": "THPT Chuyên Nguyễn Bỉnh Khiêm",
+    "province": "Vĩnh Long",
+    "district": "Vĩnh Long",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.7
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.9
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 20.1
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 20.3
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_luu_van_liet",
+    "name": "THPT Lưu Văn Liệt",
+    "province": "Vĩnh Long",
+    "district": "Vĩnh Long",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.25,
+        "total": 15.75
+      },
+      "2021": {
+        "math": 5.35,
+        "total": 15.95
+      },
+      "2022": {
+        "math": 5.45,
+        "total": 16.15
+      },
+      "2023": {
+        "math": 5.55,
+        "total": 16.35
+      },
+      "2024": {
+        "math": 5.65,
+        "total": 16.55
+      },
+      "2025": {
+        "math": 5.75,
+        "total": 16.75
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_soc_trang",
+    "name": "THPT Sóc Trăng",
+    "province": "Sóc Trăng",
+    "district": "Sóc Trăng",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.0,
+        "total": 15.5
+      },
+      "2021": {
+        "math": 5.1,
+        "total": 15.7
+      },
+      "2022": {
+        "math": 5.2,
+        "total": 15.9
+      },
+      "2023": {
+        "math": 5.3,
+        "total": 16.1
+      },
+      "2024": {
+        "math": 5.4,
+        "total": 16.3
+      },
+      "2025": {
+        "math": 5.5,
+        "total": 16.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_bac_lieu",
+    "name": "THPT Chuyên Bạc Liêu",
+    "province": "Bạc Liêu",
+    "district": "Bạc Liêu",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.25,
+        "total": 19.0
+      },
+      "2021": {
+        "math": 6.35,
+        "total": 19.2
+      },
+      "2022": {
+        "math": 6.45,
+        "total": 19.4
+      },
+      "2023": {
+        "math": 6.55,
+        "total": 19.6
+      },
+      "2024": {
+        "math": 6.65,
+        "total": 19.8
+      },
+      "2025": {
+        "math": 6.75,
+        "total": 20.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_vo_thi_sau_bl",
+    "name": "THPT Võ Thị Sáu",
+    "province": "Bạc Liêu",
+    "district": "Bạc Liêu",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.0,
+        "total": 15.5
+      },
+      "2021": {
+        "math": 5.1,
+        "total": 15.7
+      },
+      "2022": {
+        "math": 5.2,
+        "total": 15.9
+      },
+      "2023": {
+        "math": 5.3,
+        "total": 16.1
+      },
+      "2024": {
+        "math": 5.4,
+        "total": 16.3
+      },
+      "2025": {
+        "math": 5.5,
+        "total": 16.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_vi_thanh",
+    "name": "THPT Chuyên Vị Thanh",
+    "province": "Hậu Giang",
+    "district": "Vị Thanh",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.25,
+        "total": 19.0
+      },
+      "2021": {
+        "math": 6.35,
+        "total": 19.2
+      },
+      "2022": {
+        "math": 6.45,
+        "total": 19.4
+      },
+      "2023": {
+        "math": 6.55,
+        "total": 19.6
+      },
+      "2024": {
+        "math": 6.65,
+        "total": 19.8
+      },
+      "2025": {
+        "math": 6.75,
+        "total": 20.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_long_my",
+    "name": "THPT Long Mỹ",
+    "province": "Hậu Giang",
+    "district": "Long Mỹ",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 4.75,
+        "total": 15.0
+      },
+      "2021": {
+        "math": 4.85,
+        "total": 15.2
+      },
+      "2022": {
+        "math": 4.95,
+        "total": 15.4
+      },
+      "2023": {
+        "math": 5.05,
+        "total": 15.6
+      },
+      "2024": {
+        "math": 5.15,
+        "total": 15.8
+      },
+      "2025": {
+        "math": 5.25,
+        "total": 16.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_tran_hung_dao_bt",
+    "name": "THPT Chuyên Trần Hưng Đạo",
+    "province": "Bình Thuận",
+    "district": "Phan Thiết",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.7
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.9
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 20.1
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 20.3
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_phan_thiet",
+    "name": "THPT Phan Thiết",
+    "province": "Bình Thuận",
+    "district": "Phan Thiết",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.25,
+        "total": 15.75
+      },
+      "2021": {
+        "math": 5.35,
+        "total": 15.95
+      },
+      "2022": {
+        "math": 5.45,
+        "total": 16.15
+      },
+      "2023": {
+        "math": 5.55,
+        "total": 16.35
+      },
+      "2024": {
+        "math": 5.65,
+        "total": 16.55
+      },
+      "2025": {
+        "math": 5.75,
+        "total": 16.75
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_le_quy_don_nt",
+    "name": "THPT Chuyên Lê Quý Đôn",
+    "province": "Ninh Thuận",
+    "district": "Phan Rang",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.25,
+        "total": 19.0
+      },
+      "2021": {
+        "math": 6.35,
+        "total": 19.2
+      },
+      "2022": {
+        "math": 6.45,
+        "total": 19.4
+      },
+      "2023": {
+        "math": 6.55,
+        "total": 19.6
+      },
+      "2024": {
+        "math": 6.65,
+        "total": 19.8
+      },
+      "2025": {
+        "math": 6.75,
+        "total": 20.0
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_phan_rang",
+    "name": "THPT Phan Rang",
+    "province": "Ninh Thuận",
+    "district": "Phan Rang",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.0,
+        "total": 15.25
+      },
+      "2021": {
+        "math": 5.1,
+        "total": 15.45
+      },
+      "2022": {
+        "math": 5.2,
+        "total": 15.65
+      },
+      "2023": {
+        "math": 5.3,
+        "total": 15.85
+      },
+      "2024": {
+        "math": 5.4,
+        "total": 16.05
+      },
+      "2025": {
+        "math": 5.5,
+        "total": 16.25
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_luong_van_chanh",
+    "name": "THPT Chuyên Lương Văn Chánh",
+    "province": "Phú Yên",
+    "district": "Tuy Hòa",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.7
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.9
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 20.1
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 20.3
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_nguyen_hue_py",
+    "name": "THPT Nguyễn Huệ",
+    "province": "Phú Yên",
+    "district": "Tuy Hòa",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.25,
+        "total": 15.75
+      },
+      "2021": {
+        "math": 5.35,
+        "total": 15.95
+      },
+      "2022": {
+        "math": 5.45,
+        "total": 16.15
+      },
+      "2023": {
+        "math": 5.55,
+        "total": 16.35
+      },
+      "2024": {
+        "math": 5.65,
+        "total": 16.55
+      },
+      "2025": {
+        "math": 5.75,
+        "total": 16.75
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_le_khiet",
+    "name": "THPT Chuyên Lê Khiết",
+    "province": "Quảng Ngãi",
+    "district": "Quảng Ngãi",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.7
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.9
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 20.1
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 20.3
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_tran_quoc_tuan_qn",
+    "name": "THPT Trần Quốc Tuấn",
+    "province": "Quảng Ngãi",
+    "district": "Quảng Ngãi",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.25,
+        "total": 15.75
+      },
+      "2021": {
+        "math": 5.35,
+        "total": 15.95
+      },
+      "2022": {
+        "math": 5.45,
+        "total": 16.15
+      },
+      "2023": {
+        "math": 5.55,
+        "total": 16.35
+      },
+      "2024": {
+        "math": 5.65,
+        "total": 16.55
+      },
+      "2025": {
+        "math": 5.75,
+        "total": 16.75
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_le_quy_don_qt",
+    "name": "THPT Chuyên Lê Quý Đôn",
+    "province": "Quảng Trị",
+    "district": "Đông Hà",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.5,
+        "total": 19.5
+      },
+      "2021": {
+        "math": 6.6,
+        "total": 19.7
+      },
+      "2022": {
+        "math": 6.7,
+        "total": 19.9
+      },
+      "2023": {
+        "math": 6.8,
+        "total": 20.1
+      },
+      "2024": {
+        "math": 6.9,
+        "total": 20.3
+      },
+      "2025": {
+        "math": 7.0,
+        "total": 20.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_dong_ha",
+    "name": "THPT Đông Hà",
+    "province": "Quảng Trị",
+    "district": "Đông Hà",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 5.25,
+        "total": 15.5
+      },
+      "2021": {
+        "math": 5.35,
+        "total": 15.7
+      },
+      "2022": {
+        "math": 5.45,
+        "total": 15.9
+      },
+      "2023": {
+        "math": 5.55,
+        "total": 16.1
+      },
+      "2024": {
+        "math": 5.65,
+        "total": 16.3
+      },
+      "2025": {
+        "math": 5.75,
+        "total": 16.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_nguyen_chi_thanh",
+    "name": "THPT Chuyên Nguyễn Chí Thanh",
+    "province": "Đắk Nông",
+    "district": "Gia Nghĩa",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 18.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 18.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 18.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 19.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 19.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 19.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_gia_nghia",
+    "name": "THPT Gia Nghĩa",
+    "province": "Đắk Nông",
+    "district": "Gia Nghĩa",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 4.75,
+        "total": 15.0
+      },
+      "2021": {
+        "math": 4.85,
+        "total": 15.2
+      },
+      "2022": {
+        "math": 4.95,
+        "total": 15.4
+      },
+      "2023": {
+        "math": 5.05,
+        "total": 15.6
+      },
+      "2024": {
+        "math": 5.15,
+        "total": 15.8
+      },
+      "2025": {
+        "math": 5.25,
+        "total": 16.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_kon_tum",
+    "name": "THPT Chuyên Kon Tum",
+    "province": "Kon Tum",
+    "district": "Kon Tum",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 18.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 18.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 18.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 19.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 19.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 19.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_dak_ha",
+    "name": "THPT Đắk Hà",
+    "province": "Kon Tum",
+    "district": "Đắk Hà",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 4.75,
+        "total": 15.0
+      },
+      "2021": {
+        "math": 4.85,
+        "total": 15.2
+      },
+      "2022": {
+        "math": 4.95,
+        "total": 15.4
+      },
+      "2023": {
+        "math": 5.05,
+        "total": 15.6
+      },
+      "2024": {
+        "math": 5.15,
+        "total": 15.8
+      },
+      "2025": {
+        "math": 5.25,
+        "total": 16.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_hoang_van_thu_hb",
+    "name": "THPT Chuyên Hoàng Văn Thụ",
+    "province": "Hòa Bình",
+    "district": "Hòa Bình",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 18.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 18.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 18.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 19.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 19.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 19.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_hoa_binh",
+    "name": "THPT Hòa Bình",
+    "province": "Hòa Bình",
+    "district": "Hòa Bình",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 4.75,
+        "total": 15.0
+      },
+      "2021": {
+        "math": 4.85,
+        "total": 15.2
+      },
+      "2022": {
+        "math": 4.95,
+        "total": 15.4
+      },
+      "2023": {
+        "math": 5.05,
+        "total": 15.6
+      },
+      "2024": {
+        "math": 5.15,
+        "total": 15.8
+      },
+      "2025": {
+        "math": 5.25,
+        "total": 16.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_lao_cai",
+    "name": "THPT Chuyên Lào Cai",
+    "province": "Lào Cai",
+    "district": "Lào Cai",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 18.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 18.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 18.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 19.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 19.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 19.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_lao_cai",
+    "name": "THPT Lào Cai",
+    "province": "Lào Cai",
+    "district": "Lào Cai",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 4.75,
+        "total": 15.0
+      },
+      "2021": {
+        "math": 4.85,
+        "total": 15.2
+      },
+      "2022": {
+        "math": 4.95,
+        "total": 15.4
+      },
+      "2023": {
+        "math": 5.05,
+        "total": 15.6
+      },
+      "2024": {
+        "math": 5.15,
+        "total": 15.8
+      },
+      "2025": {
+        "math": 5.25,
+        "total": 16.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chu_van_an_ls",
+    "name": "THPT Chuyên Chu Văn An",
+    "province": "Lạng Sơn",
+    "district": "Lạng Sơn",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 18.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 18.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 18.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 19.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 19.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 19.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_viet_bac",
+    "name": "THPT Việt Bắc",
+    "province": "Lạng Sơn",
+    "district": "Lạng Sơn",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 4.75,
+        "total": 15.0
+      },
+      "2021": {
+        "math": 4.85,
+        "total": 15.2
+      },
+      "2022": {
+        "math": 4.95,
+        "total": 15.4
+      },
+      "2023": {
+        "math": 5.05,
+        "total": 15.6
+      },
+      "2024": {
+        "math": 5.15,
+        "total": 15.8
+      },
+      "2025": {
+        "math": 5.25,
+        "total": 16.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_tuyen_quang",
+    "name": "THPT Chuyên Tuyên Quang",
+    "province": "Tuyên Quang",
+    "district": "Tuyên Quang",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 18.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 18.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 18.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 19.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 19.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 19.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_tan_trao",
+    "name": "THPT Tân Trào",
+    "province": "Tuyên Quang",
+    "district": "Tuyên Quang",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 4.75,
+        "total": 15.0
+      },
+      "2021": {
+        "math": 4.85,
+        "total": 15.2
+      },
+      "2022": {
+        "math": 4.95,
+        "total": 15.4
+      },
+      "2023": {
+        "math": 5.05,
+        "total": 15.6
+      },
+      "2024": {
+        "math": 5.15,
+        "total": 15.8
+      },
+      "2025": {
+        "math": 5.25,
+        "total": 16.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_nguyen_tat_thanh_yb",
+    "name": "THPT Chuyên Nguyễn Tất Thành",
+    "province": "Yên Bái",
+    "district": "Yên Bái",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 6.0,
+        "total": 18.5
+      },
+      "2021": {
+        "math": 6.1,
+        "total": 18.7
+      },
+      "2022": {
+        "math": 6.2,
+        "total": 18.9
+      },
+      "2023": {
+        "math": 6.3,
+        "total": 19.1
+      },
+      "2024": {
+        "math": 6.4,
+        "total": 19.3
+      },
+      "2025": {
+        "math": 6.5,
+        "total": 19.5
+      }
+    },
+    "trend": "rising"
+  },
+  {
+    "id": "thpt_yen_bai",
+    "name": "THPT Yên Bái",
+    "province": "Yên Bái",
+    "district": "Yên Bái",
+    "type": "công lập",
+    "cutoffs": {
+      "2020": {
+        "math": 4.75,
+        "total": 15.0
+      },
+      "2021": {
+        "math": 4.85,
+        "total": 15.2
+      },
+      "2022": {
+        "math": 4.95,
+        "total": 15.4
+      },
+      "2023": {
+        "math": 5.05,
+        "total": 15.6
+      },
+      "2024": {
+        "math": 5.15,
+        "total": 15.8
+      },
+      "2025": {
+        "math": 5.25,
+        "total": 16.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_bac_kan",
+    "name": "THPT Chuyên Bắc Kạn",
+    "province": "Bắc Kạn",
+    "district": "Bắc Kạn",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 5.5,
+        "total": 17.0
+      },
+      "2021": {
+        "math": 5.6,
+        "total": 17.2
+      },
+      "2022": {
+        "math": 5.7,
+        "total": 17.4
+      },
+      "2023": {
+        "math": 5.8,
+        "total": 17.6
+      },
+      "2024": {
+        "math": 5.9,
+        "total": 17.8
+      },
+      "2025": {
+        "math": 6.0,
+        "total": 18.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_cao_bang",
+    "name": "THPT Chuyên Cao Bằng",
+    "province": "Cao Bằng",
+    "district": "Cao Bằng",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 5.5,
+        "total": 17.0
+      },
+      "2021": {
+        "math": 5.6,
+        "total": 17.2
+      },
+      "2022": {
+        "math": 5.7,
+        "total": 17.4
+      },
+      "2023": {
+        "math": 5.8,
+        "total": 17.6
+      },
+      "2024": {
+        "math": 5.9,
+        "total": 17.8
+      },
+      "2025": {
+        "math": 6.0,
+        "total": 18.0
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_lai_chau",
+    "name": "THPT Chuyên Lai Châu",
+    "province": "Lai Châu",
+    "district": "Lai Châu",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 5.25,
+        "total": 16.5
+      },
+      "2021": {
+        "math": 5.35,
+        "total": 16.7
+      },
+      "2022": {
+        "math": 5.45,
+        "total": 16.9
+      },
+      "2023": {
+        "math": 5.55,
+        "total": 17.1
+      },
+      "2024": {
+        "math": 5.65,
+        "total": 17.3
+      },
+      "2025": {
+        "math": 5.75,
+        "total": 17.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_le_quy_don_db",
+    "name": "THPT Chuyên Lê Quý Đôn",
+    "province": "Điện Biên",
+    "district": "Điện Biên Phủ",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 5.25,
+        "total": 16.5
+      },
+      "2021": {
+        "math": 5.35,
+        "total": 16.7
+      },
+      "2022": {
+        "math": 5.45,
+        "total": 16.9
+      },
+      "2023": {
+        "math": 5.55,
+        "total": 17.1
+      },
+      "2024": {
+        "math": 5.65,
+        "total": 17.3
+      },
+      "2025": {
+        "math": 5.75,
+        "total": 17.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_ha_giang",
+    "name": "THPT Chuyên Hà Giang",
+    "province": "Hà Giang",
+    "district": "Hà Giang",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 5.25,
+        "total": 16.5
+      },
+      "2021": {
+        "math": 5.35,
+        "total": 16.7
+      },
+      "2022": {
+        "math": 5.45,
+        "total": 16.9
+      },
+      "2023": {
+        "math": 5.55,
+        "total": 17.1
+      },
+      "2024": {
+        "math": 5.65,
+        "total": 17.3
+      },
+      "2025": {
+        "math": 5.75,
+        "total": 17.5
+      }
+    },
+    "trend": "stable"
+  },
+  {
+    "id": "thpt_chuyen_son_la",
+    "name": "THPT Chuyên Sơn La",
+    "province": "Sơn La",
+    "district": "Sơn La",
+    "type": "chuyên",
+    "cutoffs": {
+      "2020": {
+        "math": 5.5,
+        "total": 17.0
+      },
+      "2021": {
+        "math": 5.6,
+        "total": 17.2
+      },
+      "2022": {
+        "math": 5.7,
+        "total": 17.4
+      },
+      "2023": {
+        "math": 5.8,
+        "total": 17.6
+      },
+      "2024": {
+        "math": 5.9,
+        "total": 17.8
       },
       "2025": {
         "math": 6.0,

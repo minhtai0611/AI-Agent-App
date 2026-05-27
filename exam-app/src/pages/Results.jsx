@@ -13,7 +13,7 @@ import {
   LineChart, Line, XAxis, Tooltip,
 } from 'recharts'
 import { loadExamById, loadQuestionsByIds, buildStudyPlanPayload, buildAnalyzePayload, recommendNextExam } from '../api/index.js'
-import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPlan, getPercentile, predictScore, recordMemorySnapshot, postHistory } from '../api/aiClient.js'
+import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPlan, getPercentile, predictScore, postHistory } from '../api/aiClient.js'
 import { loadPreferences } from '../utils/aiPreferences.js'
 import AIInsights from '../components/AIInsights.jsx'
 import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
@@ -377,20 +377,6 @@ export default function Results({ onOpenAuth }) {
             safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
             setAnalysis(aiAnalysis)
             refreshUser()
-            // Fire-and-forget: record learner memory snapshot from radar data
-            if (result?.topicBreakdown) {
-              const snapshots = Object.entries(result.topicBreakdown)
-                .map(([rawTopic, tb]) => {
-                  const label = TOPIC_LABELS[rawTopic] ?? rawTopic
-                  const topicId = TOPIC_ID_MAP[label]
-                  if (!topicId) return null
-                  return { topic_id: topicId, mastery_score: tb.accuracy ?? 0, exam_count: results?.length ?? 1 }
-                })
-                .filter(Boolean)
-              if (user?.id && snapshots.length > 0) {
-                recordMemorySnapshot({ snapshots }).catch(() => {})
-              }
-            }
           } catch {
             // JSON parse failed but stream was HTTP 200 — credits already charged, show retry
             setAiError(true)
@@ -443,6 +429,17 @@ export default function Results({ onOpenAuth }) {
   const isPersonalBest = result != null && pastSameExam.length > 0 && result.score > Math.max(...pastSameExam.map(r => r.score))
   const personalBestScore = pastSameExam.length > 0 ? Math.max(...pastSameExam.map(r => r.score)) : null
   const isScoreDrop = result != null && pastSameExam.length > 0 && !isPersonalBest && result.score < personalBestScore
+
+  // Recovery Path identity message — shown when this is a personal best retake of an exam that had a recovery path
+  const recoveryPathTopic = (() => {
+    if (!isPersonalBest || !user?.id || pastSameExam.length === 0) return null
+    const prevResult = [...pastSameExam].sort((a, b) => new Date(b.finishedAt) - new Date(a.finishedAt))[0]
+    if (!prevResult) return null
+    try {
+      const plan = JSON.parse(localStorage.getItem(`recovery-path-data-${user.id}-${prevResult.id}`) ?? 'null')
+      return plan?.focus_areas?.[0]?.topic ?? null
+    } catch { return null }
+  })()
 
   // Trigger amber confetti for personal best
   useEffect(() => {
@@ -538,9 +535,10 @@ export default function Results({ onOpenAuth }) {
 
   const color = arcColor(score)
 
-  // School fit scores — computed from cutoff data in schools.json
+  // School fit scores — province schools first, then by proximity to 50% probability
   const schoolFitList = useMemo(() => {
-    return schoolsData
+    const userProvince = user?.province ?? null
+    const scored = schoolsData
       .map(s => {
         const cutoff = latestCutoff(s)
         if (cutoff === null) return null
@@ -548,14 +546,17 @@ export default function Results({ onOpenAuth }) {
         return { ...s, prob, cutoff }
       })
       .filter(Boolean)
-      .sort((a, b) => {
-        // Sort by closest to 50% probability (most interesting range near the cutoff)
-        const da = Math.abs(a.prob - 50)
-        const db = Math.abs(b.prob - 50)
-        return da - db
-      })
-      .slice(0, 6)
-  }, [score])
+    scored.sort((a, b) => {
+      const aMatch = userProvince && a.province === userProvince
+      const bMatch = userProvince && b.province === userProvince
+      if (aMatch && !bMatch) return -1
+      if (!aMatch && bMatch) return 1
+      const da = Math.abs(a.prob - 50)
+      const db = Math.abs(b.prob - 50)
+      return da - db
+    })
+    return scored.slice(0, 6)
+  }, [score, user?.province])
 
   const isPaidUser = user?.subscription_tier === 'student' || user?.subscription_tier === 'complete'
   const isComplete = user?.subscription_tier === 'complete'
@@ -736,10 +737,17 @@ export default function Results({ onOpenAuth }) {
         <AnimatePresence>
           {isPersonalBest && (
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              className="flex items-center gap-3 px-5 py-3.5 rounded-xl"
+              className="flex flex-col gap-2 px-5 py-3.5 rounded-xl"
               style={{ background: '#1A1200', border: '1px solid #F2A20C60' }}>
-              <span className="text-xl">🏆</span>
-              <span className="font-jakarta text-[14px] font-semibold text-[#F2A20C]">Điểm cao nhất của bạn trên đề thi này!</span>
+              <div className="flex items-center gap-3">
+                <span className="text-xl">🏆</span>
+                <span className="font-jakarta text-[14px] font-semibold text-[#F2A20C]">Điểm cao nhất của bạn trên đề thi này!</span>
+              </div>
+              {recoveryPathTopic && (
+                <p className="font-jakarta text-[13px] text-[#94A3B8] pl-9">
+                  Bạn đã sửa được lỗi ở <span className="text-[#F2A20C] font-semibold">{recoveryPathTopic}</span>. Điểm của bạn phản ánh điều đó.
+                </p>
+              )}
             </motion.div>
           )}
           {isScoreDrop && (
@@ -843,17 +851,6 @@ export default function Results({ onOpenAuth }) {
             {/* Hồ sơ năng lực */}
             <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-6">
               <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Hồ sơ năng lực</span>
-              {radarData.length > 0 && (
-                <div style={{ height: 220 }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                      <PolarGrid stroke="#1E2A44" />
-                      <PolarAngleAxis dataKey="topic" tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'Plus Jakarta Sans, sans-serif' }} />
-                      <Radar dataKey="score" stroke="#F2A20C" fill="#F2A20C" fillOpacity={0.15} strokeWidth={2} />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {topics.map(([topic, tb]) => {
                   const verdict = topicVerdict(tb.accuracy)

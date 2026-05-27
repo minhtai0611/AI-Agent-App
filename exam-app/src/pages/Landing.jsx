@@ -10,6 +10,7 @@ import { getDaysUntilExam, getExamYear } from '../utils/examCountdown.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { loadQuestions } from '../api/index.js'
 import { getSessionToday } from '../api/aiClient.js'
+import { checkAndShowWeeklyReport } from '../utils/studyReminder.js'
 import ZenithLogo from '../components/ZenithLogo.jsx'
 
 const PLANS_MONTHLY = [
@@ -49,6 +50,20 @@ export default function Landing({ onOpenAuth }) {
     if (!user?.id) { setSession(null); return }
     getSessionToday().then(({ data }) => { if (data) setSession(data) }).catch(() => {})
   }, [user?.id])
+
+  // Weekly report — fires once per week on Sun/Mon using available local data
+  useEffect(() => {
+    if (!user || !session) return
+    const recentScores = results.slice(0, 7).map(r => r.score ?? 0)
+    const avgAccuracy = recentScores.length
+      ? Math.round((recentScores.reduce((a, b) => a + b, 0) / recentScores.length) * 10)
+      : null
+    checkAndShowWeeklyReport({
+      streak: session.learning_streak ?? streak,
+      masteredThisWeek: 0,
+      accuracyTrend: avgAccuracy,
+    })
+  }, [user?.id, session?.session_date]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!user || !results.length) return
@@ -152,6 +167,20 @@ export default function Landing({ onOpenAuth }) {
           <motion.div variants={itemVariants}
             className="w-full max-w-xl bg-[#0D1527] border border-[#1E2A44] rounded-2xl px-5 py-4 flex items-center gap-5 flex-wrap"
           >
+            {session?.placement_needed && (
+              <button onClick={() => navigate('/placement')}
+                className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-[#6366F1] hover:opacity-80 transition">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#6366F1] animate-pulse" />
+                Bắt đầu kiểm tra năng lực →
+              </button>
+            )}
+            {session?.pending_count > 0 && (
+              <button onClick={() => navigate('/daily')}
+                className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-[#F2A20C] hover:opacity-80 transition">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#F2A20C] animate-pulse" />
+                {session.pending_count} câu sai đang chờ — thử lại không?
+              </button>
+            )}
             {(session?.learning_streak > 0 || streak > 0) && (
               <span className="font-jakarta text-[13px] font-semibold text-[#F2A20C]">
                 🔥 {session?.learning_streak ?? streak} ngày
@@ -165,6 +194,13 @@ export default function Landing({ onOpenAuth }) {
                 className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-[#34D399] hover:opacity-80 transition">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] animate-pulse" />
                 {session.due_count} câu cần ôn
+              </button>
+            )}
+            {session?.remediation_concept && (session.remediation_concept.error_count ?? 0) >= 3 && (
+              <button onClick={() => navigate('/review')}
+                className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-[#FB7185] hover:opacity-80 transition">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FB7185] animate-pulse" />
+                Sửa lỗi {session.remediation_concept.name_vi} →
               </button>
             )}
             {session?.advance_concept && !session?.is_complete && (

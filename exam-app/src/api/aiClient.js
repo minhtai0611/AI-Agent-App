@@ -195,9 +195,6 @@ export function getWikiStatus() {
   return wrap(client.get('/wiki/status'))
 }
 
-export function generateWeekQuiz(payload) {
-  return wrap(slowClient.post('/study-plan-quiz', payload))
-}
 
 export function googleSignIn(idToken, ref) {
   return wrap(client.post('/auth/google', { id_token: idToken, ...(ref ? { ref } : {}) }))
@@ -242,6 +239,10 @@ export function getAdaptiveStudyPlan() {
 
 export function seedDiagnostic(weights) {
   return wrap(client.post('/users/me/diagnostic-seed', { weights }))
+}
+
+export function submitPlacement(answers) {
+  return wrap(client.post('/users/me/placement', { answers }))
 }
 
 export function getMe() {
@@ -361,18 +362,8 @@ export const getPaymentConfig = () =>
 export const getDailyChallenge = () =>
   wrap(client.get('/daily-challenge'))
 
-export const submitDailyScore = (answers, time_seconds) =>
-  wrap(client.post('/daily-challenge/score', { answers, time_seconds }))
-
-export const getDailyChallengeLeaderboard = () =>
-  wrap(client.get('/daily-challenge/leaderboard'))
-
-// Sprint 20: MOAT 4 — Longitudinal Learner Memory
-export const recordMemorySnapshot = (snapshots) =>
-  wrap(client.post('/learner-memory/snapshot', { snapshots }))
-
-export const getMemoryData = () =>
-  wrap(client.get('/learner-memory/me'))
+export const submitDailyScore = ({ question_id, correct }) =>
+  wrap(client.post('/daily-challenge/score', { question_id, correct }))
 
 export const generateExam = (topicFocus, difficulty = 'medium', count = 10) =>
   wrap(client.post('/generate-exam', { topic_focus: topicFocus, difficulty, count }))
