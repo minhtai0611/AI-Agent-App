@@ -197,7 +197,7 @@ export default function AdaptiveStudyPlan() {
   return (
     <motion.div
       className="min-h-screen bg-[#0A0E1A] pb-16"
-      variants={pageVariants} initial="hidden" animate="show"
+      variants={pageVariants} initial="hidden" animate="show" exit="exit"
     >
       {/* Header */}
       <div className="sticky top-12 z-10 bg-[#0A0E1A]/95 backdrop-blur border-b border-[#1E2A44] px-4 py-3 flex items-center justify-between">

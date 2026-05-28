@@ -1,9 +1,10 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import AmbientGlows from '../components/AmbientGlows.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { computeStreak } from '../utils/streak.js'
 import { getDaysUntilExam, getExamYear } from '../utils/examCountdown.js'
@@ -45,6 +46,8 @@ export default function Landing({ onOpenAuth }) {
   const streak = useMemo(() => computeStreak(results), [results])
   const daysUntil = user ? getDaysUntilExam(user.province) : null
   const readiness = useReadiness(results, questionMap)
+  const { scrollY } = useScroll()
+  const heroY = useTransform(scrollY, [0, 400], [0, -30])
 
   useEffect(() => {
     if (!user?.id) { setSession(null); return }
@@ -81,21 +84,49 @@ export default function Landing({ onOpenAuth }) {
   return (
     <motion.div
       className="min-h-screen relative overflow-hidden flex flex-col items-center"
-      variants={pageVariants} initial="hidden" animate="show"
+      variants={pageVariants} initial="hidden" animate="show" exit="exit"
       style={{ background: 'radial-gradient(ellipse 140% 100% at 50% 35%, #1B2B4B 0%, #0A0E1A 100%)' }}
     >
+      <AmbientGlows className="absolute inset-0 z-0" />
       {/* Hero section */}
       <div
         className="relative z-10 flex flex-col items-center gap-10 text-center px-6 sm:px-8 pt-20 pb-16 w-full"
       >
-        <div className="flex flex-col items-center gap-5">
+        <motion.div style={{ y: heroY }} className="flex flex-col items-center gap-5">
           <ZenithLogo variant="hero" />
           <span className="font-jakarta text-[11px] font-semibold text-[#F2A20C] tracking-[3px] uppercase">
             Kỳ thi tuyển sinh {getExamYear()} · Toán Lớp 10
           </span>
           <h1 className="font-fraunces text-[56px] sm:text-[72px] font-bold text-[#F8FAFC] leading-[1.05] text-center">
-            Học để hiểu,<br />
-            <span style={{ color: '#F2A20C' }}>không học để quên.</span>
+            <motion.span
+              className="block"
+              initial="hidden"
+              animate="show"
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
+            >
+              {['Học', 'để', 'hiểu,'].map((word, i) => (
+                <motion.span
+                  key={i}
+                  className="inline-block mr-[0.25em]"
+                  variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } } }}
+                >{word}</motion.span>
+              ))}
+            </motion.span>
+            <motion.span
+              className="block"
+              style={{ color: '#F2A20C' }}
+              initial="hidden"
+              animate="show"
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06, delayChildren: 0.22 } } }}
+            >
+              {['không', 'học', 'để', 'quên.'].map((word, i) => (
+                <motion.span
+                  key={i}
+                  className="inline-block mr-[0.25em]"
+                  variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } } }}
+                >{word}</motion.span>
+              ))}
+            </motion.span>
           </h1>
           <p className="font-jakarta text-[17px] text-[#94A3B8] leading-relaxed max-w-[600px] text-center">
             Toán Oracle giải từng bước — bạn học cách tư duy, không chỉ học đáp án.<br />
@@ -103,7 +134,7 @@ export default function Landing({ onOpenAuth }) {
               40+ đề thật từ 63 tỉnh thành · AI phát hiện lỗi sai và chỉ cách sửa.
             </span>
           </p>
-        </div>
+        </motion.div>
 
         {/* Oracle input + secondary links */}
         <div className="w-full max-w-xl flex flex-col items-center gap-4">
@@ -127,20 +158,26 @@ export default function Landing({ onOpenAuth }) {
             </button>
           </form>
           <div className="flex items-center gap-5 flex-wrap justify-center">
-            <button onClick={() => navigate('/exams')}
-              className="font-jakarta text-[13px] font-semibold text-[#F2A20C] hover:opacity-80 transition">
+            <motion.button onClick={() => navigate('/exams')}
+              className="font-jakarta text-[13px] font-semibold text-[#F2A20C] hover:opacity-80 transition"
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
               Thi thử
-            </button>
+            </motion.button>
             <span className="text-[#1E2A44]">·</span>
-            <button onClick={() => navigate('/exams?mode=practice')}
-              className="font-jakarta text-[13px] font-semibold text-[#94A3B8] hover:text-[#F0F4FF] transition">
+            <motion.button onClick={() => navigate('/exams?mode=practice')}
+              className="font-jakarta text-[13px] font-semibold text-[#94A3B8] hover:text-[#F0F4FF] transition"
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
               Luyện tập
-            </button>
+            </motion.button>
             <span className="text-[#1E2A44]">·</span>
-            <button onClick={() => navigate('/exams?mode=special')}
-              className="font-jakarta text-[13px] font-semibold text-[#94A3B8] hover:text-[#F0F4FF] transition">
+            <motion.button onClick={() => navigate('/exams?mode=special')}
+              className="font-jakarta text-[13px] font-semibold text-[#94A3B8] hover:text-[#F0F4FF] transition"
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
               Chế độ đặc biệt
-            </button>
+            </motion.button>
             <span className="text-[#1E2A44]">·</span>
             <button onClick={() => navigate('/diagnostic')}
               className="font-jakarta text-[13px] font-semibold text-[#94A3B8] hover:text-[#F0F4FF] transition">
@@ -169,9 +206,13 @@ export default function Landing({ onOpenAuth }) {
               </button>
             )}
             {(session?.learning_streak > 0 || streak > 0) && (
-              <span className="font-jakarta text-[13px] font-semibold text-[#F2A20C]">
-                🔥 {session?.learning_streak ?? streak} ngày
-              </span>
+              <motion.span
+                className="font-jakarta text-[13px] font-semibold text-[#F2A20C]"
+                animate={{ scale: [1, 1.08, 1] }}
+                transition={{ duration: 0.8, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <span className="streak-fire">🔥</span> {session?.learning_streak ?? streak} ngày
+              </motion.span>
             )}
             {daysUntil != null && (
               <span className="font-jakarta text-[13px] font-semibold text-[#818CF8]">📅 Còn {daysUntil} ngày</span>
@@ -306,13 +347,15 @@ export default function Landing({ onOpenAuth }) {
               <div className="flex flex-col items-end gap-2 flex-shrink-0">
                 <span className="font-fraunces text-[16px] font-bold text-[#F0F4FF]">{plan.price}</span>
                 {plan.tier !== 'basic' && (
-                  <button
+                  <motion.button
                     onClick={user ? () => navigate('/account') : onOpenAuth}
-                    className="px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
+                    className="ripple-btn px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
                     style={{ background: '#F2A20C' }}
+                    whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   >
                     {user ? 'Nâng cấp ngay' : 'Đăng nhập'}
-                  </button>
+                  </motion.button>
                 )}
               </div>
             </div>

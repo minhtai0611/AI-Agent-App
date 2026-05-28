@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { pageVariants } from '../utils/animations.js'
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useHistory } from '../context/HistoryContext'
 import { useExam, useExamDispatch } from '../context/ExamContext'
@@ -213,7 +215,8 @@ export default function AdaptivePractice() {
 
   // Mode selection screen
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex flex-col items-center justify-center px-4 gap-8">
+    <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
+      className="min-h-screen bg-[#0A0E1A] flex flex-col items-center justify-center px-4 gap-8">
       <div className="flex flex-col items-center gap-2 text-center">
         <span className="font-fraunces text-[24px] font-bold text-[#F8FAFC]">Luyện tập thích nghi</span>
         {weakTopics.length > 0 && (
@@ -262,6 +265,6 @@ export default function AdaptivePractice() {
         className="font-jakarta text-[13px] text-[#475569] hover:text-[#94A3B8] transition">
         ← Quay lại
       </button>
-    </div>
+    </motion.div>
   )
 }

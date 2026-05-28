@@ -6,6 +6,7 @@ import { submitPlacement } from '../api/aiClient.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { MathText } from '../components/MathText.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
+import { pageVariants } from '../utils/animations.js'
 
 // 10 topic pools — one question drawn from each, covering broad math curriculum
 const PLACEMENT_TOPIC_POOLS = [
@@ -109,7 +110,7 @@ export default function Placement() {
     return (
       <motion.div
         className="min-h-screen bg-[#0A0E1A] flex flex-col items-center justify-center px-4 gap-6"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        variants={pageVariants} initial="hidden" animate="show" exit="exit"
       >
         <div className="w-full max-w-md bg-[#0D1527] border border-[#1E2A44] rounded-2xl p-8 flex flex-col items-center gap-5 text-center">
           <span className="text-5xl">{correct >= 7 ? '🏆' : correct >= 5 ? '📈' : '📚'}</span>
@@ -140,7 +141,8 @@ export default function Placement() {
   const isCorrect = chosen === question.correct
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex flex-col items-center px-4 py-8">
+    <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
+      className="min-h-screen bg-[#0A0E1A] flex flex-col items-center px-4 py-8">
       <div className="w-full max-w-xl flex flex-col gap-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -232,6 +234,6 @@ export default function Placement() {
           </motion.div>
         </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   )
 }

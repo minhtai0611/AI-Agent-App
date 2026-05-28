@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import AmbientGlows from './AmbientGlows.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { acceptTos } from '../api/aiClient.js'
 
@@ -121,10 +122,12 @@ export default function ProfileOnboarding({ onDone }) {
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0A0E1A]/90 backdrop-blur-sm px-4">
+        <AmbientGlows className="absolute inset-0 z-0 pointer-events-none" />
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.25 }}
+          initial={{ opacity: 0, scale: 0.94, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.94, y: 16 }}
+          transition={{ type: 'spring', stiffness: 340, damping: 28 }}
           className="w-full max-w-md bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-8 flex flex-col gap-6"
         >
           <div className="flex flex-col gap-1">

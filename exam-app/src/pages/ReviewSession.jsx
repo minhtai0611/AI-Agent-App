@@ -225,7 +225,7 @@ export default function ReviewSession() {
     return (
       <motion.div
         className="min-h-screen bg-[#0A0E1A] flex flex-col items-center justify-center gap-8 px-4"
-        variants={pageVariants} initial="hidden" animate="show"
+        variants={pageVariants} initial="hidden" animate="show" exit="exit"
       >
         <div className="flex flex-col items-center gap-4 text-center">
           <span className="text-5xl">{total === 0 ? '✓' : correct === total ? '🎉' : '📚'}</span>
@@ -269,7 +269,7 @@ export default function ReviewSession() {
   return (
     <motion.div
       className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden"
-      variants={pageVariants} initial="hidden" animate="show"
+      variants={pageVariants} initial="hidden" animate="show" exit="exit"
     >
       <div className="absolute pointer-events-none rounded-full"
         style={{ width: 500, height: 500, right: -100, top: -50,
@@ -323,8 +323,38 @@ export default function ReviewSession() {
             transition={{ duration: 0.15 }}
             className="flex flex-col gap-5"
           >
-            <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-6">
-              <MathText className="font-jakarta text-[15px] text-[#F0F4FF] leading-relaxed">{question.question}</MathText>
+            {/* 3D flip card — front: question, back: answer on reveal */}
+            <div style={{ perspective: '1000px', minHeight: 96 }}>
+              <motion.div
+                animate={{ rotateY: revealed ? 180 : 0 }}
+                transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                style={{ transformStyle: 'preserve-3d', position: 'relative', minHeight: 96 }}
+              >
+                {/* Front */}
+                <div
+                  className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-6 absolute inset-0"
+                  style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                >
+                  <MathText className="font-jakarta text-[15px] text-[#F0F4FF] leading-relaxed">{question.question}</MathText>
+                </div>
+                {/* Back */}
+                <div
+                  className="rounded-2xl p-6 absolute inset-0 flex flex-col gap-2"
+                  style={{
+                    backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
+                    transform: 'rotateY(180deg)',
+                    background: isCorrect ? '#0D2A1A' : '#1A0A10',
+                    border: `1px solid ${isCorrect ? '#10B981' : '#EF4444'}`,
+                  }}
+                >
+                  <span className="font-jakarta text-[13px] font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
+                    {isCorrect ? '✓ Chính xác!' : '✗ Chưa đúng'}
+                  </span>
+                  <MathText className="font-jakarta text-[14px] text-[#F0F4FF] leading-relaxed">
+                    {String.fromCharCode(65 + question.correct)}. {question.choices[question.correct]}
+                  </MathText>
+                </div>
+              </motion.div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

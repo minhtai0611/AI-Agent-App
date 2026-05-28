@@ -6,16 +6,23 @@ import { useHistory } from '../context/HistoryContext.jsx'
 import { loadExams, loadThiThuExams, loadQuestionsByIds, loadExamById } from '../api/index.js'
 import { ocrExam } from '../api/aiClient.js'
 import { motion, AnimatePresence } from 'framer-motion'
+import { pageVariants } from '../utils/animations.js'
+import AmbientGlows from '../components/AmbientGlows.jsx'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { buildBriefing } from '../utils/examBriefing.js'
 
 const listVariants = {
   hidden: {},
-  show: {},
+  show:   { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
 }
 const cardVariants = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { duration: 0.2, ease: 'easeOut' } },
+  hidden: { opacity: 0, y: 12 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+}
+const hoverProps = {
+  whileHover: { scale: 1.015, y: -2 },
+  whileTap:   { scale: 0.98 },
+  transition: { type: 'spring', stiffness: 400, damping: 25 },
 }
 
 const GROUPS = {
@@ -206,7 +213,9 @@ export default function ExamSelect({ onOpenAuth }) {
   function confirmStart(exam) { closePreview(); handleStart(exam) }
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden">
+    <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
+      className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden">
+      <AmbientGlows className="fixed inset-0 z-0 pointer-events-none" />
       {/* Nav */}
       <nav className="flex items-center justify-between px-10 py-4 bg-[#0D1521] border-b border-[#1E2D45]">
         <button onClick={() => navigate('/')} className="font-jakarta text-sm text-[#64748B] hover:text-[#94A3B8] transition">
@@ -548,6 +557,7 @@ export default function ExamSelect({ onOpenAuth }) {
                         <motion.div
                           key={exam.id}
                           variants={cardVariants}
+                          {...hoverProps}
                           className="bg-[#0D1521] rounded-xl px-6 py-5 flex flex-col gap-3"
                           style={{ borderLeft: `3px solid ${group.accent}99` }}
                         >
@@ -667,6 +677,6 @@ export default function ExamSelect({ onOpenAuth }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   )
 }

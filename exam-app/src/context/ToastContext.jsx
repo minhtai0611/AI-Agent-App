@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const ToastContext = createContext(null)
 
@@ -39,28 +40,32 @@ const TYPE_STYLES = {
 }
 
 function ToastContainer({ toasts, dismiss }) {
-  if (!toasts.length) return null
   return (
     <div className="fixed bottom-6 right-4 z-[100] flex flex-col gap-2 pointer-events-none">
-      {toasts.map(t => {
-        const s = TYPE_STYLES[t.type] ?? TYPE_STYLES.info
-        return (
-          <div
-            key={t.id}
-            onClick={() => dismiss(t.id)}
-            className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg cursor-pointer"
-            style={{
-              background: s.bg, borderColor: s.border,
-              animation: 'toast-in 0.25s ease-out',
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              maxWidth: 320, minWidth: 200,
-            }}
-          >
-            <span className="text-[14px] flex-shrink-0" style={{ color: s.color }}>{s.icon}</span>
-            <span className="font-jakarta text-[13px] text-[#F0F4FF] leading-snug">{t.msg}</span>
-          </div>
-        )
-      })}
+      <AnimatePresence>
+        {toasts.map(t => {
+          const s = TYPE_STYLES[t.type] ?? TYPE_STYLES.info
+          return (
+            <motion.div
+              key={t.id}
+              initial={{ opacity: 0, y: 40, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.18 } }}
+              transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+              onClick={() => dismiss(t.id)}
+              className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg cursor-pointer"
+              style={{
+                background: s.bg, borderColor: s.border,
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                maxWidth: 320, minWidth: 200,
+              }}
+            >
+              <span className="text-[14px] flex-shrink-0" style={{ color: s.color }}>{s.icon}</span>
+              <span className="font-jakarta text-[13px] text-[#F0F4FF] leading-snug">{t.msg}</span>
+            </motion.div>
+          )
+        })}
+      </AnimatePresence>
     </div>
   )
 }

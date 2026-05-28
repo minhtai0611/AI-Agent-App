@@ -15,7 +15,17 @@ export default function ZenithLogo({ variant = 'nav', onClick }) {
       <svg width={24 * scale} height={14 * scale} viewBox="0 0 24 14" fill="none">
         <path d={ARC_PATH} stroke="#F2A20C" strokeWidth={isHero ? 1.2 : 1.5} strokeLinecap="round" />
       </svg>
-      <span className={`font-jakarta font-bold tracking-[0.2em] uppercase text-amber-400 ${isHero ? 'text-xl' : 'text-[13px]'}`}>
+      <span
+        className={`font-jakarta font-bold tracking-[0.2em] uppercase ${isHero ? 'text-xl zenith-shimmer' : 'text-[13px] text-amber-400'}`}
+        style={isHero ? {
+          background: 'linear-gradient(90deg, #F2A20C, #FBBF24, #F59E0B, #F2A20C)',
+          backgroundSize: '200% auto',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          animation: 'zenith-shimmer 3s linear infinite',
+        } : {}}
+      >
         Zenith
       </span>
       {isHero && (

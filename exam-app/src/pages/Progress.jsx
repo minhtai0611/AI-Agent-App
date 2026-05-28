@@ -221,7 +221,7 @@ export default function Progress() {
   return (
     <motion.div
       className="min-h-screen bg-[#0A0E1A] pb-16"
-      variants={pageVariants} initial="hidden" animate="show"
+      variants={pageVariants} initial="hidden" animate="show" exit="exit"
     >
       {/* Header */}
       <div className="sticky top-12 z-10 bg-[#0A0E1A]/95 backdrop-blur border-b border-[#1E2A44] px-4 py-3 flex items-center justify-between">
@@ -353,7 +353,23 @@ export default function Progress() {
                     <span className="font-jakarta text-[13px] text-[#475569]">Đang tải bản đồ học tập…</span>
                   </div>
                 ) : concepts.length > 0 ? (
-                  <div className="flex flex-col gap-6">
+                  <div className="flex flex-col gap-6 relative">
+                    {/* Constellation rotation decoration */}
+                    <motion.svg
+                      width="220" height="220"
+                      viewBox="0 0 220 220"
+                      className="absolute -right-4 -top-4 pointer-events-none opacity-[0.06]"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 720, repeat: Infinity, ease: 'linear' }}
+                      aria-hidden="true"
+                    >
+                      {[[110,30],[180,70],[190,140],[140,195],[60,185],[20,120],[40,55]].map(([x,y],i,pts) => (
+                        <g key={i}>
+                          <line x1={x} y1={y} x2={pts[(i+1)%pts.length][0]} y2={pts[(i+1)%pts.length][1]} stroke="#818CF8" strokeWidth="1"/>
+                          <circle cx={x} cy={y} r="3" fill="#818CF8"/>
+                        </g>
+                      ))}
+                    </motion.svg>
                     <div className="flex gap-2 flex-wrap">
                       {STAGE_COLORS.map((s, i) => (
                         <div key={i} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border" style={{ background: s.bg, borderColor: s.border }}>

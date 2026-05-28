@@ -1,10 +1,20 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ZenithLogo from './ZenithLogo'
+
+function vNavigate(navigate, path) {
+  if (document.startViewTransition) {
+    document.startViewTransition(() => navigate(path))
+  } else {
+    navigate(path)
+  }
+}
+
 export default function Navbar({ onOpenAuth }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const go = useCallback((path) => { vNavigate(navigate, path); setMenuOpen(false) }, [navigate])
   const [avatarError, setAvatarError] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [pendingSync, setPendingSync] = useState(
@@ -27,12 +37,7 @@ export default function Navbar({ onOpenAuth }) {
 
   function handleLogout() {
     logout()
-    navigate('/')
-    setMenuOpen(false)
-  }
-
-  function go(path) {
-    navigate(path)
+    go('/')
     setMenuOpen(false)
   }
 
@@ -50,7 +55,7 @@ export default function Navbar({ onOpenAuth }) {
           background: 'transparent',
         }}
       >
-        <ZenithLogo variant="nav" onClick={() => navigate('/')} />
+        <ZenithLogo variant="nav" onClick={() => go('/')} />
 
         {/* Desktop nav items */}
         <div className="hidden sm:flex items-center gap-3">
@@ -63,7 +68,7 @@ export default function Navbar({ onOpenAuth }) {
               )}
               {user.credits_balance != null && (
                 <button
-                  onClick={() => navigate('/account')}
+                  onClick={() => go('/account')}
                   className="flex items-center gap-1 px-2.5 py-2 rounded-full border border-[#1E2A44] bg-[#111827]/80 hover:border-amber-500/50 transition"
                   title="Tia"
                 >
@@ -80,18 +85,18 @@ export default function Navbar({ onOpenAuth }) {
                   referrerPolicy="no-referrer"
                   onError={() => setAvatarError(true)}
                   className="w-7 h-7 rounded-full object-cover cursor-pointer"
-                  onClick={() => navigate('/account')}
+                  onClick={() => go('/account')}
                 />
               ) : (
                 <div
                   className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center text-xs font-bold text-black cursor-pointer"
-                  onClick={() => navigate('/account')}
+                  onClick={() => go('/account')}
                 >
                   {initials(user.custom_display_name || user.display_name)}
                 </div>
               )}
               <button
-                onClick={() => navigate('/account')}
+                onClick={() => go('/account')}
                 className="flex items-center gap-1.5 hover:opacity-80 transition"
               >
                 <span className="text-gray-300 text-sm">
@@ -125,7 +130,7 @@ export default function Navbar({ onOpenAuth }) {
         <div className="flex sm:hidden items-center gap-2">
           {user?.credits_balance != null && (
             <button
-              onClick={() => navigate('/account')}
+              onClick={() => go('/account')}
               className="flex items-center gap-1 px-2.5 py-2 rounded-full border border-[#1E2A44] bg-[#111827]/80"
             >
               <span className="text-amber-400 text-[11px]">⚡</span>

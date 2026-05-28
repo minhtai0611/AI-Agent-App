@@ -7,6 +7,7 @@ import { usePageTitle } from '../hooks/usePageTitle.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { MathText } from '../components/MathText.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
+import { pageVariants } from '../utils/animations.js'
 
 const DIAGNOSTIC_TOPICS = ['algebra', 'geometry', 'statistics', 'combinatorics', 'trigonometry', 'functions']
 const QUESTIONS_PER_TOPIC = 2
@@ -225,7 +226,8 @@ export default function DiagnosticTest() {
   const overallPct = totalQ ? Math.round((totalCorrect / totalQ) * 100) : 0
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex flex-col items-center px-4 pt-16 pb-16">
+    <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
+      className="min-h-screen bg-[#0A0E1A] flex flex-col items-center px-4 pt-16 pb-16">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
         className="w-full max-w-xl flex flex-col gap-6">
         <div className="text-center">
@@ -269,6 +271,6 @@ export default function DiagnosticTest() {
           </button>
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   )
 }

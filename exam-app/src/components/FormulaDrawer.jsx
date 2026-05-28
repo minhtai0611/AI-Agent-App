@@ -64,8 +64,14 @@ export function FormulaDrawer() {
             />
             <motion.div
               className="fixed bottom-0 left-0 right-0 z-50 bg-[#0D1221] border-t border-[#1E2A44] rounded-t-2xl px-4 pt-4 pb-8 max-h-[60vh] flex flex-col gap-3"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+              drag="y"
+              dragConstraints={{ top: 0 }}
+              dragElastic={{ top: 0.05, bottom: 0.2 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 80) setOpen(false)
+              }}
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">Bảng công thức</span>

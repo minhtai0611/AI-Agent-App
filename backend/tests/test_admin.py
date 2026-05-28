@@ -10,6 +10,8 @@ def client():
     os.environ["ANTHROPIC_AUTH_TOKEN"] = "test-token"
     os.environ["JWT_SECRET"] = "x" * 32
     os.environ["ADMIN_KEY"] = "test-admin-key-static"
+    # Override to empty so HMAC path is inactive; env var takes priority over .env file
+    os.environ["ADMIN_MASTER_SECRET"] = ""
     from app.config import get_settings
     get_settings.cache_clear()
     from app.main import app

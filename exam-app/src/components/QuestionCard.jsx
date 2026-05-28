@@ -176,12 +176,15 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
           const s = choiceStyle(i, chosen, showFeedback ? correctIndex : null, showFeedback)
           const isChosen = i === chosen
           return (
-            <button
+            <motion.button
               key={i}
               className="w-full text-left flex items-center gap-3.5 px-[18px] py-3.5 rounded-xl transition-all"
               style={{ background: s.bg, border: `${s.bw} solid ${s.border}` }}
               onClick={() => !showFeedback && !submitted && onAnswer(i)}
               disabled={showFeedback || submitted}
+              whileHover={!showFeedback && !submitted ? { scale: 1.01 } : {}}
+              whileTap={!showFeedback && !submitted ? { scale: 0.98 } : {}}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             >
               <span
                 className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-md font-fraunces text-[13px] font-bold"
@@ -192,7 +195,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
               <MathText className="font-jakarta text-[15px] font-medium" style={{ color: s.text }}>
                 {choice}
               </MathText>
-            </button>
+            </motion.button>
           )
         })}
       </div>

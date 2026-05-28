@@ -46,7 +46,7 @@ export default function History() {
   return (
     <motion.div
       className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden"
-      variants={pageVariants} initial="hidden" animate="show"
+      variants={pageVariants} initial="hidden" animate="show" exit="exit"
     >
       {/* Ambient glows */}
       <div className="absolute pointer-events-none rounded-full"

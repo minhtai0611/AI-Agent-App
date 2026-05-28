@@ -1,6 +1,9 @@
-import { useEffect, useState, useRef, useMemo } from 'react'
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
+import CountUp from 'react-countup'
+import confetti from 'canvas-confetti'
 import { useAuth } from '../context/AuthContext.jsx'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { pageVariants } from '../utils/animations.js'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
@@ -30,11 +33,114 @@ import provincePatterns from '../data/province_patterns.json'
 import scoreCorrelation from '../data/score_correlation.json'
 const DIFF_RANK = { hard: 3, medium: 2, easy: 1 }
 
-function extractInsightsFromStream(raw) {
-  const m = raw.match(/"insights"\s*:\s*"((?:[^"\\]|\\.)*)"?/)
-  if (!m) return ''
-  try { return JSON.parse('"' + m[1] + '"') } catch { return m[1] }
+const _listVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
 }
+const _itemVariants = {
+  hidden:  { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.28, ease: 'easeOut' } },
+}
+
+function parseSchoolsFromText(text) {
+  if (!text) return []
+  const parts = text.split(/(?=\(\d+\))/).filter(Boolean)
+  if (parts.length <= 1) return []
+  return parts.map((raw, i) => {
+    const clean = raw.replace(/^\(\d+\)\s*/, '').trim()
+    const dashIdx = clean.indexOf('—')
+    const name = dashIdx > -1 ? clean.slice(0, dashIdx).trim() : clean
+    const note = dashIdx > -1 ? clean.slice(dashIdx + 1).trim() : ''
+    return { name, note, score_range: '', type: '', region_note: '' }
+  })
+}
+
+function parseScoreRange(rangeStr) {
+  if (!rangeStr) return null
+  const nums = rangeStr.match(/[\d.]+/g)
+  if (!nums || nums.length < 2) return null
+  return { min: parseFloat(nums[0]), max: parseFloat(nums[1]) }
+}
+
+function SchoolCard({ school, studentScore }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: '0px 0px -20px 0px' })
+  const range = parseScoreRange(school.score_range)
+  // Match ratio: how far the student's score falls within [min-2, max] window (clamped 0–1)
+  const matchRatio = range
+    ? Math.min(1, Math.max(0, (studentScore - (range.min - 2)) / (range.max - range.min + 2)))
+    : null
+
+  return (
+    <motion.div
+      ref={ref}
+      variants={_itemVariants}
+      className="rounded-xl border border-[#1E2A44] bg-[#0A1020] p-4 flex flex-col gap-2"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <h4
+          className="font-jakarta font-semibold text-[14px] text-[#F0F4FF] leading-snug"
+          style={{ overflowWrap: 'break-word', hyphens: 'none' }}
+        >
+          {school.name}
+        </h4>
+        {school.type && (
+          <span className="shrink-0 text-[11px] px-2 py-0.5 rounded-full bg-blue-900/40 text-blue-300 border border-blue-700/40">
+            {school.type}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-[#475569]">
+        {school.score_range && <span>🎯 {school.score_range}</span>}
+        {school.region_note && <span>📍 {school.region_note}</span>}
+      </div>
+      {matchRatio !== null && (
+        <div className="h-1 rounded-full bg-[#1E2A44] overflow-hidden">
+          <motion.div
+            className="h-full rounded-full bg-blue-500 origin-left"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: inView ? matchRatio : 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+          />
+        </div>
+      )}
+      {school.note && (
+        <p className="font-jakarta text-[13px] text-[#64748B] leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
+          {school.note}
+        </p>
+      )}
+    </motion.div>
+  )
+}
+
+function SchoolList({ schools, studentScore }) {
+  if (!schools || schools.length === 0) return null
+  if (schools.length > 3) {
+    return (
+      <div
+        className="flex gap-3 overflow-x-auto pb-2"
+        style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
+      >
+        {schools.map((s, i) => (
+          <div key={i} className="flex-shrink-0 w-72" style={{ scrollSnapAlign: 'start' }}>
+            <SchoolCard school={s} studentScore={studentScore} />
+          </div>
+        ))}
+      </div>
+    )
+  }
+  return (
+    <motion.div
+      variants={_listVariants}
+      initial="hidden"
+      animate="visible"
+      className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+    >
+      {schools.map((s, i) => <SchoolCard key={i} school={s} studentScore={studentScore} />)}
+    </motion.div>
+  )
+}
+
 
 // Sigmoid probability: 50% at cutoff, ~88% at +0.5, ~12% at -0.5
 function schoolFitProbability(score, cutoff) {
@@ -46,6 +152,32 @@ function latestCutoff(school) {
   return years.length ? school.cutoffs[years[0]]?.math ?? null : null
 }
 const CIRC = 2 * Math.PI * 54
+
+function HelixDecor({ color }) {
+  const pts = 40
+  const w = 60, h = 40
+  const path1 = Array.from({ length: pts }, (_, i) => {
+    const x = (i / (pts - 1)) * w
+    const y = h / 2 + Math.sin((i / pts) * Math.PI * 2) * (h / 2 - 2)
+    return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`
+  }).join(' ')
+  const path2 = Array.from({ length: pts }, (_, i) => {
+    const x = (i / (pts - 1)) * w
+    const y = h / 2 - Math.sin((i / pts) * Math.PI * 2) * (h / 2 - 2)
+    return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`
+  }).join(' ')
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="opacity-30">
+      <style>{`
+        @keyframes helix-scroll { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -60; } }
+      `}</style>
+      <path d={path1} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round"
+        style={{ strokeDasharray: 6, animation: 'helix-scroll 2s linear infinite' }} />
+      <path d={path2} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" opacity="0.6"
+        style={{ strokeDasharray: 6, animationDelay: '-1s', animation: 'helix-scroll 2s linear infinite' }} />
+    </svg>
+  )
+}
 
 function pctColor(acc) {
   if (acc >= 0.7) return '#10B981'
@@ -188,8 +320,10 @@ export default function Results({ onOpenAuth }) {
   const [streakRecovered, setStreakRecovered] = useState(false)
   const [studyPlanError, setStudyPlanError] = useState(null)
   const [studyPlanLoading, setStudyPlanLoading] = useState(false)
+  const confettiFiredRef = useRef(false)
+  const scoreRef = useRef(null)
+  const scoreInView = useInView(scoreRef, { once: true, margin: '0px 0px -40px 0px' })
   const toast = useToast()
-  const _rawStreamRef = useRef('')
   const challengerData = location.state?.challengerScore != null ? {
     score: location.state.challengerScore,
     name: location.state.challengerName || 'Đối thủ',
@@ -326,67 +460,32 @@ export default function Results({ onOpenAuth }) {
       )
       payload.learner_archetype = archetype?.id ?? null
       if (cancelled) return
-      _rawStreamRef.current = ''
-      let _streamBuf = ''
-      let _rafId = null
-      analyzeResultStream(payload, (token) => {
+      const _prevTitle = document.title
+      document.title = '⏳ Đang phân tích...'
+      analyzeResultStream(payload, (updates) => {
+        // Called via RAF with accumulated field values as they stream in
         if (cancelled) return
-        _streamBuf += token
-        if (!_rafId) {
-          _rafId = requestAnimationFrame(() => {
-            _rafId = null
-            if (cancelled) return
-            _rawStreamRef.current += _streamBuf
-            _streamBuf = ''
-            const extracted = extractInsightsFromStream(_rawStreamRef.current)
-            setAnalysis(prev => ({
-              ...(prev || {}),
-              insights: extracted || prev?.insights || '',
-              _streaming: true,
-            }))
-          })
-        }
-      }, abortCtrl.signal).then(({ data: rawText, error, status: streamStatus }) => {
+        setAnalysis(prev => ({ ...(prev || {}), ...updates, _streaming: true }))
+      }, abortCtrl.signal).then(({ data: analysisObj, error, status: streamStatus }) => {
         if (cancelled) return
+        document.title = _prevTitle
         setAiLoading(false)
         // If the stream HTTP succeeded (200), backend already charged 3 credits.
-        // Never call aiAnalyzeResult as fallback in that case — it would double-charge.
+        // Never call aiAnalyzeResult as fallback — it would double-charge.
         const streamHttpOk = streamStatus === 200
-        if (rawText) {
-          try {
-            // Strip possible code fence from streamed JSON
-            let clean = rawText.trim()
-            if (clean.startsWith('```')) { const p = clean.split('```'); clean = p[1] || clean; if (clean.startsWith('json')) clean = clean.slice(4) }
-            const parsed = JSON.parse(clean.trim())
-            const aiAnalysis = { ...parsed, _source: 'ai', _streaming_done: true }
-            safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
-            setAnalysis(aiAnalysis)
-            refreshUser()
-          } catch {
-            // JSON parse failed but stream was HTTP 200 — credits already charged, show retry
-            setAiError(true)
-            if (!streamHttpOk) {
-              refundCredits(3)
-              if (!cancelled) {
-                aiAnalyzeResult(payload).then(({ data }) => {
-                  if (cancelled || !data) return
-                  const aiAnalysis = { ...data, _source: 'ai' }
-                  safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
-                  setAnalysis(aiAnalysis)
-                  setAiError(null)
-                  refreshUser()
-                })
-              }
-            }
-          }
+        if (analysisObj && Object.keys(analysisObj).length > 0) {
+          const aiAnalysis = { ...analysisObj, _source: 'ai', _streaming_done: true }
+          safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
+          setAnalysis(aiAnalysis)
+          refreshUser()
         } else {
-          const failed = !!error || rawText === ''
-          if (streamStatus === 402 || err?.response?.status === 402) {
+          const failed = !!error
+          if (streamStatus === 402) {
             setAiError('Không đủ Tia để phân tích. Nạp thêm Tia trong trang Tài khoản.')
           } else {
             setAiError(failed ? true : null)
           }
-          // Only fall back to non-streaming if the stream itself never connected (not HTTP 200)
+          // Only fall back to non-streaming if stream never connected (not HTTP 200)
           if (failed && !streamHttpOk && streamStatus !== 402 && !cancelled) {
             refundCredits(3)
             aiAnalyzeResult(payload).then(({ data, status: fbStatus }) => {
@@ -585,7 +684,8 @@ export default function Results({ onOpenAuth }) {
   ]
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden">
+    <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
+      className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden">
       {showShareCard && (
         <ResultShareCard
           result={result}
@@ -653,22 +753,41 @@ export default function Results({ onOpenAuth }) {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
           className="flex items-center gap-8 bg-[#0D1221] border border-[#1E2A44] rounded-2xl px-8 py-8"
         >
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0" ref={scoreRef}>
             <svg width="120" height="120" viewBox="0 0 120 120">
               <circle cx="60" cy="60" r="54" stroke="#1E2A44" strokeWidth="6" fill="none" />
-              <circle
+              <motion.circle
                 cx="60" cy="60" r="54" stroke={color} strokeWidth="6" fill="none"
                 strokeLinecap="round" strokeDasharray={CIRC}
-                strokeDashoffset={CIRC * (1 - score / 10)}
+                initial={{ strokeDashoffset: CIRC }}
+                animate={{ strokeDashoffset: scoreInView ? CIRC * (1 - score / 10) : CIRC }}
+                transition={{ duration: 1.5, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                 transform="rotate(-90 60 60)"
+                onAnimationComplete={() => {
+                  if (score >= 8 && !confettiFiredRef.current) {
+                    confettiFiredRef.current = true
+                    confetti({
+                      particleCount: 200, spread: 70,
+                      origin: { x: 0.5, y: 0.3 },
+                      colors: ['#22c55e', '#3b82f6', '#f59e0b', '#a855f7'],
+                      ticks: 300, scalar: 1.2,
+                    })
+                  }
+                }}
               />
-              <text x="60" y="66" textAnchor="middle" fontFamily="Fraunces, Georgia, serif" fontSize="26" fontWeight="700" fill={color}>
-                {score.toFixed(1)}
-              </text>
+              <foreignObject x="20" y="38" width="80" height="40">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                  style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 26, fontWeight: 700, color, textAlign: 'center', lineHeight: '40px' }}>
+                  <CountUp end={scoreInView ? score : 0} decimals={1} duration={1.5} delay={0.3} />
+                </div>
+              </foreignObject>
             </svg>
           </div>
           <div className="flex flex-col gap-3 flex-1">
-            <span className="font-fraunces text-[26px] font-bold text-[#F8FAFC] leading-tight">{scoreLabel(score)}</span>
+            <div className="flex items-center gap-3">
+              <span className="font-fraunces text-[26px] font-bold text-[#F8FAFC] leading-tight">{scoreLabel(score)}</span>
+              <HelixDecor color={color} />
+            </div>
             <span className="font-jakarta text-[13px] text-[#475569]">{examObj?.title ?? examId}</span>
             <div className="flex items-center gap-6 flex-wrap">
               <div className="flex flex-col gap-0.5">
@@ -803,7 +922,11 @@ export default function Results({ onOpenAuth }) {
                   style={{ borderColor: '#818CF8', borderTopColor: 'transparent' }} />
               )}
               {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F2A20C]" />
+                <motion.div
+                  layoutId="results-tab-indicator"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F2A20C]"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
               )}
             </button>
           ))}
@@ -815,19 +938,23 @@ export default function Results({ onOpenAuth }) {
             {/* Hồ sơ năng lực */}
             <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-6">
               <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Hồ sơ năng lực</span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <motion.div
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                variants={_listVariants} initial="hidden" animate="visible"
+              >
                 {topics.map(([topic, tb]) => {
                   const verdict = topicVerdict(tb.accuracy)
                   return (
-                    <div key={topic} className="flex flex-col gap-2 px-4 py-3 rounded-xl"
+                    <motion.div key={topic} variants={_itemVariants}
+                      className="flex flex-col gap-2 px-4 py-3 rounded-xl"
                       style={{ background: verdict.bg, border: `1px solid ${verdict.border}` }}>
                       <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">{TOPIC_LABELS[topic] ?? topic}</span>
                       <span className="font-jakarta text-[12px] text-[#64748B]">{tb.correct}/{tb.total} · {Math.round(tb.accuracy * 100)}%</span>
                       <span className="font-jakarta text-[11px] font-bold" style={{ color: verdict.color }}>{verdict.text}</span>
-                    </div>
+                    </motion.div>
                   )
                 })}
-              </div>
+              </motion.div>
             </div>
 
             {/* AI Insights */}
@@ -839,6 +966,17 @@ export default function Results({ onOpenAuth }) {
                   : <span className="font-jakarta text-[11px] text-amber-400/70">⚡3 Tia</span>
                 }
               </div>
+              {/* Streaming progress bar */}
+              {analysis?._streaming && !analysis?._streaming_done && (
+                <div className="h-0.5 w-full rounded-full bg-[#1E2A44] overflow-hidden -mb-2">
+                  <motion.div
+                    className="h-full rounded-full bg-blue-500/60"
+                    initial={{ width: '5%' }}
+                    animate={{ width: '85%' }}
+                    transition={{ duration: 12, ease: 'easeOut' }}
+                  />
+                </div>
+              )}
               <AIErrorBoundary>
                 <AIInsights analysis={analysis} loading={aiLoading && !analysis?._streaming} error={aiError} score={score} />
               </AIErrorBoundary>
@@ -1087,7 +1225,12 @@ export default function Results({ onOpenAuth }) {
                   <p className="font-jakarta text-[13px] text-[#475569]">Đang phân tích...</p>
                 )}
                 {analysis?.school_insight ? (
-                  <MarkdownProse>{analysis.school_insight}</MarkdownProse>
+                  <>
+                    <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
+                      {analysis.school_insight}
+                    </p>
+                    <SchoolList schools={analysis.schools?.length ? analysis.schools : parseSchoolsFromText(analysis.school_insight)} studentScore={score} />
+                  </>
                 ) : !aiLoading && (
                   <div className="flex flex-col gap-3">
                     {!user?.grade ? (
@@ -1157,9 +1300,12 @@ export default function Results({ onOpenAuth }) {
 
             {/* AI school insight — only shown for grade ≤9 as supplementary */}
             {!isCollegeUser && analysis?.school_insight && (
-              <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-3">
+              <div className="bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
                 <span className="font-jakarta text-[12px] font-bold text-amber-400/70 uppercase tracking-wider">Gợi ý từ AI</span>
-                <MarkdownProse>{analysis.school_insight}</MarkdownProse>
+                <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
+                  {analysis.school_insight}
+                </p>
+                <SchoolList schools={analysis.schools?.length ? analysis.schools : parseSchoolsFromText(analysis.school_insight)} studentScore={score} />
               </div>
             )}
           </motion.div>
@@ -1177,7 +1323,7 @@ export default function Results({ onOpenAuth }) {
               {studyPlanError && (
                 <p className="font-jakarta text-[13px] text-[#FB7185] px-1">{studyPlanError}</p>
               )}
-              <button
+              <motion.button
                 onClick={() => {
                   if ((user?.credits_balance ?? 0) < 5) {
                     setStudyPlanError('Không đủ Tia. Cần ít nhất 5 Tia để tạo kế hoạch.')
@@ -1185,14 +1331,17 @@ export default function Results({ onOpenAuth }) {
                   }
                   navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })
                 }}
-                className={`w-full py-3.5 rounded-xl font-jakarta text-[14px] font-bold transition flex items-center justify-center gap-2 ${
+                className={`ripple-btn w-full py-3.5 rounded-xl font-jakarta text-[14px] font-bold transition flex items-center justify-center gap-2 ${
                   planReady ? 'text-[#0A0E1A] hover:opacity-90' : 'text-[#475569] border border-[#1E2A44]'
                 }`}
                 style={planReady ? { background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' } : {}}
+                whileHover={planReady ? { scale: 1.02 } : {}}
+                whileTap={planReady ? { scale: 0.98 } : {}}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               >
                 {!planReady && !studyPlanError && <span className="w-3.5 h-3.5 rounded-full border border-[#2A3A50] border-t-[#F2A20C] animate-spin" />}
                 {planReady ? 'Xem kế hoạch học tập ⚡5' : studyPlanError ? 'Không đủ Tia' : 'Đang chuẩn bị…'}
-              </button>
+              </motion.button>
             </div>
             <button onClick={() => { dispatch({ type: 'RESET' }); navigate('/exams') }}
               className="w-full py-3 rounded-xl font-jakarta text-[13px] font-medium text-[#475569] hover:text-[#94A3B8] transition">
@@ -1236,6 +1385,6 @@ export default function Results({ onOpenAuth }) {
         )}
 
       </div>
-    </div>
+    </motion.div>
   )
 }

@@ -1,7 +1,56 @@
 import { useNavigate } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { ResultsInsightsSkeleton } from './Skeleton.jsx'
 import MarkdownProse from './MarkdownProse.jsx'
+
+// Renders streaming plain text with a CSS fade-in on each newly arrived chunk.
+// key={prevLen} on the new-text span forces a fresh DOM node each chunk, retriggering the animation.
+function StreamingText({ text, className = '' }) {
+  const prevLenRef = useRef(0)
+  const prevLen = prevLenRef.current
+  useEffect(() => { prevLenRef.current = text.length })
+  const oldText = text.slice(0, prevLen)
+  const newText = text.slice(prevLen)
+  return (
+    <span className={className}>
+      {oldText}
+      {newText && <span key={prevLen} className="word-fade">{newText}</span>}
+    </span>
+  )
+}
+
+function FieldSkeleton({ rows = 2 }) {
+  return (
+    <div className="flex flex-col gap-2">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="h-3.5 rounded bg-[#1E2A44] animate-pulse" style={{ width: i === rows - 1 ? '60%' : '100%' }} />
+      ))}
+    </div>
+  )
+}
+
+function FieldOrSkeleton({ label, value, rows = 2 }) {
+  return (
+    <div className="flex flex-col gap-2">
+      {label && <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">{label}</span>}
+      <AnimatePresence mode="wait">
+        {value ? (
+          <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+            {typeof value === 'string'
+              ? <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{value}</p>
+              : value}
+          </motion.div>
+        ) : (
+          <motion.div key="skel" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+            <FieldSkeleton rows={rows} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
 
 function TipList({ label, items }) {
   if (!items || items.length === 0) return null
@@ -22,8 +71,8 @@ function TipList({ label, items }) {
   )
 }
 
-function SchoolSection({ schoolInsight, score }) {
-  if (!schoolInsight) return null
+function SchoolSection({ schoolInsight, schools, score }) {
+  if (!schoolInsight && (!schools || schools.length === 0)) return null
   return (
     <div className="flex flex-col gap-3 pt-2 border-t border-[#1E2A44]">
       <div className="flex items-center justify-between">
@@ -34,7 +83,11 @@ function SchoolSection({ schoolInsight, score }) {
           </span>
         )}
       </div>
-      <MarkdownProse>{schoolInsight}</MarkdownProse>
+      {schoolInsight && (
+        <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
+          {schoolInsight}
+        </p>
+      )}
     </div>
   )
 }
@@ -86,16 +139,49 @@ function AIErrorMessage({ error }) {
 
 export default function AIInsights({ analysis, loading, error, score }) {
   if (loading && !analysis?._streaming) return <ResultsInsightsSkeleton />
-  // Streaming in-progress — show partial text
+
+  // Streaming in-progress — field-level skeleton → crossfade to content
   if (analysis?._streaming && !analysis?._streaming_done && !error) {
     return (
-      <div className="flex flex-col gap-3">
-        <span className="font-jakarta text-[13px] text-[#475569]">Đang phân tích...</span>
-        {analysis.insights && (
-          <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">
-            {analysis.insights}
-          </p>
-        )}
+      <div className="flex flex-col gap-5">
+        {/* insights — word-level fade + static stream cursor */}
+        <FieldOrSkeleton value={
+          analysis.insights
+            ? <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">
+                <StreamingText text={analysis.insights} />
+                <span className="stream-cursor opacity-70 ml-0.5">|</span>
+              </p>
+            : null
+        } rows={3} />
+        {/* question_analysis — word-level fade */}
+        <FieldOrSkeleton label="Phân tích câu trả lời" value={
+          analysis.question_analysis
+            ? <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">
+                <StreamingText text={analysis.question_analysis} />
+              </p>
+            : null
+        } rows={2} />
+        {/* weak_topics */}
+        <FieldOrSkeleton label="Chủ đề cần cải thiện" value={
+          analysis.weak_topics?.length
+            ? <div className="flex flex-wrap gap-2">{analysis.weak_topics.map(t => (
+                <span key={t} className="px-3 py-1.5 bg-[#2A0F14] border border-[#5A1A24] rounded-full font-jakarta text-[12px] text-[#FB7185]">
+                  {TOPIC_LABELS[t] ?? t}
+                </span>))}</div>
+            : null
+        } rows={1} />
+        {/* recommendations — word-level fade on last item (actively streaming) */}
+        <FieldOrSkeleton label="Khuyến nghị từ AI" value={
+          analysis.recommendations?.length
+            ? <div className="flex flex-col gap-2">{analysis.recommendations.map((r, i, arr) => (
+                <p key={i} className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">
+                  {'• '}
+                  {i === arr.length - 1
+                    ? <StreamingText text={r} />
+                    : r}
+                </p>))}</div>
+            : null
+        } rows={2} />
       </div>
     )
   }

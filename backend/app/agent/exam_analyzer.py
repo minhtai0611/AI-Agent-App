@@ -362,10 +362,23 @@ def build_analyze_prompt(
     school_json_field = ""
     if school_recommendations:
         if grade and grade.isdigit() and int(grade) <= 9:
-            school_insight_hint = "Nhận xét ngắn 1-2 câu về trường THPT phù hợp để thi vào lớp 10 với điểm số này"
+            school_insight_hint = "Nhận xét ngắn 1-2 câu tổng quan về trường THPT phù hợp để thi vào lớp 10"
+            school_type_example = "THPT"
         else:
-            school_insight_hint = "Nhận xét ngắn 1-2 câu về trường đại học/cao đẳng phù hợp với điểm số này"
-        school_json_field = f',\n  "school_insight": "{school_insight_hint}"'
+            school_insight_hint = "Nhận xét ngắn 1-2 câu tổng quan về trường đại học/cao đẳng phù hợp"
+            school_type_example = "Đại học"
+        school_json_field = (
+            f',\n  "school_insight": "{school_insight_hint}",'
+            f'\n  "schools": ['
+            f'\n    {{'
+            f'\n      "name": "Tên trường đầy đủ",'
+            f'\n      "score_range": "Ngưỡng điểm chuẩn Toán (vd: 7.5–8.5 điểm)",'
+            f'\n      "type": "{school_type_example}",'
+            f'\n      "region_note": "Tỉnh/thành của trường — quan hệ với tỉnh học sinh (cùng tỉnh/tỉnh lân cận/...)",'
+            f'\n      "note": "1 câu nhận xét tại sao phù hợp với điểm số này"'
+            f'\n    }}'
+            f'\n  ]  // Liệt kê 3-5 trường phù hợp nhất theo thứ tự ưu tiên'
+        )
 
     prompt = "\n".join(dynamic_parts) + f"""
 

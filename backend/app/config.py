@@ -38,6 +38,12 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     jwt_secret: str = ""
     admin_key: str = ""
+    admin_master_secret: str = ""
+    admin_key_rotation_period: str = "weekly"
+    admin_key_log_path: str = "./admin_keys.txt"
+    admin_key_log_enabled: bool = True
+    admin_key_webhook_url: str = ""
+    cron_secret: str = ""
     sqlite_path: str = "/data/app.db"
     payment_bank_name: str = ""
     payment_account_number: str = ""
@@ -49,6 +55,10 @@ class Settings(BaseSettings):
             raise RuntimeError("JWT_SECRET must be set in environment variables")
         if len(self.jwt_secret) < 32:
             raise RuntimeError("JWT_SECRET must be at least 32 characters")
+        if self.admin_master_secret and len(self.admin_master_secret) < 32:
+            raise RuntimeError("ADMIN_MASTER_SECRET must be at least 32 characters if set")
+        if self.cron_secret and len(self.cron_secret) < 32:
+            raise RuntimeError("CRON_SECRET must be at least 32 characters if set")
     embedding_dim: int = 1024
 
     @property

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { pageVariants } from '../utils/animations.js'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useExam, useExamDispatch, useHints, useFlags } from '../context/ExamContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -14,6 +15,7 @@ import { analyzeResult as aiAnalyzeResult } from '../api/aiClient.js'
 import { safeSetItem } from '../utils/storageManager.js'
 
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
+import StarfieldCanvas from '../components/StarfieldCanvas.jsx'
 const DIFF_LABELS = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
 const KB_HINT_KEY = 'kb_hint_seen'
 
@@ -31,6 +33,8 @@ export default function TestInterface() {
   const [fullscreen, setFullscreen] = useState(false)
   const [showKbHint, setShowKbHint] = useState(() => !sessionStorage.getItem(KB_HINT_KEY))
   const [tabSwitchCount, setTabSwitchCount] = useState(0)
+  const [diffAura, setDiffAura] = useState(false)
+  const prevDiffRef = useRef(null)
   const [showTabWarning, setShowTabWarning] = useState(false)
   const [devToolsOpen, setDevToolsOpen] = useState(false)
   const canvasRef = useRef(null)
@@ -157,6 +161,17 @@ export default function TestInterface() {
   const { questions, answers, mode, timeLeft, exam } = session
   const question = questions[currentIndex]
 
+  // Adaptive difficulty aura — pulse when difficulty level changes between questions
+  useEffect(() => {
+    const diff = question?.difficulty ?? null
+    if (prevDiffRef.current !== null && prevDiffRef.current !== diff) {
+      setDiffAura(true)
+      const t = setTimeout(() => setDiffAura(false), 700)
+      return () => clearTimeout(t)
+    }
+    prevDiffRef.current = diff
+  }, [question?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleAnswerCallback = useCallback((choiceIndex) => {
     if (!question) return
     dispatch({ type: 'ANSWER_QUESTION', questionId: question.id, choiceIndex })
@@ -268,7 +283,10 @@ export default function TestInterface() {
   const canProceed = isPractice ? chosen !== null : true
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden">
+    <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
+      className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden">
+      {/* Starfield */}
+      <StarfieldCanvas />
       {/* Background glows */}
       <div className="absolute pointer-events-none rounded-full"
         style={{ width: 600, height: 600, right: -100, top: 100,
@@ -299,13 +317,27 @@ export default function TestInterface() {
         </span>
         <div className="flex items-center gap-3">
           {mode === 'timed' && timeLeft !== null && (
-            <motion.div
-              animate={timerPulsing ? { boxShadow: ['0 0 0 0 #F2A20C40', '0 0 0 8px #F2A20C00'] } : {}}
-              transition={timerPulsing ? { duration: 1.2, repeat: Infinity } : {}}
-              className="rounded-lg"
-            >
-              <Timer timeLeft={timeLeft} totalTime={(session.exam?.duration ?? 0) * 60} />
-            </motion.div>
+            <div className="relative">
+              {/* Breathing ring behind timer */}
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  inset: -12,
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)',
+                  animation: 'breathe 4s ease-in-out infinite',
+                  pointerEvents: 'none',
+                }}
+              />
+              <motion.div
+                animate={timerPulsing ? { boxShadow: ['0 0 0 0 #F2A20C40', '0 0 0 8px #F2A20C00'] } : {}}
+                transition={timerPulsing ? { duration: 1.2, repeat: Infinity } : {}}
+                className="rounded-lg relative z-10"
+              >
+                <Timer timeLeft={timeLeft} totalTime={(session.exam?.duration ?? 0) * 60} />
+              </motion.div>
+            </div>
           )}
           {/* Focus mode toggle */}
           <button
@@ -370,9 +402,20 @@ export default function TestInterface() {
               {TOPIC_LABELS[question.topic] ?? question.topic}
             </span>
           )}
-          <span className="px-2.5 py-1 bg-[#1B2540] border border-[#2A3A60] text-[#64748B] font-jakarta text-[11px] font-medium rounded-md">
-            {DIFF_LABELS[question?.difficulty] ?? 'Trung bình'}
-          </span>
+          <div className="relative">
+            {diffAura && (
+              <motion.div
+                className="absolute inset-0 rounded-md pointer-events-none"
+                initial={{ opacity: 0.8, scale: 1 }}
+                animate={{ opacity: 0, scale: 2.2 }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
+                style={{ background: 'radial-gradient(circle, #818CF866 0%, transparent 70%)' }}
+              />
+            )}
+            <span className="px-2.5 py-1 bg-[#1B2540] border border-[#2A3A60] text-[#64748B] font-jakarta text-[11px] font-medium rounded-md block">
+              {DIFF_LABELS[question?.difficulty] ?? 'Trung bình'}
+            </span>
+          </div>
           <button
             onClick={() => toggleFlag(question.id)}
             title={isFlagged ? 'Bỏ đánh dấu' : 'Đánh dấu câu này'}
@@ -598,6 +641,6 @@ export default function TestInterface() {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   )
 }

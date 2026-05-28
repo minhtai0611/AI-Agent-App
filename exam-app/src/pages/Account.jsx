@@ -147,7 +147,9 @@ function aggregateTopicAccuracy(results) {
 function StatChip({ icon, value, label }) {
   return (
     <div className="flex flex-col items-center gap-0.5 px-4">
-      <span className="font-fraunces text-[17px] font-bold text-[#F2A20C]">{icon} {value}</span>
+      <span className="font-fraunces text-[17px] font-bold text-[#F2A20C]">
+        <span className={icon === '🔥' ? 'streak-fire' : undefined}>{icon}</span> {value}
+      </span>
       <span className="font-jakarta text-[11px] text-[#64748B]">{label}</span>
     </div>
   )
@@ -597,7 +599,7 @@ export default function Account() {
   return (
     <motion.div
       className="min-h-screen bg-[#0A0E1A] flex flex-col"
-      variants={pageVariants} initial="hidden" animate="show"
+      variants={pageVariants} initial="hidden" animate="show" exit="exit"
     >
       {/* ── Persistent header ──────────────────────────────────────────── */}
       <div className="bg-[#0D1521] border-b border-[#1E2A44]">
@@ -663,21 +665,35 @@ export default function Account() {
         </div>
 
         {/* Stat chips */}
-        <div className="max-w-2xl mx-auto px-4 pb-4 flex items-center justify-around border-t border-[#1E2A44] pt-3">
-          <StatChip icon="🔥" value={streak || 0} label={streakPB > streak ? `ngày (PB ${streakPB})` : 'ngày streak'} />
+        <motion.div
+          className="max-w-2xl mx-auto px-4 pb-4 flex items-center justify-around border-t border-[#1E2A44] pt-3"
+          initial="hidden" animate="show"
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } } }}
+        >
+          <motion.div variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}>
+            <StatChip icon="🔥" value={streak || 0} label={streakPB > streak ? `ngày (PB ${streakPB})` : 'ngày streak'} />
+          </motion.div>
           <div className="w-px h-8 bg-[#1E2A44]" />
-          <StatChip icon="📊" value={results.length} label="bài thi" />
+          <motion.div variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}>
+            <StatChip icon="📊" value={results.length} label="bài thi" />
+          </motion.div>
           <div className="w-px h-8 bg-[#1E2A44]" />
-          <StatChip icon="⭐" value={avgScore} label="điểm tb" />
+          <motion.div variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}>
+            <StatChip icon="⭐" value={avgScore} label="điểm tb" />
+          </motion.div>
           <div className="w-px h-8 bg-[#1E2A44]" />
-          <StatChip icon="⚡" value={formatCreditSessions(user.credits_balance ?? 0)} label="AI còn lại" />
+          <motion.div variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}>
+            <StatChip icon="⚡" value={formatCreditSessions(user.credits_balance ?? 0)} label="AI còn lại" />
+          </motion.div>
           {(user.solid_concept_count ?? 0) > 0 && (
             <>
               <div className="w-px h-8 bg-[#1E2A44]" />
-              <StatChip icon="🧠" value={user.solid_concept_count} label="khái niệm" />
+              <motion.div variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}>
+                <StatChip icon="🧠" value={user.solid_concept_count} label="khái niệm" />
+              </motion.div>
             </>
           )}
-        </div>
+        </motion.div>
 
         {/* Tab bar + settings gear icon */}
         <div className="max-w-2xl mx-auto px-4 pb-0 hidden lg:flex items-end gap-0">
@@ -777,7 +793,7 @@ export default function Account() {
             {streakRecovery?.canRecover && (
               <div className="rounded-xl px-4 py-3 flex items-center gap-3"
                 style={{ background: '#1A1205', border: '1px solid #F2A20C44' }}>
-                <span className="text-lg">🔥</span>
+                <span className="streak-fire text-lg">🔥</span>
                 <p className="text-sm" style={{ color: '#F2A20C' }}>
                   {streakRecovery.reason}
                 </p>
@@ -1049,7 +1065,7 @@ export default function Account() {
                       setUsernameInput('')
                     }
                   }}
-                  className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold disabled:opacity-40 transition"
+                  className="ripple-btn px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold disabled:opacity-40 transition"
                   style={{ background: '#F2A20C', color: '#0A0E1A' }}>
                   {usernameLoading ? '...' : 'Lưu'}
                 </button>
@@ -1277,27 +1293,49 @@ export default function Account() {
             {/* Badges grid */}
             <section className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-7 flex flex-col gap-4">
               <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Huy hiệu</span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <motion.div
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                initial="hidden"
+                animate="visible"
+                variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } } }}
+              >
                 {BADGE_DEFS.map(b => {
                   const earned = earnedBadgeIds.has(b.id)
                   return (
-                    <div
+                    <motion.div
                       key={b.id}
-                      className={`flex items-start gap-3 px-4 py-3 rounded-xl border transition ${
+                      variants={{
+                        hidden:   { opacity: 0, scale: 0.85 },
+                        visible:  { opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 20 } },
+                      }}
+                      className={`relative flex items-start gap-3 px-4 py-3 rounded-xl border transition ${
                         earned ? 'border-amber-400/40 bg-amber-400/5' : 'border-[#1E2A44] bg-[#111827] opacity-50 grayscale'
                       }`}
                     >
-                      <span className="text-[24px] flex-shrink-0">{b.icon}</span>
+                      {earned && (
+                        <motion.div
+                          className="absolute inset-0 rounded-xl pointer-events-none"
+                          animate={{ boxShadow: ['0 0 0 0 rgba(251,191,36,0)', '0 0 12px 2px rgba(251,191,36,0.18)', '0 0 0 0 rgba(251,191,36,0)'] }}
+                          transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                        />
+                      )}
+                      <motion.span
+                        className="text-[24px] flex-shrink-0"
+                        animate={earned ? { scale: [1, 1.12, 1] } : {}}
+                        transition={earned ? { duration: 2, repeat: Infinity, ease: 'easeInOut', delay: Math.random() * 1.5 } : {}}
+                      >
+                        {b.icon}
+                      </motion.span>
                       <div className="flex flex-col gap-0.5 min-w-0">
                         <span className="font-jakarta text-[12px] font-semibold text-[#F0F4FF]">{b.label}</span>
                         <span className="font-jakarta text-[11px] text-[#64748B]">
                           {earned ? b.desc : badgeProgress(b.id)}
                         </span>
                       </div>
-                    </div>
+                    </motion.div>
                   )
                 })}
-              </div>
+              </motion.div>
             </section>
 
             {/* Progress share card */}
@@ -1639,7 +1677,7 @@ export default function Account() {
                       setTrialDone(true); refundCredits(500); await refreshUser()
                     }
                   }}
-                  className="self-start px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold transition"
+                  className="ripple-btn self-start px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold transition"
                   style={{ background: trialActivating ? '#1E2A44' : '#10B981', color: trialActivating ? '#475569' : '#0A0E1A' }}
                 >
                   {trialActivating ? 'Đang kích hoạt...' : 'Kích hoạt dùng thử'}

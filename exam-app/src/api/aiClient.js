@@ -92,21 +92,31 @@ export function analyzeResult(payload) {
   return wrapOptimistic(3, () => client.post('/analyze', withAIPrefs(payload)))
 }
 
-// Streams the AI analysis as SSE tokens.
-// onToken(str) called for each chunk; returns a Promise<{data, error}> that
-// resolves when the stream ends (data = full accumulated text).
-export async function analyzeResultStream(payload, onToken, signal) {
+// Streams AI analysis as NDJSON field-by-field.
+// onUpdate({ field: accumulatedValue, ... }) is called (via RAF) as content arrives.
+// Returns { data: analysisObj, error, status } when the stream ends.
+export async function analyzeResultStream(payload, onUpdate, signal) {
   if (!navigator.onLine) return { data: null, error: 'Bạn đang ngoại tuyến — kết nối mạng để dùng tính năng AI', status: 0 }
   const token = localStorage.getItem('auth_token')
   if (!token) return { data: null, error: 'not authenticated', status: 401 }
   _deductRef?.(3)
+
+  const fieldData = {}   // accumulated field text (raw)
+  const pending = {}     // batched updates waiting for next RAF
+  let rafId = null
+
+  const flush = () => {
+    rafId = null
+    if (Object.keys(pending).length === 0) return
+    const snap = { ...pending }
+    Object.keys(pending).forEach(k => delete pending[k])
+    onUpdate?.(snap)
+  }
+
   try {
     const res = await fetch(`${BASE}/analyze/stream`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify(withAIPrefs(payload)),
       signal,
     })
@@ -115,30 +125,56 @@ export async function analyzeResultStream(payload, onToken, signal) {
       if (res.status === 402) _refundRef?.(3)
       return { data: null, error: detail?.detail ?? `HTTP ${res.status}`, status: res.status }
     }
+
     const reader = res.body.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ''
-    let full = ''
+    const decoder = new TextDecoder('utf-8')  // handles Vietnamese 3-byte sequences across chunks
+    let lineBuffer = ''
+
     while (true) {
       if (signal?.aborted) { reader.cancel(); return { data: null, error: 'aborted', status: 0 } }
       const { value, done } = await reader.read()
       if (done) break
-      buffer += decoder.decode(value, { stream: true })
-      const lines = buffer.split('\n')
-      buffer = lines.pop() ?? ''
+      lineBuffer += decoder.decode(value, { stream: true })
+      const lines = lineBuffer.split('\n')
+      lineBuffer = lines.pop() ?? ''
+
       for (const line of lines) {
-        if (!line.startsWith('data: ')) continue
-        const raw = line.slice(6)
-        if (raw === '[DONE]') return { data: full, error: null, status: 200 }
+        if (!line.trim()) continue
         try {
-          const chunk = JSON.parse(raw)
-          if (typeof chunk === 'string') { full += chunk; onToken?.(chunk) }
-          else if (chunk?.error) return { data: null, error: chunk.error, status: 502 }
-        } catch { /* ignore malformed chunk */ }
+          const event = JSON.parse(line)
+          if (event.error) return { data: null, error: event.error, status: 502 }
+          const { field, chunk, done: isDone } = event
+          if (!field) continue
+
+          if (isDone) {
+            // Field complete — try to JSON-decode string escape sequences
+            const raw = fieldData[field] ?? ''
+            let final = raw
+            try { final = JSON.parse('"' + raw + '"') } catch { /* keep raw */ }
+            fieldData[field] = final
+          } else if (chunk) {
+            fieldData[field] = (fieldData[field] ?? '') + chunk
+            pending[field] = fieldData[field]
+            if (!rafId) rafId = requestAnimationFrame(flush)
+          }
+        } catch { /* ignore malformed line */ }
       }
     }
-    return { data: full, error: null, status: 200 }
+
+    // Flush any remaining buffered updates
+    if (rafId) cancelAnimationFrame(rafId)
+    flush()
+
+    // Parse array fields from JSON strings
+    for (const f of ['weak_topics', 'recommendations', 'schools']) {
+      if (typeof fieldData[f] === 'string') {
+        try { fieldData[f] = JSON.parse(fieldData[f]) } catch { /* leave as string */ }
+      }
+    }
+
+    return { data: fieldData, error: null, status: 200 }
   } catch (err) {
+    if (rafId) cancelAnimationFrame(rafId)
     if (err.name === 'AbortError') return { data: null, error: 'aborted', status: 0 }
     return { data: null, error: err?.message ?? 'Stream error', status: 0 }
   }

@@ -1,5 +1,5 @@
 import { useState, lazy, Suspense, useCallback } from 'react'
-import { MotionConfig } from 'framer-motion'
+import { MotionConfig, AnimatePresence } from 'framer-motion'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { ExamProvider } from './context/ExamContext.jsx'
 import { HistoryProvider } from './context/HistoryContext.jsx'
@@ -152,7 +152,8 @@ function AppInner() {
           <LowCreditBanner balance={user.credits_balance} />
         )}
         <Suspense fallback={<PageFallback />}>
-          <Routes>
+          <AnimatePresence mode="wait" initial={false}>
+          <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Landing onOpenAuth={() => setAuthOpen(true)} />} />
             <Route path="/exams" element={<ExamSelect onOpenAuth={() => setAuthOpen(true)} />} />
             <Route path="/test/:examId" element={<TestInterface />} />
@@ -177,6 +178,7 @@ function AppInner() {
             <Route path="/placement" element={<Placement />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          </AnimatePresence>
         </Suspense>
       </div>
       {resumeBanner && !resumeDismissed && (resumeBanner.userId ?? null) === (user?.id ?? null) && (

@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { pageVariants } from '../utils/animations.js'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext.jsx'
@@ -218,7 +220,8 @@ export default function DailyChallenge() {
   })()
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] pb-16">
+    <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
+      className="min-h-screen bg-[#0A0E1A] pb-16">
       <div className="max-w-xl mx-auto px-4 pt-20">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -304,6 +307,6 @@ export default function DailyChallenge() {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }

@@ -16,6 +16,7 @@ from app.dependencies import get_ai_client, get_current_user, CurrentUser
 from app.middleware import RateLimitMiddleware
 from app.math_wiki.admin_router import router as admin_router
 from app.auth import verify_google_token, create_jwt
+from app.admin_auth import validate_admin_key, get_window_label, derive_key, get_expiry_date
 
 logger = logging.getLogger(__name__)
 
@@ -1116,6 +1117,67 @@ async def analyze(
         raise HTTPException(status_code=502, detail="AI response parse error")
 
 
+def _ndjson_find_field(buf: str, field: str, ftype: str):
+    """Return (content: str | None, is_complete: bool).
+    For string fields: content is the raw JSON-escaped string body (without surrounding quotes).
+    For array fields: content is the complete [...] JSON array string.
+    """
+    import re as _re
+    m = _re.search(r'"' + _re.escape(field) + r'"\s*:\s*', buf)
+    if not m or m.end() >= len(buf):
+        return None, False
+    open_char = '"' if ftype == "string" else '['
+    if buf[m.end()] != open_char:
+        return None, False
+    content_start = m.end() + 1  # skip opening char
+    i = content_start
+    esc = False
+    if ftype == "string":
+        while i < len(buf):
+            c = buf[i]
+            if esc:
+                esc = False
+            elif c == '\\':
+                esc = True
+            elif c == '"':
+                return buf[content_start:i], True
+            i += 1
+        return buf[content_start:], False
+    else:  # array — return complete [...] including brackets
+        array_start = m.end()
+        depth = 0
+        in_str = False
+        while i > array_start:
+            i = array_start
+        while i < len(buf):
+            c = buf[i]
+            if esc:
+                esc = False
+            elif c == '\\' and in_str:
+                esc = True
+            elif c == '"':
+                in_str = not in_str
+            elif not in_str:
+                if c == '[':
+                    depth += 1
+                elif c == ']':
+                    depth -= 1
+                    if depth == 0:
+                        return buf[array_start:i + 1], True
+            i += 1
+        return buf[array_start:], False
+
+
+_NDJSON_FIELDS = [
+    ("insights",          "string"),
+    ("question_analysis", "string"),
+    ("weak_topics",       "array"),
+    ("recommendations",   "array"),
+    ("school_insight",    "string"),
+    ("schools",           "array"),
+]
+
+
 @app.post("/analyze/stream")
 async def analyze_stream(
     req: ExamAnalyzeRequest,
@@ -1123,8 +1185,9 @@ async def analyze_stream(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
-    """Stream the AI analysis as SSE text/event-stream.
-    Each event is `data: <token>\\n\\n`; the final event is `data: [DONE]\\n\\n`.
+    """Stream AI analysis as NDJSON — one JSON line per field chunk.
+    Each line: {"field": "insights", "chunk": "text", "done": false}
+    Final line per field: {"field": "insights", "chunk": "", "done": true}
     Credits are deducted upfront before the stream starts.
     """
     from fastapi.responses import StreamingResponse
@@ -1143,8 +1206,10 @@ async def analyze_stream(
         prompt += f"\nLearner type: {req.learner_archetype}"
     settings = get_settings()
 
-    async def event_stream():
-        buf = ''
+    async def ndjson_stream():
+        accumulated = ''
+        cursors: dict[str, int] = {}
+        done_fields: set[str] = set()
         try:
             stream = await client.chat.completions.create(
                 model=settings.default_model,
@@ -1156,20 +1221,35 @@ async def analyze_stream(
                 stream=True,
             )
             async for chunk in stream:
-                token = chunk.choices[0].delta.content if chunk.choices else None
-                if token:
-                    buf += token
-                    if len(buf) >= 15:
-                        yield f"data: {json.dumps(buf)}\n\n"
-                        buf = ''
-            if buf:
-                yield f"data: {json.dumps(buf)}\n\n"
+                token = (chunk.choices[0].delta.content if chunk.choices else None) or ''
+                if not token:
+                    continue
+                accumulated += token
+                for fname, ftype in _NDJSON_FIELDS:
+                    if fname in done_fields:
+                        continue
+                    content, is_complete = _ndjson_find_field(accumulated, fname, ftype)
+                    if content is None:
+                        continue
+                    # Arrays only emit when complete to avoid partial JSON
+                    if ftype == "array" and not is_complete:
+                        continue
+                    prev = cursors.get(fname, 0)
+                    if len(content) > prev:
+                        delta = content[prev:]
+                        cursors[fname] = len(content)
+                        yield json.dumps({"field": fname, "chunk": delta, "done": False}, ensure_ascii=False) + "\n"
+                    if is_complete:
+                        done_fields.add(fname)
+                        yield json.dumps({"field": fname, "chunk": "", "done": True}, ensure_ascii=False) + "\n"
         except Exception as exc:
-            yield f"data: {json.dumps({'error': str(exc)})}\n\n"
+            yield json.dumps({"error": str(exc)}) + "\n"
         finally:
-            yield "data: [DONE]\n\n"
+            for fname, _ in _NDJSON_FIELDS:
+                if fname in cursors and fname not in done_fields:
+                    yield json.dumps({"field": fname, "chunk": "", "done": True}) + "\n"
 
-    return StreamingResponse(event_stream(), media_type="text/event-stream",
+    return StreamingResponse(ndjson_stream(), media_type="application/x-ndjson",
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
@@ -4217,9 +4297,63 @@ async def adaptive_practice(
 def _require_admin(request: Request):
     settings = get_settings()
     key = request.headers.get("x-admin-key", "")
-    if not settings.admin_key or key != settings.admin_key:
-        request.state.admin_key_failed = True
-        raise HTTPException(status_code=401, detail="Invalid or missing admin key")
+    # Use HMAC-derived rotating key if admin_master_secret is set; fall back to static admin_key
+    if settings.admin_master_secret:
+        if not validate_admin_key(key, settings.admin_master_secret, settings.admin_key_rotation_period):
+            request.state.admin_key_failed = True
+            raise HTTPException(status_code=401, detail="Invalid or missing admin key")
+    else:
+        if not settings.admin_key or key != settings.admin_key:
+            request.state.admin_key_failed = True
+            raise HTTPException(status_code=401, detail="Invalid or missing admin key")
+
+
+@app.post("/admin/generate-key-log", status_code=200)
+async def generate_key_log(request: Request):
+    import datetime as _dt
+    import hmac as _hmac
+    settings = get_settings()
+    cron_secret = settings.cron_secret or ""
+    provided = request.headers.get("x-cron-secret", "")
+    if not cron_secret or not _hmac.compare_digest(provided.encode(), cron_secret.encode()):
+        raise HTTPException(status_code=401, detail="Invalid or missing cron secret")
+    if not settings.admin_master_secret or not settings.admin_key_log_enabled:
+        return {"status": "disabled"}
+
+    period = settings.admin_key_rotation_period
+    current_label = get_window_label(period, offset=0)
+    next_label    = get_window_label(period, offset=-1)
+    current_key   = derive_key(settings.admin_master_secret, current_label)
+    next_key      = derive_key(settings.admin_master_secret, next_label)
+    expiry        = get_expiry_date(period)
+
+    ict = _dt.timezone(_dt.timedelta(hours=7))
+    ts  = _dt.datetime.now(ict).strftime("%Y-%m-%d %H:%M:%S")
+    log_line = (
+        f"{ts} | window={current_label} | key={current_key} | expires={expiry} "
+        f"| next_window={next_label} | next_key={next_key}\n"
+    )
+
+    log_path = Path(settings.admin_key_log_path)
+    try:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(log_path, "a") as f:
+            f.write(log_line)
+    except OSError as e:
+        logger.error("Failed to write admin key log: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to write key log")
+
+    if settings.admin_key_webhook_url:
+        try:
+            import urllib.request as _urlreq
+            payload = json.dumps({"window": current_label, "key": current_key, "expires": expiry}).encode()
+            req = _urlreq.Request(settings.admin_key_webhook_url, data=payload,
+                                  headers={"Content-Type": "application/json"}, method="POST")
+            _urlreq.urlopen(req, timeout=5)
+        except Exception as e:
+            logger.warning("Admin key webhook failed: %s", e)
+
+    return {"status": "ok", "window": current_label, "expires": expiry}
 
 
 class SubscriptionUpdate(BaseModel):

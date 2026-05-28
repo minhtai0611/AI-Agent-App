@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { pageVariants } from '../utils/animations.js'
 import { useNavigate } from 'react-router-dom'
 import { useHistory } from '../context/HistoryContext'
 import { useAuth } from '../context/AuthContext'
@@ -128,7 +130,15 @@ function MistakeRow({ question, userAnswer, examTitle }) {
         </span>
       </button>
 
+      <AnimatePresence>
       {expanded && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+          style={{ overflow: 'hidden' }}
+        >
         <div className="px-5 pb-4 flex flex-col gap-3 border-t border-[#1E2A44] pt-3">
           {explLoading && (
             <div className="flex items-center gap-2 text-[#475569] font-jakarta text-[12px]">
@@ -176,7 +186,9 @@ function MistakeRow({ question, userAnswer, examTitle }) {
             </button>
           </div>
         </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -295,7 +307,8 @@ export default function Mistakes() {
   }, [results, questionMap])
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] pb-16">
+    <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
+      className="min-h-screen bg-[#0A0E1A] pb-16">
       <div className="max-w-2xl mx-auto px-4 pt-20">
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
@@ -478,6 +491,6 @@ export default function Mistakes() {
           )
         })}
       </div>
-    </div>
+    </motion.div>
   )
 }
