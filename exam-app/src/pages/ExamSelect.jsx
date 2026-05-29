@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useExamDispatch } from '../context/ExamContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
-import { loadExams, loadThiThuExams, loadQuestionsByIds, loadExamById } from '../api/index.js'
+import { loadExams, loadThiThuExams, loadQuestionsByIds, loadExamById, getAccessibleExamIds } from '../api/index.js'
 import { ocrExam } from '../api/aiClient.js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
@@ -109,6 +109,19 @@ export default function ExamSelect({ onOpenAuth }) {
       for (const qId of Object.keys(r.answers ?? {})) seen.add(qId)
     }
     return seen.size
+  }, [results])
+
+  const { accessible: accessibleExamIds, prerequisites: examPrerequisites } = useMemo(
+    () => getAccessibleExamIds(results, allExams),
+    [results, allExams]
+  )
+
+  const bestScores = useMemo(() => {
+    const map = {}
+    for (const r of results) {
+      if (map[r.examId] === undefined || r.score > map[r.examId]) map[r.examId] = r.score
+    }
+    return map
   }, [results])
 
   const availableYears = [...new Set(allExams.map(e => e.year).filter(Boolean))].sort((a, b) => b - a)
@@ -553,34 +566,98 @@ export default function ExamSelect({ onOpenAuth }) {
                   const hiddenCount = groupExams.length - SHOW_FIRST
                   return (
                     <div className="flex flex-col gap-3">
-                      {visibleExams.map(exam => (
-                        <motion.div
-                          key={exam.id}
-                          variants={cardVariants}
-                          {...hoverProps}
-                          className="bg-[#0D1521] rounded-xl px-6 py-5 flex flex-col gap-3"
-                          style={{ borderLeft: `3px solid ${group.accent}99` }}
-                        >
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex flex-col gap-1.5">
-                              <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{exam.title}</span>
-                              <span className="font-jakarta text-[13px] text-[#64748B]">
-                                {exam.year} · {exam.totalQuestions} câu · {exam.duration} phút
-                                {exam.source && ` · ${exam.source}`}
-                              </span>
-                            </div>
-                            <button
-                              onClick={() => openPreview(exam)}
-                              className="flex-shrink-0 px-5 py-2 rounded-md font-jakarta text-[13px] font-semibold transition"
-                              style={{ background: 'transparent', border: `1px solid ${group.accent}`, color: group.accent }}
-                              onMouseEnter={e => e.currentTarget.style.background = group.accent + '1A'}
-                              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      {visibleExams.map(exam => {
+                        const isLocked = !accessibleExamIds.has(exam.id)
+                        const prereqId = examPrerequisites[exam.id]
+                        const prereqExam = prereqId ? allExams.find(e => e.id === prereqId) : null
+                        const prereqScore = prereqId != null ? (bestScores[prereqId] ?? null) : null
+                        const scoreGap = prereqScore !== null ? Math.max(0, 5.0 - prereqScore).toFixed(1) : null
+                        const encouragement = prereqScore === null
+                          ? `Hãy bắt đầu với đề ${prereqExam?.year ?? ''} trước nhé!`
+                          : prereqScore < 3
+                            ? `Ôn thêm một chút, bạn sắp mở được đề này rồi!`
+                            : `Gần rồi! Cần thêm ${scoreGap} điểm nữa.`
+
+                        if (isLocked) {
+                          return (
+                            <motion.div
+                              key={exam.id}
+                              variants={cardVariants}
+                              className="rounded-xl px-6 py-5 flex flex-col gap-3 opacity-60"
+                              style={{ background: '#0A0E1A', border: '1px solid #1E2A44' }}
                             >
-                              Bắt đầu
-                            </button>
-                          </div>
-                        </motion.div>
-                      ))}
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex flex-col gap-1.5">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[#64748B]">🔒</span>
+                                    <span className="font-jakarta text-[15px] font-semibold text-[#64748B]">{exam.title}</span>
+                                  </div>
+                                  <span className="font-jakarta text-[13px] text-[#475569]">
+                                    {exam.year} · {exam.totalQuestions} câu · {exam.duration} phút
+                                  </span>
+                                </div>
+                                {prereqExam && (
+                                  <button
+                                    onClick={() => openPreview(prereqExam)}
+                                    className="flex-shrink-0 px-4 py-2 rounded-md font-jakarta text-[12px] font-semibold transition"
+                                    style={{ background: 'transparent', border: '1px solid #2A3A5E', color: '#64748B' }}
+                                    onMouseEnter={e => { e.currentTarget.style.borderColor = group.accent; e.currentTarget.style.color = group.accent }}
+                                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#2A3A5E'; e.currentTarget.style.color = '#64748B' }}
+                                  >
+                                    Làm đề {prereqExam.year} →
+                                  </button>
+                                )}
+                              </div>
+                              <div className="flex flex-col gap-1.5 pt-1 border-t border-[#1E2A44]">
+                                <span className="font-jakarta text-[12px] text-[#475569]">
+                                  Yêu cầu: đề {prereqExam?.year ?? ''} đạt ≥ 5.0 điểm
+                                </span>
+                                {prereqScore !== null && (
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex-1 h-1.5 rounded-full bg-[#1E2A44] overflow-hidden">
+                                      <div
+                                        className="h-full rounded-full transition-all"
+                                        style={{ width: `${Math.min(100, (prereqScore / 5.0) * 100)}%`, background: prereqScore >= 5.0 ? '#10B981' : group.accent }}
+                                      />
+                                    </div>
+                                    <span className="font-mono text-[11px] text-[#64748B]">{prereqScore.toFixed(1)} / 5.0</span>
+                                  </div>
+                                )}
+                                <span className="font-jakarta text-[11px] text-[#475569] italic">{encouragement}</span>
+                              </div>
+                            </motion.div>
+                          )
+                        }
+
+                        return (
+                          <motion.div
+                            key={exam.id}
+                            variants={cardVariants}
+                            {...hoverProps}
+                            className="bg-[#0D1521] rounded-xl px-6 py-5 flex flex-col gap-3"
+                            style={{ borderLeft: `3px solid ${group.accent}99` }}
+                          >
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex flex-col gap-1.5">
+                                <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{exam.title}</span>
+                                <span className="font-jakarta text-[13px] text-[#64748B]">
+                                  {exam.year} · {exam.totalQuestions} câu · {exam.duration} phút
+                                  {exam.source && ` · ${exam.source}`}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => openPreview(exam)}
+                                className="flex-shrink-0 px-5 py-2 rounded-md font-jakarta text-[13px] font-semibold transition"
+                                style={{ background: 'transparent', border: `1px solid ${group.accent}`, color: group.accent }}
+                                onMouseEnter={e => e.currentTarget.style.background = group.accent + '1A'}
+                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                              >
+                                Bắt đầu
+                              </button>
+                            </div>
+                          </motion.div>
+                        )
+                      })}
                       {!isExpanded && hiddenCount > 0 && (
                         <button
                           onClick={() => setExpandedCategories(prev => ({ ...prev, [group.category + mode]: true }))}

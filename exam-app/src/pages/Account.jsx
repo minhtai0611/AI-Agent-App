@@ -48,8 +48,10 @@ const REASON_LABELS = {
   'study-plan':                 'Kế hoạch học tập',
   'subscription_bonus_student': 'Nâng cấp gói Học sinh',
   'subscription_bonus_complete':'Nâng cấp gói Toàn diện',
-  'admin_grant':                'Nạp Tia',
-  'trial_activation':           'Kích hoạt dùng thử',
+  'admin_grant':                   'Nạp Tia',
+  'trial_activation':              'Kích hoạt dùng thử',
+  'grade_change_request':          'Yêu cầu đổi lớp',
+  'grade_change_rejection_refund': 'Hoàn Tia (từ chối đổi lớp)',
 }
 
 const TIER_LABELS  = { basic: 'Cơ bản', student: 'Học sinh', complete: 'Toàn diện' }
@@ -241,6 +243,14 @@ export default function Account() {
   const [editProvince, setEditProvince] = useState('')
   const [saving,       setSaving]       = useState(false)
   const [saveError,    setSaveError]    = useState('')
+  // Grade change request state
+  const [gradeRequest,       setGradeRequest]       = useState(null)   // {status, current_grade, requested_grade, ...}
+  const [gradeRequestLoading, setGradeRequestLoading] = useState(false)
+  const [showGradeChangeForm, setShowGradeChangeForm] = useState(false)
+  const [gradeChangeTarget,   setGradeChangeTarget]   = useState('')
+  const [gradeChangeReason,   setGradeChangeReason]   = useState('')
+  const [gradeChangeError,    setGradeChangeError]    = useState('')
+  const [gradeChangeSubmitting, setGradeChangeSubmitting] = useState(false)
   const [avatarErr,    setAvatarErr]    = useState(false)
   const [usernameInput, setUsernameInput] = useState('')
   const [usernameError, setUsernameError] = useState('')
@@ -546,13 +556,48 @@ export default function Account() {
   async function handleSaveProfile() {
     setSaving(true); setSaveError('')
     try {
-      await updateProfile({ grade: editGrade || undefined, province: editProvince || undefined })
+      await updateProfile({ province: editProvince || undefined })
       setEditMode(false)
       toast.success('Đã lưu hồ sơ')
     } catch (err) {
       const msg = err.message || 'Lưu thất bại, vui lòng thử lại'
       setSaveError(msg); toast.error(msg)
     } finally { setSaving(false) }
+  }
+
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token')
+    if (!token || !user?.grade) return
+    const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+    fetch(`${BASE}/users/me/grade-change-request`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(data => setGradeRequest(data))
+      .catch(() => {})
+  }, [user?.grade])
+
+  async function handleSubmitGradeChange() {
+    if (!gradeChangeTarget) { setGradeChangeError('Vui lòng chọn lớp muốn đổi.'); return }
+    if (gradeChangeReason.trim().length < 30) { setGradeChangeError('Lý do cần ít nhất 30 ký tự.'); return }
+    setGradeChangeSubmitting(true); setGradeChangeError('')
+    const token = localStorage.getItem('auth_token')
+    const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+    try {
+      const res = await fetch(`${BASE}/users/me/grade-change-request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ requested_grade: gradeChangeTarget, justification: gradeChangeReason.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.detail?.code === 'grade_change_cooldown'
+        ? `Cần đợi thêm ${data.detail.days_remaining} ngày nữa.`
+        : (typeof data?.detail === 'string' ? data.detail : 'Gửi yêu cầu thất bại.'))
+      setGradeRequest({ status: 'pending', requested_grade: gradeChangeTarget, current_grade: user.grade })
+      setShowGradeChangeForm(false)
+      setGradeChangeReason('')
+      toast.success('Yêu cầu đổi lớp đã được gửi. Admin sẽ duyệt trong thời gian sớm nhất.')
+    } catch (err) {
+      setGradeChangeError(err.message || 'Gửi yêu cầu thất bại.')
+    } finally { setGradeChangeSubmitting(false) }
   }
 
   const referralUrl = `${import.meta.env.VITE_APP_URL || 'https://exam-app-ey0.pages.dev'}/?ref=${referral?.referral_code || ''}`
@@ -984,19 +1029,9 @@ export default function Account() {
                 <span className="font-fraunces text-[16px] font-semibold text-[#F8FAFC]">Thông tin học sinh</span>
               </div>
 
-              {/* Edit form */}
+              {/* Edit form (province only — grade has its own section below) */}
               {editMode ? (
                 <div className="flex flex-col gap-3">
-                  <div className="flex gap-2 flex-wrap">
-                    {['9','10','11','12'].map(g => (
-                      <button key={g} type="button" onClick={() => setEditGrade(g)}
-                        className={`px-4 py-2 rounded-lg border font-jakarta text-[12px] font-medium transition ${
-                          editGrade === g ? 'border-amber-400 text-amber-400 bg-amber-400/10' : 'border-[#1E2A44] text-[#64748B]'
-                        }`}>
-                        {GRADE_LABELS[g]}
-                      </button>
-                    ))}
-                  </div>
                   <input
                     className="px-4 py-2.5 rounded-xl border border-[#1E2A44] bg-[#111827] font-jakarta text-[13px] text-[#F0F4FF] focus:outline-none focus:border-amber-400"
                     placeholder="Tỉnh / Thành phố"
@@ -1034,6 +1069,70 @@ export default function Account() {
                   )}
                 </div>
               )}
+
+              {/* Grade change tri-state widget */}
+              {user.grade && (() => {
+                const isPending = gradeRequest?.status === 'pending'
+                const isApproved = gradeRequest?.status === 'approved'
+                return (
+                  <div className="pt-3 border-t border-[#1E2A44]">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-jakarta text-[12px] text-[#64748B]">Thay đổi lớp học</span>
+                      {isPending && <span className="font-jakarta text-[11px] px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400">Đang chờ duyệt</span>}
+                      {isApproved && <span className="font-jakarta text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">Đã duyệt</span>}
+                    </div>
+
+                    {isPending ? (
+                      <p className="font-jakarta text-[12px] text-[#64748B]">
+                        Yêu cầu đổi sang <strong className="text-amber-400">{GRADE_LABELS[gradeRequest.requested_grade]}</strong> đang chờ admin duyệt.
+                      </p>
+                    ) : showGradeChangeForm ? (
+                      <div className="flex flex-col gap-3">
+                        <div className="flex gap-2 flex-wrap">
+                          {['9','10','11','12'].filter(g => g !== user.grade).map(g => (
+                            <button key={g} type="button" onClick={() => setGradeChangeTarget(g)}
+                              className={`px-4 py-2 rounded-lg border font-jakarta text-[12px] font-medium transition ${
+                                gradeChangeTarget === g ? 'border-amber-400 text-amber-400 bg-amber-400/10' : 'border-[#1E2A44] text-[#64748B]'
+                              }`}>
+                              {GRADE_LABELS[g]}
+                            </button>
+                          ))}
+                        </div>
+                        <textarea
+                          className="px-4 py-2.5 rounded-xl border border-[#1E2A44] bg-[#111827] font-jakarta text-[13px] text-[#F0F4FF] focus:outline-none focus:border-amber-400 resize-none"
+                          placeholder="Lý do đổi lớp (ít nhất 30 ký tự)..."
+                          rows={3}
+                          value={gradeChangeReason}
+                          onChange={e => { setGradeChangeReason(e.target.value); setGradeChangeError('') }}
+                        />
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#0A0E1A] border border-[#1E2A44]">
+                          <span className="text-amber-400 text-[13px]">⚡</span>
+                          <span className="font-jakarta text-[12px] text-[#64748B]">Chi phí xét duyệt: <strong className="text-amber-400">5 Tia</strong> · Sau khi duyệt cần đợi 90 ngày để đổi tiếp.</span>
+                        </div>
+                        {gradeChangeError && <p className="font-jakarta text-[12px] text-red-400">{gradeChangeError}</p>}
+                        <div className="flex gap-2">
+                          <button onClick={handleSubmitGradeChange} disabled={gradeChangeSubmitting}
+                            className="px-5 py-2 rounded-lg font-jakarta text-[13px] font-bold transition"
+                            style={{ background: '#F2A20C', color: '#0A0E1A' }}>
+                            {gradeChangeSubmitting ? 'Đang gửi...' : 'Gửi yêu cầu →'}
+                          </button>
+                          <button onClick={() => { setShowGradeChangeForm(false); setGradeChangeError(''); setGradeChangeReason(''); setGradeChangeTarget('') }}
+                            className="px-5 py-2 rounded-lg font-jakarta text-[13px] text-[#64748B] hover:text-[#F8FAFC] transition">
+                            Huỷ
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowGradeChangeForm(true)}
+                        className="font-jakarta text-[12px] text-[#475569] hover:text-amber-400 transition underline underline-offset-2"
+                      >
+                        Yêu cầu đổi lớp
+                      </button>
+                    )}
+                  </div>
+                )
+              })()}
 
             </section>
 

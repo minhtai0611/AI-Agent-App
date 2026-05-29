@@ -404,6 +404,25 @@ _SCHEMA_DDL = [
     "CREATE INDEX IF NOT EXISTS idx_spr_partner ON study_partner_requests(partner_id, status)",
     # Streak mechanics — weekly freeze replenishment tracking
     "ALTER TABLE users ADD COLUMN streak_freeze_reset_at TEXT DEFAULT NULL",
+    # Grade transition gating — approval workflow
+    "ALTER TABLE users ADD COLUMN last_grade_approved_at TEXT DEFAULT NULL",
+    """CREATE TABLE IF NOT EXISTS grade_change_requests (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        current_grade TEXT NOT NULL,
+        requested_grade TEXT NOT NULL,
+        justification TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'pending'
+            CHECK(status IN ('pending','approved','rejected','expired')),
+        created_at TEXT DEFAULT (datetime('now')),
+        expires_at TEXT DEFAULT (datetime('now', '+30 days')),
+        resolved_at TEXT,
+        resolved_by TEXT,
+        admin_note TEXT,
+        credits_deducted INTEGER DEFAULT 5,
+        credits_refunded INTEGER DEFAULT 0
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_gcr_user_status ON grade_change_requests (user_id, status)",
 ]
 
 
@@ -1364,6 +1383,50 @@ async def tutor(
     if tier_t == "complete" and len(req.messages) >= 4:
         asyncio.ensure_future(_update_tutor_memory(pool, client, current_user.user_id, updated))
     return TutorChatResponse(reply=reply, messages=updated)
+
+
+@app.post("/tutor/stream")
+async def tutor_stream(
+    req: TutorChatRequest,
+    client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Streaming variant of /tutor — tokens arrive incrementally as SSE JSON lines."""
+    from fastapi.responses import StreamingResponse
+    await _spend_credits(pool, current_user.user_id, 1, "tutor")
+    from app.agent.exam_tutor import build_tutor_system_prompt
+    settings = get_settings()
+
+    # Build same system prompt as /tutor
+    system_prompt = build_tutor_system_prompt(req.exam_context or {}, req.student_name or "")
+
+    messages = list(req.messages or [])
+    if not messages:
+        greeting_trigger = (
+            "Em đang làm bài thi. Gia sư chào em và sẵn sàng hỗ trợ kiến thức toán nhé."
+            if req.exam_context.get("inExam") else
+            "Chào gia sư, em muốn hỏi bài toán."
+        )
+        messages = [{"role": "user", "content": greeting_trigger}]
+
+    async def event_generator():
+        try:
+            stream = await client.chat.completions.create(
+                model=settings.default_model,
+                max_tokens=600,
+                messages=[{"role": "system", "content": system_prompt}, *messages],
+                stream=True,
+            )
+            async for chunk in stream:
+                delta = chunk.choices[0].delta.content if chunk.choices else None
+                if delta:
+                    yield json.dumps({"chunk": delta}, ensure_ascii=False) + "\n"
+            yield json.dumps({"done": True}) + "\n"
+        except Exception as exc:
+            yield json.dumps({"error": str(exc)}) + "\n"
+
+    return StreamingResponse(event_generator(), media_type="application/x-ndjson")
 
 
 class GenerateExamRequest(BaseModel):
@@ -2381,6 +2444,15 @@ async def update_profile(
     if body.province is not None and len(body.province.strip()) == 0:
         raise HTTPException(status_code=422, detail="province cannot be blank")
 
+    # Block grade changes on existing accounts — only first-time setup (grade IS NULL) is allowed
+    if body.grade is not None:
+        current_grade = await pool.fetchval("SELECT grade FROM users WHERE id = ?", current_user.user_id)
+        if current_grade is not None:
+            raise HTTPException(
+                status_code=422,
+                detail="Thay đổi lớp học cần yêu cầu qua hệ thống. Vui lòng dùng tính năng 'Đổi lớp' trong trang Tài khoản."
+            )
+
     updates = {}
     if body.grade is not None:
         updates["grade"] = body.grade
@@ -2419,6 +2491,150 @@ async def update_profile(
         current_user.user_id,
     )
     return dict(row)
+
+
+class GradeChangeRequestBody(BaseModel):
+    requested_grade: str
+    justification: str
+
+class GradeChangeDecision(BaseModel):
+    approved: bool
+    admin_note: str | None = None
+
+_GRADE_CHANGE_CREDIT_COST = 5
+_GRADE_CHANGE_COOLDOWN_DAYS = 90
+_GRADE_CHANGE_REJECTION_REFUND = 3
+
+@app.post("/users/me/grade-change-request", status_code=201)
+async def submit_grade_change_request(
+    body: GradeChangeRequestBody,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    if body.requested_grade not in _VALID_GRADES:
+        raise HTTPException(status_code=422, detail=f"grade must be one of {sorted(_VALID_GRADES)}")
+    if len(body.justification.strip()) < 30:
+        raise HTTPException(status_code=422, detail="Vui lòng mô tả lý do ít nhất 30 ký tự.")
+
+    user = await pool.fetchrow(
+        "SELECT grade, credits_balance, last_grade_approved_at FROM users WHERE id = ?",
+        current_user.user_id,
+    )
+    if not user or user["grade"] is None:
+        raise HTTPException(status_code=422, detail="Vui lòng thiết lập lớp học trước khi yêu cầu thay đổi.")
+    if user["grade"] == body.requested_grade:
+        raise HTTPException(status_code=422, detail="Bạn đang ở lớp này rồi.")
+
+    if user["last_grade_approved_at"]:
+        last = datetime.fromisoformat(user["last_grade_approved_at"])
+        days_elapsed = (datetime.utcnow() - last).days
+        if days_elapsed < _GRADE_CHANGE_COOLDOWN_DAYS:
+            days_remaining = _GRADE_CHANGE_COOLDOWN_DAYS - days_elapsed
+            raise HTTPException(status_code=429, detail={
+                "code": "grade_change_cooldown",
+                "days_remaining": days_remaining,
+            })
+
+    pending_id = await pool.fetchval(
+        "SELECT id FROM grade_change_requests WHERE user_id = ? AND status = 'pending' LIMIT 1",
+        current_user.user_id,
+    )
+    if pending_id:
+        raise HTTPException(status_code=409, detail="Bạn đang có một yêu cầu đổi lớp chờ duyệt.")
+
+    await _spend_credits(pool, current_user.user_id, _GRADE_CHANGE_CREDIT_COST, "grade_change_request")
+
+    req_id = await pool.fetchval(
+        """INSERT INTO grade_change_requests
+               (user_id, current_grade, requested_grade, justification, credits_deducted)
+           VALUES (?, ?, ?, ?, ?)
+           RETURNING id""",
+        current_user.user_id,
+        user["grade"],
+        body.requested_grade,
+        body.justification.strip(),
+        _GRADE_CHANGE_CREDIT_COST,
+    )
+    return {"request_id": req_id, "status": "pending", "credits_spent": _GRADE_CHANGE_CREDIT_COST}
+
+
+@app.get("/users/me/grade-change-request")
+async def get_my_grade_change_request(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    row = await pool.fetchrow(
+        """SELECT id, current_grade, requested_grade, status, created_at, expires_at,
+                  admin_note, credits_deducted, credits_refunded
+           FROM grade_change_requests
+           WHERE user_id = ?
+           ORDER BY created_at DESC LIMIT 1""",
+        current_user.user_id,
+    )
+    return dict(row) if row else {"status": "none"}
+
+
+@app.post("/admin/users/{user_id}/grade-change", status_code=204)
+async def admin_decide_grade_change(
+    user_id: int,
+    body: GradeChangeDecision,
+    request: Request,
+    pool=Depends(get_pool),
+):
+    _require_admin(request)
+    row = await pool.fetchrow(
+        """SELECT id, requested_grade, credits_deducted
+           FROM grade_change_requests
+           WHERE user_id = ? AND status = 'pending'
+           ORDER BY created_at DESC LIMIT 1""",
+        user_id,
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="No pending grade change request for this user.")
+
+    if body.approved:
+        await pool.execute(
+            "UPDATE users SET grade = ?, last_grade_approved_at = datetime('now'), updated_at = datetime('now') WHERE id = ?",
+            row["requested_grade"], user_id,
+        )
+        await pool.execute(
+            "UPDATE grade_change_requests SET status = 'approved', resolved_at = datetime('now'), admin_note = ? WHERE id = ?",
+            body.admin_note, row["id"],
+        )
+    else:
+        await pool.execute(
+            "UPDATE users SET credits_balance = credits_balance + ? WHERE id = ?",
+            _GRADE_CHANGE_REJECTION_REFUND, user_id,
+        )
+        await pool.execute(
+            "INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, ?, ?)",
+            user_id, _GRADE_CHANGE_REJECTION_REFUND, "grade_change_rejection_refund",
+        )
+        await pool.execute(
+            """UPDATE grade_change_requests
+               SET status = 'rejected', resolved_at = datetime('now'), admin_note = ?, credits_refunded = ?
+               WHERE id = ?""",
+            body.admin_note, _GRADE_CHANGE_REJECTION_REFUND, row["id"],
+        )
+
+
+@app.get("/admin/grade-change-requests")
+async def admin_list_grade_requests(
+    request: Request,
+    pool=Depends(get_pool),
+    status: str = "pending",
+):
+    _require_admin(request)
+    rows = await pool.fetch(
+        """SELECT r.id, r.user_id, u.email, u.display_name, r.current_grade,
+                  r.requested_grade, r.justification, r.status, r.created_at, r.expires_at
+           FROM grade_change_requests r
+           JOIN users u ON u.id = r.user_id
+           WHERE r.status = ?
+           ORDER BY r.created_at ASC""",
+        status,
+    )
+    return [dict(r) for r in rows]
 
 
 class ExtendedProfileRequest(BaseModel):

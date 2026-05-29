@@ -5,13 +5,15 @@ import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 import { sendTutorMessage } from '../api/aiClient.js'
+import { useOracle } from '../context/OracleContext.jsx'
 
 const MIN_WIDTH = 280
 const MAX_WIDTH = 720
 const DEFAULT_WIDTH = 384
 const STORAGE_KEY = 'tutor-panel-width'
 
-export default function TutorChat({ open, onClose, examContext }) {
+export default function TutorChat({ open, onClose }) {
+  const { pageContext: examContext, suggestedPrompts } = useOracle()
   const [messages, setMessages] = useState([])
   const [hasText, setHasText] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -63,6 +65,17 @@ export default function TutorChat({ open, onClose, examContext }) {
     } else {
       setMessages(prev => [...prev, { role: 'assistant', content: `Lỗi: ${error}` }])
     }
+  }
+
+  async function sendChip(text) {
+    if (loading) return
+    const newMessages = [...messages, { role: 'user', content: text }]
+    setMessages(newMessages)
+    setLoading(true)
+    const { data, error } = await sendTutorMessage({ messages: newMessages, exam_context: examContext })
+    setLoading(false)
+    if (data) setMessages(data.messages)
+    else setMessages(prev => [...prev, { role: 'assistant', content: `Lỗi: ${error}` }])
   }
 
   function handleKeyDown(e) {
@@ -192,6 +205,21 @@ export default function TutorChat({ open, onClose, examContext }) {
           )}
           <div ref={bottomRef} />
         </div>
+
+        {/* Suggested prompts — show when only the greeting exists */}
+        {messages.filter(m => m.role !== 'system').length <= 1 && !loading && suggestedPrompts?.length > 0 && (
+          <div className="px-4 pb-2 flex flex-wrap gap-2">
+            {suggestedPrompts.map(p => (
+              <button
+                key={p}
+                onClick={() => sendChip(p)}
+                className="px-3 py-1.5 rounded-full border border-[#1E2A44] font-jakarta text-[12px] text-[#64748B] hover:border-amber-500 hover:text-amber-400 transition"
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Input */}
         <div className="px-4 py-3 border-t border-[#1E2A44] flex gap-2">

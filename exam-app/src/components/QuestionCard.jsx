@@ -175,10 +175,15 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
         {question.choices.map((choice, i) => {
           const s = choiceStyle(i, chosen, showFeedback ? correctIndex : null, showFeedback)
           const isChosen = i === chosen
+          const feedbackClass = showFeedback
+            ? i === correctIndex ? 'z-choice-correct'
+            : (isChosen && i !== correctIndex) ? 'z-choice-wrong'
+            : ''
+            : ''
           return (
             <motion.button
               key={i}
-              className="w-full text-left flex items-center gap-3.5 px-[18px] py-3.5 rounded-xl transition-all"
+              className={`w-full text-left flex items-center gap-3.5 px-[18px] py-3.5 rounded-xl transition-all ${feedbackClass}`}
               style={{ background: s.bg, border: `${s.bw} solid ${s.border}` }}
               onClick={() => !showFeedback && !submitted && onAnswer(i)}
               disabled={showFeedback || submitted}
@@ -208,8 +213,14 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
             background: isCorrect ? '#0A1F14' : '#1F0A0E',
           }}
         >
-          <span className="text-base leading-none mt-0.5 flex-shrink-0" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
-            {isCorrect ? '✓' : '✗'}
+          <span className="flex-shrink-0 mt-0.5">
+            {isCorrect ? (
+              <svg className="z-checkmark w-5 h-5" viewBox="0 0 20 20" fill="none">
+                <path d="M4 10l4.5 4.5L16 6" stroke="#10B981" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            ) : (
+              <span className="text-base leading-none" style={{ color: '#FB7185' }}>✗</span>
+            )}
           </span>
           <div className="flex-1 min-w-0">
             {!isCorrect && (

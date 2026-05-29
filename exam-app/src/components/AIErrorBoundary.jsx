@@ -10,6 +10,10 @@ export default class AIErrorBoundary extends Component {
     return { hasError: true }
   }
 
+  componentDidCatch(error, info) {
+    console.error('[AIErrorBoundary] caught error:', error, info)
+  }
+
   render() {
     if (this.state.hasError) {
       return (

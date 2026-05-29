@@ -16,6 +16,7 @@ import { safeSetItem } from '../utils/storageManager.js'
 
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import StarfieldCanvas from '../components/StarfieldCanvas.jsx'
+import { useOracle } from '../context/OracleContext.jsx'
 const DIFF_LABELS = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
 const KB_HINT_KEY = 'kb_hint_seen'
 
@@ -160,6 +161,22 @@ export default function TestInterface() {
   // Keyboard shortcuts
   const { questions, answers, mode, timeLeft, exam } = session
   const question = questions[currentIndex]
+
+  // Oracle context — update whenever question or exam state changes
+  const { setPageContext } = useOracle()
+  useEffect(() => {
+    setPageContext({
+      inExam: true,
+      examTitle: exam?.title ?? '',
+      examId: exam?.id ?? '',
+      mode: mode ?? 'timed',
+      currentQuestionNumber: currentIndex + 1,
+      totalQuestions: questions.length,
+      currentTopic: question?.topic ?? '',
+      timeLeftSeconds: timeLeft ?? null,
+    })
+    return () => setPageContext({})
+  }, [currentIndex, mode, timeLeft, exam?.id, question?.topic]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Adaptive difficulty aura — pulse when difficulty level changes between questions
   useEffect(() => {
@@ -353,18 +370,30 @@ export default function TestInterface() {
         </div>
       </nav>
 
-      {/* Progress bar */}
-      <div className="relative z-10 h-1 bg-[#1E2A44]">
-        <motion.div
-          className="h-full"
-          style={{ background: 'linear-gradient(90deg, #F2A20C 0%, #F59E0B 100%)' }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-        />
+      {/* Progress bar + mobile timer stripe */}
+      <div className="relative z-10">
+        <div className="h-1 bg-[#1E2A44]">
+          <motion.div
+            className="h-full"
+            style={{ background: 'linear-gradient(90deg, #F2A20C 0%, #F59E0B 100%)' }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+          />
+        </div>
+        {/* Mobile-only timer stripe (4px, color changes with urgency) */}
+        {mode === 'timed' && timeLeft !== null && (
+          <div
+            className="h-1 md:hidden transition-colors duration-500"
+            style={{
+              background: timeLeft < 60 ? '#FB7185' : timeLeft < 300 ? '#F2A20C' : '#10B981',
+              width: `${Math.max(0, (timeLeft / ((session.exam?.duration ?? 45) * 60)) * 100)}%`,
+            }}
+          />
+        )}
       </div>
 
-      {/* Main content */}
-      <div className="relative z-10 flex-1 max-w-3xl mx-auto w-full px-4 py-10 flex flex-col gap-8 exam-content">
+      {/* Main content — on mobile: scrollable area above sticky nav */}
+      <div className="relative z-10 flex-1 max-w-3xl mx-auto w-full px-4 pt-6 pb-0 md:py-10 flex flex-col gap-6 md:gap-8 exam-content overflow-y-auto md:overflow-visible">
         {/* Keyboard hint */}
         <AnimatePresence>
           {showKbHint && (
@@ -463,13 +492,13 @@ export default function TestInterface() {
           )}
         </AnimatePresence>
 
-        {/* Nav row */}
-        <div className="flex items-center justify-between">
+        {/* Nav row — sticky at bottom on mobile, inline on desktop */}
+        <div className="flex items-center justify-between sticky bottom-0 md:static z-20 bg-[#0A0E1A] md:bg-transparent py-3 md:py-0 -mx-4 md:mx-0 px-4 md:px-0 border-t border-[#1E2A44] md:border-none">
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrev}
               disabled={currentIndex === 0}
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-[#111827] border border-[#1E2A44] rounded-[10px] font-jakarta text-[13px] text-[#94A3B8] font-medium disabled:opacity-40 hover:bg-[#1E2A44] transition"
+              className="flex items-center gap-1.5 px-4 py-3 md:py-2.5 bg-[#111827] border border-[#1E2A44] rounded-[10px] font-jakarta text-[13px] text-[#94A3B8] font-medium disabled:opacity-40 hover:bg-[#1E2A44] transition"
             >
               ← Câu trước
             </button>
@@ -480,7 +509,7 @@ export default function TestInterface() {
               <button
                 onClick={handleNext}
                 disabled={isPractice && !canProceed}
-                className="flex items-center gap-1.5 px-5 py-2.5 bg-[#1E2A44] rounded-[10px] font-jakarta text-[13px] text-[#F8FAFC] font-semibold disabled:opacity-40 hover:bg-[#2A3A5E] transition"
+                className="flex items-center gap-1.5 px-5 py-3 md:py-2.5 bg-[#1E2A44] rounded-[10px] font-jakarta text-[13px] text-[#F8FAFC] font-semibold disabled:opacity-40 hover:bg-[#2A3A5E] transition"
               >
                 Tiếp theo →
               </button>
@@ -488,7 +517,7 @@ export default function TestInterface() {
             {(isLast || !isPractice) && (
               <button
                 onClick={handleSubmit}
-                className="flex items-center gap-1.5 px-5 py-2.5 rounded-[10px] font-jakarta text-[13px] text-[#0A0E1A] font-bold hover:opacity-90 transition"
+                className="flex items-center gap-1.5 px-5 py-3 md:py-2.5 rounded-[10px] font-jakarta text-[13px] text-[#0A0E1A] font-bold hover:opacity-90 transition"
                 style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
               >
                 Nộp bài

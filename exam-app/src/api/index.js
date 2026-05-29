@@ -99,7 +99,86 @@ export async function loadQuestionsByIds(ids, requireAuth = false) {
   return ids.map(id => map[id]).filter(Boolean)
 }
 
+const PASS_THRESHOLD = 5.0
+const GATED_MODES = new Set(['thithu', 'practice'])
+
+/**
+ * Returns which exam IDs are accessible based on sequential progression.
+ * Within each category, exams sorted by year ascending; first is always open.
+ * Each subsequent exam unlocks when: (a) previous year passed ≥ 5.0, OR
+ * (b) user already has any result for it (grandfather clause for existing users).
+ *
+ * @param {Array} results - user's exam history (array of {examId, score})
+ * @param {Array} allExams - exams currently in view (mode-filtered)
+ * @returns {{ accessible: Set<string>, prerequisites: Object<string,string> }}
+ */
+export function getAccessibleExamIds(results, allExams) {
+  const passedIds = new Set(results.filter(r => (r.score ?? 0) >= PASS_THRESHOLD).map(r => r.examId))
+  const submittedIds = new Set(results.map(r => r.examId))
+  const accessible = new Set()
+  const prerequisites = {}
+
+  for (const category of ['grade10', 'thpt']) {
+    const ordered = allExams
+      .filter(e => e.category === category && GATED_MODES.has(e.mode))
+      .sort((a, b) => (a.year ?? 0) - (b.year ?? 0))
+    if (ordered.length === 0) continue
+    accessible.add(ordered[0].id)
+    for (let i = 1; i < ordered.length; i++) {
+      const prev = ordered[i - 1]
+      const curr = ordered[i]
+      prerequisites[curr.id] = prev.id
+      if (passedIds.has(prev.id) || submittedIds.has(curr.id)) {
+        accessible.add(curr.id)
+      } else {
+        break
+      }
+    }
+  }
+  return { accessible, prerequisites }
+}
+
 const DIFF_RANK = { hard: 3, medium: 2, easy: 1 }
+
+// Normalize a Vietnamese province string for fuzzy matching
+function _normProvince(p = '') {
+  return p.toLowerCase()
+    .replace(/thành phố|tp\.|tỉnh\s*/gi, '')
+    .replace(/\bhcm\b|ho chi minh|hồ chí minh/gi, 'hcm')
+    .trim()
+}
+
+// Get the most recent math cutoff score from a school record
+function _latestCutoff(school) {
+  const years = Object.keys(school.cutoffs || {}).sort().reverse()
+  for (const yr of years) {
+    const c = school.cutoffs[yr]?.math
+    if (c != null) return c
+  }
+  return null
+}
+
+// Build matched school recommendations for the analyze payload
+function _matchSchools(studentScore, province) {
+  const userProv = _normProvince(province)
+  return schoolsData
+    .filter(s => {
+      const cutoff = _latestCutoff(s)
+      return cutoff !== null && Math.abs(studentScore - cutoff) <= 2.0
+    })
+    .sort((a, b) => {
+      const aMatch = userProv && _normProvince(a.province).includes(userProv) ? 0 : 1
+      const bMatch = userProv && _normProvince(b.province).includes(userProv) ? 0 : 1
+      if (aMatch !== bMatch) return aMatch - bMatch
+      return Math.abs(studentScore - _latestCutoff(a)) - Math.abs(studentScore - _latestCutoff(b))
+    })
+    .slice(0, 6)
+    .map(s => ({
+      school: { name: s.name },
+      matchStrength: studentScore >= _latestCutoff(s) ? 'Rất phù hợp' : 'Khá phù hợp',
+      cutoff: _latestCutoff(s),
+    }))
+}
 
 // Builds the payload for /analyze including wrong questions.
 export async function buildAnalyzePayload(result, history, _unused, examCategory, userProfile) {
@@ -120,11 +199,15 @@ export async function buildAnalyzePayload(result, history, _unused, examCategory
     .sort((a, b) => (DIFF_RANK[b.difficulty] || 0) - (DIFF_RANK[a.difficulty] || 0))
     .slice(0, 8)
 
+  const province = userProfile?.province || userProfile?.location || ''
+  const studentScore = result?.score ?? 0
+  const schoolRecs = _matchSchools(studentScore, province)
+
   return {
     result,
     history,
     wrong_questions: wrong,
-    school_recommendations: [],
+    school_recommendations: schoolRecs,
     exam_category: examCategory || exam?.category || "",
     user_profile: userProfile || {},
   }

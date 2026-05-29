@@ -122,6 +122,7 @@ export async function analyzeResultStream(payload, onUpdate, signal) {
     })
     if (!res.ok) {
       const detail = await res.json().catch(() => ({}))
+      console.error('[analyzeResultStream] HTTP error:', res.status, detail)
       if (res.status === 402) _refundRef?.(3)
       return { data: null, error: detail?.detail ?? `HTTP ${res.status}`, status: res.status }
     }
@@ -176,6 +177,7 @@ export async function analyzeResultStream(payload, onUpdate, signal) {
   } catch (err) {
     if (rafId) cancelAnimationFrame(rafId)
     if (err.name === 'AbortError') return { data: null, error: 'aborted', status: 0 }
+    console.error('[analyzeResultStream] stream error:', err)
     return { data: null, error: err?.message ?? 'Stream error', status: 0 }
   }
 }

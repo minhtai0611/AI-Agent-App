@@ -82,9 +82,74 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Zenith Design Tokens ───────────────────────────────────────────── */
+:root {
+  --z-bg-base:       #0A0E1A;
+  --z-bg-surface:    #0D1221;
+  --z-bg-elevated:   #111827;
+  --z-border:        #1E2A44;
+  --z-border-subtle: #2A3A5E;
+
+  --z-text-primary:  #F8FAFC;
+  --z-text-secondary:#CBD5E1;
+  --z-text-muted:    #94A3B8;
+  --z-text-dim:      #64748B;
+  --z-text-faint:    #475569;
+
+  --z-accent:        #F2A20C;
+  --z-accent-dim:    #D97706;
+  --z-success:       #10B981;
+  --z-error:         #FB7185;
+  --z-info:          #3B82F6;
+  --z-purple:        #8B5CF6;
+
+  --z-ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --z-ease-smooth:   cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --z-ease-out:      cubic-bezier(0.0, 0.0, 0.2, 1);
+
+  --z-radius-sm:     8px;
+  --z-radius-md:     12px;
+  --z-radius-lg:     16px;
+  --z-radius-xl:     20px;
+}
+
 body {
-  background-color: #0A0E1A;
+  background-color: var(--z-bg-base);
   font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+/* ─── Answer Feedback Animations ──────────────────────────────────────── */
+@keyframes z-correct-flash {
+  0%   { background-color: transparent; }
+  40%  { background-color: rgba(16, 185, 129, 0.25); }
+  100% { background-color: transparent; }
+}
+@keyframes z-wrong-shake {
+  0%, 100% { transform: translateX(0); }
+  15%  { transform: translateX(-5px); }
+  35%  { transform: translateX(5px); }
+  55%  { transform: translateX(-3px); }
+  75%  { transform: translateX(3px); }
+}
+@keyframes z-checkmark-draw {
+  from { stroke-dashoffset: 40; opacity: 0; }
+  to   { stroke-dashoffset: 0;  opacity: 1; }
+}
+
+.z-choice-correct {
+  animation: z-correct-flash 500ms var(--z-ease-out) forwards;
+}
+.z-choice-wrong {
+  animation: z-wrong-shake 280ms var(--z-ease-out);
+}
+.z-checkmark path {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: z-checkmark-draw 320ms var(--z-ease-spring) forwards;
+  animation-delay: 80ms;
 }
 
 @keyframes shimmer {

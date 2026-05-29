@@ -21,6 +21,7 @@ import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { MathText } from '../components/MathText.jsx'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
+import { useOracle } from '../context/OracleContext.jsx'
 import { classifyLearner } from '../utils/learnerArchetype.js'
 import { TOPIC_ID_MAP } from '../utils/learningGraph.js'
 import { safeSetItem } from '../utils/storageManager.js'
@@ -331,6 +332,13 @@ export default function Results({ onOpenAuth }) {
 
   const isCurrent = !resultId || resultId === 'current'
   const savedRef = useRef(false)
+  const { setPageContext } = useOracle()
+  useEffect(() => {
+    if (!result) return
+    const weakTopics = analysis?.weak_topics ?? []
+    setPageContext({ inExam: false, examTitle: loadExamById(result.examId)?.title ?? '', weakTopics, score: result.score })
+    return () => setPageContext({})
+  }, [result?.examId, analysis?.weak_topics]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (isCurrent) {
@@ -482,8 +490,12 @@ export default function Results({ onOpenAuth }) {
           const failed = !!error
           if (streamStatus === 402) {
             setAiError('Không đủ Tia để phân tích. Nạp thêm Tia trong trang Tài khoản.')
+          } else if (streamStatus === 401) {
+            setAiError('Vui lòng đăng nhập để dùng tính năng AI.')
+          } else if (failed) {
+            setAiError(typeof error === 'string' ? error : 'Phân tích AI tạm thời không khả dụng.')
           } else {
-            setAiError(failed ? true : null)
+            setAiError(null)
           }
           // Only fall back to non-streaming if stream never connected (not HTTP 200)
           if (failed && !streamHttpOk && streamStatus !== 402 && !cancelled) {
@@ -750,7 +762,7 @@ export default function Results({ onOpenAuth }) {
 
         {/* ── Score hero ── */}
         <motion.div
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="flex items-center gap-8 bg-[#0D1221] border border-[#1E2A44] rounded-2xl px-8 py-8"
         >
           <div className="flex-shrink-0" ref={scoreRef}>
@@ -761,14 +773,15 @@ export default function Results({ onOpenAuth }) {
                 strokeLinecap="round" strokeDasharray={CIRC}
                 initial={{ strokeDashoffset: CIRC }}
                 animate={{ strokeDashoffset: scoreInView ? CIRC * (1 - score / 10) : CIRC }}
-                transition={{ duration: 1.5, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                transition={{ duration: 1.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                 transform="rotate(-90 60 60)"
                 onAnimationComplete={() => {
-                  if (score >= 8 && !confettiFiredRef.current) {
+                  if (score >= 7 && !confettiFiredRef.current) {
                     confettiFiredRef.current = true
                     confetti({
-                      particleCount: 200, spread: 70,
-                      origin: { x: 0.5, y: 0.3 },
+                      particleCount: score >= 9 ? 300 : 150,
+                      spread: 70,
+                      origin: { x: 0.5, y: 0.25 },
                       colors: ['#22c55e', '#3b82f6', '#f59e0b', '#a855f7'],
                       ticks: 300, scalar: 1.2,
                     })
@@ -783,13 +796,18 @@ export default function Results({ onOpenAuth }) {
               </foreignObject>
             </svg>
           </div>
-          <div className="flex flex-col gap-3 flex-1">
-            <div className="flex items-center gap-3">
+          <motion.div
+            className="flex flex-col gap-3 flex-1"
+            initial="hidden"
+            animate={scoreInView ? 'show' : 'hidden'}
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12, delayChildren: 0.6 } } }}
+          >
+            <motion.div variants={{ hidden: { opacity: 0, x: -8 }, show: { opacity: 1, x: 0 } }} className="flex items-center gap-3">
               <span className="font-fraunces text-[26px] font-bold text-[#F8FAFC] leading-tight">{scoreLabel(score)}</span>
               <HelixDecor color={color} />
-            </div>
-            <span className="font-jakarta text-[13px] text-[#475569]">{examObj?.title ?? examId}</span>
-            <div className="flex items-center gap-6 flex-wrap">
+            </motion.div>
+            <motion.span variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }} className="font-jakarta text-[13px] text-[#475569]">{examObj?.title ?? examId}</motion.span>
+            <motion.div variants={{ hidden: { opacity: 0, y: 6 }, show: { opacity: 1, y: 0 } }} className="flex items-center gap-6 flex-wrap">
               <div className="flex flex-col gap-0.5">
                 <span className="font-jakarta text-[11px] text-[#475569]">Độ chính xác</span>
                 <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">{Math.round(accuracy * 100)}%</span>
@@ -802,8 +820,8 @@ export default function Results({ onOpenAuth }) {
                 <span className="font-jakarta text-[11px] text-[#475569]">Đã trả lời</span>
                 <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">{result.answeredCount}/{allQuestions.length || result.answeredCount}</span>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </motion.div>
 
         {/* Percentile banner */}
