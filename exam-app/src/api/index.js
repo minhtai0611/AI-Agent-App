@@ -120,7 +120,7 @@ export function getAccessibleExamIds(results, allExams) {
 
   for (const category of ['grade10', 'thpt']) {
     const ordered = allExams
-      .filter(e => e.category === category && GATED_MODES.has(e.mode))
+      .filter(e => e.category === category && (GATED_MODES.has(e.mode) || !e.mode))
       .sort((a, b) => (a.year ?? 0) - (b.year ?? 0))
     if (ordered.length === 0) continue
     accessible.add(ordered[0].id)

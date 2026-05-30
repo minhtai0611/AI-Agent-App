@@ -1218,11 +1218,11 @@ async def analyze_stream(
     prompt = build_analyze_prompt(
         req.result, req.history, req.student_name,
         wrong_questions=req.wrong_questions,
+        school_recommendations=req.school_recommendations,
         exam_category=req.exam_category,
         user_profile=req.user_profile,
+        learner_archetype=req.learner_archetype,
     )
-    if req.learner_archetype:
-        prompt += f"\nLearner type: {req.learner_archetype}"
     settings = get_settings()
 
     async def ndjson_stream():

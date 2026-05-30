@@ -143,14 +143,14 @@ function AppInner() {
       {!showDeactivated && !showLocked && showSuspension && (
         <SuspensionModal reason={user.suspension_reason} onLogout={logout} />
       )}
-      {!showDeactivated && !showLocked && !showSuspension && showOnboarding && (
+      {!isAdminRoute && !showDeactivated && !showLocked && !showSuspension && showOnboarding && (
         <ProfileOnboarding onDone={() => {}} />
       )}
-      {!showDeactivated && !showLocked && !showSuspension && !showOnboarding && showExtendedOnboarding && (
+      {!isAdminRoute && !showDeactivated && !showLocked && !showSuspension && !showOnboarding && showExtendedOnboarding && (
         <ExtendedOnboarding onDone={() => {}} />
       )}
       <div className={`min-h-screen bg-[#0A0E1A] text-gray-900${isAdminRoute ? '' : ' pt-12'}`}>
-        {showLowCredit && !showOnboarding && !showDeactivated && !showLocked && !showSuspension && (
+        {showLowCredit && !isAdminRoute && !showOnboarding && !showDeactivated && !showLocked && !showSuspension && (
           <LowCreditBanner balance={user.credits_balance} />
         )}
         <Suspense fallback={<PageFallback />}>

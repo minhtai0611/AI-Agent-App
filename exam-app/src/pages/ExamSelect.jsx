@@ -46,12 +46,8 @@ function saveFilters(f) {
   try { sessionStorage.setItem(FILTER_KEY, JSON.stringify(f)) } catch {}
 }
 
-function getAllowedCategories(user) {
-  if (!user) return null // guest — computed separately
-  if (user.subscription_tier === 'complete') return ['grade10', 'thpt']
-  const grade = user.grade ? parseInt(user.grade) : null
-  if (!grade) return ['grade10', 'thpt'] // no grade set yet → show all until onboarding completes
-  return grade <= 9 ? ['grade10'] : ['thpt']
+function getAllowedCategories() {
+  return ['grade10', 'thpt']
 }
 
 export default function ExamSelect({ onOpenAuth }) {
@@ -186,7 +182,7 @@ export default function ExamSelect({ onOpenAuth }) {
     navigate(`/test/${fakeExam.id}`)
   }
 
-  const allowedCategories = getAllowedCategories(user)
+  const allowedCategories = getAllowedCategories()
 
   const motivationalHeader = useMemo(() => {
     if (!results || results.length === 0) return 'Bắt đầu với một đề thi phù hợp với trình độ của bạn.'
