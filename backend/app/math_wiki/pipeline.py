@@ -5,12 +5,15 @@ import logging
 import re
 from openai import AsyncOpenAI
 from app.math_wiki.storage import pg_db, pg_vectors
+from app.math_wiki.storage.retriever import retrieve_with_prerequisites
 from app.math_wiki.storage.analytics import log_solution
 from app.metrics import record_validation
 from app.math_wiki.agents.classifier import classify_problem
 from app.math_wiki.agents.reranker import rerank
 from app.math_wiki.agents.solver import solve
 from app.math_wiki.agents.validator import validate
+from app.math_wiki.agents.sympy_verifier import sympy_verify
+from app.math_wiki.agents.decomposer import decompose_query
 from app.math_wiki.schemas import ValidationResult, FigureOutput, Problem, SolverOutput
 from app.math_wiki.utils import InsufficientKnowledgeError
 from app.math_wiki.figures import generate_figure
@@ -59,8 +62,8 @@ def _build_bm25(units):
     return build_bm25_index(units)
 
 
-async def _retrieve_rerank_context(pool, client: AsyncOpenAI, question: str):
-    retrieved_ids = await pg_vectors.query_pgvector(pool, question) if pool else []
+async def _retrieve_rerank_context(pool, client: AsyncOpenAI, question: str, topic: str | None = None):
+    retrieved_ids = await retrieve_with_prerequisites(pool, question, topic=topic) if pool else []
     candidates = await pg_db.get_wiki_units_by_ids(pool, retrieved_ids) if pool else []
     if candidates:
         try:
@@ -77,6 +80,28 @@ async def _retrieve_rerank_context(pool, client: AsyncOpenAI, question: str):
 def _problem_hash(question: str) -> str:
     normalized = re.sub(r'\s+', ' ', question.strip().lower())
     return hashlib.sha256(normalized.encode()).hexdigest()
+
+
+# Keywords that signal a real-world science/geography question — not THPT math
+_OUT_OF_SCOPE_KEYWORDS: frozenset[str] = frozenset([
+    # Astronomy / solar system
+    "mặt trăng", "trái đất", "mặt trời", "sao hỏa", "sao mộc", "sao thổ", "sao kim",
+    "thiên hà", "vũ trụ", "hành tinh", "thiên thể",
+    # Geography / demography
+    "thủ đô", "quốc gia", "dân số", "lục địa", "đại dương", "biển cả",
+    # Physics / chemistry that are not math problems
+    "nguyên tử", "phân tử", "electron", "proton", "nhiệt độ", "áp suất",
+])
+
+_OUT_OF_SCOPE_RESPONSE = (
+    "Câu hỏi này nằm ngoài phạm vi toán học THPT. "
+    "Mình chỉ hỗ trợ các bài toán thuộc chương trình lớp 9–12 nhé!"
+)
+
+
+def _is_out_of_scope(question: str) -> bool:
+    q = question.lower()
+    return any(kw in q for kw in _OUT_OF_SCOPE_KEYWORDS)
 
 
 _PART_HEADER_RE = re.compile(r'^\*\*Phần\s+([a-d])\w*\)\*\*$')
@@ -103,10 +128,55 @@ async def run_pipeline(
 ) -> dict:
     await asyncio.wait_for(_bm25_ready_event.wait(), timeout=120)
 
+    # Scope guard: refuse clearly non-THPT questions before any expensive AI calls
+    if _is_out_of_scope(question):
+        logger.info("Out-of-scope question rejected: %.60s", question)
+        return {
+            "label": "other",
+            "answer": {
+                "problem_type": "ngoài phạm vi",
+                "steps": [f"Bước 1: {_OUT_OF_SCOPE_RESPONSE}"],
+                "final_answer": _OUT_OF_SCOPE_RESPONSE,
+                "confidence": "high",
+                "used_knowledge_ids": [],
+                "figure": None,
+                "figures": {},
+            },
+            "validation": {"valid": False, "issues": ["Câu hỏi ngoài phạm vi toán THPT"]},
+            "retrieved_ids": [],
+            "wiki_assisted": False,
+            "log_id": -1,
+        }
+
     label = await classify_problem(client, question)
     logger.debug("Classified as: %s", label)
 
-    retrieved_ids, context = await _retrieve_rerank_context(pool, client, question)
+    # Multi-domain decomposition: if problem spans two topics, retrieve across both
+    decomposed = None
+    try:
+        decomposed = await decompose_query(client, question)
+    except Exception as exc:
+        logger.debug("Decomposer failed (non-fatal): %s", exc)
+
+    if decomposed and decomposed.requires_multi_domain and decomposed.secondary_topics:
+        # Retrieve for each sub-question, merge unique units
+        all_ids: list[str] = []
+        all_units: list = []
+        seen_ids: set[str] = set()
+        for sub_q in decomposed.sub_questions[:3]:
+            sub_ids, sub_units = await _retrieve_rerank_context(pool, client, sub_q)
+            for uid in sub_ids:
+                if uid not in seen_ids:
+                    seen_ids.add(uid)
+                    all_ids.append(uid)
+            for u in sub_units:
+                if u.id not in seen_ids:
+                    seen_ids.add(u.id)
+                    all_units.append(u)
+        retrieved_ids, context = all_ids, all_units
+        logger.debug("Multi-domain: %d units from %d sub-questions", len(context), len(decomposed.sub_questions))
+    else:
+        retrieved_ids, context = await _retrieve_rerank_context(pool, client, question, topic=label)
     logger.debug("Retrieved %d units: %s", len(retrieved_ids), retrieved_ids)
 
     try:
@@ -114,6 +184,18 @@ async def run_pipeline(
     except InsufficientKnowledgeError:
         return {"error": "INSUFFICIENT_KNOWLEDGE"}
     logger.debug("Solver confidence: %s", solver_output.confidence)
+
+    # Symbolic verification: if SymPy detects a wrong answer with high confidence, retry once
+    sympy_valid, sympy_issues = sympy_verify(
+        question, solver_output.final_answer, solver_output.problem_type
+    )
+    if sympy_valid is False and solver_output.confidence == "high":
+        logger.info("SymPy caught high-confidence wrong answer — retrying solver")
+        hint = "Nghiệm trước không thỏa phương trình khi kiểm tra đại số: " + "; ".join(sympy_issues) + ". Hãy kiểm tra lại và tính nghiệm đúng."
+        try:
+            solver_output = await solve(client, question, context, label=label, prior_failure=hint)
+        except Exception as exc:
+            logger.warning("Retry solve after SymPy rejection failed: %s — keeping original", exc)
 
     figure: FigureOutput | None = None
     prob_hash = _problem_hash(question)
@@ -204,9 +286,10 @@ async def run_pipeline(
 
     solver_output.figure = figure
 
+    log_id = -1
     if pool:
         try:
-            await log_solution(
+            log_id = await log_solution(
                 pool,
                 problem_text=question,
                 classified_topic=label,
@@ -226,4 +309,5 @@ async def run_pipeline(
         "validation": validation.model_dump(),
         "retrieved_ids": retrieved_ids,
         "wiki_assisted": bool(context),
+        "log_id": log_id,
     }

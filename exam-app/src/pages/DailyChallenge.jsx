@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
+import AchievementCeremony from '../components/AchievementCeremony.jsx'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext.jsx'
@@ -230,7 +231,9 @@ export default function DailyChallenge() {
           </button>
           <div className="flex items-center gap-3">
             {streak.current > 0 && (
-              <span className="font-jakarta text-[13px] font-semibold text-amber-400">🔥 {streak.current} ngày</span>
+              <AchievementCeremony trigger={streak.completedToday}>
+                <span className="font-jakarta text-[13px] font-semibold text-amber-400">🔥 {streak.current} ngày</span>
+              </AchievementCeremony>
             )}
           </div>
         </div>

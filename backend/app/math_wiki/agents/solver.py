@@ -12,9 +12,34 @@ logger = logging.getLogger(__name__)
 
 # Bare slug/ID with no whitespace — not a human-readable step
 _SLUG_RE = re.compile(r'^[\w-]+$')
-
+_BUOC_RE = re.compile(r'^Bước\s+\d+\s*:', re.UNICODE)
+_PHAN_RE = re.compile(r'^\*\*Phần\s+[a-dA-D]', re.UNICODE)  # multi-part section headers
 
 _EXPECTED_KEYS = {"problem_type", "steps", "final_answer", "confidence", "used_knowledge_ids"}
+
+
+def _inject_buoc_prefix(steps: list[str]) -> list[str]:
+    """Ensure every non-header step starts with 'Bước N: '.
+
+    The SOLVE prompt requires this format but the model often skips it for
+    simple problems. Post-processing guarantees format compliance without
+    changing any mathematical content.
+    """
+    result: list[str] = []
+    n = 0
+    for step in steps:
+        s = step.strip()
+        if not s:
+            continue
+        # Section headers (multi-part) and already-prefixed steps pass through unchanged
+        if _PHAN_RE.match(s) or _BUOC_RE.match(s):
+            if not _PHAN_RE.match(s):
+                n += 1  # count prefixed steps so subsequent injections are sequential
+            result.append(s)
+        else:
+            n += 1
+            result.append(f"Bước {n}: {s}")
+    return result
 
 
 def _safe_parse_literal(s: str):
@@ -256,21 +281,32 @@ def _normalize(parsed: dict, valid_ids: set[str], _label_hint: str = "") -> Solv
     if not steps:
         logger.warning("solver: no parseable steps in response — using final_answer as sole step. raw=%r", str(parsed)[:200])
 
+    final_steps = _inject_buoc_prefix(steps or [final_answer])
+
     return SolverOutput(
         problem_type=problem_type,
         used_knowledge_ids=used_ids,
-        steps=steps or [final_answer],
+        steps=final_steps,
         final_answer=final_answer,
         confidence=confidence,
     )
 
 
-async def solve(client: AsyncOpenAI, problem_text: str, context: list[WikiUnit], label: str = "") -> SolverOutput:
+async def solve(
+    client: AsyncOpenAI,
+    problem_text: str,
+    context: list[WikiUnit],
+    label: str = "",
+    prior_failure: str | None = None,
+) -> SolverOutput:
     settings = get_settings()
     payload = json.dumps({
         "problem": problem_text,
         "context": [{"id": u.id, "type": u.type, "content": u.content} for u in context],
-    }) + "\n\nRespond with ONLY a JSON object. No prose or markdown."
+    })
+    if prior_failure:
+        payload += f"\n\n⚠ Lưu ý từ lần giải trước: {prior_failure}"
+    payload += "\n\nRespond with ONLY a JSON object. No prose or markdown."
     response = await call_with_retry(
         client,
         model=settings.default_model,

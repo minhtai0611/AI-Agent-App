@@ -196,6 +196,10 @@ For each wiki unit identify:
 - subtopic: specific subtopic (e.g. "quadratic equations")
 - content: the knowledge as a self-contained explanation (2-5 sentences)
 - problem_ids: always []
+- bloom_level: integer 1–6 based on the cognitive demand of this unit:
+    1=remember (recall formula/definition), 2=understand (explain meaning),
+    3=apply (execute procedure), 4=analyze (decompose/derive),
+    5=evaluate (assess correctness), 6=create (synthesize new)
 
 Extract 2-6 units per excerpt. Prefer concrete procedures and patterns over vague definitions.
 Return JSON: {"wiki_units": [...]}. No other text."""

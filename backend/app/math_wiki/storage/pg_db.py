@@ -15,6 +15,7 @@ def _row_to_wiki_unit(row) -> WikiUnit:
         subtopic=row["subtopic"],
         content=row["content"],
         problem_ids=json.loads(row["problem_ids"]),
+        bloom_level=row["bloom_level"] if "bloom_level" in row.keys() else 0,
     )
 
 
@@ -64,31 +65,34 @@ async def upsert_wiki_unit(
                     """UPDATE wiki_units
                        SET type=$1, topic=$2, subtopic=$3, content=$4, problem_ids=$5,
                            source=$6, source_url=$7, version=$8, last_edited_by=$9,
-                           updated_at=$10, embedding=$11
-                       WHERE id=$12""",
+                           updated_at=$10, embedding=$11, bloom_level=$12
+                       WHERE id=$13""",
                     unit.type, unit.topic, unit.subtopic, unit.content,
                     json.dumps(unit.problem_ids), source, source_url,
-                    row["version"] + 1, editor, now, embedding, unit.id,
+                    row["version"] + 1, editor, now, embedding,
+                    unit.bloom_level, unit.id,
                 )
             else:
                 await conn.execute(
                     """UPDATE wiki_units
                        SET type=$1, topic=$2, subtopic=$3, content=$4, problem_ids=$5,
-                           source=$6, source_url=$7, version=$8, last_edited_by=$9, updated_at=$10
-                       WHERE id=$11""",
+                           source=$6, source_url=$7, version=$8, last_edited_by=$9,
+                           updated_at=$10, bloom_level=$11
+                       WHERE id=$12""",
                     unit.type, unit.topic, unit.subtopic, unit.content,
                     json.dumps(unit.problem_ids), source, source_url,
-                    row["version"] + 1, editor, now, unit.id,
+                    row["version"] + 1, editor, now,
+                    unit.bloom_level, unit.id,
                 )
         else:
             await conn.execute(
                 """INSERT INTO wiki_units
                    (id, type, topic, subtopic, content, problem_ids, source, source_url,
-                    deleted, version, last_edited_by, created_at, updated_at, embedding)
-                   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,false,1,$9,$10,$11,$12)""",
+                    deleted, version, last_edited_by, created_at, updated_at, embedding, bloom_level)
+                   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,false,1,$9,$10,$11,$12,$13)""",
                 unit.id, unit.type, unit.topic, unit.subtopic,
                 unit.content, json.dumps(unit.problem_ids), source, source_url,
-                editor, now, now, embedding,
+                editor, now, now, embedding, unit.bloom_level,
             )
 
 
@@ -338,21 +342,21 @@ async def approve_staged_wiki_unit(pool, staged_id: str) -> WikiUnit | None:
                 await conn.execute(
                     """UPDATE wiki_units
                        SET type=$1, topic=$2, subtopic=$3, content=$4, problem_ids=$5,
-                           source=$6, source_url=$7, version=$8, updated_at=$9
-                       WHERE id=$10""",
+                           source=$6, source_url=$7, version=$8, updated_at=$9, bloom_level=$10
+                       WHERE id=$11""",
                     unit.type, unit.topic, unit.subtopic, unit.content,
                     json.dumps(unit.problem_ids), row["source"], row["source_url"],
-                    existing["version"] + 1, now, unit.id,
+                    existing["version"] + 1, now, unit.bloom_level, unit.id,
                 )
             else:
                 await conn.execute(
                     """INSERT INTO wiki_units
                        (id, type, topic, subtopic, content, problem_ids, source, source_url,
-                        deleted, version, created_at, updated_at)
-                       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,false,1,$9,$10)""",
+                        deleted, version, created_at, updated_at, bloom_level)
+                       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,false,1,$9,$10,$11)""",
                     unit.id, unit.type, unit.topic, unit.subtopic,
                     unit.content, json.dumps(unit.problem_ids), row["source"], row["source_url"],
-                    now, now,
+                    now, now, unit.bloom_level,
                 )
             await conn.execute(
                 "UPDATE staged_wiki_units SET status='approved', updated_at=$1 WHERE staged_id=$2",

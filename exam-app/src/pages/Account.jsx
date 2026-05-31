@@ -11,6 +11,7 @@ import { loadQuestions } from '../api/index.js'
 import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getWeeklyInsight, getSimulationBriefing } from '../api/aiClient.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
+import AchievementCeremony from '../components/AchievementCeremony.jsx'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { useToast } from '../context/ToastContext.jsx'
 import { computeStreak, computeStreakPersonalBest, getStreakRecoveryStatus } from '../utils/streak.js'
@@ -667,15 +668,17 @@ export default function Account() {
             <div className="flex items-center gap-2 flex-wrap">
               <p className="font-fraunces text-[18px] font-bold text-[#F8FAFC] truncate">{user.custom_display_name || user.display_name}</p>
               {user.mastery_rank && (
-                <span
-                  className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-                  style={{
-                    background: (MASTERY_RANK_COLORS[user.mastery_rank] ?? '#64748B') + '22',
-                    color: MASTERY_RANK_COLORS[user.mastery_rank] ?? '#64748B',
-                  }}
-                >
-                  {MASTERY_RANK_LABELS[user.mastery_rank] ?? user.mastery_rank}
-                </span>
+                <AchievementCeremony trigger={Boolean(user.mastery_rank)}>
+                  <span
+                    className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                    style={{
+                      background: (MASTERY_RANK_COLORS[user.mastery_rank] ?? '#64748B') + '22',
+                      color: MASTERY_RANK_COLORS[user.mastery_rank] ?? '#64748B',
+                    }}
+                  >
+                    {MASTERY_RANK_LABELS[user.mastery_rank] ?? user.mastery_rank}
+                  </span>
+                </AchievementCeremony>
               )}
             </div>
             <p className="font-jakarta text-[12px] text-[#64748B] truncate">{user.email}</p>

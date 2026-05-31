@@ -179,6 +179,19 @@ _SCHEMA_DDL = [
     "CREATE INDEX IF NOT EXISTS problems_hash_idx ON problems (problem_hash)",
     "CREATE INDEX IF NOT EXISTS solution_logs_created_idx ON solution_logs (created_at)",
     "CREATE INDEX IF NOT EXISTS staged_wiki_units_status_idx ON staged_wiki_units (status)",
+    # Phase 1 — Bloom's taxonomy level on wiki units
+    "ALTER TABLE wiki_units ADD COLUMN bloom_level INTEGER NOT NULL DEFAULT 0",
+    # Phase 2 — Calibration: track whether solution was actually correct
+    "ALTER TABLE solution_logs ADD COLUMN actual_correct INTEGER DEFAULT NULL",
+    # Phase 3 — Richer concept graph: explicit typed edges
+    """CREATE TABLE IF NOT EXISTS concept_edges (
+        from_id TEXT NOT NULL,
+        to_id   TEXT NOT NULL,
+        edge_type TEXT NOT NULL DEFAULT 'prerequisite',
+        PRIMARY KEY (from_id, to_id, edge_type)
+    )""",
+    "CREATE INDEX IF NOT EXISTS concept_edges_from_idx ON concept_edges (from_id)",
+    "CREATE INDEX IF NOT EXISTS concept_edges_to_idx ON concept_edges (to_id)",
     """CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         google_sub TEXT UNIQUE NOT NULL,
@@ -870,7 +883,7 @@ async def _seed_teacher_classes(pool) -> None:
 
 
 async def _seed_concepts(pool) -> None:
-    """Seed the concepts table with the initial 20-concept taxonomy (INSERT OR IGNORE)."""
+    """Seed concepts + concept_edges from the CONCEPTS taxonomy (INSERT OR IGNORE — idempotent)."""
     import json as _json
     from app.data.concepts import CONCEPTS
     try:
@@ -881,9 +894,19 @@ async def _seed_concepts(pool) -> None:
                        (id, name, name_vi, grade, topic, prerequisite_ids, exam_weight)
                        VALUES (?, ?, ?, ?, ?, ?, ?)""",
                     c["id"], c["name"], c["name_vi"], c["grade"], c["topic"],
-                    _json.dumps(c["prerequisite_ids"]), c["exam_weight"],
+                    _json.dumps(c.get("prerequisite_ids", [])), c.get("exam_weight", 1.0),
                 )
-        logger.info("_seed_concepts: seeded %d concepts", len(CONCEPTS))
+            # Seed concept_edges from prerequisite_ids (prerequisite edge type)
+            edge_count = 0
+            for c in CONCEPTS:
+                for pre_id in c.get("prerequisite_ids", []):
+                    await conn.execute(
+                        """INSERT OR IGNORE INTO concept_edges (from_id, to_id, edge_type)
+                           VALUES (?, ?, 'prerequisite')""",
+                        pre_id, c["id"],
+                    )
+                    edge_count += 1
+        logger.info("_seed_concepts: seeded %d concepts, %d edges", len(CONCEPTS), edge_count)
     except Exception as exc:
         logger.warning("_seed_concepts failed: %s", exc)
 
@@ -2012,6 +2035,28 @@ async def math_solve(
         except Exception as exc:
             logger.exception("math-solve unexpected error: %s", exc)
             raise HTTPException(status_code=502, detail=f"Pipeline error: {exc}")
+
+
+@app.get("/math-wiki/calibration-report")
+async def math_wiki_calibration_report(
+    days: int = 30,
+    pool=Depends(get_pool),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    from app.math_wiki.storage.analytics import get_calibration_report
+    return await get_calibration_report(pool, days=days)
+
+
+@app.post("/math-wiki/calibration-feedback")
+async def math_wiki_calibration_feedback(
+    log_id: int,
+    actual_correct: bool,
+    pool=Depends(get_pool),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    from app.math_wiki.storage.analytics import log_solution_feedback
+    await log_solution_feedback(pool, log_id, actual_correct)
+    return {"ok": True}
 
 
 @app.post("/math-review", response_model=MathReviewResponse)

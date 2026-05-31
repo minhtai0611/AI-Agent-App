@@ -4,14 +4,15 @@ export const pageVariants = {
   exit:   { opacity: 0, y: -8, transition: { duration: 0.18, ease: 'easeIn' } },
 }
 
+// Tier 2 reveal: stagger container — max 5 items, opacity only (no y-translate)
 export const listVariants = {
   hidden:   {},
-  show:     { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
-  visible:  { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+  show:     { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+  visible:  { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
 }
 
 export const itemVariants = {
-  hidden:  { opacity: 0, y: 12 },
-  show:    { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+  hidden:  { opacity: 0 },
+  show:    { opacity: 1, transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] } },
+  visible: { opacity: 1, transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] } },
 }

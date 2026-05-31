@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti'
 import { useAuth } from '../context/AuthContext.jsx'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
+import AchievementCeremony from '../components/AchievementCeremony.jsx'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
@@ -765,7 +766,8 @@ export default function Results({ onOpenAuth }) {
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="flex items-center gap-8 bg-[#0D1221] border border-[#1E2A44] rounded-2xl px-8 py-8"
         >
-          <div className="flex-shrink-0" ref={scoreRef}>
+          <AchievementCeremony trigger={scoreInView && score >= 9} className="flex-shrink-0">
+          <div ref={scoreRef}>
             <svg width="120" height="120" viewBox="0 0 120 120">
               <circle cx="60" cy="60" r="54" stroke="#1E2A44" strokeWidth="6" fill="none" />
               <motion.circle
@@ -796,6 +798,7 @@ export default function Results({ onOpenAuth }) {
               </foreignObject>
             </svg>
           </div>
+          </AchievementCeremony>
           <motion.div
             className="flex flex-col gap-3 flex-1"
             initial="hidden"

@@ -16,11 +16,11 @@ const listVariants = {
   show:   { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
 }
 const cardVariants = {
-  hidden: { opacity: 0, y: 12 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+  hidden: { opacity: 0 },
+  show:   { opacity: 1, transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] } },
 }
 const hoverProps = {
-  whileHover: { scale: 1.015, y: -2 },
+  whileHover: { scale: 1.015 },
   whileTap:   { scale: 0.98 },
   transition: { type: 'spring', stiffness: 400, damping: 25 },
 }

@@ -18,6 +18,8 @@ async def query_pgvector(pool, query_text: str, top_k: int = 10, min_score: floa
 
     loop = asyncio.get_event_loop()
     vecs = await loop.run_in_executor(None, embed_texts, [query_text], "query")
+    if not vecs:  # FlagEmbedding unavailable — fall back to empty (BM25 path handles retrieval)
+        return []
     query_vec = np.array(vecs[0], dtype=np.float32)
 
     async with pool.acquire() as conn:
@@ -48,6 +50,8 @@ async def is_near_duplicate_pg(pool, text: str, threshold: float = 0.92) -> bool
 
     loop = asyncio.get_event_loop()
     vecs = await loop.run_in_executor(None, embed_texts, [text], "passage")
+    if not vecs:
+        return False  # can't check without embeddings — allow the insert
     query_vec = np.array(vecs[0], dtype=np.float32)
 
     async with pool.acquire() as conn:

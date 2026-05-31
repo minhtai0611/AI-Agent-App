@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Markdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
@@ -113,26 +114,29 @@ export default function TutorChat({ open, onClose }) {
 
   return (
     <>
-      {/* Backdrop */}
-      {open && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40"
-          onClick={onClose}
-          aria-hidden="true"
-        />
-      )}
+      {/* Backdrop — conditionally rendered, messages state lives in drawer below */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={onClose}
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
 
-      {/* Drawer */}
-      <div
+      {/* Drawer — always mounted so message history survives close/reopen.
+          Animates position only; state is never destroyed. */}
+      <motion.div
         role="dialog"
         aria-modal="true"
         aria-label="AI Gia sư"
-        className="fixed top-0 right-0 h-full z-50 flex flex-col bg-[#0D1221] border-l border-[#1E2A44] transition-opacity duration-200"
-        style={{
-          width: panelWidth,
-          opacity: open ? 1 : 0,
-          pointerEvents: open ? 'auto' : 'none',
-        }}
+        animate={{ x: open ? 0 : '100%' }}
+        transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+        className="fixed top-0 right-0 h-full z-50 flex flex-col bg-[#0D1221] border-l border-[#1E2A44]"
+        style={{ width: panelWidth, pointerEvents: open ? 'auto' : 'none' }}
       >
         {/* Drag handle */}
         <div
@@ -246,7 +250,7 @@ export default function TutorChat({ open, onClose }) {
             Gửi
           </button>
         </div>
-      </div>
+      </motion.div>
     </>
   )
 }

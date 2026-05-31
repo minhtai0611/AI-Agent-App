@@ -4,7 +4,8 @@ import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { getConceptMastery } from '../api/aiClient.js'
-import { pageVariants } from '../utils/animations.js'
+import { pageVariants, listVariants, itemVariants } from '../utils/animations.js'
+import { useRevealOnScroll } from '../hooks/useRevealOnScroll.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 
@@ -187,6 +188,7 @@ export default function Progress() {
   const [concepts, setConcepts]     = useState([])
   const [conceptsLoaded, setConceptsLoaded] = useState(false)
   const [selected, setSelected]     = useState(null)
+  const { ref: expandRef, inView: expandInView } = useRevealOnScroll()
 
   const recentResults = useMemo(() => [...results].slice(0, 10), [results])
   const scores = useMemo(() => recentResults.map(r => r.score ?? 0).reverse(), [recentResults])
@@ -310,8 +312,9 @@ export default function Progress() {
             {weakTopics.length > 0 && (
               <div className="flex flex-col gap-3">
                 <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-[#475569]">Chủ đề cần chú ý</span>
+                <motion.div className="flex flex-col gap-3" variants={listVariants} initial="hidden" animate="visible">
                 {weakTopics.map(({ topic, label, accuracy, wrong }) => (
-                  <div key={topic} className="bg-[#0D1221] border border-[#1E2A44] rounded-xl px-5 py-4 flex items-center justify-between gap-4">
+                  <motion.div key={topic} variants={itemVariants} className="bg-[#0D1221] border border-[#1E2A44] rounded-xl px-5 py-4 flex items-center justify-between gap-4">
                     <div className="flex flex-col gap-1 flex-1 min-w-0">
                       <span className="font-jakarta text-[14px] font-semibold text-[#F8FAFC] truncate">{label}</span>
                       <div className="flex items-center gap-3">
@@ -327,8 +330,9 @@ export default function Progress() {
                     >
                       Luyện tập →
                     </button>
-                  </div>
+                  </motion.div>
                 ))}
+                </motion.div>
               </div>
             )}
 
@@ -346,7 +350,13 @@ export default function Progress() {
             </button>
 
             {showMore && (
-              <div className="flex flex-col gap-5">
+              <motion.div
+                ref={expandRef}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: expandInView ? 1 : 0 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="flex flex-col gap-5"
+              >
                 {/* Concept map */}
                 {!conceptsLoaded ? (
                   <div className="py-8 flex items-center justify-center">
@@ -417,7 +427,7 @@ export default function Progress() {
                     </div>
                   )
                 })()}
-              </div>
+              </motion.div>
             )}
 
                 {/* Province score comparison — only when ≥20 results and province is set */}

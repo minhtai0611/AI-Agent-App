@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useOracle, ORACLE_STATUS } from '../context/OracleContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { motion } from 'framer-motion'
@@ -864,6 +865,8 @@ export default function MathOracle() {
   const [messages, setMessages] = useState([])
   const chatEndRef = useRef(null)
 
+  const { setOracleStatus } = useOracle()
+
   // ── Legacy single-result state (kept for doSolve/doReview internals) ──────
   const [question, setQuestion] = useState('')
   const [solution, setSolution] = useState('')
@@ -1003,6 +1006,7 @@ export default function MathOracle() {
 
   async function doSolveChat(text, attempt = 0) {
     setLoading(true)
+    setOracleStatus(ORACLE_STATUS.THINKING)
     setRetryAttempt(attempt)
     setLastSolveQuestion(text)
     const imgFile = ocrFileRef.current
@@ -1015,6 +1019,8 @@ export default function MathOracle() {
         return doSolveChat(text, attempt + 1)
       }
       setLoading(false)
+      setOracleStatus(ORACLE_STATUS.ERROR)
+      setTimeout(() => setOracleStatus(ORACLE_STATUS.IDLE), 1500)
       setRetryAttempt(0)
       setError(err)
       // Remove optimistic user message on error
@@ -1024,6 +1030,9 @@ export default function MathOracle() {
     setLoading(false)
     setRetryAttempt(0)
     const answer = data?.answer || {}
+    const isHighConf = answer.confidence === 'high' && data?.validation?.valid
+    setOracleStatus(isHighConf ? ORACLE_STATUS.CELEBRATING : ORACLE_STATUS.IDLE)
+    if (isHighConf) setTimeout(() => setOracleStatus(ORACLE_STATUS.IDLE), 1500)
     setMessages(prev => [...prev, {
       role: 'oracle',
       content: null,

@@ -22,10 +22,18 @@ function deriveSuggestedPrompts(pageContext) {
   return ['Hỏi bài toán', 'Giải thích khái niệm', 'Kế hoạch ôn tập']
 }
 
+// oracleStatus drives the bubble CSS state machine:
+//   'idle'        — default gentle pulse
+//   'thinking'    — faster pulse while waiting for AI response
+//   'celebrating' — spring pop on high-confidence correct answer
+//   'error'       — subtle shake on validation failure
+export const ORACLE_STATUS = { IDLE: 'idle', THINKING: 'thinking', CELEBRATING: 'celebrating', ERROR: 'error' }
+
 export function OracleProvider({ children }) {
   const [isOpen, setIsOpen] = useState(false)
   const [pageContext, setPageContextRaw] = useState({})
   const [unreadCount, setUnreadCount] = useState(0)
+  const [oracleStatus, setOracleStatus] = useState(ORACLE_STATUS.IDLE)
 
   const open = useCallback(() => {
     setIsOpen(true)
@@ -44,7 +52,8 @@ export function OracleProvider({ children }) {
     pageContext, setPageContext,
     suggestedPrompts,
     unreadCount, setUnreadCount,
-  }), [isOpen, open, close, pageContext, setPageContext, suggestedPrompts, unreadCount])
+    oracleStatus, setOracleStatus,
+  }), [isOpen, open, close, pageContext, setPageContext, suggestedPrompts, unreadCount, oracleStatus])
 
   return <OracleContext.Provider value={value}>{children}</OracleContext.Provider>
 }

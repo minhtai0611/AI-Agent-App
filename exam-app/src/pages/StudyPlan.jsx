@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useRevealOnScroll } from '../hooks/useRevealOnScroll.js'
+import AchievementCeremony from '../components/AchievementCeremony.jsx'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -58,9 +60,14 @@ function FocusCard({ area, index, streak, onPractice }) {
   const checkpoint = area.checkpoint
   const isResolved = checkpoint ? streak >= checkpoint.target : false
   const wasResolvedOnMount = useRef(isResolved)
+  const { ref, inView } = useRevealOnScroll()
 
   return (
-    <div
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: inView ? 1 : 0 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
       className="rounded-2xl overflow-hidden"
       style={{
         background: isResolved ? '#0A1A10' : '#0D1221',
@@ -75,15 +82,13 @@ function FocusCard({ area, index, streak, onPractice }) {
         <div className="flex items-center gap-3">
           <AnimatePresence mode="wait" initial={false}>
             {isResolved ? (
-              <motion.span
+              <AchievementCeremony
                 key="resolved"
-                initial={wasResolvedOnMount.current ? false : { opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.25 }}
+                trigger={isResolved}
                 className="w-6 h-6 rounded-full bg-[#10B9811A] border border-[#10B98140] flex items-center justify-center font-jakarta text-[11px] font-bold text-[#10B981]"
               >
                 ✓
-              </motion.span>
+              </AchievementCeremony>
             ) : (
               <span className="w-6 h-6 rounded-full bg-[#F2A20C1A] border border-[#F2A20C40] flex items-center justify-center font-jakarta text-[11px] font-bold text-[#F2A20C]">
                 {index + 1}
@@ -144,7 +149,7 @@ function FocusCard({ area, index, streak, onPractice }) {
           </button>
         </div>
       )}
-    </div>
+    </motion.div>
   )
 }
 

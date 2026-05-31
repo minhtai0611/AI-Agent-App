@@ -10,6 +10,7 @@ class WikiUnit(BaseModel):
     subtopic: str
     content: str
     problem_ids: list[str]
+    bloom_level: int = 0  # 0=untagged, 1=remember … 6=create (Bloom's taxonomy)
 
     @field_validator("problem_ids", mode="before")
     @classmethod
@@ -79,6 +80,15 @@ class ConceptIngestOutput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     wiki_units: list[WikiUnit]
+
+
+class DecomposedQuery(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    primary_topic: str
+    secondary_topics: list[str]
+    sub_questions: list[str]
+    requires_multi_domain: bool
 
 
 class ReviewOutput(BaseModel):

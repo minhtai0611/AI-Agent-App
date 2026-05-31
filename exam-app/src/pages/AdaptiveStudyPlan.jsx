@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext.jsx'
 import { getAdaptiveStudyPlan } from '../api/aiClient.js'
-import { pageVariants } from '../utils/animations.js'
+import { pageVariants, listVariants, itemVariants } from '../utils/animations.js'
 import { usePageTitle } from '../hooks/usePageTitle.js'
+import { useRevealOnScroll } from '../hooks/useRevealOnScroll.js'
 
 const STAGE_COLORS = [
   '#475569', // 0 unknown
@@ -106,8 +107,15 @@ function FocusConceptCard({ concept }) {
 
 function WeekSchedule({ week }) {
   const [open, setOpen] = useState(week.week === 1)
+  const { ref, inView } = useRevealOnScroll()
   return (
-    <div className="rounded-2xl border border-[#1E2A44] bg-[#0D1221] overflow-hidden">
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: inView ? 1 : 0 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="rounded-2xl border border-[#1E2A44] bg-[#0D1221] overflow-hidden"
+    >
       <button
         onClick={() => setOpen(v => !v)}
         className="w-full flex items-center justify-between px-5 py-4 hover:bg-[#111827] transition"
@@ -172,7 +180,7 @@ function WeekSchedule({ week }) {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   )
 }
 

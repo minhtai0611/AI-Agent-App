@@ -304,8 +304,10 @@ export default function ReviewSession() {
             {stageLabel && (
               <motion.span
                 key={stageLabel}
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, scale: 0.75 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.75 }}
+                transition={{ type: 'spring', stiffness: 320, damping: 18 }}
                 className="font-jakarta text-[11px] text-[#34D399]"
               >
                 → {stageLabel}
