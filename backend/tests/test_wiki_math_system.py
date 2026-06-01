@@ -86,6 +86,7 @@ def _normalize(text: str) -> str:
     text = _SPACE_RE.sub(' ', text).strip().lower()
     # Normalize common Vietnamese number representations and Unicode symbols
     text = text.replace(',', '.').replace('−', '-').replace('π', 'pi')
+    text = text.replace('±', '±')  # preserve ± as-is for matching
     return text
 
 
