@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     anthropic_default_haiku_model: str = "claude-haiku-4.5"
     anthropic_default_hint_model: str = "claude-haiku-4.5"
 
-    allowed_origins: str = "http://localhost:5173"
+    allowed_origins: str = "http://localhost:5173,https://exam-app-ey0.pages.dev"
     database_url: str = ""
     # Set to "true" to run the background wiki crawl on startup.
     # Keep "false" on HF Spaces until local testing is complete.

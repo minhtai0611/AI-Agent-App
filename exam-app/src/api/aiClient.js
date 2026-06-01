@@ -64,7 +64,7 @@ function wrap(promise) {
   return promise
     .then(res => ({ data: res.data, error: null, status: res.status }))
     .catch(err => {
-      if (!err.response) return { data: null, error: 'Không kết nối được server — hãy kiểm tra backend đang chạy', status: 0 }
+      if (!err.response) return { data: null, error: 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.', status: 0 }
       const detail = err.response.data?.detail
       // Preserve structured error objects (e.g. 402 insufficient_credits)
       return { data: null, error: detail ?? err.message ?? 'Lỗi kết nối', status: err.response.status }
