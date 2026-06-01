@@ -305,6 +305,7 @@ def build_analyze_prompt(
     exam_category: str = "",
     user_profile: dict = None,
     learner_archetype: str | None = None,
+    device_province: str | None = None,
 ) -> str:
     topic_breakdown = result.get("topicBreakdown", {})
     weak_topics = [t for t, tb in topic_breakdown.items() if tb.get("accuracy", 1) < 0.6]
@@ -359,6 +360,19 @@ def build_analyze_prompt(
     province_ctx = _get_province_context(province or None)
     dynamic_parts.append(f"Provincial context: {province_ctx}")
 
+    # Device-detected location context — supplements (does not replace) user-selected province
+    if device_province:
+        note = f"Vị trí thiết bị phát hiện: {device_province}"
+        if device_province != province:
+            note += f" (khác với tỉnh trong hồ sơ: {province or 'chưa đặt'})"
+        dynamic_parts.append(
+            f"{note}. Dùng thông tin này để bổ sung nhận xét về đặc thù đề thi địa phương "
+            f"(trọng số chủ đề, mức độ cạnh tranh) trong phần insights và recommendations. "
+            f"Không thêm tên trường vào insights/recommendations — danh sách trường được hiển thị riêng."
+        )
+        if not province:
+            dynamic_parts.append(f"Device provincial context: {_get_province_context(device_province)}")
+
     school_json_field = ""
     if school_recommendations:
         if grade and grade.isdigit() and int(grade) <= 9:
@@ -402,6 +416,7 @@ async def analyze_exam_result(
     exam_category: str = "",
     user_profile: dict = None,
     learner_archetype: str | None = None,
+    device_province: str | None = None,
 ) -> dict:
     settings = get_settings()
 
@@ -412,6 +427,7 @@ async def analyze_exam_result(
         exam_category=exam_category,
         user_profile=user_profile,
         learner_archetype=learner_archetype,
+        device_province=device_province,
     )
 
     response = await call_with_retry(

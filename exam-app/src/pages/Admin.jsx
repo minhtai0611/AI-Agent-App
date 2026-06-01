@@ -2,9 +2,82 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   adminListUsers, adminDeleteUser, adminUnlockUser, adminResetUser,
   adminSuspendUser, adminUnsuspendUser, adminGrantCredits, adminGetSecurityEvents,
+  adminGetUserDevices,
 } from '../api/aiClient.js'
+import { getSchoolsByProvince } from '../api/index.js'
 
 const CONFIDENCE_COLOR = { high: '#EF4444', medium: '#F2A20C', low: '#64748B' }
+
+function countryFlag(code) {
+  if (!code || code.length !== 2) return ''
+  return String.fromCodePoint(
+    ...code.toUpperCase().split('').map(c => 127397 + c.charCodeAt(0))
+  )
+}
+
+function DevicesModal({ user, adminKey, onClose }) {
+  const [devices, setDevices] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    adminGetUserDevices(adminKey, user.id).then(({ data }) => {
+      setDevices(data ?? [])
+      setLoading(false)
+    })
+  }, [adminKey, user.id])
+
+  const latestProvince = devices[0]?.province ?? null
+  const schools = getSchoolsByProvince(latestProvince)
+  const gradeNum = parseInt(user.grade ?? '0', 10)
+  const gradeLabel = gradeNum && gradeNum <= 9
+    ? 'Trường THPT mục tiêu (thi vào lớp 10)'
+    : 'Trường khu vực thi ĐH'
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+      <div className="max-w-md w-full bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-6 flex flex-col gap-4 max-h-[80vh] overflow-y-auto">
+        <span className="font-fraunces text-[15px] font-bold text-[#F8FAFC]">
+          Thiết bị — {user.display_name || user.email}
+        </span>
+        {loading ? (
+          <span className="font-jakarta text-[12px] text-[#475569]">Đang tải...</span>
+        ) : devices.length === 0 ? (
+          <span className="font-jakarta text-[12px] text-[#475569]">Chưa có dữ liệu thiết bị.</span>
+        ) : devices.map(d => (
+          <div key={d.device_id}
+            className="flex flex-col gap-0.5 px-3 py-2.5 rounded-xl bg-[#111827] border border-[#1E2A44]">
+            <span className="font-jakarta text-[12px] font-semibold text-[#F0F4FF]">
+              {d.country_code ? countryFlag(d.country_code) + ' ' : ''}{d.city ?? '—'}
+              {d.province ? ` · ${d.province}` : ''}
+            </span>
+            <span className="font-jakarta text-[11px] text-[#64748B]">{d.device_label}</span>
+            <span className="font-jakarta text-[10px] text-[#475569]">IP: {d.ip ?? '—'}</span>
+            <span className="font-jakarta text-[10px] text-[#334155]">
+              Lần đầu: {formatDate(d.first_seen_at)} · Lần cuối: {formatDate(d.last_seen_at)}
+            </span>
+          </div>
+        ))}
+        {schools.length > 0 && (
+          <>
+            <div className="border-t border-[#1E2A44]" />
+            <span className="font-jakarta text-[11px] font-semibold text-[#94A3B8]">{gradeLabel}</span>
+            {schools.map(s => (
+              <div key={s.id}
+                className="flex items-center justify-between px-3 py-2 rounded-lg bg-[#0A0E1A] border border-[#1E2A44]">
+                <span className="font-jakarta text-[12px] text-[#F0F4FF]">{s.name}</span>
+                <span className="font-jakarta text-[11px] text-[#64748B]">{s.type}</span>
+              </div>
+            ))}
+          </>
+        )}
+        <button onClick={onClose}
+          className="mt-2 w-full py-2 rounded-lg font-jakarta text-[13px] text-[#64748B] border border-[#1E2A44] hover:text-[#F8FAFC] transition">
+          Đóng
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function formatDate(iso) {
   if (!iso) return '—'
@@ -210,6 +283,14 @@ function UserRow({ user, adminKey, onRefresh }) {
             )}
           </div>
           <span className="font-jakarta text-[11px] text-[#64748B]">{user.email}</span>
+          {(user.city || user.ip) && (
+            <span className="font-jakarta text-[10px] text-[#475569] truncate">
+              {user.country_code ? countryFlag(user.country_code) + ' ' : ''}
+              {user.city ?? '—'}
+              {user.device_label ? ' · ' + user.device_label : ''}
+              {user.ip ? ' · ' + user.ip : ''}
+            </span>
+          )}
         </div>
         <div className="hidden sm:flex flex-col items-end gap-0.5">
           <span className="font-jakarta text-[11px] text-[#94A3B8]">{user.subscription_tier}</span>
@@ -247,6 +328,7 @@ function UserRow({ user, adminKey, onRefresh }) {
                 <button onClick={handleUnlock} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-emerald-400 hover:bg-[#1E2A44] transition">Mở khóa</button>
               )}
               <button onClick={() => { setModal('grant'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-[#94A3B8] hover:bg-[#1E2A44] transition">Tặng Tia</button>
+              <button onClick={() => { setModal('devices'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-[#94A3B8] hover:bg-[#1E2A44] transition">Thiết bị</button>
               <div className="border-t border-[#1E2A44]" />
               <button onClick={() => { setModal('reset'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-amber-400 hover:bg-[#1E2A44] transition">Reset tài khoản</button>
               <button onClick={() => { setModal('delete'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-red-400 hover:bg-[#1E2A44] transition">Xóa tài khoản</button>
@@ -259,6 +341,7 @@ function UserRow({ user, adminKey, onRefresh }) {
       {modal === 'suspend' && <SuspendModal user={user} adminKey={adminKey} onClose={() => setModal(null)} onDone={onRefresh} />}
       {modal === 'reset' && <ResetModal user={user} adminKey={adminKey} onClose={() => setModal(null)} onDone={onRefresh} />}
       {modal === 'delete' && <DeleteUserModal user={user} adminKey={adminKey} onClose={() => setModal(null)} onDone={onRefresh} />}
+      {modal === 'devices' && <DevicesModal user={user} adminKey={adminKey} onClose={() => setModal(null)} />}
     </>
   )
 }

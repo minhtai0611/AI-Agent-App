@@ -14,4 +14,20 @@ export const TOPIC_LABELS = {
   financial_math:      'Toán tài chính',
   vectors:             'Vectơ',
   sets:                'Tập hợp',
+  // Previously missing canonical keys
+  complex_numbers:         'Số phức',
+  logarithm:               'Logarit',
+  logarithms:              'Logarit',
+  number:                  'Số học',
+  data:                    'Dữ liệu',
+  differentiation:         'Đạo hàm',
+  integration:             'Tích phân',
+  measurement:             'Đo lường',
+  'calculus applications': 'Ứng dụng giải tích',
+  'sequences and series':  'Dãy số',
+  'financial mathematics': 'Toán tài chính',
+}
+
+export function getTopicLabel(key) {
+  return TOPIC_LABELS[key] ?? TOPIC_LABELS[key?.toLowerCase()] ?? key
 }

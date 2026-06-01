@@ -436,6 +436,21 @@ _SCHEMA_DDL = [
         credits_refunded INTEGER DEFAULT 0
     )""",
     "CREATE INDEX IF NOT EXISTS idx_gcr_user_status ON grade_change_requests (user_id, status)",
+    """CREATE TABLE IF NOT EXISTS user_devices (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        device_id TEXT NOT NULL,
+        device_label TEXT,
+        ip TEXT,
+        city TEXT,
+        province TEXT,
+        country TEXT,
+        country_code TEXT,
+        first_seen_at TEXT DEFAULT (datetime('now')),
+        last_seen_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(user_id, device_id)
+    )""",
+    "CREATE INDEX IF NOT EXISTS user_devices_user_idx ON user_devices (user_id)",
 ]
 
 
@@ -1138,6 +1153,12 @@ async def analyze(
     tier_row = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
     if not tier_row or tier_row["subscription_tier"] not in _PAID_TIERS:
         await _spend_credits(pool, current_user.user_id, 3, "analyze")
+    dev_row = await pool.fetchrow(
+        "SELECT province FROM user_devices WHERE user_id = ? AND province IS NOT NULL "
+        "ORDER BY last_seen_at DESC LIMIT 1",
+        current_user.user_id,
+    )
+    device_province = dev_row["province"] if dev_row else None
     from app.agent.exam_analyzer import analyze_exam_result
     try:
         data = await analyze_exam_result(
@@ -1147,6 +1168,7 @@ async def analyze(
             exam_category=req.exam_category,
             user_profile=req.user_profile,
             learner_archetype=req.learner_archetype,
+            device_province=device_province,
         )
         return ExamAnalyzeResponse(
             insights=data.get("insights", ""),
@@ -1238,6 +1260,13 @@ async def analyze_stream(
     if not tier_row_s or tier_row_s["subscription_tier"] not in _PAID_TIERS:
         await _spend_credits(pool, current_user.user_id, 3, "analyze")
 
+    dev_row_s = await pool.fetchrow(
+        "SELECT province FROM user_devices WHERE user_id = ? AND province IS NOT NULL "
+        "ORDER BY last_seen_at DESC LIMIT 1",
+        current_user.user_id,
+    )
+    device_province_s = dev_row_s["province"] if dev_row_s else None
+
     prompt = build_analyze_prompt(
         req.result, req.history, req.student_name,
         wrong_questions=req.wrong_questions,
@@ -1245,6 +1274,7 @@ async def analyze_stream(
         exam_category=req.exam_category,
         user_profile=req.user_profile,
         learner_archetype=req.learner_archetype,
+        device_province=device_province_s,
     )
     settings = get_settings()
 
@@ -3768,6 +3798,53 @@ async def get_credits_log(
     return [dict(r) for r in rows]
 
 
+class DeviceUpsertRequest(BaseModel):
+    device_id: str = Field(max_length=64)
+    device_label: str = Field(max_length=100)
+    city: str | None = Field(default=None, max_length=100)
+    province: str | None = Field(default=None, max_length=100)
+    country: str | None = Field(default=None, max_length=100)
+    country_code: str | None = Field(default=None, max_length=2)
+
+
+@app.post("/users/me/device", status_code=204)
+async def upsert_user_device(
+    request: Request,
+    body: DeviceUpsertRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    xff = request.headers.get("X-Forwarded-For")
+    ip = xff.split(",")[0].strip() if xff else (
+        request.headers.get("X-Real-IP") or (request.client.host if request.client else None)
+    )
+    existing = await pool.fetchrow(
+        "SELECT id FROM user_devices WHERE user_id = ? AND device_id = ?",
+        current_user.user_id, body.device_id,
+    )
+    if not existing:
+        await pool.execute(
+            "INSERT INTO security_events (user_id, ip, event_type, confidence, detail) VALUES (?, ?, 'new_device', 'low', ?)",
+            current_user.user_id, ip,
+            json.dumps({"device": body.device_label, "city": body.city, "country": body.country_code}),
+        )
+    await pool.execute(
+        """INSERT INTO user_devices
+               (user_id, device_id, device_label, ip, city, province, country, country_code)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT(user_id, device_id) DO UPDATE SET
+             device_label = excluded.device_label,
+             ip           = excluded.ip,
+             city         = COALESCE(excluded.city, city),
+             province     = COALESCE(excluded.province, province),
+             country      = COALESCE(excluded.country, country),
+             country_code = COALESCE(excluded.country_code, country_code),
+             last_seen_at = datetime('now')""",
+        current_user.user_id, body.device_id, body.device_label,
+        ip, body.city, body.province, body.country, body.country_code,
+    )
+
+
 class HistoryEntry(BaseModel):
     result_id: str
     exam_id: str | None = None
@@ -4820,15 +4897,23 @@ async def admin_list_users(
             WHERE rowid IN (SELECT MAX(rowid) FROM exam_results GROUP BY user_id)
         ) beh ON beh.user_id = u.id
     """
+    device_subq = """
+        LEFT JOIN (
+            SELECT user_id, ip, city, province, country_code, device_label
+            FROM user_devices
+            WHERE rowid IN (SELECT MAX(rowid) FROM user_devices GROUP BY user_id)
+        ) dev ON dev.user_id = u.id
+    """
     if search:
         pattern = f"%{search}%"
         rows = await pool.fetch(
             f"""SELECT u.id, u.email, u.display_name, u.subscription_tier, u.credits_balance,
                       u.is_suspended, u.suspension_reason, u.is_locked, u.lock_reason,
-                      u.is_deactivated, u.trial_used, u.created_at,
+                      u.is_deactivated, u.trial_used, u.created_at, u.grade,
                       u.last_seen_at, u.pending_deletion_at,
-                      beh.last_tab_switches, beh.last_devtools
-               FROM users u {behavior_subq}
+                      beh.last_tab_switches, beh.last_devtools,
+                      dev.ip, dev.city, dev.province, dev.country_code, dev.device_label
+               FROM users u {behavior_subq} {device_subq}
                WHERE u.email LIKE ? OR u.display_name LIKE ?
                ORDER BY u.created_at DESC LIMIT ? OFFSET ?""",
             pattern, pattern, limit, offset,
@@ -4837,14 +4922,27 @@ async def admin_list_users(
         rows = await pool.fetch(
             f"""SELECT u.id, u.email, u.display_name, u.subscription_tier, u.credits_balance,
                       u.is_suspended, u.suspension_reason, u.is_locked, u.lock_reason,
-                      u.is_deactivated, u.trial_used, u.created_at,
+                      u.is_deactivated, u.trial_used, u.created_at, u.grade,
                       u.last_seen_at, u.pending_deletion_at,
-                      beh.last_tab_switches, beh.last_devtools
-               FROM users u {behavior_subq}
+                      beh.last_tab_switches, beh.last_devtools,
+                      dev.ip, dev.city, dev.province, dev.country_code, dev.device_label
+               FROM users u {behavior_subq} {device_subq}
                ORDER BY u.created_at DESC LIMIT ? OFFSET ?""",
             limit, offset,
         )
     return {"users": [dict(r) for r in rows], "total": total}
+
+
+@app.get("/admin/users/{user_id}/devices")
+async def admin_get_user_devices(user_id: int, request: Request, pool=Depends(get_pool)):
+    _require_admin(request)
+    rows = await pool.fetch(
+        """SELECT device_id, device_label, ip, city, province, country, country_code,
+                  first_seen_at, last_seen_at
+           FROM user_devices WHERE user_id = ? ORDER BY last_seen_at DESC""",
+        user_id,
+    )
+    return [dict(r) for r in rows]
 
 
 @app.delete("/admin/users/{user_id}", status_code=204)

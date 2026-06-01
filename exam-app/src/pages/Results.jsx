@@ -21,7 +21,7 @@ import AIInsights from '../components/AIInsights.jsx'
 import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
 import { usePageTitle } from '../hooks/usePageTitle.js'
 import { MathText } from '../components/MathText.jsx'
-import { TOPIC_LABELS } from '../utils/topicLabels.js'
+import { TOPIC_LABELS, getTopicLabel } from '../utils/topicLabels.js'
 import { useOracle } from '../context/OracleContext.jsx'
 import { classifyLearner } from '../utils/learnerArchetype.js'
 import { TOPIC_ID_MAP } from '../utils/learningGraph.js'
@@ -614,7 +614,7 @@ export default function Results({ onOpenAuth }) {
 
   // RadarChart data
   const radarData = topics.map(([t, tb]) => ({
-    topic: TOPIC_LABELS[t] ?? t,
+    topic: getTopicLabel(t),
     score: Math.round(tb.accuracy * 100),
     fullMark: 100,
   }))
@@ -766,8 +766,7 @@ export default function Results({ onOpenAuth }) {
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="flex items-center gap-8 bg-[#0D1221] border border-[#1E2A44] rounded-2xl px-8 py-8"
         >
-          <AchievementCeremony trigger={scoreInView && score >= 9} className="flex-shrink-0">
-          <div ref={scoreRef}>
+          <div ref={scoreRef} className="flex-shrink-0">
             <svg width="120" height="120" viewBox="0 0 120 120">
               <circle cx="60" cy="60" r="54" stroke="#1E2A44" strokeWidth="6" fill="none" />
               <motion.circle
@@ -798,7 +797,6 @@ export default function Results({ onOpenAuth }) {
               </foreignObject>
             </svg>
           </div>
-          </AchievementCeremony>
           <motion.div
             className="flex flex-col gap-3 flex-1"
             initial="hidden"
@@ -969,7 +967,7 @@ export default function Results({ onOpenAuth }) {
                     <motion.div key={topic} variants={_itemVariants}
                       className="flex flex-col gap-2 px-4 py-3 rounded-xl"
                       style={{ background: verdict.bg, border: `1px solid ${verdict.border}` }}>
-                      <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">{TOPIC_LABELS[topic] ?? topic}</span>
+                      <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">{getTopicLabel(topic)}</span>
                       <span className="font-jakarta text-[12px] text-[#64748B]">{tb.correct}/{tb.total} · {Math.round(tb.accuracy * 100)}%</span>
                       <span className="font-jakarta text-[11px] font-bold" style={{ color: verdict.color }}>{verdict.text}</span>
                     </motion.div>
@@ -1203,7 +1201,7 @@ export default function Results({ onOpenAuth }) {
                   <div className="flex flex-col gap-3 px-5 py-4 rounded-xl border border-[#6366F144] bg-[#0D1221]">
                     <p className="font-jakarta text-[13px] text-[#94A3B8]">
                       Bạn sai <strong className="text-[#F8FAFC]">{wrongCount} câu</strong>
-                      {weakTopics.length > 0 && <> về <strong className="text-[#F8FAFC]">{weakTopics.map(t => TOPIC_LABELS[t] ?? t).join(', ')}</strong></>}
+                      {weakTopics.length > 0 && <> về <strong className="text-[#F8FAFC]">{weakTopics.map(t => getTopicLabel(t)).join(', ')}</strong></>}
                       {' '}— hỏi <strong className="text-[#6366F1]">Toán Oracle</strong> về chủ đề này?
                     </p>
                     <button
@@ -1382,7 +1380,7 @@ export default function Results({ onOpenAuth }) {
                 <div className="flex flex-col gap-5">
                   {topicTrends.map(({ topic, weeks }) => (
                     <div key={topic} className="flex flex-col gap-2">
-                      <span className="font-jakarta text-[13px] font-semibold text-[#CBD5E1]">{TOPIC_LABELS[topic] ?? topic}</span>
+                      <span className="font-jakarta text-[13px] font-semibold text-[#CBD5E1]">{getTopicLabel(topic)}</span>
                       <div className="flex items-end gap-2">
                         {weeks.map(({ week, accuracy }) => (
                           <div key={week} className="flex flex-col items-center gap-1 flex-1">

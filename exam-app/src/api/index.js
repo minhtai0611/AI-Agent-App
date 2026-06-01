@@ -180,6 +180,15 @@ function _matchSchools(studentScore, province) {
     }))
 }
 
+// Province-only school lookup for admin panel (no score filter)
+export function getSchoolsByProvince(province) {
+  if (!province) return []
+  const norm = _normProvince(province)
+  return schoolsData
+    .filter(s => _normProvince(s.province).includes(norm) || norm.includes(_normProvince(s.province)))
+    .slice(0, 3)
+}
+
 // Builds the payload for /analyze including wrong questions.
 export async function buildAnalyzePayload(result, history, _unused, examCategory, userProfile) {
   const exam = loadExamById(result.examId)

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
-import { googleSignIn, getMe, postHistory, setLogoutRef, setRefreshUserRef, setCreditRefs, updateProfile as apiUpdateProfile, deleteAccount as apiDeleteAccount, deactivateAccount as apiDeactivateAccount, reactivateAccount as apiReactivateAccount } from '../api/aiClient'
+import { googleSignIn, getMe, postHistory, setLogoutRef, setRefreshUserRef, setCreditRefs, updateProfile as apiUpdateProfile, deleteAccount as apiDeleteAccount, deactivateAccount as apiDeactivateAccount, reactivateAccount as apiReactivateAccount, upsertDevice } from '../api/aiClient'
+import { getDeviceId, getDeviceLabel, getLocation } from '../utils/deviceInfo'
 
 const AuthContext = createContext(null)
 
@@ -75,6 +76,21 @@ export function AuthProvider({ children }) {
     // Fetch full profile (includes grade, province, credits, tier, etc.)
     const { data: profile } = await getMe()
     setUser(profile || data.user)
+
+    // Fire-and-forget device location capture — must never block login
+    ;(async () => {
+      try {
+        const loc = await getLocation()
+        await upsertDevice({
+          device_id: getDeviceId(),
+          device_label: getDeviceLabel(),
+          city: loc?.city ?? null,
+          province: loc?.province ?? null,
+          country: loc?.country ?? null,
+          country_code: loc?.country_code ?? null,
+        })
+      } catch { /* silent */ }
+    })()
 
     // Clear pending referral code after use
     try { sessionStorage.removeItem('pending_ref') } catch { /* ignore */ }

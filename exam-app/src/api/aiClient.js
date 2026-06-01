@@ -238,6 +238,10 @@ export function googleSignIn(idToken, ref) {
   return wrap(client.post('/auth/google', { id_token: idToken, ...(ref ? { ref } : {}) }))
 }
 
+export function upsertDevice(payload) {
+  return wrap(client.post('/users/me/device', payload))
+}
+
 // ── Learning Graph / Review endpoints ────────────────────────────────────────
 
 export function migrateReviewItems(items) {
@@ -393,6 +397,9 @@ export const adminGrantCredits = (key, userId, amount) =>
 
 export const adminGetSecurityEvents = (key) =>
   wrap(adminClient.get('/admin/security-events', { headers: { 'x-admin-key': key } }))
+
+export const adminGetUserDevices = (key, userId) =>
+  wrap(adminClient.get(`/admin/users/${userId}/devices`, { headers: { 'x-admin-key': key } }))
 
 export const getPaymentConfig = () =>
   wrap(client.get('/payment/config'))
