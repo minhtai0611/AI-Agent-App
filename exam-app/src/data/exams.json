@@ -2185,7 +2185,7 @@
     "year": 2023,
     "source": "Mathematical Association of America (MAA)",
     "duration": 40,
-    "totalQuestions": 18,
+    "totalQuestions": 25,
     "questionIds": [
       "q_amc8_2023_01",
       "q_amc8_2023_03",
@@ -2204,7 +2204,14 @@
       "q_amc8_2023_21",
       "q_amc8_2023_22",
       "q_amc8_2023_24",
-      "q_amc8_2023_25"
+      "q_amc8_2023_25",
+      "q_amc8_2023_02",
+      "q_amc8_2023_04",
+      "q_amc8_2023_09",
+      "q_amc8_2023_12",
+      "q_amc8_2023_16",
+      "q_amc8_2023_17",
+      "q_amc8_2023_23"
     ],
     "category": "applied",
     "region": "intl",
@@ -2216,7 +2223,7 @@
     "year": 2022,
     "source": "Mathematical Association of America (MAA)",
     "duration": 40,
-    "totalQuestions": 18,
+    "totalQuestions": 25,
     "questionIds": [
       "q_amc8_2022_02",
       "q_amc8_2022_03",
@@ -2235,7 +2242,14 @@
       "q_amc8_2022_21",
       "q_amc8_2022_22",
       "q_amc8_2022_23",
-      "q_amc8_2022_25"
+      "q_amc8_2022_25",
+      "q_amc8_2022_01",
+      "q_amc8_2022_04",
+      "q_amc8_2022_10",
+      "q_amc8_2022_15",
+      "q_amc8_2022_19",
+      "q_amc8_2022_20",
+      "q_amc8_2022_24"
     ],
     "category": "applied",
     "region": "intl",
@@ -2247,7 +2261,7 @@
     "year": 2022,
     "source": "Mathematical Association of America (MAA)",
     "duration": 75,
-    "totalQuestions": 21,
+    "totalQuestions": 25,
     "questionIds": [
       "q_amc10a_22_01",
       "q_amc10a_22_02",
@@ -2269,7 +2283,11 @@
       "q_amc10a_22_22",
       "q_amc10a_22_23",
       "q_amc10a_22_24",
-      "q_amc10a_22_25"
+      "q_amc10a_22_25",
+      "q_amc10a_22_05",
+      "q_amc10a_22_09",
+      "q_amc10a_22_21",
+      "q_amc10a_22_15"
     ],
     "category": "applied",
     "region": "intl",
@@ -2281,7 +2299,7 @@
     "year": 2023,
     "source": "Association Kangourou sans Frontières / Kangaroo Canada",
     "duration": 75,
-    "totalQuestions": 12,
+    "totalQuestions": 20,
     "questionIds": [
       "q_kg_2023_ab_01",
       "q_kg_2023_ab_03",
@@ -2294,7 +2312,15 @@
       "q_kg_2023_ab_14",
       "q_kg_2023_ab_17",
       "q_kg_2023_ab_18",
-      "q_kg_2023_ab_20"
+      "q_kg_2023_ab_20",
+      "q_kg_2023_ab_02",
+      "q_kg_2023_ab_06",
+      "q_kg_2023_ab_09",
+      "q_kg_2023_ab_12",
+      "q_kg_2023_ab_15",
+      "q_kg_2023_ab_16",
+      "q_kg_2023_ab_19",
+      "q_kg_2023_ab_04"
     ],
     "category": "applied",
     "region": "intl",
@@ -2306,14 +2332,18 @@
     "year": 2023,
     "source": "Association Kangourou sans Frontières / Kangaroo Canada",
     "duration": 45,
-    "totalQuestions": 6,
+    "totalQuestions": 10,
     "questionIds": [
       "q_kg_2023_c_22",
       "q_kg_2023_c_23",
       "q_kg_2023_c_24",
       "q_kg_2023_c_27",
       "q_kg_2023_c_28",
-      "q_kg_2023_c_30"
+      "q_kg_2023_c_30",
+      "q_kg_2023_c_25",
+      "q_kg_2023_c_26",
+      "q_kg_2023_c_29",
+      "q_kg_2023_c_21"
     ],
     "category": "applied",
     "region": "intl",

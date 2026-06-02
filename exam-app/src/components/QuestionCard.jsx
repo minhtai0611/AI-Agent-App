@@ -168,6 +168,18 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
         </div>
       )}
 
+      {!question.image && question.imageLink && (
+        <a
+          href={question.imageLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#1E2A44] bg-[#0D1221] font-jakarta text-[13px] text-[#818CF8] hover:border-[#818CF8] hover:bg-[#818CF811] transition w-fit"
+        >
+          <span>🖼</span>
+          <span>Xem hình minh họa (nguồn chính thức) →</span>
+        </a>
+      )}
+
       <MathText className="font-fraunces text-[20px] text-[#F0F4FF] leading-relaxed mb-5 whitespace-pre-wrap">
         {question.question}
       </MathText>

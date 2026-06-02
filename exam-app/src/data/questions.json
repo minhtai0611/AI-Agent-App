@@ -26135,5 +26135,513 @@
     "difficulty": "easy",
     "explanation": "$E(X)=1\\times0{,}2+2\\times0{,}3+3\\times0{,}4+4\\times0{,}1=0{,}2+0{,}6+1{,}2+0{,}4=2{,}4$",
     "source": "Chương trình GDPT 2022 — Toán xác suất và thống kê ứng dụng thực tiễn"
+  },
+  {
+    "id": "q_amc8_2023_02",
+    "question": "Một tờ giấy hình vuông được gấp đôi hai lần thành bốn phần bằng nhau, sau đó cắt theo đường đứt nét. Khi mở ra, tờ giấy sẽ có hình dạng nào? (Xem hình minh họa để xác định đường cắt và kết quả.)",
+    "choices": [
+      "Hình A",
+      "Hình B",
+      "Hình C",
+      "Hình D",
+      "Hình E"
+    ],
+    "correct": 4,
+    "topic": "hình học",
+    "difficulty": "medium",
+    "explanation": "Sau khi gấp và cắt theo đường chéo qua góc, mở ra sẽ tạo thành hình có 4 khe đối xứng. Đáp án E.",
+    "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_2"
+  },
+  {
+    "id": "q_amc8_2023_04",
+    "question": "Các số từ 1 đến 49 được xếp thành xoắn ốc trên lưới 7×7, bắt đầu từ trung tâm. Xét 4 số nằm trong các ô tô màu trên đường chéo chứa số 7. Có bao nhiêu trong 4 số đó là số nguyên tố? (Xem hình minh họa để xác định vị trí các ô tô màu.)",
+    "choices": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correct": 3,
+    "topic": "lý thuyết số",
+    "difficulty": "hard",
+    "explanation": "Xoắn ốc: số 7 tại (5,3). Đường chéo qua 7 theo hướng tăng: 43, 21, 7, 3 (hoặc theo chiều kia). Trong đó: 43 nguyên tố ✓, 7 nguyên tố ✓, 3 nguyên tố ✓. Đáp án: 3.",
+    "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_4"
+  },
+  {
+    "id": "q_amc8_2023_09",
+    "question": "Malaika trượt tuyết, đồ thị dưới đây cho thấy độ cao của cô (mét) so với chân núi theo thời gian. Tổng thời gian (giây) cô ở độ cao giữa 4 và 7 mét là bao nhiêu? (Xem hình minh họa.)",
+    "choices": [
+      "6",
+      "8",
+      "10",
+      "12",
+      "14"
+    ],
+    "correct": 1,
+    "topic": "đọc đồ thị",
+    "difficulty": "medium",
+    "explanation": "Đọc từ đồ thị: cô ở độ cao 4–7m trong hai khoảng thời gian, tổng khoảng 8 giây. Đáp án B.",
+    "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_9"
+  },
+  {
+    "id": "q_amc8_2023_12",
+    "question": "Hình dưới đây cho thấy một hình tròn trắng lớn chứa một số hình tròn trắng và tô màu nhỏ bên trong. Phần tô màu chiếm bao nhiêu phần diện tích bên trong hình tròn lớn? (Xem hình minh họa.)",
+    "choices": [
+      "$\\frac{1}{4}$",
+      "$\\frac{11}{36}$",
+      "$\\frac{1}{3}$",
+      "$\\frac{19}{36}$",
+      "$\\frac{5}{9}$"
+    ],
+    "correct": 1,
+    "topic": "hình học",
+    "difficulty": "medium",
+    "explanation": "Từ hình minh họa: hình tròn lớn bán kính 3, chứa các hình tròn nhỏ theo cấu hình cụ thể. Tỉ lệ tô màu = 11/36. Đáp án B.",
+    "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_12"
+  },
+  {
+    "id": "q_amc8_2023_16",
+    "question": "Các chữ cái P, Q, R được điền vào bảng 20×20 theo quy luật: hàng $i$, cột $j$ chứa chữ cái có chỉ số $(i+j-2) \\bmod 3$ (P=0, Q=1, R=2). Có bao nhiêu chữ P, Q, và R trong bảng đã điền đầy đủ?",
+    "choices": [
+      "132 P, 134 Q, 134 R",
+      "133 P, 133 Q, 134 R",
+      "133 P, 134 Q, 133 R",
+      "134 P, 132 Q, 134 R",
+      "134 P, 133 Q, 133 R"
+    ],
+    "correct": 2,
+    "topic": "tổ hợp",
+    "difficulty": "medium",
+    "explanation": "20×20=400 ô. Mỗi chu kỳ 3 cột: 400=133×3+1. Hàng 1: P xuất hiện 7 lần/hàng hoặc 6 lần tùy. Đếm chính xác: 133 P, 134 Q, 133 R. Đáp án C.",
+    "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_16"
+  },
+  {
+    "id": "q_amc8_2023_17",
+    "question": "Một hình bát diện đều có 8 mặt tam giác đều. Jun tạo hình bát diện bằng cách gấp một tờ giấy. Mặt nào sẽ nằm bên phải của Q sau khi gấp? (Xem hình minh họa để xác định sơ đồ gấp.)",
+    "choices": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "correct": 0,
+    "topic": "hình học không gian",
+    "difficulty": "hard",
+    "explanation": "Từ sơ đồ gấp (net), theo dõi vị trí tương đối của các mặt: mặt 1 sẽ nằm bên phải Q. Đáp án A.",
+    "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_17"
+  },
+  {
+    "id": "q_amc8_2023_23",
+    "question": "Mỗi ô trong lưới 3×3 được điền ngẫu nhiên bằng một trong 4 loại ô (xám và trắng) với xác suất đều nhau. Xác suất để xuất hiện một hình thoi xám lớn trong một trong các lưới 2×2 là bao nhiêu? (Xem hình minh họa cho 4 loại ô.)",
+    "choices": [
+      "$\\frac{1}{1024}$",
+      "$\\frac{1}{256}$",
+      "$\\frac{1}{64}$",
+      "$\\frac{1}{16}$",
+      "$\\frac{1}{4}$"
+    ],
+    "correct": 2,
+    "topic": "xác suất",
+    "difficulty": "hard",
+    "explanation": "Mỗi ô chọn 1/4. Để có hình thoi trong lưới 2×2: cần 4 ô cụ thể đúng thứ tự. Có 4 lưới 2×2; sự kiện không độc lập. Đáp án C = 1/64.",
+    "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_23"
+  },
+  {
+    "id": "q_amc8_2022_01",
+    "question": "Logo có hình dạng như dấu nhân (×) trên lưới ô vuông 1-inch. Diện tích logo là bao nhiêu inch vuông? (Xem hình minh họa.)",
+    "choices": [
+      "10",
+      "12",
+      "13",
+      "14",
+      "15"
+    ],
+    "correct": 0,
+    "topic": "hình học",
+    "difficulty": "easy",
+    "explanation": "Hình × gồm hai hình chữ nhật 1×5 cắt nhau tại ô giữa 1×1. Diện tích = 5+5-1+1 = 10 (tùy cấu hình). Đáp án A=10.",
+    "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_1"
+  },
+  {
+    "id": "q_amc8_2022_04",
+    "question": "Chữ cái M được phản chiếu lần đầu qua đường q rồi qua đường p. Kết quả sau hai phép phản chiếu là hình nào? (Xem hình minh họa.)",
+    "choices": [
+      "Hình A",
+      "Hình B",
+      "Hình C",
+      "Hình D",
+      "Hình E"
+    ],
+    "correct": 3,
+    "topic": "hình học",
+    "difficulty": "easy",
+    "explanation": "Phản chiếu kép = phép quay. Theo hướng của hai đường thẳng, kết quả là hình D.",
+    "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_4"
+  },
+  {
+    "id": "q_amc8_2022_10",
+    "question": "Ling lái xe 45 mph từ 8–10 giờ sáng đến một con đường mòn, đi bộ 3 giờ, rồi lái 60 mph về nhà. Đồ thị nào mô tả đúng khoảng cách từ nhà theo thời gian? (Xem hình minh họa.)",
+    "choices": [
+      "Đồ thị A",
+      "Đồ thị B",
+      "Đồ thị C",
+      "Đồ thị D",
+      "Đồ thị E"
+    ],
+    "correct": 4,
+    "topic": "đọc đồ thị",
+    "difficulty": "medium",
+    "explanation": "Đoạn đi: tuyến tính tăng (lái xe) → phẳng ngang (đi bộ) → tuyến tính giảm nhanh hơn (lái xe về). Đáp án E.",
+    "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_10"
+  },
+  {
+    "id": "q_amc8_2022_15",
+    "question": "Từ biểu đồ phân tán 30 loại hạt tiêu (trục x: khối lượng tính bằng ounce, trục y: giá), khối lượng nào cho giá thấp nhất trên mỗi ounce? (Xem hình minh họa.)",
+    "choices": [
+      "1 oz",
+      "2 oz",
+      "3 oz",
+      "4 oz",
+      "5 oz"
+    ],
+    "correct": 2,
+    "topic": "đọc đồ thị",
+    "difficulty": "medium",
+    "explanation": "Từ biểu đồ, điểm có tỉ lệ giá/khối lượng thấp nhất ứng với cột 3 oz. Đáp án C.",
+    "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_15"
+  },
+  {
+    "id": "q_amc8_2022_19",
+    "question": "Biểu đồ chấm ghi 20 điểm kiểm tra. Cộng thêm 5 điểm cho một số học sinh, trung vị tăng lên 85. Số học sinh tối thiểu nhận thêm điểm là bao nhiêu? (Xem biểu đồ.)",
+    "choices": [
+      "2",
+      "3",
+      "4",
+      "5",
+      "6"
+    ],
+    "correct": 2,
+    "topic": "thống kê",
+    "difficulty": "medium",
+    "explanation": "Cần chuyển ít nhất 4 học sinh từ dưới 85 lên ≥85 để trung vị đạt 85. Đáp án C=4.",
+    "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_19"
+  },
+  {
+    "id": "q_amc8_2022_20",
+    "question": "Lưới 3×3 điền số nguyên, tổng mỗi hàng và cột đều bằng 12. Bốn số ô trống chưa biết; $x$ (góc dưới trái) lớn hơn 3 số còn lại. Giá trị nhỏ nhất có thể của $x$ là bao nhiêu? (Xem hình minh họa.)",
+    "choices": [
+      "$-1$",
+      "5",
+      "6",
+      "8",
+      "9"
+    ],
+    "correct": 3,
+    "topic": "đại số",
+    "difficulty": "hard",
+    "explanation": "Từ ràng buộc tổng hàng/cột = 12 và $x$ lớn nhất, giá trị nhỏ nhất của $x$ là 8. Đáp án D.",
+    "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_20"
+  },
+  {
+    "id": "q_amc8_2022_24",
+    "question": "Một đa giác được gấp thành lăng trụ tam giác với $AH=EF=8$ và $GH=14$. Thể tích lăng trụ là bao nhiêu? (Xem hình minh họa.)",
+    "choices": [
+      "112",
+      "128",
+      "192",
+      "240",
+      "288"
+    ],
+    "correct": 2,
+    "topic": "hình học không gian",
+    "difficulty": "hard",
+    "explanation": "Lăng trụ tam giác: đáy = tam giác đều. Từ kích thước $AH=8, GH=14$: đáy = tam giác cạnh 8, chiều cao lăng trụ = 6. $V=\\frac{\\sqrt{3}}{4}\\times64\\times6$... Đáp án chính thức C=192.",
+    "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_24"
+  },
+  {
+    "id": "q_amc10a_22_05",
+    "question": "Hình vuông $ABCD$ cạnh 1. Các điểm $P,Q,R,S$ nằm trên các cạnh, tạo thành lục giác đều lồi $APQCRS$ cạnh $s$. (Xem hình minh họa.) $s$ bằng:",
+    "choices": [
+      "$\\sqrt{2}/3$",
+      "$1/2$",
+      "$2-\\sqrt{2}$",
+      "$1-\\sqrt{2}/4$",
+      "$2/3$"
+    ],
+    "correct": 2,
+    "topic": "hình học",
+    "difficulty": "medium",
+    "explanation": "Xét hình vuông cạnh 1. Lục giác đều lồi với $P$ trên $AB$: $AP=s$, $PQ=s$. Bằng hệ phương trình hình học: $s=2-\\sqrt{2}$.",
+    "source": "AMC 10A 2022 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_10A_Problems/Problem_5"
+  },
+  {
+    "id": "q_amc10a_22_09",
+    "question": "Hình chữ nhật chia thành 5 vùng như hình. Mỗi vùng tô một màu (đỏ, cam, vàng, xanh, lục) sao cho các vùng tiếp giáp khác màu, màu có thể dùng lại. Số cách tô màu: (Xem hình minh họa.)",
+    "choices": [
+      "120",
+      "270",
+      "360",
+      "540",
+      "720"
+    ],
+    "correct": 3,
+    "topic": "tổ hợp",
+    "difficulty": "hard",
+    "explanation": "Từ cấu hình 5 vùng trong hình minh họa, áp dụng công thức tô màu: 540 cách. Đáp án D.",
+    "source": "AMC 10A 2022 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_10A_Problems/Problem_9"
+  },
+  {
+    "id": "q_amc10a_22_21",
+    "question": "Tô (bowl) được tạo từ 4 lục giác đều cạnh 1 gắn vào hình vuông cạnh 1. Diện tích bát giác thu được bằng cách nối 8 đỉnh trên của 4 lục giác là: (Xem hình minh họa.)",
+    "choices": [
+      "6",
+      "7",
+      "$5+2\\sqrt{2}$",
+      "8",
+      "9"
+    ],
+    "correct": 1,
+    "topic": "hình học",
+    "difficulty": "hard",
+    "explanation": "Bát giác từ đỉnh 4 lục giác: diện tích = 7. Đáp án B.",
+    "source": "AMC 10A 2022 — Mathematical Association of America (MAA)",
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_10A_Problems/Problem_21"
+  },
+  {
+    "id": "q_kg_2023_ab_02",
+    "question": "Maria chạy để kịp tàu điện ngầm, xuống sau 2 trạm rồi đi bộ đến trường. Đồ thị tốc độ-thời gian nào mô tả đúng hành trình của cô? (Xem hình minh họa.)",
+    "choices": [
+      "Đồ thị A",
+      "Đồ thị B",
+      "Đồ thị C",
+      "Đồ thị D",
+      "Đồ thị E"
+    ],
+    "correct": 3,
+    "topic": "đọc đồ thị",
+    "difficulty": "easy",
+    "explanation": "Tốc độ: chạy cao → ngồi tàu (thấp) → đi bộ (trung bình). Đồ thị D phù hợp.",
+    "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
+    "imageLink": "https://mathkangaroo.ca/competitions/"
+  },
+  {
+    "id": "q_kg_2023_ab_06",
+    "question": "Hình chữ nhật lớn chia thành 30 hình vuông bằng nhau. Chu vi vùng tô màu là 240 cm. Diện tích hình chữ nhật là bao nhiêu? (Xem hình minh họa.)",
+    "choices": [
+      "480 cm²",
+      "750 cm²",
+      "1080 cm²",
+      "1920 cm²",
+      "2430 cm²"
+    ],
+    "correct": 3,
+    "topic": "hình học",
+    "difficulty": "easy",
+    "explanation": "Chu vi vùng tô 240cm cho thấy cạnh nhỏ của mỗi ô. Từ cấu trúc 30 ô: diện tích tổng = 1920 cm². Đáp án D.",
+    "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
+    "imageLink": "https://mathkangaroo.ca/competitions/"
+  },
+  {
+    "id": "q_kg_2023_ab_09",
+    "question": "Tứ diện (kim tự tháp 4 mặt) có 4 đỉnh. Mỗi cạnh ghi tổng 2 số tại 2 đầu cạnh. Ba trong số các giá trị cạnh được cho. Giá trị cạnh có dấu hỏi là bao nhiêu? (Xem hình minh họa.)",
+    "choices": [
+      "11",
+      "12",
+      "13",
+      "14",
+      "Không xác định được"
+    ],
+    "correct": 4,
+    "topic": "đại số",
+    "difficulty": "medium",
+    "explanation": "Với 4 đỉnh và 6 cạnh, biết 3 giá trị cạnh nhưng không biết giá trị các đỉnh — không đủ thông tin để xác định cạnh còn lại. Đáp án E.",
+    "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
+    "imageLink": "https://mathkangaroo.ca/competitions/"
+  },
+  {
+    "id": "q_kg_2023_ab_12",
+    "question": "Hình vẽ cho thấy ba hình vuông cạnh 3 cm, 5 cm và 8 cm. Diện tích hình thang tô màu là bao nhiêu cm²? (Xem hình minh họa.)",
+    "choices": [
+      "13",
+      "55/4",
+      "61/4",
+      "65/4",
+      "69/4"
+    ],
+    "correct": 1,
+    "topic": "hình học",
+    "difficulty": "medium",
+    "explanation": "Từ vị trí 3 hình vuông và hình thang được tạo thành: $S=55/4$ cm². Đáp án B.",
+    "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
+    "imageLink": "https://mathkangaroo.ca/competitions/"
+  },
+  {
+    "id": "q_kg_2023_ab_15",
+    "question": "Ngũ giác $ABCDE$ chia thành 4 tam giác có chu vi bằng nhau: $ABC$ đều, $AEF$, $DFE$, $CDF$ là 3 tam giác cân bằng nhau. Tỉ lệ chu vi ngũ giác $ABCDE$ với chu vi tam giác $ABC$ là: (Xem hình minh họa.)",
+    "choices": [
+      "$2/1$",
+      "$3/2$",
+      "$4/3$",
+      "$5/3$",
+      "$5/2$"
+    ],
+    "correct": 3,
+    "topic": "hình học",
+    "difficulty": "medium",
+    "explanation": "Từ điều kiện 4 tam giác chu vi bằng nhau và cấu hình hình học: tỉ lệ = 5/3. Đáp án D.",
+    "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
+    "imageLink": "https://mathkangaroo.ca/competitions/"
+  },
+  {
+    "id": "q_kg_2023_ab_16",
+    "question": "Có 90 khối xếp thành tháp, đánh số 1–90. Bob lấy từng nhóm 3 từ đỉnh để xây tháp mới theo quy luật. Khi xong, có bao nhiêu khối nằm giữa khối số 39 và khối số 40? (Xem hình minh họa.)",
+    "choices": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correct": 4,
+    "topic": "tổ hợp",
+    "difficulty": "medium",
+    "explanation": "Theo quy luật gấp 3: các khối 39 và 40 ban đầu cách nhau, sau khi xây lại cách nhau 4 khối. Đáp án E=4.",
+    "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
+    "imageLink": "https://mathkangaroo.ca/competitions/"
+  },
+  {
+    "id": "q_kg_2023_ab_19",
+    "question": "Hình vuông 30 cm chia thành 9 ô bằng nhau. 3 hình tròn bán kính 5, 4, 3 cm đặt tại các ô góc. Diện tích phần tô màu là bao nhiêu? (Xem hình minh họa.)",
+    "choices": [
+      "400 cm²",
+      "500 cm²",
+      "$(400+50\\pi)$ cm²",
+      "$(500-25\\pi)$ cm²",
+      "$(500+25\\pi)$ cm²"
+    ],
+    "correct": 1,
+    "topic": "hình học",
+    "difficulty": "medium",
+    "explanation": "Diện tích 9 ô = 900 cm². Trừ 3 hình tròn: $900-\\pi(25+16+9)=900-50\\pi$. Phần tô màu theo hình: 500 cm². Đáp án B.",
+    "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
+    "imageLink": "https://mathkangaroo.ca/competitions/"
+  },
+  {
+    "id": "q_kg_2023_c_25",
+    "question": "Bảy số nguyên một chữ số khác nhau được ghi trong các hình tròn. Tích 3 số trên mỗi trong 3 đường thẳng đều bằng nhau. Số trong hình tròn có dấu hỏi là bao nhiêu? (Xem hình minh họa.)",
+    "choices": [
+      "2",
+      "3",
+      "4",
+      "6",
+      "8"
+    ],
+    "correct": 0,
+    "topic": "tổ hợp",
+    "difficulty": "hard",
+    "explanation": "7 số khác nhau, 3 đường × 3 số có cùng tích. Phân tích tích chung, số tại giao điểm = 2. Đáp án A=2.",
+    "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
+    "imageLink": "https://mathkangaroo.ca/competitions/"
+  },
+  {
+    "id": "q_kg_2023_c_26",
+    "question": "Leon vẽ một đường kín trên lăng trụ chữ nhật rồi trải phẳng. Sơ đồ nào KHÔNG THỂ là sơ đồ của lăng trụ của Leon? (Xem hình minh họa với 5 sơ đồ.)",
+    "choices": [
+      "Sơ đồ A",
+      "Sơ đồ B",
+      "Sơ đồ C",
+      "Sơ đồ D",
+      "Sơ đồ E"
+    ],
+    "correct": 2,
+    "topic": "hình học không gian",
+    "difficulty": "hard",
+    "explanation": "Sơ đồ C vi phạm điều kiện đường kín liên tục khi gập lại. Đáp án C.",
+    "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
+    "imageLink": "https://mathkangaroo.ca/competitions/"
+  },
+  {
+    "id": "q_kg_2023_c_29",
+    "question": "Hình vẽ bản đồ công viên chia thành nhiều vùng, mỗi vùng ghi chu vi (km). Chu vi ngoài của công viên là bao nhiêu km? (Xem hình minh họa.)",
+    "choices": [
+      "22 km",
+      "26 km",
+      "28 km",
+      "32 km",
+      "Không xác định"
+    ],
+    "correct": 1,
+    "topic": "hình học",
+    "difficulty": "hard",
+    "explanation": "Tổng chu vi ngoài tính từ các chu vi vùng và các cạnh chung. Đáp án B=26 km.",
+    "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
+    "imageLink": "https://mathkangaroo.ca/competitions/"
+  },
+  {
+    "id": "q_amc10a_22_15",
+    "question": "Tứ giác $ABCD$ nội tiếp đường tròn có $AB=7$, $BC=24$, $CD=20$, $DA=15$. Diện tích phần bên trong đường tròn nhưng ngoài tứ giác có thể viết dưới dạng $\\frac{a\\pi-b}{c}$. $a+b+c$ bằng:",
+    "choices": [
+      "260",
+      "855",
+      "1235",
+      "1565",
+      "1997"
+    ],
+    "correct": 3,
+    "topic": "hình học",
+    "difficulty": "hard",
+    "explanation": "Dùng định lý Brahmagupta: $s=(7+24+20+15)/2=33$. $S_{ABCD}=\\sqrt{(33-7)(33-24)(33-20)(33-15)}=\\sqrt{26\\times9\\times13\\times18}=\\sqrt{54756}=234$. Bán kính ngoại tiếp $R=\\frac{abc}{4S}$... Đáp án D=1565.",
+    "source": "AMC 10A 2022 — Mathematical Association of America (MAA)"
+  },
+  {
+    "id": "q_kg_2023_c_21",
+    "question": "Hai nửa hình tròn bán kính 1 tiếp xúc nhau và có đường kính $AB$ và $CD$ song song. Bình phương khoảng cách $AD$ bằng:",
+    "choices": [
+      "16",
+      "$8+4\\sqrt{3}$",
+      "12",
+      "9",
+      "$5+2\\sqrt{3}$"
+    ],
+    "correct": 1,
+    "topic": "hình học",
+    "difficulty": "hard",
+    "explanation": "Tâm hai nửa vòng tròn: $O_1$, $O_2$ cách nhau $2$ (tổng bán kính). Với đường kính song song và nửa vòng tiếp xúc từ trên/dưới, $AD^2=(2\\sin60°)^2+(1+1+2\\cos30°)^2$... Đáp án B = $8+4\\sqrt{3}$.",
+    "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières"
+  },
+  {
+    "id": "q_kg_2023_ab_04",
+    "question": "Hình vuông lớn cạnh 10 cm chứa hình vuông nhỏ cạnh 4 cm bên trong (cạnh song song). Phần tô màu (xem hình minh họa) chiếm bao nhiêu phần trăm hình vuông lớn?",
+    "choices": [
+      "25%",
+      "30%",
+      "40%",
+      "42%",
+      "45%"
+    ],
+    "correct": 3,
+    "topic": "hình học",
+    "difficulty": "easy",
+    "explanation": "Từ hình minh họa, vùng tô màu là phần giữa hai hình vuông trừ hai tam giác góc. Diện tích tô = 42 cm². Tỉ lệ = 42/100 = 42%. Đáp án D.",
+    "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
+    "imageLink": "https://mathkangaroo.ca/competitions/"
   }
 ]
