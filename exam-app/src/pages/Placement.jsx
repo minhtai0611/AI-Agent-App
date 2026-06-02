@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { loadQuestions } from '../api/index.js'
 import { submitPlacement } from '../api/aiClient.js'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { MathText } from '../components/MathText.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
@@ -46,7 +46,7 @@ function samplePlacementQuestions(allQuestions) {
 }
 
 export default function Placement() {
-  usePageTitle('Kiểm tra năng lực')
+  usePageMeta('Kiểm tra năng lực', { noindex: true })
   const navigate = useNavigate()
   const { user } = useAuth()
 

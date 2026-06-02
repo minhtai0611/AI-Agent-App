@@ -14,7 +14,6 @@ import LowCreditBanner from './components/LowCreditBanner.jsx'
 import OfflineBanner from './components/OfflineBanner.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import InstallPrompt from './components/InstallPrompt.jsx'
-import OracleBubble from './components/OracleBubble.jsx'
 import { OracleProvider } from './context/OracleContext.jsx'
 
 const Landing = lazy(() => import('./pages/Landing.jsx'))
@@ -206,7 +205,6 @@ export default function App() {
         <ExamProvider>
           <OracleProvider>
             <AppInner />
-            <OracleBubble />
           </OracleProvider>
         </ExamProvider>
       </HistoryProvider>

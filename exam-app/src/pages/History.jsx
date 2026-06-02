@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { loadExamById } from '../api/index.js'
 import { listVariants, itemVariants, pageVariants } from '../utils/animations.js'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from 'recharts'
@@ -23,7 +23,7 @@ function shortDate(iso) {
 const PAGE_SIZE = 10
 
 export default function History() {
-  usePageTitle('Lịch sử')
+  usePageMeta('Lịch sử', { noindex: true })
   const navigate = useNavigate()
   const { results } = useHistory()
   const [page, setPage] = useState(1)

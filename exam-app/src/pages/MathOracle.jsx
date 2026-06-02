@@ -10,7 +10,8 @@ import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
-import { solveMath, getMathStats, getWikiStatus, ocrImage, reviewMath, sendTutorMessage } from '../api/aiClient'
+import { solveMath, getMathStats, getWikiStatus, ocrImage, reviewMath } from '../api/aiClient'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import SymbolPalette from '../components/SymbolPalette'
 import { useVoiceInput } from '../hooks/useVoiceInput.js'
 
@@ -854,6 +855,7 @@ export default function MathOracle() {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
+  usePageMeta('Oracle AI · Giải toán từng bước', { description: 'Nhập bài toán và Oracle AI giải từng bước chi tiết. Hỗ trợ LaTeX, tiếng Việt, nhiều dạng toán THPT.' })
   const { user } = useAuth()
   const isPaidTier = user?.subscription_tier === 'student' || user?.subscription_tier === 'complete'
   const MAX_RETRIES = 2
@@ -998,9 +1000,6 @@ export default function MathOracle() {
       setSolution('')
       if (solutionRef.current) { solutionRef.current.value = ''; autoResize(solutionRef.current) }
       await doReviewChat(text, sol)
-    } else {
-      // socratic mode first message, or any follow-up
-      await doTutorChat(text, chatMode === 'socratic' && isNewProblem)
     }
   }
 
@@ -1067,42 +1066,6 @@ export default function MathOracle() {
     setHistory(updated)
   }
 
-  async function doTutorChat(text, isSocraticStart = false) {
-    setLoading(true)
-    // Build conversation history for tutor endpoint
-    const historyMsgs = messages
-      .filter(m => m.role === 'user' || (m.role === 'oracle' && m.content))
-      .map(m => ({ role: m.role === 'oracle' ? 'assistant' : 'user', content: m.content || '' }))
-
-    const systemHint = isSocraticStart
-      ? 'Hướng dẫn học sinh từng bước bằng câu hỏi gợi mở, không giải thẳng.'
-      : undefined
-
-    const payload = {
-      messages: [...historyMsgs, { role: 'user', content: text }],
-      ...(systemHint ? { system: systemHint } : {}),
-    }
-
-    const { data, error: err } = await sendTutorMessage(payload)
-    setLoading(false)
-    if (err) {
-      setError(err)
-      setMessages(prev => prev.slice(0, -1))
-      return
-    }
-    const reply = data?.reply || data?.message || (typeof data === 'string' ? data : 'Oracle không trả lời được.')
-    setMessages(prev => [...prev, {
-      role: 'oracle',
-      content: reply,
-      steps: null,
-      type: isSocraticStart ? 'socratic' : 'followup',
-    }])
-    if (isSocraticStart) {
-      const updated = pushHistory(text)
-      setHistory(updated)
-    }
-  }
-
   function handleSolveForm(e) {
     e?.preventDefault()
     const text = (textareaRef.current?.value || '').trim()
@@ -1156,15 +1119,9 @@ export default function MathOracle() {
   const rawTopic = lastSolveResult?.result?.answer?.problem_type
   const safeTopic = VALID_TOPICS.includes(rawTopic) ? rawTopic : null
 
-  // ── Socratic turn limit ───────────────────────────────────────────────────
-  const MAX_TUTOR_TURNS = 8
-  const tutorTurnCount = messages.filter(m => m.role === 'oracle' && (m.type === 'socratic' || m.type === 'followup')).length
-  const tutorLimitReached = chatMode === 'socratic' && tutorTurnCount >= MAX_TUTOR_TURNS
-
   // ── Mode toggle labels ────────────────────────────────────────────────────
   const MODE_OPTS = [
     ['solve', 'Giải thẳng'],
-    ['socratic', 'Hướng dẫn'],
     ['review', 'Chấm bài'],
   ]
 
@@ -1247,7 +1204,7 @@ export default function MathOracle() {
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex gap-2">
             {MODE_OPTS.map(([m, label]) => {
-              const requiresPaid = m === 'review' || m === 'socratic'
+              const requiresPaid = m === 'review'
               const locked = requiresPaid && !isPaidTier
               return (
                 <button key={m} type="button"
@@ -1338,8 +1295,6 @@ export default function MathOracle() {
               placeholder={
                 chatMode === 'review'
                   ? 'Nhập bài toán cần chấm… (LaTeX, tiếng Việt)'
-                  : chatMode === 'socratic'
-                  ? 'Nhập bài toán để được hướng dẫn từng bước…'
                   : 'Nhập bài toán… (hỗ trợ LaTeX, nhiều dòng, tiếng Việt)\nVD: Giải phương trình x² – 5x + 6 = 0'
               }
               rows={3}
@@ -1405,11 +1360,11 @@ export default function MathOracle() {
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleOcrFile} style={{ display: 'none' }} />
               <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleOcrFile} style={{ display: 'none' }} />
               <span className="font-jakarta text-[11px] text-[#334155]">⌘ Enter</span>
-              <button type="submit" disabled={!question.trim() || loading || ocring || ocringS || tutorLimitReached}
+              <button type="submit" disabled={!question.trim() || loading || ocring || ocringS}
                 className="px-4 py-1.5 bg-[#6366F1] text-white font-jakarta font-semibold text-sm rounded-lg disabled:opacity-40 hover:bg-[#4F46E5] transition">
                 {loading
-                  ? (chatMode === 'review' ? 'Đang chấm…' : chatMode === 'socratic' ? 'Đang hướng dẫn…' : 'Đang tính…')
-                  : (chatMode === 'review' ? 'Chấm bài' : chatMode === 'socratic' ? 'Hướng dẫn' : 'Giải')}
+                  ? (chatMode === 'review' ? 'Đang chấm…' : 'Đang tính…')
+                  : (chatMode === 'review' ? 'Chấm bài' : 'Giải')}
               </button>
             </div>
           </div>
@@ -1542,17 +1497,6 @@ export default function MathOracle() {
                 </div>
               )
             })}
-            {tutorLimitReached && (
-              <div className="flex justify-start">
-                <div className="max-w-[90%] rounded-2xl rounded-tl-sm bg-[#0F1726] border border-[#6366F144] px-4 py-3 flex flex-col gap-2">
-                  <p className="font-jakarta text-[13px] text-[#818CF8]">Bạn đã nhận đủ gợi ý cho câu hỏi này.</p>
-                  <button onClick={() => navigate(-1)}
-                    className="self-start font-jakarta text-[12px] font-semibold text-[#818CF8] hover:opacity-80 transition">
-                    ← Quay lại xem giải thích đầy đủ
-                  </button>
-                </div>
-              </div>
-            )}
             <div ref={chatEndRef} />
           </div>
         )}
@@ -1562,8 +1506,7 @@ export default function MathOracle() {
           <div className="font-jakarta text-[14px] text-[#475569]">
             {retryAttempt > 0
               ? `Đang thử lại sau timeout (lần ${retryAttempt + 1}/${MAX_RETRIES + 1})…`
-              : chatMode === 'socratic' ? 'Oracle đang soạn câu hỏi gợi mở…'
-              : chatMode === 'review'   ? 'Oracle đang chấm bài…'
+              : chatMode === 'review' ? 'Oracle đang chấm bài…'
               : 'Oracle đang truy vấn tri thức…'
             }
           </div>

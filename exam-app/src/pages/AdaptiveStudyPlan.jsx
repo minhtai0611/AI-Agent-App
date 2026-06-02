@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext.jsx'
 import { getAdaptiveStudyPlan } from '../api/aiClient.js'
 import { pageVariants, listVariants, itemVariants } from '../utils/animations.js'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { useRevealOnScroll } from '../hooks/useRevealOnScroll.js'
 
 const STAGE_COLORS = [
@@ -185,7 +185,7 @@ function WeekSchedule({ week }) {
 }
 
 export default function AdaptiveStudyPlan() {
-  usePageTitle('Kế hoạch học thích nghi')
+  usePageMeta('Kế hoạch học thích nghi', { noindex: true })
   const navigate = useNavigate()
   const { user } = useAuth()
   const [plan, setPlan] = useState(null)

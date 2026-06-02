@@ -12,7 +12,7 @@ import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy,
 import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
 import AchievementCeremony from '../components/AchievementCeremony.jsx'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { useToast } from '../context/ToastContext.jsx'
 import { computeStreak, computeStreakPersonalBest, getStreakRecoveryStatus } from '../utils/streak.js'
 import { getDaysUntilExam } from '../utils/examCountdown.js'
@@ -213,7 +213,7 @@ function CreditGauge({ balance, tier }) {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function Account() {
-  usePageTitle('Tài khoản')
+  usePageMeta('Tài khoản', { noindex: true })
   const navigate  = useNavigate()
   const { user, loading, updateProfile, refreshUser, refundCredits, logout, deleteAccount, deactivateAccount, reactivateAccount } = useAuth()
   const { results } = useHistory()

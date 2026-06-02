@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import AmbientGlows from '../components/AmbientGlows.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
@@ -36,7 +36,7 @@ const TOPUP_PACKAGES = [
 ]
 
 export default function Landing({ onOpenAuth }) {
-  usePageTitle('')
+  usePageMeta('', { description: 'Ôn tập Toán với 40+ đề thi thật từ 63 tỉnh thành — AI phát hiện lỗi sai, tạo kế hoạch học tập cá nhân hóa cho học sinh THPT & lớp 10.' })
   const navigate = useNavigate()
   const { user } = useAuth()
   const { results } = useHistory()

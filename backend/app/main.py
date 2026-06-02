@@ -1,5 +1,6 @@
 import asyncio
 import hashlib
+import httpx
 import io
 import json
 import logging
@@ -265,11 +266,6 @@ _SCHEMA_DDL = [
         UNIQUE(user_id, date)
     )""",
     """CREATE INDEX IF NOT EXISTS idx_daily_lb_date ON daily_challenge_leaderboard (date, score DESC, time_seconds ASC)""",
-    """CREATE TABLE IF NOT EXISTS tutor_memory (
-        user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-        summary TEXT NOT NULL DEFAULT '',
-        updated_at TEXT DEFAULT (datetime('now'))
-    )""",
     "ALTER TABLE users ADD COLUMN strategy_used_at TEXT DEFAULT NULL",
     # Part 9 — questions/exams from DB
     """CREATE TABLE IF NOT EXISTS exams (
@@ -451,6 +447,8 @@ _SCHEMA_DDL = [
         UNIQUE(user_id, device_id)
     )""",
     "CREATE INDEX IF NOT EXISTS user_devices_user_idx ON user_devices (user_id)",
+    # IP-based province suggestion — populated silently on device upsert, no user permission required
+    "ALTER TABLE user_devices ADD COLUMN ip_province TEXT DEFAULT NULL",
 ]
 
 
@@ -1035,18 +1033,6 @@ class HintResponse(BaseModel):
     difficulty_note: str = ""
 
 
-class TutorChatRequest(BaseModel):
-    messages: list[dict]
-    exam_context: dict = {}
-    student_name: str = ""
-    ai_preferences: dict = {}
-
-
-class TutorChatResponse(BaseModel):
-    reply: str
-    messages: list[dict]
-
-
 class ExplainRequest(BaseModel):
     question: dict
     chosen_index: int
@@ -1345,141 +1331,6 @@ async def hint(
         raise
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Không thể tạo gợi ý: {exc}")
-
-
-async def _update_tutor_memory(pool, client, user_id: int, messages: list[dict]) -> None:
-    """Compress the session into a short learning summary and persist it (Complete tier)."""
-    try:
-        settings = get_settings()
-        mem_row = await pool.fetchrow("SELECT summary FROM tutor_memory WHERE user_id = ?", user_id)
-        existing = (mem_row["summary"] if mem_row else "") or ""
-        session_text = "\n".join(
-            f"{m['role'].upper()}: {m['content'][:200]}" for m in messages[-8:] if isinstance(m.get("content"), str)
-        )
-        prompt = (
-            f"Lịch sử học hiện tại (tóm tắt trước đây):\n{existing[:300]}\n\n"
-            f"Phiên học mới:\n{session_text}\n\n"
-            "Viết 2-3 câu tóm tắt những điểm mạnh/yếu mới của học sinh, kết hợp với lịch sử trước. "
-            "Tối đa 400 ký tự. Chỉ trả lời tóm tắt, không giải thích."
-        )
-        resp = await client.chat.completions.create(
-            model=get_settings().haiku_model, max_tokens=120,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        new_summary = (resp.choices[0].message.content or "").strip()[:400]
-        await pool.execute(
-            "INSERT INTO tutor_memory (user_id, summary, updated_at) VALUES (?, ?, datetime('now')) "
-            "ON CONFLICT(user_id) DO UPDATE SET summary = excluded.summary, updated_at = excluded.updated_at",
-            user_id, new_summary,
-        )
-    except Exception as exc:
-        logger.warning("_update_tutor_memory failed for user %s: %s", user_id, exc)
-
-
-@app.post("/tutor", response_model=TutorChatResponse)
-async def tutor(
-    req: TutorChatRequest,
-    client: AsyncOpenAI = Depends(get_ai_client),
-    current_user: CurrentUser = Depends(get_current_user),
-    pool=Depends(get_pool),
-):
-    tier_row_t = await pool.fetchrow(
-        "SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id
-    )
-    tier_t = tier_row_t["subscription_tier"] if tier_row_t else "basic"
-    await _spend_credits(pool, current_user.user_id, 1, "tutor")
-    from app.agent.exam_tutor import run_tutor
-
-    # Build memory prefix — layers stack in order: long-term session, concept style, error patterns
-    memory_parts: list[str] = []
-
-    # Layer 1: session memory (Complete only)
-    if tier_t == "complete":
-        mem_row = await pool.fetchrow(
-            "SELECT summary FROM tutor_memory WHERE user_id = ?", current_user.user_id
-        )
-        if mem_row and mem_row["summary"]:
-            memory_parts.append(f"Lịch sử học: {mem_row['summary']}")
-
-    # Layer 2: concept explanation style preference (all tiers)
-    concept_id = req.exam_context.get("concept_id") if req.exam_context else None
-    if concept_id:
-        style_row = await pool.fetchrow(
-            "SELECT preferred_style FROM concept_memory WHERE user_id = ? AND concept_id = ?",
-            current_user.user_id, concept_id,
-        )
-        if style_row:
-            style_map = {"visual": "hình ảnh/sơ đồ", "formula": "công thức trước", "example": "ví dụ cụ thể", "analogy": "so sánh tương tự"}
-            memory_parts.append(f"Phong cách giải thích hiệu quả với học sinh này: {style_map.get(style_row['preferred_style'], 'công thức trước')}")
-
-        # Layer 3: error patterns on this concept (all tiers)
-        err_rows = await pool.fetch(
-            """SELECT error_type, count FROM error_patterns
-               WHERE user_id = ? AND concept_id = ? AND count >= 2
-               ORDER BY count DESC LIMIT 3""",
-            current_user.user_id, concept_id,
-        )
-        if err_rows:
-            err_type_vi = {"sign_error": "sai dấu", "formula_confusion": "nhầm công thức",
-                           "procedural_slip": "sai quy trình", "conceptual_gap": "lỗ hổng khái niệm", "calculation": "lỗi tính toán"}
-            errs = ", ".join(f"{err_type_vi.get(r['error_type'], r['error_type'])} ({r['count']} lần)" for r in err_rows)
-            memory_parts.append(f"Lỗi hay gặp ở chủ đề này: {errs}")
-
-    memory_prefix = f"[{' | '.join(memory_parts)}]\n\n" if memory_parts else ""
-
-    reply, updated = await run_tutor(
-        client, req.messages, req.exam_context, req.student_name,
-        memory_prefix=memory_prefix,
-        ai_preferences=req.ai_preferences,
-    )
-    # Async memory update after ≥4 turns for Complete users
-    if tier_t == "complete" and len(req.messages) >= 4:
-        asyncio.ensure_future(_update_tutor_memory(pool, client, current_user.user_id, updated))
-    return TutorChatResponse(reply=reply, messages=updated)
-
-
-@app.post("/tutor/stream")
-async def tutor_stream(
-    req: TutorChatRequest,
-    client: AsyncOpenAI = Depends(get_ai_client),
-    current_user: CurrentUser = Depends(get_current_user),
-    pool=Depends(get_pool),
-):
-    """Streaming variant of /tutor — tokens arrive incrementally as SSE JSON lines."""
-    from fastapi.responses import StreamingResponse
-    await _spend_credits(pool, current_user.user_id, 1, "tutor")
-    from app.agent.exam_tutor import build_tutor_system_prompt
-    settings = get_settings()
-
-    # Build same system prompt as /tutor
-    system_prompt = build_tutor_system_prompt(req.exam_context or {}, req.student_name or "")
-
-    messages = list(req.messages or [])
-    if not messages:
-        greeting_trigger = (
-            "Em đang làm bài thi. Gia sư chào em và sẵn sàng hỗ trợ kiến thức toán nhé."
-            if req.exam_context.get("inExam") else
-            "Chào gia sư, em muốn hỏi bài toán."
-        )
-        messages = [{"role": "user", "content": greeting_trigger}]
-
-    async def event_generator():
-        try:
-            stream = await client.chat.completions.create(
-                model=settings.default_model,
-                max_tokens=600,
-                messages=[{"role": "system", "content": system_prompt}, *messages],
-                stream=True,
-            )
-            async for chunk in stream:
-                delta = chunk.choices[0].delta.content if chunk.choices else None
-                if delta:
-                    yield json.dumps({"chunk": delta}, ensure_ascii=False) + "\n"
-            yield json.dumps({"done": True}) + "\n"
-        except Exception as exc:
-            yield json.dumps({"error": str(exc)}) + "\n"
-
-    return StreamingResponse(event_generator(), media_type="application/x-ndjson")
 
 
 class GenerateExamRequest(BaseModel):
@@ -3807,6 +3658,26 @@ class DeviceUpsertRequest(BaseModel):
     country_code: str | None = Field(default=None, max_length=2)
 
 
+async def _lookup_ip_province(ip: str | None) -> str | None:
+    """Resolve an IP address to a Vietnamese province name via ip-api.com.
+    Returns None on any failure — must never raise."""
+    if not ip or ip in ("127.0.0.1", "::1", "localhost"):
+        return None
+    try:
+        async with httpx.AsyncClient(timeout=2.0) as client:
+            r = await client.get(
+                f"http://ip-api.com/json/{ip}",
+                params={"lang": "vi", "fields": "status,regionName"},
+            )
+            if r.status_code == 200:
+                d = r.json()
+                if d.get("status") == "success":
+                    return d.get("regionName")
+    except Exception:
+        pass
+    return None
+
+
 @app.post("/users/me/device", status_code=204)
 async def upsert_user_device(
     request: Request,
@@ -3819,7 +3690,7 @@ async def upsert_user_device(
         request.headers.get("X-Real-IP") or (request.client.host if request.client else None)
     )
     existing = await pool.fetchrow(
-        "SELECT id FROM user_devices WHERE user_id = ? AND device_id = ?",
+        "SELECT id, ip_province FROM user_devices WHERE user_id = ? AND device_id = ?",
         current_user.user_id, body.device_id,
     )
     if not existing:
@@ -3828,20 +3699,25 @@ async def upsert_user_device(
             current_user.user_id, ip,
             json.dumps({"device": body.device_label, "city": body.city, "country": body.country_code}),
         )
+    # Only look up IP province if not already stored for this device
+    ip_province = existing["ip_province"] if existing else None
+    if not ip_province:
+        ip_province = await _lookup_ip_province(ip)
     await pool.execute(
         """INSERT INTO user_devices
-               (user_id, device_id, device_label, ip, city, province, country, country_code)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+               (user_id, device_id, device_label, ip, city, province, ip_province, country, country_code)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT(user_id, device_id) DO UPDATE SET
              device_label = excluded.device_label,
              ip           = excluded.ip,
              city         = COALESCE(excluded.city, city),
              province     = COALESCE(excluded.province, province),
+             ip_province  = COALESCE(excluded.ip_province, ip_province),
              country      = COALESCE(excluded.country, country),
              country_code = COALESCE(excluded.country_code, country_code),
              last_seen_at = datetime('now')""",
         current_user.user_id, body.device_id, body.device_label,
-        ip, body.city, body.province, body.country, body.country_code,
+        ip, body.city, body.province, ip_province, body.country, body.country_code,
     )
 
 

@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext.jsx'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { listClasses, createClass, joinClass, getClassResults } from '../api/aiClient.js'
 import { useToast } from '../context/ToastContext.jsx'
 
 export default function ClassDashboard() {
-  usePageTitle('Lớp học')
+  usePageMeta('Lớp học', { noindex: true })
   const { user } = useAuth()
   const navigate = useNavigate()
   const toast = useToast()

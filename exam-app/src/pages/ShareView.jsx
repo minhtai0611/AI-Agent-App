@@ -1,5 +1,5 @@
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { computeBadges } from '../utils/badges.js'
 
@@ -18,7 +18,7 @@ function parseShareData(raw) {
 }
 
 export default function ShareView() {
-  usePageTitle('Kết quả chia sẻ')
+  usePageMeta('Kết quả chia sẻ', { noindex: true })
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const { results } = useHistory()

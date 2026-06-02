@@ -4,7 +4,7 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
 _AI_PATHS = {
-    "/analyze", "/hint", "/tutor", "/study-plan", "/explain",
+    "/analyze", "/hint", "/study-plan", "/explain",
     "/chat", "/compress", "/math-solve", "/math-review", "/math-ingest", "/math-upload",
     "/study-plan-quiz",
 }

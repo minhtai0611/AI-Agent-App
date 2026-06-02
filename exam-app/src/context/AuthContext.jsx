@@ -77,20 +77,25 @@ export function AuthProvider({ children }) {
     const { data: profile } = await getMe()
     setUser(profile || data.user)
 
-    // Fire-and-forget device location capture — must never block login
-    ;(async () => {
-      try {
-        const loc = await getLocation()
-        await upsertDevice({
-          device_id: getDeviceId(),
-          device_label: getDeviceLabel(),
-          city: loc?.city ?? null,
-          province: loc?.province ?? null,
-          country: loc?.country ?? null,
-          country_code: loc?.country_code ?? null,
-        })
-      } catch { /* silent */ }
-    })()
+    // Fire-and-forget device location capture.
+    // Deferred until profile is complete so the browser GPS permission dialog
+    // does not collide with the profile-completion modal (location bug fix).
+    const currentUser = profile || data.user
+    if (currentUser?.grade && currentUser?.province) {
+      ;(async () => {
+        try {
+          const loc = await getLocation()
+          await upsertDevice({
+            device_id: getDeviceId(),
+            device_label: getDeviceLabel(),
+            city: loc?.city ?? null,
+            province: loc?.province ?? null,
+            country: loc?.country ?? null,
+            country_code: loc?.country_code ?? null,
+          })
+        } catch { /* silent */ }
+      })()
+    }
 
     // Clear pending referral code after use
     try { sessionStorage.removeItem('pending_ref') } catch { /* ignore */ }
@@ -118,7 +123,26 @@ export function AuthProvider({ children }) {
   async function updateProfile(fields) {
     const { data, error } = await apiUpdateProfile(fields)
     if (error) throw new Error(error)
-    setUser(prev => ({ ...prev, ...data }))
+    setUser(prev => {
+      const next = { ...prev, ...data }
+      // Profile just became complete — now safe to request GPS (modal is gone)
+      if (next?.grade && next?.province && !(prev?.grade && prev?.province)) {
+        ;(async () => {
+          try {
+            const loc = await getLocation()
+            await upsertDevice({
+              device_id: getDeviceId(),
+              device_label: getDeviceLabel(),
+              city: loc?.city ?? null,
+              province: loc?.province ?? null,
+              country: loc?.country ?? null,
+              country_code: loc?.country_code ?? null,
+            })
+          } catch { /* silent */ }
+        })()
+      }
+      return next
+    })
     return data
   }
 

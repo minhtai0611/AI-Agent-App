@@ -19,7 +19,7 @@ import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPla
 import { loadPreferences } from '../utils/aiPreferences.js'
 import AIInsights from '../components/AIInsights.jsx'
 import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { MathText } from '../components/MathText.jsx'
 import { TOPIC_LABELS, getTopicLabel } from '../utils/topicLabels.js'
 import { useOracle } from '../context/OracleContext.jsx'
@@ -295,7 +295,7 @@ function ScoreCorrelation({ examId, score, province }) {
 }
 
 export default function Results({ onOpenAuth }) {
-  usePageTitle('Kết quả thi')
+  usePageMeta('Kết quả thi', { noindex: true })
   const navigate = useNavigate()
   const location = useLocation()
   const { resultId } = useParams()

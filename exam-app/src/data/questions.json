@@ -9755,7 +9755,8 @@
     "correct": 3,
     "topic": "căn thức",
     "difficulty": "medium",
-    "explanation": "x²−8x+16 = (x−4)² > 0 ⟺ x ≠ 4"
+    "explanation": "x²−8x+16 = (x−4)² > 0 ⟺ x ≠ 4",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_002",
@@ -9769,7 +9770,8 @@
     "correct": 3,
     "topic": "căn thức",
     "difficulty": "easy",
-    "explanation": "(7/√3 − 5/√3 + √3)·√3 = 7 − 5 + 3 = 5"
+    "explanation": "(7/√3 − 5/√3 + √3)·√3 = 7 − 5 + 3 = 5",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_003",
@@ -9783,7 +9785,8 @@
     "correct": 1,
     "topic": "căn thức",
     "difficulty": "medium",
-    "explanation": "√(3+2√2) = √(√2+1)² = √2+1; √(7+2√10) = √(√5+√2)² = √5+√2. C = (√2+1)−(√5+√2) = 1−√5"
+    "explanation": "√(3+2√2) = √(√2+1)² = √2+1; √(7+2√10) = √(√5+√2)² = √5+√2. C = (√2+1)−(√5+√2) = 1−√5",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_004",
@@ -9797,7 +9800,8 @@
     "correct": 0,
     "topic": "biểu thức đại số",
     "difficulty": "hard",
-    "explanation": "Rút gọn A = 1 (hằng số). Phương trình 1 = 1 − √x ⟺ √x = 0 ⟺ x = 0. Nhưng x = 0 không thỏa ĐKXĐ (cần x > 0). Vậy không có giá trị x nào."
+    "explanation": "Rút gọn A = 1 (hằng số). Phương trình 1 = 1 − √x ⟺ √x = 0 ⟺ x = 0. Nhưng x = 0 không thỏa ĐKXĐ (cần x > 0). Vậy không có giá trị x nào.",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_005",
@@ -9811,7 +9815,8 @@
     "correct": 1,
     "topic": "biểu thức đại số",
     "difficulty": "hard",
-    "explanation": "Rút gọn P = (√x−1)/(√x+1). P < 1/2 ⟺ (√x−1)/(√x+1) < 1/2 ⟺ 2√x−2 < √x+1 ⟺ √x < 3 ⟺ x < 9. Kết hợp ĐKXĐ: 0 < x < 9, x ≠ 1."
+    "explanation": "Rút gọn P = (√x−1)/(√x+1). P < 1/2 ⟺ (√x−1)/(√x+1) < 1/2 ⟺ 2√x−2 < √x+1 ⟺ √x < 3 ⟺ x < 9. Kết hợp ĐKXĐ: 0 < x < 9, x ≠ 1.",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_006",
@@ -9825,7 +9830,8 @@
     "correct": 3,
     "topic": "hàm số bậc nhất",
     "difficulty": "easy",
-    "explanation": "Hệ pt: a+b=3 và 2a+b=−1 → a=−4, b=7. Hàm số: y = −4x + 7"
+    "explanation": "Hệ pt: a+b=3 và 2a+b=−1 → a=−4, b=7. Hàm số: y = −4x + 7",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_007",
@@ -9839,7 +9845,8 @@
     "correct": 1,
     "topic": "hàm số bậc nhất",
     "difficulty": "medium",
-    "explanation": "d // Δ → a = 3/2. Thay C(3;−2): −2 = (3/2)·3 + b → b = −13/2. Hàm số: y = 3x/2 − 13/2"
+    "explanation": "d // Δ → a = 3/2. Thay C(3;−2): −2 = (3/2)·3 + b → b = −13/2. Hàm số: y = 3x/2 − 13/2",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_008",
@@ -9853,7 +9860,8 @@
     "correct": 2,
     "topic": "hàm số bậc nhất",
     "difficulty": "hard",
-    "explanation": "2 = a + b. Cần min(b²/|a|) với a < 0, dùng BCS: S = b²/(2|a|) nhỏ nhất khi a = −2, b = 4. Hàm số: y = −2x + 4"
+    "explanation": "2 = a + b. Cần min(b²/|a|) với a < 0, dùng BCS: S = b²/(2|a|) nhỏ nhất khi a = −2, b = 4. Hàm số: y = −2x + 4",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_009",
@@ -9867,7 +9875,8 @@
     "correct": 0,
     "topic": "hàm số bậc nhất",
     "difficulty": "medium",
-    "explanation": "d ⊥ d' → a·4 = −1 → a = −1/4. Thay N(2;−1): −1 = (−1/4)·2 + b → b = −1/2"
+    "explanation": "d ⊥ d' → a·4 = −1 → a = −1/4. Thay N(2;−1): −1 = (−1/4)·2 + b → b = −1/2",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_010",
@@ -9881,7 +9890,8 @@
     "correct": 2,
     "topic": "hàm số bậc nhất",
     "difficulty": "medium",
-    "explanation": "d // d' ⟺ m−1 = m²−1 và m ≠ 1 → m² − m = 0 → m = 0 hoặc m = 1. Loại m = 1 (trùng), còn m = 0."
+    "explanation": "d // d' ⟺ m−1 = m²−1 và m ≠ 1 → m² − m = 0 → m = 0 hoặc m = 1. Loại m = 1 (trùng), còn m = 0.",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_011",
@@ -9895,7 +9905,8 @@
     "correct": 1,
     "topic": "hàm số bậc nhất",
     "difficulty": "medium",
-    "explanation": "Tam giác OAB vuông tại O, vuông cân → OA = OB → |b/a| = |b| → a = −1 hoặc a = 1. Thay I(2;3): nếu a=−1 → b=5, y=−x+5 (đi qua I, cắt Ox tại (5;0), Oy tại (0;5)). ✓"
+    "explanation": "Tam giác OAB vuông tại O, vuông cân → OA = OB → |b/a| = |b| → a = −1 hoặc a = 1. Thay I(2;3): nếu a=−1 → b=5, y=−x+5 (đi qua I, cắt Ox tại (5;0), Oy tại (0;5)). ✓",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_012",
@@ -9909,7 +9920,8 @@
     "correct": 3,
     "topic": "hàm số bậc nhất",
     "difficulty": "easy",
-    "explanation": "Từ B(0;3): b = 3. Từ A(−2;0): 0 = −2a + 3 → a = 3/2"
+    "explanation": "Từ B(0;3): b = 3. Từ A(−2;0): 0 = −2a + 3 → a = 3/2",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_013",
@@ -9923,7 +9935,8 @@
     "correct": 3,
     "topic": "hàm số bậc nhất",
     "difficulty": "easy",
-    "explanation": "Từ (−1;1): a = 1/(−1) = −1 → y = −x. Hàm chỉ xác định với x < 0 → y = −x với x < 0"
+    "explanation": "Từ (−1;1): a = 1/(−1) = −1 → y = −x. Hàm chỉ xác định với x < 0 → y = −x với x < 0",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_014",
@@ -9937,7 +9950,8 @@
     "correct": 3,
     "topic": "hàm số bậc nhất",
     "difficulty": "easy",
-    "explanation": "y = 3x + 5 có a = 3 > 0 nên đồng biến trên R (không nghịch biến). Đáp án D sai."
+    "explanation": "y = 3x + 5 có a = 3 > 0 nên đồng biến trên R (không nghịch biến). Đáp án D sai.",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_015",
@@ -9951,7 +9965,8 @@
     "correct": 0,
     "topic": "hàm số bậc nhất",
     "difficulty": "easy",
-    "explanation": "|x−2| ≥ 0 với mọi x ∈ R, nên √|x−2| xác định với mọi x → TXĐ là R"
+    "explanation": "|x−2| ≥ 0 với mọi x ∈ R, nên √|x−2| xác định với mọi x → TXĐ là R",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_016",
@@ -9965,7 +9980,8 @@
     "correct": 0,
     "topic": "hàm số bậc nhất",
     "difficulty": "easy",
-    "explanation": "Hàm nghịch biến khi 2−m < 0 ⟺ m > 2"
+    "explanation": "Hàm nghịch biến khi 2−m < 0 ⟺ m > 2",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_017",
@@ -9979,7 +9995,8 @@
     "correct": 3,
     "topic": "hệ phương trình",
     "difficulty": "easy",
-    "explanation": "Phương trình bậc nhất hai ẩn có dạng ax + by = c. Đáp án D: 2x − 3y = 4 đúng dạng này."
+    "explanation": "Phương trình bậc nhất hai ẩn có dạng ax + by = c. Đáp án D: 2x − 3y = 4 đúng dạng này.",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_018",
@@ -9993,7 +10010,8 @@
     "correct": 1,
     "topic": "hệ phương trình",
     "difficulty": "medium",
-    "explanation": "Nhân hàng 2 với 5: 5x+15y=5. Cộng với 12x−15y=6 → 17x=11 → x=11/17. Thay vào: y=2/17"
+    "explanation": "Nhân hàng 2 với 5: 5x+15y=5. Cộng với 12x−15y=6 → 17x=11 → x=11/17. Thay vào: y=2/17",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_019",
@@ -10007,7 +10025,8 @@
     "correct": 0,
     "topic": "bài toán thực tế",
     "difficulty": "medium",
-    "explanation": "Hệ: x+y=1000, 1.2x+1.15y=1170 → x=400, y=600. Tháng 2: Tổ I = 1.2×400=480, Tổ II = 1.15×600=690"
+    "explanation": "Hệ: x+y=1000, 1.2x+1.15y=1170 → x=400, y=600. Tháng 2: Tổ I = 1.2×400=480, Tổ II = 1.15×600=690",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_020",
@@ -10021,7 +10040,8 @@
     "correct": 0,
     "topic": "hệ phương trình",
     "difficulty": "hard",
-    "explanation": "Từ (1): x = y−m. Thay vào (2): (2y−m−2)(−y−m+1)=0 cho hai nghiệm y=(m+2)/2 và y=1−m. Hệ có nghiệm duy nhất khi hai trường hợp cho cùng một điểm: m=0"
+    "explanation": "Từ (1): x = y−m. Thay vào (2): (2y−m−2)(−y−m+1)=0 cho hai nghiệm y=(m+2)/2 và y=1−m. Hệ có nghiệm duy nhất khi hai trường hợp cho cùng một điểm: m=0",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_021",
@@ -10035,7 +10055,8 @@
     "correct": 1,
     "topic": "hàm số bậc nhất",
     "difficulty": "hard",
-    "explanation": "Giao điểm A(1;1), B(4;0), C(2;4). AB=√10, AC=√10, BC=√20. AB=AC và BC²=AB²+AC² → tam giác vuông cân"
+    "explanation": "Giao điểm A(1;1), B(4;0), C(2;4). AB=√10, AC=√10, BC=√20. AB=AC và BC²=AB²+AC² → tam giác vuông cân",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_022",
@@ -10049,7 +10070,8 @@
     "correct": 3,
     "topic": "phương trình bậc hai",
     "difficulty": "medium",
-    "explanation": "Viète: x₁+x₂=m, x₁x₂=m−2. A = (x₁+x₂)² − 2x₁x₂ = m² − 2(m−2) = m²−2m+4"
+    "explanation": "Viète: x₁+x₂=m, x₁x₂=m−2. A = (x₁+x₂)² − 2x₁x₂ = m² − 2(m−2) = m²−2m+4",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_023",
@@ -10063,7 +10085,8 @@
     "correct": 1,
     "topic": "phương trình bậc hai",
     "difficulty": "hard",
-    "explanation": "Dùng Viète và biến đổi: (m−2)³ − m(m−1)(m−2) + (m−1)² = 4 dẫn đến 2m²−5m+3=0"
+    "explanation": "Dùng Viète và biến đổi: (m−2)³ − m(m−1)(m−2) + (m−1)² = 4 dẫn đến 2m²−5m+3=0",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_024",
@@ -10077,7 +10100,8 @@
     "correct": 1,
     "topic": "phương trình bậc hai",
     "difficulty": "medium",
-    "explanation": "Cần m ≠ 0 (bậc hai) và Δ' = 1 − 4m > 0 ⟺ m < 1/4. Vậy m < 1/4 và m ≠ 0"
+    "explanation": "Cần m ≠ 0 (bậc hai) và Δ' = 1 − 4m > 0 ⟺ m < 1/4. Vậy m < 1/4 và m ≠ 0",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_025",
@@ -10091,7 +10115,8 @@
     "correct": 3,
     "topic": "phương trình bậc hai",
     "difficulty": "medium",
-    "explanation": "x₁+x₂ = 2√3, x₁x₂ = (√3)²−(√2)² = 3−2 = 1... Chờ: x₁x₂ = (√3+√2)(√3−√2) = 3−2 = 1. Nên pt là x²−2√3x+1=0. Đây là B... Nhưng đáp án của đề là D: x²−2√3x−1=0. Thử x₁x₂=(√3+√2)(√3−√2)=3−2=1≠−1. Có lẽ đề muốn x₁=√3+√2, x₂=√3−√2 với cách đọc khác. Đáp án đúng theo lời giải: D"
+    "explanation": "x₁+x₂ = 2√3, x₁x₂ = (√3)²−(√2)² = 3−2 = 1... Chờ: x₁x₂ = (√3+√2)(√3−√2) = 3−2 = 1. Nên pt là x²−2√3x+1=0. Đây là B... Nhưng đáp án của đề là D: x²−2√3x−1=0. Thử x₁x₂=(√3+√2)(√3−√2)=3−2=1≠−1. Có lẽ đề muốn x₁=√3+√2, x₂=√3−√2 với cách đọc khác. Đáp án đúng theo lời giải: D",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_026",
@@ -10105,7 +10130,8 @@
     "correct": 1,
     "topic": "parabol",
     "difficulty": "medium",
-    "explanation": "Hoành độ giao điểm: x²+x−6=0 → x=2 (y=4) hoặc x=−3 (y=9). Hai điểm: A(−3;9) và B(2;4)"
+    "explanation": "Hoành độ giao điểm: x²+x−6=0 → x=2 (y=4) hoặc x=−3 (y=9). Hai điểm: A(−3;9) và B(2;4)",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_027",
@@ -10119,7 +10145,8 @@
     "correct": 0,
     "topic": "parabol",
     "difficulty": "medium",
-    "explanation": "Hàm số y=ax² đồng biến khi x<0 ⟺ a < 0 ⟺ m−1/2 < 0 ⟺ m < 1/2"
+    "explanation": "Hàm số y=ax² đồng biến khi x<0 ⟺ a < 0 ⟺ m−1/2 < 0 ⟺ m < 1/2",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_028",
@@ -10133,7 +10160,8 @@
     "correct": 0,
     "topic": "parabol",
     "difficulty": "easy",
-    "explanation": "Thay (2;2): 2 = (m−1/2)·4 → m−1/2 = 1/2 → m = 1"
+    "explanation": "Thay (2;2): 2 = (m−1/2)·4 → m−1/2 = 1/2 → m = 1",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_029",
@@ -10147,7 +10175,8 @@
     "correct": 1,
     "topic": "parabol",
     "difficulty": "easy",
-    "explanation": "m < 1/2 → a = m−1/2 < 0 → parabol mở xuống, đỉnh tại gốc tọa độ O"
+    "explanation": "m < 1/2 → a = m−1/2 < 0 → parabol mở xuống, đỉnh tại gốc tọa độ O",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_030",
@@ -10161,7 +10190,8 @@
     "correct": 1,
     "topic": "parabol",
     "difficulty": "medium",
-    "explanation": "h = 3 → −(x−1)²+4 = 3 → (x−1)² = 1 → x = 0 hoặc x = 2. Do x > 0 → x = 2"
+    "explanation": "h = 3 → −(x−1)²+4 = 3 → (x−1)² = 1 → x = 0 hoặc x = 2. Do x > 0 → x = 2",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_031",
@@ -10175,7 +10205,8 @@
     "correct": 2,
     "topic": "phương trình",
     "difficulty": "medium",
-    "explanation": "√(x−3)² = |x−3| = 2x+1. Cần 2x+1 ≥ 0 → x ≥ −1/2. Giải: 3x²+10x−8=0 → x=2/3 (t/m) hoặc x=−4 (loại)"
+    "explanation": "√(x−3)² = |x−3| = 2x+1. Cần 2x+1 ≥ 0 → x ≥ −1/2. Giải: 3x²+10x−8=0 → x=2/3 (t/m) hoặc x=−4 (loại)",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_032",
@@ -10189,7 +10220,8 @@
     "correct": 3,
     "topic": "phương trình",
     "difficulty": "hard",
-    "explanation": "Đặt t=x² ≥ 0. PT thành t²+4t−m+4=0 có hai nghiệm dương phân biệt. Cần S=−4>0 (vô lý). Không tồn tại m."
+    "explanation": "Đặt t=x² ≥ 0. PT thành t²+4t−m+4=0 có hai nghiệm dương phân biệt. Cần S=−4>0 (vô lý). Không tồn tại m.",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_033",
@@ -10203,7 +10235,8 @@
     "correct": 0,
     "topic": "lượng giác",
     "difficulty": "hard",
-    "explanation": "ΔABD=ΔCBD (c.c.c) → góc BDA = 20°, góc ABD = 45°. AK = AB·sin45° = 6√2. AD = AK/sin20° ≈ 24,811cm. S = 4·S(ABK) ≈ 269,849cm²"
+    "explanation": "ΔABD=ΔCBD (c.c.c) → góc BDA = 20°, góc ABD = 45°. AK = AB·sin45° = 6√2. AD = AK/sin20° ≈ 24,811cm. S = 4·S(ABK) ≈ 269,849cm²",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_034",
@@ -10217,7 +10250,8 @@
     "correct": 2,
     "topic": "lượng giác",
     "difficulty": "hard",
-    "explanation": "CH/tan40° + CH/tan30° = 300 → CH = 300/(cot40°+cot30°) = 300/(1,192+1,732) ≈ 102,60m"
+    "explanation": "CH/tan40° + CH/tan30° = 300 → CH = 300/(cot40°+cot30°) = 300/(1,192+1,732) ≈ 102,60m",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_035",
@@ -10231,7 +10265,8 @@
     "correct": 3,
     "topic": "lượng giác",
     "difficulty": "medium",
-    "explanation": "Hạ BH⊥AC: AH=10cos40°≈7,66; BH=10sin40°≈6,43. HC=12−7,66=4,34. tanC=BH/HC=6,43/4,34 → C≈56°"
+    "explanation": "Hạ BH⊥AC: AH=10cos40°≈7,66; BH=10sin40°≈6,43. HC=12−7,66=4,34. tanC=BH/HC=6,43/4,34 → C≈56°",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_036",
@@ -10245,7 +10280,8 @@
     "correct": 2,
     "topic": "lượng giác",
     "difficulty": "hard",
-    "explanation": "Từ điều kiện H là trung điểm AD, chứng minh được HD = HC·cosB và AH = HC·cosA·cosC/cosA → cosA = cosB·cosC"
+    "explanation": "Từ điều kiện H là trung điểm AD, chứng minh được HD = HC·cosB và AH = HC·cosA·cosC/cosA → cosA = cosB·cosC",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_037",
@@ -10259,7 +10295,8 @@
     "correct": 2,
     "topic": "lượng giác",
     "difficulty": "hard",
-    "explanation": "Kẻ phân giác BK (K∈AC). Theo tính chất phân giác: AK/AB = KC/BC = AC/(AB+BC). Mà tan(∠ABK) = AK/AB = AC/(AB+BC)"
+    "explanation": "Kẻ phân giác BK (K∈AC). Theo tính chất phân giác: AK/AB = KC/BC = AC/(AB+BC). Mà tan(∠ABK) = AK/AB = AC/(AB+BC)",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_038",
@@ -10273,7 +10310,8 @@
     "correct": 2,
     "topic": "hình học",
     "difficulty": "medium",
-    "explanation": "Theo định lý Thales: AB/AD = BC/DF (tỉ lệ đoạn thẳng trên hai đường thẳng bị cắt bởi một chùm đường thẳng song song)"
+    "explanation": "Theo định lý Thales: AB/AD = BC/DF (tỉ lệ đoạn thẳng trên hai đường thẳng bị cắt bởi một chùm đường thẳng song song)",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_039",
@@ -10287,7 +10325,8 @@
     "correct": 3,
     "topic": "hình học",
     "difficulty": "easy",
-    "explanation": "Tỉ số đồng dạng có tính bắc cầu: ΔABC ~ ΔGHK theo tỉ số k₁·k₂"
+    "explanation": "Tỉ số đồng dạng có tính bắc cầu: ΔABC ~ ΔGHK theo tỉ số k₁·k₂",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_040",
@@ -10301,7 +10340,8 @@
     "correct": 3,
     "topic": "hình học",
     "difficulty": "hard",
-    "explanation": "∠ACB = (1/2)·sdAB = (1/2)·50° = 25° ≠ 50°. Vậy đáp án D sai."
+    "explanation": "∠ACB = (1/2)·sdAB = (1/2)·50° = 25° ≠ 50°. Vậy đáp án D sai.",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_041",
@@ -10315,7 +10355,8 @@
     "correct": 1,
     "topic": "hình học",
     "difficulty": "hard",
-    "explanation": "Chứng minh ∠DAM = ∠DMA (dùng tính chất tiếp tuyến và góc nội tiếp) → tam giác cân. Thêm ∠ADM = 90° → vuông cân"
+    "explanation": "Chứng minh ∠DAM = ∠DMA (dùng tính chất tiếp tuyến và góc nội tiếp) → tam giác cân. Thêm ∠ADM = 90° → vuông cân",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_042",
@@ -10329,7 +10370,8 @@
     "correct": 1,
     "topic": "hình học",
     "difficulty": "hard",
-    "explanation": "AD=AC→ΔACD cân tại A→∠ADC=∠ACD=(180°−80°)/2=50°→∠BDC=50°→D thuộc cung chứa góc 50° trên BC cùng phía"
+    "explanation": "AD=AC→ΔACD cân tại A→∠ADC=∠ACD=(180°−80°)/2=50°→∠BDC=50°→D thuộc cung chứa góc 50° trên BC cùng phía",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_043",
@@ -10343,7 +10385,8 @@
     "correct": 0,
     "topic": "hình học",
     "difficulty": "hard",
-    "explanation": "Các tứ giác nội tiếp: BDEC, ADHE, BDFH, FHEC → có 4 tứ giác nội tiếp đường tròn"
+    "explanation": "Các tứ giác nội tiếp: BDEC, ADHE, BDFH, FHEC → có 4 tứ giác nội tiếp đường tròn",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_044",
@@ -10357,7 +10400,8 @@
     "correct": 3,
     "topic": "hình học",
     "difficulty": "hard",
-    "explanation": "Cả ba tính chất đều đúng: AHBI nội tiếp đường kính AB (∠AIB=∠AHB=90°), AHCK tương tự, I-A-K thẳng hàng vì góc IAK=180°"
+    "explanation": "Cả ba tính chất đều đúng: AHBI nội tiếp đường kính AB (∠AIB=∠AHB=90°), AHCK tương tự, I-A-K thẳng hàng vì góc IAK=180°",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_045",
@@ -10371,7 +10415,8 @@
     "correct": 0,
     "topic": "hình học",
     "difficulty": "medium",
-    "explanation": "Diện tích vành khăn = π(R²−r²) = π(64−25) = 39π ≈ 122,5 cm²"
+    "explanation": "Diện tích vành khăn = π(R²−r²) = π(64−25) = 39π ≈ 122,5 cm²",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_046",
@@ -10385,7 +10430,8 @@
     "correct": 0,
     "topic": "hình học",
     "difficulty": "hard",
-    "explanation": "OATB là hình vuông cạnh R → S(OATB)=R². Quạt AOB góc 90°: S=πR²/4. Diện tích cần tính = R² − πR²/4 = R²(4−π)/4"
+    "explanation": "OATB là hình vuông cạnh R → S(OATB)=R². Quạt AOB góc 90°: S=πR²/4. Diện tích cần tính = R² − πR²/4 = R²(4−π)/4",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_047",
@@ -10399,7 +10445,8 @@
     "correct": 2,
     "topic": "hình học",
     "difficulty": "hard",
-    "explanation": "BC=√(OO'²−(R−r)²)=4√3. Đặt tọa độ O(0,0), O'(8,0): B=(3,3√3). cos(∠AOB)=OA·OB/(|OA||OB|)=1/2 → ∠AOB=60°. Tương tự ∠AO'C=120°"
+    "explanation": "BC=√(OO'²−(R−r)²)=4√3. Đặt tọa độ O(0,0), O'(8,0): B=(3,3√3). cos(∠AOB)=OA·OB/(|OA||OB|)=1/2 → ∠AOB=60°. Tương tự ∠AO'C=120°",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_048",
@@ -10413,7 +10460,8 @@
     "correct": 3,
     "topic": "hình học",
     "difficulty": "medium",
-    "explanation": "∠M = (1/2)|sdBD − sdAC| = (1/2)(80°−30°) = 25°"
+    "explanation": "∠M = (1/2)|sdBD − sdAC| = (1/2)(80°−30°) = 25°",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_049",
@@ -10427,7 +10475,8 @@
     "correct": 0,
     "topic": "hình học không gian",
     "difficulty": "easy",
-    "explanation": "S_xq = πrl → l = S_xq/(πr) = 20π/(4π) = 5cm"
+    "explanation": "S_xq = πrl → l = S_xq/(πr) = 20π/(4π) = 5cm",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_mx01_050",
@@ -10441,7 +10490,8 @@
     "correct": 1,
     "topic": "hình học không gian",
     "difficulty": "hard",
-    "explanation": "Cạnh hình vuông = R√2. Trụ có h=R√2, r=R√2/2. V = V_cầu − V_trụ = (4/3)πR³ − π(R/√2)²·R√2 = πR³(8−3√2)/6"
+    "explanation": "Cạnh hình vuông = R√2. Trụ có h=R√2, r=R√2/2. V = V_cầu − V_trụ = (4/3)πR³ − π(R/√2)²·R√2 = πR³(8−3√2)/6",
+    "source": "MATHX - Công ty TNHH Giáo dục và Công nghệ ETC"
   },
   {
     "id": "q_vj01_01",

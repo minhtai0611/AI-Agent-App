@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useExamDispatch } from '../context/ExamContext.jsx'
 import { generateExam } from '../api/aiClient.js'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 
 const TOPICS = Object.keys(TOPIC_LABELS)
@@ -14,7 +14,7 @@ const DIFFICULTIES = [
 ]
 
 export default function GenerateExam() {
-  usePageTitle('Tạo đề riêng')
+  usePageMeta('Tạo đề riêng', { noindex: true })
   const navigate = useNavigate()
   const { user } = useAuth()
   const dispatch = useExamDispatch()

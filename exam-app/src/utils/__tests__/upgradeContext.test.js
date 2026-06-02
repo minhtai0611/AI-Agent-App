@@ -5,7 +5,6 @@ import { getUpgradeContext } from '../upgradeContext.js'
 // 'study-plan': requires student or complete
 // 'strategy': requires complete
 // 'province': requires complete
-// 'ai-tutor': requires complete
 
 describe('getUpgradeContext — null when tier has access', () => {
   it('returns null for student on study-plan', () => {
@@ -24,9 +23,6 @@ describe('getUpgradeContext — null when tier has access', () => {
     expect(getUpgradeContext('complete', 'province')).toBeNull()
   })
 
-  it('returns null for complete on ai-tutor', () => {
-    expect(getUpgradeContext('complete', 'ai-tutor')).toBeNull()
-  })
 })
 
 describe('getUpgradeContext — returns context when tier lacks access', () => {
@@ -59,12 +55,6 @@ describe('getUpgradeContext — returns context when tier lacks access', () => {
 
   it('returns object for student on province', () => {
     const result = getUpgradeContext('student', 'province')
-    expect(result).not.toBeNull()
-    expect(result.requiredTier).toBe('complete')
-  })
-
-  it('returns object for basic on ai-tutor', () => {
-    const result = getUpgradeContext('basic', 'ai-tutor')
     expect(result).not.toBeNull()
     expect(result.requiredTier).toBe('complete')
   })

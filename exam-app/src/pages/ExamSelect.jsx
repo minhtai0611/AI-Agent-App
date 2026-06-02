@@ -8,7 +8,7 @@ import { ocrExam } from '../api/aiClient.js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
 import AmbientGlows from '../components/AmbientGlows.jsx'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { buildBriefing } from '../utils/examBriefing.js'
 
 const listVariants = {
@@ -51,7 +51,7 @@ function getAllowedCategories() {
 }
 
 export default function ExamSelect({ onOpenAuth }) {
-  usePageTitle('Chọn đề thi')
+  usePageMeta('Chọn đề thi', { description: 'Truy cập 40+ đề thi Toán THPT và tuyển sinh lớp 10 từ 63 tỉnh thành Việt Nam. Thi thử có thời gian hoặc luyện tập không giới hạn.' })
   const navigate = useNavigate()
   const dispatch = useExamDispatch()
   const { user } = useAuth()

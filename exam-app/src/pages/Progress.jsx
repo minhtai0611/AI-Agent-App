@@ -6,7 +6,7 @@ import { useHistory } from '../context/HistoryContext.jsx'
 import { getConceptMastery } from '../api/aiClient.js'
 import { pageVariants, listVariants, itemVariants } from '../utils/animations.js'
 import { useRevealOnScroll } from '../hooks/useRevealOnScroll.js'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 
 // Province cutoff thresholds (mirrors _PROVINCE_DATA in backend)
@@ -178,7 +178,7 @@ function ConceptNode({ concept, onClick }) {
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function Progress() {
-  usePageTitle('Tiến độ')
+  usePageMeta('Tiến độ', { noindex: true })
   const navigate = useNavigate()
   const { user } = useAuth()
   const { results } = useHistory()

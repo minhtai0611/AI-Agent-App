@@ -6,7 +6,7 @@ import { useHistory } from '../context/HistoryContext'
 import { useAuth } from '../context/AuthContext'
 import { loadQuestions } from '../api/index.js'
 import { getExplanation, classifyError } from '../api/aiClient'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import Markdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
@@ -196,7 +196,7 @@ function MistakeRow({ question, userAnswer, examTitle }) {
 const PATTERN_THRESHOLD = 3  // repeated same wrong choice this many times = a pattern
 
 export default function Mistakes() {
-  usePageTitle('Sổ tay sai lầm')
+  usePageMeta('Sổ tay sai lầm', { noindex: true })
   const navigate = useNavigate()
   const { results } = useHistory()
   const [questions, setQuestions] = useState([])

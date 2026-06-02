@@ -178,11 +178,6 @@ body {
 /* KaTeX — normalize math font size to match surrounding text in all contexts */
 .katex { font-size: 1em; }
 
-/* KaTeX dark-theme overrides inside the tutor chat bubble */
-.prose-tutor .katex { color: #E2E8F0; }
-.prose-tutor .katex-display { margin: 0.4em 0; overflow-x: auto; }
-.prose-tutor .katex-display > .katex { color: #F2A20C; }
-
 /* Stream cursor — appears during AI streaming, no blink, fades out when done */
 .stream-cursor {
   transition: opacity 0.2s ease;

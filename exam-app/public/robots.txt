@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+Allow: /exams
+Allow: /diagnostic
+Allow: /oracle
+
+Disallow: /admin
+Disallow: /account
+Disallow: /test/
+Disallow: /results/
+Disallow: /history
+Disallow: /review
+Disallow: /mistakes
+Disallow: /practice/
+Disallow: /daily
+Disallow: /progress
+Disallow: /generate-exam
+Disallow: /study-plan/
+Disallow: /placement
+Disallow: /challenge
+
+Sitemap: https://exam-app-ey0.pages.dev/sitemap.xml

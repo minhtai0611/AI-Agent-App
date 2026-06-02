@@ -7,7 +7,7 @@ import { useExam, useExamDispatch } from '../context/ExamContext'
 import { useAuth } from '../context/AuthContext.jsx'
 import { loadQuestions } from '../api/index.js'
 import { generateAdaptivePractice } from '../api/aiClient.js'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { loadDiagnosticWeights } from './DiagnosticTest.jsx'
 
@@ -81,7 +81,7 @@ function weightedSample(pool, weights, n, excludeTopic = null) {
 }
 
 export default function AdaptivePractice() {
-  usePageTitle('Luyện tập thích nghi')
+  usePageMeta('Luyện tập thích nghi', { noindex: true })
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()

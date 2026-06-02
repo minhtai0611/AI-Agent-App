@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRevealOnScroll } from '../hooks/useRevealOnScroll.js'
 import AchievementCeremony from '../components/AchievementCeremony.jsx'
@@ -154,6 +155,7 @@ function FocusCard({ area, index, streak, onPractice }) {
 }
 
 export default function StudyPlan() {
+  usePageMeta('Kế hoạch học tập', { noindex: true })
   const navigate = useNavigate()
   const { resultId } = useParams()
   const location = useLocation()

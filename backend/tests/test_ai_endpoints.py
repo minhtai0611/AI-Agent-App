@@ -91,21 +91,6 @@ def test_hint_bad_json_returns_502():
     assert r.status_code == 502
 
 
-# ── /tutor ────────────────────────────────────────────────────────────────────
-
-def test_tutor_happy_path():
-    with patch("app.agent.exam_tutor.call_with_retry", new_callable=AsyncMock) as mock_retry:
-        mock_retry.return_value = _mock_completion("Chào em! Hôm nay chúng ta ôn gì?")
-        r = client.post("/tutor", json={
-            "messages": [],
-            "exam_context": {"examId": "test", "topicBreakdown": {}, "weakTopics": []},
-        })
-    assert r.status_code == 200
-    body = r.json()
-    assert "reply" in body
-    assert "messages" in body
-
-
 # ── /study-plan ───────────────────────────────────────────────────────────────
 
 def test_study_plan_happy_path():

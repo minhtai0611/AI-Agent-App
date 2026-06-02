@@ -1,5 +1,5 @@
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 
 function parseChallengeData(raw) {
   try {
@@ -15,7 +15,7 @@ function parseChallengeData(raw) {
 }
 
 export default function ChallengeLanding() {
-  usePageTitle('Thách đấu')
+  usePageMeta('Thách đấu', { noindex: true })
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const challenger = parseChallengeData(params.get('c') || '')

@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { loadQuestionsByIds } from '../api/index.js'
 import { pageVariants } from '../utils/animations.js'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { MathText } from '../components/MathText.jsx'
 import { QuestionCardSkeleton } from '../components/Skeleton.jsx'
@@ -88,7 +88,7 @@ function updateSM2(entry, quality) {
 const STAGE_NAMES = ['', 'Mới tiếp cận', 'Đang học', 'Luyện tập', 'Vững', 'Thành thạo']
 
 export default function ReviewSession() {
-  usePageTitle('Ôn tập hôm nay')
+  usePageMeta('Ôn tập hôm nay', { noindex: true })
   const navigate = useNavigate()
   const { user } = useAuth()
   const uid = user?.id ?? null

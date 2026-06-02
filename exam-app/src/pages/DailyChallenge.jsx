@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext.jsx'
 import { loadQuestions } from '../api/index.js'
 import { getDailyChallenge, submitDailyScore } from '../api/aiClient.js'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import Markdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
@@ -102,7 +102,7 @@ function completionMessage(isCorrect, source, pendingCount) {
 }
 
 export default function DailyChallenge() {
-  usePageTitle('Câu hỏi hôm nay')
+  usePageMeta('Câu hỏi hôm nay', { noindex: true })
   const navigate = useNavigate()
   const { user, refreshUser } = useAuth()
   const toast = useToast()

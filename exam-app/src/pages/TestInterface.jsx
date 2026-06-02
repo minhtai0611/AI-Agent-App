@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import Timer from '../components/Timer.jsx'
 import { FormulaDrawer } from '../components/FormulaDrawer.jsx'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { embedWatermark } from '../utils/watermark.js'
 import { scoreExam } from '../engine/scoringEngine.js'
 import { buildAnalyzePayload } from '../api/index.js'
@@ -21,7 +21,7 @@ const DIFF_LABELS = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
 const KB_HINT_KEY = 'kb_hint_seen'
 
 export default function TestInterface() {
-  usePageTitle('Đang thi')
+  usePageMeta('Đang thi', { noindex: true })
   const navigate = useNavigate()
   const { examId } = useParams()
   const session = useExam()

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { loadQuestions } from '../api/index.js'
 import { seedDiagnostic } from '../api/aiClient.js'
-import { usePageTitle } from '../hooks/usePageTitle.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { MathText } from '../components/MathText.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -60,7 +60,7 @@ export function loadDiagnosticWeights(uid) {
 }
 
 export default function DiagnosticTest() {
-  usePageTitle('Kiểm tra đầu vào')
+  usePageMeta('Kiểm tra đầu vào', { description: 'Làm bài kiểm tra 12 câu để AI Zenith đánh giá năng lực và đề xuất lộ trình ôn tập phù hợp.' })
   const navigate = useNavigate()
   const { user } = useAuth()
 
