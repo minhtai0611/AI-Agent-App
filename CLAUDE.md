@@ -32,19 +32,18 @@ backend/app/
   dependencies.py    # get_ai_client() singleton (AsyncOpenAI)
   middleware.py      # RateLimitMiddleware — IP (20/min) + per-user (60/min) + rapid-fire hint detection
   abuse_detector.py # Background loop (5 min) — credit velocity, burst, score anomaly, new-account checks
-  main.py            # FastAPI routes: /analyze /hint /explain /tutor /study-plan /health
+  main.py            # FastAPI routes: /analyze /hint /explain /study-plan /health
                      #   + /auth/google, /users/me, /users/me/profile, /users/me/credits/log
                      #   + /admin/users/{id}/subscription|credits|suspend|unsuspend
                      #   + GET /admin/security-events
   agent/
     core.py          # call_with_retry() — tenacity retry wrapper for all AI calls
-    memory.py        # compress_conversation() via Haiku (used by tutor memory update)
+    memory.py        # compress_conversation() via Haiku
     exam_analyzer.py # analyze_exam_result() — grade+province → location-aware school recs
     hint_generator.py# generate_hint() — Socratic hints via Haiku
-    exam_tutor.py    # run_tutor() — tutoring chat with exam context injected
     study_planner.py # generate_study_plan() — 4-week study plan with JSON fallback
   tests/
-    test_ai_endpoints.py  # 9 pytest tests covering all AI endpoints (LLM mocked)
+    test_ai_endpoints.py  # pytest tests covering AI endpoints (LLM mocked)
 
 exam-app/src/
   api/
@@ -201,7 +200,7 @@ Indexed as **AI-Agent-App** — re-index with `gitnexus analyze /mnt/d/AI-Agent-
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **AI-Agent-App** (5573 symbols, 14419 relationships, 249 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **AI-Agent-App** (5941 symbols, 18124 relationships, 266 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
@@ -263,8 +262,10 @@ git checkout master
 
 ```bash
 cd exam-app
-npm run build
+VITE_API_BASE_URL=https://minhtai-ai-agent-app.hf.space npm run build
 npx wrangler pages deploy dist --project-name exam-app --branch=main --commit-dirty=true
 ```
 
 **Always** pass `--branch=main`. Without it, wrangler creates a **Preview** deployment (not Production), and `exam-app-ey0.pages.dev` keeps serving the old bundle. The production URL only aliases Production deployments.
+
+**Always** set `VITE_API_BASE_URL` explicitly. `exam-app/.env.local` (used for local dev) takes precedence over `exam-app/.env` in Vite's env loading order, so omitting the explicit override bakes `localhost:8000` into the production bundle.
