@@ -312,7 +312,7 @@ export default function Mistakes() {
       <div className="max-w-2xl mx-auto px-4 pt-20">
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
-          <button onClick={() => navigate('/exams?mode=special')} className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition">
+          <button onClick={() => navigate('/exams?mode=applied')} className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition">
             ← Quay lại
           </button>
         </div>

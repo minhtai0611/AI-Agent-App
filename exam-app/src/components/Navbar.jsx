@@ -158,7 +158,7 @@ export default function Navbar({ onOpenAuth }) {
           <button onClick={() => go('/exams?mode=practice')} className="py-3 text-left font-jakarta text-[14px] text-[#94A3B8] hover:text-white transition">
             Luyện tập
           </button>
-          <button onClick={() => go('/exams?mode=special')} className="py-3 text-left font-jakarta text-[14px] text-[#94A3B8] hover:text-white transition">
+          <button onClick={() => go('/exams?mode=lab')} className="py-3 text-left font-jakarta text-[14px] text-[#94A3B8] hover:text-white transition">
             Chế độ đặc biệt
           </button>
           {user ? (

@@ -72,7 +72,7 @@ export default function GenerateExam() {
   return (
     <div className="min-h-screen bg-[#0A0E1A] pb-16">
       <div className="max-w-xl mx-auto px-4 pt-10 flex flex-col gap-6">
-        <button onClick={() => navigate('/exams?mode=special')}
+        <button onClick={() => navigate('/exams?mode=lab')}
           className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition self-start">
           ← Quay lại
         </button>

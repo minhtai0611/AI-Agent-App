@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useExamDispatch } from '../context/ExamContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
-import { loadExams, loadThiThuExams, loadQuestionsByIds, loadExamById, getAccessibleExamIds } from '../api/index.js'
+import { loadExams, loadThiThuExams, loadAppliedExams, loadQuestionsByIds, loadExamById, getAccessibleExamIds } from '../api/index.js'
 import { ocrExam } from '../api/aiClient.js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
@@ -34,6 +34,10 @@ const GROUPS = {
     { category: 'grade10', label: 'Luyện tập vào lớp 10', description: 'Đề thi tuyển sinh quốc tế — Ghana BECE & Ấn Độ CBSE', accent: '#3B82F6', tag: 'Lớp 10' },
     { category: 'thpt', label: 'Luyện tập THPT & Đại học', description: 'SAT, ACT, A-Level, AMC 12, HSC Úc, Singapore H2 & nhiều đề quốc tế khác', accent: '#F2A20C', tag: 'THPT' },
   ],
+  applied: [
+    { category: 'applied', region: 'vn', label: 'Toán ứng dụng Việt Nam', description: 'Olympic Toán học, đề thi chuyên, bài toán ứng dụng thực tiễn từ nguồn chính thức', accent: '#818CF8', tag: '🇻🇳 Việt Nam' },
+    { category: 'applied', region: 'intl', label: 'Toán ứng dụng Quốc tế', description: 'AMC, Math Kangaroo, APMO và các kỳ thi toán học quốc tế uy tín', accent: '#34D399', tag: '🌐 Quốc tế' },
+  ],
 }
 
 const TRIAL_KEY = 'guest_trial_used'
@@ -57,8 +61,10 @@ export default function ExamSelect({ onOpenAuth }) {
   const { user } = useAuth()
   const { results } = useHistory()
   const [searchParams] = useSearchParams()
+  const urlMode = searchParams.get('mode')
   const [mode, setMode] = useState(
-    ['practice', 'special'].includes(searchParams.get('mode')) ? searchParams.get('mode') : 'timed'
+    // 'special' silently falls to 'timed' for backward-compat with old bookmarks/back-links
+    ['practice', 'applied', 'lab'].includes(urlMode) ? urlMode : 'timed'
   )
   const [previewExam, setPreviewExam] = useState(null)
   const [expandedCategories, setExpandedCategories] = useState({})
@@ -72,30 +78,11 @@ export default function ExamSelect({ onOpenAuth }) {
   const [ocrQuestions, setOcrQuestions] = useState(null)
   const ocrInputRef = useRef(null)
 
-  // Live data for Special Mode cards
-  const [dailyStreak, setDailyStreak] = useState({ current: 0, completedToday: false })
-  const [dueCount, setDueCount] = useState(0)
-
   useEffect(() => {
-    try {
-      const raw = JSON.parse(localStorage.getItem(`daily_challenge_streak-${user?.id ?? 'guest'}`) ?? '{}')
-      const today = new Date().toISOString().slice(0, 10)
-      const last = raw.lastCompletedDate
-      const completedToday = last === today
-      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
-      const current = completedToday ? (raw.currentStreak ?? 0)
-        : (last === yesterday ? (raw.currentStreak ?? 0) : 0)
-      setDailyStreak({ current, completedToday })
-    } catch {}
-    try {
-      const queue = JSON.parse(localStorage.getItem(`review_queue-${user?.id ?? 'guest'}`) ?? '{}')
-      const today = new Date().toISOString().slice(0, 10)
-      setDueCount(Object.values(queue).filter(e => e.dueDate <= today).length)
-    } catch {}
-  }, [user?.id])
-
-  useEffect(() => {
-    const fn = mode === 'timed' ? loadThiThuExams : loadExams
+    if (mode === 'lab') { setAllExams([]); return }
+    const fn = mode === 'timed' ? loadThiThuExams
+      : mode === 'applied' ? loadAppliedExams
+      : loadExams
     fn().then(data => setAllExams(data))
   }, [mode])
 
@@ -215,7 +202,7 @@ export default function ExamSelect({ onOpenAuth }) {
     navigate(`/test/${exam.id}`)
   }
 
-  const groups = GROUPS[mode]
+  const groups = GROUPS[mode] ?? []
 
   function openPreview(exam) { setPreviewExam(exam) }
   function closePreview() { setPreviewExam(null) }
@@ -232,13 +219,18 @@ export default function ExamSelect({ onOpenAuth }) {
         </button>
         <div className="flex items-center gap-1 bg-[#1A2440] rounded-full p-1">
           {[
-            { value: 'timed', label: 'Có thời gian' },
+            { value: 'timed',   label: 'Có thời gian' },
             { value: 'practice', label: 'Luyện tập' },
-            { value: 'special', label: 'Chế độ đặc biệt' },
+            { value: 'applied', label: 'Toán ứng dụng' },
+            { value: 'lab',     label: '⚗ Lab' },
           ].map(opt => (
             <button key={opt.value} onClick={() => setMode(opt.value)}
-              className={`px-5 py-2 rounded-full font-jakarta text-[13px] transition ${
-                mode === opt.value ? 'bg-[#F2A20C] text-[#0A0E1A] font-semibold' : 'text-[#94A3B8]'
+              className={`px-4 py-2 rounded-full font-jakarta text-[13px] transition ${
+                mode === opt.value
+                  ? opt.value === 'lab'
+                    ? 'bg-[#818CF8] text-white font-semibold'
+                    : 'bg-[#F2A20C] text-[#0A0E1A] font-semibold'
+                  : 'text-[#94A3B8]'
               }`}>
               {opt.label}
             </button>
@@ -262,8 +254,8 @@ export default function ExamSelect({ onOpenAuth }) {
         </div>
       )}
 
-      {/* Filter bar — hidden in special mode */}
-      <div className={`flex flex-wrap items-center gap-3 px-10 pt-6${mode === 'special' ? ' hidden' : ''}`}>
+      {/* Filter bar — hidden in Lab and Applied modes */}
+      <div className={`flex flex-wrap items-center gap-3 px-10 pt-6${'lab applied'.includes(mode) ? ' hidden' : ''}`}>
         <input
           type="search"
           placeholder="Tìm đề thi..."
@@ -334,200 +326,118 @@ export default function ExamSelect({ onOpenAuth }) {
           <p className="font-jakarta text-[14px] text-[#64748B]">{motivationalHeader}</p>
         </div>
 
-        {mode === 'special' && (
-          <motion.div key="special" variants={listVariants} initial="hidden" animate="show"
-            className="flex flex-col gap-8">
+        {/* ── ⚗ Lab mode ──────────────────────────────────────────────────── */}
+        {mode === 'lab' && (
+          <motion.div key="lab" variants={listVariants} initial="hidden" animate="show"
+            className="flex flex-col gap-6">
 
-            {/* ── Section: Hôm nay ── */}
-            <div className="flex flex-col gap-3">
-              <span className="font-jakarta text-[11px] font-bold tracking-[3px] uppercase text-[#475569]">Hôm nay</span>
+            <div className="flex flex-col gap-1">
+              <span className="font-jakarta text-[11px] font-bold tracking-[3px] uppercase text-[#475569]">Công cụ thực nghiệm</span>
+              <p className="font-jakarta text-[13px] text-[#475569]">AI-powered tools — khác với đề thi thật, dùng để khám phá và thực nghiệm</p>
+            </div>
 
-              {/* Hero: Daily Challenge */}
-              <motion.button variants={cardVariants}
-                onClick={() => navigate('/daily')}
-                className="w-full text-left bg-[#0D1521] rounded-2xl p-6 flex items-center justify-between gap-4 border transition"
-                style={{ borderColor: '#F2A20C22' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#F2A20C66'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = '#F2A20C22'}
-              >
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🔥</span>
-                    <span className="font-jakarta text-[16px] font-bold text-[#F8FAFC]">Thử thách hôm nay</span>
-                    <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
-                      style={{ background: '#F2A20C22', color: '#F2A20C' }}>Daily</span>
-                  </div>
-                  <span className="font-jakarta text-[13px] text-[#64748B]">Câu hỏi ngẫu nhiên mỗi ngày — duy trì chuỗi học liên tiếp</span>
-                </div>
-                <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                  {dailyStreak.completedToday ? (
-                    <span className="font-jakarta text-[12px] font-semibold text-[#34D399]">✓ Đã hoàn thành</span>
-                  ) : (
-                    <span className="font-jakarta text-[12px] font-semibold text-[#F2A20C]">Bắt đầu →</span>
-                  )}
-                  {dailyStreak.current > 0 && (
-                    <span className="font-jakarta text-[12px] text-[#F2A20C]">🔥 {dailyStreak.current} ngày</span>
-                  )}
-                </div>
-              </motion.button>
-
-              {/* Flashcard Review */}
-              <motion.button variants={cardVariants}
-                onClick={() => navigate('/review')}
-                className="w-full text-left bg-[#0D1521] rounded-2xl p-5 flex items-center justify-between gap-4 border transition"
-                style={{ borderColor: '#A78BFA22' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#A78BFA66'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = '#A78BFA22'}
-              >
+            {/* Hero: Oracle */}
+            <motion.button variants={cardVariants}
+              onClick={() => navigate('/oracle')}
+              className="w-full text-left rounded-2xl p-6 flex items-center justify-between gap-4 border transition relative overflow-hidden"
+              style={{ borderColor: '#6366F144', background: 'linear-gradient(135deg, #0D1521 50%, #130d2a 100%)' }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = '#6366F188'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = '#6366F144'}
+            >
+              <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">📚</span>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Ôn tập thẻ ghi nhớ</span>
-                    <span className="font-jakarta text-[12px] text-[#64748B]">Spaced-repetition — ôn đúng lúc, nhớ lâu hơn</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  {dueCount > 0 ? (
-                    <span className="flex items-center gap-1.5 font-jakarta text-[12px] font-semibold text-[#34D399]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#34D399]" />{dueCount} câu đến hạn
-                    </span>
-                  ) : (
-                    <span className="font-jakarta text-[11px] text-[#475569]">Không có câu nào hôm nay</span>
-                  )}
+                  <span className="text-2xl">✦</span>
+                  <span className="font-jakarta text-[17px] font-bold text-[#F8FAFC]">Toán Oracle</span>
                   <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
-                    style={{ background: '#A78BFA22', color: '#A78BFA' }}>SM-2</span>
+                    style={{ background: '#6366F122', color: '#818CF8' }}>Oracle AI</span>
                 </div>
-              </motion.button>
-              {/* Warm-up hidden — replaced by Daily Learning Session in Sprint 2 */}
-              {/* Diagnostic test */}
-              <motion.button variants={cardVariants}
-                onClick={() => navigate('/diagnostic')}
-                className="w-full text-left bg-[#0D1521] rounded-2xl p-5 flex items-center justify-between gap-4 border transition"
-                style={{ borderColor: '#34D39922' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#34D39966'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = '#34D39922'}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">🧪</span>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Kiểm tra đầu vào</span>
-                    <span className="font-jakarta text-[12px] text-[#64748B]">12 câu · 6 chủ đề · AI cá nhân hóa luyện tập theo kết quả</span>
-                  </div>
-                </div>
-                <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded flex-shrink-0"
-                  style={{ background: '#34D39922', color: '#34D399' }}>Chẩn đoán</span>
-              </motion.button>
-            </div>
-
-
-            {/* ── Section: AI Luyện tập ── */}
-            <div className="flex flex-col gap-3">
-              <span className="font-jakarta text-[11px] font-bold tracking-[3px] uppercase text-[#475569]">AI Luyện tập</span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Adaptive */}
-                <motion.button variants={cardVariants}
-                  onClick={() => navigate('/practice/adaptive')}
-                  className="text-left bg-[#0D1521] rounded-2xl p-5 flex flex-col gap-3 border transition"
-                  style={{ borderColor: '#60A5FA22' }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = '#60A5FA66'}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = '#60A5FA22'}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl">🧠</span>
-                    <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
-                      style={{ background: '#60A5FA22', color: '#60A5FA' }}>AI</span>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Luyện thích nghi</span>
-                    <span className="font-jakarta text-[12px] text-[#64748B] leading-relaxed">AI chọn câu hỏi theo điểm yếu của bạn</span>
-                  </div>
-                  <span className="font-jakarta text-[12px] font-semibold mt-auto" style={{ color: '#60A5FA' }}>Bắt đầu →</span>
-                </motion.button>
-
-                {/* Oracle */}
-                <motion.button variants={cardVariants}
-                  onClick={() => navigate('/oracle')}
-                  className="text-left rounded-2xl p-5 flex flex-col gap-3 border transition relative overflow-hidden"
-                  style={{ borderColor: '#6366F144', background: 'linear-gradient(135deg, #0D1521 60%, #1a1040 100%)' }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = '#6366F188'}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = '#6366F144'}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl">✦</span>
-                    <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
-                      style={{ background: '#6366F122', color: '#818CF8' }}>Oracle</span>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Toán Oracle</span>
-                    <span className="font-jakarta text-[12px] text-[#64748B] leading-relaxed">Giải toán từng bước · chấm bài · hướng dẫn Socratic</span>
-                  </div>
-                  <span className="font-jakarta text-[12px] font-semibold mt-auto" style={{ color: '#818CF8' }}>Mở Oracle →</span>
-                </motion.button>
-
-                {/* Custom Exam Generator — Complete tier only, full width */}
-                {user?.subscription_tier === 'complete' && (
-                  <motion.button variants={cardVariants}
-                    onClick={() => navigate('/generate-exam')}
-                    className="sm:col-span-2 text-left rounded-2xl p-5 flex items-center justify-between gap-4 border transition relative overflow-hidden"
-                    style={{ borderColor: '#F2A20C33', background: 'linear-gradient(135deg, #0D1521 60%, #1a120a 100%)' }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = '#F2A20C66'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = '#F2A20C33'}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">✦</span>
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Tạo đề riêng</span>
-                        <span className="font-jakarta text-[12px] text-[#64748B]">AI tạo đề thi theo chủ đề và độ khó bạn chọn · 5 Tia</span>
-                      </div>
-                    </div>
-                    <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded flex-shrink-0"
-                      style={{ background: '#F2A20C22', color: '#F2A20C' }}>Toàn diện</span>
-                  </motion.button>
-                )}
-
-                {/* Mistakes notebook — full width */}
-                <motion.button variants={cardVariants}
-                  onClick={() => navigate('/mistakes')}
-                  className="sm:col-span-2 text-left bg-[#0D1521] rounded-2xl p-5 flex items-center justify-between gap-4 border transition"
-                  style={{ borderColor: '#94A3B822' }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = '#94A3B866'}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = '#94A3B822'}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">📖</span>
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Sổ tay sai lầm</span>
-                      <span className="font-jakarta text-[12px] text-[#64748B]">Xem lại tất cả câu đã sai và luyện từng lỗi một</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    {mistakeCount > 0 && (
-                      <span className="font-jakarta text-[12px] font-semibold text-[#94A3B8]">{mistakeCount} câu sai</span>
-                    )}
-                    <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
-                      style={{ background: '#94A3B822', color: '#94A3B8' }}>Review</span>
-                  </div>
-                </motion.button>
+                <span className="font-jakarta text-[13px] text-[#64748B] leading-relaxed max-w-sm">
+                  Nhập bất kỳ bài toán nào — Oracle giải từng bước chi tiết và chấm bài của bạn
+                </span>
               </div>
-            </div>
+              <span className="font-jakarta text-[13px] font-semibold flex-shrink-0" style={{ color: '#818CF8' }}>Mở Oracle →</span>
+            </motion.button>
 
+            {/* Grid: secondary tools */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {user?.subscription_tier === 'complete' && (
+                <motion.button variants={cardVariants}
+                  onClick={() => navigate('/generate-exam')}
+                  className="text-left rounded-2xl p-5 flex flex-col gap-3 border transition"
+                  style={{ borderColor: '#F2A20C33', background: 'linear-gradient(135deg, #0D1521 60%, #1a120a 100%)' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#F2A20C66'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = '#F2A20C33'}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl">✦</span>
+                    <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
+                      style={{ background: '#F2A20C22', color: '#F2A20C' }}>Toàn diện</span>
+                  </div>
+                  <div>
+                    <p className="font-jakarta text-[14px] font-semibold text-[#F8FAFC]">Tạo đề riêng</p>
+                    <p className="font-jakarta text-[12px] text-[#64748B] mt-0.5">AI tạo đề theo chủ đề & độ khó bạn chọn</p>
+                  </div>
+                  <span className="font-jakarta text-[12px] font-semibold mt-auto" style={{ color: '#F2A20C' }}>Tạo đề →</span>
+                </motion.button>
+              )}
+
+              {/* Coming-soon ghost cards */}
+              {[
+                { label: 'Bản đồ khái niệm', desc: 'Visualize mối liên hệ giữa các chủ đề Toán' },
+                { label: 'Phân tích lỗi sai', desc: 'AI phân tích pattern lỗi trong toàn bộ lịch sử thi' },
+              ].map(({ label, desc }) => (
+                <div key={label}
+                  className="rounded-2xl p-5 border border-dashed border-[#1E2A44] flex flex-col gap-2 opacity-50 select-none">
+                  <p className="font-jakarta text-[14px] font-semibold text-[#475569]">{label}</p>
+                  <p className="font-jakarta text-[12px] text-[#334155]">{desc}</p>
+                  <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase text-[#334155] mt-auto">Sắp ra mắt</span>
+                </div>
+              ))}
+            </div>
           </motion.div>
         )}
 
-        {mode !== 'special' && <motion.div
-          className="flex flex-col gap-10"
-          key={mode}
-          variants={listVariants}
-          initial="hidden"
-          animate="show"
-        >
+        {/* ── Exam list: timed / practice / applied ───────────────────────── */}
+        {mode !== 'lab' && (
+          <motion.div
+            className="flex flex-col gap-10"
+            key={mode}
+            variants={listVariants}
+            initial="hidden"
+            animate="show"
+          >
           {groups.map(group => {
-            // Grade/tier filter
-            const categoryAllowed = !allowedCategories || allowedCategories.includes(group.category)
-            const groupExams = exams.filter(e => e.category === group.category)
-            if (groupExams.length === 0) return null
+            // Grade/tier filter (only applies to timed/practice)
+            const categoryAllowed = !allowedCategories || mode === 'applied' || allowedCategories.includes(group.category)
+            // Applied groups filter by region; timed/practice filter by category
+            const groupExams = group.region
+              ? exams.filter(e => e.region === group.region)
+              : exams.filter(e => e.category === group.category)
+            if (groupExams.length === 0) {
+              // Applied mode: show empty-state placeholder instead of hiding the group
+              if (mode === 'applied') return (
+                <motion.section key={(group.region ?? group.category) + '-empty'} variants={cardVariants}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase px-2.5 py-1 rounded"
+                      style={{ background: group.accent + '22', color: group.accent }}>
+                      {group.tag}
+                    </span>
+                    <div>
+                      <h2 className="font-fraunces text-[22px] font-bold text-[#F8FAFC] leading-tight">{group.label}</h2>
+                      <p className="font-jakarta text-[13px] text-[#64748B]">{group.description}</p>
+                    </div>
+                  </div>
+                  <div className="h-px mb-4" style={{ background: group.accent + '33' }} />
+                  <div className="flex items-center gap-3 px-5 py-4 rounded-xl border border-dashed border-[#1E2A44] text-[#475569]">
+                    <span className="text-lg">⏳</span>
+                    <span className="font-jakarta text-[13px]">Đề thi đang được cập nhật — sẽ sớm ra mắt.</span>
+                  </div>
+                </motion.section>
+              )
+              return null
+            }
             return (
-              <motion.section key={group.category} variants={cardVariants}>
+              <motion.section key={(group.region ?? group.category) + mode} variants={cardVariants}>
                 <div className="flex items-center gap-3 mb-4">
                   <span
                     className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase px-2.5 py-1 rounded"
@@ -667,7 +577,8 @@ export default function ExamSelect({ onOpenAuth }) {
               </motion.section>
             )
           })}
-        </motion.div>}
+          </motion.div>
+        )}
 
       </div>
 

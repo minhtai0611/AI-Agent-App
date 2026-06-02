@@ -73,6 +73,11 @@ export async function loadThiThuExams() {
   return _examsCache.filter(e => e.mode === 'thithu').sort((a, b) => b.year - a.year)
 }
 
+export async function loadAppliedExams() {
+  await _loadExamsData()
+  return _examsCache.filter(e => e.mode === 'applied')
+}
+
 export function loadSchools() {
   return schoolsData
 }

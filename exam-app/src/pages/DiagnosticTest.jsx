@@ -265,7 +265,7 @@ export default function DiagnosticTest() {
             style={{ background: '#F2A20C', color: '#0A0E1A' }}>
             Bắt đầu luyện tập thích nghi →
           </button>
-          <button onClick={() => navigate('/exams?mode=special')}
+          <button onClick={() => navigate('/exams?mode=timed')}
             className="font-jakarta text-[13px] text-[#475569] hover:text-[#94A3B8] transition text-center py-1">
             Quay lại
           </button>
