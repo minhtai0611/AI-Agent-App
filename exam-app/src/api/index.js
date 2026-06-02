@@ -78,6 +78,11 @@ export async function loadAppliedExams() {
   return _examsCache.filter(e => e.mode === 'applied')
 }
 
+export async function loadOlympiadExams() {
+  await _loadExamsData()
+  return _examsCache.filter(e => e.mode === 'olympiad')
+}
+
 export function loadSchools() {
   return schoolsData
 }

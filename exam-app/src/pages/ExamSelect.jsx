@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useExamDispatch } from '../context/ExamContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
-import { loadExams, loadThiThuExams, loadAppliedExams, loadQuestionsByIds, loadExamById, getAccessibleExamIds } from '../api/index.js'
+import { loadExams, loadThiThuExams, loadAppliedExams, loadOlympiadExams, loadQuestionsByIds, loadExamById, getAccessibleExamIds } from '../api/index.js'
 import { ocrExam } from '../api/aiClient.js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
@@ -38,14 +38,28 @@ const GROUPS = {
     {
       category: 'applied', level: 'grade10',
       label: 'Toán ứng dụng — Lớp 10',
-      description: 'Tuyển sinh THPT Chuyên · Chương trình CT2022 · AMC 8 · Math Kangaroo (Parts A+B)',
+      description: 'Bài toán quy hoạch tuyến tính, hàm số, ứng dụng thực tiễn theo chương trình CT2022',
       accent: '#3B82F6', tag: 'Lớp 10',
     },
     {
       category: 'applied', level: 'thpt',
-      label: 'Toán ứng dụng — THPT & Olympic',
-      description: 'VMO · Xác suất & thống kê THPT · AMC 10A · Math Kangaroo Part C',
-      accent: '#818CF8', tag: 'THPT',
+      label: 'Toán ứng dụng — THPT',
+      description: 'Xác suất & thống kê ứng dụng thực tiễn, tình huống thực tế theo chương trình GDPT',
+      accent: '#F2A20C', tag: 'THPT',
+    },
+  ],
+  olympiad: [
+    {
+      category: 'olympiad', region: 'vn',
+      label: 'Olympic Toán Việt Nam',
+      description: 'VMO 2022 & 2023 · Tuyển sinh THPT Chuyên — đề thi thi đấu cấp quốc gia',
+      accent: '#F2A20C', tag: '🇻🇳 Việt Nam',
+    },
+    {
+      category: 'olympiad', region: 'intl',
+      label: 'Olympic Toán Quốc tế',
+      description: 'AMC 8 · AMC 10A · Math Kangaroo — kỳ thi thi đấu toán học quốc tế',
+      accent: '#6366F1', tag: '🌐 Quốc tế',
     },
   ],
 }
@@ -65,7 +79,7 @@ function getAllowedCategories() {
 }
 
 export default function ExamSelect({ onOpenAuth }) {
-  usePageMeta('Chọn đề thi', { description: 'Truy cập 40+ đề thi Toán THPT và tuyển sinh lớp 10 từ 63 tỉnh thành Việt Nam. Thi thử có thời gian hoặc luyện tập không giới hạn.' })
+  usePageMeta('Chọn đề thi', { description: 'Đề thi THPT & lớp 10 từ 63 tỉnh thành · Toán ứng dụng thực tiễn · Olympic AMC, Math Kangaroo, VMO · Công cụ Lab AI.' })
   const navigate = useNavigate()
   const dispatch = useExamDispatch()
   const { user } = useAuth()
@@ -74,7 +88,7 @@ export default function ExamSelect({ onOpenAuth }) {
   const urlMode = searchParams.get('mode')
   const [mode, setMode] = useState(
     // 'special' silently falls to 'timed' for backward-compat with old bookmarks/back-links
-    ['practice', 'applied', 'lab'].includes(urlMode) ? urlMode : 'timed'
+    ['practice', 'applied', 'olympiad', 'lab'].includes(urlMode) ? urlMode : 'timed'
   )
   const [previewExam, setPreviewExam] = useState(null)
   const [expandedCategories, setExpandedCategories] = useState({})
@@ -90,8 +104,9 @@ export default function ExamSelect({ onOpenAuth }) {
 
   useEffect(() => {
     if (mode === 'lab') { setAllExams([]); return }
-    const fn = mode === 'timed' ? loadThiThuExams
-      : mode === 'applied' ? loadAppliedExams
+    const fn = mode === 'timed'    ? loadThiThuExams
+      : mode === 'applied'         ? loadAppliedExams
+      : mode === 'olympiad'        ? loadOlympiadExams
       : loadExams
     fn().then(data => setAllExams(data))
   }, [mode])
@@ -229,16 +244,19 @@ export default function ExamSelect({ onOpenAuth }) {
         </button>
         <div className="flex items-center gap-1 bg-[#1A2440] rounded-full p-1">
           {[
-            { value: 'timed',   label: 'Có thời gian' },
+            { value: 'timed',    label: 'Có thời gian' },
             { value: 'practice', label: 'Luyện tập' },
-            { value: 'applied', label: 'Toán ứng dụng' },
-            { value: 'lab',     label: '⚗ Lab' },
+            { value: 'applied',  label: 'Ứng dụng' },
+            { value: 'olympiad', label: '🏆 Olympic' },
+            { value: 'lab',      label: '⚗ Lab' },
           ].map(opt => (
             <button key={opt.value} onClick={() => setMode(opt.value)}
-              className={`px-4 py-2 rounded-full font-jakarta text-[13px] transition ${
+              className={`px-3 py-2 rounded-full font-jakarta text-[12px] transition ${
                 mode === opt.value
                   ? opt.value === 'lab'
                     ? 'bg-[#818CF8] text-white font-semibold'
+                    : opt.value === 'olympiad'
+                    ? 'bg-[#6366F1] text-white font-semibold'
                     : 'bg-[#F2A20C] text-[#0A0E1A] font-semibold'
                   : 'text-[#94A3B8]'
               }`}>
@@ -264,8 +282,8 @@ export default function ExamSelect({ onOpenAuth }) {
         </div>
       )}
 
-      {/* Filter bar — hidden in Lab and Applied modes */}
-      <div className={`flex flex-wrap items-center gap-3 px-10 pt-6${'lab applied'.includes(mode) ? ' hidden' : ''}`}>
+      {/* Filter bar — hidden in Lab, Applied and Olympiad modes */}
+      <div className={`flex flex-wrap items-center gap-3 px-10 pt-6${['lab','applied','olympiad'].includes(mode) ? ' hidden' : ''}`}>
         <input
           type="search"
           placeholder="Tìm đề thi..."
@@ -407,7 +425,7 @@ export default function ExamSelect({ onOpenAuth }) {
           </motion.div>
         )}
 
-        {/* ── Exam list: timed / practice / applied ───────────────────────── */}
+        {/* ── Exam list: timed / practice / applied / olympiad ─────────────── */}
         {mode !== 'lab' && (
           <motion.div
             className="flex flex-col gap-10"
@@ -418,7 +436,7 @@ export default function ExamSelect({ onOpenAuth }) {
           >
           {groups.map(group => {
             // Grade/tier filter (only applies to timed/practice)
-            const categoryAllowed = !allowedCategories || mode === 'applied' || allowedCategories.includes(group.category)
+            const categoryAllowed = !allowedCategories || mode === 'applied' || mode === 'olympiad' || allowedCategories.includes(group.category)
             // Resolve exam list: applied groups filter by level; timed/practice by category
             const groupExams = group.level
               ? exams.filter(e => e.level === group.level)
@@ -427,8 +445,8 @@ export default function ExamSelect({ onOpenAuth }) {
               : exams.filter(e => e.category === group.category)
             const groupKey = group.level ?? group.region ?? group.category
             if (groupExams.length === 0) {
-              // Applied mode: show empty-state placeholder instead of hiding the group
-              if (mode === 'applied') return (
+              // Applied/Olympiad mode: show empty-state placeholder instead of hiding
+              if (mode === 'applied' || mode === 'olympiad') return (
                 <motion.section key={groupKey + '-empty'} variants={cardVariants}>
                   <div className="flex items-center gap-3 mb-4">
                     <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase px-2.5 py-1 rounded"
