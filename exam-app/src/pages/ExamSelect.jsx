@@ -35,8 +35,18 @@ const GROUPS = {
     { category: 'thpt', label: 'Luyện tập THPT & Đại học', description: 'SAT, ACT, A-Level, AMC 12, HSC Úc, Singapore H2 & nhiều đề quốc tế khác', accent: '#F2A20C', tag: 'THPT' },
   ],
   applied: [
-    { category: 'applied', region: 'vn', label: 'Toán ứng dụng Việt Nam', description: 'Olympic Toán học, đề thi chuyên, bài toán ứng dụng thực tiễn từ nguồn chính thức', accent: '#818CF8', tag: '🇻🇳 Việt Nam' },
-    { category: 'applied', region: 'intl', label: 'Toán ứng dụng Quốc tế', description: 'AMC, Math Kangaroo, APMO và các kỳ thi toán học quốc tế uy tín', accent: '#34D399', tag: '🌐 Quốc tế' },
+    {
+      category: 'applied', level: 'grade10',
+      label: 'Toán ứng dụng — Lớp 10',
+      description: 'Tuyển sinh THPT Chuyên · Chương trình CT2022 · AMC 8 · Math Kangaroo (Parts A+B)',
+      accent: '#3B82F6', tag: 'Lớp 10',
+    },
+    {
+      category: 'applied', level: 'thpt',
+      label: 'Toán ứng dụng — THPT & Olympic',
+      description: 'VMO · Xác suất & thống kê THPT · AMC 10A · Math Kangaroo Part C',
+      accent: '#818CF8', tag: 'THPT',
+    },
   ],
 }
 
@@ -409,14 +419,17 @@ export default function ExamSelect({ onOpenAuth }) {
           {groups.map(group => {
             // Grade/tier filter (only applies to timed/practice)
             const categoryAllowed = !allowedCategories || mode === 'applied' || allowedCategories.includes(group.category)
-            // Applied groups filter by region; timed/practice filter by category
-            const groupExams = group.region
+            // Resolve exam list: applied groups filter by level; timed/practice by category
+            const groupExams = group.level
+              ? exams.filter(e => e.level === group.level)
+              : group.region
               ? exams.filter(e => e.region === group.region)
               : exams.filter(e => e.category === group.category)
+            const groupKey = group.level ?? group.region ?? group.category
             if (groupExams.length === 0) {
               // Applied mode: show empty-state placeholder instead of hiding the group
               if (mode === 'applied') return (
-                <motion.section key={(group.region ?? group.category) + '-empty'} variants={cardVariants}>
+                <motion.section key={groupKey + '-empty'} variants={cardVariants}>
                   <div className="flex items-center gap-3 mb-4">
                     <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase px-2.5 py-1 rounded"
                       style={{ background: group.accent + '22', color: group.accent }}>
@@ -437,7 +450,7 @@ export default function ExamSelect({ onOpenAuth }) {
               return null
             }
             return (
-              <motion.section key={(group.region ?? group.category) + mode} variants={cardVariants}>
+              <motion.section key={groupKey + mode} variants={cardVariants}>
                 <div className="flex items-center gap-3 mb-4">
                   <span
                     className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase px-2.5 py-1 rounded"
@@ -467,7 +480,7 @@ export default function ExamSelect({ onOpenAuth }) {
                   </div>
                 ) : (() => {
                   const SHOW_FIRST = 5
-                  const isExpanded = !!expandedCategories[group.category + mode]
+                  const isExpanded = !!expandedCategories[groupKey + mode]
                   const visibleExams = isExpanded ? groupExams : groupExams.slice(0, SHOW_FIRST)
                   const hiddenCount = groupExams.length - SHOW_FIRST
                   return (
@@ -566,7 +579,7 @@ export default function ExamSelect({ onOpenAuth }) {
                       })}
                       {!isExpanded && hiddenCount > 0 && (
                         <button
-                          onClick={() => setExpandedCategories(prev => ({ ...prev, [group.category + mode]: true }))}
+                          onClick={() => setExpandedCategories(prev => ({ ...prev, [groupKey + mode]: true }))}
                           className="font-jakarta text-[13px] text-center py-2.5 rounded-xl border border-dashed border-[#1E2A44] text-[#475569] hover:text-[#94A3B8] hover:border-[#2A3A5E] transition">
                           + Xem thêm ({hiddenCount} đề)
                         </button>

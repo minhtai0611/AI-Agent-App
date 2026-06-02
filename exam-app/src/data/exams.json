@@ -2215,7 +2215,8 @@
     ],
     "category": "applied",
     "region": "intl",
-    "mode": "applied"
+    "mode": "applied",
+    "level": "grade10"
   },
   {
     "id": "amc8_2022",
@@ -2253,7 +2254,8 @@
     ],
     "category": "applied",
     "region": "intl",
-    "mode": "applied"
+    "mode": "applied",
+    "level": "grade10"
   },
   {
     "id": "amc10a_2022",
@@ -2291,7 +2293,8 @@
     ],
     "category": "applied",
     "region": "intl",
-    "mode": "applied"
+    "mode": "applied",
+    "level": "thpt"
   },
   {
     "id": "kangaroo_2023_ab",
@@ -2324,7 +2327,8 @@
     ],
     "category": "applied",
     "region": "intl",
-    "mode": "applied"
+    "mode": "applied",
+    "level": "grade10"
   },
   {
     "id": "kangaroo_2023_c",
@@ -2347,7 +2351,8 @@
     ],
     "category": "applied",
     "region": "intl",
-    "mode": "applied"
+    "mode": "applied",
+    "level": "thpt"
   },
   {
     "id": "toan_ung_dung_ct2022",
@@ -2368,7 +2373,8 @@
     ],
     "category": "applied",
     "region": "vn",
-    "mode": "applied"
+    "mode": "applied",
+    "level": "grade10"
   },
   {
     "id": "vmo_2022_converted",
@@ -2386,7 +2392,8 @@
     ],
     "category": "applied",
     "region": "vn",
-    "mode": "applied"
+    "mode": "applied",
+    "level": "thpt"
   },
   {
     "id": "vmo_2023_converted",
@@ -2405,7 +2412,8 @@
     ],
     "category": "applied",
     "region": "vn",
-    "mode": "applied"
+    "mode": "applied",
+    "level": "thpt"
   },
   {
     "id": "chuyen_tphcm_2022",
@@ -2423,7 +2431,8 @@
     ],
     "category": "applied",
     "region": "vn",
-    "mode": "applied"
+    "mode": "applied",
+    "level": "grade10"
   },
   {
     "id": "xstk_ung_dung_2022",
@@ -2442,6 +2451,7 @@
     ],
     "category": "applied",
     "region": "vn",
-    "mode": "applied"
+    "mode": "applied",
+    "level": "thpt"
   }
 ]
