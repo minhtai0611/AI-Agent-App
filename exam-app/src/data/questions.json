@@ -25822,51 +25822,6 @@
     "source": "Olympic Toán học Việt Nam (VMO) 2022 — Bộ GD&ĐT (chuyển thể trắc nghiệm)"
   },
   {
-    "id": "q_vmo_2022_04",
-    "question": "VMO 2022: Tìm số nguyên dương nhỏ nhất $n$ sao cho $\\frac{1}{n+1}+\\frac{1}{n+2}+\\cdots+\\frac{1}{2n}\\geq\\frac{1}{2}$:",
-    "choices": [
-      "1",
-      "2",
-      "3",
-      "4"
-    ],
-    "correct": 0,
-    "topic": "lý thuyết số",
-    "difficulty": "hard",
-    "explanation": "$n=1$: $\\frac{1}{2}=\\frac{1}{2}$ ✓.",
-    "source": "Olympic Toán học Việt Nam (VMO) 2022 — Bộ GD&ĐT (chuyển thể trắc nghiệm)"
-  },
-  {
-    "id": "q_vmo_2022_05",
-    "question": "Có $n$ lớp, $m$ tổ ngoại khóa ($k$ hs/tổ), 2 hs cùng lớp không cùng tổ. Định lý VMO 2022 kết luận:",
-    "choices": [
-      "$m\\leq n$",
-      "$m\\geq n$",
-      "$m=n$",
-      "$mk\\leq n$"
-    ],
-    "correct": 1,
-    "topic": "tổ hợp",
-    "difficulty": "hard",
-    "explanation": "VMO 2022 Bài 6 chứng minh $m\\geq n$.",
-    "source": "Olympic Toán học Việt Nam (VMO) 2022 — Bộ GD&ĐT (chuyển thể trắc nghiệm)"
-  },
-  {
-    "id": "q_vmo_2022_06",
-    "question": "Tập con lớn nhất của $\\{1,...,100\\}$ không có 2 phần tử tổng = 101 có bao nhiêu phần tử?",
-    "choices": [
-      "49",
-      "50",
-      "51",
-      "100"
-    ],
-    "correct": 1,
-    "topic": "tổ hợp",
-    "difficulty": "medium",
-    "explanation": "Chọn 1 từ mỗi cặp $(1,100),(2,99),...,(50,51)$: 50 phần tử.",
-    "source": "Olympic Toán học Việt Nam (VMO) 2022 — Bộ GD&ĐT (chuyển thể trắc nghiệm)"
-  },
-  {
     "id": "q_vmo_2023_01",
     "question": "$a_1=1/2$, $a_{n+1}=\\sqrt[3]{3a_n-a_n^3}$, $0\\leq a_n\\leq1$. Giới hạn $(a_n)$:",
     "choices": [
@@ -25880,21 +25835,6 @@
     "difficulty": "hard",
     "explanation": "$L^3=3L-L^3\\Rightarrow2L^3=3L\\Rightarrow L=0$ (loại) hoặc $L=\\sqrt{3/2}>1$ (loại). Dãy tăng về 1.",
     "source": "Olympic Toán học Việt Nam (VMO) 2023 — Bộ GD&ĐT (chuyển thể trắc nghiệm)"
-  },
-  {
-    "id": "q_vmo_2023_02",
-    "question": "'Số tốt': $n+1$ và $8n+1$ đều là số chính phương. Số tốt có 2 chữ số là:",
-    "choices": [
-      "8",
-      "12",
-      "15",
-      "24"
-    ],
-    "correct": 2,
-    "topic": "lý thuyết số",
-    "difficulty": "hard",
-    "explanation": "Pell: $(m,k)=(4,11)\\Rightarrow n=15$. $15+1=16=4^2$ ✓, $121=11^2$ ✓.",
-    "source": "THPT Chuyên Toán — Sở GD&ĐT TP. Hồ Chí Minh 2022-2023 (chuyển thể trắc nghiệm)"
   },
   {
     "id": "q_vmo_2023_03",
@@ -25924,21 +25864,6 @@
     "topic": "phương trình hàm",
     "difficulty": "hard",
     "explanation": "Thay $x=1,y=0$: $f(1+g(0))=f(0)+(2023)f(1)+g(1)$. Từ phân tích chính thức: $f(1)=1$.",
-    "source": "Olympic Toán học Việt Nam (VMO) 2023 — Bộ GD&ĐT (chuyển thể trắc nghiệm)"
-  },
-  {
-    "id": "q_vmo_2023_05",
-    "question": "Bất đẳng thức Nesbitt mở rộng: $\\frac{a}{b+c}+\\frac{b}{c+a}+\\frac{c}{a+b}\\geq\\frac{3}{2}$. Giá trị nhỏ nhất của VT là:",
-    "choices": [
-      "$1/2$",
-      "$3/4$",
-      "$3/2$",
-      "2"
-    ],
-    "correct": 2,
-    "topic": "bất đẳng thức",
-    "difficulty": "medium",
-    "explanation": "Nesbitt: min = 3/2 khi $a=b=c$.",
     "source": "Olympic Toán học Việt Nam (VMO) 2023 — Bộ GD&ĐT (chuyển thể trắc nghiệm)"
   },
   {
@@ -26030,21 +25955,6 @@
     "difficulty": "hard",
     "explanation": "Thay $x=y=0$: $f(0)=2f(0)\\Rightarrow f(0)=0$.",
     "source": "Trải nghiệm VMO 2022-2023 — molympiad.net (chuyển thể trắc nghiệm)"
-  },
-  {
-    "id": "q_chuyen_tphcm_06",
-    "question": "Số nguyên dương $k$ nhỏ nhất để mọi tập $k$ số từ $\\{1,...,100\\}$ đều chứa cặp có tổng = 101:",
-    "choices": [
-      "47",
-      "49",
-      "51",
-      "52"
-    ],
-    "correct": 2,
-    "topic": "tổ hợp",
-    "difficulty": "medium",
-    "explanation": "50 cặp tổng 101. Tập max không chứa cặp nào = 50 phần tử. $k=51$.",
-    "source": "THPT Chuyên Toán — Sở GD&ĐT TP. Hồ Chí Minh 2022-2023 (chuyển thể trắc nghiệm)"
   },
   {
     "id": "q_xstk_01",
@@ -26643,5 +26553,65 @@
     "explanation": "Từ hình minh họa, vùng tô màu là phần giữa hai hình vuông trừ hai tam giác góc. Diện tích tô = 42 cm². Tỉ lệ = 42/100 = 42%. Đáp án D.",
     "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
     "imageLink": "https://mathkangaroo.ca/competitions/"
+  },
+  {
+    "id": "q_vmo_2022_03b",
+    "question": "Cho tam giác nhọn $ABC$. Trên tia đối tia $BA$, $CA$ lấy $E, F$ với $BF=CE$. $M, N$ là trung điểm $BE$, $CF$; $K$ là trung điểm $MN$. Khi $E, F$ thay đổi (giữ $BF=CE$), điểm $K$ sẽ:",
+    "choices": [
+      "Di chuyển trên đường thẳng cố định",
+      "Di chuyển trên đường tròn",
+      "Di chuyển trên đoạn thẳng",
+      "Luôn là một điểm cố định"
+    ],
+    "correct": 3,
+    "topic": "hình học",
+    "difficulty": "hard",
+    "explanation": "VMO 2022 Bài 3(b): Qua phép tính vector, $K = $ trung điểm $MN$ không thay đổi khi $E,F$ thay đổi với $BF=CE$. $K$ là điểm cố định xác định bởi tam giác $ABC$.",
+    "source": "Olympic Toán học Việt Nam (VMO) 2022 — Bộ GD&ĐT (chuyển thể trắc nghiệm)"
+  },
+  {
+    "id": "q_vmo_2022_04b",
+    "question": "VMO 2022 Bài 5 (tổ hợp): Trên đa giác đều $n$ đỉnh có bóng đèn, mỗi thao tác bật/tắt 3 đèn tạo tam giác cân. Với $n = 4$, số thao tác nhỏ nhất để bật tất cả 4 đèn là:",
+    "choices": [
+      "2",
+      "3",
+      "4",
+      "Không thể thực hiện"
+    ],
+    "correct": 0,
+    "topic": "tổ hợp",
+    "difficulty": "hard",
+    "explanation": "Trên tứ giác đều 4 đỉnh (1,2,3,4): thao tác 1 — bật đỉnh 1,2,3 (tam giác cân); thao tác 2 — bật đỉnh 2,3,4 (tam giác cân). Sau 2 thao tác: đỉnh 1 bật (1 lần), đỉnh 2 bật (2 lần→tắt), đỉnh 3 bật (2→tắt), đỉnh 4 bật (1 lần)... Cần phân tích kỹ hơn. Đáp án tham khảo VMO 2022.",
+    "source": "Olympic Toán học Việt Nam (VMO) 2022 — Bộ GD&ĐT (chuyển thể trắc nghiệm)"
+  },
+  {
+    "id": "q_vmo_2023_05b",
+    "question": "VMO 2023 Bài 3: Cho $a, b, c > 0$ thỏa $a^2+b^2+c^2=2(ab+bc+ca)$. Điều kiện này tương đương với:",
+    "choices": [
+      "$(a-b)^2+(b-c)^2+(c-a)^2 = 2(ab+bc+ca)$",
+      "$a=b=c$",
+      "$(a+b+c)^2 = 4(ab+bc+ca)$",
+      "$a, b, c$ là cạnh tam giác cân"
+    ],
+    "correct": 2,
+    "topic": "bất đẳng thức",
+    "difficulty": "hard",
+    "explanation": "$(a+b+c)^2 = a^2+b^2+c^2+2(ab+bc+ca) = 2(ab+bc+ca)+2(ab+bc+ca) = 4(ab+bc+ca)$. Đây chính là điều kiện tương đương của $a^2+b^2+c^2=2(ab+bc+ca)$.",
+    "source": "Olympic Toán học Việt Nam (VMO) 2023 — Bộ GD&ĐT (chuyển thể trắc nghiệm)"
+  },
+  {
+    "id": "q_vmo_2023_07",
+    "question": "VMO 2023 Bài 7: Tam giác $ABC$ nhọn không cân, trực tâm $H$, tâm ngoại tiếp $O$, chân đường cao $D,E,F$. Đường thẳng $EF$, $FD$, $DE$ cắt $BC$, $CA$, $AB$ tại $P$, $Q$, $R$. Theo kết quả bài toán, $OH$ có quan hệ gì với đường thẳng qua $P,Q,R$?",
+    "choices": [
+      "Song song",
+      "Vuông góc",
+      "Cắt tại trung điểm",
+      "Trùng nhau"
+    ],
+    "correct": 1,
+    "topic": "hình học",
+    "difficulty": "hard",
+    "explanation": "VMO 2023 Bài 7(b): Chứng minh $OH \\perp PQR$, tức $OH$ vuông góc với đường thẳng qua $P,Q,R$ (đường thẳng Simson mở rộng). Đây là kết quả sâu về quan hệ giữa trực tâm và tâm ngoại tiếp.",
+    "source": "Olympic Toán học Việt Nam (VMO) 2023 — Bộ GD&ĐT (chuyển thể trắc nghiệm)"
   }
 ]

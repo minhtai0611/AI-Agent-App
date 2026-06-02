@@ -2351,7 +2351,7 @@
   },
   {
     "id": "toan_ung_dung_ct2022",
-    "title": "Toán ứng dụng thực tiễn THPT — Chương trình GDPT 2022",
+    "title": "Toán ứng dụng thực tiễn THPT — Tuyển chọn bài CT2022",
     "year": 2022,
     "source": "Bộ GD&ĐT, Chương trình Giáo dục Phổ thông 2022",
     "duration": 60,
@@ -2372,18 +2372,17 @@
   },
   {
     "id": "vmo_2022_converted",
-    "title": "Olympic Toán học Việt Nam 2022 (Trắc nghiệm hóa)",
+    "title": "Olympic Toán học Việt Nam 2022 — Tuyển chọn bài toán (trắc nghiệm hóa)",
     "year": 2022,
     "source": "Bộ GD&ĐT — VMO 2022",
     "duration": 60,
-    "totalQuestions": 6,
+    "totalQuestions": 5,
     "questionIds": [
       "q_vmo_2022_01",
       "q_vmo_2022_02",
       "q_vmo_2022_03",
-      "q_vmo_2022_04",
-      "q_vmo_2022_05",
-      "q_vmo_2022_06"
+      "q_vmo_2022_03b",
+      "q_vmo_2022_04b"
     ],
     "category": "applied",
     "region": "vn",
@@ -2391,18 +2390,18 @@
   },
   {
     "id": "vmo_2023_converted",
-    "title": "Olympic Toán học Việt Nam 2023 (Trắc nghiệm hóa)",
+    "title": "Olympic Toán học Việt Nam 2023 — Tuyển chọn bài toán (trắc nghiệm hóa)",
     "year": 2023,
     "source": "Bộ GD&ĐT — VMO 2023",
     "duration": 60,
     "totalQuestions": 6,
     "questionIds": [
       "q_vmo_2023_01",
-      "q_vmo_2023_02",
       "q_vmo_2023_03",
       "q_vmo_2023_04",
-      "q_vmo_2023_05",
-      "q_vmo_2023_06"
+      "q_vmo_2023_06",
+      "q_vmo_2023_05b",
+      "q_vmo_2023_07"
     ],
     "category": "applied",
     "region": "vn",
@@ -2410,18 +2409,17 @@
   },
   {
     "id": "chuyen_tphcm_2022",
-    "title": "Tuyển sinh THPT Chuyên + VMO Practice 2022 (Trắc nghiệm hóa)",
+    "title": "THPT Chuyên Toán TPHCM 2022 & Trải nghiệm VMO 2022-23 (trắc nghiệm hóa)",
     "year": 2022,
     "source": "Sở GD&ĐT TP. HCM & molympiad.net",
     "duration": 60,
-    "totalQuestions": 6,
+    "totalQuestions": 5,
     "questionIds": [
       "q_chuyen_tphcm_01",
       "q_chuyen_tphcm_02",
       "q_chuyen_tphcm_03",
       "q_chuyen_tphcm_04",
-      "q_chuyen_tphcm_05",
-      "q_chuyen_tphcm_06"
+      "q_chuyen_tphcm_05"
     ],
     "category": "applied",
     "region": "vn",
@@ -2429,7 +2427,7 @@
   },
   {
     "id": "xstk_ung_dung_2022",
-    "title": "Xác suất và Thống kê ứng dụng thực tiễn THPT",
+    "title": "Xác suất & Thống kê ứng dụng thực tiễn — Tuyển chọn bài CT2022",
     "year": 2022,
     "source": "Chương trình GDPT 2022 — Bộ GD&ĐT, Toán xác suất và thống kê",
     "duration": 45,
