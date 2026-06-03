@@ -1,11 +1,16 @@
 """Integration-style tests for /auth/google and get_current_user — DB + google mocked."""
+import os
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 from httpx import AsyncClient, ASGITransport
 import jwt as pyjwt
 
+os.environ.setdefault("JWT_SECRET", "test-secret-at-least-32-chars-long!")
+os.environ.setdefault("ANTHROPIC_AUTH_TOKEN", "test-token")
+
 from app.auth import create_jwt
 from app.config import get_settings
+from tests.builders import FULL_USER_ROW
 
 
 @pytest.fixture
@@ -21,8 +26,11 @@ def fake_google_payload():
 @pytest.fixture
 def mock_pool():
     pool = MagicMock()
-    row = {"id": 1, "email": "user@example.com", "display_name": "Test User", "avatar_url": "https://example.com/avatar.jpg"}
-    pool.fetchrow = AsyncMock(return_value=row)
+    # FULL_USER_ROW satisfies every pool.fetchrow call across get_current_user,
+    # auth_google (trial_used, id, INSERT RETURNING), and get_me.
+    pool.fetchrow = AsyncMock(return_value=dict(FULL_USER_ROW))
+    pool.fetch = AsyncMock(return_value=[])
+    pool.execute = AsyncMock(return_value="UPDATE 1")
     return pool
 
 
@@ -44,7 +52,10 @@ async def test_auth_google_success(app_with_pool, fake_google_payload):
     assert "access_token" in data
     assert data["user"]["email"] == "user@example.com"
     settings = get_settings()
-    payload = pyjwt.decode(data["access_token"], settings.jwt_secret, algorithms=["HS256"])
+    # create_jwt encodes with aud="exam-app" — must pass audience= when decoding
+    payload = pyjwt.decode(
+        data["access_token"], settings.jwt_secret, algorithms=["HS256"], audience="exam-app"
+    )
     assert payload["sub"] == "1"
 
 
@@ -83,10 +94,9 @@ async def test_get_me_expired_token(app_with_pool):
 @pytest.mark.asyncio
 async def test_get_me_valid_token(app_with_pool, mock_pool):
     token = create_jwt(1)
-    mock_pool.fetchrow = AsyncMock(return_value={
-        "id": 1, "email": "user@example.com",
-        "display_name": "Test User", "avatar_url": "https://example.com/avatar.jpg"
-    })
+    # The fixture already provides FULL_USER_ROW which has all required fields.
+    # Do NOT override mock_pool.fetchrow here — a partial dict causes KeyError
+    # in the /users/me handler when it calls COUNT(*) queries (missing 'cnt' key).
     async with AsyncClient(transport=ASGITransport(app=app_with_pool), base_url="http://test") as client:
         resp = await client.get("/users/me", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200

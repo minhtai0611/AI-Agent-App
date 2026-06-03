@@ -1,0 +1,8 @@
+# Development / testing dependencies — not needed in production
+# Install with: pip install -r requirements-dev.txt
+schemathesis>=4.0.0
+mutmut>=2.4.0
+pyyaml>=6.0
+pytest-randomly>=3.15
+pytest-repeat>=0.9.1
+hypothesis>=6.0.0

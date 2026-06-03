@@ -1,0 +1,98 @@
+# Analyze endpoint test catalog (/analyze).
+# Adding a new case: append a YAML entry — no Python changes needed.
+#
+# Fields:
+#   id            unique test identifier
+#   description   human-readable
+#   credits       user credit balance
+#   tos           TOS accepted
+#   tier          subscription tier
+#   score         exam score (0–10) — used in MOCK_RESULT override
+#   llm_response  mocked LLM JSON string (null → raise exception)
+#   expect_status HTTP status
+#   expect_fields list of keys that must exist in response body
+
+# ── Happy paths ───────────────────────────────────────────────────────────────
+- id: analyze_full_response
+  description: "valid result, 10 credits → 200 with all fields"
+  credits: 10
+  tos: true
+  tier: student
+  score: 7.5
+  llm_response: >
+    {"insights": "Điểm tốt, cần cải thiện hình học.",
+     "weak_topics": ["geometry"],
+     "recommendations": ["Ôn tập hình học", "Làm thêm đề thử"]}
+  expect_status: 200
+  expect_fields: [insights, weak_topics, recommendations]
+
+- id: analyze_perfect_score
+  description: "score=10.0 (perfect) → 200"
+  credits: 10
+  tos: true
+  tier: student
+  score: 10.0
+  llm_response: >
+    {"insights": "Xuất sắc!",
+     "weak_topics": [],
+     "recommendations": ["Giữ vững phong độ"]}
+  expect_status: 200
+
+- id: analyze_zero_score
+  description: "score=0 → 200 (edge: lowest score)"
+  credits: 10
+  tos: true
+  tier: student
+  score: 0.0
+  llm_response: >
+    {"insights": "Cần cải thiện nhiều.",
+     "weak_topics": ["algebra", "geometry", "calculus"],
+     "recommendations": ["Ôn tập cơ bản"]}
+  expect_status: 200
+
+- id: analyze_complete_tier_free
+  description: "complete tier → analyze is free (no credit deduction path)"
+  credits: 0
+  tos: true
+  tier: complete
+  score: 8.0
+  llm_response: >
+    {"insights": "Tốt lắm!",
+     "weak_topics": [],
+     "recommendations": []}
+  expect_status: 200
+
+# ── Credit / guard failures ───────────────────────────────────────────────────
+- id: analyze_insufficient_credits
+  description: "basic tier, 2 credits (cost=3) → 402"
+  credits: 2
+  tos: true
+  tier: basic
+  llm_response: null
+  expect_status: 402
+
+- id: analyze_no_tos
+  description: "basic tier, TOS not accepted → 403"
+  credits: 20
+  tos: false
+  tier: basic
+  llm_response: null
+  expect_status: 403
+
+# ── LLM error paths ───────────────────────────────────────────────────────────
+- id: analyze_bad_json
+  description: "LLM returns malformed JSON → 502"
+  credits: 10
+  tos: true
+  tier: student
+  llm_response: "this is not json"
+  expect_status: 502
+
+- id: analyze_empty_json
+  description: "LLM returns {} → 200, fields are empty strings / empty lists"
+  credits: 10
+  tos: true
+  tier: student
+  llm_response: "{}"
+  expect_status: 200
+  expect_fields: [insights, weak_topics, recommendations]

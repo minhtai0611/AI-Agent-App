@@ -1163,7 +1163,7 @@ async def analyze(
             question_analysis=data.get("question_analysis", ""),
             school_insight=data.get("school_insight", ""),
         )
-    except (ValueError, KeyError):
+    except (ValueError, KeyError, Exception):
         raise HTTPException(status_code=502, detail="AI response parse error")
 
 
@@ -1364,13 +1364,17 @@ async def generate_exam(
         "Trả về JSON array, mỗi phần tử gồm: question (string), choices (array 4 string), correct (int 0-3), topic (string), explanation (string ngắn).\n"
         "Chỉ trả lời JSON, không giải thích thêm."
     )
+    from app.agent.core import call_with_retry
     try:
-        resp = await client.chat.completions.create(
-            model=settings.default_model, max_tokens=3000,
+        resp = await call_with_retry(
+            client,
+            model=settings.default_model,
+            max_tokens=3000,
             messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"},
         )
-        raw = resp.choices[0].message.content or "{}"
+        raw = (resp.choices[0].message.content or "{}").strip() if resp.choices else "{}"
+        if raw.startswith("```"):
+            raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
         parsed = json.loads(raw)
         questions = parsed if isinstance(parsed, list) else parsed.get("questions", [])
         exam_id = f"generated-{current_user.user_id}-{int(datetime.utcnow().timestamp())}"
@@ -3333,10 +3337,16 @@ async def diagnostic_seed(
 
 
 async def _spend_credits(pool, user_id: int, amount: int, reason: str) -> None:
-    """Atomically deduct `amount` credits. Raises 402 if insufficient, 403 if TOS not accepted."""
-    row = await pool.fetchrow(
-        "SELECT credits_balance, tos_accepted_at FROM users WHERE id = ?", user_id
-    )
+    """Atomically deduct `amount` credits. Raises 402 if insufficient, 403 if TOS not accepted,
+    503 if the database is unavailable."""
+    try:
+        row = await pool.fetchrow(
+            "SELECT credits_balance, tos_accepted_at FROM users WHERE id = ?", user_id
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Database unavailable") from exc
     if not row:
         raise HTTPException(status_code=404, detail="User not found")
     if not row["tos_accepted_at"]:

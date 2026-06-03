@@ -4,9 +4,42 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app
+from app.main import app, get_pool
+from app.dependencies import get_current_user, CurrentUser
+
+
+# ── Dependency overrides ──────────────────────────────────────────────────────
+
+def _mock_user():
+    return CurrentUser(user_id=1, email="test@example.com")
+
+
+def _mock_pool():
+    pool = MagicMock()
+    pool.fetchrow = AsyncMock(return_value={
+        "subscription_tier": "student",  # passes tier gates for /study-plan
+        "credits_balance": 100,
+        "tos_accepted_at": "2024-01-01T00:00:00",
+        "province": None,
+    })
+    pool.execute = AsyncMock(return_value="UPDATE 1")
+    pool.fetch = AsyncMock(return_value=[])
+    return pool
+
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def _set_overrides():
+    """Set mock overrides for each test; restore afterwards so other test
+    modules that run later (e.g. test_auth_endpoint.py) start with a clean slate."""
+    saved = dict(app.dependency_overrides)
+    app.dependency_overrides[get_current_user] = _mock_user
+    app.dependency_overrides[get_pool] = _mock_pool
+    yield
+    app.dependency_overrides.clear()
+    app.dependency_overrides.update(saved)
 
 MOCK_RESULT = {
     "score": 7.5,
@@ -95,19 +128,26 @@ def test_hint_bad_json_returns_502():
 
 def test_study_plan_happy_path():
     ai_json = json.dumps({
-        "plan": "## Kế hoạch\n- Ôn tập đại số",
-        "weekly_schedule": [
-            {"week": 1, "focus": "Đại số", "tasks": ["Bài tập 1"]},
+        "score_gap": "Cần cải thiện hình học.",
+        "focus_areas": [
+            {
+                "topic": "geometry",
+                "error_pattern": "Sai công thức diện tích.",
+                "tasks": ["Ôn lại lý thuyết", "Làm 5 bài tập"],
+                "checkpoint": {"target": 3, "description": "Trả lời đúng 3 câu liên tiếp"},
+            }
         ],
+        "retake_note": "Thử lại đề sau 2 tuần.",
     })
     with patch("app.agent.study_planner.call_with_retry", new_callable=AsyncMock) as mock_retry:
         mock_retry.return_value = _mock_completion(ai_json)
         r = client.post("/study-plan", json={"result": MOCK_RESULT, "history": []})
     assert r.status_code == 200
     body = r.json()
-    assert "plan" in body
-    assert "weekly_schedule" in body
-    assert len(body["weekly_schedule"]) >= 1
+    assert "score_gap" in body
+    assert "focus_areas" in body
+    assert "retake_note" in body
+    assert len(body["focus_areas"]) >= 1
 
 
 def test_study_plan_llm_error_returns_default():
@@ -116,14 +156,18 @@ def test_study_plan_llm_error_returns_default():
         r = client.post("/study-plan", json={"result": MOCK_RESULT, "history": []})
     assert r.status_code == 200
     body = r.json()
-    assert len(body["weekly_schedule"]) == 4
+    # study_planner catches all exceptions and returns a built-in fallback
+    assert "focus_areas" in body
+    assert len(body["focus_areas"]) >= 1
 
 
 # ── Rate limiter ──────────────────────────────────────────────────────────────
 
 def test_rate_limit_triggered(monkeypatch):
-    from app.middleware import RateLimitMiddleware, _LIMIT
-    monkeypatch.setattr("app.middleware._LIMIT", 2)
+    # Lower the IP limit to 2 so the 3rd request triggers 429.
+    # The global _global_rate_limit_bypass fixture raises limits to 100,000 first;
+    # monkeypatch overrides back down for this one test.
+    monkeypatch.setattr("app.middleware._IP_LIMIT", 2)
 
     ai_json = json.dumps({"hint": "test", "difficulty_note": ""})
     with patch("app.agent.hint_generator.call_with_retry", new_callable=AsyncMock) as mock_retry:

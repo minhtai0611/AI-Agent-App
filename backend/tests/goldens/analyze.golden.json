@@ -1,0 +1,13 @@
+{
+  "_meta": {
+    "endpoint": "POST /analyze",
+    "description": "Expected response schema for /analyze. Update with: pytest --update-goldens",
+    "llm_mock": "{\"insights\": \"Điểm tốt.\", \"weak_topics\": [\"geometry\"], \"recommendations\": [\"Ôn hình học\"]}",
+    "reference_text": "Điểm tốt. Cần cải thiện hình học. Ôn hình học."
+  },
+  "insights": {"type": "str"},
+  "weak_topics": {"type": "list", "item_type": "str"},
+  "recommendations": {"type": "list", "item_type": "str"},
+  "question_analysis": {"type": "str"},
+  "school_insight": {"type": "str"}
+}

@@ -1,23 +1,31 @@
 """Tests for /users/me/history endpoints."""
 import json
+import os
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from httpx import AsyncClient, ASGITransport
 from datetime import datetime, timezone
 
+os.environ.setdefault("JWT_SECRET", "test-secret-at-least-32-chars-long!")
+os.environ.setdefault("ANTHROPIC_AUTH_TOKEN", "test-token")
+
 from app.auth import create_jwt
+from tests.builders import FULL_USER_ROW
 
 
 @pytest.fixture
 def mock_pool():
     pool = MagicMock()
-    pool.acquire = MagicMock()
+    # async context manager for pool.acquire()
     conn = AsyncMock()
     conn.__aenter__ = AsyncMock(return_value=conn)
     conn.__aexit__ = AsyncMock(return_value=False)
-    pool.acquire.return_value = conn
-    pool.fetchrow = AsyncMock()
+    pool.acquire = MagicMock(return_value=conn)
+    # FULL_USER_ROW satisfies every fetchrow call including get_current_user's
+    # is_suspended / is_locked / is_deactivated checks.
+    pool.fetchrow = AsyncMock(return_value=dict(FULL_USER_ROW))
     pool.fetch = AsyncMock(return_value=[])
+    pool.execute = AsyncMock(return_value="UPDATE 1")
     return pool, conn
 
 
@@ -54,11 +62,14 @@ async def test_post_history_idempotent(app_with_pool, mock_pool):
             json=entries,
             headers={"Authorization": f"Bearer {token}"},
         )
-    assert resp.status_code == 204
-    conn.execute.assert_awaited_once()
-    # ON CONFLICT DO NOTHING — second identical call is safe
-    call_sql = conn.execute.call_args[0][0]
-    assert "ON CONFLICT" in call_sql
+    # Endpoint returns 200 with {"streak_recovered": ..., "streak": ...}
+    assert resp.status_code == 200
+    # The endpoint calls conn.execute at least once (INSERT exam_results) and
+    # may call it again for exam_leaderboard — assert it was called, not just once.
+    assert conn.execute.await_count >= 1
+    # The first execute must be the idempotent INSERT with ON CONFLICT DO NOTHING
+    first_sql = conn.execute.call_args_list[0][0][0]
+    assert "ON CONFLICT" in first_sql
 
 
 @pytest.mark.asyncio

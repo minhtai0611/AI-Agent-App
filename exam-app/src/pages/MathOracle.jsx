@@ -440,7 +440,7 @@ function GeoGebraEmbed({ commands, onError }) {
           // Fix 2: 10s timeout to avoid infinite spinner on load failure
           if (Date.now() - startTime > 10_000) {
             clearInterval(tid)
-            if (!cancelled) setStatus('error')
+            if (!cancelled) { setStatus('error'); onError?.() }
             return
           }
           const api = appletRef?.getAppletObject?.()

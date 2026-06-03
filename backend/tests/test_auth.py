@@ -1,8 +1,13 @@
 """Unit tests for auth.py — no network calls."""
 import asyncio
+import os
 from unittest.mock import AsyncMock, patch, MagicMock
 import pytest
 import jwt as pyjwt
+
+# Ensure JWT_SECRET is present before any import triggers get_settings()
+os.environ.setdefault("JWT_SECRET", "test-secret-at-least-32-chars-long!")
+os.environ.setdefault("ANTHROPIC_AUTH_TOKEN", "test-token")
 
 from app.auth import create_jwt, decode_jwt
 
@@ -11,7 +16,10 @@ def test_create_jwt_structure():
     token = create_jwt(42)
     assert isinstance(token, str)
     from app.config import get_settings
-    payload = pyjwt.decode(token, get_settings().jwt_secret, algorithms=["HS256"])
+    # create_jwt encodes with aud="exam-app" — must pass audience= when decoding
+    payload = pyjwt.decode(
+        token, get_settings().jwt_secret, algorithms=["HS256"], audience="exam-app"
+    )
     assert payload["sub"] == "42"
     assert "exp" in payload
     assert "iat" in payload

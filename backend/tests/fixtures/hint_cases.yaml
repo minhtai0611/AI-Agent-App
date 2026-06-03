@@ -1,0 +1,93 @@
+# Hint endpoint test catalog.
+# Each entry covers one scenario tested against /hint.
+# Adding a new case: append a YAML entry — no Python changes needed.
+#
+# Fields:
+#   id            unique test identifier (used as pytest node ID)
+#   description   human-readable explanation
+#   credits       user credit balance
+#   tos           whether TOS is accepted
+#   tier          subscription tier
+#   llm_response  what the mocked LLM returns (null → force exception)
+#   expect_status HTTP status code
+#   expect_field  top-level key that must be present in the response body (optional)
+#   expect_absent key that must NOT be present in a success response (optional)
+
+# ── Happy paths ───────────────────────────────────────────────────────────────
+- id: hint_basic_success
+  description: "valid question, 20 credits → 200 with hint field"
+  credits: 20
+  tos: true
+  tier: student
+  llm_response: '{"hint": "Hãy suy nghĩ về tính đối xứng.", "difficulty_note": ""}'
+  expect_status: 200
+  expect_field: hint
+
+- id: hint_high_attempt_count
+  description: "attempt_count=5 → still 200 (no logic gates on count)"
+  credits: 20
+  tos: true
+  tier: student
+  attempt_count: 5
+  llm_response: '{"hint": "Gợi ý lần thứ 5.", "difficulty_note": "Khó"}'
+  expect_status: 200
+  expect_field: hint
+
+- id: hint_complete_tier
+  description: "complete-tier user → 200"
+  credits: 5
+  tos: true
+  tier: complete
+  llm_response: '{"hint": "Hint for complete user.", "difficulty_note": ""}'
+  expect_status: 200
+
+- id: hint_boundary_min_credits
+  description: "exactly 1 credit (cost=1) → 200"
+  credits: 1
+  tos: true
+  tier: student
+  llm_response: '{"hint": "Last credit hint.", "difficulty_note": ""}'
+  expect_status: 200
+
+# ── Credit / auth guard failures ──────────────────────────────────────────────
+- id: hint_zero_credits
+  description: "0 credits → 402 insufficient_credits"
+  credits: 0
+  tos: true
+  tier: student
+  llm_response: null
+  expect_status: 402
+
+- id: hint_no_tos
+  description: "TOS not accepted → 403 tos_not_accepted"
+  credits: 20
+  tos: false
+  tier: student
+  llm_response: null
+  expect_status: 403
+
+# ── LLM error paths ────────────────────────────────────────────────────────────
+- id: hint_malformed_json
+  description: "LLM returns non-JSON → 502"
+  credits: 20
+  tos: true
+  tier: student
+  llm_response: "not json at all"
+  expect_status: 502
+
+- id: hint_empty_json
+  description: "LLM returns empty object → 200 with empty hint (graceful degradation)"
+  credits: 20
+  tos: true
+  tier: student
+  llm_response: "{}"
+  expect_status: 200
+  expect_field: hint
+
+- id: hint_partial_json
+  description: "LLM returns valid JSON missing hint key → hint field empty string"
+  credits: 20
+  tos: true
+  tier: student
+  llm_response: '{"difficulty_note": "Hard"}'
+  expect_status: 200

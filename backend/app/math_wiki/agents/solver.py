@@ -17,6 +17,27 @@ _PHAN_RE = re.compile(r'^\*\*Phần\s+[a-dA-D]', re.UNICODE)  # multi-part secti
 
 _EXPECTED_KEYS = {"problem_type", "steps", "final_answer", "confidence", "used_knowledge_ids"}
 
+# English thinking/reasoning words that sometimes leak out of the model despite the prompt ban.
+# Matched at the start of step text (after optional "Bước N: "), outside math delimiters.
+_THINKING_PREFIX_RE = re.compile(
+    r'^(Bước\s+\d+:\s*)?'
+    r'(?:wait|hmm+|hm|oops|actually|let me|recalculate|try again|try|ok|well|ah|ugh)'
+    r'[,\s]+',
+    re.IGNORECASE,
+)
+
+
+def _strip_english_thinking(steps: list[str]) -> list[str]:
+    """Remove English thinking-word prefixes that the model leaks despite the language ban."""
+    result: list[str] = []
+    for step in steps:
+        cleaned = _THINKING_PREFIX_RE.sub(r'\1', step).strip()
+        if cleaned and cleaned not in ('Bước', ):
+            result.append(cleaned)
+        elif step.strip():
+            result.append(step)
+    return result
+
 
 def _inject_buoc_prefix(steps: list[str]) -> list[str]:
     """Ensure every non-header step starts with 'Bước N: '.
@@ -281,7 +302,8 @@ def _normalize(parsed: dict, valid_ids: set[str], _label_hint: str = "") -> Solv
     if not steps:
         logger.warning("solver: no parseable steps in response — using final_answer as sole step. raw=%r", str(parsed)[:200])
 
-    final_steps = _inject_buoc_prefix(steps or [final_answer])
+    final_steps = _strip_english_thinking(_inject_buoc_prefix(steps or [final_answer]))
+    final_answer = _THINKING_PREFIX_RE.sub('', final_answer).strip() or final_answer
 
     return SolverOutput(
         problem_type=problem_type,
