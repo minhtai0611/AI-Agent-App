@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app
+from app.main import app, get_pool
 
 client = TestClient(app)
 
@@ -290,6 +290,9 @@ def test_math_ingest_happy_path():
 
 
 def test_math_solve_happy_path():
+    from app.dependencies import get_current_user
+    app.dependency_overrides[get_current_user] = _ocr_auth_override
+    app.dependency_overrides[get_pool] = _solve_pool_mock
     expected = {
         "label": "algebra",
         "answer": {"problem_type": "linear", "used_knowledge_ids": [],
@@ -297,19 +300,30 @@ def test_math_solve_happy_path():
         "validation": {"valid": True, "issues": []},
         "retrieved_ids": [],
     }
-    with patch("app.math_wiki.pipeline.run_pipeline", new_callable=AsyncMock, return_value=expected):
-        r = client.post("/math-solve", json={"question": "solve 2x=4"})
-    assert r.status_code == 200
-    body = r.json()
-    assert body["label"] == "algebra"
+    try:
+        with patch("app.math_wiki.pipeline.run_pipeline", new_callable=AsyncMock, return_value=expected):
+            r = client.post("/math-solve", json={"question": "solve 2x=4"})
+        assert r.status_code == 200
+        body = r.json()
+        assert body["label"] == "algebra"
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
+        app.dependency_overrides.pop(get_pool, None)
 
 
 def test_math_solve_insufficient_knowledge():
-    with patch("app.math_wiki.pipeline.run_pipeline", new_callable=AsyncMock,
-               return_value={"error": "INSUFFICIENT_KNOWLEDGE"}):
-        r = client.post("/math-solve", json={"question": "impossible"})
-    assert r.status_code == 200
-    assert r.json()["error"] == "INSUFFICIENT_KNOWLEDGE"
+    from app.dependencies import get_current_user
+    app.dependency_overrides[get_current_user] = _ocr_auth_override
+    app.dependency_overrides[get_pool] = _solve_pool_mock
+    try:
+        with patch("app.math_wiki.pipeline.run_pipeline", new_callable=AsyncMock,
+                   return_value={"error": "INSUFFICIENT_KNOWLEDGE"}):
+            r = client.post("/math-solve", json={"question": "impossible"})
+        assert r.status_code == 200
+        assert r.json()["error"] == "INSUFFICIENT_KNOWLEDGE"
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
+        app.dependency_overrides.pop(get_pool, None)
 
 
 # ── test_stats ─────────────────────────────────────────────────────────────────
@@ -376,6 +390,17 @@ def _ocr_auth_override():
     m = MagicMock()
     m.user_id = "test-uid"
     return m
+
+
+def _solve_pool_mock():
+    """Pool stub for /math-solve — returns a student-tier user with TOS accepted."""
+    pool = MagicMock()
+    pool.fetchrow = AsyncMock(return_value={
+        "subscription_tier": "student",
+        "tos_accepted_at": "2024-01-01T00:00:00",
+    })
+    pool.execute = AsyncMock(return_value=None)
+    return pool
 
 
 def test_math_ocr_success():

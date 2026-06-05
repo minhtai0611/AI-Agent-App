@@ -37,6 +37,8 @@ const GenerateExam = lazy(() => import('./pages/GenerateExam.jsx'))
 const Progress = lazy(() => import('./pages/Progress.jsx'))
 const AdaptiveStudyPlan = lazy(() => import('./pages/AdaptiveStudyPlan.jsx'))
 const Placement = lazy(() => import('./pages/Placement.jsx'))
+const ConceptMap = lazy(() => import('./pages/ConceptMap.jsx'))
+const ErrorAnalysis = lazy(() => import('./pages/ErrorAnalysis.jsx'))
 
 const PageFallback = () => <div className="min-h-screen bg-[#0A0E1A]" />
 
@@ -177,6 +179,8 @@ function AppInner() {
             <Route path="/progress" element={<Progress />} />
             <Route path="/study-plan/adaptive" element={<AdaptiveStudyPlan />} />
             <Route path="/placement" element={<Placement />} />
+            <Route path="/concept-map" element={<ConceptMap />} />
+            <Route path="/error-analysis" element={<ErrorAnalysis />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           </AnimatePresence>

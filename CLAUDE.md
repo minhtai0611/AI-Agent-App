@@ -18,7 +18,14 @@ npm run dev          # starts backend :8000 and frontend :5173 concurrently
 # Backend only
 pip install -r requirements.txt
 PYTHONPATH=backend uvicorn app.main:app --reload   # http://localhost:8000
-python3 -m pytest backend/tests/        # run tests
+python3 -m pytest backend/tests/ -m "not live_ai" --randomly-seed=0 -q   # fast suite
+python3 -m pytest backend/tests/ -m "live_ai" -v                         # live AI tests (needs token)
+
+# Mutation testing (run from backend/, takes ~15-20 min for agent/ module)
+cd backend && mutmut run     # config in backend/pyproject.toml — baseline score: 16.5%
+mutmut results               # show killed/survived/no-tests breakdown
+# WARNING: never run `mutmut apply <mutant>` without immediately running:
+#   git checkout -- app/agent/<file>.py   (it physically corrupts source files)
 
 # Frontend only
 cd exam-app && npm install && npm run dev   # http://localhost:5173
@@ -142,6 +149,45 @@ Admin key rotates automatically (default: weekly). Get current key from `/data/a
 | Variable | Example value |
 |---|---|
 | `VITE_API_BASE_URL` | `http://localhost:8000` |
+
+## Test suite
+
+**Two tiers — run at different times, never mix them up.**
+
+### Tier 1 — fast suite (run on every commit, blocks merge)
+```bash
+PYTHONPATH=backend python3 -m pytest backend/tests/ \
+  -m "not live_ai and not fault_injection" \
+  --randomly-seed=0 -q
+```
+Files: `test_regressions.py`, `test_auth_flow.py`, `test_llm_oracle.py`, `test_resilience.py`, `test_streaming.py`, `test_budget.py`, `test_observability.py`, `test_admin.py`, `test_ai_endpoints.py`, `test_auth.py`, `test_auth_endpoint.py`, `test_user_endpoints.py`
+
+### Tier 2 — on-demand suites (excluded from default run — do NOT forget these)
+
+| Suite | Run when | Command |
+|---|---|---|
+| `test_golden.py` | After any model version bump or system prompt edit | `PYTHONPATH=backend pytest backend/tests/test_golden.py -v` |
+| `test_property_based.py` | After changes to credit logic or endpoint guards | `PYTHONPATH=backend pytest backend/tests/test_property_based.py -v` |
+| `test_contract.py` (smoke) | Before a deploy | `PYTHONPATH=backend pytest backend/tests/test_contract.py::test_health_endpoint backend/tests/test_contract.py::test_openapi_schema_has_minimum_endpoints` |
+| `test_contract.py` (full) | Weekly — catches 500s on edge inputs, light security fuzzing | `schemathesis run http://localhost:8000/openapi.json --checks all` |
+| `test_fault_injection.py` | After changing retry/fallback logic | `PYTHONPATH=backend pytest backend/tests/ -m fault_injection -v` |
+| `test_wiki_math_system.py` | After changing `app/math_wiki/` pipeline | `PYTHONPATH=backend pytest backend/tests/test_wiki_math_system.py -m live_ai -v` |
+
+These are excluded from the fast suite because they either load PyTorch (segfault risk in subprocesses), use Hypothesis (too slow per mutant), require a live API token, or are non-deterministic. **Excluding them from the default run does not make them optional** — they catch different classes of bugs.
+
+### Adding new test cases
+- **Parametrized tests** (auth flow, hints, analyze): edit YAML in `backend/tests/fixtures/` — no Python needed
+- **Any test needing a mock pool/user**: use `PoolBuilder`, `UserBuilder`, `FULL_USER_ROW` from `backend/tests/builders.py`
+- **Regression for a production bug**: add to `test_regressions.py` with `@pytest.mark.regression`, docstring stating commit hash + what broke
+
+### Mutation testing
+Baseline: **16.5% kill rate** on `app/agent/` (June 2025). Run from `backend/` directory:
+```bash
+cd backend && mutmut run    # config: backend/pyproject.toml
+mutmut results              # show killed/survived breakdown
+```
+Low score is expected — tests mock `call_with_retry` so prompt-building logic executes but tests only assert on HTTP status.
+**WARNING: `mutmut apply <mutant>` physically modifies source files. Always revert immediately:** `git checkout -- app/agent/<file>.py`
 
 ## Key patterns
 

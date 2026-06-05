@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { pageVariants } from '../utils/animations.js'
+import { pageVariants, viewNavigate } from '../utils/animations.js'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useExam, useExamDispatch, useHints, useFlags } from '../context/ExamContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -261,7 +261,7 @@ export default function TestInterface() {
     sessionStorage.removeItem(`exam-draft-${examId}`)
     const scored = scoreExam(session)
     dispatch({ type: 'SUBMIT' })
-    navigate('/results/current', { replace: true, state: { result: scored, tab_switches: tabSwitchCount, devtools_detected: devToolsOpen ? 1 : 0 } })
+    viewNavigate(navigate, '/results/current', { replace: true, state: { result: scored, tab_switches: tabSwitchCount, devtools_detected: devToolsOpen ? 1 : 0 } })
 
     // Precompute AI analysis in background — Results.jsx reads from this cache key
     if (user) {

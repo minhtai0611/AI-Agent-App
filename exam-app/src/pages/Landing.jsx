@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
@@ -34,6 +34,197 @@ const TOPUP_PACKAGES = [
   { price: '29,000đ', credits: 350 },
   { price: '59,000đ', credits: 800 },
 ]
+
+// ── Landing Video — Remotion-rendered MP4 with Framer Motion fallback ─────────
+// The video is pre-rendered via `npm run video:render` and committed to public/.
+// Until it exists, the Framer Motion showcase is shown instead.
+function LandingVideo({ fallback }) {
+  const [videoExists, setVideoExists] = useState(true)
+
+  function handleError() { setVideoExists(false) }
+
+  if (!videoExists) return fallback
+
+  return (
+    <div className="w-full max-w-3xl rounded-2xl overflow-hidden border border-[#1E2A44] shadow-2xl" style={{ aspectRatio: '16/9' }}>
+      <video
+        src="/landing-demo.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        onError={handleError}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+      />
+    </div>
+  )
+}
+
+// ── Feature Showcase — auto-cycling demo of key features ─────────────────────
+const SCENES = [
+  {
+    id: 'exam',
+    label: 'Thi thử',
+    icon: '📋',
+    accent: '#F2A20C',
+    headline: '40+ đề thi thật từ 63 tỉnh thành',
+    sub: 'Thi có thời gian, luyện tập, hoặc tạo đề AI riêng',
+    preview: [
+      { text: 'Đề Toán THPT Quốc gia 2024 — Hà Nội', score: '8.0', color: '#34D399' },
+      { text: 'Đề Toán Tuyển sinh Lớp 10 — TP.HCM', score: '6.5', color: '#F2A20C' },
+      { text: 'AMC 10A 2023 — Luyện tập nâng cao', score: '7.2', color: '#818CF8' },
+    ],
+  },
+  {
+    id: 'oracle',
+    label: 'Oracle AI',
+    icon: '✦',
+    accent: '#818CF8',
+    headline: 'Giải từng bước — không phải chỉ đáp án',
+    sub: 'Nhập bài toán bất kỳ, nhận lời giải rõ ràng và gợi ý Socratic',
+    preview: [
+      { step: '①', text: 'Phân tích điều kiện: x > 0, hàm f liên tục trên (0,∞)' },
+      { step: '②', text: 'Áp dụng quy tắc L\'Hôpital cho dạng 0/0' },
+      { step: '③', text: 'Kết luận: giới hạn = 2/3' },
+    ],
+  },
+  {
+    id: 'analysis',
+    label: 'Phân tích AI',
+    icon: '🎯',
+    accent: '#FB7185',
+    headline: 'AI chỉ đúng điểm yếu của bạn',
+    sub: 'Không đoán mò — phát hiện chính xác lỗi sai và đề xuất cách sửa',
+    preview: [
+      { topic: 'Hàm số', pct: 42, color: '#EF4444', note: '⚠ Yếu' },
+      { topic: 'Hình học không gian', pct: 65, color: '#F2A20C', note: '→ Cần cải thiện' },
+      { topic: 'Tích phân', pct: 83, color: '#34D399', note: '✓ Tốt' },
+    ],
+  },
+  {
+    id: 'map',
+    label: 'Bản đồ',
+    icon: '🗺',
+    accent: '#34D399',
+    headline: 'Bản đồ kiến thức cá nhân hoá',
+    sub: 'Nhìn thấy toàn bộ lộ trình học — từ lớp 9 đến 12, nút nào yếu, nút nào vững',
+    preview: [
+      { concept: 'Phương trình bậc nhất', mastery: 95, color: '#22C55E' },
+      { concept: 'Hàm số mũ & log', mastery: 51, color: '#F59E0B' },
+      { concept: 'Giải tích tổ hợp', mastery: 18, color: '#EF4444' },
+    ],
+  },
+]
+
+function FeatureShowcase() {
+  const [active, setActive] = useState(0)
+  const timerRef = useRef(null)
+
+  function startTimer() {
+    clearInterval(timerRef.current)
+    timerRef.current = setInterval(() => setActive(i => (i + 1) % SCENES.length), 4000)
+  }
+
+  useEffect(() => { startTimer(); return () => clearInterval(timerRef.current) }, [])
+
+  function pick(i) { setActive(i); startTimer() }
+
+  const scene = SCENES[active]
+
+  return (
+    <div className="w-full max-w-3xl flex flex-col gap-5">
+      {/* Tab row */}
+      <div className="flex items-center gap-2 justify-center flex-wrap">
+        {SCENES.map((s, i) => (
+          <button key={s.id} onClick={() => pick(i)}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full font-jakarta text-[12px] font-semibold transition"
+            style={active === i
+              ? { background: s.accent + '22', border: `1px solid ${s.accent}55`, color: s.accent }
+              : { background: 'transparent', border: '1px solid #1E2A44', color: '#475569' }
+            }>
+            <span>{s.icon}</span> {s.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Scene card */}
+      <motion.div
+        key={scene.id}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className="bg-[#0D1527] border border-[#1E2A44] rounded-2xl p-6 flex flex-col sm:flex-row gap-6 items-stretch min-h-[180px]"
+      >
+        {/* Left: text */}
+        <div className="flex-1 flex flex-col justify-center gap-3">
+          <div>
+            <p className="font-fraunces text-[18px] font-bold text-[#F8FAFC] leading-snug">{scene.headline}</p>
+            <p className="font-jakarta text-[13px] text-[#64748B] mt-1.5">{scene.sub}</p>
+          </div>
+          {/* Progress dots */}
+          <div className="flex items-center gap-2">
+            {SCENES.map((s, i) => (
+              <motion.div key={s.id}
+                animate={{ width: active === i ? 24 : 6, background: active === i ? scene.accent : '#1E2A44' }}
+                className="h-1.5 rounded-full cursor-pointer"
+                onClick={() => pick(i)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Right: mockup preview */}
+        <div className="flex-1 flex flex-col gap-2 justify-center">
+          {scene.id === 'exam' && scene.preview.map((r, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.08 }}
+              className="flex items-center justify-between px-3 py-2 rounded-lg bg-[#111827] border border-[#1E2A44]">
+              <span className="font-jakarta text-[12px] text-[#94A3B8] truncate flex-1 mr-2">{r.text}</span>
+              <span className="font-jakarta text-[12px] font-bold flex-shrink-0" style={{ color: r.color }}>{r.score}</span>
+            </motion.div>
+          ))}
+          {scene.id === 'oracle' && scene.preview.map((r, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="flex items-start gap-2.5">
+              <span className="font-fraunces text-[13px] font-bold flex-shrink-0" style={{ color: scene.accent }}>{r.step}</span>
+              <span className="font-jakarta text-[12px] text-[#94A3B8] leading-relaxed">{r.text}</span>
+            </motion.div>
+          ))}
+          {scene.id === 'analysis' && scene.preview.map((r, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.08 }}
+              className="flex flex-col gap-0.5">
+              <div className="flex justify-between font-jakarta text-[11px]">
+                <span className="text-[#94A3B8]">{r.topic}</span>
+                <span style={{ color: r.color }}>{r.pct}% {r.note}</span>
+              </div>
+              <div className="h-1.5 bg-[#1E2A44] rounded-full overflow-hidden">
+                <motion.div className="h-full rounded-full"
+                  initial={{ width: 0 }} animate={{ width: `${r.pct}%` }}
+                  transition={{ delay: i * 0.08 + 0.2, duration: 0.6 }}
+                  style={{ background: r.color }} />
+              </div>
+            </motion.div>
+          ))}
+          {scene.id === 'map' && scene.preview.map((r, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="flex items-center gap-3 px-3 py-2 rounded-lg bg-[#111827] border border-[#1E2A44]">
+              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: r.color }} />
+              <span className="font-jakarta text-[12px] text-[#94A3B8] flex-1 truncate">{r.concept}</span>
+              <span className="font-jakarta text-[11px] font-bold flex-shrink-0" style={{ color: r.color }}>{r.mastery}%</span>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  )
+}
 
 export default function Landing({ onOpenAuth }) {
   usePageMeta('', { description: 'Ôn tập Toán với 40+ đề thi thật từ 63 tỉnh thành — AI phát hiện lỗi sai, tạo kế hoạch học tập cá nhân hóa cho học sinh THPT & lớp 10.' })
@@ -311,6 +502,9 @@ export default function Landing({ onOpenAuth }) {
             </div>
           ))}
         </div>
+        {/* Feature showcase — Remotion video if rendered, Framer Motion demo as fallback */}
+        <LandingVideo fallback={<FeatureShowcase />} />
+
         {/* AI Analysis Demo */}
         <div className="w-full max-w-3xl flex flex-col sm:flex-row gap-6 items-stretch text-left">
           {/* Left: mock result card */}
@@ -543,7 +737,7 @@ export default function Landing({ onOpenAuth }) {
           <div className="flex gap-8 flex-wrap">
             <div className="flex flex-col gap-2">
               <span className="font-jakarta text-[11px] font-bold uppercase tracking-[2px] text-[#334155]">Sản phẩm</span>
-              {[['Thi thử', '/exams'], ['Toán ứng dụng', '/exams?mode=applied'], ['Oracle AI', '/oracle'], ['⚗ Lab', '/exams?mode=lab']].map(([label, path]) => (
+              {[['Thi thử', '/exams'], ['Luyện tập', '/exams?mode=practice'], ['Oracle AI', '/oracle'], ['⚗ Lab', '/exams?mode=lab']].map(([label, path]) => (
                 <button key={label} onClick={() => navigate(path)}
                   className="font-jakarta text-[12px] text-[#475569] hover:text-[#94A3B8] transition text-left">{label}</button>
               ))}

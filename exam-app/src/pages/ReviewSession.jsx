@@ -245,7 +245,7 @@ export default function ReviewSession() {
         </div>
         <div className="flex gap-3 flex-wrap justify-center">
           <button
-            onClick={() => navigate('/exams?mode=applied')}
+            onClick={() => navigate('/exams')}
             className="px-6 py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-[#1E2A44] text-[#94A3B8] hover:text-[#F8FAFC] transition"
           >
             Làm đề thi

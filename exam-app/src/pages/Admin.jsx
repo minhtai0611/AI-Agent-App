@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   adminListUsers, adminDeleteUser, adminUnlockUser, adminResetUser,
   adminSuspendUser, adminUnsuspendUser, adminGrantCredits, adminGetSecurityEvents,
-  adminGetUserDevices,
+  adminGetUserDevices, adminUpdateProfile,
 } from '../api/aiClient.js'
+import { PROVINCES } from '../data/provinces.js'
 import { getSchoolsByProvince } from '../api/index.js'
 
 const CONFIDENCE_COLOR = { high: '#EF4444', medium: '#F2A20C', low: '#64748B' }
@@ -229,6 +230,60 @@ function DeleteUserModal({ user, adminKey, onClose, onDone }) {
   )
 }
 
+function EditProfileModal({ user, adminKey, onClose, onDone }) {
+  const [province, setProvince] = useState(user.province || '')
+  const [grade, setGrade] = useState(user.grade || '')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function submit() {
+    setLoading(true)
+    const body = {}
+    if (province !== (user.province || '')) body.province = province || null
+    if (grade !== (user.grade || '')) body.grade = grade || null
+    const { error: err } = await adminUpdateProfile(adminKey, user.id, body)
+    setLoading(false)
+    if (err) { setError(typeof err === 'string' ? err : 'Thất bại'); return }
+    onDone()
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+      <div className="max-w-sm w-full bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-6 flex flex-col gap-4">
+        <span className="font-fraunces text-[15px] font-bold text-[#F8FAFC]">Sửa hồ sơ — {user.display_name || user.email}</span>
+        <div className="flex flex-col gap-1.5">
+          <label className="font-jakarta text-[11px] text-[#64748B]">Tỉnh/Thành phố</label>
+          <select
+            value={province} onChange={e => setProvince(e.target.value)}
+            className="px-4 py-2.5 rounded-xl border border-[#1E2A44] bg-[#111827] font-jakarta text-[13px] text-[#F0F4FF] focus:outline-none focus:border-amber-400"
+          >
+            <option value="">— Chưa đặt —</option>
+            {PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="font-jakarta text-[11px] text-[#64748B]">Lớp</label>
+          <select
+            value={grade} onChange={e => setGrade(e.target.value)}
+            className="px-4 py-2.5 rounded-xl border border-[#1E2A44] bg-[#111827] font-jakarta text-[13px] text-[#F0F4FF] focus:outline-none focus:border-amber-400"
+          >
+            <option value="">— Chưa đặt —</option>
+            {['9','10','11','12'].map(g => <option key={g} value={g}>Lớp {g}</option>)}
+          </select>
+        </div>
+        {error && <p className="font-jakarta text-[12px] text-red-400">{error}</p>}
+        <div className="flex gap-2">
+          <button onClick={submit} disabled={loading} className="flex-1 py-2 rounded-lg font-jakarta text-[13px] font-bold" style={{ background: '#F2A20C', color: '#0A0E1A', opacity: loading ? 0.6 : 1 }}>
+            {loading ? 'Đang lưu...' : 'Lưu'}
+          </button>
+          <button onClick={onClose} className="px-4 py-2 rounded-lg font-jakarta text-[13px] text-[#64748B] hover:text-[#F8FAFC] transition">Huỷ</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function getOnlineStatus(lastSeenAt) {
   if (!lastSeenAt) return { status: 'unknown', label: 'Chưa hoạt động' }
   const diff = (Date.now() - new Date(lastSeenAt).getTime()) / 1000
@@ -328,6 +383,7 @@ function UserRow({ user, adminKey, onRefresh }) {
                 <button onClick={handleUnlock} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-emerald-400 hover:bg-[#1E2A44] transition">Mở khóa</button>
               )}
               <button onClick={() => { setModal('grant'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-[#94A3B8] hover:bg-[#1E2A44] transition">Tặng Tia</button>
+              <button onClick={() => { setModal('editProfile'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-[#94A3B8] hover:bg-[#1E2A44] transition">Sửa hồ sơ</button>
               <button onClick={() => { setModal('devices'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-[#94A3B8] hover:bg-[#1E2A44] transition">Thiết bị</button>
               <div className="border-t border-[#1E2A44]" />
               <button onClick={() => { setModal('reset'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-amber-400 hover:bg-[#1E2A44] transition">Reset tài khoản</button>
@@ -342,6 +398,7 @@ function UserRow({ user, adminKey, onRefresh }) {
       {modal === 'reset' && <ResetModal user={user} adminKey={adminKey} onClose={() => setModal(null)} onDone={onRefresh} />}
       {modal === 'delete' && <DeleteUserModal user={user} adminKey={adminKey} onClose={() => setModal(null)} onDone={onRefresh} />}
       {modal === 'devices' && <DevicesModal user={user} adminKey={adminKey} onClose={() => setModal(null)} />}
+      {modal === 'editProfile' && <EditProfileModal user={user} adminKey={adminKey} onClose={() => setModal(null)} onDone={onRefresh} />}
     </>
   )
 }

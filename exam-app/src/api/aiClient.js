@@ -143,7 +143,7 @@ export async function analyzeResultStream(payload, onUpdate, signal) {
         if (!line.trim()) continue
         try {
           const event = JSON.parse(line)
-          if (event.error) return { data: null, error: event.error, status: 502 }
+          if (event.error) return { data: Object.keys(fieldData).length ? fieldData : null, error: event.error, status: Object.keys(fieldData).length ? 200 : 502 }
           const { field, chunk, done: isDone } = event
           if (!field) continue
 
@@ -394,6 +394,68 @@ export const adminGrantCredits = (key, userId, amount) =>
 export const adminGetSecurityEvents = (key) =>
   wrap(adminClient.get('/admin/security-events', { headers: { 'x-admin-key': key } }))
 
+export const adminUpdateProfile = (key, userId, body) =>
+  wrap(adminClient.post(`/admin/users/${userId}/profile`, body, { headers: { 'x-admin-key': key } }))
+
+export const analyzeErrorPatterns = () =>
+  wrap(slowClient.post('/analyze/error-patterns', {}))
+
+// Streams generated exam questions one-by-one via NDJSON.
+// onQuestion({ index, question }) called per question.
+// Returns { questions: [...], exam_id, error, status }
+export async function generateExamStream(topicFocus, difficulty = 'medium', count = 10, onQuestion, signal) {
+  if (!navigator.onLine) return { questions: [], error: 'Bạn đang ngoại tuyến', status: 0 }
+  const token = localStorage.getItem('auth_token')
+  if (!token) return { questions: [], error: 'not authenticated', status: 401 }
+  _deductRef?.(5)
+
+  const questions = []
+  try {
+    const res = await fetch(`${BASE}/generate-exam/stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ topic_focus: topicFocus, difficulty, count }),
+      signal,
+    })
+    if (!res.ok) {
+      const detail = await res.json().catch(() => ({}))
+      if (res.status === 402) _refundRef?.(5)
+      return { questions: [], error: detail?.detail ?? `HTTP ${res.status}`, status: res.status }
+    }
+
+    const reader = res.body.getReader()
+    const decoder = new TextDecoder('utf-8')
+    let buf = ''
+    let examId = null
+
+    while (true) {
+      if (signal?.aborted) { reader.cancel(); return { questions, error: 'aborted', status: 0 } }
+      const { value, done } = await reader.read()
+      if (done) break
+      buf += decoder.decode(value, { stream: true })
+      const lines = buf.split('\n')
+      buf = lines.pop() ?? ''
+      for (const line of lines) {
+        if (!line.trim()) continue
+        try {
+          const evt = JSON.parse(line)
+          if (evt.error) return { questions, error: evt.error, status: 502 }
+          if (evt.done) { examId = evt.exam_id; break }
+          if (evt.question) {
+            questions.push(evt.question)
+            onQuestion?.({ index: evt.index, question: evt.question })
+          }
+        } catch { /* ignore */ }
+      }
+    }
+    return { questions, exam_id: examId, error: null, status: 200 }
+  } catch (err) {
+    if (err.name === 'AbortError') return { questions, error: 'aborted', status: 0 }
+    _refundRef?.(5)
+    return { questions, error: err?.message ?? 'Stream error', status: 0 }
+  }
+}
+
 export const adminGetUserDevices = (key, userId) =>
   wrap(adminClient.get(`/admin/users/${userId}/devices`, { headers: { 'x-admin-key': key } }))
 
@@ -407,7 +469,7 @@ export const submitDailyScore = ({ question_id, correct }) =>
   wrap(client.post('/daily-challenge/score', { question_id, correct }))
 
 export const generateExam = (topicFocus, difficulty = 'medium', count = 10) =>
-  wrap(client.post('/generate-exam', { topic_focus: topicFocus, difficulty, count }))
+  wrap(slowClient.post('/generate-exam', { topic_focus: topicFocus, difficulty, count }))
 
 export const predictScore = () =>
   wrap(client.get('/predict-score'))

@@ -1136,7 +1136,7 @@ async def analyze(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
-    tier_row = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
+    tier_row = await pool.fetchrow("SELECT subscription_tier, province FROM users WHERE id = ?", current_user.user_id)
     if not tier_row or tier_row["subscription_tier"] not in _PAID_TIERS:
         await _spend_credits(pool, current_user.user_id, 3, "analyze")
     dev_row = await pool.fetchrow(
@@ -1144,7 +1144,7 @@ async def analyze(
         "ORDER BY last_seen_at DESC LIMIT 1",
         current_user.user_id,
     )
-    device_province = dev_row["province"] if dev_row else None
+    device_province = (tier_row["province"] if tier_row else None) or (dev_row["province"] if dev_row else None)
     from app.agent.exam_analyzer import analyze_exam_result
     try:
         data = await analyze_exam_result(
@@ -1242,7 +1242,7 @@ async def analyze_stream(
     """
     from fastapi.responses import StreamingResponse
     from app.agent.exam_analyzer import build_analyze_prompt, STATIC_EXAM_ANALYSIS_INSTRUCTIONS
-    tier_row_s = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
+    tier_row_s = await pool.fetchrow("SELECT subscription_tier, province FROM users WHERE id = ?", current_user.user_id)
     if not tier_row_s or tier_row_s["subscription_tier"] not in _PAID_TIERS:
         await _spend_credits(pool, current_user.user_id, 3, "analyze")
 
@@ -1251,7 +1251,7 @@ async def analyze_stream(
         "ORDER BY last_seen_at DESC LIMIT 1",
         current_user.user_id,
     )
-    device_province_s = dev_row_s["province"] if dev_row_s else None
+    device_province_s = (tier_row_s["province"] if tier_row_s else None) or (dev_row_s["province"] if dev_row_s else None)
 
     prompt = build_analyze_prompt(
         req.result, req.history, req.student_name,
@@ -1383,6 +1383,97 @@ async def generate_exam(
         raise HTTPException(status_code=502, detail=f"Không thể tạo đề: {exc}")
 
 
+@app.post("/generate-exam/stream")
+async def generate_exam_stream(
+    req: GenerateExamRequest,
+    client: AsyncOpenAI = Depends(get_ai_client),
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Stream exam questions one-by-one as NDJSON lines.
+
+    Each line: {"index": int, "question": {...}} or {"done": true, "exam_id": str}
+    Error line: {"error": str}
+    Credits charged upfront; no refund on partial stream (same as analyze/stream).
+    """
+    from fastapi.responses import StreamingResponse
+    tier_row_gs = await pool.fetchrow(
+        "SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id
+    )
+    if not tier_row_gs or tier_row_gs["subscription_tier"] != "complete":
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "tier_required", "required": "complete", "message": "Tạo đề AI riêng yêu cầu gói Toàn diện"},
+        )
+    count = max(5, min(15, req.count))
+    await _spend_credits(pool, current_user.user_id, 5, "generate_exam")
+    settings = get_settings()
+    topics_hint = f"Chủ đề ưu tiên: {', '.join(req.topic_focus)}" if req.topic_focus else "Tất cả chủ đề toán lớp 10"
+    # Ask Claude to output one question per line as JSONL
+    prompt = (
+        f"Tạo {count} câu trắc nghiệm toán lớp 10 theo chuẩn đề thi tuyển sinh Việt Nam.\n"
+        f"{topics_hint}. Độ khó: {req.difficulty}.\n"
+        "Xuất mỗi câu hỏi trên MỘT DÒNG riêng biệt dưới dạng JSON object với các trường: "
+        "question (string), choices (array 4 string), correct (int 0-3), topic (string), explanation (string ngắn).\n"
+        f"Xuất đúng {count} dòng JSON, mỗi dòng một câu hỏi. Không có text khác, không có dấu phẩy giữa các dòng."
+    )
+
+    async def question_stream():
+        buf = ''
+        idx = 0
+        exam_id = f"generated-{current_user.user_id}-{int(datetime.utcnow().timestamp())}"
+        try:
+            stream = await client.chat.completions.create(
+                model=settings.default_model,
+                max_tokens=3000,
+                messages=[{"role": "user", "content": prompt}],
+                stream=True,
+            )
+            async for chunk in stream:
+                token = (chunk.choices[0].delta.content if chunk.choices else None) or ''
+                if not token:
+                    continue
+                buf += token
+                # Try to extract complete JSON objects from buffered text
+                while '\n' in buf:
+                    line, buf = buf.split('\n', 1)
+                    line = line.strip()
+                    if not line:
+                        continue
+                    if line.startswith('```'):
+                        continue
+                    try:
+                        q = json.loads(line)
+                        if isinstance(q, dict) and 'question' in q:
+                            yield json.dumps({"index": idx, "question": q}, ensure_ascii=False) + '\n'
+                            idx += 1
+                            if idx >= count:
+                                break
+                    except json.JSONDecodeError:
+                        pass  # incomplete line — wait for more tokens
+                if idx >= count:
+                    break
+            # Try remaining buffer
+            if idx < count and buf.strip():
+                for line in buf.strip().split('\n'):
+                    line = line.strip().lstrip('[').rstrip(',]')
+                    if not line:
+                        continue
+                    try:
+                        q = json.loads(line)
+                        if isinstance(q, dict) and 'question' in q:
+                            yield json.dumps({"index": idx, "question": q}, ensure_ascii=False) + '\n'
+                            idx += 1
+                    except json.JSONDecodeError:
+                        pass
+            yield json.dumps({"done": True, "exam_id": exam_id, "total": idx}, ensure_ascii=False) + '\n'
+        except Exception as exc:
+            yield json.dumps({"error": str(exc)}) + '\n'
+
+    return StreamingResponse(question_stream(), media_type="application/x-ndjson",
+                              headers={"X-Accel-Buffering": "no", "Cache-Control": "no-cache"})
+
+
 @app.get("/predict-score")
 async def predict_score(
     current_user: CurrentUser = Depends(get_current_user),
@@ -1397,7 +1488,7 @@ async def predict_score(
             detail={"code": "tier_required", "required": "complete"},
         )
     results = await pool.fetch(
-        "SELECT score FROM exam_results WHERE user_id = ? AND score IS NOT NULL ORDER BY created_at DESC LIMIT 10",
+        "SELECT score FROM exam_results WHERE user_id = ? AND score IS NOT NULL ORDER BY created_at ASC LIMIT 20",
         current_user.user_id,
     )
     if not results:
@@ -1405,17 +1496,8 @@ async def predict_score(
     scores = [r["score"] for r in results if r["score"] is not None and 0 <= r["score"] <= 10]
     if not scores:
         return {"predicted": None, "confidence": "low", "sample_size": 0}
-    weights = [1.5 ** i for i in range(len(scores))]
-    weighted_avg = sum(s * w for s, w in zip(scores, weights)) / sum(weights)
-    spread = max(scores) - min(scores)
-    confidence = "high" if len(scores) >= 7 and spread < 2 else "medium" if len(scores) >= 4 else "low"
-    return {
-        "predicted": round(weighted_avg, 1),
-        "confidence": confidence,
-        "sample_size": len(scores),
-        "low": round(max(0, weighted_avg - 0.5), 1),
-        "high": round(min(10, weighted_avg + 0.5), 1),
-    }
+    from app.agent.score_predictor import kalman_predict
+    return kalman_predict(scores)
 
 
 class StrategyRequest(BaseModel):
@@ -2827,7 +2909,11 @@ async def get_concept_mastery(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
-    """Return all concepts with user's current mastery (0 if not started)."""
+    """Return all concepts with user's current mastery (0 if not started).
+
+    When a concept has no review history, mastery is estimated from exam
+    topicBreakdown accuracy using BKT to give a non-zero starting point.
+    """
     rows = await pool.fetch(
         """SELECT c.id, c.name, c.name_vi, c.grade, c.topic, c.exam_weight,
                   c.prerequisite_ids,
@@ -2839,16 +2925,53 @@ async def get_concept_mastery(
            ORDER BY c.grade, c.topic, c.id""",
         current_user.user_id,
     )
-    import json
+    import json as _json
     concepts = []
     for r in rows:
         d = dict(r)
         if isinstance(d.get("prerequisite_ids"), str):
             try:
-                d["prerequisite_ids"] = json.loads(d["prerequisite_ids"])
+                d["prerequisite_ids"] = _json.loads(d["prerequisite_ids"])
             except Exception:
                 d["prerequisite_ids"] = []
         concepts.append(d)
+
+    # If all mastery scores are 0 (never reviewed), seed from exam topicBreakdown via BKT
+    all_zero = all(c["mastery_score"] == 0 for c in concepts)
+    if all_zero:
+        from app.agent.bkt import bkt_mastery, bkt_mastery_stage
+        exam_rows = await pool.fetch(
+            "SELECT payload FROM exam_results WHERE user_id = ? AND payload IS NOT NULL "
+            "ORDER BY created_at ASC LIMIT 30",
+            current_user.user_id,
+        )
+        # Build topic -> list[bool] (correct per attempt)
+        topic_answers: dict[str, list[bool]] = {}
+        for er in exam_rows:
+            try:
+                payload = _json.loads(er["payload"])
+                for topic, tb in (payload.get("topicBreakdown") or {}).items():
+                    correct = tb.get("correct", 0)
+                    total = tb.get("total", 0)
+                    if total > 0:
+                        if topic not in topic_answers:
+                            topic_answers[topic] = []
+                        # Approximate: add `correct` True + (total-correct) False entries
+                        topic_answers[topic].extend([True] * correct + [False] * (total - correct))
+            except Exception:
+                pass
+        # Map topic to mastery via BKT, assign to concepts
+        topic_mastery: dict[str, float] = {}
+        for topic, answers in topic_answers.items():
+            topic_mastery[topic] = bkt_mastery(answers)
+        for c in concepts:
+            topic = c.get("topic", "")
+            if topic in topic_mastery:
+                m = topic_mastery[topic]
+                c["mastery_score"] = m
+                c["stage"] = bkt_mastery_stage(m)
+                c["source"] = "bkt_estimate"  # flag: not from review items
+
     return {"concepts": concepts}
 
 
@@ -4516,6 +4639,64 @@ async def adaptive_practice(
     return {"questions": questions}
 
 
+class AdaptiveNextRequest(BaseModel):
+    answer_history: list[dict] = []   # [{"question_id": str, "correct": bool, "difficulty": str}]
+    seen_ids: list[str] = []
+    topic: str | None = None
+    count: int = 1
+
+
+@app.post("/questions/adaptive-next")
+async def adaptive_next_question(
+    req: AdaptiveNextRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Select next question(s) using BanditCAT (Thompson Sampling + IRT).
+
+    Returns up to `count` question IDs ranked by Fisher information at the
+    estimated student ability θ.
+    """
+    from app.agent.bandit_cat import estimate_theta, thompson_sample
+
+    theta = estimate_theta(req.answer_history)
+    seen_set = set(req.seen_ids)
+
+    # Fetch candidate questions (topic-filtered if specified)
+    if req.topic:
+        rows = await pool.fetch(
+            "SELECT id, difficulty FROM questions WHERE topic = ? ORDER BY id",
+            req.topic,
+        )
+    else:
+        rows = await pool.fetch("SELECT id, difficulty FROM questions ORDER BY id")
+
+    candidates = [{"id": r["id"], "difficulty": r["difficulty"] or "medium"} for r in rows]
+    selected_ids = thompson_sample(candidates, theta, seen_set, n=req.count)
+
+    if not selected_ids:
+        return {"question_ids": [], "theta": theta}
+
+    # Fetch full question data
+    placeholders = ", ".join("?" * len(selected_ids))
+    q_rows = await pool.fetch(
+        f"SELECT id, topic, difficulty, question, choices, correct, explanation "
+        f"FROM questions WHERE id IN ({placeholders})",
+        *selected_ids,
+    )
+    questions = []
+    for r in q_rows:
+        d = dict(r)
+        if isinstance(d.get("choices"), str):
+            try:
+                d["choices"] = json.loads(d["choices"])
+            except Exception:
+                pass
+        questions.append(d)
+
+    return {"question_ids": selected_ids, "questions": questions, "theta": theta}
+
+
 # ── Admin endpoints ───────────────────────────────────────────────────────────
 
 def _require_admin(request: Request):
@@ -4587,6 +4768,12 @@ class SubscriptionUpdate(BaseModel):
     bonus_credits: int = 0
 
 
+class AdminProfileUpdate(BaseModel):
+    province: str | None = None
+    grade: str | None = None
+    school_type: str | None = None
+
+
 class CreditGrant(BaseModel):
     amount: int
     reason: str = "admin_grant"
@@ -4642,6 +4829,95 @@ async def classify_error(
         pass  # non-fatal — classification still returns
 
     return {"category": category, "confidence": 0.8}
+
+
+@app.post("/analyze/error-patterns")
+async def analyze_error_patterns(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Return per-concept error aggregates + AI misconception report for the user.
+
+    Charges 2 credits. Result is cached per-user for 24 h.
+    """
+    # Check cache
+    cache_row = await pool.fetchrow(
+        "SELECT province FROM users WHERE id = ?", current_user.user_id
+    )
+    # Reuse the user row fetch cheaply — we just need to confirm user exists
+    if not cache_row:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Check 24h cache in ai_credits_log (use a sentinel row with reason='error_patterns_cache')
+    cached = await pool.fetchrow(
+        "SELECT created_at FROM ai_credits_log WHERE user_id = ? AND reason = 'error_patterns_cache' "
+        "AND created_at >= datetime('now', '-24 hours') ORDER BY created_at DESC LIMIT 1",
+        current_user.user_id,
+    )
+
+    # Aggregate error_patterns table
+    rows = await pool.fetch(
+        "SELECT concept_id, error_type, count, last_seen FROM error_patterns "
+        "WHERE user_id = ? ORDER BY count DESC",
+        current_user.user_id,
+    )
+    if not rows:
+        return {"aggregates": [], "misconceptions": [], "cached": False}
+
+    # Build aggregates grouped by concept
+    from collections import defaultdict
+    agg = defaultdict(lambda: {"concept_id": "", "total": 0, "by_type": {}})
+    for r in rows:
+        cid = r["concept_id"] or "unknown"
+        agg[cid]["concept_id"] = cid
+        agg[cid]["total"] += r["count"]
+        agg[cid]["by_type"][r["error_type"]] = r["count"]
+    aggregates = sorted(agg.values(), key=lambda x: -x["total"])[:15]
+
+    if cached:
+        return {"aggregates": aggregates, "misconceptions": [], "cached": True}
+
+    # Charge 2 credits
+    await _spend_credits(pool, current_user.user_id, 2, "error_patterns")
+    await pool.execute(
+        "INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, 0, 'error_patterns_cache')",
+        current_user.user_id,
+    )
+
+    # Build LLM prompt — top 5 concepts by error count
+    top5 = aggregates[:5]
+    lines = []
+    for a in top5:
+        dominant = max(a["by_type"], key=a["by_type"].get) if a["by_type"] else "unknown"
+        lines.append(f"- Khái niệm: {a['concept_id']} | Lỗi chính: {dominant} | Tổng: {a['total']} lần")
+
+    prompt = (
+        "Dựa trên dữ liệu lỗi sai của học sinh dưới đây, xác định 3 hiểu lầm quan trọng nhất và đề xuất 1 bài tập khắc phục cho mỗi hiểu lầm.\n\n"
+        + "\n".join(lines)
+        + "\n\nTrả về JSON array với format: "
+        '[{"concept": string, "misconception": string (1 câu), "suggestion": string (1 câu ngắn)}]'
+        "\nChỉ trả về JSON, không giải thích thêm."
+    )
+
+    misconceptions = []
+    try:
+        client = get_ai_client()
+        settings = get_settings()
+        resp = await client.chat.completions.create(
+            model=settings.haiku_model,
+            max_tokens=400,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = (resp.choices[0].message.content or "[]").strip()
+        if raw.startswith("```"):
+            raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+        parsed = json.loads(raw)
+        if isinstance(parsed, list):
+            misconceptions = parsed[:3]
+    except Exception:
+        pass
+
+    return {"aggregates": aggregates, "misconceptions": misconceptions, "cached": False}
 
 
 class SuspendRequest(BaseModel):
@@ -4903,6 +5179,39 @@ async def admin_reset_user(
         "INSERT INTO security_events (user_id, event_type, confidence, detail) VALUES (?, ?, ?, ?)",
         user_id, "admin_reset", "low", "full account reset by admin",
     )
+    from app.dependencies import invalidate_account_cache
+    invalidate_account_cache(user_id)
+
+
+@app.post("/admin/users/{user_id}/profile", status_code=204)
+async def admin_update_profile(
+    user_id: int,
+    body: AdminProfileUpdate,
+    request: Request,
+    pool=Depends(get_pool),
+):
+    _require_admin(request)
+    row = await pool.fetchrow("SELECT id FROM users WHERE id = ?", user_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="User not found")
+    fields, values = [], []
+    if body.province is not None:
+        fields.append("province = ?")
+        values.append(body.province)
+    if body.grade is not None:
+        valid_grades = {"9", "10", "11", "12", ""}
+        if body.grade not in valid_grades:
+            raise HTTPException(status_code=422, detail="grade must be 9, 10, 11, 12 or empty")
+        fields.append("grade = ?")
+        values.append(body.grade or None)
+    if body.school_type is not None:
+        fields.append("school_type = ?")
+        values.append(body.school_type or None)
+    if not fields:
+        return
+    fields.append("updated_at = datetime('now')")
+    values.append(user_id)
+    await pool.execute(f"UPDATE users SET {', '.join(fields)} WHERE id = ?", *values)
     from app.dependencies import invalidate_account_cache
     invalidate_account_cache(user_id)
 

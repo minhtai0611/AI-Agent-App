@@ -9,6 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "video:preview": "node_modules/.bin/remotion studio remotion/Root.jsx",
+    "video:render": "node remotion/render.mjs",
     "crawl": "node scripts/crawl/index.js",
     "crawl:questions": "node scripts/crawl/index.js --only=questions",
     "crawl:schools": "node scripts/crawl/index.js --only=schools",
@@ -19,7 +21,9 @@
     "crawl:preview": "node scripts/crawl/pipeline/buildPreview.js"
   },
   "dependencies": {
+    "@dagrejs/dagre": "^3.0.0",
     "@react-oauth/google": "^0.13.5",
+    "@xyflow/react": "^12.11.0",
     "axios": "^1.7.7",
     "canvas-confetti": "^1.9.4",
     "dompurify": "^3.4.2",
@@ -39,10 +43,14 @@
     "remark-math": "^6.0.0"
   },
   "devDependencies": {
+    "@remotion/bundler": "^4.0.472",
+    "@remotion/cli": "^4.0.472",
+    "@remotion/renderer": "^4.0.472",
     "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
     "cheerio": "^1.0.0",
     "postcss": "^8.4.47",
+    "remotion": "^4.0.472",
     "tailwindcss": "^3.4.14",
     "vite": "^5.4.10",
     "vitest": "^2.1.4"

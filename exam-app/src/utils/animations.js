@@ -16,3 +16,12 @@ export const itemVariants = {
   show:    { opacity: 1, transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] } },
   visible: { opacity: 1, transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] } },
 }
+
+// View Transitions API wrapper — falls back gracefully when not supported
+export function viewNavigate(navigateFn, path, opts) {
+  if (document.startViewTransition) {
+    document.startViewTransition(() => navigateFn(path, opts))
+  } else {
+    navigateFn(path, opts)
+  }
+}

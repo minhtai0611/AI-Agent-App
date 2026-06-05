@@ -3,7 +3,7 @@ import CountUp from 'react-countup'
 import confetti from 'canvas-confetti'
 import { useAuth } from '../context/AuthContext.jsx'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
-import { pageVariants } from '../utils/animations.js'
+import { pageVariants, viewNavigate } from '../utils/animations.js'
 import AchievementCeremony from '../components/AchievementCeremony.jsx'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
@@ -1070,7 +1070,7 @@ export default function Results({ onOpenAuth }) {
                   <span>⚡</span> Luyện điểm yếu
                 </button>
               )}
-              <button onClick={() => { dispatch({ type: 'RESET' }); navigate('/exams') }}
+              <button onClick={() => { dispatch({ type: 'RESET' }); viewNavigate(navigate, '/exams') }}
                 className="px-3 py-1.5 rounded-lg border border-[#1E2A44] font-jakarta text-[12px] text-[#94A3B8] hover:border-[#475569] hover:text-[#F8FAFC] transition">
                 Thi lại
               </button>
@@ -1362,7 +1362,7 @@ export default function Results({ onOpenAuth }) {
                 {planReady ? 'Xem kế hoạch học tập ⚡5' : studyPlanError ? 'Không đủ Tia' : 'Đang chuẩn bị…'}
               </motion.button>
             </div>
-            <button onClick={() => { dispatch({ type: 'RESET' }); navigate('/exams') }}
+            <button onClick={() => { dispatch({ type: 'RESET' }); viewNavigate(navigate, '/exams') }}
               className="w-full py-3 rounded-xl font-jakarta text-[13px] font-medium text-[#475569] hover:text-[#94A3B8] transition">
               Thi lại
             </button>

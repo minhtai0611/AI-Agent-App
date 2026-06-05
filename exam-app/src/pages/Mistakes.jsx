@@ -68,6 +68,8 @@ function MistakeRow({ question, userAnswer, examTitle }) {
   const [explError, setExplError] = useState(null)
   const [tag, setTag] = useState(() => loadTags()[question.id] ?? null)
   const [aiCategory, setAiCategory] = useState(() => loadAiCategories()[question.id] ?? null)
+  // Optimistic explanation: shows bundled text immediately while AI loads (React 18 compatible)
+  const [displayExpl, setDisplayExpl] = useState(null)
 
   // Fire AI classification once per mistake, lazily on first expand
   async function maybeClassify() {
@@ -85,6 +87,8 @@ function MistakeRow({ question, userAnswer, examTitle }) {
     maybeClassify()
     setExplLoading(true)
     setExplError(null)
+    // Show bundled explanation immediately (optimistic) while AI explanation loads
+    if (question.explanation) setDisplayExpl(question.explanation)
     const { data, error } = await getExplanation({
       question: question.question,
       choices: question.choices,
@@ -92,8 +96,13 @@ function MistakeRow({ question, userAnswer, examTitle }) {
       topic: question.topic,
     })
     setExplLoading(false)
-    if (error) setExplError(typeof error === 'object' ? error.message || 'Lỗi' : error)
-    else setExplanation(data?.explanation || question.explanation || null)
+    if (error) {
+      setExplError(typeof error === 'object' ? error.message || 'Lỗi' : error)
+    } else {
+      const aiExpl = data?.explanation || question.explanation || null
+      setExplanation(aiExpl)
+      setDisplayExpl(aiExpl)
+    }
   }
 
   const correctLabel = question.choices?.[question.correct] ?? '—'
@@ -148,16 +157,13 @@ function MistakeRow({ question, userAnswer, examTitle }) {
           {explError && (
             <p className="font-jakarta text-[12px] text-red-400">{explError}</p>
           )}
-          {explanation && !explLoading && (
+          {displayExpl && (
             <div className="flex flex-col gap-2">
-              <span className="font-jakarta text-[11px] font-semibold text-[#475569] uppercase tracking-wider">Giải thích</span>
-              <MdMath>{explanation}</MdMath>
-            </div>
-          )}
-          {!explanation && !explLoading && !explError && question.explanation && (
-            <div className="flex flex-col gap-2">
-              <span className="font-jakarta text-[11px] font-semibold text-[#475569] uppercase tracking-wider">Giải thích</span>
-              <MdMath>{question.explanation}</MdMath>
+              <div className="flex items-center gap-2">
+                <span className="font-jakarta text-[11px] font-semibold text-[#475569] uppercase tracking-wider">Giải thích</span>
+                {explLoading && <span className="font-jakarta text-[10px] text-[#F2A20C] animate-pulse">AI đang cải thiện...</span>}
+              </div>
+              <MdMath>{displayExpl}</MdMath>
             </div>
           )}
           {!user && (
@@ -312,7 +318,7 @@ export default function Mistakes() {
       <div className="max-w-2xl mx-auto px-4 pt-20">
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
-          <button onClick={() => navigate('/exams?mode=applied')} className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition">
+          <button onClick={() => navigate('/exams')} className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition">
             ← Quay lại
           </button>
         </div>

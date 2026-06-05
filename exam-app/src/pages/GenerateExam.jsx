@@ -1,10 +1,56 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useExamDispatch } from '../context/ExamContext.jsx'
-import { generateExam } from '../api/aiClient.js'
+import { generateExamStream } from '../api/aiClient.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
+
+function GeneratingSkeleton({ count, arrived }) {
+  return (
+    <div className="min-h-screen bg-[#0A0E1A] pb-16">
+      <div className="max-w-xl mx-auto px-4 pt-10 flex flex-col gap-6">
+        <div className="flex items-center gap-3">
+          <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+          <span className="font-jakarta text-[14px] text-[#94A3B8]">
+            {arrived > 0 ? `Đã tạo ${arrived}/${count} câu...` : `AI đang tạo ${count} câu hỏi...`}
+          </span>
+        </div>
+        {arrived === 0 && (
+          <p className="font-jakarta text-[12px] text-[#475569]">Câu hỏi đầu tiên sẽ xuất hiện trong vài giây.</p>
+        )}
+        {/* Progress bar */}
+        <div className="h-1.5 bg-[#1E2A44] rounded-full overflow-hidden">
+          <motion.div className="h-full bg-amber-400 rounded-full"
+            animate={{ width: `${Math.max(4, (arrived / count) * 100)}%` }}
+            transition={{ duration: 0.4 }} />
+        </div>
+        {/* Arrived question stubs */}
+        <div className="flex flex-col gap-4">
+          {Array.from({ length: count }).map((_, i) => (
+            i < arrived ? (
+              <motion.div key={i}
+                initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                className="bg-[#0D1221] border border-[#22C55E33] rounded-2xl p-4 flex items-center gap-3">
+                <span className="text-emerald-400 text-lg">✓</span>
+                <span className="font-jakarta text-[12px] text-[#64748B]">Câu {i + 1} đã tạo xong</span>
+              </motion.div>
+            ) : (
+              <motion.div key={i}
+                animate={{ opacity: [0.2, 0.5, 0.2] }}
+                transition={{ duration: 1.8, repeat: Infinity, delay: (i - arrived) * 0.15 }}
+                className="bg-[#0D1221] border border-dashed border-[#1E2A44] rounded-2xl p-5 flex flex-col gap-3">
+                <div className="h-3 bg-[#1E2A44] rounded-full w-2/3" />
+                <div className="h-3 bg-[#1E2A44] rounded-full w-full" />
+              </motion.div>
+            )
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const TOPICS = Object.keys(TOPIC_LABELS)
 const DIFFICULTIES = [
@@ -23,7 +69,13 @@ export default function GenerateExam() {
   const [difficulty, setDifficulty] = useState('medium')
   const [count, setCount] = useState(10)
   const [loading, setLoading] = useState(false)
+  const [arrived, setArrived] = useState(0)
   const [error, setError] = useState('')
+  const abortRef = useRef(null)
+
+  useEffect(() => () => abortRef.current?.abort(), [])
+
+  if (loading) return <GeneratingSkeleton count={count} arrived={arrived} />
 
   if (user?.subscription_tier !== 'complete') {
     return (
@@ -49,24 +101,31 @@ export default function GenerateExam() {
   }
 
   async function handleGenerate() {
-    setLoading(true); setError('')
+    setLoading(true); setError(''); setArrived(0)
     const topics = selectedTopics.length > 0 ? selectedTopics : null
-    const { data, error: err } = await generateExam(topics, difficulty, count)
+    const ctrl = new AbortController()
+    abortRef.current = ctrl
+    const { questions, exam_id, error: err } = await generateExamStream(
+      topics, difficulty, count,
+      () => setArrived(n => n + 1),
+      ctrl.signal,
+    )
     setLoading(false)
-    if (!data?.questions?.length) {
-      setError(err ?? 'Tạo đề thất bại, thử lại sau')
+    if (!questions?.length) {
+      setError(typeof err === 'string' ? err : 'Tạo đề thất bại, thử lại sau')
       return
     }
+    const finalId = exam_id || `generated-${Date.now()}`
     const exam = {
-      id: data.exam_id,
+      id: finalId,
       title: '✦ Đề AI riêng',
-      totalQuestions: data.questions.length,
-      duration: Math.ceil(data.questions.length * 2),
+      totalQuestions: questions.length,
+      duration: Math.ceil(questions.length * 2),
       category: 'grade10',
       mode: 'practice',
     }
-    dispatch({ type: 'START_EXAM', exam, questions: data.questions })
-    navigate(`/test/${data.exam_id}`)
+    dispatch({ type: 'START_EXAM', exam, questions })
+    navigate(`/test/${finalId}`)
   }
 
   return (

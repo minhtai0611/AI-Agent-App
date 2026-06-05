@@ -3,10 +3,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useExamDispatch } from '../context/ExamContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
-import { loadExams, loadThiThuExams, loadAppliedExams, loadOlympiadExams, loadQuestionsByIds, loadExamById, getAccessibleExamIds } from '../api/index.js'
+import { loadExams, loadThiThuExams, loadQuestionsByIds, loadExamById, getAccessibleExamIds } from '../api/index.js'
 import { ocrExam } from '../api/aiClient.js'
 import { motion, AnimatePresence } from 'framer-motion'
-import { pageVariants } from '../utils/animations.js'
+import { pageVariants, viewNavigate } from '../utils/animations.js'
 import AmbientGlows from '../components/AmbientGlows.jsx'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { buildBriefing } from '../utils/examBriefing.js'
@@ -34,34 +34,6 @@ const GROUPS = {
     { category: 'grade10', label: 'Luyện tập vào lớp 10', description: 'Đề thi tuyển sinh quốc tế — Ghana BECE & Ấn Độ CBSE', accent: '#3B82F6', tag: 'Lớp 10' },
     { category: 'thpt', label: 'Luyện tập THPT & Đại học', description: 'SAT, ACT, A-Level, AMC 12, HSC Úc, Singapore H2 & nhiều đề quốc tế khác', accent: '#F2A20C', tag: 'THPT' },
   ],
-  applied: [
-    {
-      category: 'applied', level: 'grade10',
-      label: 'Toán ứng dụng — Lớp 10',
-      description: 'Bài toán quy hoạch tuyến tính, hàm số, ứng dụng thực tiễn theo chương trình CT2022',
-      accent: '#3B82F6', tag: 'Lớp 10',
-    },
-    {
-      category: 'applied', level: 'thpt',
-      label: 'Toán ứng dụng — THPT',
-      description: 'Xác suất & thống kê ứng dụng thực tiễn, tình huống thực tế theo chương trình GDPT',
-      accent: '#F2A20C', tag: 'THPT',
-    },
-  ],
-  olympiad: [
-    {
-      category: 'olympiad', region: 'vn',
-      label: 'Olympic Toán Việt Nam',
-      description: 'VMO 2022 & 2023 · Tuyển sinh THPT Chuyên — đề thi thi đấu cấp quốc gia',
-      accent: '#F2A20C', tag: '🇻🇳 Việt Nam',
-    },
-    {
-      category: 'olympiad', region: 'intl',
-      label: 'Olympic Toán Quốc tế',
-      description: 'AMC 8 · AMC 10A · Math Kangaroo — kỳ thi thi đấu toán học quốc tế',
-      accent: '#6366F1', tag: '🌐 Quốc tế',
-    },
-  ],
 }
 
 const TRIAL_KEY = 'guest_trial_used'
@@ -79,7 +51,7 @@ function getAllowedCategories() {
 }
 
 export default function ExamSelect({ onOpenAuth }) {
-  usePageMeta('Chọn đề thi', { description: 'Đề thi THPT & lớp 10 từ 63 tỉnh thành · Toán ứng dụng thực tiễn · Olympic AMC, Math Kangaroo, VMO · Công cụ Lab AI.' })
+  usePageMeta('Chọn đề thi', { description: 'Đề thi THPT & lớp 10 từ 63 tỉnh thành · Luyện tập toán có thời gian · Công cụ Lab AI.' })
   const navigate = useNavigate()
   const dispatch = useExamDispatch()
   const { user } = useAuth()
@@ -87,8 +59,7 @@ export default function ExamSelect({ onOpenAuth }) {
   const [searchParams] = useSearchParams()
   const urlMode = searchParams.get('mode')
   const [mode, setMode] = useState(
-    // 'special' silently falls to 'timed' for backward-compat with old bookmarks/back-links
-    ['practice', 'applied', 'olympiad', 'lab'].includes(urlMode) ? urlMode : 'timed'
+    ['practice', 'lab'].includes(urlMode) ? urlMode : 'timed'
   )
   const [previewExam, setPreviewExam] = useState(null)
   const [expandedCategories, setExpandedCategories] = useState({})
@@ -104,10 +75,7 @@ export default function ExamSelect({ onOpenAuth }) {
 
   useEffect(() => {
     if (mode === 'lab') { setAllExams([]); return }
-    const fn = mode === 'timed'    ? loadThiThuExams
-      : mode === 'applied'         ? loadAppliedExams
-      : mode === 'olympiad'        ? loadOlympiadExams
-      : loadExams
+    const fn = mode === 'timed' ? loadThiThuExams : loadExams
     fn().then(data => setAllExams(data))
   }, [mode])
 
@@ -224,7 +192,7 @@ export default function ExamSelect({ onOpenAuth }) {
     }
     const questions = await loadQuestionsByIds(exam.questionIds, !!user)
     dispatch({ type: 'START_EXAM', exam, questions, mode: mode === 'timed' ? 'timed' : 'practice' })
-    navigate(`/test/${exam.id}`)
+    viewNavigate(navigate, `/test/${exam.id}`)
   }
 
   const groups = GROUPS[mode] ?? []
@@ -246,8 +214,6 @@ export default function ExamSelect({ onOpenAuth }) {
           {[
             { value: 'timed',    label: 'Có thời gian' },
             { value: 'practice', label: 'Luyện tập' },
-            { value: 'applied',  label: 'Ứng dụng' },
-            { value: 'olympiad', label: '🏆 Olympic' },
             { value: 'lab',      label: '⚗ Lab' },
           ].map(opt => (
             <button key={opt.value} onClick={() => setMode(opt.value)}
@@ -255,8 +221,6 @@ export default function ExamSelect({ onOpenAuth }) {
                 mode === opt.value
                   ? opt.value === 'lab'
                     ? 'bg-[#818CF8] text-white font-semibold'
-                    : opt.value === 'olympiad'
-                    ? 'bg-[#6366F1] text-white font-semibold'
                     : 'bg-[#F2A20C] text-[#0A0E1A] font-semibold'
                   : 'text-[#94A3B8]'
               }`}>
@@ -282,8 +246,8 @@ export default function ExamSelect({ onOpenAuth }) {
         </div>
       )}
 
-      {/* Filter bar — hidden in Lab, Applied and Olympiad modes */}
-      <div className={`flex flex-wrap items-center gap-3 px-10 pt-6${['lab','applied','olympiad'].includes(mode) ? ' hidden' : ''}`}>
+      {/* Filter bar — hidden in Lab mode */}
+      <div className={`flex flex-wrap items-center gap-3 px-10 pt-6${mode === 'lab' ? ' hidden' : ''}`}>
         <input
           type="search"
           placeholder="Tìm đề thi..."
@@ -409,17 +373,19 @@ export default function ExamSelect({ onOpenAuth }) {
                 </motion.button>
               )}
 
-              {/* Coming-soon ghost cards */}
+              {/* Lab feature cards */}
               {[
-                { label: 'Bản đồ khái niệm', desc: 'Visualize mối liên hệ giữa các chủ đề Toán' },
-                { label: 'Phân tích lỗi sai', desc: 'AI phân tích pattern lỗi trong toàn bộ lịch sử thi' },
-              ].map(({ label, desc }) => (
-                <div key={label}
-                  className="rounded-2xl p-5 border border-dashed border-[#1E2A44] flex flex-col gap-2 opacity-50 select-none">
-                  <p className="font-jakarta text-[14px] font-semibold text-[#475569]">{label}</p>
-                  <p className="font-jakarta text-[12px] text-[#334155]">{desc}</p>
-                  <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase text-[#334155] mt-auto">Sắp ra mắt</span>
-                </div>
+                { label: 'Bản đồ khái niệm', desc: 'Visualize mối liên hệ giữa các chủ đề Toán', path: '/concept-map', accent: '#818CF8' },
+                { label: 'Phân tích lỗi sai', desc: 'AI phân tích pattern lỗi trong toàn bộ lịch sử thi', path: '/error-analysis', accent: '#FB7185' },
+              ].map(({ label, desc, path, accent }) => (
+                <motion.button key={label}
+                  onClick={() => navigate(path)}
+                  className="rounded-2xl p-5 border border-[#1E2A44] flex flex-col gap-2 text-left transition hover:border-[#2A3A50] hover:bg-[#111827]"
+                  whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                  <p className="font-jakarta text-[14px] font-semibold text-[#F8FAFC]">{label}</p>
+                  <p className="font-jakarta text-[12px] text-[#64748B]">{desc}</p>
+                  <span className="font-jakarta text-[12px] font-semibold mt-auto transition" style={{ color: accent }}>Mở →</span>
+                </motion.button>
               ))}
             </div>
           </motion.div>
@@ -435,38 +401,10 @@ export default function ExamSelect({ onOpenAuth }) {
             animate="show"
           >
           {groups.map(group => {
-            // Grade/tier filter (only applies to timed/practice)
-            const categoryAllowed = !allowedCategories || mode === 'applied' || mode === 'olympiad' || allowedCategories.includes(group.category)
-            // Resolve exam list: applied groups filter by level; timed/practice by category
-            const groupExams = group.level
-              ? exams.filter(e => e.level === group.level)
-              : group.region
-              ? exams.filter(e => e.region === group.region)
-              : exams.filter(e => e.category === group.category)
-            const groupKey = group.level ?? group.region ?? group.category
-            if (groupExams.length === 0) {
-              // Applied/Olympiad mode: show empty-state placeholder instead of hiding
-              if (mode === 'applied' || mode === 'olympiad') return (
-                <motion.section key={groupKey + '-empty'} variants={cardVariants}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase px-2.5 py-1 rounded"
-                      style={{ background: group.accent + '22', color: group.accent }}>
-                      {group.tag}
-                    </span>
-                    <div>
-                      <h2 className="font-fraunces text-[22px] font-bold text-[#F8FAFC] leading-tight">{group.label}</h2>
-                      <p className="font-jakarta text-[13px] text-[#64748B]">{group.description}</p>
-                    </div>
-                  </div>
-                  <div className="h-px mb-4" style={{ background: group.accent + '33' }} />
-                  <div className="flex items-center gap-3 px-5 py-4 rounded-xl border border-dashed border-[#1E2A44] text-[#475569]">
-                    <span className="text-lg">⏳</span>
-                    <span className="font-jakarta text-[13px]">Đề thi đang được cập nhật — sẽ sớm ra mắt.</span>
-                  </div>
-                </motion.section>
-              )
-              return null
-            }
+            const categoryAllowed = !allowedCategories || allowedCategories.includes(group.category)
+            const groupExams = exams.filter(e => e.category === group.category)
+            const groupKey = group.category
+            if (groupExams.length === 0) return null
             return (
               <motion.section key={groupKey + mode} variants={cardVariants}>
                 <div className="flex items-center gap-3 mb-4">
