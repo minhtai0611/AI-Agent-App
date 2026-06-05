@@ -550,6 +550,81 @@ export default function Results({ onOpenAuth }) {
     })
   }, [result?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // These must stay ABOVE the conditional return to keep hook order stable
+  const isPaidUser = user?.subscription_tier === 'student' || user?.subscription_tier === 'complete'
+  const isComplete = user?.subscription_tier === 'complete'
+
+  useEffect(() => {
+    if (!result) return
+    const examObj = loadExamById(result.examId)
+    if (!examObj) return
+    loadQuestionsByIds(examObj.questionIds).then(qs => {
+      const qd = result?.questionData ?? {}
+      setAllQuestions(qs.map(q => ({ ...q, ...(qd[q.id] ?? {}) })))
+    })
+  }, [result?.examId, result?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const schoolFitList = useMemo(() => {
+    if (!result) return []
+    const userProvince = user?.province ?? null
+    const score = result.score
+    const scored = schoolsData
+      .map(s => {
+        const cutoff = latestCutoff(s)
+        if (cutoff === null) return null
+        const prob = schoolFitProbability(score, cutoff)
+        return { ...s, prob, cutoff }
+      })
+      .filter(Boolean)
+    scored.sort((a, b) => {
+      const aMatch = userProvince && a.province === userProvince
+      const bMatch = userProvince && b.province === userProvince
+      if (aMatch && !bMatch) return -1
+      if (!aMatch && bMatch) return 1
+      const da = Math.abs(a.prob - 50)
+      const db = Math.abs(b.prob - 50)
+      return da - db
+    })
+    return scored.slice(0, 6)
+  }, [result?.score, user?.province]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!isComplete || !result) return
+    predictScore().then(({ data }) => {
+      if (data?.predicted != null) setPredictedScoreData(data)
+    })
+  }, [result?.id, isComplete]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const topicTrends = useMemo(() => {
+    if (!isPaidUser || !results.length) return null
+    const cutoff = Date.now() - 30 * 86400000
+    const recent = results.filter(r => new Date(r.timestamp).getTime() >= cutoff)
+    if (!recent.length) return null
+    const weekData = {}
+    for (const r of recent) {
+      const weekNum = Math.floor((Date.now() - new Date(r.timestamp).getTime()) / (7 * 86400000))
+      const weekLabel = weekNum === 0 ? 'Tuần này' : weekNum === 1 ? 'Tuần trước' : `${weekNum * 7}n trước`
+      for (const [qId, chosen] of Object.entries(r.answers ?? {})) {
+        const tb = r.topicBreakdown
+        if (!tb) continue
+        for (const [topic, data] of Object.entries(tb)) {
+          if (!weekData[topic]) weekData[topic] = {}
+          if (!weekData[topic][weekLabel]) weekData[topic][weekLabel] = { correct: 0, total: 0 }
+          weekData[topic][weekLabel].total += data.total ?? 0
+          weekData[topic][weekLabel].correct += data.correct ?? 0
+        }
+      }
+    }
+    const topics = Object.keys(weekData)
+    if (!topics.length) return null
+    return topics.map(topic => {
+      const weeks = Object.entries(weekData[topic]).map(([week, d]) => ({
+        week, accuracy: d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0,
+      })).reverse()
+      return { topic, weeks }
+    }).filter(t => t.weeks.some(w => w.accuracy > 0))
+  }, [isPaidUser, results])
+
   if (!result) {
     if (!isCurrent && results.length > 0 && !results.find(r => r.id === resultId)) {
       return (
@@ -593,15 +668,6 @@ export default function Results({ onOpenAuth }) {
   const topics = Object.entries(topicBreakdown ?? {})
   const examObj = loadExamById(examId)
 
-  // Load questions; overlay shuffled choices+correct from questionData to fix wrong-answer highlights
-  useEffect(() => {
-    if (!examObj) return
-    loadQuestionsByIds(examObj.questionIds).then(qs => {
-      const qd = result?.questionData ?? {}
-      setAllQuestions(qs.map(q => ({ ...q, ...(qd[q.id] ?? {}) })))
-    })
-  }, [examId, result?.id]) // eslint-disable-line react-hooks/exhaustive-deps
-
   const wrongQuestions = allQuestions
     .filter(q => { const c = answers[q.id] ?? null; return c !== null && c !== q.correct })
     .sort((a, b) => (DIFF_RANK[b.difficulty] || 0) - (DIFF_RANK[a.difficulty] || 0))
@@ -620,73 +686,6 @@ export default function Results({ onOpenAuth }) {
   }))
 
   const color = arcColor(score)
-
-  // School fit scores — province schools first, then by proximity to 50% probability
-  const schoolFitList = useMemo(() => {
-    const userProvince = user?.province ?? null
-    const scored = schoolsData
-      .map(s => {
-        const cutoff = latestCutoff(s)
-        if (cutoff === null) return null
-        const prob = schoolFitProbability(score, cutoff)
-        return { ...s, prob, cutoff }
-      })
-      .filter(Boolean)
-    scored.sort((a, b) => {
-      const aMatch = userProvince && a.province === userProvince
-      const bMatch = userProvince && b.province === userProvince
-      if (aMatch && !bMatch) return -1
-      if (!aMatch && bMatch) return 1
-      const da = Math.abs(a.prob - 50)
-      const db = Math.abs(b.prob - 50)
-      return da - db
-    })
-    return scored.slice(0, 6)
-  }, [score, user?.province])
-
-  const isPaidUser = user?.subscription_tier === 'student' || user?.subscription_tier === 'complete'
-  const isComplete = user?.subscription_tier === 'complete'
-
-  useEffect(() => {
-    if (!isComplete || !result) return
-    predictScore().then(({ data }) => {
-      if (data?.predicted != null) setPredictedScoreData(data)
-    })
-  }, [result?.id, isComplete]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // 30-day topic trend — per-week accuracy per topic (Student+ only)
-  const topicTrends = useMemo(() => {
-    if (!isPaidUser || !results.length) return null
-    const cutoff = Date.now() - 30 * 86400000
-    const recent = results.filter(r => new Date(r.timestamp).getTime() >= cutoff)
-    if (!recent.length) return null
-    // Build topic → week → {correct, total}
-    const weekData = {}
-    for (const r of recent) {
-      const weekNum = Math.floor((Date.now() - new Date(r.timestamp).getTime()) / (7 * 86400000))
-      const weekLabel = weekNum === 0 ? 'Tuần này' : weekNum === 1 ? 'Tuần trước' : `${weekNum * 7}n trước`
-      for (const [qId, chosen] of Object.entries(r.answers ?? {})) {
-        const tb = r.topicBreakdown
-        // Use topicBreakdown if available, else skip
-        if (!tb) continue
-        for (const [topic, data] of Object.entries(tb)) {
-          if (!weekData[topic]) weekData[topic] = {}
-          if (!weekData[topic][weekLabel]) weekData[topic][weekLabel] = { correct: 0, total: 0 }
-          weekData[topic][weekLabel].total += data.total ?? 0
-          weekData[topic][weekLabel].correct += data.correct ?? 0
-        }
-      }
-    }
-    // Convert to display format
-    const topics = Object.keys(weekData)
-    if (!topics.length) return null
-    return topics.map(topic => {
-      const weeks = Object.entries(weekData[topic]).map(([week, d]) => ({
-        week, accuracy: d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0,
-      })).reverse()
-      return { topic, weeks }
-    }).filter(t => t.weeks.some(w => w.accuracy > 0))
-  }, [isPaidUser, results])
 
   const TABS = [
     { id: 'overview', label: 'Tổng quan' },

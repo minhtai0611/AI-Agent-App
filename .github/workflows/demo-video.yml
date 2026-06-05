@@ -1,0 +1,92 @@
+name: Demo Video Recording
+
+on:
+  # Run automatically after Cloudflare Pages deploy completes
+  workflow_run:
+    workflows: ['Deploy to Cloudflare Pages']
+    types: [completed]
+    branches: [master]
+
+  # Also allow manual trigger for on-demand re-recording
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'App URL to record against (leave empty for production)'
+        required: false
+        default: 'https://exam-app-ey0.pages.dev'
+
+# Never block production deploys — this job is informational only
+jobs:
+  record-demo:
+    name: Record product demo
+    runs-on: ubuntu-latest
+    # Only run if the triggering workflow succeeded (or manual trigger)
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    # Non-blocking: demo recording failures do NOT fail the overall CI run
+    continue-on-error: true
+
+    env:
+      DEMO_BASE_URL: ${{ github.event.inputs.base_url || 'https://exam-app-ey0.pages.dev' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'exam-app/package-lock.json'
+
+      - name: Install Playwright and Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Wait for production URL to be responsive
+        run: |
+          echo "Waiting for $DEMO_BASE_URL to respond..."
+          for i in $(seq 1 30); do
+            if curl -sf --max-time 10 "$DEMO_BASE_URL" > /dev/null 2>&1; then
+              echo "App is live after $((i * 10))s"
+              break
+            fi
+            echo "Attempt $i/30 — retrying in 10s..."
+            sleep 10
+          done
+
+      - name: Run demo recording
+        run: |
+          npx playwright test demo-video/playwright-demo.spec.ts \
+            --config demo-video/playwright.config.demo.js \
+            --project=chromium
+        env:
+          DEMO_BASE_URL: ${{ env.DEMO_BASE_URL }}
+
+      - name: Upload screenshots artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-screenshots-${{ github.sha }}
+          path: demo-video/screenshots/
+          retention-days: 90
+          if-no-files-found: warn
+
+      - name: Upload video recording artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-video-recording-${{ github.sha }}
+          path: test-results/
+          retention-days: 90
+          if-no-files-found: warn
+
+      - name: Upload HTML report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-playwright-report-${{ github.sha }}
+          path: playwright-report/
+          retention-days: 14

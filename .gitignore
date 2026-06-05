@@ -57,6 +57,12 @@ scripts/crawl_progress.json
 # Test results
 test-results/
 
+# Demo video artifacts (screenshots and recordings are CI artifacts, not source)
+demo-video/screenshots/
+demo-video/test-results/
+demo-video/*.mp4
+demo-video/*.webm
+
 # Playwright MCP cache
 .playwright-mcp/
 
