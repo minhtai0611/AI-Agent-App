@@ -18,8 +18,6 @@ const SCHOOL_TYPES = [
   { value: 'quốc tế', label: 'Trường quốc tế' },
 ]
 
-import { PROVINCES } from '../data/provinces.js'
-
 const TOS_CONTENT = [
   'Dịch vụ cung cấp đề thi và phân tích AI cho mục đích học tập cá nhân.',
   'Tài khoản chỉ dành cho một người sử dụng — không chia sẻ hoặc chuyển nhượng.',
