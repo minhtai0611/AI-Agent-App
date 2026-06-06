@@ -28613,5 +28613,4005 @@
     ],
     "correct": 0,
     "explanation": "Với 35 mặt: $P(A)=18/35$, $P(C)=11/35$ (bội 3 từ 1–6: 3,6 mỗi số 6 lần = 12 mặt; bỏ một mặt số 6 (bội 3 chẵn) còn 11 mặt bội 3), $P(A\\cap C)=6/35$ (bội 6: 6 mặt, bỏ một còn 5... thực ra bỏ số 36 chứ không phải số 6. Số 36 là bội 6, chẵn và bội 3: $P(A\\cap C)=6/35$, $P(A)P(C)=\\frac{18}{35}\\cdot\\frac{11}{35}=\\frac{198}{1225}\\neq\\frac{6}{35}=\\frac{210}{1225}$). Không còn độc lập."
+  },
+  {
+    "id": "q_thpt19_001",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trong không gian $Oxyz$, cho mặt phẳng $(P): x + 2y + 3z + 1 = 0$. Vectơ nào dưới đây là một vectơ pháp tuyến của $(P)$?",
+    "choices": [
+      "$\\vec{n} = (1;\\,2;\\,-1)$",
+      "$\\vec{n} = (1;\\,2;\\,3)$",
+      "$\\vec{n} = (1;\\,3;\\,-1)$",
+      "$\\vec{n} = (2;\\,3;\\,-1)$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_002",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Với $a$ là số thực dương tùy ý, $\\log_5 a^2$ bằng:",
+    "choices": [
+      "$2\\log_5 a$",
+      "$2 + \\log_5 a$",
+      "$\\log_5 a$",
+      "$\\dfrac{1}{2}\\log_5 a$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_003",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Cho hàm số có bảng biến thiên như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Hàm số đã cho nghịch biến trên khoảng nào?",
+    "choices": [
+      "$(-2;\\,0)$",
+      "$(-2;\\,+\\infty)$",
+      "$(0;\\,2)$",
+      "$(0;\\,+\\infty)$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_004",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Nghiệm của phương trình $3^{2x+1} = 243$ là:",
+    "choices": [
+      "$x = 5$",
+      "$x = 1$",
+      "$x = 2$",
+      "$x = 4$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_005",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "sequences",
+    "difficulty": "easy",
+    "question": "Cho cấp số cộng $(u_n)$ với $u_1 = 9$ và $u_2 = 3$. Công sai bằng:",
+    "choices": [
+      "$6$",
+      "$3$",
+      "$12$",
+      "$-6$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_006",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Đồ thị của hàm số nào có dạng như đường cong trong hình vẽ? *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)*",
+    "choices": [
+      "$y = x^3 - 3x^2 - 3$",
+      "$y = x^3 + 3x^2 + 3$",
+      "$y = x^4 - 2x^2 + 3$",
+      "$y = x^4 + 2x^2 - 3$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_007",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trong không gian $Oxyz$, cho đường thẳng $d:\\dfrac{x-2}{1}=\\dfrac{y-1}{2}=\\dfrac{z-3}{1}$. Vectơ chỉ phương của $d$ là:",
+    "choices": [
+      "$\\vec{u} = (2;\\,1;\\,1)$",
+      "$\\vec{u} = (1;\\,2;\\,-3)$",
+      "$\\vec{u} = (-1;\\,2;\\,1)$",
+      "$\\vec{u} = (2;\\,1;\\,-3)$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_008",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích khối nón có chiều cao $h$ và bán kính đáy $r$ là:",
+    "choices": [
+      "$\\dfrac{1}{3}\\pi r^2 h$",
+      "$\\dfrac{4}{3}\\pi r^2 h$",
+      "$\\pi r^2 h$",
+      "$2\\pi r^2 h$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_009",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "probability",
+    "difficulty": "easy",
+    "question": "Số cách chọn $2$ học sinh từ $7$ học sinh là:",
+    "choices": [
+      "$2^7$",
+      "$A_7^2$",
+      "$C_7^2$",
+      "$7^2$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_010",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Hình chiếu vuông góc của điểm $M(2;\\,1;\\,-1)$ trên trục $Oz$ có tọa độ:",
+    "choices": [
+      "$(2;\\,1;\\,0)$",
+      "$(0;\\,0;\\,-1)$",
+      "$(2;\\,0;\\,0)$",
+      "$(0;\\,1;\\,0)$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_011",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Biết $\\int_0^1 f(x)\\,dx = 2$ và $\\int_0^1 g(x)\\,dx = 3$, khi đó $\\int_0^1 [f(x)+g(x)]\\,dx$ bằng:",
+    "choices": [
+      "$5$",
+      "$-5$",
+      "$1$",
+      "$-1$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_012",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích khối lăng trụ có diện tích đáy $B$ và chiều cao $h$ là:",
+    "choices": [
+      "$3Bh$",
+      "$Bh$",
+      "$\\dfrac{4}{3}Bh$",
+      "$\\dfrac{1}{3}Bh$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_013",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Số phức liên hợp của số phức $z = 3 + 4i$ là:",
+    "choices": [
+      "$3 + 4i$",
+      "$-3 - 4i$",
+      "$3 - 4i$",
+      "$4 + 3i$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_014",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Cho hàm số có bảng biến thiên như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Hàm số đã cho đạt cực tiểu tại:",
+    "choices": [
+      "$x = -2$",
+      "$x = 1$",
+      "$x = -1$",
+      "$x = 3$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_015",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Họ tất cả nguyên hàm của $f(x) = 2x + 5$ là:",
+    "choices": [
+      "$x^2 + 5x + C$",
+      "$2x^2 + 5x + C$",
+      "$2x + C$",
+      "$x + C$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_016",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho đồ thị hàm số $y=f(x)$ như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Số nghiệm thực của phương trình $2f(x) - 3 = 0$ là:",
+    "choices": [
+      "$2$",
+      "$1$",
+      "$4$",
+      "$3$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_017",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho hình chóp $S.ABC$ có $SA \\perp (ABC)$, $SA = 2a$, tam giác $ABC$ vuông tại $B$, $AB = a\\sqrt{3}$, $BC = a$. Góc giữa $SC$ và $(ABC)$ là:",
+    "choices": [
+      "$90°$",
+      "$45°$",
+      "$30°$",
+      "$60°$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_018",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "complex_numbers",
+    "difficulty": "medium",
+    "question": "Gọi $z_1,\\,z_2$ là hai nghiệm phức của phương trình $z^2 - 6z + 10 = 0$. Giá trị $z_1^2 + z_2^2$ bằng:",
+    "choices": [
+      "$16$",
+      "$56$",
+      "$20$",
+      "$26$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_019",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Hàm số $y = 2^{x^2-3x}$ có đạo hàm là:",
+    "choices": [
+      "$(2x-3)\\cdot 2^{x^2-3x}\\cdot\\ln 2$",
+      "$2^{x^2-3x}\\cdot\\ln 2$",
+      "$(2x-3)\\cdot 2^{x^2-3x}$",
+      "$(x^2-3x)\\cdot 2^{x^2-3x-1}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_020",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Giá trị lớn nhất của $f(x) = x^3 - 3x^2$ trên $[-3;\\,3]$ là:",
+    "choices": [
+      "$16$",
+      "$20$",
+      "$0$",
+      "$4$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_021",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Mặt cầu $(S): x^2+y^2+z^2-2x-2z-7=0$ có bán kính bằng:",
+    "choices": [
+      "$\\sqrt{7}$",
+      "$\\sqrt{9}$",
+      "$3$",
+      "$\\sqrt{15}$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_022",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Lăng trụ đứng $ABC.A'B'C'$ có đáy là tam giác đều cạnh $a$ và $AA' = 3a$. Thể tích khối lăng trụ là:",
+    "choices": [
+      "$\\dfrac{3a^3\\sqrt{3}}{4}$",
+      "$\\dfrac{3a^3\\sqrt{3}}{2}$",
+      "$\\dfrac{a^3\\sqrt{3}}{4}$",
+      "$\\dfrac{a^3\\sqrt{3}}{2}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_023",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho hàm số $f(x)$ có $f'(x) = x(x-2)^2$. Số điểm cực trị của hàm số là:",
+    "choices": [
+      "$0$",
+      "$3$",
+      "$2$",
+      "$1$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_024",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "medium",
+    "question": "Cho $a,b>0$ thỏa mãn $4^{\\log_2 a}=16$ và $\\log_2 b = \\log_2 a - 1$. Giá trị $\\log_2(ab^2)$ bằng:",
+    "choices": [
+      "$4$",
+      "$2$",
+      "$16$",
+      "$8$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_025",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "complex_numbers",
+    "difficulty": "medium",
+    "question": "Cho $z_1 = 1 + i$ và $z_2 = 1 - 2i$. Điểm biểu diễn số phức $3z_1 - z_2$ có tọa độ là:",
+    "choices": [
+      "$(4;\\,-1)$",
+      "$(1;\\,4)$",
+      "$(4;\\,1)$",
+      "$(1;\\,-4)$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_026",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "medium",
+    "question": "Nghiệm của phương trình $\\log_3(3x) - 1 = \\log_3(x-1)$ là:",
+    "choices": [
+      "$x = 3$",
+      "$x = -3$",
+      "$x = 4$",
+      "$x = 2$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_027",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Hai bể hình trụ có chiều cao bằng nhau, bán kính lần lượt $1$m và $1{,}2$m. Bể mới có thể tích bằng tổng hai bể. Bán kính bể mới gần nhất với giá trị nào?",
+    "choices": [
+      "$1{,}8$ m",
+      "$1{,}4$ m",
+      "$2{,}2$ m",
+      "$1{,}6$ m"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_028",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Tổng số tiệm cận đứng và tiệm cận ngang của đồ thị hàm số cho trong hình vẽ bằng: *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)*",
+    "choices": [
+      "$4$",
+      "$1$",
+      "$3$",
+      "$2$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_029",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Diện tích hình phẳng giới hạn bởi $y=f(x)$, $y=0$, $x=1$, $x=4$ với đồ thị như hình vẽ *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* bằng:",
+    "choices": [
+      "$\\int_1^4 f(x)\\,dx$",
+      "$\\int_1^2 f(x)\\,dx - \\int_2^4 f(x)\\,dx$",
+      "$\\int_1^4 |f(x)|\\,dx$",
+      "$-\\int_1^4 f(x)\\,dx$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_030",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Viết phương trình mặt phẳng trung trực của đoạn thẳng $AB$ với $A(1;\\,3;\\,0)$, $B(5;\\,1;\\,-1)$:",
+    "choices": [
+      "$2x + y + z - 5 = 0$",
+      "$4x - 2y - z - 9 = 0$",
+      "$x + y + 2z - 3 = 0$",
+      "$3x + 2y + z - 14 = 0$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_031",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Nguyên hàm của $f(x) = \\dfrac{2x+1}{x-1}$ trên $(1;\\,+\\infty)$ là:",
+    "choices": [
+      "$2\\ln(x-1)+C$",
+      "$2x + 3\\ln(x-1)+C$",
+      "$2\\ln(x-1)+\\dfrac{3}{x-1}+C$",
+      "$2x+C$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_032",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Cho $f(0)=4$, $f'(x)=2\\cos^2 x - 1$. Tính $I=\\int_0^{\\pi/4} f(x)\\,dx$:",
+    "choices": [
+      "$\\dfrac{2+14\\sqrt{2}}{16}$",
+      "$\\dfrac{4+2\\sqrt{2}}{16}$",
+      "$\\dfrac{4+\\pi\\sqrt{2}}{8}$",
+      "$\\dfrac{4-2\\sqrt{2}}{16}$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_033",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Đường thẳng đi qua $C(2;\\,-1;\\,3)$ và vuông góc với mặt phẳng $(ABD)$ có phương trình tham số:",
+    "choices": [
+      "$x=2+4t,\\;y=2-3t,\\;z=2+t$",
+      "$x=2+4t,\\;y=1-3t,\\;z=3+t$",
+      "$x=2+4t,\\;y=4-3t,\\;z=2+t$",
+      "$x=4+2t,\\;y=3t,\\;z=1-3t$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_034",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "complex_numbers",
+    "difficulty": "medium",
+    "question": "Số phức $z$ thỏa mãn $3(z-i)=(2-i)z+3+10i$. Mô-đun $|z|$ bằng:",
+    "choices": [
+      "$3$",
+      "$5$",
+      "$\\sqrt{5}$",
+      "$\\sqrt{34}$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_035",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho đồ thị hàm số $y=f(x)$ như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Hàm số $y=f(3-2x)$ nghịch biến trên khoảng nào?",
+    "choices": [
+      "$(4;\\,+\\infty)$",
+      "$(-2;\\,1)$",
+      "$(2;\\,4)$",
+      "$(1;\\,2)$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_036",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Cho đồ thị hàm số $y=f(x)$ trên $[0;2]$ như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Bất phương trình $f(x)\\geq x+m$ nghiệm đúng với mọi $x\\in[0;2]$ khi và chỉ khi:",
+    "choices": [
+      "$m\\leq f(2)-2$",
+      "$m\\leq f(0)$",
+      "$m\\leq \\min_{[0,2]}(f(x)-x)$",
+      "$m\\geq f(0)$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_037",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "probability",
+    "difficulty": "hard",
+    "question": "Chọn ngẫu nhiên hai số từ tập $\\{1,2,\\ldots,25\\}$. Xác suất để tổng hai số đó là số chẵn bằng:",
+    "choices": [
+      "$\\dfrac{1}{2}$",
+      "$\\dfrac{13}{25}$",
+      "$\\dfrac{12}{25}$",
+      "$\\dfrac{313}{625}$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_038",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Hình trụ chiều cao $5\\sqrt{3}$, thiết diện song song trục cách trục $1$m có diện tích $30$. Diện tích xung quanh hình trụ là:",
+    "choices": [
+      "$10\\sqrt{3}\\pi$",
+      "$5\\sqrt{39}\\pi$",
+      "$20\\sqrt{3}\\pi$",
+      "$10\\sqrt{39}\\pi$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_039",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "hard",
+    "question": "Số giá trị nguyên của $m$ để phương trình $\\log_9 x - \\log_3(3x-1) = 1 + \\log_3 m$ có nghiệm là:",
+    "choices": [
+      "$2$",
+      "$4$",
+      "$3$",
+      "Vô số"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_040",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Hình chóp $S.ABCD$ có đáy $ABCD$ là hình vuông cạnh $a$, $SA\\perp(ABCD)$. Khoảng cách từ $A$ đến mặt phẳng $(SBD)$ bằng:",
+    "choices": [
+      "$\\dfrac{a\\sqrt{2}}{4}$",
+      "$\\dfrac{a\\sqrt{6}}{3}$",
+      "$\\dfrac{a}{2}$",
+      "$\\dfrac{a\\sqrt{3}}{3}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_041",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Biết $f(4)=1$, $\\int_0^1 x f'(4x)\\,dx=1$. Tính $I=\\int_0^4 x^2 f'(x)\\,dx$:",
+    "choices": [
+      "$\\dfrac{31}{2}$",
+      "$16$",
+      "$8$",
+      "$14$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_042",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Điểm $A(0;\\,4;\\,-3)$, đường thẳng $d$ song song $Oz$ và cách $Oz$ khoảng $3$. Khoảng cách từ $A$ đến $d$ nhỏ nhất khi $d$ đi qua:",
+    "choices": [
+      "$P(3;\\,0;\\,-3)$",
+      "$M(0;\\,-3;\\,5)$",
+      "$N(0;\\,3;\\,5)$",
+      "$Q(0;\\,5;\\,-3)$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_043",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Cho hàm bậc ba $y=f(x)$ với đồ thị như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Số nghiệm của phương trình $4f(x)-3=3x$ bằng:",
+    "choices": [
+      "$3$",
+      "$8$",
+      "$7$",
+      "$4$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_044",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "complex_numbers",
+    "difficulty": "hard",
+    "question": "Cho $|z|=2$, $w=\\dfrac{4iz}{1+z}$. Bán kính đường tròn là tập hợp điểm biểu diễn $w$ bằng:",
+    "choices": [
+      "$\\sqrt{34}$",
+      "$\\sqrt{26}$",
+      "$34$",
+      "$26$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_045",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Cho hai đường $y=x$ và $y=\\dfrac{1}{2}x^2+a$ ($a>0$) giới hạn hai phần diện tích $S_1$ và $S_2$. Khi $S_1=S_2$ thì $a$ thuộc khoảng nào?",
+    "choices": [
+      "$\\left(\\dfrac{3}{7};\\dfrac{1}{2}\\right)$",
+      "$\\left(0;\\dfrac{1}{3}\\right)$",
+      "$\\left(\\dfrac{1}{2};\\dfrac{3}{5}\\right)$",
+      "$\\left(\\dfrac{2}{3};\\dfrac{5}{7}\\right)$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_046",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Cho hàm số $y=f(x)$ như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Số điểm cực trị của hàm số $y=f(x^2-2x)$ là:",
+    "choices": [
+      "$9$",
+      "$3$",
+      "$7$",
+      "$5$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_047",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Lăng trụ $ABC.A'B'C'$ chiều cao $8$, đáy tam giác đều cạnh $6$. $M,N,P$ là tâm các mặt bên. Thể tích khối $ABCMNP$ bằng:",
+    "choices": [
+      "$27\\sqrt{3}$",
+      "$21\\sqrt{3}$",
+      "$30\\sqrt{3}$",
+      "$36\\sqrt{3}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_048",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Mặt cầu $(S): x^2+y^2+z^2=3$ chiếu lên $(Oxy)$ được đường tròn $(C)$. Số điểm $A$ có tọa độ nguyên nằm ngoài $(C)$ sao cho có ít nhất $2$ tiếp tuyến từ $A$ đến $(C)$ vuông góc nhau là:",
+    "choices": [
+      "$12$",
+      "$8$",
+      "$16$",
+      "$4$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_049",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Tìm số giá trị nguyên $m$ để hai đường cong $y=x^3-3x$ và $y=m$ cắt nhau đúng $4$ điểm phân biệt:",
+    "choices": [
+      "$0$",
+      "$3$",
+      "$4$",
+      "$2$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt19_050",
+    "source": "dethi.edu.vn — THPT Quốc gia 2019 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "hard",
+    "question": "Phương trình $4\\log_2^2 x - \\log_2 x - 5 - 7m = 0$ có đúng $2$ nghiệm phân biệt. Số giá trị nguyên dương $m$ là:",
+    "choices": [
+      "$49$",
+      "$47$",
+      "Vô số",
+      "$48$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_001",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "probability",
+    "difficulty": "easy",
+    "question": "Có bao nhiêu cách chọn hai học sinh từ một nhóm gồm $34$ học sinh?",
+    "choices": [
+      "$2^{34}$",
+      "$A_{34}^2$",
+      "$34^2$",
+      "$C_{34}^2$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_002",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Mặt phẳng $(P): x + 2y - 3z - 5 = 0$ có một vectơ pháp tuyến là:",
+    "choices": [
+      "$(3;\\,2;\\,1)$",
+      "$(-1;\\,-2;\\,-3)$",
+      "$(1;\\,2;\\,-3)$",
+      "$(1;\\,2;\\,3)$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_003",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Cho đồ thị hàm số $y=f(x)$ như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Số điểm cực trị của hàm số là:",
+    "choices": [
+      "$2$",
+      "$0$",
+      "$3$",
+      "$1$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_004",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Cho hàm số có bảng biến thiên như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Hàm số nghịch biến trên khoảng nào?",
+    "choices": [
+      "$(0;\\,1)$",
+      "$(-\\infty;\\,0)$",
+      "$(1;\\,+\\infty)$",
+      "$(-1;\\,0)$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_005",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Diện tích hình phẳng giới hạn bởi $y=e^x$, $y=0$, $x=0$, $x=2$ được tính bằng:",
+    "choices": [
+      "$S=\\pi\\int_0^2 e^{2x}\\,dx$",
+      "$S=\\int_0^2 e^x\\,dx$",
+      "$S=\\pi\\int_0^2 e^x\\,dx$",
+      "$S=\\int_0^2 e^{2x}\\,dx$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_006",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "$\\ln(5a) - \\ln(3a)$ bằng:",
+    "choices": [
+      "$\\dfrac{\\ln 5a}{\\ln 3a}$",
+      "$\\ln 2a$",
+      "$\\ln\\dfrac{5}{3}$",
+      "$\\dfrac{\\ln 5}{\\ln 3}$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_007",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Nguyên hàm của $f(x) = x^3 + x$ là:",
+    "choices": [
+      "$\\dfrac{1}{4}x^4 + x^2 + C$",
+      "$3x^2 + 1 + C$",
+      "$x^3 + x + C$",
+      "$\\dfrac{1}{4}x^4 + \\dfrac{1}{2}x^2 + C$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_008",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Đường thẳng $d: x=2+t,\\;y=1+2t,\\;z=3+t$ có vectơ chỉ phương là:",
+    "choices": [
+      "$(2;\\,1;\\,3)$",
+      "$(1;\\,2;\\,1)$",
+      "$(2;\\,1;\\,1)$",
+      "$(1;\\,2;\\,3)$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_009",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Số phức $3 - 7i$ có phần ảo bằng:",
+    "choices": [
+      "$3$",
+      "$7$",
+      "$-3$",
+      "$-7$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_010",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Diện tích mặt cầu bán kính $R$ bằng:",
+    "choices": [
+      "$\\pi R^2$",
+      "$2\\pi R^2$",
+      "$4\\pi R^2$",
+      "$\\dfrac{4}{3}\\pi R^2$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_011",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Đường cong trong hình vẽ là đồ thị của hàm số nào? *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)*",
+    "choices": [
+      "$y=x^4-3x^2+1$",
+      "$y=-x^3-3x^2+1$",
+      "$y=x^3-3x^2+1$",
+      "$y=-x^4-3x^2+1$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_012",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trung điểm của đoạn $AB$ với $A(2;\\,-4;\\,3)$ và $B(2;\\,2;\\,7)$ có tọa độ:",
+    "choices": [
+      "$(1;\\,3;\\,2)$",
+      "$(2;\\,6;\\,4)$",
+      "$(2;\\,-1;\\,5)$",
+      "$(4;\\,-2;\\,10)$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_013",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "sequences",
+    "difficulty": "easy",
+    "question": "$\\lim_{n\\to\\infty}\\dfrac{1}{5n+3}$ bằng:",
+    "choices": [
+      "$0$",
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{1}{5}$",
+      "$\\infty$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_014",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Phương trình $2^{2x+1} = 32$ có nghiệm:",
+    "choices": [
+      "$x=\\dfrac{5}{2}$",
+      "$x=2$",
+      "$x=\\dfrac{3}{2}$",
+      "$x=3$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_015",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích khối chóp có đáy là hình vuông cạnh $a$ và chiều cao $2a$ bằng:",
+    "choices": [
+      "$4a^3$",
+      "$\\dfrac{2}{3}a^3$",
+      "$2a^3$",
+      "$\\dfrac{4}{3}a^3$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_016",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Gửi tiết kiệm với lãi suất $7{,}5\\%$/năm. Sau bao nhiêu năm thì số tiền gấp đôi (gần nhất)?",
+    "choices": [
+      "$11$ năm",
+      "$9$ năm",
+      "$10$ năm",
+      "$12$ năm"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_017",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho đồ thị hàm số $y=f(x)$ như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Số nghiệm của phương trình $3f(x)-4=0$ là:",
+    "choices": [
+      "$3$",
+      "$0$",
+      "$1$",
+      "$2$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_018",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Số tiệm cận đứng của hàm số $y=\\dfrac{\\sqrt{x-9}-3}{x^2-x}$ là:",
+    "choices": [
+      "$3$",
+      "$2$",
+      "$0$",
+      "$1$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_019",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình vuông cạnh $a$, $SA\\perp(ABCD)$, $SB=2a$. Góc giữa $SB$ và mặt phẳng đáy bằng:",
+    "choices": [
+      "$60°$",
+      "$90°$",
+      "$30°$",
+      "$45°$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_020",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Mặt phẳng qua $A(2;\\,-1;\\,2)$ song song với $(P): 2x-y+3z-2=0$ có phương trình:",
+    "choices": [
+      "$2x-y+3z-9=0$",
+      "$2x-y+3z+11=0$",
+      "$2x-y+3z-11=0$",
+      "$2x-y+3z+9=0$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_021",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "probability",
+    "difficulty": "medium",
+    "question": "Xác suất lấy ngẫu nhiên $3$ quả cầu đều màu xanh từ túi gồm $11$ đỏ và $4$ xanh:",
+    "choices": [
+      "$\\dfrac{4}{455}$",
+      "$\\dfrac{24}{455}$",
+      "$\\dfrac{4}{165}$",
+      "$\\dfrac{33}{91}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_022",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "$\\int_1^2 e^{3x+1}\\,dx$ bằng:",
+    "choices": [
+      "$\\dfrac{1}{3}e^7-\\dfrac{1}{3}e^4$",
+      "$\\dfrac{1}{3}e^7+e^4$",
+      "$e^7-e^4$",
+      "$\\dfrac{1}{3}e^7-\\dfrac{1}{3}e^4$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_023",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Giá trị lớn nhất của $y=x^4-4x^2+9$ trên $[-2;\\,3]$ là:",
+    "choices": [
+      "$201$",
+      "$2$",
+      "$9$",
+      "$54$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_024",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "complex_numbers",
+    "difficulty": "medium",
+    "question": "Tìm $x,y$ thỏa mãn $2x+3yi=(1+3i)(x-6i)$:",
+    "choices": [
+      "$x=1;\\,y=3$",
+      "$x=1;\\,y=1$",
+      "$x=-1;\\,y=1$",
+      "$x=-1;\\,y=-3$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_025",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Khoảng cách từ $A$ đến mặt phẳng $(SBC)$ trong hình chóp $S.ABC$ có $SA\\perp(ABC)$, $AB=a$, $SA=2a$, tam giác $ABC$ vuông tại $B$:",
+    "choices": [
+      "$\\dfrac{2\\sqrt{5}}{5}a$",
+      "$\\dfrac{5a}{3}$",
+      "$\\dfrac{2\\sqrt{2}}{3}a$",
+      "$\\sqrt{5}a$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_026",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Biết $\\int_{16}^{55}\\dfrac{dx}{x\\sqrt{x-9}} = a\\ln 2 + b\\ln 5 + c\\ln 11$. Giá trị biểu thức $a - b + 3c$ bằng:",
+    "choices": [
+      "$a-b-c$",
+      "$a-b+c$",
+      "$a-b-3c$",
+      "$a-b+3c$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_027",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Chi phí nguyên liệu làm một chiếc bút chì lục giác đều (cạnh $3$mm, cao $200$mm, giá $a$ đồng/mm³) gần nhất với:",
+    "choices": [
+      "$9{,}7a$ đồng",
+      "$97{,}03a$ đồng",
+      "$90{,}7a$ đồng",
+      "$9{,}07a$ đồng"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_028",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Hệ số của $x^5$ trong khai triển $(x+2)(x-1)^6 + 3(x-1)^8$ là:",
+    "choices": [
+      "$13368$",
+      "$-13368$",
+      "$13848$",
+      "$-13848$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_029",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Khoảng cách giữa hai đường thẳng $AC$ và $SB$ trong hình chóp $S.ABCD$ có đáy là hình chữ nhật $AB=a$, $BC=2a$, $SA\\perp(ABCD)$, $SA=a$:",
+    "choices": [
+      "$\\dfrac{6a}{2}$",
+      "$\\dfrac{2a}{3}$",
+      "$\\dfrac{a}{2}$",
+      "$\\dfrac{a}{3}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_030",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "complex_numbers",
+    "difficulty": "medium",
+    "question": "Bán kính đường tròn là tập hợp điểm biểu diễn $z$ thỏa $z-i+\\overline{z}-2$ là số thuần ảo:",
+    "choices": [
+      "$1$",
+      "$\\dfrac{5}{4}$",
+      "$\\dfrac{5}{2}$",
+      "$\\dfrac{3}{2}$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_031",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Dung tích lớn nhất của bể cá hình hộp chữ nhật không nắp có tổng diện tích kính là $6{,}5$m², chiều dài gấp đôi chiều rộng (gần nhất):",
+    "choices": [
+      "$2{,}26$ m³",
+      "$1{,}61$ m³",
+      "$1{,}33$ m³",
+      "$1{,}50$ m³"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_032",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Vận tốc lúc $B$ đuổi kịp $A$ ($v_A=\\frac{t^2}{180}+\\frac{11t}{18}$, $B$ xuất phát chậm $5$s) là:",
+    "choices": [
+      "$22$ m/s",
+      "$15$ m/s",
+      "$10$ m/s",
+      "$7$ m/s"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_033",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Đường thẳng qua $A(1;\\,2;\\,3)$, vuông góc $d:\\frac{x}{1}=\\frac{y-1}{-1}=\\frac{z-2}{2}$, cắt trục $Ox$ có phương trình tham số:",
+    "choices": [
+      "$x=1+2t,\\;y=2-t,\\;z=3+t$",
+      "$x=1+t,\\;y=2-2t,\\;z=3-2t$",
+      "$x=1+2t,\\;y=2-t,\\;z=t$",
+      "$x=1+t,\\;y=2+2t,\\;z=3-3t$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_034",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "logarithm",
+    "difficulty": "medium",
+    "question": "Số giá trị nguyên $m$ để phương trình $16^x - m\\cdot 4^{x+1} + 5m - 2 - 45 = 0$ có $2$ nghiệm phân biệt:",
+    "choices": [
+      "$13$",
+      "$3$",
+      "$6$",
+      "$4$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_035",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Số giá trị nguyên $m$ để hàm số $y=\\dfrac{x-2}{x-5-m}$ đồng biến trên $(-\\infty;\\,10)$:",
+    "choices": [
+      "$2$",
+      "Vô số",
+      "$1$",
+      "$3$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_036",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Số giá trị nguyên $m$ để hàm số $y=x^8+(m-2)x^5+(m^2-4)x^4+1$ đạt cực tiểu tại $x=0$:",
+    "choices": [
+      "$3$",
+      "$5$",
+      "$4$",
+      "Vô số"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_037",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "$\\cos$ góc giữa hai mặt phẳng chứa $M$ (hình lập phương, $M$ trên $OI$ sao cho $MO=2MI$) bằng:",
+    "choices": [
+      "$\\dfrac{6\\sqrt{85}}{85}$",
+      "$\\dfrac{7\\sqrt{85}}{85}$",
+      "$\\dfrac{17}{65}$",
+      "$\\dfrac{6\\sqrt{13}}{65}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_038",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "complex_numbers",
+    "difficulty": "hard",
+    "question": "Số phức $z$ thỏa $z+\\overline{z}+4i=(2+i)(5i-\\overline{z})$ có mô-đun $|z|$ bằng:",
+    "choices": [
+      "$2$",
+      "$3$",
+      "$1$",
+      "$4$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_039",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Mặt phẳng chứa điểm $M$ trên mặt cầu $(S):(x-1)^2+(y-1)^2+(z-1)^2=9$ sao cho $AM$ tiếp xúc với $(S)$ (với $A$ cho sẵn) có phương trình:",
+    "choices": [
+      "$6x-8y+11=0$",
+      "$3x-4y+2=0$",
+      "$3x-4y-2=0$",
+      "$6x-8y-11=0$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_040",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Số điểm $A$ trên đường cong $y=\\dfrac{1}{4}x^4-\\dfrac{7}{2}x^2$ sao cho tiếp tuyến tại $A$ cắt đường cong tại hai điểm $M,N$ với $\\dfrac{y_1-y_2}{x_1-x_2}=6$ là:",
+    "choices": [
+      "$1$",
+      "$2$",
+      "$0$",
+      "$3$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_041",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Diện tích hình phẳng giữa $f(x)=ax^3+bx^2+cx$ và $g(x)=dx^2+ex+1$ (giao tại $x=-3,-1,1$) bằng:",
+    "choices": [
+      "$\\dfrac{9}{2}$",
+      "$8$",
+      "$4$",
+      "$5$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_042",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Thể tích lăng trụ $ABC.A'B'C'$ (với điều kiện hình chiếu cho sẵn):",
+    "choices": [
+      "$2$",
+      "$1$",
+      "$3$",
+      "$\\dfrac{2\\sqrt{3}}{3}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_043",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "probability",
+    "difficulty": "hard",
+    "question": "Xác suất để tổng $3$ số nguyên được chọn ngẫu nhiên từ $1$ đến $17$ chia hết cho $3$ là:",
+    "choices": [
+      "$\\dfrac{1728}{4913}$",
+      "$\\dfrac{1079}{4913}$",
+      "$\\dfrac{23}{68}$",
+      "$\\dfrac{1637}{4913}$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_044",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "logarithm",
+    "difficulty": "hard",
+    "question": "Cho $a>0,b>0$ thỏa điều kiện logarit. Giá trị $a+2b$ bằng:",
+    "choices": [
+      "$6$",
+      "$9$",
+      "$\\dfrac{7}{2}$",
+      "$\\dfrac{5}{2}$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_045",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Độ dài $AB$ với $A,B\\in C: y=\\dfrac{x-1}{x-2}$ sao cho tam giác $ABI$ đều ($I$ là tâm đối xứng):",
+    "choices": [
+      "$6$",
+      "$2\\sqrt{3}$",
+      "$2$",
+      "$2\\sqrt{2}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_046",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "logarithm",
+    "difficulty": "hard",
+    "question": "Số giá trị nguyên $m\\in[-20;20]$ để phương trình $5^x - m\\log_5 x = m$ có nghiệm là:",
+    "choices": [
+      "$20$",
+      "$19$",
+      "$9$",
+      "$21$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_047",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Thể tích lớn nhất của khối tứ diện $ABCD$ nội tiếp mặt cầu bán kính $R=3$ với $AB\\perp AC\\perp AD$:",
+    "choices": [
+      "$72$",
+      "$216$",
+      "$108$",
+      "$36$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_048",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Cho $f(2)=\\dfrac{2}{9}$, $f'(x)=2x\\cdot f(x)$. Giá trị $f(1)$ bằng:",
+    "choices": [
+      "$\\dfrac{35}{36}$",
+      "$\\dfrac{2}{3}$",
+      "$\\dfrac{19}{36}$",
+      "$\\dfrac{2}{15}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_049",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Đường phân giác góc nhọn giữa đường thẳng $d$ và $\\ell$ (với điều kiện cho sẵn) có phương trình tham số:",
+    "choices": [
+      "$x=1+7t,\\;y=1+t,\\;z=1+5t$",
+      "$x=1+2t,\\;y=10-11t,\\;z=6-5t$",
+      "$x=1+2t,\\;y=10-11t,\\;z=6+5t$",
+      "$x=1+3t,\\;y=1+4t,\\;z=1+5t$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_thpt18_050",
+    "source": "dethi.edu.vn — THPT Quốc gia 2018 (Bộ GD&ĐT, Mã đề 101)",
+    "year": 2018,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Cho các hàm số $f(x)$, $g(x)$ thỏa điều kiện đồ thị như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Hàm số $h(x)=\\dfrac{3}{2}f(x-4)-2g\\!\\left(\\dfrac{2x}{3}\\right)$ đồng biến trên:",
+    "choices": [
+      "$(5;\\,\\dfrac{31}{5})$",
+      "$(-\\infty;\\,3)$",
+      "$(\\dfrac{31}{5};\\,\\dfrac{25}{4})$",
+      "$(6;\\,+\\infty)$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_001",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Số phức $z = (2+3i)+(-5+i)$ có phần ảo bằng:",
+    "choices": [
+      "$2i$",
+      "$4i$",
+      "$4$",
+      "$2$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_002",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Cho $a,b$ là hai số thực dương tùy ý, đặt $T=\\log\\dfrac{a^2}{b}$. Khẳng định đúng:",
+    "choices": [
+      "$T=2\\log a - \\log b$",
+      "$T=2(\\log a - \\log b)$",
+      "$T=2\\log a + \\log b$",
+      "$T=\\log a^2 \\cdot \\log b^{-1}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_003",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y=f(x)$ đồng biến trên khoảng nào? *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)*",
+    "choices": [
+      "$(-1;\\,1)$",
+      "$(-2;\\,-1)$",
+      "$(0;\\,2)$",
+      "$(-2;\\,1)$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_004",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "complex_numbers",
+    "difficulty": "easy",
+    "question": "Điểm $M$ là điểm biểu diễn của số phức $z$ nào trong mặt phẳng phức? *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)*",
+    "choices": [
+      "$z=-3+2i$",
+      "$z=3-2i$",
+      "$z=3+2i$",
+      "$z=2+3i$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_005",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Tìm đạo hàm của hàm số $y = e^x + \\log_2 x + 1$ ($x>0$):",
+    "choices": [
+      "$y'=xe^x - \\dfrac{1}{x\\ln 2}$",
+      "$y'=e^x + \\dfrac{1}{x\\ln 2}$",
+      "$y'=e^x - \\dfrac{1}{x\\ln 2}$",
+      "$y'=xe^x + \\dfrac{1}{x}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_006",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Tìm một vectơ pháp tuyến $\\vec{n}$ của mặt phẳng $(P): x+2y-2z+7=0$:",
+    "choices": [
+      "$\\vec{n}=(1;\\,2;\\,-2)$",
+      "$\\vec{n}=(1;\\,2;\\,2)$",
+      "$\\vec{n}=(2;\\,4;\\,4)$",
+      "$\\vec{n}=(2;\\,4;\\,-4)$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_007",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Tiệm cận ngang của đồ thị hàm số $y=\\dfrac{5}{x+1}$ là đường thẳng:",
+    "choices": [
+      "$y=5$",
+      "$x=1$",
+      "$y=0$",
+      "$x=0$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_008",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Cho $\\int_0^2 f(x)\\,dx=2$ và $\\int_0^2 g(x)\\,dx=7$. Tính $T=\\int_0^2[2g(x)+f(x)]\\,dx$:",
+    "choices": [
+      "$T=5$",
+      "$T=11$",
+      "$T=12$",
+      "$T=16$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_009",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Giá trị cực đại của hàm số $y=f(x)$ (xem đồ thị) bằng: *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)*",
+    "choices": [
+      "$4$",
+      "$3$",
+      "$2$",
+      "$-2$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_010",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Tìm họ nguyên hàm của $f(x)=\\cos x$:",
+    "choices": [
+      "$\\dfrac{\\cos 2x}{2}+C$",
+      "$\\sin x+C$",
+      "$\\dfrac{\\sin 2x}{2}+C$",
+      "$\\dfrac{\\cos^2 x}{2}+C$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_011",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Tìm tọa độ tâm $I$ của mặt cầu $(S):(x-1)^2+(y+2)^2+(z-1)^2=16$:",
+    "choices": [
+      "$I=(1;\\,-2;\\,-1)$",
+      "$I=(-1;\\,2;\\,-1)$",
+      "$I=(-1;\\,2;\\,1)$",
+      "$I=(1;\\,-2;\\,1)$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_012",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "probability",
+    "difficulty": "easy",
+    "question": "Có bao nhiêu cách chọn $4$ học sinh từ tổ gồm $5$ nam và $7$ nữ?",
+    "choices": [
+      "$C_5^4+C_7^4$",
+      "$4!$",
+      "$A_{12}^4$",
+      "$C_{12}^4$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_013",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Viết phương trình mặt cầu $(S)$ tâm $I(0;\\,1;\\,2)$ tiếp xúc với $\\alpha: 4x-3y+2z+28=0$:",
+    "choices": [
+      "$x^2+(y-1)^2+(z-2)^2=29$",
+      "$x^2+(y+1)^2+(z-2)^2=29$",
+      "$x^2+(y+1)^2+(z+2)^2=841$",
+      "$x^2+(y-1)^2+(z+2)^2=29$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_014",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Viết phương trình mặt phẳng trung trực của đoạn $AB$ với $A(1;\\,5;\\,-2)$, $B(3;\\,1;\\,2)$:",
+    "choices": [
+      "$2x-3y+4=0$",
+      "$x+2y+2z-8=0$",
+      "$x+2y-2z-8=0$",
+      "$x+2y+2z-4=0$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_015",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Tập nghiệm $T$ của bất phương trình $\\log_{\\frac{1}{2}}\\dfrac{x-3}{x-4}\\geq 0$:",
+    "choices": [
+      "$T=(4;\\,+\\infty)$",
+      "$T=(4;\\,3)$",
+      "$T=(-\\infty;\\,-4)\\cup(3;\\,+\\infty)$",
+      "$T=(3;\\,+\\infty)$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_016",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Viết phương trình tham số đường thẳng $d$ đi qua $M(1;\\,1;\\,1)$, song song với cả $(P): x+y+2z-1=0$ và $(Q): 2x+y+3=0$:",
+    "choices": [
+      "$x=1+2t,\\;y=1+4t,\\;z=1-3t$ *(nhân tử 2)*",
+      "$x=2+t,\\;y=4-t,\\;z=3+t$",
+      "$x=1-2t,\\;y=1+4t,\\;z=1-3t$",
+      "$x=1+t,\\;y=1+t,\\;z=1+2t$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_017",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Tính $I=\\int_0^1\\dfrac{x^2-x+3}{x+1}\\,dx$:",
+    "choices": [
+      "$I=\\ln 2$",
+      "$I=\\dfrac{3}{2}\\ln 2$",
+      "$I=\\dfrac{3}{2}-5\\ln 2$",
+      "$I=\\dfrac{3}{2}+5\\ln 2$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_018",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Thể tích khối nón tròn xoay có bán kính đáy $r=2$ và đường sinh $l=4$:",
+    "choices": [
+      "$V=8\\sqrt{3}$",
+      "$V=16$",
+      "$V=\\dfrac{8\\sqrt{3}}{3}\\pi$",
+      "$V=\\dfrac{16}{3}\\pi$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_019",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Số điểm cực trị của hàm số có $f'(x)=(x+1)(x+2)^2(2x+3)$:",
+    "choices": [
+      "$2$",
+      "$6$",
+      "$1$",
+      "$3$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_020",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Công thức tính diện tích phần hình phẳng được tô màu như hình vẽ *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* (đường cong $y=f(x)$):",
+    "choices": [
+      "$\\int_1^4\\left(x-\\dfrac{x^2}{2}-\\dfrac{x^3}{2}+4\\right)dx$",
+      "$\\int_1^2 x\\,dx-\\int_2^4\\left(\\dfrac{x^2}{2}+\\dfrac{x^3}{2}-1\\right)dx$",
+      "$\\int_1^4\\left(x-\\dfrac{x^2}{2}-\\dfrac{x^3}{2}-1\\right)dx$",
+      "$\\int_1^4(f(x)-g(x))\\,dx$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_021",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Thể tích khối lăng trụ tam giác đều $ABC.A'B'C'$ với $AB=a\\sqrt{2}$ và $BB'=3a$:",
+    "choices": [
+      "$V=a^3$",
+      "$V=3a^3$",
+      "$V=\\dfrac{3a^3}{2}$",
+      "$V=3\\sqrt{3}\\,a^3$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_022",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Diện tích toàn phần hình trụ khi quay hình chữ nhật $ABCD$ quanh $AB$, biết $AB=5$, $BC=2$:",
+    "choices": [
+      "$S_{tp}=24\\pi$",
+      "$S_{tp}=28\\pi$",
+      "$S_{tp}=14\\pi$",
+      "$S_{tp}=18\\pi$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_023",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "complex_numbers",
+    "difficulty": "medium",
+    "question": "Tìm $a,b\\in\\mathbb{R}$ thỏa mãn $4ai+(2+bi)i=1+6i$:",
+    "choices": [
+      "$a=\\dfrac{1}{4},\\;b=6$",
+      "$a=\\dfrac{1}{4},\\;b=-6$",
+      "$a=1,\\;b=1$",
+      "$a=-1,\\;b=1$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_024",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "medium",
+    "question": "Tập nghiệm của bất phương trình $49^{x^2+x-4}\\leq\\left(\\dfrac{1}{7}\\right)^1$:",
+    "choices": [
+      "$T=(-3;\\,2)$",
+      "$T=(2;\\,3)$",
+      "$T=(-2;\\,3)$",
+      "$T=(-\\infty;\\,-3)\\cup(2;\\,+\\infty)$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_025",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho đồ thị hàm số $y=f(x)$ như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Số nghiệm của phương trình $2f(x)-7=0$ là:",
+    "choices": [
+      "$4$",
+      "$1$",
+      "$2$",
+      "$3$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_026",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "GTLN của $f(x)=x^3-3x^2-9x+10$ trên $[-2;\\,2]$:",
+    "choices": [
+      "$\\max f=5$",
+      "$\\max f=17$",
+      "$\\max f=15$",
+      "$\\max f=12$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_027",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Đường cong là đồ thị của hàm số nào (xem hình vẽ)? *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)*",
+    "choices": [
+      "$y=\\dfrac{x+3}{2x+4}$",
+      "$y=\\dfrac{2x+3}{x-2}$",
+      "$y=\\dfrac{x+2}{2x-4}$",
+      "$y=\\dfrac{x+1}{x-2}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_028",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Gọi $M(a;b;c)$ là giao điểm của $d:\\;x=2t,\\;y=3+t,\\;z=-7+t$ và $\\alpha: 3x-5y+z+7=0$. Tính $P=a+2b+c$:",
+    "choices": [
+      "$P=13$",
+      "$P=21$",
+      "$P=15$",
+      "$P=16$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_029",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "probability",
+    "difficulty": "medium",
+    "question": "Xác suất chọn ít nhất một viên bi xanh khi chọn $3$ bi từ $11$ đỏ $4$ xanh:",
+    "choices": [
+      "$P=\\dfrac{9}{14}$",
+      "$P=\\dfrac{31}{56}$",
+      "$P=\\dfrac{5}{14}$",
+      "$P=\\dfrac{25}{56}$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_030",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "complex_numbers",
+    "difficulty": "medium",
+    "question": "Cho $z=a+bi$ thỏa $z+2\\overline{z}=4i$. Tính $S=a+b$:",
+    "choices": [
+      "$S=7$",
+      "$S=-7$",
+      "$S=1$",
+      "$S=-1$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_031",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "medium",
+    "question": "Tìm $m$ để $12^x+(2-m)\\cdot6^x+3^x\\leq 0$ với mọi $x>0$:",
+    "choices": [
+      "$m\\in[-4;\\,+\\infty)$",
+      "$m\\in(-\\infty;\\,4]$",
+      "$m\\in[0;\\,4)$",
+      "$m\\in(-\\infty;\\,-4]$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_032",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Phương trình đường thẳng $d$ trong $(\\alpha):3x+y-z=0$, cắt và vuông góc $\\ell:\\dfrac{x-3}{1}=\\dfrac{y-4}{2}=\\dfrac{z-1}{2}$:",
+    "choices": [
+      "$x=2+4t,\\;y=-2+5t,\\;z=1-7t$",
+      "$x=1+4t,\\;y=5t,\\;z=3-7t$",
+      "$x=4+t,\\;y=5,\\;z=7+3t$",
+      "$x=1+4t,\\;y=-5t,\\;z=3+7t$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_033",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Có bao nhiêu giá trị nguyên dương $m$ để $y=\\dfrac{mx+1}{x-m}$ đồng biến trên $(-\\infty;\\,3)$?",
+    "choices": [
+      "$4$",
+      "$1$",
+      "$3$",
+      "$2$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_034",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Thể tích khối chóp $S.ABC$ với đáy vuông cân tại $B$, $AC=a$, $SA\\perp(ABC)$, $SB$ hợp với đáy góc $60°$:",
+    "choices": [
+      "$\\dfrac{a^3\\sqrt{6}}{8}$",
+      "$\\dfrac{a^3\\sqrt{6}}{48}$",
+      "$\\dfrac{a^3\\sqrt{3}}{24}$",
+      "$\\dfrac{a^3\\sqrt{6}}{24}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_035",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Góc giữa $(A'BC)$ và $(BCC'B')$ trong lăng trụ $ABC.A'B'C'$ với $AB=a$, $AC=a\\sqrt{3}$, cạnh bên $a\\sqrt{2}$:",
+    "choices": [
+      "$\\arctan\\dfrac{\\sqrt{3}}{6}$",
+      "$\\arctan\\dfrac{\\sqrt{6}}{4}$",
+      "$\\arctan\\dfrac{\\sqrt{3}}{4}$",
+      "$\\arctan\\dfrac{2\\sqrt{6}}{3}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_036",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Chiều cao $h$ của bể hộp không nắp, $V=18$ m³, đáy dài gấp $3$ rộng, vật liệu tối thiểu:",
+    "choices": [
+      "$h=2$ m",
+      "$h=\\dfrac{5}{2}$ m",
+      "$h=1$ m",
+      "$h=\\dfrac{3}{2}$ m"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_037",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "sequences",
+    "difficulty": "hard",
+    "question": "Cấp số cộng $(u_n)$ tăng với $u_1+u_3+u_4=10$ và $u_1^2+u_3^2=10$. Tính $\\dfrac{u_1}{d}$:",
+    "choices": [
+      "$\\dfrac{u_1}{d}=1$",
+      "$\\dfrac{u_1}{d}=2$",
+      "$\\dfrac{u_1}{d}=3$",
+      "$\\dfrac{u_1}{d}=-1$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_038",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Bán kính mặt cầu ngoại tiếp hình chóp $S.ABCD$ với $ABCD$ hình vuông cạnh $a$, $SA=a$:",
+    "choices": [
+      "$R=a\\sqrt{3}$",
+      "$R=\\dfrac{a\\sqrt{6}}{2}$",
+      "$R=\\dfrac{a\\sqrt{3}}{3}$",
+      "$R=\\dfrac{a\\sqrt{3}}{2}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_039",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Khoảng cách từ $A$ đến $(SBC)$ trong hình chóp $S.ABC$ với $SAB$ tam giác đều cạnh $a$, $BC=a\\sqrt{3}$, $AC=2a$:",
+    "choices": [
+      "$d=a\\sqrt{3}$",
+      "$d=\\dfrac{a\\sqrt{6}}{2}$",
+      "$d=\\dfrac{a\\sqrt{2}}{2}$",
+      "$d=\\dfrac{a\\sqrt{3}}{2}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_040",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "hard",
+    "question": "Số giá trị nguyên $m$ để $\\log_2(9-x)+\\log_{\\frac{1}{2}}(2x+m-1)=0$ có $2$ nghiệm phân biệt:",
+    "choices": [
+      "$17$",
+      "$3$",
+      "$15$",
+      "$5$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_041",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Cho $\\int_0^1 x\\ln(x+2)\\,dx=a\\ln 3+b\\ln 2+c$. Tính $T=2a+b+4c$:",
+    "choices": [
+      "$T=2$",
+      "$T=-2$",
+      "$T=4$",
+      "$T=8$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_042",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "hard",
+    "question": "Tổng $T$ các nghiệm của $\\log_5(25^x-5^x)+x-3=0$:",
+    "choices": [
+      "$T=1$",
+      "$T=3$",
+      "$T=25$",
+      "$T=2$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_043",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Số phần tử tập $S$ gồm các $m\\in[-2019;2019]$ để bất phương trình $(1+m^3)x^3+3(2+m^3)x^2+(13+3m+3m^3)x+10+m+m^3\\leq 0$ đúng với mọi $x\\in[1;3]$:",
+    "choices": [
+      "$4038$",
+      "$2021$",
+      "$2022$",
+      "$2020$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_044",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Ông A mua TV $17\\,000\\,000$ đồng, trả trước $30\\%$, còn lại góp $6$ tháng, lãi $2{,}5\\%$/tháng. Tiền trả nhiều hơn giá niêm yết gần nhất:",
+    "choices": [
+      "$2\\,160\\,000$ đồng",
+      "$1\\,983\\,000$ đồng",
+      "$883\\,000$ đồng",
+      "$1\\,060\\,000$ đồng"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_045",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Hình chóp tứ giác đều $S.ABCD$ cạnh đáy $a$, cạnh bên hợp đáy góc $60°$. Mặt phẳng $(BMN)$ chia khối thành hai phần. Tỉ số thể tích hai phần $\\dfrac{V_1}{V_2}$:",
+    "choices": [
+      "$\\dfrac{31}{5}$",
+      "$\\dfrac{7}{3}$",
+      "$\\dfrac{7}{5}$",
+      "$\\dfrac{1}{5}$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_046",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "complex_numbers",
+    "difficulty": "hard",
+    "question": "GTNN của $P=|z_1-z_2|$ với $|z_1-1-2i|=1$ và $|z_2-5-i|=2$:",
+    "choices": [
+      "$P_{\\min}=2$",
+      "$P_{\\min}=1$",
+      "$P_{\\min}=5$",
+      "$P_{\\min}=3$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_047",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Độ dài $MN$ lớn nhất với $M\\in(P):x+2y-2z+3=0$, $N\\in(S):x^2+y^2+z^2-2x-4y-2z+5=0$, $\\vec{MN}\\parallel\\vec{u}(1;0;1)$:",
+    "choices": [
+      "$MN=3$",
+      "$MN=3\\sqrt{2}$",
+      "$MN=5$",
+      "$MN=2$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_048",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Chi phí trang trí mặt bàn elip $A_1A_2=12$ m, $B_1B_2=4$ m; hình chữ nhật $MNPQ$ nội tiếp có $MN=6\\sqrt{3}$ m; chi phí $100\\,000$đ/m²:",
+    "choices": [
+      "$4\\,250\\,000$ đồng",
+      "$4\\,917\\,845$ đồng",
+      "$4\\,540\\,000$ đồng",
+      "$4\\,000\\,000$ đồng"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_049",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Cho $f(x)$ thỏa điều kiện cho sẵn. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Số nghiệm của $f(f(x)-1)=1-f(x+2)$:",
+    "choices": [
+      "$7$",
+      "$1$",
+      "$4$",
+      "$5$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_camau19_050",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2019 (Sở GD&ĐT Cà Mau, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Hàm số $g(x)=f(x^2-2)$ nghịch biến trên khoảng nào (xem đồ thị $f$)? *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)*",
+    "choices": [
+      "$(1;\\,3)$",
+      "$(-3;\\,-1)$",
+      "$(0;\\,1)$",
+      "$(4;\\,+\\infty)$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_001",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích khối hộp chữ nhật có ba kích thước $3$; $4$; $5$ là:",
+    "choices": [
+      "$60$",
+      "$20$",
+      "$30$",
+      "$10$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_002",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Với bảng biến thiên cho sẵn *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)*, tìm $m$ để phương trình $f(x)=m$ có $4$ nghiệm phân biệt:",
+    "choices": [
+      "$m\\in(1;\\,2)$",
+      "$m\\in\\emptyset$",
+      "$m\\in\\{1;2\\}$",
+      "$m\\leq 1$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_003",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích khối lăng trụ có diện tích đáy $10$ và khoảng cách giữa hai đáy $12$:",
+    "choices": [
+      "$120$",
+      "$40$",
+      "$60$",
+      "$20$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_004",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích khối cầu nội tiếp hình lập phương cạnh $a\\sqrt{2}$:",
+    "choices": [
+      "$\\dfrac{2\\pi a^3}{6}$",
+      "$\\dfrac{2\\pi a^3}{3}$",
+      "$\\dfrac{\\pi a^3}{3}$",
+      "$\\dfrac{\\pi a^3}{6}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_005",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Diện tích xung quanh hình trụ có bán kính $3$ và chiều cao $4$:",
+    "choices": [
+      "$12\\pi$",
+      "$42\\pi$",
+      "$24\\pi$",
+      "$36\\pi$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_006",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "probability",
+    "difficulty": "easy",
+    "question": "Số cách chọn $3$ người từ $12$ người:",
+    "choices": [
+      "$4$",
+      "$A_{12}^3$",
+      "$C_{12}^3$",
+      "$P_3$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_007",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y=\\dfrac{2x+1}{x-2}$ có tính chất:",
+    "choices": [
+      "Nghịch biến trên $\\mathbb{R}$",
+      "Đồng biến trên $\\mathbb{R}$",
+      "Nghịch biến trên $(-\\infty;2)$ và $(2;+\\infty)$",
+      "Đồng biến trên $(-\\infty;2)$ và $(2;+\\infty)$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_008",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "$\\log_a(a^3\\cdot a^{1/2})$ bằng:",
+    "choices": [
+      "$\\dfrac{7}{2}$",
+      "$\\dfrac{2}{3}$",
+      "$\\dfrac{8}{3}$",
+      "$6$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_009",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Đạo hàm của $f(x)=2^x+x$:",
+    "choices": [
+      "$\\dfrac{2^x\\cdot x}{2}$",
+      "$2^x+1$",
+      "$2^x\\ln 2+1$",
+      "$2^x\\ln 2+1$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_010",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Tập xác định của $y=(x-1)^{-4}$:",
+    "choices": [
+      "$[1;\\,+\\infty)$",
+      "$\\mathbb{R}$",
+      "$(1;\\,+\\infty)$",
+      "$\\mathbb{R}\\setminus\\{1\\}$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_011",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Hàm số $y=\\dfrac{1}{3}x^3-x^2-3x+1$ đạt cực tiểu tại:",
+    "choices": [
+      "$x=-1$",
+      "$x=1$",
+      "$x=3$",
+      "$x=-3$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_012",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích khối nón có đường kính đáy $6$ và chiều cao $5$:",
+    "choices": [
+      "$60\\pi$",
+      "$45\\pi$",
+      "$180\\pi$",
+      "$15\\pi$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_013",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Phương trình $5^{x+2}=1$ có tập nghiệm:",
+    "choices": [
+      "$\\{3\\}$",
+      "$\\{2\\}$",
+      "$\\{0\\}$",
+      "$\\emptyset$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_014",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích khối cầu bán kính $4$:",
+    "choices": [
+      "$\\dfrac{256\\pi}{3}$",
+      "$\\dfrac{64\\pi}{3}$",
+      "$64\\pi$",
+      "$256\\pi$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_015",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích khối chóp có diện tích đáy $6$ và chiều cao $4$:",
+    "choices": [
+      "$4$",
+      "$24$",
+      "$12$",
+      "$8$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_016",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Giá trị lớn nhất của $y=xe^{2x}$ trên $[-1;\\,1]$:",
+    "choices": [
+      "$e^2$",
+      "$1$",
+      "$e^2-1$",
+      "$\\dfrac{\\ln 2+1}{2}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_017",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Thể tích hộp đứng $ABCD.A'B'C'D'$ đáy hình thoi $AC=a$, $BD=a\\sqrt{3}$, cạnh bên $AA'=a\\sqrt{2}$:",
+    "choices": [
+      "$V=6a^3$",
+      "$V=\\dfrac{a^3}{6}$",
+      "$V=\\dfrac{\\sqrt{6}\\,a^3}{2}$",
+      "$V=\\dfrac{\\sqrt{6}\\,a^3}{4}$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_018",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Tổng số tiệm cận ngang và tiệm cận đứng của $y=\\dfrac{x^2-1}{x}$:",
+    "choices": [
+      "$1$",
+      "$0$",
+      "$2$",
+      "$3$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_019",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Tỉ số thể tích phần gỗ còn lại và khối trụ ban đầu sau khi cắt khối nón nội tiếp:",
+    "choices": [
+      "$\\dfrac{2}{3}$",
+      "$\\dfrac{1}{4}$",
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{1}{2}$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_020",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "medium",
+    "question": "Cho $a=\\log_2 5$, tính $\\log_4 1250$:",
+    "choices": [
+      "$\\dfrac{1+4a}{2}$",
+      "$\\dfrac{1+4a}{2}$",
+      "$1+4a$",
+      "$2+1+4a$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_021",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Thể tích khối nón với đường sinh $2a$ và góc ở đỉnh $60°$:",
+    "choices": [
+      "$V=\\dfrac{\\pi a^3}{3}$",
+      "$V=\\dfrac{3\\pi a^3}{3}$",
+      "$V=3\\pi a^3$",
+      "$V=\\pi a^3$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_022",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Hàm số $y=ax^3+bx^2+cx+d$ ($a\\neq 0$) với đồ thị cho sẵn. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Kết luận nào đúng?",
+    "choices": [
+      "$a>0,\\;b^2-3ac<0$",
+      "$a>0,\\;b^2-3ac>0$",
+      "$a<0,\\;b^2-3ac<0$",
+      "$a<0,\\;b^2-3ac>0$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_023",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho đồ thị hàm số $y=f(x)$ như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Hàm số $y=2f(x)+2019$ nghịch biến trên khoảng nào?",
+    "choices": [
+      "$(-4;\\,2)$",
+      "$(-1;\\,2)$",
+      "$(2;\\,-1)$",
+      "$(2;\\,4)$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_024",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Khẳng định nào đúng về mặt cầu ngoại tiếp hình chóp?",
+    "choices": [
+      "Hình chóp đáy hình thang vuông",
+      "Hình chóp đáy tứ giác bất kỳ",
+      "Hình chóp đáy hình thang cân",
+      "Hình chóp đáy hình bình hành"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_025",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Thể tích chóp tứ giác đều $S.ABCD$ với tam giác $SAC$ đều cạnh $a$:",
+    "choices": [
+      "$V=a^3$",
+      "$V=\\dfrac{\\sqrt{3}\\,a^3}{12}$",
+      "$V=\\dfrac{\\sqrt{3}\\,a^3}{4}$",
+      "$V=\\dfrac{\\sqrt{3}\\,a^3}{6}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_026",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Hàm số $f(x)=\\ln x - x$ đồng biến trên:",
+    "choices": [
+      "$(0;\\,1)$",
+      "$(0;\\,+\\infty)$",
+      "$(-\\infty;\\,0)$ và $(1;\\,+\\infty)$",
+      "$(1;\\,+\\infty)$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_027",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "sequences",
+    "difficulty": "medium",
+    "question": "Cho cấp số cộng với $u_2$ và $u_{10}$ là $a$ và $b$ (công sai $d\\neq 0$). Tổng $S_7$ bằng bao nhiêu lần $u_4$?",
+    "choices": [
+      "$3$",
+      "$1$",
+      "$7$",
+      "$4$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_028",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "medium",
+    "question": "Bất phương trình $\\log_3(x^2+2x)>1$ có tập nghiệm:",
+    "choices": [
+      "$(-\\infty;\\,-1)\\cup(3;\\,+\\infty)$",
+      "$(-1;\\,3)$",
+      "$(3;\\,+\\infty)$",
+      "$(-\\infty;\\,-1)$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_029",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Khối chóp tứ giác $S.ABCD$ đáy hình thoi với $SABC$ là tứ diện đều cạnh $a$:",
+    "choices": [
+      "$V=\\dfrac{\\sqrt{2}\\,a^3}{2}$",
+      "$V=\\dfrac{\\sqrt{2}\\,a^3}{6}$",
+      "$V=\\dfrac{\\sqrt{2}\\,a^3}{4}$",
+      "$V=\\dfrac{\\sqrt{2}\\,a^3}{12}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_030",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Tiếp tuyến tại điểm cực đại của $y=x^3-3x+2$ có tính chất:",
+    "choices": [
+      "Hệ số góc âm",
+      "Hệ số góc dương",
+      "Song song với đường thẳng $y=4$",
+      "Song song với trục $Ox$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_031",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Mặt phẳng qua trọng tâm ba mặt bên chia chóp tam giác. Thể tích phần chứa đáy là bao nhiêu lần $V$?",
+    "choices": [
+      "$\\dfrac{37V}{64}$",
+      "$\\dfrac{27V}{64}$",
+      "$\\dfrac{19V}{27}$",
+      "$\\dfrac{8V}{27}$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_032",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Mặt cầu tâm $O$ bán kính $2$, mặt phẳng cách $O$ khoảng $1$. Tỉ số thể tích phần nhỏ và phần lớn gần nhất:",
+    "choices": [
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{2}{3}$",
+      "$\\dfrac{16}{9}$",
+      "$\\dfrac{32}{9}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_033",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Phương trình $x^3-3mx+2=0$ có nghiệm duy nhất khi và chỉ khi:",
+    "choices": [
+      "$m\\geq 1$",
+      "$m=0$",
+      "$m<0$",
+      "$m>1$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_034",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Khoảng cách giữa $SM$ và $BC$ trong hình chóp với điều kiện cho sẵn:",
+    "choices": [
+      "$d=\\dfrac{2\\sqrt{21}}{7}$",
+      "$d=\\dfrac{\\sqrt{21}}{7}$",
+      "$d=\\dfrac{2\\sqrt{21}}{3}$",
+      "$d=\\dfrac{\\sqrt{21}}{3}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_035",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Cho $y=\\dfrac{3\\cos x+1}{3-\\cos x}$. Tổng GTLN $M$ và GTNN $m$ bằng:",
+    "choices": [
+      "$M+m=\\dfrac{7}{3}$",
+      "$M+m=\\dfrac{1}{6}$",
+      "$M+m=\\dfrac{5}{2}$",
+      "$M+m=\\dfrac{3}{2}$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_036",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Hàm số $y=ax^4+bx^2+c$ ($a\\neq 0$) với đồ thị cho sẵn. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Kết luận đúng:",
+    "choices": [
+      "$a>0,\\;b>0,\\;c>0$",
+      "$a>0,\\;b<0,\\;c>0$",
+      "$a<0,\\;b>0,\\;c>0$",
+      "$a<0,\\;b<0,\\;c<0$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_037",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Góc giữa hai mặt phẳng $(SAC)$ và $(SDM)$ trong hình chóp cho sẵn:",
+    "choices": [
+      "$45°$",
+      "$90°$",
+      "$60°$",
+      "$30°$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_038",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "hard",
+    "question": "Tổng giá trị tuyệt đối các phần tử của tập $S$ (điều kiện logarit):",
+    "choices": [
+      "$4$",
+      "$\\dfrac{2}{3}$",
+      "$1$",
+      "$5$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_039",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Tổng $a+b+c$ với điều kiện cho sẵn:",
+    "choices": [
+      "$8$",
+      "$2$",
+      "$1$",
+      "$5$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_040",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Bất phương trình $2f(x)\\geq x^2-4x+m$ đúng với mọi $x\\in[-1;3]$ (xem đồ thị $f$) *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)*:",
+    "choices": [
+      "$m\\geq 3$",
+      "$m\\leq 10$",
+      "$m\\geq 2$",
+      "$m\\leq 5$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_041",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Hàm số $y=x^3-2(m+2)x^2+5x+1$ có $x_1,x_2$ cực trị với $|x_1-x_2|=2$. Giá trị $m+1$ bằng:",
+    "choices": [
+      "$\\dfrac{7}{2}$",
+      "$1$",
+      "$\\dfrac{1}{2}$",
+      "$5$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_042",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "hard",
+    "question": "Với $x\\in(0;\\frac{\\pi}{2})$, $\\log_2\\sin x - \\log_2\\cos x = 1$. Số giá trị nguyên $m\\in[-10;10]$ để phương trình $f(m)$ có nghiệm là:",
+    "choices": [
+      "$11$",
+      "$12$",
+      "$10$",
+      "$15$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_043",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "hard",
+    "question": "Số nghiệm của phương trình $50^x+2^x+5^x=3\\cdot7^x$:",
+    "choices": [
+      "$1$",
+      "$2$",
+      "$3$",
+      "$0$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_044",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "probability",
+    "difficulty": "hard",
+    "question": "Số tam giác phân biệt từ các điểm trên các cạnh $AB$, $BC$, $CA$, $AD$ (lần lượt $3,4,5,6$ điểm):",
+    "choices": [
+      "$781$",
+      "$624$",
+      "$816$",
+      "$342$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_045",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Thể tích chóp đều $S.ABC$ cạnh đáy $2$, $M$ trên $SA$ sao cho $SA=4SM$:",
+    "choices": [
+      "$V=\\dfrac{2\\sqrt{2}}{3}$",
+      "$V=\\dfrac{2\\sqrt{2}}{9}$",
+      "$V=\\dfrac{5\\sqrt{2}}{3}$",
+      "$V=\\dfrac{\\sqrt{2}}{3}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_046",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Thể tích khối trụ ngoại tiếp hình lăng trụ tam giác đều với điều kiện cho sẵn:",
+    "choices": [
+      "$V=\\dfrac{7R^3\\sqrt{3}}{7}$",
+      "$V=\\dfrac{5R^3\\sqrt{3}}{5}$",
+      "$V=\\dfrac{2R^3\\sqrt{3}}{1}$",
+      "$V=\\dfrac{3\\pi R^3\\sqrt{3}}{3}$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_047",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "sequences",
+    "difficulty": "hard",
+    "question": "$\\log_2\\sum_{k=2}^{2^{100}}k$ với $a,b,c$ nguyên. Giá trị biểu thức bằng:",
+    "choices": [
+      "$203$",
+      "$202$",
+      "$201$",
+      "$200$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_048",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "hard",
+    "question": "Số giá trị nguyên $m$ trong $(0;2020)$ để phương trình có nghiệm là:",
+    "choices": [
+      "$2020$",
+      "$2021$",
+      "$2019$",
+      "$2018$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_049",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Chiều cao hộp chữ nhật tối ưu hoá giá thành (điều kiện cho sẵn):",
+    "choices": [
+      "$12$",
+      "$13$",
+      "$11$",
+      "$10$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_ninhbinh19_050",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (Sở GD&ĐT Ninh Bình, Mã đề 001)",
+    "year": 2019,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "$g(1)$ với $g(x)$ là phần dư khi chia $f(x)$ cho $(x-2)^2$ (điều kiện cho sẵn):",
+    "choices": [
+      "$4033$",
+      "$4035$",
+      "$4039$",
+      "$4037$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_001",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trong không gian $Oxyz$, đường thẳng $d:\\begin{cases}x=1+2t\\\\y=3+t\\\\z=1+t\\end{cases}$ đi qua điểm nào?",
+    "choices": [
+      "$M(1;\\,3;\\,-1)$",
+      "$M(3;\\,5;\\,3)$",
+      "$M(-3;\\,5;\\,3)$",
+      "$M(1;\\,2;\\,-3)$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_002",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Cho hàm số $y=\\dfrac{3x}{2x+1}$. Mệnh đề nào đúng?",
+    "choices": [
+      "Nghịch biến trên $\\left(-\\infty;\\,-\\dfrac{1}{2}\\right)$",
+      "Đồng biến trên $\\mathbb{R}$",
+      "Đồng biến trên $\\left(-\\dfrac{1}{2};\\,+\\infty\\right)$",
+      "Nghịch biến trên $\\mathbb{R}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_003",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Bất phương trình $\\dfrac{x^2+2x+1}{2}\\leq\\dfrac{1}{8}$ có tập nghiệm là:",
+    "choices": [
+      "$(3;\\,+\\infty)$",
+      "$(-\\infty;\\,-1)$",
+      "$[-1;\\,3]$",
+      "$(1;\\,3)$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_004",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Điểm cực đại của $y=x^3-6x^2+9x$ có tổng hoành độ và tung độ bằng:",
+    "choices": [
+      "$5$",
+      "$1$",
+      "$3$",
+      "$-1$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_005",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Cho khối trụ đường sinh $2a$, bán kính đáy $a$. Thể tích khối trụ là:",
+    "choices": [
+      "$a^3$",
+      "$2\\pi a^3$",
+      "$\\dfrac{\\pi a^3}{3}$",
+      "$\\dfrac{\\pi a^3}{6}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_006",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Trong $Oxyz$, điểm $M$ thuộc $Oy$, cách đều hai mặt phẳng $(P):x+y+z-1=0$ và $(Q):x+y+z-5=0$:",
+    "choices": [
+      "$M(0;\\,-3;\\,0)$",
+      "$M(0;\\,3;\\,0)$",
+      "$M(0;\\,-2;\\,0)$",
+      "$M(0;\\,1;\\,0)$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_007",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "sequences",
+    "difficulty": "easy",
+    "question": "Cho cấp số cộng $(u_n)$ có $u_4=12$ và $u_{14}=18$. Công sai $d$ bằng:",
+    "choices": [
+      "$d=3$",
+      "$d=-3$",
+      "$d=4$",
+      "$d=2$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_008",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Họ nguyên hàm của $y=\\cos x + x$ là:",
+    "choices": [
+      "$\\sin x + \\dfrac{x^2}{2} + C$",
+      "$-\\sin x + \\dfrac{x^2}{2} + C$",
+      "$\\sin x + x^2 + C$",
+      "$-\\sin x + x^2 + C$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_009",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Tập nghiệm của phương trình $\\log_2(x^2+2x+4)=2$:",
+    "choices": [
+      "$\\{0;\\,2\\}$",
+      "$\\{2\\}$",
+      "$\\{0\\}$",
+      "$\\{0;\\,-2\\}$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_010",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Cho hàm số $f'(x)=(x-1)(x-2)(x-1)^2$. Số cực trị của hàm số là:",
+    "choices": [
+      "$3$",
+      "$1$",
+      "$2$",
+      "$0$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_011",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Mặt cầu $(S):x^2+y^2+z^2-4x+2y+2z+10=0$ và mặt phẳng $(P):x+2y+2z-10=0$. Quan hệ của hai đối tượng:",
+    "choices": [
+      "$(P)$ tiếp xúc $(S)$",
+      "$(P)$ cắt $(S)$ theo đường tròn khác đường tròn lớn",
+      "$(P)$ và $(S)$ không có điểm chung",
+      "$(P)$ cắt $(S)$ theo đường tròn lớn"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_012",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Hàm số $y=x\\cdot 2^x$ có đạo hàm là:",
+    "choices": [
+      "$y'=(1+x\\ln 2)\\cdot 2^x$",
+      "$y'=(1+x\\ln 2)\\cdot 2^x$",
+      "$y'=(1+x)\\cdot 2^x$",
+      "$y'=2^x+x\\cdot 2^{x-1}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_013",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Cho hàm số $y=f(x)$ có bảng biến thiên như hình vẽ. *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)* Số nghiệm thực của phương trình $3f(x)-6=0$ là:",
+    "choices": [
+      "$2$",
+      "$3$",
+      "$1$",
+      "$0$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_014",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "easy",
+    "question": "Nếu $2^x=3^a$ và $6^x=3^b$ thì $3^{b-a}$ bằng:",
+    "choices": [
+      "$54$",
+      "$45$",
+      "$27$",
+      "$81$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_015",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "easy",
+    "question": "Diện tích hình phẳng giới hạn bởi $y=3^x$, $y=0$, $x=0$, $x=2$ được tính bằng:",
+    "choices": [
+      "$S=\\int_0^2 3^x\\,dx$",
+      "$S=\\int_0^2 3^{2x}\\,dx$",
+      "$S=\\pi\\int_0^2 3^x\\,dx$",
+      "$S=\\pi\\int_0^2 3^{2x}\\,dx$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_016",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Đồ thị hàm số $y=x^4-3x^2+4$ cắt trục hoành tại bao nhiêu điểm?",
+    "choices": [
+      "$4$",
+      "$2$",
+      "$3$",
+      "$0$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_017",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Tiệm cận ngang của đồ thị $y=\\dfrac{3x+2019}{x-2}$ là:",
+    "choices": [
+      "$x=2$",
+      "$y=2$",
+      "$y=3$",
+      "$x=3$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_018",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "GTLN $M$ và GTNN $m$ của $y=x^3-3x^2+3$ trên $[-1;\\,3]$. Giá trị $T=2M-m$ bằng:",
+    "choices": [
+      "$3$",
+      "$5$",
+      "$4$",
+      "$2$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_019",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Đường cong trong hình vẽ là đồ thị hàm số nào? *(Xem hình vẽ/bảng biến thiên trong đề thi gốc.)*",
+    "choices": [
+      "$y=x^3-3x+1$",
+      "$y=x^3-3x^2+1$",
+      "$y=-x^3+3x+1$",
+      "$y=-x^3+3x^2+1$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_020",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "medium",
+    "question": "Với $a,b>0$, $\\log(a^2 b)$ bằng:",
+    "choices": [
+      "$2\\log a+\\log b$",
+      "$2\\log a-\\log b$",
+      "$2\\log a+\\log b$",
+      "$\\log(a^2)+\\log b$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_021",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Thể tích hình hộp chữ nhật có ba kích thước $a,b,c$ là:",
+    "choices": [
+      "$V=(a+b)c$",
+      "$V=abc$",
+      "$V=abc$",
+      "$V=(a+c)b$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_022",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Thể tích khối chóp tứ giác đều có tất cả cạnh bằng $a$:",
+    "choices": [
+      "$V=\\dfrac{a^3\\sqrt{2}}{6}$",
+      "$V=\\dfrac{a^3\\sqrt{2}}{3}$",
+      "$V=a^3$",
+      "$V=\\dfrac{a^3\\sqrt{2}}{2}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_023",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Mặt phẳng $(P)$ đi qua $A(1;\\,-1;\\,1)$ và chứa trục $Ox$ có phương trình:",
+    "choices": [
+      "$x-y=0$",
+      "$x-z=0$",
+      "$y-z=0$",
+      "$y+z=0$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_024",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Tìm $m$ thỏa mãn $\\int_0^m(2x+1)\\,dx=2$:",
+    "choices": [
+      "$m=2$",
+      "$m$ thuộc $(-2;1)$",
+      "$m=1$",
+      "$m=-2$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_025",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Khối tứ diện $OABC$ có $OA\\perp OB\\perp OC$, $OA=2OB=3OC=3a$. Thể tích là:",
+    "choices": [
+      "$6a^3$",
+      "$\\dfrac{4a^3}{3}$",
+      "$9a^3$",
+      "$\\dfrac{3a^3}{4}$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_026",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Giao điểm $M$ của $(P):3x+5y+z-2=0$ và $d:\\dfrac{x-12}{4}=\\dfrac{y-9}{3}=\\dfrac{z-1}{1}$. Tổng $x_0+y_0+z_0$ bằng:",
+    "choices": [
+      "$1$",
+      "$2$",
+      "$5$",
+      "$-2$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_027",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "probability",
+    "difficulty": "medium",
+    "question": "Sắp xếp $10$ người ($2$ người bắt buộc ngồi cạnh nhau) vào $10$ ghế:",
+    "choices": [
+      "$8!\\cdot 2!$",
+      "$9!$",
+      "$9!\\cdot 2!$",
+      "$10!$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_028",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Cho $y=\\dfrac{1}{x}$ với $x>0$. Khi đó $\\dfrac{y'}{y^2}$ bằng:",
+    "choices": [
+      "$\\dfrac{1-\\ln x}{x}$",
+      "$\\dfrac{x}{1+x\\ln x}$",
+      "$\\dfrac{1}{1+x\\ln x}$",
+      "$\\dfrac{x}{1-x\\ln x}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_029",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Ba điểm $A(1;0;0)$, $B(0;b;0)$, $C(0;0;c)$ với $bc\\neq 0$. Mặt phẳng $(P):y+z-1=0$ vuông góc $(ABC)$ khi:",
+    "choices": [
+      "$b=2c$",
+      "$b=3c$",
+      "$b=c$",
+      "$2b=c$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_030",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Nam gửi $100$ triệu, lãi $3\\%$/quý. Sau $6$ tháng gửi thêm $100$ triệu. Sau $1$ năm tổng tiền (gần nhất):",
+    "choices": [
+      "$218{,}6$ triệu",
+      "$208{,}25$ triệu",
+      "$210{,}45$ triệu",
+      "$209{,}25$ triệu"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_031",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "medium",
+    "question": "Cho $\\int_3^5 f(x)\\,dx=12$. Giá trị $I=\\int_1^2 f(2x+1)\\,dx$ bằng:",
+    "choices": [
+      "$8$",
+      "$12$",
+      "$4$",
+      "$6$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_032",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Đồ thị $y=x^4-2ax^2+b$ có điểm cực trị $(1;2)$. Khoảng cách giữa hai điểm cực trị bằng:",
+    "choices": [
+      "$2$",
+      "$2\\sqrt{6}$",
+      "$5$",
+      "$2\\sqrt{5}$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_033",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Hình chóp $S.ABCD$ đáy hình vuông cạnh $a$, $SA\\perp$ đáy, $SA=a\\sqrt{3}$. $\\sin\\alpha$ (góc $SD$ và $(SAC)$) bằng:",
+    "choices": [
+      "$\\dfrac{\\sqrt{2}}{4}$",
+      "$\\dfrac{\\sqrt{2}}{2}$",
+      "$\\dfrac{\\sqrt{3}}{2}$",
+      "$\\dfrac{2}{3}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_034",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "sequences",
+    "difficulty": "medium",
+    "question": "Tập $S$ gồm các số nguyên $a$ thỏa mãn $\\lim_{n\\to\\infty}\\dfrac{3^{n+2}-2^n}{2^n-4a}=0$. Tổng phần tử $S$ bằng:",
+    "choices": [
+      "$4$",
+      "$3$",
+      "$5$",
+      "$2$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_035",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Hình chóp $S.ABCD$ đáy hình vuông, $SA\\perp$ đáy. Cho $B(2;3;7)$, $D(4;1;3)$. Phương trình $(SAC)$:",
+    "choices": [
+      "$x+y-2z+9=0$",
+      "$x+y-2z-9=0$",
+      "$x-y-2z+9=0$",
+      "$x-y+2z+9=0$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_036",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Khối lăng trụ $ABC.A'B'C'$ có tam giác $A'BC$ diện tích $1$, khoảng cách từ $A$ đến $(A'BC)$ là $2$. Thể tích bằng:",
+    "choices": [
+      "$6$",
+      "$3$",
+      "$2$",
+      "$1$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_037",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "probability",
+    "difficulty": "hard",
+    "question": "Hình vuông chia mỗi cạnh thành $n$ đoạn. Số tứ giác $a$ và hình bình hành $b$. Nếu $a=9b$ thì:",
+    "choices": [
+      "$n=5$",
+      "$n=8$",
+      "$n=4$",
+      "$n=12$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_038",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "logarithm",
+    "difficulty": "hard",
+    "question": "Cho $a,b>0$ thỏa $9^{\\log_a 4}=3^{\\log_b 8}$ và $\\log_3 a+\\log_3 b=\\log_3 9$. Giá trị $P=ab+1$ bằng:",
+    "choices": [
+      "$82$",
+      "$27$",
+      "$243$",
+      "$244$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_039",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Khối lập phương thể tích $V_1$ và hình hộp chữ nhật thể tích $V_2$ (các cạnh bằng nhau, không phải hình lập phương):",
+    "choices": [
+      "$V_1>V_2$",
+      "$V_1<V_2$",
+      "$V_1=V_2$",
+      "$V_1\\leq V_2$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_040",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Hai hình nón chiều cao $2$dm, nón trên chứa nước chảy xuống. Khi nước trên cao $1$dm, chiều cao nước dưới là:",
+    "choices": [
+      "$\\sqrt[3]{7}$",
+      "$\\sqrt[3]{5}$",
+      "$\\sqrt[3]{2}$",
+      "Không xác định"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_041",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Hình hộp $ABCD.A'B'C'D'$ có $A=O$, $B(a;0;0)$, $D(0;a;0)$, $A'(0;0;b)$ với $a+b=2$. Thể tích $BDA'M$ ($M$ là trung điểm $CC'$) lớn nhất bằng:",
+    "choices": [
+      "$\\dfrac{64}{27}$",
+      "$\\dfrac{32}{27}$",
+      "$\\dfrac{8}{27}$",
+      "$\\dfrac{4}{27}$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_042",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Cho $\\int_0^2\\dfrac{1+2x}{1-x}\\,dx=a+b\\ln 2$ ($a,b$ hữu tỉ). Giá trị $2a+b$ bằng:",
+    "choices": [
+      "$1$",
+      "$6$",
+      "$5$",
+      "$4$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_043",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "probability",
+    "difficulty": "hard",
+    "question": "Chọn ngẫu nhiên $a,b$ từ $1$ đến $100$. Xác suất để $3^a+3^b$ chia hết cho $5$ bằng:",
+    "choices": [
+      "$\\dfrac{1}{2}$",
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{1}{5}$",
+      "$\\dfrac{1}{4}$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_044",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Hình chóp $S.ABCD$ đáy hình bình hành, $M$ trên $SA$ với $SM=x\\cdot SA$. $(MBC)$ chia chóp thành hai phần thể tích bằng nhau khi:",
+    "choices": [
+      "$x=\\dfrac{1}{2}$",
+      "$x=\\dfrac{-1+\\sqrt{5}}{2}$",
+      "$x=\\dfrac{5}{3}$",
+      "$x=\\dfrac{1-\\sqrt{5}}{3}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_045",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Hàm số $y=x^3-3mx^2+3(m^2-1)x-m^3+m$ có cực trị $A,B$. Với $I(2;-2)$, bán kính đường tròn ngoại tiếp $IAB$ là $5$ khi $m$ bằng:",
+    "choices": [
+      "$m=\\dfrac{2}{17}$",
+      "$m=\\dfrac{3}{17}$",
+      "$m=\\dfrac{4}{17}$",
+      "$m=\\dfrac{5}{17}$"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_046",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Hàm số $f'(x)>0$ trên $(0;+\\infty)$, $f(1)=1$, $f'(x)=f(x)(3x^2+2mx+m)$. Để $f(3)=e^4$ thì $m$ bằng:",
+    "choices": [
+      "$m=2$",
+      "$m=3$",
+      "$m=-3$",
+      "$m=4$"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_047",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Hàm số $f(x)$ liên tục trên $\\left[\\dfrac{1}{3};3\\right]$ thỏa $f(x)+x\\cdot f\\!\\left(\\dfrac{1}{x}\\right)=x+\\dfrac{1}{x}$. Giá trị $I=\\int_{1/3}^3\\dfrac{f(x)}{x}\\,dx$ bằng:",
+    "choices": [
+      "$\\dfrac{8}{9}$",
+      "$\\dfrac{16}{9}$",
+      "$\\dfrac{2}{3}$",
+      "$\\dfrac{3}{4}$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_048",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Hàm số $y=2x^3+ax^2+bx+c$ thỏa $9a+3b+c=54$ và $a+b+c=2$. Số giao điểm với $Ox$ là:",
+    "choices": [
+      "$3$",
+      "$1$",
+      "$2$",
+      "$0$"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_049",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Mặt phẳng $(P)$ qua $A(2;0;0)$ và $M(1;1;1)$, cắt $Oy$ tại $B$, $Oz$ tại $C$. Diện tích $ABC$ nhỏ nhất:",
+    "choices": [
+      "$3\\sqrt{3}$",
+      "$4\\sqrt{3}$",
+      "$2\\sqrt{6}$",
+      "$4\\sqrt{6}$"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_hungvuong19_050",
+    "source": "dethi.edu.vn — Đề thi thử THPT 2018-2019 (THPT Chuyên Hùng Vương, Mã đề 101)",
+    "year": 2019,
+    "topic": "calculus",
+    "difficulty": "hard",
+    "question": "Cho $a,b>0$ thỏa $8(1+ab)=4ab\\cdot 2^{a+b}$. Giá trị lớn nhất của $P=ab+2ab^2$ là:",
+    "choices": [
+      "$3$",
+      "$1$",
+      "$\\dfrac{5}{2}$",
+      "$\\dfrac{3}{17}$"
+    ],
+    "correct": 1,
+    "explanation": ""
   }
 ]
