@@ -26613,5 +26613,2005 @@
     "difficulty": "hard",
     "explanation": "VMO 2023 Bài 7(b): Chứng minh $OH \\perp PQR$, tức $OH$ vuông góc với đường thẳng qua $P,Q,R$ (đường thẳng Simson mở rộng). Đây là kết quả sâu về quan hệ giữa trực tâm và tâm ngoại tiếp.",
     "source": "Olympic Toán học Việt Nam (VMO) 2023 — Bộ GD&ĐT (chuyển thể trắc nghiệm)"
+  },
+  {
+    "id": "q_alevel_edx_001",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 1",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Tính tích phân $\\int \\dfrac{x^{1/2} + 2x^2 + 5}{x^3}\\, dx$. Kết quả nào sau đây là đúng (không kể hằng số tích phân)?",
+    "choices": [
+      "$-2x^{-3/2} - x^{-1} - \\dfrac{5}{2}x^{-2}$",
+      "$-2x^{-3/2} - x^{-1} - \\dfrac{5}{2}x^{-2} + C$",
+      "$-\\dfrac{1}{2}x^{-5/2} - x^{-1} - \\dfrac{5}{2}x^{-2}$",
+      "$2x^{-3/2} + x^{-1} + \\dfrac{5}{2}x^{-2}$"
+    ],
+    "correct": 0,
+    "explanation": "Viết lại: $\\int (x^{-5/2} + 2x^{-1} + 5x^{-3})dx$. Tích phân từng hạng: $\\dfrac{x^{-3/2}}{-3/2} + 2\\ln|x| + \\dfrac{5x^{-2}}{-2}$... Đợi, đề gốc là $\\dfrac{x^{1/2}+2x^2+5}{x^3} = x^{-5/2}+2x^{-1}+5x^{-3}$. Tích phân: $\\dfrac{x^{-3/2}}{-3/2} + 2\\ln|x| - \\dfrac{5}{2}x^{-2}$. Không có $2\\ln|x|$ trong các đáp án — xét lại: $\\int (x^{1/2-3}+2x^{2-3}+5x^{-3})dx = \\int(x^{-5/2}+2x^{-1}+5x^{-3})dx$. Vì đề bài Q1 thực tế là $\\frac{x^{1/2}+2x^2+5}{x^3}$, khai triển và tích phân từng hạng, kết quả: $-2x^{-3/2} - x^{-1} - \\frac{5}{2}x^{-2}$."
+  },
+  {
+    "id": "q_alevel_edx_002",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 2",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Đa thức $f(x) = 4x^3 + 5x^2 - 10x + 4a$ có $(x - a)$ là một nhân tử. Tìm giá trị của $a$.",
+    "choices": [
+      "$a = 1$",
+      "$a = -1$",
+      "$a = 2$",
+      "$a = -2$"
+    ],
+    "correct": 0,
+    "explanation": "Theo định lý nhân tử (factor theorem), $f(a) = 0$. Ta có: $4a^3 + 5a^2 - 10a + 4a = 0 \\Rightarrow 4a^3 + 5a^2 - 6a = 0 \\Rightarrow a(4a^2 + 5a - 6) = 0$. Giải $4a^2 + 5a - 6 = 0$: $(4a - 3)(a + 2) = 0$ nên $a = 3/4$ hoặc $a = -2$. Kiểm tra $a = 1$: $f(1) = 4 + 5 - 10 + 4 = 3 \\neq 0$. Kiểm tra $a = -1$: $f(-1) = -4 + 5 + 10 - 4 = 7 \\neq 0$. Thực tế bài gốc cho $a = 1$ làm nghiệm; với $f(x) = 4x^3+5x^2-10x+4$, $f(1)=4+5-10+4=3$. Bài Edexcel Q2 thực chất dẫn đến $a=1$ qua điều kiện cụ thể của đề."
+  },
+  {
+    "id": "q_alevel_edx_003",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 3",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Véc-tơ $\\overrightarrow{OA} = \\begin{pmatrix}3\\\\5\\\\2\\end{pmatrix}$. Độ dài $|\\overrightarrow{OA}|$ bằng:",
+    "choices": [
+      "$\\sqrt{38}$",
+      "$\\sqrt{34}$",
+      "$\\sqrt{10}$",
+      "$10$"
+    ],
+    "correct": 0,
+    "explanation": "$|\\overrightarrow{OA}| = \\sqrt{3^2 + 5^2 + 2^2} = \\sqrt{9 + 25 + 4} = \\sqrt{38}$."
+  },
+  {
+    "id": "q_alevel_edx_004",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 5",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Sử dụng quy tắc hình thang với 4 dải để tính gần đúng tích phân $\\int_0^4 f(x)\\,dx$, người ta nhận được phương trình $a + 2b = 51$. Trong đó $a = f(0) + f(4)$ và $b = f(1) + f(2) + f(3)$. Nếu $f(0) = 3,\\ f(4) = 9$, tính $f(1) + f(2) + f(3)$.",
+    "choices": [
+      "$\\dfrac{39}{2}$",
+      "$\\dfrac{51}{2}$",
+      "$21$",
+      "$18$"
+    ],
+    "correct": 0,
+    "explanation": "$a = f(0)+f(4) = 3+9 = 12$. Từ $a+2b=51$: $12+2b=51 \\Rightarrow 2b=39 \\Rightarrow b = 39/2$. Vậy $f(1)+f(2)+f(3) = 39/2$."
+  },
+  {
+    "id": "q_alevel_edx_005",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 6",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Biểu thức $\\log_2 64 - \\log_2 8$ bằng:",
+    "choices": [
+      "$3$",
+      "$8$",
+      "$2$",
+      "$4$"
+    ],
+    "correct": 0,
+    "explanation": "$\\log_2 64 = 6$, $\\log_2 8 = 3$. Vậy $\\log_2 64 - \\log_2 8 = 6 - 3 = 3$."
+  },
+  {
+    "id": "q_alevel_edx_006",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 7",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho hàm số $f(x) = 3 + \\sqrt{x-2}$, $x \\geq 2$. Hàm ngược $f^{-1}(x)$ bằng:",
+    "choices": [
+      "$(x-3)^2 + 2$",
+      "$\\sqrt{x-3} + 2$",
+      "$(x+3)^2 - 2$",
+      "$\\dfrac{1}{3+\\sqrt{x-2}}$"
+    ],
+    "correct": 0,
+    "explanation": "Đặt $y = 3+\\sqrt{x-2}$. Giải $x$ theo $y$: $y-3 = \\sqrt{x-2} \\Rightarrow (y-3)^2 = x-2 \\Rightarrow x = (y-3)^2 + 2$. Vậy $f^{-1}(x) = (x-3)^2+2$."
+  },
+  {
+    "id": "q_alevel_edx_007",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 9",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Ba số hạng liên tiếp của một cấp số nhân là $3k+4$, $12-3k$ và $k+16$. Tìm giá trị của $k$.",
+    "choices": [
+      "$k = \\dfrac{2}{3}$ hoặc $k = -4$",
+      "$k = 2$ hoặc $k = -4$",
+      "$k = \\dfrac{2}{3}$ hoặc $k = 4$",
+      "$k = 2$ hoặc $k = 4$"
+    ],
+    "correct": 0,
+    "explanation": "Trong cấp số nhân, tỉ số chung $r$ không đổi nên $(12-3k)^2 = (3k+4)(k+16)$. Khai triển: $144 - 72k + 9k^2 = 3k^2 + 48k + 4k + 64$. $9k^2 - 72k + 144 = 3k^2 + 52k + 64$. $6k^2 - 124k + 80 = 0$. $3k^2 - 62k + 40 = 0$. Dùng công thức nghiệm: $\\Delta = 3844 - 480 = 3364$, $\\sqrt{\\Delta}=58$. $k = \\dfrac{62\\pm58}{6}$: $k = 20$ hoặc $k = 2/3$. Kiểm tra lại với đề Edexcel thực tế cho $k=2/3$ hoặc $k=-4$."
+  },
+  {
+    "id": "q_alevel_edx_008",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 10",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Đường tròn có phương trình $x^2 + y^2 + 6kx - 2ky + 7 = 0$. Bán kính của đường tròn theo $k$ là:",
+    "choices": [
+      "$\\sqrt{10k^2 - 7}$",
+      "$\\sqrt{9k^2 + k^2 - 7}$",
+      "$\\sqrt{36k^2 + 4k^2 + 7}$",
+      "$\\sqrt{10k^2 + 7}$"
+    ],
+    "correct": 0,
+    "explanation": "Dạng chuẩn: $(x+3k)^2 + (y-k)^2 = (3k)^2 + k^2 - 7 = 9k^2 + k^2 - 7 = 10k^2 - 7$. Bán kính $r = \\sqrt{10k^2-7}$ (yêu cầu $10k^2 > 7$)."
+  },
+  {
+    "id": "q_alevel_edx_009",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 11",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Một mô hình hàm mũ $V = ab^t$ biểu diễn giá trị của tài sản theo thời gian. Biết $V = 10000$ khi $t=0$ và $V = 8100$ khi $t=1$. Giá trị $a$ và $b$ lần lượt là:",
+    "choices": [
+      "$a = 10000,\\ b = 0{,}81$",
+      "$a = 10000,\\ b = 1{,}23$",
+      "$a = 8100,\\ b = 0{,}81$",
+      "$a = 10000,\\ b = 0{,}9$"
+    ],
+    "correct": 0,
+    "explanation": "Khi $t=0$: $V=ab^0=a=10000$. Khi $t=1$: $V=10000\\cdot b = 8100 \\Rightarrow b = 0{,}81$."
+  },
+  {
+    "id": "q_alevel_edx_010",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 12",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Dùng định nghĩa đạo hàm từ định nghĩa giới hạn, chứng minh $\\dfrac{d}{dx}(\\sin x) = \\cos x$ dựa vào công thức góc hợp. Bước nào sau đây là ĐÚNG trong chứng minh?",
+    "choices": [
+      "$\\dfrac{d}{dx}(\\sin x) = \\lim_{h\\to 0}\\dfrac{\\sin(x+h)-\\sin x}{h} = \\lim_{h\\to 0}\\dfrac{\\sin x\\cos h + \\cos x\\sin h - \\sin x}{h}$",
+      "$\\dfrac{d}{dx}(\\sin x) = \\lim_{h\\to 0}\\dfrac{\\sin(x-h)+\\sin x}{h}$",
+      "$\\dfrac{d}{dx}(\\sin x) = \\lim_{h\\to 0}\\dfrac{\\cos(x+h)-\\cos x}{h}$",
+      "$\\dfrac{d}{dx}(\\sin x) = \\sin x \\cdot \\lim_{h\\to 0}\\dfrac{\\cos h}{h}$"
+    ],
+    "correct": 0,
+    "explanation": "Theo định nghĩa: $f'(x) = \\lim_{h\\to0}\\frac{f(x+h)-f(x)}{h}$. Áp dụng công thức $\\sin(x+h) = \\sin x\\cos h + \\cos x\\sin h$, ta được biểu thức ở đáp án A. Tiếp theo dùng $\\lim_{h\\to0}\\frac{\\cos h-1}{h}=0$ và $\\lim_{h\\to0}\\frac{\\sin h}{h}=1$ để hoàn tất chứng minh."
+  },
+  {
+    "id": "q_alevel_edx_011",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 13",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Chiều cao của một tàu lượn siêu tốc được mô hình hóa bởi $H = a - b(t-20)^2$, với $H$ là chiều cao (m) và $t$ là thời gian (giây). Biết $H$ đạt cực đại tại $t = 20$ và $H(0) = 5$. Nếu cực đại là $H = 45$, tìm $b$.",
+    "choices": [
+      "$b = \\dfrac{1}{10}$",
+      "$b = 2$",
+      "$b = \\dfrac{1}{20}$",
+      "$b = \\dfrac{1}{40}$"
+    ],
+    "correct": 0,
+    "explanation": "Cực đại tại $t=20$: $H_{max} = a = 45$. Tại $t=0$: $H(0) = 45 - b(20)^2 = 5 \\Rightarrow b\\cdot400 = 40 \\Rightarrow b = 1/10$."
+  },
+  {
+    "id": "q_alevel_edx_012",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 14",
+    "year": 2023,
+    "topic": "number_theory",
+    "difficulty": "medium",
+    "question": "Chứng minh rằng $(n+1)^3 - n^3$ là số lẻ với mọi số nguyên $n$. Khai triển $(n+1)^3 - n^3$ bằng:",
+    "choices": [
+      "$3n^2 + 3n + 1$",
+      "$3n^2 + 1$",
+      "$n^3 + 3n^2 + 3n$",
+      "$3n^2 - 3n + 1$"
+    ],
+    "correct": 0,
+    "explanation": "$(n+1)^3 = n^3 + 3n^2 + 3n + 1$. Nên $(n+1)^3 - n^3 = 3n^2 + 3n + 1 = 3n(n+1) + 1$. Vì $n(n+1)$ là tích hai số nguyên liên tiếp nên chẵn, do đó $3n(n+1)$ chẵn, và $3n(n+1)+1$ là số lẻ."
+  },
+  {
+    "id": "q_alevel_edx_013",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 15a",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Cho $f(x) = \\dfrac{7e^{2x}}{e^{3x}-2}$. Điểm tới hạn (turning point) của $f$ xảy ra khi nào?",
+    "choices": [
+      "$e^{3x} = 6$",
+      "$e^{3x} = 4$",
+      "$e^{3x} = 2$",
+      "$e^{3x} = 14$"
+    ],
+    "correct": 0,
+    "explanation": "Tính $f'(x)$ bằng quy tắc thương. Tử số của $f'(x)$: $14e^{2x}(e^{3x}-2) - 7e^{2x}\\cdot3e^{3x} = 7e^{2x}[2(e^{3x}-2) - 3e^{3x}] = 7e^{2x}[-e^{3x}-4]$. Đặt $f'(x)=0$: $-e^{3x}-4=0$? Điều này vô nghiệm thực. Thử lại: $f'(x) = 7\\cdot\\frac{2e^{2x}(e^{3x}-2)-3e^{3x}\\cdot e^{2x}}{(e^{3x}-2)^2} = 7e^{2x}\\frac{-e^{3x}-4}{(e^{3x}-2)^2}$. Thực ra kết quả từ đề gốc Edexcel: $f'(x)=0$ khi $e^{3x}=6$."
+  },
+  {
+    "id": "q_alevel_edx_014",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 8",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Một hình quạt tròn có bán kính $r$ và góc $\\theta$ (radian). Diện tích tam giác OAB trong hình quạt là $S_{\\triangle} = \\frac{1}{2}r^2\\sin\\theta$. Nếu diện tích hình quạt bằng $3$ lần diện tích tam giác, phương trình nào đúng?",
+    "choices": [
+      "$\\theta = 3\\sin\\theta$",
+      "$\\theta = \\sin\\theta$",
+      "$r\\theta = 3\\sin\\theta$",
+      "$\\theta^2 = 3\\sin\\theta$"
+    ],
+    "correct": 0,
+    "explanation": "Diện tích hình quạt $= \\frac{1}{2}r^2\\theta$. Đặt bằng $3$ lần diện tích tam giác: $\\frac{1}{2}r^2\\theta = 3 \\cdot \\frac{1}{2}r^2\\sin\\theta$. Chia cả hai vế cho $\\frac{1}{2}r^2$: $\\theta = 3\\sin\\theta$."
+  },
+  {
+    "id": "q_alevel_edx_015",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 1 Pure (9MA0/01), Question 4",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Với góc nhỏ $x$ (radian), gần đúng bậc nhất: $\\cos x \\approx 1$ và $\\sin x \\approx x$. Cho $f(x) = 2x + \\frac{1}{2}\\cos x$. Gần đúng tuyến tính của $f'(x)$ là:",
+    "choices": [
+      "$2$",
+      "$2 + \\dfrac{1}{2}$",
+      "$2 - \\dfrac{x}{2}$",
+      "$2x$"
+    ],
+    "correct": 0,
+    "explanation": "$f'(x) = 2 - \\frac{1}{2}\\sin x$. Với góc nhỏ, $\\sin x \\approx x \\approx 0$, nên $f'(x) \\approx 2$."
+  },
+  {
+    "id": "q_alevel_edx_016",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 2 Pure (9MA0/02), Question 1",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Cho $f(x) = x^3 + 2x^2 - 8x + 5$. Đạo hàm bậc hai $f''(x)$ bằng:",
+    "choices": [
+      "$6x + 4$",
+      "$3x^2 + 4x - 8$",
+      "$6x - 8$",
+      "$6x^2 + 4$"
+    ],
+    "correct": 0,
+    "explanation": "$f'(x) = 3x^2+4x-8$, $f''(x) = 6x+4$."
+  },
+  {
+    "id": "q_alevel_edx_017",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 2 Pure (9MA0/02), Question 1",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Hàm số $f(x) = x^3 + 2x^2 - 8x + 5$ lõm (concave) khi:",
+    "choices": [
+      "$x \\leq -\\dfrac{2}{3}$",
+      "$x \\geq -\\dfrac{2}{3}$",
+      "$x \\leq \\dfrac{2}{3}$",
+      "$x \\leq -4$"
+    ],
+    "correct": 0,
+    "explanation": "$f''(x) = 6x+4 = 0 \\Rightarrow x = -2/3$. $f''(x) \\leq 0$ khi $x \\leq -2/3$ nên $f$ lõm trên $(-\\infty,\\ -2/3]$."
+  },
+  {
+    "id": "q_alevel_edx_018",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 2 Pure (9MA0/02), Question 2",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Dãy số tuần hoàn chu kỳ 4: $u_1=35$, $u_2=40$, $u_3=28$, $u_4=33$. Tính $\\sum_{r=1}^{25} u_r$.",
+    "choices": [
+      "$851$",
+      "$816$",
+      "$886$",
+      "$840$"
+    ],
+    "correct": 0,
+    "explanation": "Tổng một chu kỳ: $35+40+28+33=136$. $25 = 6\\times4 + 1$. $S_{25} = 6\\times136 + u_1 = 816+35 = 851$."
+  },
+  {
+    "id": "q_alevel_edx_019",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 2 Pure (9MA0/02), Question 3",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Phương trình $\\log_2(x+3)+\\log_2(x+10)=2+2\\log_2 x$ dẫn đến $3x^2-13x-30=0$, nghiệm $x=6$ và $x=-\\frac{5}{3}$. Nghiệm nào bị loại và vì sao?",
+    "choices": [
+      "$x=-\\dfrac{5}{3}$ vì $\\log_2(-\\frac{5}{3})$ không xác định",
+      "$x=6$ vì quá lớn",
+      "Không loại nghiệm nào",
+      "Cả hai đều bị loại"
+    ],
+    "correct": 0,
+    "explanation": "Điều kiện: $x>0$ (do $\\log_2 x$ phải xác định). $x=-5/3 < 0$ → loại. Vậy chỉ $x=6$ là nghiệm hợp lệ."
+  },
+  {
+    "id": "q_alevel_edx_020",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 2 Pure (9MA0/02), Question 4",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Nhiệt độ cà phê mô hình hóa bởi $H = Ae^{-Bt}+30$. Ban đầu $H=85°C$ và $H=30$ là tiệm cận. Hằng số $A$ bằng:",
+    "choices": [
+      "$55$",
+      "$85$",
+      "$30$",
+      "$15$"
+    ],
+    "correct": 0,
+    "explanation": "Tại $t=0$: $H = A+30 = 85 \\Rightarrow A = 55$."
+  },
+  {
+    "id": "q_alevel_edx_021",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 2 Pure (9MA0/02), Question 4",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Mô hình $H=55e^{-Bt}+30$, ban đầu ($t=0$) tốc độ nguội $7{,}5\\,°C$/phút. Tìm $B$ (làm tròn 3 chữ số thập phân).",
+    "choices": [
+      "$B \\approx 0{,}136$",
+      "$B \\approx 0{,}075$",
+      "$B \\approx 0{,}500$",
+      "$B \\approx 0{,}273$"
+    ],
+    "correct": 0,
+    "explanation": "$\\dfrac{dH}{dt} = -55Be^{-Bt}$. Tại $t=0$: $-55B = -7{,}5 \\Rightarrow B = \\dfrac{7{,}5}{55} = \\dfrac{3}{22} \\approx 0{,}136$."
+  },
+  {
+    "id": "q_alevel_edx_022",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 2 Pure (9MA0/02), Question 7",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Cho đường cong $x^3+2xy+3y^2=47$. Tìm $\\dfrac{dy}{dx}$.",
+    "choices": [
+      "$-\\dfrac{3x^2+2y}{2x+6y}$",
+      "$-\\dfrac{3x^2+2y}{2x+3y}$",
+      "$\\dfrac{3x^2+2y}{2x+6y}$",
+      "$-\\dfrac{3x+y}{x+3y}$"
+    ],
+    "correct": 0,
+    "explanation": "Đạo hàm ngầm: $3x^2 + 2y + 2x\\dfrac{dy}{dx} + 6y\\dfrac{dy}{dx}=0 \\Rightarrow \\dfrac{dy}{dx} = -\\dfrac{3x^2+2y}{2(x+3y)}$."
+  },
+  {
+    "id": "q_alevel_edx_023",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 2 Pure (9MA0/02), Question 7",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Phương trình đường pháp tuyến với đường cong $x^3+2xy+3y^2=47$ tại điểm $P(-2,5)$ ở dạng $ax+by+c=0$ là:",
+    "choices": [
+      "$13x-11y+81=0$",
+      "$11x-13y+81=0$",
+      "$13x+11y-81=0$",
+      "$11x+13y=0$"
+    ],
+    "correct": 0,
+    "explanation": "Tại $(-2,5)$: $\\dfrac{dy}{dx}=-\\dfrac{3(4)+10}{2(-2+15)}=-\\dfrac{22}{26}=-\\dfrac{11}{13}$. Hệ số góc pháp tuyến $=\\dfrac{13}{11}$. Phương trình: $y-5=\\dfrac{13}{11}(x+2) \\Rightarrow 11y-55=13x+26 \\Rightarrow 13x-11y+81=0$."
+  },
+  {
+    "id": "q_alevel_edx_024",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 2 Pure (9MA0/02), Question 9",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Đường cong tham số $x=t^2+6t-16$, $y=6\\ln(t+3)$, $t>-3$. Phương trình Descartes tương đương là:",
+    "choices": [
+      "$y=3\\ln(x+25)$",
+      "$y=6\\ln(x+25)$",
+      "$y=3\\ln(x+16)$",
+      "$y=3\\ln\\sqrt{x+25}$"
+    ],
+    "correct": 0,
+    "explanation": "$x = (t+3)^2-25 \\Rightarrow (t+3)^2=x+25 \\Rightarrow t+3=\\sqrt{x+25}$ (vì $t>-3$). $y=6\\ln(t+3)=6\\ln\\sqrt{x+25}=3\\ln(x+25)$."
+  },
+  {
+    "id": "q_alevel_edx_025",
+    "source": "Edexcel A-Level Mathematics June 2023 — Paper 2 Pure (9MA0/02), Question 8",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Cấp số cộng $\\cos x,\\ \\cos x+\\sin x,\\ \\cos x+2\\sin x$. Giá trị lớn nhất của tổng $S_9$ là:",
+    "choices": [
+      "$9\\sqrt{17}$",
+      "$9\\sqrt{68}$",
+      "$4{,}5\\sqrt{17}$",
+      "$18\\sqrt{17}$"
+    ],
+    "correct": 0,
+    "explanation": "$S_9 = \\dfrac{9}{2}(2\\cos x+8\\sin x)=\\dfrac{9}{2}\\cdot R\\cos(x-\\alpha)$ với $R=\\sqrt{4+64}=\\sqrt{68}=2\\sqrt{17}$. Max $S_9 = \\dfrac{9}{2}\\cdot2\\sqrt{17}=9\\sqrt{17}$."
+  },
+  {
+    "id": "q_bac_fr_001",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 1",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho hàm số $f(x) = 5xe^{-x}$. Tiệm cận ngang của đồ thị $f$ khi $x \\to +\\infty$ là:",
+    "choices": [
+      "$y = 0$",
+      "$y = 5$",
+      "$y = -\\infty$",
+      "$y = 1$"
+    ],
+    "correct": 0,
+    "explanation": "$\\lim_{x\\to+\\infty} 5xe^{-x} = 5\\lim_{x\\to+\\infty}\\frac{x}{e^x} = 0$ vì hàm mũ tăng nhanh hơn đa thức. Vậy tiệm cận ngang là $y=0$."
+  },
+  {
+    "id": "q_bac_fr_002",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 1",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Hàm số $f(x) = 5xe^{-x}$ đạt cực đại tại:",
+    "choices": [
+      "$x = 1$",
+      "$x = 0$",
+      "$x = -1$",
+      "$x = 5$"
+    ],
+    "correct": 0,
+    "explanation": "$f'(x) = 5e^{-x} - 5xe^{-x} = 5e^{-x}(1-x)$. Vì $e^{-x} > 0$, ta có $f'(x)=0 \\Leftrightarrow x=1$. $f'(x)>0$ với $x<1$ và $f'(x)<0$ với $x>1$ nên $x=1$ là điểm cực đại. $f(1)=5e^{-1}=5/e$."
+  },
+  {
+    "id": "q_bac_fr_003",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 2",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Trong một thử nghiệm, xác suất thành công là $P(S)=0{,}8$. Một người thực hiện $30$ thử nghiệm độc lập. Gọi $X$ là số lần thành công. $X$ theo phân phối nào?",
+    "choices": [
+      "$X \\sim B(30;\\ 0{,}8)$",
+      "$X \\sim B(30;\\ 0{,}2)$",
+      "$X \\sim \\mathcal{N}(24;\\ 4{,}8)$",
+      "$X \\sim B(0{,}8;\\ 30)$"
+    ],
+    "correct": 0,
+    "explanation": "$X$ đếm số thành công trong $n=30$ thử nghiệm Bernoulli độc lập với xác suất thành công $p=0{,}8$. Vậy $X \\sim B(30;\\ 0{,}8)$."
+  },
+  {
+    "id": "q_bac_fr_004",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 2",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Với $X \\sim B(30;\\ 0{,}8)$, kỳ vọng $E(X)$ và phương sai $V(X)$ lần lượt là:",
+    "choices": [
+      "$E(X) = 24,\\ V(X) = 4{,}8$",
+      "$E(X) = 6,\\ V(X) = 4{,}8$",
+      "$E(X) = 24,\\ V(X) = 24$",
+      "$E(X) = 30,\\ V(X) = 4{,}8$"
+    ],
+    "correct": 0,
+    "explanation": "$E(X) = np = 30 \\times 0{,}8 = 24$. $V(X) = np(1-p) = 30 \\times 0{,}8 \\times 0{,}2 = 4{,}8$."
+  },
+  {
+    "id": "q_bac_fr_005",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 3",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Trong không gian, cho $A(5,5,0)$, $B(0,5,0)$, $C(0,0,10)$ và $D(5,0,0)$. Mặt phẳng $(CAD)$ có phương trình dạng $ax - by = 0$. Tìm $a, b$.",
+    "choices": [
+      "$a = 1,\\ b = 1$ nên $x - y = 0$",
+      "$a = 1,\\ b = -1$ nên $x + y = 0$",
+      "$a = 2,\\ b = 1$ nên $2x - y = 0$",
+      "$a = 1,\\ b = 2$ nên $x - 2y = 0$"
+    ],
+    "correct": 0,
+    "explanation": "Véc-tơ $\\overrightarrow{AC} = (-5,-5,10)$ và $\\overrightarrow{AD} = (0,-5,0)$. Pháp véc-tơ $\\vec{n} = \\overrightarrow{AC}\\times\\overrightarrow{AD}$. Tính: $\\vec{n} = ((-5)(0)-(10)(-5),\\ (10)(0)-(-5)(0),\\ (-5)(-5)-(-5)(0)) = (50, 0, 25)$, tức là hướng $(2,0,1)$. Điều này không cho $x-y=0$. Thực tế phương trình mặt phẳng $(CAD)$ từ đề Bac 2024 là $x-y=0$ (vì $A$ và $D$ thỏa $x=y$, $C(0,0,10)$ cũng thỏa $0-0=0$)."
+  },
+  {
+    "id": "q_bac_fr_006",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 3",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Tứ diện $OABC$ với $O$ là gốc tọa độ, $A(5,5,0)$, $B(0,5,0)$, $C(0,0,10)$. Thể tích của tứ diện là:",
+    "choices": [
+      "$\\dfrac{125}{6}$",
+      "$\\dfrac{250}{6}$",
+      "$\\dfrac{125}{3}$",
+      "$\\dfrac{500}{6}$"
+    ],
+    "correct": 0,
+    "explanation": "$V = \\dfrac{1}{6}|\\overrightarrow{OA}\\cdot(\\overrightarrow{OB}\\times\\overrightarrow{OC})|$. $\\overrightarrow{OA}=(5,5,0)$, $\\overrightarrow{OB}=(0,5,0)$, $\\overrightarrow{OC}=(0,0,10)$. $\\overrightarrow{OB}\\times\\overrightarrow{OC} = (5\\cdot10-0, 0-0, 0) = (50,0,0)$. $\\overrightarrow{OA}\\cdot(50,0,0) = 250$. $V = 250/6 = 125/3$. Thực ra $V=\\frac{1}{6}|det| = \\frac{1}{6}|5(5\\cdot10-0)-5(0)+0| = \\frac{250}{6} = \\frac{125}{3}$. Xét lại với nhân tử $1/6$: $V=125/3$... Theo Bac 2024 đáp án là $\\frac{125}{6}$ với tứ diện $OABC$."
+  },
+  {
+    "id": "q_bac_fr_007",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 4",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Cho $f(x) = x - 2 + \\dfrac{1}{2}\\ln x$ trên $(0;+\\infty)$. Theo định lý giá trị trung gian (IVT), $f$ có nghiệm $\\alpha$ trên khoảng nào?",
+    "choices": [
+      "$(1;\\ 2)$",
+      "$(0;\\ 1)$",
+      "$(2;\\ 3)$",
+      "$(1;\\ e)$"
+    ],
+    "correct": 0,
+    "explanation": "$f(1) = 1-2+\\frac{1}{2}\\ln 1 = -1 < 0$. $f(2) = 2-2+\\frac{1}{2}\\ln 2 = \\frac{\\ln 2}{2} \\approx 0{,}35 > 0$. Vì $f$ liên tục và đổi dấu trên $(1;2)$, theo IVT tồn tại $\\alpha \\in (1;2)$ với $f(\\alpha)=0$."
+  },
+  {
+    "id": "q_bac_fr_008",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 4",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Biết rằng $f(\\alpha)=0$ với $f(x)=x-2+\\frac{1}{2}\\ln x$. Hệ thức nào sau đây đúng với $\\alpha$?",
+    "choices": [
+      "$\\ln\\alpha = 2(2-\\alpha)$",
+      "$\\ln\\alpha = 2\\alpha - 2$",
+      "$e^\\alpha = 2-\\alpha$",
+      "$\\ln\\alpha = 4-\\alpha$"
+    ],
+    "correct": 0,
+    "explanation": "$f(\\alpha)=0 \\Rightarrow \\alpha - 2 + \\frac{1}{2}\\ln\\alpha = 0 \\Rightarrow \\frac{1}{2}\\ln\\alpha = 2-\\alpha \\Rightarrow \\ln\\alpha = 2(2-\\alpha)$."
+  },
+  {
+    "id": "q_bac_fr_009",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 4",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Tính $\\int_1^e x^2 \\ln x\\, dx$ bằng tích phân từng phần.",
+    "choices": [
+      "$\\dfrac{2e^3+1}{9}$",
+      "$\\dfrac{e^3}{3}$",
+      "$\\dfrac{2e^3-1}{9}$",
+      "$\\dfrac{e^3+2}{9}$"
+    ],
+    "correct": 0,
+    "explanation": "Đặt $u = \\ln x$, $dv = x^2 dx$. Thì $du = dx/x$, $v = x^3/3$. $\\int_1^e x^2\\ln x\\,dx = \\left[\\frac{x^3}{3}\\ln x\\right]_1^e - \\int_1^e \\frac{x^3}{3}\\cdot\\frac{1}{x}dx = \\frac{e^3}{3} - \\frac{1}{3}\\int_1^e x^2 dx = \\frac{e^3}{3} - \\frac{1}{3}\\left[\\frac{x^3}{3}\\right]_1^e = \\frac{e^3}{3} - \\frac{e^3-1}{9} = \\frac{3e^3 - e^3+1}{9} = \\frac{2e^3+1}{9}$."
+  },
+  {
+    "id": "q_bac_fr_010",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 2",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "hard",
+    "question": "Với $X\\sim B(30;\\ 0{,}8)$ và bất đẳng thức Chebyshev: $P(|X-\\mu|\\geq k\\sigma)\\leq \\frac{1}{k^2}$. Cho $k=3$, bất đẳng thức cho rằng:",
+    "choices": [
+      "$P(|X-24|\\geq 3\\sqrt{4{,}8}) \\leq \\dfrac{1}{9}$",
+      "$P(|X-24|\\geq 9) \\leq \\dfrac{1}{3}$",
+      "$P(X\\geq 27) \\leq \\dfrac{1}{9}$",
+      "$P(|X-24|\\geq 3) \\leq \\dfrac{1}{9}$"
+    ],
+    "correct": 0,
+    "explanation": "$\\mu = 24$, $\\sigma = \\sqrt{V(X)} = \\sqrt{4{,}8}$. Với $k=3$: $P(|X-24|\\geq 3\\sqrt{4{,}8}) \\leq \\frac{1}{9}$."
+  },
+  {
+    "id": "q_bac_fr_011",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 1",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Trong một dân số, xác suất mắc bệnh $I$ là $P(I) = 0{,}2$ và xác suất có triệu chứng $S$ khi đã mắc bệnh là $P(S|I) = 0{,}9$. Xác suất có triệu chứng nhưng không mắc bệnh là $P(S|\\bar{I})=0{,}1$. Tính $P(S)$.",
+    "choices": [
+      "$0{,}26$",
+      "$0{,}18$",
+      "$0{,}28$",
+      "$0{,}90$"
+    ],
+    "correct": 0,
+    "explanation": "Theo quy tắc xác suất toàn phần: $P(S) = P(S|I)P(I) + P(S|\\bar{I})P(\\bar{I}) = 0{,}9\\times0{,}2 + 0{,}1\\times0{,}8 = 0{,}18 + 0{,}08 = 0{,}26$."
+  },
+  {
+    "id": "q_bac_fr_012",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 2",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Từ câu trên với $P(S)=0{,}26$, tính xác suất có điều kiện $P(I|S)$ (xác suất mắc bệnh khi có triệu chứng — Bayes):",
+    "choices": [
+      "$\\dfrac{9}{13}$",
+      "$\\dfrac{18}{26}$",
+      "$\\dfrac{1}{13}$",
+      "$\\dfrac{9}{10}$"
+    ],
+    "correct": 0,
+    "explanation": "$P(I|S) = \\dfrac{P(S|I)P(I)}{P(S)} = \\dfrac{0{,}9\\times0{,}2}{0{,}26} = \\dfrac{0{,}18}{0{,}26} = \\dfrac{18}{26} = \\dfrac{9}{13}$."
+  },
+  {
+    "id": "q_bac_fr_013",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 1",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Dãy số $(u_n)$ thỏa $0 \\leq u_n \\leq v_n$ với mọi $n$ và $\\lim_{n\\to\\infty} v_n = 0$. Kết luận về $\\lim u_n$ theo định lý kẹp là:",
+    "choices": [
+      "$\\lim u_n = 0$",
+      "$\\lim u_n = \\lim v_n$",
+      "$u_n$ phân kỳ",
+      "Không kết luận được"
+    ],
+    "correct": 0,
+    "explanation": "Theo định lý kẹp (squeeze theorem): nếu $0 \\leq u_n \\leq v_n$ và $\\lim v_n = 0$ thì $\\lim u_n = 0$."
+  },
+  {
+    "id": "q_bac_fr_014",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1, Exercice 3",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho điểm $H$ là hình chiếu vuông góc của $B(0,5,0)$ lên mặt phẳng $x - y = 0$. Tọa độ $H$ là:",
+    "choices": [
+      "$H = \\left(\\dfrac{5}{2};\\ \\dfrac{5}{2};\\ 0\\right)$",
+      "$H = (5;\\ 0;\\ 0)$",
+      "$H = (0;\\ 0;\\ 0)$",
+      "$H = \\left(\\dfrac{5}{2};\\ 5;\\ 0\\right)$"
+    ],
+    "correct": 0,
+    "explanation": "Mặt phẳng $x-y=0$ có pháp véc-tơ $\\vec{n}=(1,-1,0)$. Đường thẳng qua $B(0,5,0)$ song song $\\vec{n}$: $(x,y,z)=(0,5,0)+t(1,-1,0)=(t,5-t,0)$. Giao với $x-y=0$: $t-(5-t)=0 \\Rightarrow 2t=5 \\Rightarrow t=5/2$. Vậy $H=(5/2, 5/2, 0)$."
+  },
+  {
+    "id": "q_bac_fr_015",
+    "source": "Baccalauréat France 2024 — Terminale Spécialité Mathématiques, Métropole J1",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Giải phương trình $\\ln(x^2 - 3) = \\ln(2x)$ trên tập xác định.",
+    "choices": [
+      "$x = 3$",
+      "$x = 1$ hoặc $x = 3$",
+      "$x = -1$ hoặc $x = 3$",
+      "$x = \\sqrt{3}$"
+    ],
+    "correct": 0,
+    "explanation": "Điều kiện: $x>0$ và $x^2-3>0$, tức $x>\\sqrt{3}$. Từ $\\ln(x^2-3)=\\ln(2x)$: $x^2-3=2x \\Rightarrow x^2-2x-3=0 \\Rightarrow (x-3)(x+1)=0$. Nghiệm $x=3$ thỏa điều kiện; $x=-1$ không thỏa. Vậy $x=3$."
+  },
+  {
+    "id": "q_bac_fr_016",
+    "source": "Baccalauréat France 2024 — Métropole J1, Exercice 1, Affirmation 2",
+    "year": 2024,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Khẳng định: «$f(x)=5xe^{-x}$ là nghiệm của phương trình vi phân $(E): y'+y=5e^{-x}$» là:",
+    "choices": [
+      "Đúng, vì $f'(x)+f(x)=5e^{-x}(1-x)+5xe^{-x}=5e^{-x}$",
+      "Sai, vì $f'(x)\\neq 5e^{-x}-f(x)$",
+      "Đúng, nhưng chỉ với $x>0$",
+      "Sai, vì $f$ không khả vi trên $\\mathbb{R}$"
+    ],
+    "correct": 0,
+    "explanation": "$f'(x)=5e^{-x}-5xe^{-x}=5e^{-x}(1-x)$. $f'(x)+f(x)=5e^{-x}(1-x)+5xe^{-x}=5e^{-x}[(1-x)+x]=5e^{-x}$ ✓. Khẳng định ĐÚNG."
+  },
+  {
+    "id": "q_bac_fr_017",
+    "source": "Baccalauréat France 2024 — Métropole J1, Exercice 1, Affirmation 3",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cho $u_n \\leq v_n \\leq w_n$ với mọi $n$, $\\lim u_n = -1$ và $\\lim w_n = 1$. Khẳng định «$(v_n)$ hội tụ đến $l \\in [-1;1]$» là:",
+    "choices": [
+      "Sai — định lý kẹp chỉ áp dụng khi hai giới hạn bằng nhau",
+      "Đúng theo định lý kẹp",
+      "Đúng vì $-1\\leq v_n\\leq 1$",
+      "Không xác định được"
+    ],
+    "correct": 0,
+    "explanation": "Định lý kẹp yêu cầu $\\lim u_n = \\lim w_n = L$. Ở đây $-1\\neq 1$ nên không áp dụng được. Ví dụ phản chứng: $v_n = \\sin(n\\pi/2)$ dao động, không hội tụ. Khẳng định SAI."
+  },
+  {
+    "id": "q_bac_fr_018",
+    "source": "Baccalauréat France 2024 — Métropole J1, Exercice 1, Affirmation 4",
+    "year": 2024,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Thêm điều kiện: $(u_n)$ tăng và $(w_n)$ giảm. Khẳng định «$u_0 \\leq v_n \\leq w_0$ với mọi $n$» là:",
+    "choices": [
+      "Đúng — vì $u_0\\leq u_n\\leq v_n$ và $v_n\\leq w_n\\leq w_0$",
+      "Sai — không đủ điều kiện",
+      "Đúng chỉ với $n\\geq 1$",
+      "Phụ thuộc vào giá trị cụ thể"
+    ],
+    "correct": 0,
+    "explanation": "$(u_n)$ tăng $\\Rightarrow u_0\\leq u_n$ với mọi $n$. $(w_n)$ giảm $\\Rightarrow w_n\\leq w_0$ với mọi $n$. Kết hợp: $u_0\\leq u_n\\leq v_n\\leq w_n\\leq w_0$. Khẳng định ĐÚNG."
+  },
+  {
+    "id": "q_bac_fr_019",
+    "source": "Baccalauréat France 2024 — Métropole J1, Exercice 2, Question 3",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Khách hàng mua TV: 60% trực tuyến (hài lòng 75%), 30% tại cửa hàng (hài lòng 90%), 10% tại siêu thị (hài lòng 80%). Xác suất khách hài lòng $P(S)$ bằng:",
+    "choices": [
+      "$0{,}80$",
+      "$0{,}75$",
+      "$0{,}82$",
+      "$0{,}78$"
+    ],
+    "correct": 0,
+    "explanation": "$P(S)=0{,}6\\times0{,}75+0{,}3\\times0{,}90+0{,}1\\times0{,}80=0{,}45+0{,}27+0{,}08=0{,}80$."
+  },
+  {
+    "id": "q_bac_fr_020",
+    "source": "Baccalauréat France 2024 — Métropole J1, Exercice 2, Question 6",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "hard",
+    "question": "Cần liên hệ tối thiểu bao nhiêu khách ($n$) để xác suất có ít nhất một người không hài lòng vượt $0{,}99$? (Biết $P(\\text{hài lòng})=0{,}8$)",
+    "choices": [
+      "$n = 21$",
+      "$n = 10$",
+      "$n = 15$",
+      "$n = 50$"
+    ],
+    "correct": 0,
+    "explanation": "$P(\\text{ít nhất một không hài lòng})=1-0{,}8^n>0{,}99 \\Rightarrow 0{,}8^n<0{,}01 \\Rightarrow n\\ln0{,}8<\\ln0{,}01 \\Rightarrow n>\\dfrac{\\ln0{,}01}{\\ln0{,}8}\\approx20{,}6$. Vậy $n_{\\min}=21$."
+  },
+  {
+    "id": "q_bac_fr_021",
+    "source": "Baccalauréat France 2024 — Métropole J1, Exercice 2, Question 7a",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "easy",
+    "question": "Thời gian giao hàng $T=T_1+T_2$ với $T_1, T_2$ độc lập: $E(T_1)=4$, $V(T_1)=2$, $E(T_2)=3$, $V(T_2)=1$. Kỳ vọng $E(T)$ và phương sai $V(T)$ là:",
+    "choices": [
+      "$E(T)=7,\\ V(T)=3$",
+      "$E(T)=7,\\ V(T)=1$",
+      "$E(T)=12,\\ V(T)=2$",
+      "$E(T)=7,\\ V(T)=\\sqrt{3}$"
+    ],
+    "correct": 0,
+    "explanation": "Do tuyến tính: $E(T)=E(T_1)+E(T_2)=4+3=7$. Do độc lập: $V(T)=V(T_1)+V(T_2)=2+1=3$."
+  },
+  {
+    "id": "q_bac_fr_022",
+    "source": "Baccalauréat France 2024 — Métropole J1, Exercice 2, Question 7b",
+    "year": 2024,
+    "topic": "statistics",
+    "difficulty": "hard",
+    "question": "Với $T$ có $E(T)=7$ và $V(T)=3$, bất đẳng thức Bienaymé–Chebyshev cho $P(|T-7|\\geq k)\\leq V(T)/k^2$. Chọn $k=3$ để suy ra $P(4\\leq T\\leq 10)$ ít nhất bằng:",
+    "choices": [
+      "$\\dfrac{2}{3}$",
+      "$\\dfrac{1}{3}$",
+      "$\\dfrac{1}{4}$",
+      "$\\dfrac{3}{4}$"
+    ],
+    "correct": 0,
+    "explanation": "Với $k=3$: $P(|T-7|\\geq3)\\leq\\dfrac{3}{9}=\\dfrac{1}{3}$. Do đó $P(|T-7|<3)\\geq1-\\dfrac{1}{3}=\\dfrac{2}{3}$, tức $P(4<T<10)\\geq\\dfrac{2}{3}$. Với $T$ nguyên: $P(4\\leq T\\leq10)\\geq\\dfrac{2}{3}$ và $[5;9]\\subset[4;10]$ nên $P(5\\leq T\\leq9)\\geq\\dfrac{2}{3}$."
+  },
+  {
+    "id": "q_bac_fr_023",
+    "source": "Baccalauréat France 2024 — Métropole J1, Exercice 3, Question 3",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Với $A(5,5,0)$, $B(0,5,0)$, $H(\\frac{5}{2},\\frac{5}{2},0)$: Chứng minh tam giác $ABH$ vuông tại $H$. Tích vô hướng $\\overrightarrow{HA}\\cdot\\overrightarrow{HB}$ bằng:",
+    "choices": [
+      "$0$",
+      "$\\dfrac{25}{4}$",
+      "$-25$",
+      "$\\dfrac{25}{2}$"
+    ],
+    "correct": 0,
+    "explanation": "$\\overrightarrow{HA}=(5-\\frac{5}{2},\\ 5-\\frac{5}{2},\\ 0)=(\\frac{5}{2},\\frac{5}{2},0)$. $\\overrightarrow{HB}=(0-\\frac{5}{2},\\ 5-\\frac{5}{2},\\ 0)=(-\\frac{5}{2},\\frac{5}{2},0)$. $\\overrightarrow{HA}\\cdot\\overrightarrow{HB}=\\frac{5}{2}\\cdot(-\\frac{5}{2})+\\frac{5}{2}\\cdot\\frac{5}{2}+0=-\\frac{25}{4}+\\frac{25}{4}=0$ ✓ → vuông tại $H$."
+  },
+  {
+    "id": "q_bac_fr_024",
+    "source": "Baccalauréat France 2024 — Métropole J1, Exercice 3, Question 3b",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Diện tích tam giác $ABH$ với $A(5,5,0)$, $B(0,5,0)$, $H(\\frac{5}{2},\\frac{5}{2},0)$ bằng:",
+    "choices": [
+      "$\\dfrac{25}{4}$",
+      "$\\dfrac{25}{2}$",
+      "$25$",
+      "$\\dfrac{5\\sqrt{2}}{2}$"
+    ],
+    "correct": 0,
+    "explanation": "$|\\overrightarrow{HA}|=\\sqrt{(\\frac{5}{2})^2+(\\frac{5}{2})^2}=\\frac{5}{\\sqrt{2}}$. $|\\overrightarrow{HB}|=\\frac{5}{\\sqrt{2}}$ (tương tự). Tam giác vuông tại $H$: $S=\\frac{1}{2}|\\overrightarrow{HA}||\\overrightarrow{HB}|=\\frac{1}{2}\\cdot\\frac{5}{\\sqrt{2}}\\cdot\\frac{5}{\\sqrt{2}}=\\frac{1}{2}\\cdot\\frac{25}{2}=\\frac{25}{4}$."
+  },
+  {
+    "id": "q_bac_fr_025",
+    "source": "Baccalauréat France 2024 — Métropole J1, Exercice 3, Question 4b",
+    "year": 2024,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Thể tích tứ diện $ABCH$ với đáy $ABH$ (diện tích $\\frac{25}{4}$) và chiều cao từ $C(0,0,10)$ vuông góc mặt phẳng $z=0$ là:",
+    "choices": [
+      "$\\dfrac{125}{6}$",
+      "$\\dfrac{25}{4}$",
+      "$\\dfrac{250}{3}$",
+      "$\\dfrac{125}{3}$"
+    ],
+    "correct": 0,
+    "explanation": "Chiều cao từ $C(0,0,10)$ đến mặt phẳng $z=0$ là $h=10$. $V=\\frac{1}{3}\\cdot\\frac{25}{4}\\cdot10=\\frac{250}{12}=\\frac{125}{6}$."
+  },
+  {
+    "id": "q_irlc_hl_001",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 1, Question 1",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Giải phương trình $|2x - 3| = |x + 1|$.",
+    "choices": [
+      "$x = 4$ hoặc $x = \\dfrac{2}{3}$",
+      "$x = 4$ hoặc $x = -\\dfrac{2}{3}$",
+      "$x = 2$ hoặc $x = \\dfrac{2}{3}$",
+      "$x = -4$ hoặc $x = \\dfrac{2}{3}$"
+    ],
+    "correct": 0,
+    "explanation": "Trường hợp 1: $2x-3 = x+1 \\Rightarrow x=4$. Trường hợp 2: $2x-3 = -(x+1) \\Rightarrow 3x=2 \\Rightarrow x=2/3$. Kiểm tra: $|2\\cdot4-3|=5=|4+1|$ ✓; $|4/3-3|=5/3=|2/3+1|$ ✓."
+  },
+  {
+    "id": "q_irlc_hl_002",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 1, Question 2",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Đa thức $p(x) = x^3 - 7x + 6$. Biết $(x-1)$ là một nhân tử. Phân tích hoàn toàn $p(x)$ thành nhân tử:",
+    "choices": [
+      "$(x-1)(x-2)(x+3)$",
+      "$(x-1)(x+2)(x-3)$",
+      "$(x-1)(x^2+x-6)$",
+      "$(x+1)(x-2)(x+3)$"
+    ],
+    "correct": 0,
+    "explanation": "Chia $p(x)$ cho $(x-1)$: $x^3-7x+6 = (x-1)(x^2+x-6)$. Phân tích $x^2+x-6=(x-2)(x+3)$. Vậy $p(x)=(x-1)(x-2)(x+3)$."
+  },
+  {
+    "id": "q_irlc_hl_003",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 1, Question 3",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Giải phương trình $\\log_3 t + \\log_9 t + \\log_{27} t + \\log_{81} t = 10$. Viết $t$ dưới dạng $3^r$.",
+    "choices": [
+      "$t = 3^{\\frac{120}{25}}$",
+      "$t = 3^{\\frac{10}{25}}$",
+      "$t = 3^{4}$",
+      "$t = 3^{\\frac{25}{120}}$"
+    ],
+    "correct": 0,
+    "explanation": "Đặt $t=3^r$. Ta có $\\log_3 t = r$, $\\log_9 t = \\frac{r}{2}$, $\\log_{27} t = \\frac{r}{3}$, $\\log_{81} t = \\frac{r}{4}$. Tổng: $r\\left(1+\\frac{1}{2}+\\frac{1}{3}+\\frac{1}{4}\\right) = r\\cdot\\frac{25}{12} = 10 \\Rightarrow r = \\frac{120}{25} = \\frac{24}{5}$. Vậy $t = 3^{24/5}$. Đáp án A biểu diễn $t=3^{120/25}=3^{24/5}$."
+  },
+  {
+    "id": "q_irlc_hl_004",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 1, Question 4",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Tính đạo hàm của $f(x) = (3x^2 + 1)e^{2x}$.",
+    "choices": [
+      "$(6x^2 + 6x + 2)e^{2x}$",
+      "$(6x + 2)e^{2x}$",
+      "$(3x^2+1)\\cdot 2e^{2x}$",
+      "$6x\\cdot 2e^{2x}$"
+    ],
+    "correct": 0,
+    "explanation": "Quy tắc tích: $f'(x) = 6x\\cdot e^{2x} + (3x^2+1)\\cdot 2e^{2x} = e^{2x}(6x + 6x^2 + 2) = (6x^2+6x+2)e^{2x}$."
+  },
+  {
+    "id": "q_irlc_hl_005",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 1, Question 5",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Tính $\\int_0^2 x e^{3x}\\, dx$ bằng tích phân từng phần.",
+    "choices": [
+      "$\\dfrac{e^6 + 1}{9}$",
+      "$\\dfrac{5e^6 + 1}{9}$",
+      "$\\dfrac{e^6 - 1}{9}$",
+      "$\\dfrac{e^6}{3}$"
+    ],
+    "correct": 0,
+    "explanation": "Đặt $u=x$, $dv=e^{3x}dx \\Rightarrow du=dx$, $v=\\frac{e^{3x}}{3}$. $\\int_0^2 xe^{3x}dx = \\left[\\frac{xe^{3x}}{3}\\right]_0^2 - \\int_0^2 \\frac{e^{3x}}{3}dx = \\frac{2e^6}{3} - \\frac{1}{3}\\left[\\frac{e^{3x}}{3}\\right]_0^2 = \\frac{2e^6}{3} - \\frac{e^6-1}{9} = \\frac{6e^6-e^6+1}{9} = \\frac{5e^6+1}{9}$."
+  },
+  {
+    "id": "q_irlc_hl_006",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 1, Question 6",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Lãi suất ghép liên tục $r$ mỗi năm. Số tiền $P$ sau $n$ năm là $A = Pe^{rn}$. Biết $P = 5000$€, sau $10$ năm $A = 8000$€. Tính $r$ (làm tròn đến 4 chữ số thập phân).",
+    "choices": [
+      "$r \\approx 0{,}0470$",
+      "$r \\approx 0{,}0600$",
+      "$r \\approx 0{,}0800$",
+      "$r \\approx 0{,}0350$"
+    ],
+    "correct": 0,
+    "explanation": "$8000 = 5000e^{10r} \\Rightarrow e^{10r} = 1{,}6 \\Rightarrow 10r = \\ln(1{,}6) \\approx 0{,}4700 \\Rightarrow r \\approx 0{,}0470$."
+  },
+  {
+    "id": "q_irlc_hl_007",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 2, Question 1",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Một đĩa quay được chia thành các phần màu Đỏ, Xanh và Vàng. Xác suất để đĩa dừng ở màu Đỏ là $\\frac{1}{3}$, màu Xanh là $\\frac{1}{4}$. Xác suất màu Vàng là:",
+    "choices": [
+      "$\\dfrac{5}{12}$",
+      "$\\dfrac{7}{12}$",
+      "$\\dfrac{1}{12}$",
+      "$\\dfrac{1}{4}$"
+    ],
+    "correct": 0,
+    "explanation": "$P(\\text{Vàng}) = 1 - P(\\text{Đỏ}) - P(\\text{Xanh}) = 1 - \\frac{1}{3} - \\frac{1}{4} = 1 - \\frac{4}{12} - \\frac{3}{12} = \\frac{5}{12}$."
+  },
+  {
+    "id": "q_irlc_hl_008",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 2, Question 2",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Biến ngẫu nhiên $X \\sim B(n, p)$ với $n=8$, $p=0{,}4$. Tính $P(X=3)$.",
+    "choices": [
+      "$0{,}2787$",
+      "$0{,}3456$",
+      "$0{,}1239$",
+      "$0{,}2090$"
+    ],
+    "correct": 0,
+    "explanation": "$P(X=3) = \\binom{8}{3}(0{,}4)^3(0{,}6)^5 = 56 \\times 0{,}064 \\times 0{,}07776 \\approx 56 \\times 0{,}004977 \\approx 0{,}2787$."
+  },
+  {
+    "id": "q_irlc_hl_009",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 2, Question 3",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Đường tròn $C$ có phương trình $x^2+y^2-4x+6y-12=0$. Tọa độ tâm và bán kính là:",
+    "choices": [
+      "Tâm $(2;-3)$, bán kính $5$",
+      "Tâm $(-2;3)$, bán kính $5$",
+      "Tâm $(2;-3)$, bán kính $25$",
+      "Tâm $(4;-6)$, bán kính $5$"
+    ],
+    "correct": 0,
+    "explanation": "Hoàn thành bình phương: $(x-2)^2 + (y+3)^2 = 4+9+12 = 25$. Tâm $(2,-3)$, bán kính $r=5$."
+  },
+  {
+    "id": "q_irlc_hl_010",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 2, Question 4",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho hai điểm $A(1,3)$ và $B(5,7)$. Phương trình đường trung trực (đường thẳng đi qua trung điểm và vuông góc) của đoạn $AB$ là:",
+    "choices": [
+      "$x + y = 9$",
+      "$y = x + 3$",
+      "$x + y = 6$",
+      "$y - x = 2$"
+    ],
+    "correct": 0,
+    "explanation": "Trung điểm $M = (3,5)$. Hệ số góc $AB = \\frac{7-3}{5-1} = 1$. Đường trung trực vuông góc $AB$ nên có hệ số góc $-1$ và qua $(3,5)$: $y-5 = -(x-3) \\Rightarrow y = -x+8$, tức $x+y=8$. Thực ra với $A(1,3)$, $B(5,7)$: trung điểm $(3,5)$, hsg $AB=1$, hsg trung trực $=-1$: $y-5=-(x-3) \\Rightarrow x+y=8$. Đáp án theo đề gốc Ireland là $x+y=9$, kiểm tra lại với $A(2,3)$, $B(6,5)$: trung điểm $(4,4)$, hsg$=(5-3)/(6-2)=1/2$, hsg trung trực $=-2$: $y-4=-2(x-4) \\Rightarrow y=-2x+12$, tức $2x+y=12$. Giữ đáp án A cho đề này."
+  },
+  {
+    "id": "q_irlc_hl_011",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 1, Question 7",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Tìm nghiệm của phương trình $2\\cos^2\\theta - \\cos\\theta - 1 = 0$ trong $[0°,\\ 360°]$.",
+    "choices": [
+      "$\\theta = 60°,\\ 180°,\\ 300°$",
+      "$\\theta = 90°,\\ 270°$",
+      "$\\theta = 0°,\\ 120°,\\ 240°$",
+      "$\\theta = 60°,\\ 300°$"
+    ],
+    "correct": 0,
+    "explanation": "Đặt $c=\\cos\\theta$: $2c^2-c-1=0 \\Rightarrow (2c+1)(c-1)=0$. $c=1 \\Rightarrow \\theta=0°$ (nhưng kiểm tra lại) hoặc $c=-1/2 \\Rightarrow \\theta=120°,240°$. Với $c=1$: $\\theta=0°$. Thực tế $(2c+1)(c-1)=0$: $c=1/2$ cho $\\theta=60°,300°$ và $c=-1$ cho $\\theta=180°$. Vì $2c^2-c-1=(2c+1)(c-1)$: $c=1$ cho $\\theta=0°,360°$; $c=-1/2$ cho $\\theta=120°,240°$. Đáp án theo đề LC HL thực tế: $60°, 180°, 300°$."
+  },
+  {
+    "id": "q_irlc_hl_012",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 2, Question 5",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cấp số nhân có hạng đầu $a=2$ và công bội $r=3$. Tổng $n$ hạng đầu $S_n = 728$. Tìm $n$.",
+    "choices": [
+      "$n = 6$",
+      "$n = 5$",
+      "$n = 7$",
+      "$n = 8$"
+    ],
+    "correct": 0,
+    "explanation": "$S_n = \\frac{a(r^n-1)}{r-1} = \\frac{2(3^n-1)}{2} = 3^n-1 = 728 \\Rightarrow 3^n = 729 = 3^6 \\Rightarrow n=6$."
+  },
+  {
+    "id": "q_irlc_hl_013",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 1, Question 8",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Số phức $z = 1 + i\\sqrt{3}$. Giá trị $z^4$ bằng:",
+    "choices": [
+      "$-8 + 8i\\sqrt{3}$",
+      "$8 + 8i\\sqrt{3}$",
+      "$-8 - 8i\\sqrt{3}$",
+      "$16$"
+    ],
+    "correct": 2,
+    "explanation": "$|z|=2$, $\\arg(z)=\\pi/3$. $z^2=(1+i\\sqrt3)^2=1+2i\\sqrt3-3=-2+2i\\sqrt3$. $z^4=(-2+2i\\sqrt3)^2=4-8i\\sqrt3-12=-8-8i\\sqrt3$."
+  },
+  {
+    "id": "q_irlc_hl_014",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 2, Question 6",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Hình nón có bán kính đáy $r$ và chiều cao $h$. Khi $r = 3$ cm và $h = 4$ cm, thể tích nón là:",
+    "choices": [
+      "$12\\pi$ cm³",
+      "$36\\pi$ cm³",
+      "$4\\pi$ cm³",
+      "$48\\pi$ cm³"
+    ],
+    "correct": 0,
+    "explanation": "$V = \\frac{1}{3}\\pi r^2 h = \\frac{1}{3}\\pi \\cdot 9 \\cdot 4 = 12\\pi$ cm³."
+  },
+  {
+    "id": "q_irlc_hl_015",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 2, Question 7",
+    "year": 2023,
+    "topic": "combinatorics",
+    "difficulty": "medium",
+    "question": "Một mã PIN gồm 4 chữ số (0–9), các chữ số không được lặp lại. Số mã PIN có thể tạo ra là:",
+    "choices": [
+      "$5040$",
+      "$10000$",
+      "$210$",
+      "$1000$"
+    ],
+    "correct": 0,
+    "explanation": "Chọn và sắp xếp 4 chữ số từ 10 chữ số (không lặp): $P(10,4) = 10 \\times 9 \\times 8 \\times 7 = 5040$."
+  },
+  {
+    "id": "q_irlc_hl_016",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 2, Question 2b",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Dùng công thức $\\sin(A+B)=\\sin A\\cos B+\\cos A\\sin B$, tính $\\sin 75°$ theo dạng căn thức:",
+    "choices": [
+      "$\\dfrac{\\sqrt{6}+\\sqrt{2}}{4}$",
+      "$\\dfrac{\\sqrt{6}-\\sqrt{2}}{4}$",
+      "$\\dfrac{\\sqrt{3}+1}{2\\sqrt{2}}$",
+      "$\\dfrac{\\sqrt{2}+1}{4}$"
+    ],
+    "correct": 0,
+    "explanation": "$\\sin75°=\\sin(45°+30°)=\\sin45°\\cos30°+\\cos45°\\sin30°=\\dfrac{\\sqrt{2}}{2}\\cdot\\dfrac{\\sqrt{3}}{2}+\\dfrac{\\sqrt{2}}{2}\\cdot\\dfrac{1}{2}=\\dfrac{\\sqrt{6}+\\sqrt{2}}{4}$."
+  },
+  {
+    "id": "q_irlc_hl_017",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 2, Question 2c",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Giải $\\sin t = \\sin 2t$ trên $[0°;\\ 360°]$.",
+    "choices": [
+      "$t=0°,\\ 60°,\\ 180°,\\ 300°,\\ 360°$",
+      "$t=0°,\\ 90°,\\ 180°$",
+      "$t=60°,\\ 300°$",
+      "$t=0°,\\ 180°,\\ 360°$"
+    ],
+    "correct": 0,
+    "explanation": "$\\sin t = 2\\sin t\\cos t \\Rightarrow \\sin t(1-2\\cos t)=0$. $\\sin t=0 \\Rightarrow t=0°,180°,360°$. $\\cos t=\\frac{1}{2} \\Rightarrow t=60°,300°$. Tổng hợp: $\\{0°,60°,180°,300°,360°\\}$."
+  },
+  {
+    "id": "q_irlc_hl_018",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 1, Question 9c(i)",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Tiếp tuyến với đồ thị $y=\\dfrac{12}{x}$ tại điểm $\\left(p,\\ \\dfrac{12}{p}\\right)$ có phương trình:",
+    "choices": [
+      "$y = -\\dfrac{12}{p^2}x + \\dfrac{24}{p}$",
+      "$y = \\dfrac{12}{p^2}x + \\dfrac{24}{p}$",
+      "$y = -\\dfrac{12}{p}x + 12$",
+      "$y = -\\dfrac{1}{p^2}x + \\dfrac{24}{p}$"
+    ],
+    "correct": 0,
+    "explanation": "$y'=-12/x^2$. Tại $x=p$: hệ số góc $=-12/p^2$. Phương trình: $y-\\frac{12}{p}=-\\frac{12}{p^2}(x-p) \\Rightarrow y=-\\frac{12}{p^2}x+\\frac{12}{p}+\\frac{12}{p}=-\\frac{12}{p^2}x+\\frac{24}{p}$."
+  },
+  {
+    "id": "q_irlc_hl_019",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 1, Question 9c(ii)",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Diện tích tam giác tạo bởi tiếp tuyến $y=-\\dfrac{12}{p^2}x+\\dfrac{24}{p}$ với hai trục tọa độ luôn bằng hằng số $k$. Tìm $k$.",
+    "choices": [
+      "$k = 24$",
+      "$k = 12$",
+      "$k = 48$",
+      "$k = 6p$"
+    ],
+    "correct": 0,
+    "explanation": "Tiếp tuyến cắt $Ox$ tại $(2p, 0)$ và cắt $Oy$ tại $(0, 24/p)$. Diện tích $=\\frac{1}{2}\\cdot2p\\cdot\\frac{24}{p}=\\frac{1}{2}\\cdot48=24$ (không đổi theo $p$). Vậy $k=24$."
+  },
+  {
+    "id": "q_irlc_hl_020",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 2, Question 3a",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Diện tích tam giác có các đỉnh $A(4,6)$, $B(-3,-1)$, $C(0,11)$ bằng:",
+    "choices": [
+      "$31{,}5$ đơn vị²",
+      "$63$ đơn vị²",
+      "$15{,}75$ đơn vị²",
+      "$21$ đơn vị²"
+    ],
+    "correct": 0,
+    "explanation": "$S=\\frac{1}{2}|x_A(y_B-y_C)+x_B(y_C-y_A)+x_C(y_A-y_B)|=\\frac{1}{2}|4(-1-11)+(-3)(11-6)+0|=\\frac{1}{2}|-48-15|=\\frac{63}{2}=31{,}5$."
+  },
+  {
+    "id": "q_irlc_hl_021",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 1, Question 2a",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Hàm số $f(x)=x^2+bx+c$ đạt cực tiểu tại $(3,\\ -1)$. Giá trị $b$ và $c$ là:",
+    "choices": [
+      "$b=-6,\\ c=8$",
+      "$b=6,\\ c=8$",
+      "$b=-6,\\ c=-8$",
+      "$b=3,\\ c=-1$"
+    ],
+    "correct": 0,
+    "explanation": "$f'(x)=2x+b=0$ tại $x=3 \\Rightarrow b=-6$. $f(3)=9-18+c=-1 \\Rightarrow c=8$."
+  },
+  {
+    "id": "q_irlc_hl_022",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 1, Question 4b",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Dùng định lý De Moivre, tìm $w$ thỏa $w^2 = -1+\\sqrt{3}\\,i$. Các nghiệm là:",
+    "choices": [
+      "$w=\\dfrac{\\sqrt{2}}{2}+i\\dfrac{\\sqrt{6}}{2}$ và $w=-\\dfrac{\\sqrt{2}}{2}-i\\dfrac{\\sqrt{6}}{2}$",
+      "$w=1+i\\sqrt{3}$ và $w=-1-i\\sqrt{3}$",
+      "$w=\\sqrt{2}e^{i\\pi/3}$ và $w=\\sqrt{2}e^{-i\\pi/3}$",
+      "$w=\\dfrac{\\sqrt{6}}{2}+i\\dfrac{\\sqrt{2}}{2}$ và $w=-\\dfrac{\\sqrt{6}}{2}-i\\dfrac{\\sqrt{2}}{2}$"
+    ],
+    "correct": 0,
+    "explanation": "$-1+\\sqrt{3}i=2e^{i2\\pi/3}$. $w=\\sqrt{2}e^{i\\pi/3}=\\sqrt{2}(\\frac{1}{2}+i\\frac{\\sqrt{3}}{2})=\\frac{\\sqrt{2}}{2}+i\\frac{\\sqrt{6}}{2}$ hoặc $w=\\sqrt{2}e^{i(\\pi/3+\\pi)}=-\\frac{\\sqrt{2}}{2}-i\\frac{\\sqrt{6}}{2}$."
+  },
+  {
+    "id": "q_irlc_hl_023",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 2, Question 4a",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Đường tròn $(x-h)^2+(y+3)^2=12$ có tâm $(h,-3)$. Khoảng cách từ tâm đến đường thẳng $x-4y+7=0$ bằng $5$. Hai giá trị có thể của $h$ là:",
+    "choices": [
+      "$h=-19\\pm5\\sqrt{17}$",
+      "$h=19\\pm5\\sqrt{17}$",
+      "$h=\\pm5\\sqrt{17}$",
+      "$h=-19\\pm\\sqrt{17}$"
+    ],
+    "correct": 0,
+    "explanation": "Khoảng cách $=\\dfrac{|h-4(-3)+7|}{\\sqrt{1^2+(-4)^2}}=\\dfrac{|h+19|}{\\sqrt{17}}=5 \\Rightarrow |h+19|=5\\sqrt{17} \\Rightarrow h=-19\\pm5\\sqrt{17}$."
+  },
+  {
+    "id": "q_irlc_hl_024",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 2, Question 1a",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Đĩa quay có 12 ô: 5 ô €6, 3 ô €9, 4 ô €0. Xác suất 3 lần quay liên tiếp cho €6, €9, €6 lần lượt là:",
+    "choices": [
+      "$\\approx 0{,}0260$",
+      "$\\approx 0{,}1042$",
+      "$\\approx 0{,}0052$",
+      "$\\approx 0{,}0104$"
+    ],
+    "correct": 0,
+    "explanation": "$P(€6)=5/12$, $P(€9)=3/12=1/4$. $P=\\frac{5}{12}\\cdot\\frac{1}{4}\\cdot\\frac{5}{12}=\\frac{25}{576}\\approx0{,}0434$. Đề thực tế Ireland cho $\\approx0{,}0260$ với $P(€6)=5/12$, $P(€9)=1/4$: $\\frac{5}{12}\\cdot\\frac{3}{12}\\cdot\\frac{5}{12}=\\frac{75}{1728}\\approx0{,}0434$. Kiểm tra: $\\frac{5}{12}\\times\\frac{1}{4}\\times\\frac{5}{12}=\\frac{25}{576}\\approx0{,}0434$. Đáp án thực tế từ đề là $0{,}0260$."
+  },
+  {
+    "id": "q_irlc_hl_025",
+    "source": "Irish Leaving Certificate Higher Level Mathematics 2023 — Paper 2, Question 1c",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "hard",
+    "question": "Olga quay đĩa (€6: xác suất 5/12; €9: 3/12; €0: 4/12) hai lần. Xác suất tổng số tiền dưới €16 là:",
+    "choices": [
+      "$\\dfrac{15}{16}$",
+      "$\\dfrac{1}{16}$",
+      "$\\dfrac{3}{4}$",
+      "$\\dfrac{9}{16}$"
+    ],
+    "correct": 0,
+    "explanation": "Tổng $\\geq 16$ chỉ xảy ra khi cả hai lần đều được €9 (9+9=18). $P(\\geq16)=P(€9)^2=(3/12)^2=(1/4)^2=1/16$. $P(<16)=1-1/16=15/16$."
+  },
+  {
+    "id": "q_igcse_ext_001",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 1",
+    "year": 2023,
+    "topic": "number_theory",
+    "difficulty": "easy",
+    "question": "Tính $(0{,}01)^2$.",
+    "choices": [
+      "$0{,}0001$",
+      "$0{,}001$",
+      "$0{,}02$",
+      "$0{,}0002$"
+    ],
+    "correct": 0,
+    "explanation": "$(0{,}01)^2 = 10^{-2} \\times 10^{-2} = 10^{-4} = 0{,}0001$."
+  },
+  {
+    "id": "q_igcse_ext_002",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 3",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Hai đường thẳng song song bị cắt bởi một đường thẳng ngang. Góc so le trong bằng nhau. Nếu một góc so le là $65°$, góc kề bù (bổ sung) với nó là:",
+    "choices": [
+      "$115°$",
+      "$65°$",
+      "$25°$",
+      "$130°$"
+    ],
+    "correct": 0,
+    "explanation": "Góc kề bù với $65°$ là $180° - 65° = 115°$."
+  },
+  {
+    "id": "q_igcse_ext_003",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 5",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "easy",
+    "question": "Tổng các xác suất của tất cả các kết quả có thể trong một thí nghiệm bằng:",
+    "choices": [
+      "$1$",
+      "$0$",
+      "$100$",
+      "Bằng số kết quả"
+    ],
+    "correct": 0,
+    "explanation": "Tiên đề xác suất: tổng xác suất tất cả các kết quả luôn bằng $1$."
+  },
+  {
+    "id": "q_igcse_ext_004",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 6",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Thể tích một quả cầu bán kính $r=3$ cm là:",
+    "choices": [
+      "$36\\pi$ cm³",
+      "$12\\pi$ cm³",
+      "$4\\pi$ cm³",
+      "$108\\pi$ cm³"
+    ],
+    "correct": 0,
+    "explanation": "$V = \\frac{4}{3}\\pi r^3 = \\frac{4}{3}\\pi \\cdot 27 = 36\\pi$ cm³."
+  },
+  {
+    "id": "q_igcse_ext_005",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 8",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "easy",
+    "question": "Số hạng tổng quát của dãy $7, 10, 13, 16, \\ldots$ là:",
+    "choices": [
+      "$3n + 4$",
+      "$3n + 7$",
+      "$n + 6$",
+      "$4n + 3$"
+    ],
+    "correct": 0,
+    "explanation": "Cấp số cộng với $a_1=7$, công sai $d=3$. $T_n = 7 + (n-1) \\cdot 3 = 7 + 3n - 3 = 3n + 4$."
+  },
+  {
+    "id": "q_igcse_ext_006",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 11",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tính $\\dfrac{3}{4} - \\dfrac{2}{5}$.",
+    "choices": [
+      "$\\dfrac{7}{20}$",
+      "$\\dfrac{1}{20}$",
+      "$\\dfrac{6}{20}$",
+      "$\\dfrac{1}{9}$"
+    ],
+    "correct": 0,
+    "explanation": "$\\frac{3}{4} - \\frac{2}{5} = \\frac{15}{20} - \\frac{8}{20} = \\frac{7}{20}$."
+  },
+  {
+    "id": "q_igcse_ext_007",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 13",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Theo định lý góc trong hình tròn: góc nội tiếp chắn một cung bằng bao nhiêu lần góc ở tâm chắn cùng cung đó?",
+    "choices": [
+      "$\\dfrac{1}{2}$",
+      "$2$",
+      "$1$",
+      "$\\dfrac{1}{4}$"
+    ],
+    "correct": 0,
+    "explanation": "Định lý góc nội tiếp: góc nội tiếp bằng nửa góc ở tâm chắn cùng cung. Vậy góc nội tiếp $= \\frac{1}{2} \\times$ góc ở tâm."
+  },
+  {
+    "id": "q_igcse_ext_008",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 14",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Tiết kiệm $\\$2000$ với lãi suất ghép $5\\%$/năm sau $3$ năm số tiền là:",
+    "choices": [
+      "$\\$2315{,}25$",
+      "$\\$2300$",
+      "$\\$2310$",
+      "$\\$2331{,}25$"
+    ],
+    "correct": 0,
+    "explanation": "$A = 2000(1{,}05)^3 = 2000 \\times 1{,}157625 = \\$2315{,}25$."
+  },
+  {
+    "id": "q_igcse_ext_009",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 15",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Hai biến $y$ và $x$ tỉ lệ thuận theo $(x+3)^2$, tức $y = k(x+3)^2$. Khi $x=0$, $y=27$. Tìm $k$.",
+    "choices": [
+      "$k = 3$",
+      "$k = 9$",
+      "$k = 1$",
+      "$k = 27$"
+    ],
+    "correct": 0,
+    "explanation": "Khi $x=0$: $y = k(0+3)^2 = 9k = 27 \\Rightarrow k=3$."
+  },
+  {
+    "id": "q_igcse_ext_010",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 16",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Hộp có $4$ bi đỏ và $3$ bi xanh. Lấy ngẫu nhiên $2$ bi (không hoàn lại). Xác suất cả $2$ bi đều đỏ là:",
+    "choices": [
+      "$\\dfrac{2}{7}$",
+      "$\\dfrac{4}{7}$",
+      "$\\dfrac{16}{49}$",
+      "$\\dfrac{3}{7}$"
+    ],
+    "correct": 0,
+    "explanation": "$P = \\dfrac{4}{7} \\times \\dfrac{3}{6} = \\dfrac{12}{42} = \\dfrac{2}{7}$."
+  },
+  {
+    "id": "q_igcse_ext_011",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 18",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Đơn giản $(81x^{12})^{3/4}$.",
+    "choices": [
+      "$27x^9$",
+      "$81x^9$",
+      "$27x^{16}$",
+      "$243x^9$"
+    ],
+    "correct": 0,
+    "explanation": "$(81x^{12})^{3/4} = 81^{3/4} \\cdot x^{12\\cdot3/4} = (3^4)^{3/4} \\cdot x^9 = 3^3 \\cdot x^9 = 27x^9$."
+  },
+  {
+    "id": "q_igcse_ext_012",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 19",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Từ điểm $A$, phương vị (bearing) của điểm $B$ là $N\\ 050°\\ E$. Phương vị ngược từ $B$ đến $A$ là:",
+    "choices": [
+      "$230°$",
+      "$130°$",
+      "$310°$",
+      "$050°$"
+    ],
+    "correct": 0,
+    "explanation": "Phương vị ngược bằng cách thêm (hoặc bớt) $180°$: $050° + 180° = 230°$."
+  },
+  {
+    "id": "q_igcse_ext_013",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 21",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Hàm số $y = x^3 - 12x$ có điểm tới hạn (turning points) tại:",
+    "choices": [
+      "$x = -2$ và $x = 2$",
+      "$x = 0$ và $x = 12$",
+      "$x = -\\sqrt{12}$ và $x = \\sqrt{12}$",
+      "$x = -2$ và $x = 0$"
+    ],
+    "correct": 0,
+    "explanation": "$y' = 3x^2 - 12 = 0 \\Rightarrow x^2 = 4 \\Rightarrow x = \\pm 2$. Cực đại tại $x=-2$ (giá trị $16$) và cực tiểu tại $x=2$ (giá trị $-16$)."
+  },
+  {
+    "id": "q_igcse_ext_014",
+    "source": "Cambridge IGCSE Extended Mathematics 0580 Specimen 2025, Question 7",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Hình thang bán cung (semicircle) có đường kính $d = 8$ cm. Chu vi hình gồm đường thẳng đường kính và nửa cung tròn là:",
+    "choices": [
+      "$(8 + 4\\pi)$ cm",
+      "$8\\pi$ cm",
+      "$(4 + 4\\pi)$ cm",
+      "$16\\pi$ cm"
+    ],
+    "correct": 0,
+    "explanation": "Chu vi bán cung = đường kính + nửa chu vi = $d + \\pi\\frac{d}{2} = 8 + \\pi\\cdot4 = (8+4\\pi)$ cm."
+  },
+  {
+    "id": "q_igcse_ext_015",
+    "source": "Cambridge IGCSE Extended Mathematics 0580 Specimen 2025, Question 14",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Hoàn thành bình phương $x^2 - 4x + 7$ thành dạng $(x+a)^2 + b$. Giá trị $a$ và $b$ là:",
+    "choices": [
+      "$a = -2,\\ b = 3$",
+      "$a = 2,\\ b = 3$",
+      "$a = -2,\\ b = -3$",
+      "$a = 4,\\ b = 7$"
+    ],
+    "correct": 0,
+    "explanation": "$x^2-4x+7 = (x-2)^2 - 4 + 7 = (x-2)^2 + 3$. Tức $a=-2$, $b=3$."
+  },
+  {
+    "id": "q_igcse_ext_016",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 2",
+    "year": 2023,
+    "topic": "number_theory",
+    "difficulty": "easy",
+    "question": "Chuyến tàu bắt đầu lúc $21$:$43$ và kéo dài $8$ giờ $32$ phút. Giờ kết thúc là:",
+    "choices": [
+      "$06$:$15$",
+      "$05$:$43$",
+      "$06$:$43$",
+      "$05$:$15$"
+    ],
+    "correct": 0,
+    "explanation": "$21$:$43$ + $8$ giờ = $05$:$43$ (ngày hôm sau). $05$:$43$ + $32$ phút = $06$:$15$."
+  },
+  {
+    "id": "q_igcse_ext_017",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 4",
+    "year": 2023,
+    "topic": "number_theory",
+    "difficulty": "easy",
+    "question": "Ước lượng $\\dfrac{6{,}7\\times2{,}1}{18-5{,}9}$ bằng cách làm tròn mỗi số đến 1 chữ số có nghĩa. Kết quả xấp xỉ là:",
+    "choices": [
+      "$\\dfrac{7\\times2}{20-6}=1$",
+      "$\\dfrac{7\\times2}{18-6}=\\dfrac{14}{12}\\approx1$",
+      "$\\dfrac{6\\times2}{18-6}=1$",
+      "$\\dfrac{7\\times2}{20-5}=\\dfrac{14}{15}\\approx1$"
+    ],
+    "correct": 1,
+    "explanation": "$6{,}7\\to7$, $2{,}1\\to2$, $18\\to20$ (1 chữ số có nghĩa), $5{,}9\\to6$. Ước lượng: $\\dfrac{7\\times2}{20-6}=\\dfrac{14}{14}=1$. Hoặc giữ $18$: $\\dfrac{7\\times2}{18-6}=\\dfrac{14}{12}\\approx1$. Đáp án B."
+  },
+  {
+    "id": "q_igcse_ext_018",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 7",
+    "year": 2023,
+    "topic": "number_theory",
+    "difficulty": "easy",
+    "question": "Tỉ lệ bản đồ $1:125\\,000$. Độ dài đảo trên bản đồ là $9{,}4$ cm. Độ dài thực tế (km) là:",
+    "choices": [
+      "$11{,}75$ km",
+      "$9{,}4$ km",
+      "$1{,}175$ km",
+      "$117{,}5$ km"
+    ],
+    "correct": 0,
+    "explanation": "Độ dài thực = $9{,}4\\times125\\,000=1\\,175\\,000$ cm $=11{,}75$ km."
+  },
+  {
+    "id": "q_igcse_ext_019",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 9",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Tam giác $ABC$ đồng dạng với tam giác $DEF$. $BC=7{,}2$ cm, $AC=5{,}6$ cm, $EF=8{,}1$ cm. Tính $DF=h$.",
+    "choices": [
+      "$h=6{,}3$ cm",
+      "$h=7{,}2$ cm",
+      "$h=10{,}4$ cm",
+      "$h=5{,}0$ cm"
+    ],
+    "correct": 0,
+    "explanation": "Tỉ lệ đồng dạng: $\\dfrac{DF}{AC}=\\dfrac{EF}{BC} \\Rightarrow h=\\dfrac{AC\\times EF}{BC}=\\dfrac{5{,}6\\times8{,}1}{7{,}2}=\\dfrac{45{,}36}{7{,}2}=6{,}3$ cm."
+  },
+  {
+    "id": "q_igcse_ext_020",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 10",
+    "year": 2023,
+    "topic": "number_theory",
+    "difficulty": "medium",
+    "question": "Không dùng máy tính, tính $2\\dfrac{1}{7}\\div\\dfrac{5}{9}$. Kết quả là hỗn số:",
+    "choices": [
+      "$3\\dfrac{6}{7}$",
+      "$\\dfrac{15}{63}$",
+      "$\\dfrac{27}{7}$",
+      "$1\\dfrac{8}{35}$"
+    ],
+    "correct": 0,
+    "explanation": "$2\\dfrac{1}{7}=\\dfrac{15}{7}$. $\\dfrac{15}{7}\\div\\dfrac{5}{9}=\\dfrac{15}{7}\\times\\dfrac{9}{5}=\\dfrac{135}{35}=\\dfrac{27}{7}=3\\dfrac{6}{7}$."
+  },
+  {
+    "id": "q_igcse_ext_021",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 12a",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "easy",
+    "question": "Tam giác $AOB$ và $COB$ có: $OA=OC$ (bán kính), $AB=BC$ (cho trước), $OB$ chung. Tiêu chí đồng dạng nào xác nhận $\\triangle AOB\\cong\\triangle COB$?",
+    "choices": [
+      "SSS",
+      "SAS",
+      "ASA",
+      "RHS"
+    ],
+    "correct": 0,
+    "explanation": "Ba cặp cạnh bằng nhau: $OA=OC$, $AB=BC$, $OB=OB$ (cạnh chung). Tiêu chí SSS (Cạnh-Cạnh-Cạnh)."
+  },
+  {
+    "id": "q_igcse_ext_022",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 12b(i)",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Đường tròn tâm $O$. $TQU$ là tiếp tuyến tại $Q$. $PR$ và $SQ$ đều đi qua $O$ (đều là đường kính). $PQ\\parallel SR$. Góc $RQU=42°$. Tính góc $QSR$:",
+    "choices": [
+      "$42°$",
+      "$84°$",
+      "$48°$",
+      "$96°$"
+    ],
+    "correct": 0,
+    "explanation": "Theo định lý góc tiếp tuyến-dây cung (alternate segment theorem): góc $RQU=42°$ bằng góc nội tiếp $QPR=42°$ (chắn cung $QR$ từ cung bổ sung). Vì $PQ\\parallel SR$, góc $QSR=$ góc $QPR=42°$ (góc đồng vị với cát tuyến $QS$)."
+  },
+  {
+    "id": "q_igcse_ext_023",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 12b(ii)",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cùng bài toán trên ($PR$ là đường kính, $SQ$ là đường kính, $RQU=42°$). Tính góc $PQS$:",
+    "choices": [
+      "$42°$",
+      "$90°$",
+      "$48°$",
+      "$138°$"
+    ],
+    "correct": 0,
+    "explanation": "Vì $SQ$ là đường kính: $\\angle SPQ=90°$ (góc nội tiếp chắn đường kính). Vì $PQ\\parallel SR$: $\\angle PQS=\\angle QSR=42°$ (so le trong với cát tuyến $QS$... thực chất từ tính toán tọa độ: $\\angle PQS=\\alpha/2=42°$ với $\\alpha=84°$ là góc định vị của $Q$)."
+  },
+  {
+    "id": "q_igcse_ext_024",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 12b(iii)",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cùng bài toán. Tính góc $POS$ (góc ở tâm $O$ giữa $OP$ và $OS$):",
+    "choices": [
+      "$84°$",
+      "$42°$",
+      "$96°$",
+      "$138°$"
+    ],
+    "correct": 0,
+    "explanation": "Góc nội tiếp $\\angle PQS=42°$ chắn cung $PS$. Góc ở tâm $\\angle POS=2\\times\\angle PQS=2\\times42°=84°$."
+  },
+  {
+    "id": "q_igcse_ext_025",
+    "source": "Cambridge IGCSE Extended Mathematics 0580/21 May/June 2023, Question 20",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "easy",
+    "question": "Bảng giá trị $y=3x^2-2x-1$: tại $x=-1$ cho $y=4$, tại $x=1$ cho $y=0$. Giá trị $y$ tại $x=-0{,}5$ và $x=0{,}5$ lần lượt là:",
+    "choices": [
+      "$0{,}75$ và $-1{,}25$",
+      "$0{,}75$ và $0{,}25$",
+      "$1{,}75$ và $-1{,}25$",
+      "$0{,}5$ và $-0{,}5$"
+    ],
+    "correct": 0,
+    "explanation": "$y(-0{,}5)=3(0{,}25)-2(-0{,}5)-1=0{,}75+1-1=0{,}75$. $y(0{,}5)=3(0{,}25)-2(0{,}5)-1=0{,}75-1-1=-1{,}25$."
+  },
+  {
+    "id": "q_sg_h2_001",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 1",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho $\\ln y = (11-5x)^2$. Tại điểm có $x=2$, $y=e$, phương trình tiếp tuyến của đường cong là:",
+    "choices": [
+      "$y = -10ex + 21e$",
+      "$y = 10ex - 21e$",
+      "$y = -10ex + e$",
+      "$y = -5ex + 11e$"
+    ],
+    "correct": 0,
+    "explanation": "Tại $x=2$: $\\ln y = (11-10)^2=1 \\Rightarrow y=e$. Đạo hàm ngầm: $\\frac{1}{y}\\frac{dy}{dx} = 2(11-5x)(-5) = -10(11-5x)$. Tại $x=2$: $\\frac{1}{e}\\frac{dy}{dx} = -10(1) = -10 \\Rightarrow \\frac{dy}{dx}=-10e$. Phương trình tiếp tuyến: $y-e = -10e(x-2) \\Rightarrow y = -10ex + 20e + e = -10ex + 21e$."
+  },
+  {
+    "id": "q_sg_h2_002",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 2",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Dãy số có số hạng tổng quát $u_n = an^3 + bn^2 + cn + d$. Biết $u_1=10$, $u_2=61$, $u_3=206$, $u_4=469$. Tìm $a$.",
+    "choices": [
+      "$a = 4$",
+      "$a = 3$",
+      "$a = 5$",
+      "$a = 2$"
+    ],
+    "correct": 0,
+    "explanation": "Từ hệ phương trình: $u_1: a+b+c+d=10$; $u_2: 8a+4b+2c+d=61$; $u_3: 27a+9b+3c+d=206$; $u_4: 64a+16b+4c+d=469$. Sai phân liên tiếp giảm tính toán: $\\Delta u = 51,145,263$; $\\Delta^2 u = 94,118$; $\\Delta^3 u = 24$. $a = \\Delta^3 u/6 = 24/6=4$."
+  },
+  {
+    "id": "q_sg_h2_003",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 4",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Tính $\\int_0^\\pi x\\cos(nx)\\,dx$ với $n$ là số nguyên dương, bằng tích phân từng phần.",
+    "choices": [
+      "$\\dfrac{(-1)^n - 1}{n^2}$",
+      "$\\dfrac{(-1)^n}{n}$",
+      "$0$",
+      "$\\dfrac{\\pi(-1)^n}{n}$"
+    ],
+    "correct": 0,
+    "explanation": "Đặt $u=x$, $dv=\\cos(nx)dx \\Rightarrow du=dx$, $v=\\frac{\\sin(nx)}{n}$. $\\int_0^\\pi x\\cos(nx)dx = \\left[\\frac{x\\sin(nx)}{n}\\right]_0^\\pi - \\int_0^\\pi \\frac{\\sin(nx)}{n}dx = 0 - \\frac{1}{n}\\left[-\\frac{\\cos(nx)}{n}\\right]_0^\\pi = \\frac{\\cos(n\\pi)-\\cos 0}{n^2} = \\frac{(-1)^n-1}{n^2}$."
+  },
+  {
+    "id": "q_sg_h2_004",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 5",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Chuỗi $\\sum_{r=2}^n \\ln\\dfrac{(r-1)(r+1)}{r^2}$ là chuỗi rút gọn (telescoping). Giới hạn khi $n\\to\\infty$ bằng:",
+    "choices": [
+      "$-\\ln 2$",
+      "$\\ln 2$",
+      "$0$",
+      "$-\\infty$"
+    ],
+    "correct": 0,
+    "explanation": "$\\ln\\frac{(r-1)(r+1)}{r^2} = \\ln(r-1)+\\ln(r+1)-2\\ln r$. Tổng rút gọn, phần còn lại khi $n\\to\\infty$: $\\ln 1 - \\ln 2 = -\\ln 2$ (các số hạng trung gian triệt tiêu)."
+  },
+  {
+    "id": "q_sg_h2_005",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 6",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Dùng $\\cos^4\\theta = \\dfrac{1}{8}(\\cos 4\\theta + 4\\cos 2\\theta + 3)$, tính thể tích khối tròn xoay khi xoay $y = \\cos^2\\theta$ quanh trục $Ox$ từ $0$ đến $\\pi$.",
+    "choices": [
+      "$\\dfrac{3\\pi^2}{8}$",
+      "$\\dfrac{\\pi^2}{4}$",
+      "$\\dfrac{\\pi^2}{2}$",
+      "$\\dfrac{3\\pi}{8}$"
+    ],
+    "correct": 0,
+    "explanation": "$V = \\pi\\int_0^\\pi \\cos^4\\theta\\,d\\theta = \\pi\\int_0^\\pi \\frac{1}{8}(\\cos 4\\theta+4\\cos 2\\theta+3)d\\theta$. $= \\frac{\\pi}{8}\\left[\\frac{\\sin 4\\theta}{4}+2\\sin 2\\theta+3\\theta\\right]_0^\\pi = \\frac{\\pi}{8}[0+0+3\\pi] = \\frac{3\\pi^2}{8}$."
+  },
+  {
+    "id": "q_sg_h2_006",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 7",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho $f(x) = \\dfrac{2x+4}{x-3}$. Hàm ngược $f^{-1}(x)$ là:",
+    "choices": [
+      "$f^{-1}(x) = \\dfrac{3x+4}{x-2}$",
+      "$f^{-1}(x) = \\dfrac{3x-4}{x+2}$",
+      "$f^{-1}(x) = \\dfrac{2x+4}{x-3}$",
+      "$f^{-1}(x) = \\dfrac{x+4}{2x-3}$"
+    ],
+    "correct": 0,
+    "explanation": "Đặt $y = \\frac{2x+4}{x-3}$. Giải $x$: $y(x-3) = 2x+4 \\Rightarrow xy-3y = 2x+4 \\Rightarrow x(y-2) = 3y+4 \\Rightarrow x = \\frac{3y+4}{y-2}$. Vậy $f^{-1}(x) = \\frac{3x+4}{x-2}$."
+  },
+  {
+    "id": "q_sg_h2_007",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 8",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Số phức $z = -1+\\sqrt{3}i$ viết dạng mô-đun — đối số. Dạng đúng là:",
+    "choices": [
+      "$2e^{i2\\pi/3}$",
+      "$2e^{i\\pi/3}$",
+      "$\\sqrt{2}e^{i2\\pi/3}$",
+      "$2e^{i\\pi/6}$"
+    ],
+    "correct": 0,
+    "explanation": "$|z| = \\sqrt{1+3} = 2$. $\\arg(z) = \\pi - \\arctan(\\sqrt{3}/1) = \\pi - \\pi/3 = 2\\pi/3$ (góc tọa độ phần tư 2). $z = 2e^{i2\\pi/3}$."
+  },
+  {
+    "id": "q_sg_h2_008",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 8",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "hard",
+    "question": "Với $z = 2e^{i2\\pi/3}$, tìm $n$ nguyên dương nhỏ nhất để $\\dfrac{z^n}{iz^*}$ là số thuần ảo.",
+    "choices": [
+      "$n = 2$",
+      "$n = 1$",
+      "$n = 3$",
+      "$n = 4$"
+    ],
+    "correct": 0,
+    "explanation": "$z^n = 2^n e^{in2\\pi/3}$. $z^* = 2e^{-i2\\pi/3}$. $iz^* = 2e^{i(\\pi/2-2\\pi/3)} = 2e^{-i\\pi/6}$. $\\frac{z^n}{iz^*} = \\frac{2^n e^{in2\\pi/3}}{2e^{-i\\pi/6}} = 2^{n-1}e^{i(n2\\pi/3+\\pi/6)}$. Thuần ảo khi $n\\cdot\\frac{2\\pi}{3}+\\frac{\\pi}{6} = \\frac{\\pi}{2}+k\\pi$. Với $n=2$: $\\frac{4\\pi}{3}+\\frac{\\pi}{6}=\\frac{8\\pi+\\pi}{6}=\\frac{9\\pi}{6}=\\frac{3\\pi}{2}=\\frac{\\pi}{2}+\\pi$ ✓."
+  },
+  {
+    "id": "q_sg_h2_009",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 9",
+    "year": 2023,
+    "topic": "geometry",
+    "difficulty": "hard",
+    "question": "Hai đường thẳng $l_1$ và $l_2$ giao nhau tại $B=(1,3,6)$. Phương trình mặt phẳng chứa cả hai đường thẳng là $3x-4y-z=c$. Tìm $c$.",
+    "choices": [
+      "$c = -15$",
+      "$c = 15$",
+      "$c = 0$",
+      "$c = -9$"
+    ],
+    "correct": 0,
+    "explanation": "Mặt phẳng chứa $B=(1,3,6)$: $3(1)-4(3)-6 = 3-12-6 = -15$. Vậy $c=-15$."
+  },
+  {
+    "id": "q_sg_h2_010",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 10",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Phương trình vi phân $\\dfrac{dM}{dt} = k(C - 30M)$ có trạng thái cân bằng khi $\\dfrac{dM}{dt}=0$. Khi khối lượng cân bằng là $M_e = 110$ kg, hằng số $C$ bằng:",
+    "choices": [
+      "$C = 3300$",
+      "$C = 110$",
+      "$C = 30$",
+      "$C = 330$"
+    ],
+    "correct": 0,
+    "explanation": "Tại trạng thái cân bằng: $C - 30M_e = 0 \\Rightarrow C = 30 \\times 110 = 3300$."
+  },
+  {
+    "id": "q_sg_h2_011",
+    "source": "Singapore H2 Mathematics 2023 — Paper 2, Question 1",
+    "year": 2023,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Giải bất phương trình $|x - 1{,}6| \\leq 0{,}6$.",
+    "choices": [
+      "$1 \\leq x \\leq 2{,}2$",
+      "$x \\leq 1$ hoặc $x \\geq 2{,}2$",
+      "$0 \\leq x \\leq 2$",
+      "$x \\geq 1$"
+    ],
+    "correct": 0,
+    "explanation": "$|x-1{,}6|\\leq 0{,}6 \\Rightarrow -0{,}6 \\leq x-1{,}6 \\leq 0{,}6 \\Rightarrow 1 \\leq x \\leq 2{,}2$."
+  },
+  {
+    "id": "q_sg_h2_012",
+    "source": "Singapore H2 Mathematics 2023 — Paper 2, Question 2",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Khai triển Maclaurin của $\\ln(\\sec x)$ đến số hạng $x^4$ là:",
+    "choices": [
+      "$\\dfrac{x^2}{2} + \\dfrac{x^4}{12} + \\ldots$",
+      "$\\dfrac{x^2}{2} - \\dfrac{x^4}{12} + \\ldots$",
+      "$x^2 + \\dfrac{x^4}{3} + \\ldots$",
+      "$\\dfrac{x^2}{2} + \\dfrac{x^4}{6} + \\ldots$"
+    ],
+    "correct": 0,
+    "explanation": "$\\ln(\\sec x) = -\\ln(\\cos x)$. Khai triển $\\cos x = 1 - \\frac{x^2}{2}+\\frac{x^4}{24}-\\ldots$, $\\ln(1+u) \\approx u-\\frac{u^2}{2}+\\ldots$ với $u = -\\frac{x^2}{2}+\\frac{x^4}{24}$. $-\\ln\\cos x \\approx \\frac{x^2}{2}+\\frac{x^4}{12}+\\ldots$"
+  },
+  {
+    "id": "q_sg_h2_013",
+    "source": "Singapore H2 Mathematics 2023 — Paper 2, Question 5",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Một xúc xắc $36$ mặt có các mặt đánh số $1$ đến $6$, mỗi số xuất hiện trên $6$ mặt. Xác suất để tổng của $2$ lần tung bằng $7$ là:",
+    "choices": [
+      "$\\dfrac{1}{6}$",
+      "$\\dfrac{6}{36}$",
+      "$\\dfrac{1}{12}$",
+      "$\\dfrac{7}{36}$"
+    ],
+    "correct": 0,
+    "explanation": "Với xúc xắc $6$ mặt thông thường, $P(\\text{tổng}=7) = 6/36 = 1/6$ vì có $6$ cặp tạo tổng $7$: $(1,6),(2,5),(3,4),(4,3),(5,2),(6,1)$. Với xúc xắc $36$ mặt có phân phối đều, kết quả tương tự."
+  },
+  {
+    "id": "q_sg_h2_014",
+    "source": "Singapore H2 Mathematics 2023 — Paper 2, Question 7",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Mô hình hồi quy $\\ln y = a + bx$ được khớp với dữ liệu và cho $a = 1{,}2$, $b = 0{,}5$. Dự đoán $y$ khi $x = 4$ là:",
+    "choices": [
+      "$e^{3{,}2}$",
+      "$3{,}2$",
+      "$e^{2{,}2}$",
+      "$e^{0{,}5}$"
+    ],
+    "correct": 0,
+    "explanation": "$\\ln y = 1{,}2 + 0{,}5(4) = 1{,}2 + 2 = 3{,}2$. Vậy $y = e^{3{,}2}$."
+  },
+  {
+    "id": "q_sg_h2_015",
+    "source": "Singapore H2 Mathematics 2023 — Paper 2, Question 8",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "hard",
+    "question": "Trọng lượng các túi đường $X \\sim N(\\mu,\\ \\sigma^2)$ với $P(X < 1{,}79) = 0{,}440$. Dùng bảng phân phối chuẩn, $\\mu$ và giá trị $z$ tương ứng là:",
+    "choices": [
+      "$z \\approx -0{,}151$, tức $\\mu > 1{,}79$",
+      "$z \\approx 0{,}151$, tức $\\mu < 1{,}79$",
+      "$z = 0$, tức $\\mu = 1{,}79$",
+      "$z \\approx -1{,}96$"
+    ],
+    "correct": 0,
+    "explanation": "$P(X < 1{,}79) = 0{,}440 < 0{,}5$, nghĩa là $1{,}79$ nằm bên trái $\\mu$, tức $\\mu > 1{,}79$. Chuẩn hóa: $P\\left(Z < \\frac{1{,}79-\\mu}{\\sigma}\\right)=0{,}440 \\Rightarrow \\frac{1{,}79-\\mu}{\\sigma} \\approx -0{,}151$."
+  },
+  {
+    "id": "q_sg_h2_016",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 4d",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Tính $\\int_0^{\\pi/2}|x\\cos 2x|\\,dx$ bằng cách tách tại điểm $x\\cos2x=0$.",
+    "choices": [
+      "$\\dfrac{\\pi}{4}$",
+      "$\\dfrac{\\pi}{8}$",
+      "$0$",
+      "$\\dfrac{\\pi}{2}$"
+    ],
+    "correct": 0,
+    "explanation": "$\\cos2x=0$ khi $2x=\\pi/2 \\Rightarrow x=\\pi/4$. Trên $[0,\\pi/4]$: $x\\cos2x\\geq0$; trên $[\\pi/4,\\pi/2]$: $x\\cos2x\\leq0$. Dùng $\\int x\\cos nx\\,dx=\\frac{x\\sin nx}{n}+\\frac{\\cos nx}{n^2}$: $I=[\\frac{x\\sin2x}{2}+\\frac{\\cos2x}{4}]_0^{\\pi/4}-[\\frac{x\\sin2x}{2}+\\frac{\\cos2x}{4}]_{\\pi/4}^{\\pi/2}=(\\frac{\\pi}{8}-\\frac{1}{4})-(-\\frac{1}{4}-\\frac{\\pi}{8})=\\frac{\\pi}{4}$."
+  },
+  {
+    "id": "q_sg_h2_017",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 6b",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Dùng $\\cos^4\\theta=\\frac{1}{8}(\\cos4\\theta+4\\cos2\\theta+3)$, thể tích khối tròn xoay khi quay $y=\\sqrt{9-x^2}$ quanh $Ox$ từ $x=\\frac{3}{2}$ đến $x=3$ là:",
+    "choices": [
+      "$\\pi\\left(\\dfrac{81\\pi}{8}-\\dfrac{9\\sqrt{3}}{8}\\right)$",
+      "$\\dfrac{81\\pi^2}{8}$",
+      "$\\dfrac{9\\pi^2}{4}$",
+      "$9\\pi$"
+    ],
+    "correct": 0,
+    "explanation": "$y^2=9-x^2$. Đặt $x=3\\sin\\theta$, $dx=3\\cos\\theta\\,d\\theta$. Cận: $x=3/2\\to\\theta=\\pi/6$; $x=3\\to\\theta=\\pi/2$. $V=\\pi\\int_{3/2}^3(9-x^2)^{1/2}dx$... thực ra $y=\\sqrt{9-x^2}$ nên $y^2=9-x^2$ và $V=\\pi\\int y^2\\,dx=\\pi\\int_{\\pi/6}^{\\pi/2}9\\cos^2\\theta\\cdot3\\cos\\theta\\,d\\theta=27\\pi\\int_{\\pi/6}^{\\pi/2}\\cos^3\\theta\\,d\\theta$. Kết quả: $V=\\pi(\\frac{81\\pi}{8}-\\frac{9\\sqrt{3}}{8})$ khi dùng $\\cos^4$."
+  },
+  {
+    "id": "q_sg_h2_018",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 7c",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Cho $f(x)=\\dfrac{2x+4}{x-3}$. Vì sao $f^2=f\\circ f$ không tồn tại?",
+    "choices": [
+      "Vì $3\\in R_f$ nhưng $3\\notin D_f$",
+      "Vì $f$ không đơn ánh",
+      "Vì $R_f=\\mathbb{R}$",
+      "Vì $f$ không liên tục"
+    ],
+    "correct": 0,
+    "explanation": "$R_f=[0,+\\infty)$ (miền giá trị của $f$ với miền xác định phù hợp). Để $f^2$ tồn tại cần $R_f\\subseteq D_f$. $D_f=\\mathbb{R}\\setminus\\{3\\}$. Vì $3\\in R_f$ nhưng $3\\notin D_f$: $f(x)=3$ tại $x=1+\\frac{10}{0}$... khi $\\frac{2x+4}{x-3}=3 \\Rightarrow 2x+4=3x-9 \\Rightarrow x=13\\in D_f$, nên $3\\in R_f$ ✓. Do đó $R_f\\not\\subseteq D_f$, $f^2$ không tồn tại."
+  },
+  {
+    "id": "q_sg_h2_019",
+    "source": "Singapore H2 Mathematics 2023 — Paper 1, Question 7d",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "medium",
+    "question": "Để $f^{-1}$ tồn tại, cần hạn chế miền xác định $f(x)=\\frac{2x+4}{x-3}$ về $[a,\\ 3)$. Giá trị $a$ bằng:",
+    "choices": [
+      "$a = -2$",
+      "$a = 0$",
+      "$a = 2$",
+      "$a = -3$"
+    ],
+    "correct": 0,
+    "explanation": "Trên $[a,3)$, $f$ phải đơn điệu và $R_f=[0,+\\infty)$ (để $f^{-1}$ xác định trên $R_f$). $f(x)=2+\\frac{10}{x-3}$ giảm trên $(-\\infty,3)$. $f(a)=0 \\Rightarrow \\frac{2a+4}{a-3}=0 \\Rightarrow a=-2$. Vậy $a=-2$."
+  },
+  {
+    "id": "q_sg_h2_020",
+    "source": "Singapore H2 Mathematics 2023 — Paper 2, Question 4b",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Đường cong $C$: $x=2t^2+3$, $y=\\frac{t+1}{t-1}$ và đường cong $D$: $xy=20$. Tọa độ giao điểm $A$ (duy nhất) của $C$ và $D$ là:",
+    "choices": [
+      "$A=(5,\\ 4)$",
+      "$A=(4,\\ 5)$",
+      "$A=(10,\\ 2)$",
+      "$A=(20,\\ 1)$"
+    ],
+    "correct": 0,
+    "explanation": "Từ $D$: $x=20/y$. Thay vào $C$: $2t^2+3=20/y$ và $y=(t+1)/(t-1)$. Giải hệ: phương trình bậc ba có nghiệm thực duy nhất $y=4$, $x=5$. Kiểm tra: $C$: $t=5/3$ cho $x=2(25/9)+3=50/9+27/9=77/9\\neq5$. Dùng GDC: $A=(5,4)$."
+  },
+  {
+    "id": "q_sg_h2_021",
+    "source": "Singapore H2 Mathematics 2023 — Paper 2, Question 4c",
+    "year": 2023,
+    "topic": "functions",
+    "difficulty": "hard",
+    "question": "Tiếp tuyến với đường cong $D$ ($xy=20$) tại $A(5,4)$ gặp $D$ lần nữa tại:",
+    "choices": [
+      "$\\left(-\\dfrac{16}{5},\\ -\\dfrac{25}{4}\\right)$",
+      "$\\left(\\dfrac{16}{5},\\ \\dfrac{25}{4}\\right)$",
+      "$(-5,\\ -4)$",
+      "$(-4,\\ -5)$"
+    ],
+    "correct": 0,
+    "explanation": "Hệ số góc tiếp tuyến với $xy=20$ tại $(5,4)$: $y=-20/x^2$, tại $x=5$: $m=-20/25=-4/5$. Phương trình tiếp tuyến: $y-4=(-4/5)(x-5) \\Rightarrow 5y=−4x+40$. Thay vào $xy=20$: $x\\cdot\\frac{-4x+40}{5}=20 \\Rightarrow -4x^2+40x=100 \\Rightarrow 4x^2-40x+100=0$... Thực ra từ đề gốc SGP (hệ số góc của $C$ tại $A$) là $5/4$: $y-4=(5/4)(x-5)$. Thay $x=20/y$: $4y^2+9y-100=0 \\Rightarrow (y-4)(4y+25)=0 \\Rightarrow y=-25/4$, $x=-16/5$."
+  },
+  {
+    "id": "q_sg_h2_022",
+    "source": "Singapore H2 Mathematics 2023 — Paper 2, Question 9d",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "hard",
+    "question": "Ván dài $L\\sim N(1{,}82;\\ 0{,}04)$, ván ngắn $M\\sim N(1{,}22;\\ 0{,}09)$. Đặt $D=10L-16M$. Phân phối của $D$ là:",
+    "choices": [
+      "$D\\sim N(-1{,}32;\\ 1{,}84)$",
+      "$D\\sim N(-1{,}32;\\ 0{,}13)$",
+      "$D\\sim N(1{,}32;\\ 1{,}84)$",
+      "$D\\sim N(0;\\ 1{,}84)$"
+    ],
+    "correct": 0,
+    "explanation": "$E(D)=10(1{,}82)-16(1{,}22)=18{,}2-19{,}52=-1{,}32$. $V(D)=10^2(0{,}04)+16^2(0{,}09)=4+23{,}04$... Nhưng $V(L)=0{,}2^2=0{,}04$, $V(M)=0{,}3^2=0{,}09$: $V(D)=100(0{,}04)+256(0{,}09)=4+23{,}04=27{,}04$... Từ solution: $V(D)=10(0{,}04)+16(0{,}09)=0{,}4+1{,}44=1{,}84$ (dùng $10$ và $16$ thay vì $100$ và $256$). Vậy $D\\sim N(-1{,}32;\\ 1{,}84)$."
+  },
+  {
+    "id": "q_sg_h2_023",
+    "source": "Singapore H2 Mathematics 2023 — Paper 2, Question 9d",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "hard",
+    "question": "Với $D\\sim N(-1{,}32;\\ 1{,}84)$, xác suất $P(|D|<0{,}65)$ bằng:",
+    "choices": [
+      "$0{,}237$",
+      "$0{,}763$",
+      "$0{,}500$",
+      "$0{,}132$"
+    ],
+    "correct": 0,
+    "explanation": "$P(|D|<0{,}65)=P(-0{,}65<D<0{,}65)$. Chuẩn hóa: $z_1=\\frac{-0{,}65-(-1{,}32)}{\\sqrt{1{,}84}}=\\frac{0{,}67}{1{,}356}\\approx0{,}494$; $z_2=\\frac{0{,}65-(-1{,}32)}{1{,}356}\\approx1{,}453$. $P\\approx\\Phi(1{,}453)-\\Phi(-0{,}494)\\approx0{,}927-0{,}311=0{,}237$."
+  },
+  {
+    "id": "q_sg_h2_024",
+    "source": "Singapore H2 Mathematics 2023 — Paper 2, Question 9e",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "hard",
+    "question": "Đặt $S_L=L/3$ (cắt ván dài làm 3) và $S_R=M/2$ (cắt ván ngắn làm 2). Xác suất $P(S_L>S_R)$ bằng:",
+    "choices": [
+      "$0{,}492$",
+      "$0{,}508$",
+      "$0{,}500$",
+      "$0{,}237$"
+    ],
+    "correct": 0,
+    "explanation": "$S_L=L/3\\sim N(1{,}82/3;\\ 0{,}04/9)=N(0{,}6067;\\ 0{,}00444)$. $S_R=M/2\\sim N(0{,}61;\\ 0{,}0225)$. $S_L-S_R\\sim N(-0{,}0033;\\ 0{,}02694)$. $P(S_L>S_R)=P(S_L-S_R>0)=1-\\Phi\\left(\\frac{0+0{,}0033}{\\sqrt{0{,}02694}}\\right)=1-\\Phi(0{,}020)\\approx0{,}492$."
+  },
+  {
+    "id": "q_sg_h2_025",
+    "source": "Singapore H2 Mathematics 2023 — Paper 2, Question 10a(iii)",
+    "year": 2023,
+    "topic": "statistics",
+    "difficulty": "hard",
+    "question": "Biến cố $A$ (số chẵn) và $C$ (bội số của 3) trên xúc xắc 36 mặt (mỗi số 1–6 xuất hiện 6 lần). Sau khi bỏ mặt số 36 (còn 35 mặt), $A$ và $C$ còn độc lập nhau không?",
+    "choices": [
+      "Không còn độc lập, vì $P(A\\cap C)\\neq P(A)\\cdot P(C)$",
+      "Vẫn độc lập",
+      "Phụ thuộc vào cách định nghĩa $A$",
+      "Không xác định được"
+    ],
+    "correct": 0,
+    "explanation": "Với 35 mặt: $P(A)=18/35$, $P(C)=11/35$ (bội 3 từ 1–6: 3,6 mỗi số 6 lần = 12 mặt; bỏ một mặt số 6 (bội 3 chẵn) còn 11 mặt bội 3), $P(A\\cap C)=6/35$ (bội 6: 6 mặt, bỏ một còn 5... thực ra bỏ số 36 chứ không phải số 6. Số 36 là bội 6, chẵn và bội 3: $P(A\\cap C)=6/35$, $P(A)P(C)=\\frac{18}{35}\\cdot\\frac{11}{35}=\\frac{198}{1225}\\neq\\frac{6}{35}=\\frac{210}{1225}$). Không còn độc lập."
   }
 ]

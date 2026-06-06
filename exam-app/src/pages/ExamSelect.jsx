@@ -31,8 +31,8 @@ const GROUPS = {
     { category: 'thpt', label: 'Thi THPT Quốc gia', description: 'Đề thi & thi thử tốt nghiệp THPT', accent: '#F2A20C', tag: 'THPT' },
   ],
   practice: [
-    { category: 'grade10', label: 'Luyện tập vào lớp 10', description: 'Đề thi tuyển sinh quốc tế — Ghana BECE & Ấn Độ CBSE', accent: '#3B82F6', tag: 'Lớp 10' },
-    { category: 'thpt', label: 'Luyện tập THPT & Đại học', description: 'SAT, ACT, A-Level, AMC 12, HSC Úc, Singapore H2 & nhiều đề quốc tế khác', accent: '#F2A20C', tag: 'THPT' },
+    { category: 'grade10', label: 'Luyện tập vào lớp 10', description: 'Đề thi quốc tế — Ghana BECE, Ấn Độ CBSE & Cambridge IGCSE', accent: '#3B82F6', tag: 'Lớp 10' },
+    { category: 'thpt', label: 'Luyện tập THPT & Đại học', description: 'SAT, ACT, A-Level, Bac Pháp, Irish LC, Singapore H2 & nhiều đề quốc tế khác', accent: '#F2A20C', tag: 'THPT' },
   ],
 }
 
