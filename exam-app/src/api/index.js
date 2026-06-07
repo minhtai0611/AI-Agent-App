@@ -136,6 +136,11 @@ export function getAccessibleExamIds(results, allExams) {
       }
     }
   }
+  // Non-gated modes (luyentap, etc.) are always accessible regardless of progression
+  for (const exam of allExams) {
+    if (!GATED_MODES.has(exam.mode)) accessible.add(exam.id)
+  }
+
   return { accessible, prerequisites }
 }
 
