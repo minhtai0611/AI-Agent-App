@@ -6,10 +6,6 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
-const { OpenAI } = require('openai');
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const QUESTIONS_PATH = join(__dirname, 'questions.json');
@@ -24,21 +20,27 @@ if (!baseURL || !apiKey) {
   process.exit(1);
 }
 
-const client = new OpenAI({ baseURL: `${baseURL}/v2`, apiKey });
+const ENDPOINT = `${baseURL}/v2/chat/completions`;
 const LETTER = ['A', 'B', 'C', 'D'];
 
 async function verifyQuestion(q) {
   const choicesText = q.choices.map((c, i) => `${LETTER[i]}) ${c}`).join('\n');
   const prompt = `Câu hỏi toán (lớp 9-12, Việt Nam):\n${q.question}\n\nCác đáp án:\n${choicesText}\n\nHãy trả lời CHỈ một chữ cái duy nhất (A, B, C hoặc D) là đáp án đúng. Không giải thích.`;
 
-  const resp = await client.chat.completions.create({
-    model,
-    messages: [{ role: 'user', content: prompt }],
-    max_tokens: 4,
-    temperature: 0,
+  const res = await fetch(ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 4,
+      temperature: 0,
+    }),
   });
 
-  const letter = (resp.choices[0]?.message?.content || '').trim().toUpperCase().charAt(0);
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+  const letter = (data.choices?.[0]?.message?.content || '').trim().toUpperCase().charAt(0);
   const aiIndex = LETTER.indexOf(letter);
   return { id: q.id, stored: q.correct, ai_answer: aiIndex, ai_letter: letter, match: aiIndex === q.correct };
 }
@@ -60,7 +62,7 @@ for (let i = 0; i < toVerify.length; i++) {
     results.push(r);
     if (r.match) { matched++; process.stdout.write('✓\n'); }
     else process.stdout.write(`✗  stored=${LETTER[r.stored]} ai=${r.ai_letter}\n`);
-    await new Promise(res => setTimeout(res, 200));
+    await new Promise(res => setTimeout(res, 3500));
   } catch (err) {
     console.error(`\n  ERROR on ${q.id}:`, err.message);
     results.push({ id: q.id, stored: q.correct, ai_answer: -1, ai_letter: '?', match: false, error: err.message });

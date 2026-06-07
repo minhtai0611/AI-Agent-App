@@ -10547,7 +10547,7 @@
       "a = 4",
       "a = -4"
     ],
-    "correct": 0,
+    "correct": 3,
     "topic": "parabol",
     "difficulty": "easy",
     "explanation": "Đáp án A",
@@ -10555,7 +10555,7 @@
   },
   {
     "id": "q_vj01_05",
-    "question": "Biết phương trình x² + bx – 2b = 0 có một nghiệm x = -3. Tìm nghiệm còn lại:",
+    "question": "Biết phương trình x² + bx – 2 = 0 có một nghiệm x = -3. Tìm nghiệm còn lại:",
     "choices": [
       "x = 2",
       "x = -2",
@@ -10592,7 +10592,7 @@
       "30π cm²",
       "15π cm²"
     ],
-    "correct": 2,
+    "correct": 3,
     "topic": "hình học",
     "difficulty": "easy",
     "explanation": "Đáp án C",
@@ -10660,7 +10660,7 @@
   },
   {
     "id": "q_vj02_04",
-    "question": "Hệ phương trình {2x+y=−1; x−y=4} có nghiệm là:",
+    "question": "Hệ phương trình {2x−y=2; x+y=−2} có nghiệm là:",
     "choices": [
       "(-2; 0)",
       "(-2; 3)",
@@ -10857,8 +10857,8 @@
     "id": "q_vj04_01",
     "question": "Trong các hàm số sau, hàm số nào là hàm số bậc nhất",
     "choices": [
-      "y = 1/x",
-      "y = √x − 2x",
+      "y = 1 − 1/x",
+      "y = x/3",
       "y = x² + 1",
       "y = √x + 1"
     ],
@@ -10870,7 +10870,7 @@
   },
   {
     "id": "q_vj04_02",
-    "question": "Hệ phương trình {x+y=3; x−y=1} có nghiệm là:",
+    "question": "Hệ phương trình {2x+y=−1; x−y=−2} có nghiệm là:",
     "choices": [
       "(1; 2)",
       "(3; 3)",
