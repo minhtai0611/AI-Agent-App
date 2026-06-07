@@ -70,7 +70,7 @@ function computeStreak(streak) {
 function MdMath({ children }) {
   return (
     <Markdown remarkPlugins={[remarkMath, remarkGfm]} rehypePlugins={[rehypeKatex]}
-      className="font-jakarta text-[13px] text-[#CBD5E1] leading-relaxed">
+      className="font-jakarta text-[0.8125rem] text-muted-fg leading-relaxed">
       {children}
     </Markdown>
   )
@@ -190,7 +190,7 @@ export default function DailyChallenge() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
       </div>
     )
@@ -198,8 +198,8 @@ export default function DailyChallenge() {
 
   if (!question) {
     return (
-      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center px-4">
-        <p className="font-jakarta text-[14px] text-[#64748B] text-center">Không tìm thấy câu hỏi hôm nay.</p>
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <p className="font-jakarta text-sm text-dim text-center">Không tìm thấy câu hỏi hôm nay.</p>
       </div>
     )
   }
@@ -222,50 +222,50 @@ export default function DailyChallenge() {
 
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
-      className="min-h-screen bg-[#0A0E1A] pb-16">
+      className="min-h-screen bg-background pb-16">
       <div className="max-w-xl mx-auto px-4 pt-20">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] transition">
+          <button onClick={() => navigate(-1)} className="font-jakarta text-[0.8125rem] text-dim hover:text-muted transition">
             ← Quay lại
           </button>
           <div className="flex items-center gap-3">
             {streak.current > 0 && (
               <AchievementCeremony trigger={streak.completedToday}>
-                <span className="font-jakarta text-[13px] font-semibold text-amber-400">🔥 {streak.current} ngày</span>
+                <span className="font-jakarta text-[0.8125rem] font-semibold text-amber-400">🔥 {streak.current} ngày</span>
               </AchievementCeremony>
             )}
           </div>
         </div>
         {gapMessage && (
-          <p className="font-jakarta text-[13px] text-[#64748B] mb-4">{gapMessage}</p>
+          <p className="font-jakarta text-[0.8125rem] text-dim mb-4">{gapMessage}</p>
         )}
 
         <div className="flex flex-col gap-2 mb-6">
-          <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-amber-400">
+          <span className="font-jakarta text-[0.6875rem] font-bold tracking-[2px] uppercase text-amber-400">
             {TOPIC_LABELS[question.topic] ?? question.topic}
           </span>
-          <h1 className="font-fraunces text-[20px] font-bold text-[#F8FAFC] leading-snug">{title}</h1>
+          <h1 className="font-fraunces text-[20px] font-bold text-foreground leading-snug">{title}</h1>
           {provinceContext && (
-            <p className="font-jakarta text-[12px] text-[#818CF8]">📌 {provinceContext}</p>
+            <p className="font-jakarta text-xs text-[#818CF8]">📌 {provinceContext}</p>
           )}
         </div>
 
-        <div className="bg-[#0D1521] border border-[#1E2A44] rounded-2xl p-6 flex flex-col gap-5">
+        <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-5">
           <MdMath>{question.question}</MdMath>
 
           <div className="flex flex-col gap-2.5">
             {question.choices.map((choice, i) => {
-              let style = 'border-[#1E2A44] bg-[#111827] text-[#94A3B8]'
+              let style = 'border-border bg-surface-elevated text-muted'
               if (chosen !== null) {
-                if (i === question.correct) style = 'border-[#10B981] bg-[#0A1F14] text-[#6EE7B7]'
-                else if (i === chosen && !isCorrect) style = 'border-[#FB7185] bg-[#1F0A0E] text-[#FB7185]'
-                else style = 'border-[#1E2A44] bg-[#111827] text-[#475569]'
+                if (i === question.correct) style = 'border-success bg-[#0A1F14] text-[#6EE7B7]'
+                else if (i === chosen && !isCorrect) style = 'border-destructive bg-[#1F0A0E] text-destructive'
+                else style = 'border-border bg-surface-elevated text-faint'
               }
               return (
                 <button key={i} disabled={chosen !== null} onClick={() => handleAnswer(i)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition text-left ${style} ${chosen === null ? 'hover:border-[#F2A20C] hover:text-[#F0F4FF]' : ''}`}>
-                  <span className="w-6 h-6 rounded-full bg-[#1E2A44] flex items-center justify-center font-jakarta text-[11px] font-bold flex-shrink-0">{LABELS[i]}</span>
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition text-left ${style} ${chosen === null ? 'hover:border-primary hover:text-highlight' : ''}`}>
+                  <span className="w-6 h-6 rounded-full bg-border flex items-center justify-center font-jakarta text-[0.6875rem] font-bold flex-shrink-0">{LABELS[i]}</span>
                   <MdMath>{choice}</MdMath>
                 </button>
               )
@@ -274,14 +274,14 @@ export default function DailyChallenge() {
 
           {chosen !== null && (
             <div className={`rounded-xl px-4 py-3 ${isCorrect ? 'bg-[#0A1F14] border border-[#2D4A1A]' : 'bg-[#1A1505] border border-[#4A3A05]'}`}>
-              <p className={`font-jakarta text-[13px] font-semibold ${isCorrect ? 'text-[#34D399]' : 'text-[#F2A20C]'}`}>
+              <p className={`font-jakarta text-[0.8125rem] font-semibold ${isCorrect ? 'text-[#34D399]' : 'text-primary'}`}>
                 {isCorrect ? 'Đúng rồi.' : 'Chưa đúng.'}
               </p>
               {message && (
-                <p className="font-jakarta text-[12px] text-[#64748B] mt-1">{message}</p>
+                <p className="font-jakarta text-xs text-dim mt-1">{message}</p>
               )}
               {streak.current >= 5 && (
-                <p className="font-jakarta text-[12px] text-[#475569] mt-1">
+                <p className="font-jakarta text-xs text-faint mt-1">
                   Chuỗi {streak.current} ngày của bạn — đừng để đứt.
                 </p>
               )}
@@ -289,8 +289,8 @@ export default function DailyChallenge() {
           )}
 
           {question.explanation && chosen !== null && (
-            <div className="flex flex-col gap-2 pt-2 border-t border-[#1E2A44]">
-              <span className="font-jakarta text-[11px] font-semibold text-[#475569] uppercase tracking-wider">Giải thích</span>
+            <div className="flex flex-col gap-2 pt-2 border-t border-border">
+              <span className="font-jakarta text-[0.6875rem] font-semibold text-faint uppercase tracking-wider">Giải thích</span>
               <MdMath>{question.explanation}</MdMath>
             </div>
           )}
@@ -299,11 +299,11 @@ export default function DailyChallenge() {
         {chosen !== null && (
           <div className="flex gap-3 mt-6">
             <button onClick={() => navigate('/mistakes')}
-              className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-[#1E2A44] text-[#94A3B8] hover:text-[#F8FAFC] transition">
+              className="flex-1 py-3 rounded-xl font-jakarta text-[0.8125rem] font-semibold border border-border text-muted hover:text-foreground transition">
               Sổ sai lầm
             </button>
             <button onClick={() => navigate('/exams')}
-              className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A]"
+              className="flex-1 py-3 rounded-xl font-jakarta text-[0.8125rem] font-bold text-primary-fg"
               style={{ background: '#F2A20C' }}>
               Làm đề thi →
             </button>

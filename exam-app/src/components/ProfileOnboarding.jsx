@@ -39,30 +39,30 @@ function LegalModal({ title, items, onClose }) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-6 flex flex-col gap-4"
+        className="w-full max-w-sm bg-surface border border-border rounded-2xl p-6 flex flex-col gap-4"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <span className="font-fraunces text-[16px] font-bold text-[#F8FAFC]">{title}</span>
+          <span className="font-fraunces text-[16px] font-bold text-foreground">{title}</span>
           <button
             type="button"
             onClick={onClose}
-            className="text-[#64748B] hover:text-[#F8FAFC] text-lg leading-none"
+            className="text-dim hover:text-foreground text-lg leading-none"
             aria-label="Đóng"
           >×</button>
         </div>
         <ul className="flex flex-col gap-2.5">
           {items.map((item, i) => (
             <li key={i} className="flex items-start gap-2.5">
-              <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#F2A20C] flex-shrink-0" />
-              <span className="font-jakarta text-[12px] text-[#94A3B8] leading-relaxed">{item}</span>
+              <span className="mt-1 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+              <span className="font-jakarta text-xs text-muted leading-relaxed">{item}</span>
             </li>
           ))}
         </ul>
         <button
           type="button"
           onClick={onClose}
-          className="self-end px-4 py-2 rounded-lg font-jakarta text-[12px] font-semibold text-[#0A0E1A]"
+          className="self-end px-4 py-2 rounded-lg font-jakarta text-xs font-semibold text-primary-fg"
           style={{ background: '#F2A20C' }}
         >
           Đã hiểu
@@ -106,24 +106,24 @@ export default function ProfileOnboarding({ onDone }) {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0A0E1A]/90 backdrop-blur-sm px-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-sm px-4">
         <AmbientGlows className="absolute inset-0 z-0 pointer-events-none" />
         <motion.div
           initial={{ opacity: 0, scale: 0.94, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.94, y: 16 }}
           transition={{ type: 'spring', stiffness: 340, damping: 28 }}
-          className="w-full max-w-md bg-[#0D1221] border border-[#1E2A44] rounded-2xl p-8 flex flex-col gap-6"
+          className="w-full max-w-md bg-surface border border-border rounded-2xl p-8 flex flex-col gap-6"
         >
           <div className="flex flex-col gap-1">
-            <span className="font-fraunces text-[22px] font-bold text-[#F8FAFC]">Hoàn thiện hồ sơ</span>
-            <span className="font-jakarta text-[13px] text-[#64748B]">Để cá nhân hóa đề thi và phân tích AI phù hợp với bạn</span>
+            <span className="font-fraunces text-[22px] font-bold text-foreground">Hoàn thiện hồ sơ</span>
+            <span className="font-jakarta text-[0.8125rem] text-dim">Để cá nhân hóa đề thi và phân tích AI phù hợp với bạn</span>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             {/* Grade */}
             <div className="flex flex-col gap-2">
-              <label className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Lớp học <span className="text-red-400">*</span></label>
+              <label className="font-jakarta text-[0.8125rem] font-semibold text-muted">Lớp học <span className="text-red-400">*</span></label>
               <div className="grid grid-cols-2 gap-2">
                 {GRADES.map(g => (
                   <button
@@ -132,12 +132,12 @@ export default function ProfileOnboarding({ onDone }) {
                     onClick={() => setGrade(g.value)}
                     className={`flex flex-col items-start px-4 py-3 rounded-xl border transition text-left ${
                       grade === g.value
-                        ? 'border-[#F2A20C] bg-[#F2A20C11]'
-                        : 'border-[#1E2A44] bg-[#111827] hover:border-[#2A3A50]'
+                        ? 'border-primary bg-[#F2A20C11]'
+                        : 'border-border bg-surface-elevated hover:border-[#2A3A50]'
                     }`}
                   >
-                    <span className={`font-jakarta text-[13px] font-semibold ${grade === g.value ? 'text-[#F2A20C]' : 'text-[#F0F4FF]'}`}>{g.label}</span>
-                    <span className="font-jakarta text-[11px] text-[#475569]">{g.sub}</span>
+                    <span className={`font-jakarta text-[0.8125rem] font-semibold ${grade === g.value ? 'text-primary' : 'text-highlight'}`}>{g.label}</span>
+                    <span className="font-jakarta text-[0.6875rem] text-faint">{g.sub}</span>
                   </button>
                 ))}
               </div>
@@ -145,11 +145,11 @@ export default function ProfileOnboarding({ onDone }) {
 
             {/* Province */}
             <div className="flex flex-col gap-2">
-              <label className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Tỉnh / Thành phố <span className="text-red-400">*</span></label>
+              <label className="font-jakarta text-[0.8125rem] font-semibold text-muted">Tỉnh / Thành phố <span className="text-red-400">*</span></label>
               <select
                 value={province}
                 onChange={e => setProvince(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-[#1E2A44] bg-[#111827] font-jakarta text-[13px] text-[#F0F4FF] focus:outline-none focus:border-[#F2A20C] appearance-none"
+                className="w-full px-4 py-3 rounded-xl border border-border bg-surface-elevated font-jakarta text-[0.8125rem] text-highlight focus:outline-none focus:border-primary appearance-none"
               >
                 <option value="">Chọn tỉnh / thành phố...</option>
                 {PROVINCES.map(p => (
@@ -160,17 +160,17 @@ export default function ProfileOnboarding({ onDone }) {
 
             {/* School type (optional) */}
             <div className="flex flex-col gap-2">
-              <label className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">Loại trường <span className="text-[#475569] font-normal">(tùy chọn)</span></label>
+              <label className="font-jakarta text-[0.8125rem] font-semibold text-muted">Loại trường <span className="text-faint font-normal">(tùy chọn)</span></label>
               <div className="flex gap-2">
                 {SCHOOL_TYPES.map(s => (
                   <button
                     key={s.value}
                     type="button"
                     onClick={() => setSchoolType(prev => prev === s.value ? '' : s.value)}
-                    className={`flex-1 py-2.5 rounded-xl border transition font-jakarta text-[12px] font-medium ${
+                    className={`flex-1 py-2.5 rounded-xl border transition font-jakarta text-xs font-medium ${
                       schoolType === s.value
-                        ? 'border-[#3B82F6] bg-[#3B82F611] text-[#3B82F6]'
-                        : 'border-[#1E2A44] bg-[#111827] text-[#64748B] hover:border-[#2A3A50]'
+                        ? 'border-info bg-[#3B82F611] text-info'
+                        : 'border-border bg-surface-elevated text-dim hover:border-[#2A3A50]'
                     }`}
                   >
                     {s.label}
@@ -187,7 +187,7 @@ export default function ProfileOnboarding({ onDone }) {
                 onChange={e => setTosAccepted(e.target.checked)}
                 className="mt-0.5 accent-amber-400 w-4 h-4 flex-shrink-0"
               />
-              <span className="font-jakarta text-[12px] text-[#64748B]">
+              <span className="font-jakarta text-xs text-dim">
                 Tôi đồng ý với{' '}
                 <button
                   type="button"
@@ -209,13 +209,13 @@ export default function ProfileOnboarding({ onDone }) {
             </label>
 
             {error && (
-              <p className="font-jakarta text-[12px] text-red-400">{error}</p>
+              <p className="font-jakarta text-xs text-red-400">{error}</p>
             )}
 
             <button
               type="submit"
               disabled={!canSubmit}
-              className="w-full py-3 rounded-xl font-jakarta text-[14px] font-bold transition"
+              className="w-full py-3 rounded-xl font-jakarta text-sm font-bold transition"
               style={{
                 background: canSubmit ? 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' : '#1E2A44',
                 color: canSubmit ? '#0A0E1A' : '#475569',

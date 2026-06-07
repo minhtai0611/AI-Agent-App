@@ -16,7 +16,7 @@ export default function ZenithLogo({ variant = 'nav', onClick }) {
         <path d={ARC_PATH} stroke="#F2A20C" strokeWidth={isHero ? 1.2 : 1.5} strokeLinecap="round" />
       </svg>
       <span
-        className={`font-jakarta font-bold tracking-[0.2em] uppercase ${isHero ? 'text-xl zenith-shimmer' : 'text-[13px] text-amber-400'}`}
+        className={`font-jakarta font-bold tracking-[0.2em] uppercase ${isHero ? 'text-xl zenith-shimmer' : 'text-[0.8125rem] text-amber-400'}`}
         style={isHero ? {
           background: 'linear-gradient(90deg, #F2A20C, #FBBF24, #F59E0B, #F2A20C)',
           backgroundSize: '200% auto',

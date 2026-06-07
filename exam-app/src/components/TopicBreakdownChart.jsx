@@ -28,7 +28,7 @@ export default function TopicBreakdownChart({ topicBreakdown }) {
               className="w-full rounded-t-[4px] transition-all"
               style={{ height: `${heightPct}%`, background: color }}
             />
-            <span className="font-jakarta text-[10px] text-[#475569] text-center">
+            <span className="font-jakarta text-[0.625rem] text-faint text-center">
               {TOPIC_LABELS[topic] ?? topic}
             </span>
           </div>

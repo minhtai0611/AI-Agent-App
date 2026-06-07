@@ -98,10 +98,20 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#0A0E1A" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#0A0E1A" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F8F5EF" media="(prefers-color-scheme: light)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Zenith" />
+    <!-- FOUC prevention: apply theme before first paint -->
+    <script>
+      (function(){
+        var s=localStorage.getItem('zenith-theme');
+        var d=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+        document.documentElement.dataset.theme=s||d;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

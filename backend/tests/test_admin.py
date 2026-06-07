@@ -189,3 +189,31 @@ class TestAdminSecurityEvents:
         client, _ = client_with_pool
         resp = client.get("/admin/security-events?limit=9999", headers=_HEADERS)
         assert resp.status_code == 200
+
+
+class TestAdminQuestionReports:
+    def test_question_reports_valid_key(self, client_with_pool):
+        client, pool = client_with_pool
+        pool.fetch.return_value = [
+            {"id": 1, "question_id": "q42", "reason": "Sai đáp án",
+             "created_at": "2024-01-01T00:00:00", "email": "u@test.com"}
+        ]
+        resp = client.get("/admin/question-reports", headers=_HEADERS)
+        assert resp.status_code == 200
+        data = resp.json()
+        assert isinstance(data, list)
+        assert data[0]["question_id"] == "q42"
+
+    def test_question_reports_invalid_key(self, client):
+        resp = client.get("/admin/question-reports", headers={"x-admin-key": "bad"})
+        assert resp.status_code == 401
+
+    def test_question_reports_limit_capped(self, client_with_pool):
+        """limit param above 200 should be clamped, not rejected."""
+        client, _ = client_with_pool
+        resp = client.get("/admin/question-reports?limit=9999", headers=_HEADERS)
+        assert resp.status_code == 200
+
+    def test_question_reports_no_key(self, client):
+        resp = client.get("/admin/question-reports")
+        assert resp.status_code == 401

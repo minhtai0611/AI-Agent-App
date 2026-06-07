@@ -394,6 +394,9 @@ export const adminGrantCredits = (key, userId, amount) =>
 export const adminGetSecurityEvents = (key) =>
   wrap(adminClient.get('/admin/security-events', { headers: { 'x-admin-key': key } }))
 
+export const adminGetQuestionReports = (key, { limit = 50, offset = 0 } = {}) =>
+  wrap(adminClient.get('/admin/question-reports', { params: { limit, offset }, headers: { 'x-admin-key': key } }))
+
 export const adminUpdateProfile = (key, userId, body) =>
   wrap(adminClient.post(`/admin/users/${userId}/profile`, body, { headers: { 'x-admin-key': key } }))
 

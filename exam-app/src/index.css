@@ -82,46 +82,158 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Zenith Design Tokens ───────────────────────────────────────────── */
+/* ─── Zenith Semantic Color Tokens ───────────────────────────────────────────
+   Two declarations per token:
+   1. Hex fallback  — browsers that don't support light-dark() keep dark theme (current look)
+   2. light-dark()  — Chrome 123+, Firefox 120+, Safari 17.5+ auto-adapts to OS preference
+   User override via [data-theme] attribute (set in index.html inline script).
+   ─────────────────────────────────────────────────────────────────────────── */
 :root {
-  --z-bg-base:       #0A0E1A;
-  --z-bg-surface:    #0D1221;
-  --z-bg-elevated:   #111827;
-  --z-border:        #1E2A44;
-  --z-border-subtle: #2A3A5E;
+  color-scheme: light dark;
 
-  --z-text-primary:  #F8FAFC;
-  --z-text-secondary:#CBD5E1;
-  --z-text-muted:    #94A3B8;
-  --z-text-dim:      #64748B;
-  --z-text-faint:    #475569;
+  --background:       #0A0E1A;
+  --background:       light-dark(oklch(0.97 0.008 74),  oklch(0.11 0.012 280));
+  --foreground:       #F8FAFC;
+  --foreground:       light-dark(oklch(0.13 0.015 280), oklch(0.94 0.006 280));
+  --surface:          #0D1221;
+  --surface:          light-dark(oklch(0.93 0.008 74),  oklch(0.14 0.012 280));
+  --surface-elevated: #111827;
+  --surface-elevated: light-dark(oklch(1.00 0.000 0),   oklch(0.17 0.010 280));
+  --border:           #1E2A44;
+  --border:           light-dark(oklch(0.82 0.010 74),  oklch(0.25 0.018 280));
+  --border-subtle:    #2A3A5E;
+  --border-subtle:    light-dark(oklch(0.88 0.008 74),  oklch(0.32 0.015 280));
+  --primary:          #F2A20C;
+  --primary:          light-dark(oklch(0.68 0.170 74),  oklch(0.78 0.170 74));
+  --primary-fg:       #0A0E1A;
+  --primary-fg:       light-dark(oklch(0.13 0.015 74),  oklch(0.11 0.015 74));
+  --muted:            #94A3B8;
+  --muted:            light-dark(oklch(0.50 0.015 280), oklch(0.55 0.015 280));
+  --muted-fg:         #CBD5E1;
+  --muted-fg:         light-dark(oklch(0.40 0.010 280), oklch(0.68 0.010 280));
+  --dim:              #64748B;
+  --dim:              light-dark(oklch(0.35 0.008 280), oklch(0.55 0.008 280));
+  --faint:            #475569;
+  --faint:            light-dark(oklch(0.28 0.005 280), oklch(0.42 0.005 280));
+  --success:          #10B981;
+  --success:          light-dark(oklch(0.52 0.16 155),  oklch(0.68 0.16 155));
+  --destructive:      #FB7185;
+  --destructive:      light-dark(oklch(0.55 0.22 27),   oklch(0.70 0.22 27));
+  --info:             #3B82F6;
+  --info:             light-dark(oklch(0.52 0.18 255),  oklch(0.68 0.18 255));
+  --purple:           #8B5CF6;
+  --purple:           light-dark(oklch(0.52 0.20 295),  oklch(0.68 0.20 295));
+  --highlight:        #F0F4FF;
+  --highlight:        light-dark(oklch(0.94 0.030 74),  oklch(0.20 0.030 74));
 
-  --z-accent:        #F2A20C;
-  --z-accent-dim:    #D97706;
-  --z-success:       #10B981;
-  --z-error:         #FB7185;
-  --z-info:          #3B82F6;
-  --z-purple:        #8B5CF6;
+  /* Legacy --z-* color aliases — point to new semantic tokens so existing CSS continues to work */
+  --z-bg-base:        var(--background);
+  --z-bg-surface:     var(--surface);
+  --z-bg-elevated:    var(--surface-elevated);
+  --z-border:         var(--border);
+  --z-border-subtle:  var(--border-subtle);
+  --z-text-primary:   var(--foreground);
+  --z-text-secondary: var(--muted-fg);
+  --z-text-muted:     var(--muted);
+  --z-text-dim:       var(--dim);
+  --z-text-faint:     var(--faint);
+  --z-accent:         var(--primary);
+  --z-accent-dim:     var(--primary);
+  --z-success:        var(--success);
+  --z-error:          var(--destructive);
+  --z-info:           var(--info);
+  --z-purple:         var(--purple);
 
+  /* Non-color tokens — unchanged */
   --z-ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
   --z-ease-smooth:   cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --z-ease-out:      cubic-bezier(0.0, 0.0, 0.2, 1);
-
   --z-radius-sm:     8px;
   --z-radius-md:     12px;
   --z-radius-lg:     16px;
   --z-radius-xl:     20px;
+
+  /* Blur tokens (zeroed by prefers-reduced-transparency) */
+  --z-blur-sm: blur(4px);
+  --z-blur-md: blur(8px);
 }
 
+/* User-explicit override beats prefers-color-scheme — light-dark() reads color-scheme */
+[data-theme="light"] { color-scheme: light; }
+[data-theme="dark"]  { color-scheme: dark;  }
+
+/* ─── Accessibility: High contrast boosts ────────────────────────────────── */
+@media (prefers-contrast: more) {
+  :root {
+    --muted-fg: #e2e8f0;
+    --muted-fg: light-dark(oklch(0.25 0.010 280), oklch(0.80 0.010 280));
+    --dim:      #94a3b8;
+    --dim:      light-dark(oklch(0.18 0.008 280), oklch(0.70 0.008 280));
+    --faint:    #cbd5e1;
+    --faint:    light-dark(oklch(0.12 0.005 280), oklch(0.62 0.005 280));
+    --border:   #334155;
+    --border:   light-dark(oklch(0.60 0.010 74),  oklch(0.40 0.018 280));
+  }
+}
+
+/* ─── Accessibility: Reduced transparency — disable glassmorphism ────────── */
+@media (prefers-reduced-transparency: reduce) {
+  :root { --z-blur-sm: none; --z-blur-md: none; }
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    background-color: var(--surface) !important;
+  }
+}
+
+/* ─── Accessibility: Windows High Contrast / Forced Colors ───────────────── */
+@media (forced-colors: active) {
+  * { forced-color-adjust: auto; }
+  button, .btn, input, select, [role="button"] {
+    border: 1px solid ButtonText;
+  }
+}
+
+/* ─── Accessibility: Touch targets (coarse pointer = touch screen) ───────── */
+@media (pointer: coarse) {
+  button, [role="button"], input, select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ─── Accessibility: Keyboard focus ring ─────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ─── Reduced data: skip heavy decorative assets on metered connections ───── */
+@media (prefers-reduced-data: reduce) {
+  @font-face { font-display: optional; }
+  .ambient-glow, .starfield-canvas, video[autoplay] { display: none !important; }
+}
+
+/* ─── Print styles ───────────────────────────────────────────────────────── */
+@media print {
+  nav, canvas, video, .low-credit-banner, .toast, .modal-backdrop,
+  button:not(.print-show) { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  .question-card { page-break-inside: avoid; border: 1px solid #ccc; box-shadow: none; }
+  h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+
 body {
-  background-color: var(--z-bg-base);
+  background-color: var(--background);
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 16px;
   line-height: 1.6;
   letter-spacing: 0.01em;
 }
 
-/* ─── Answer Feedback Animations ──────────────────────────────────────── */
+/* ─── Answer Feedback Animations ──────────────────────────────────────────── */
 @keyframes z-correct-flash {
   0%   { background-color: transparent; }
   40%  { background-color: rgba(16, 185, 129, 0.25); }

@@ -107,7 +107,7 @@ export default function ResultShareCard({ result, examTitle, personalBest, onClo
         <div className="flex gap-3 w-full">
           <button
             onClick={handleCopy}
-            className="flex-1 py-2.5 rounded-xl font-jakarta text-[13px] font-bold transition flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold transition flex items-center justify-center gap-2"
             style={{ background: copied ? '#10B981' : '#F2A20C', color: '#0A0E1A' }}
           >
             {copied ? '✓ Đã sao chép' : '🔗 Sao chép link'}
@@ -115,14 +115,14 @@ export default function ResultShareCard({ result, examTitle, personalBest, onClo
           {typeof navigator.share === 'function' && (
             <button
               onClick={handleNativeShare}
-              className="px-4 py-2.5 rounded-xl font-jakarta text-[13px] text-[#94A3B8] border border-[#1E2A44] hover:text-[#F8FAFC] transition"
+              className="px-4 py-2.5 rounded-xl font-jakarta text-[0.8125rem] text-muted border border-border hover:text-foreground transition"
             >
               📤
             </button>
           )}
           <button
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl font-jakarta text-[13px] text-[#64748B] hover:text-[#94A3B8] border border-[#1E2A44] transition"
+            className="px-4 py-2.5 rounded-xl font-jakarta text-[0.8125rem] text-dim hover:text-muted border border-border transition"
           >
             Đóng
           </button>

@@ -40,21 +40,21 @@ const Placement = lazy(() => import('./pages/Placement.jsx'))
 const ConceptMap = lazy(() => import('./pages/ConceptMap.jsx'))
 const ErrorAnalysis = lazy(() => import('./pages/ErrorAnalysis.jsx'))
 
-const PageFallback = () => <div className="min-h-screen bg-[#0A0E1A]" />
+const PageFallback = () => <div className="min-h-screen bg-background" />
 
 function SuspensionModal({ reason, onLogout }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
-      <div className="max-w-sm w-full bg-[#0D1221] border border-red-500/40 rounded-2xl p-8 flex flex-col gap-5 text-center">
+      <div className="max-w-sm w-full bg-surface border border-red-500/40 rounded-2xl p-8 flex flex-col gap-5 text-center">
         <span className="text-red-400 text-4xl">⚠</span>
         <div className="flex flex-col gap-2">
-          <span className="font-fraunces text-[18px] font-bold text-[#F8FAFC]">Tài khoản bị tạm khoá</span>
-          {reason && <p className="font-jakarta text-[13px] text-[#94A3B8]">{reason}</p>}
-          <p className="font-jakarta text-[12px] text-[#475569]">Liên hệ hỗ trợ nếu bạn cho rằng đây là nhầm lẫn.</p>
+          <span className="font-fraunces text-[18px] font-bold text-foreground">Tài khoản bị tạm khoá</span>
+          {reason && <p className="font-jakarta text-[0.8125rem] text-muted">{reason}</p>}
+          <p className="font-jakarta text-xs text-faint">Liên hệ hỗ trợ nếu bạn cho rằng đây là nhầm lẫn.</p>
         </div>
         <button
           onClick={onLogout}
-          className="w-full py-3 rounded-xl font-jakarta text-[13px] font-bold bg-[#1E2A44] text-[#94A3B8] hover:text-[#F8FAFC] transition"
+          className="w-full py-3 rounded-xl font-jakarta text-[0.8125rem] font-bold bg-border text-muted hover:text-foreground transition"
         >
           Đăng xuất
         </button>
@@ -150,7 +150,7 @@ function AppInner() {
       {!isAdminRoute && !showDeactivated && !showLocked && !showSuspension && !showOnboarding && showExtendedOnboarding && (
         <ExtendedOnboarding onDone={() => {}} />
       )}
-      <div className={`min-h-screen bg-[#0A0E1A] text-gray-900${isAdminRoute ? '' : ' pt-12'}`}>
+      <div className={`min-h-screen bg-background text-gray-900${isAdminRoute ? '' : ' pt-12'}`}>
         {showLowCredit && !isAdminRoute && !showOnboarding && !showDeactivated && !showLocked && !showSuspension && (
           <LowCreditBanner balance={user.credits_balance} />
         )}
@@ -187,14 +187,14 @@ function AppInner() {
         </Suspense>
       </div>
       {resumeBanner && !resumeDismissed && (resumeBanner.userId ?? null) === (user?.id ?? null) && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0D1221] border-t border-[#F2A20C44] px-6 py-4 flex items-center justify-between gap-4">
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-[#F2A20C44] px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
-            <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">Bạn có bài thi đang dở</span>
-            <span className="font-jakarta text-[11px] text-[#64748B]">{resumeBanner.answeredCount} câu đã trả lời · Tiếp tục từ điểm dừng?</span>
+            <span className="font-jakarta text-[0.8125rem] font-semibold text-foreground">Bạn có bài thi đang dở</span>
+            <span className="font-jakarta text-[0.6875rem] text-dim">{resumeBanner.answeredCount} câu đã trả lời · Tiếp tục từ điểm dừng?</span>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={handleResume} style={{ background: '#F2A20C', color: '#0A0E1A' }} className="px-4 py-2 rounded-lg font-jakarta text-[12px] font-bold">Tiếp tục</button>
-            <button onClick={() => { setResumeDismissed(true); sessionStorage.removeItem(`exam-draft-${resumeBanner.examId}`) }} className="px-3 py-2 rounded-lg font-jakarta text-[12px] text-[#64748B] border border-[#1E2A44]">Bỏ qua</button>
+            <button onClick={handleResume} style={{ background: '#F2A20C', color: '#0A0E1A' }} className="px-4 py-2 rounded-lg font-jakarta text-xs font-bold">Tiếp tục</button>
+            <button onClick={() => { setResumeDismissed(true); sessionStorage.removeItem(`exam-draft-${resumeBanner.examId}`) }} className="px-3 py-2 rounded-lg font-jakarta text-xs text-dim border border-border">Bỏ qua</button>
           </div>
         </div>
       )}

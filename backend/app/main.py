@@ -5008,6 +5008,27 @@ async def admin_unsuspend_user(
     )
 
 
+@app.get("/admin/question-reports")
+async def admin_question_reports(
+    request: Request,
+    limit: int = 50,
+    offset: int = 0,
+    pool=Depends(get_pool),
+):
+    _require_admin(request)
+    limit = max(1, min(limit, 200))
+    rows = await pool.fetch(
+        """SELECT qr.id, qr.question_id, qr.reason, qr.created_at,
+                  u.email
+           FROM question_reports qr
+           LEFT JOIN users u ON u.id = qr.user_id
+           ORDER BY qr.created_at DESC
+           LIMIT ? OFFSET ?""",
+        limit, offset,
+    )
+    return [dict(r) for r in rows]
+
+
 @app.get("/admin/security-events")
 async def admin_security_events(
     request: Request,

@@ -203,11 +203,11 @@ export default function ExamSelect({ onOpenAuth }) {
 
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
-      className="min-h-screen bg-[#0A0E1A] flex flex-col relative overflow-hidden">
+      className="min-h-screen bg-background flex flex-col relative overflow-hidden">
       <AmbientGlows className="fixed inset-0 z-0 pointer-events-none" />
       {/* Nav */}
-      <nav className="flex items-center justify-between px-10 py-4 bg-[#0D1521] border-b border-[#1E2D45]">
-        <button onClick={() => navigate('/')} className="font-jakarta text-sm text-[#64748B] hover:text-[#94A3B8] transition">
+      <nav className="flex items-center justify-between px-10 py-4 bg-surface border-b border-[#1E2D45]">
+        <button onClick={() => navigate('/')} className="font-jakarta text-sm text-dim hover:text-muted transition">
           ← Trang chủ
         </button>
         <div className="flex items-center gap-1 bg-[#1A2440] rounded-full p-1">
@@ -217,12 +217,12 @@ export default function ExamSelect({ onOpenAuth }) {
             { value: 'lab',      label: '⚗ Lab' },
           ].map(opt => (
             <button key={opt.value} onClick={() => setMode(opt.value)}
-              className={`px-3 py-2 rounded-full font-jakarta text-[12px] transition ${
+              className={`px-3 py-2 rounded-full font-jakarta text-xs transition ${
                 mode === opt.value
                   ? opt.value === 'lab'
                     ? 'bg-[#818CF8] text-white font-semibold'
-                    : 'bg-[#F2A20C] text-[#0A0E1A] font-semibold'
-                  : 'text-[#94A3B8]'
+                    : 'bg-primary text-primary-fg font-semibold'
+                  : 'text-muted'
               }`}>
               {opt.label}
             </button>
@@ -232,13 +232,13 @@ export default function ExamSelect({ onOpenAuth }) {
 
       {/* Guest notice */}
       {!user && (
-        <div className="mx-10 mt-6 px-5 py-3 rounded-xl border border-[#F2A20C33] bg-[#0D1521] flex items-center justify-between gap-3">
-          <span className="font-jakarta text-[13px] text-[#94A3B8]">
+        <div className="mx-10 mt-6 px-5 py-3 rounded-xl border border-[#F2A20C33] bg-surface flex items-center justify-between gap-3">
+          <span className="font-jakarta text-[0.8125rem] text-muted">
             Bạn có <strong className="text-amber-400">1 đề thi miễn phí</strong>. Đăng nhập để làm thêm và nhận phân tích AI.
           </span>
           <button
             onClick={onOpenAuth}
-            className="flex-shrink-0 px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-bold"
+            className="flex-shrink-0 px-4 py-1.5 rounded-lg font-jakarta text-xs font-bold"
             style={{ background: '#F2A20C', color: '#0A0E1A' }}
           >
             Đăng nhập
@@ -253,7 +253,7 @@ export default function ExamSelect({ onOpenAuth }) {
           placeholder="Tìm đề thi..."
           value={filterSearch}
           onChange={e => setSearch(e.target.value)}
-          className="h-9 px-4 rounded-full border border-[#1E2A44] bg-[#111827] font-jakarta text-[13px] text-[#F0F4FF] placeholder-[#475569] focus:outline-none focus:border-[#F2A20C] w-48"
+          className="h-9 px-4 rounded-full border border-border bg-surface-elevated font-jakarta text-[0.8125rem] text-highlight placeholder-faint focus:outline-none focus:border-primary w-48"
         />
         {/* OCR upload */}
         {user && (
@@ -262,7 +262,7 @@ export default function ExamSelect({ onOpenAuth }) {
             <button
               onClick={() => ocrInputRef.current?.click()}
               disabled={ocrLoading}
-              className="h-9 px-4 rounded-full border border-[#6366F144] bg-[#6366F111] font-jakarta text-[12px] font-semibold text-[#818CF8] hover:border-[#6366F188] transition disabled:opacity-50 flex items-center gap-1.5"
+              className="h-9 px-4 rounded-full border border-[#6366F144] bg-[#6366F111] font-jakarta text-xs font-semibold text-[#818CF8] hover:border-[#6366F188] transition disabled:opacity-50 flex items-center gap-1.5"
             >
               {ocrLoading ? <><span className="animate-spin">⟳</span> Đang đọc...</> : <>📷 Tải ảnh đề thi</>}
             </button>
@@ -271,16 +271,16 @@ export default function ExamSelect({ onOpenAuth }) {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setYear(null)}
-            className={`h-8 px-3 rounded-full font-jakarta text-[12px] font-medium border transition ${
-              !filterYear ? 'border-[#F2A20C] bg-[#F2A20C22] text-[#F2A20C]' : 'border-[#1E2A44] text-[#64748B] hover:border-[#2A3A50]'
+            className={`h-8 px-3 rounded-full font-jakarta text-xs font-medium border transition ${
+              !filterYear ? 'border-primary bg-[#F2A20C22] text-primary' : 'border-border text-dim hover:border-[#2A3A50]'
             }`}
           >Tất cả</button>
           {availableYears.map(y => (
             <button
               key={y}
               onClick={() => setYear(filterYear === y ? null : y)}
-              className={`h-8 px-3 rounded-full font-jakarta text-[12px] font-medium border transition ${
-                filterYear === y ? 'border-[#F2A20C] bg-[#F2A20C22] text-[#F2A20C]' : 'border-[#1E2A44] text-[#64748B] hover:border-[#2A3A50]'
+              className={`h-8 px-3 rounded-full font-jakarta text-xs font-medium border transition ${
+                filterYear === y ? 'border-primary bg-[#F2A20C22] text-primary' : 'border-border text-dim hover:border-[#2A3A50]'
               }`}
             >{y}</button>
           ))}
@@ -292,30 +292,30 @@ export default function ExamSelect({ onOpenAuth }) {
         <div className="mx-10 mt-4 px-5 py-4 rounded-xl flex items-center justify-between gap-4"
           style={{ background: ocrError ? '#1A0808' : '#0A1A10', border: `1px solid ${ocrError ? '#EF444440' : '#10B98140'}` }}>
           {ocrError ? (
-            <span className="font-jakarta text-[13px] text-red-400">{ocrError}</span>
+            <span className="font-jakarta text-[0.8125rem] text-red-400">{ocrError}</span>
           ) : (
             <>
-              <span className="font-jakarta text-[13px] text-emerald-400">
+              <span className="font-jakarta text-[0.8125rem] text-emerald-400">
                 ✓ Đọc được <strong>{ocrQuestions.length}</strong> câu hỏi từ ảnh
               </span>
               <button
                 onClick={startOcrExam}
-                className="px-5 py-2 rounded-lg font-jakarta text-[13px] font-bold text-[#0A0E1A] bg-[#10B981] hover:opacity-90 transition flex-shrink-0"
+                className="px-5 py-2 rounded-lg font-jakarta text-[0.8125rem] font-bold text-primary-fg bg-success hover:opacity-90 transition flex-shrink-0"
               >
                 Bắt đầu luyện tập →
               </button>
             </>
           )}
           <button onClick={() => { setOcrError(''); setOcrQuestions(null) }}
-            className="text-[#475569] hover:text-[#94A3B8] text-lg flex-shrink-0">✕</button>
+            className="text-faint hover:text-muted text-lg flex-shrink-0">✕</button>
         </div>
       )}
 
       {/* Content */}
       <div className="flex flex-col gap-10 p-10">
         <div className="flex flex-col gap-2">
-          <h1 className="font-fraunces text-[36px] font-bold text-[#F8FAFC]">Chọn đề thi</h1>
-          <p className="font-jakarta text-[14px] text-[#64748B]">{motivationalHeader}</p>
+          <h1 className="font-fraunces text-[36px] font-bold text-foreground">Chọn đề thi</h1>
+          <p className="font-jakarta text-sm text-dim">{motivationalHeader}</p>
         </div>
 
         {/* ── ⚗ Lab mode ──────────────────────────────────────────────────── */}
@@ -324,8 +324,8 @@ export default function ExamSelect({ onOpenAuth }) {
             className="flex flex-col gap-6">
 
             <div className="flex flex-col gap-1">
-              <span className="font-jakarta text-[11px] font-bold tracking-[3px] uppercase text-[#475569]">Công cụ thực nghiệm</span>
-              <p className="font-jakarta text-[13px] text-[#475569]">AI-powered tools — khác với đề thi thật, dùng để khám phá và thực nghiệm</p>
+              <span className="font-jakarta text-[0.6875rem] font-bold tracking-[3px] uppercase text-faint">Công cụ thực nghiệm</span>
+              <p className="font-jakarta text-[0.8125rem] text-faint">AI-powered tools — khác với đề thi thật, dùng để khám phá và thực nghiệm</p>
             </div>
 
             {/* Hero: Oracle */}
@@ -335,19 +335,21 @@ export default function ExamSelect({ onOpenAuth }) {
               style={{ borderColor: '#6366F144', background: 'linear-gradient(135deg, #0D1521 50%, #130d2a 100%)' }}
               onMouseEnter={e => e.currentTarget.style.borderColor = '#6366F188'}
               onMouseLeave={e => e.currentTarget.style.borderColor = '#6366F144'}
+              onFocus={e => e.currentTarget.style.borderColor = '#6366F188'}
+              onBlur={e => e.currentTarget.style.borderColor = '#6366F144'}
             >
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">✦</span>
-                  <span className="font-jakarta text-[17px] font-bold text-[#F8FAFC]">Toán Oracle</span>
-                  <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
+                  <span className="font-jakarta text-[17px] font-bold text-foreground">Toán Oracle</span>
+                  <span className="font-jakarta text-[0.625rem] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
                     style={{ background: '#6366F122', color: '#818CF8' }}>Oracle AI</span>
                 </div>
-                <span className="font-jakarta text-[13px] text-[#64748B] leading-relaxed max-w-sm">
+                <span className="font-jakarta text-[0.8125rem] text-dim leading-relaxed max-w-sm">
                   Nhập bất kỳ bài toán nào — Oracle giải từng bước chi tiết và chấm bài của bạn
                 </span>
               </div>
-              <span className="font-jakarta text-[13px] font-semibold flex-shrink-0" style={{ color: '#818CF8' }}>Mở Oracle →</span>
+              <span className="font-jakarta text-[0.8125rem] font-semibold flex-shrink-0" style={{ color: '#818CF8' }}>Mở Oracle →</span>
             </motion.button>
 
             {/* Grid: secondary tools */}
@@ -359,17 +361,19 @@ export default function ExamSelect({ onOpenAuth }) {
                   style={{ borderColor: '#F2A20C33', background: 'linear-gradient(135deg, #0D1521 60%, #1a120a 100%)' }}
                   onMouseEnter={e => e.currentTarget.style.borderColor = '#F2A20C66'}
                   onMouseLeave={e => e.currentTarget.style.borderColor = '#F2A20C33'}
+                  onFocus={e => e.currentTarget.style.borderColor = '#F2A20C66'}
+                  onBlur={e => e.currentTarget.style.borderColor = '#F2A20C33'}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xl">✦</span>
-                    <span className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
+                    <span className="font-jakarta text-[0.625rem] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
                       style={{ background: '#F2A20C22', color: '#F2A20C' }}>Toàn diện</span>
                   </div>
                   <div>
-                    <p className="font-jakarta text-[14px] font-semibold text-[#F8FAFC]">Tạo đề riêng</p>
-                    <p className="font-jakarta text-[12px] text-[#64748B] mt-0.5">AI tạo đề theo chủ đề & độ khó bạn chọn</p>
+                    <p className="font-jakarta text-sm font-semibold text-foreground">Tạo đề riêng</p>
+                    <p className="font-jakarta text-xs text-dim mt-0.5">AI tạo đề theo chủ đề & độ khó bạn chọn</p>
                   </div>
-                  <span className="font-jakarta text-[12px] font-semibold mt-auto" style={{ color: '#F2A20C' }}>Tạo đề →</span>
+                  <span className="font-jakarta text-xs font-semibold mt-auto" style={{ color: '#F2A20C' }}>Tạo đề →</span>
                 </motion.button>
               )}
 
@@ -380,11 +384,11 @@ export default function ExamSelect({ onOpenAuth }) {
               ].map(({ label, desc, path, accent }) => (
                 <motion.button key={label}
                   onClick={() => navigate(path)}
-                  className="rounded-2xl p-5 border border-[#1E2A44] flex flex-col gap-2 text-left transition hover:border-[#2A3A50] hover:bg-[#111827]"
+                  className="rounded-2xl p-5 border border-border flex flex-col gap-2 text-left transition hover:border-[#2A3A50] hover:bg-surface-elevated"
                   whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-                  <p className="font-jakarta text-[14px] font-semibold text-[#F8FAFC]">{label}</p>
-                  <p className="font-jakarta text-[12px] text-[#64748B]">{desc}</p>
-                  <span className="font-jakarta text-[12px] font-semibold mt-auto transition" style={{ color: accent }}>Mở →</span>
+                  <p className="font-jakarta text-sm font-semibold text-foreground">{label}</p>
+                  <p className="font-jakarta text-xs text-dim">{desc}</p>
+                  <span className="font-jakarta text-xs font-semibold mt-auto transition" style={{ color: accent }}>Mở →</span>
                 </motion.button>
               ))}
             </div>
@@ -409,26 +413,26 @@ export default function ExamSelect({ onOpenAuth }) {
               <motion.section key={groupKey + mode} variants={cardVariants}>
                 <div className="flex items-center gap-3 mb-4">
                   <span
-                    className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase px-2.5 py-1 rounded"
+                    className="font-jakarta text-[0.6875rem] font-bold tracking-[2px] uppercase px-2.5 py-1 rounded"
                     style={{ background: group.accent + '22', color: group.accent }}
                   >
                     {group.tag}
                   </span>
                   <div>
-                    <h2 className="font-fraunces text-[22px] font-bold text-[#F8FAFC] leading-tight">{group.label}</h2>
-                    <p className="font-jakarta text-[13px] text-[#64748B]">{group.description}</p>
+                    <h2 className="font-fraunces text-[22px] font-bold text-foreground leading-tight">{group.label}</h2>
+                    <p className="font-jakarta text-[0.8125rem] text-dim">{group.description}</p>
                   </div>
                 </div>
                 <div className="h-px mb-4" style={{ background: group.accent + '33' }} />
 
                 {!categoryAllowed ? (
-                  <div className="px-5 py-4 rounded-xl border border-[#1E2A44] bg-[#0D1521] flex items-center justify-between gap-4">
-                    <span className="font-jakarta text-[13px] text-[#64748B]">
+                  <div className="px-5 py-4 rounded-xl border border-border bg-surface flex items-center justify-between gap-4">
+                    <span className="font-jakarta text-[0.8125rem] text-dim">
                       Nâng cấp lên gói <strong className="text-amber-400">Toàn diện</strong> để truy cập danh mục này.
                     </span>
                     <button
                       onClick={() => navigate('/account#topup')}
-                      className="flex-shrink-0 px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-bold"
+                      className="flex-shrink-0 px-4 py-1.5 rounded-lg font-jakarta text-xs font-bold"
                       style={{ background: '#F2A20C', color: '#0A0E1A' }}
                     >
                       Nâng cấp
@@ -464,41 +468,43 @@ export default function ExamSelect({ onOpenAuth }) {
                               <div className="flex items-start justify-between gap-4">
                                 <div className="flex flex-col gap-1.5">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-[#64748B]">🔒</span>
-                                    <span className="font-jakarta text-[15px] font-semibold text-[#64748B]">{exam.title}</span>
+                                    <span className="text-dim">🔒</span>
+                                    <span className="font-jakarta text-[15px] font-semibold text-dim">{exam.title}</span>
                                   </div>
-                                  <span className="font-jakarta text-[13px] text-[#475569]">
+                                  <span className="font-jakarta text-[0.8125rem] text-faint">
                                     {exam.year} · {exam.totalQuestions} câu · {exam.duration} phút
                                   </span>
                                 </div>
                                 {prereqExam && (
                                   <button
                                     onClick={() => openPreview(prereqExam)}
-                                    className="flex-shrink-0 px-4 py-2 rounded-md font-jakarta text-[12px] font-semibold transition"
+                                    className="flex-shrink-0 px-4 py-2 rounded-md font-jakarta text-xs font-semibold transition"
                                     style={{ background: 'transparent', border: '1px solid #2A3A5E', color: '#64748B' }}
                                     onMouseEnter={e => { e.currentTarget.style.borderColor = group.accent; e.currentTarget.style.color = group.accent }}
                                     onMouseLeave={e => { e.currentTarget.style.borderColor = '#2A3A5E'; e.currentTarget.style.color = '#64748B' }}
+                                    onFocus={e => { e.currentTarget.style.borderColor = group.accent; e.currentTarget.style.color = group.accent }}
+                                    onBlur={e => { e.currentTarget.style.borderColor = '#2A3A5E'; e.currentTarget.style.color = '#64748B' }}
                                   >
                                     Làm đề {prereqExam.year} →
                                   </button>
                                 )}
                               </div>
-                              <div className="flex flex-col gap-1.5 pt-1 border-t border-[#1E2A44]">
-                                <span className="font-jakarta text-[12px] text-[#475569]">
+                              <div className="flex flex-col gap-1.5 pt-1 border-t border-border">
+                                <span className="font-jakarta text-xs text-faint">
                                   Yêu cầu: đề {prereqExam?.year ?? ''} đạt ≥ 5.0 điểm
                                 </span>
                                 {prereqScore !== null && (
                                   <div className="flex items-center gap-2">
-                                    <div className="flex-1 h-1.5 rounded-full bg-[#1E2A44] overflow-hidden">
+                                    <div className="flex-1 h-1.5 rounded-full bg-border overflow-hidden">
                                       <div
                                         className="h-full rounded-full transition-all"
                                         style={{ width: `${Math.min(100, (prereqScore / 5.0) * 100)}%`, background: prereqScore >= 5.0 ? '#10B981' : group.accent }}
                                       />
                                     </div>
-                                    <span className="font-mono text-[11px] text-[#64748B]">{prereqScore.toFixed(1)} / 5.0</span>
+                                    <span className="font-mono text-[0.6875rem] text-dim">{prereqScore.toFixed(1)} / 5.0</span>
                                   </div>
                                 )}
-                                <span className="font-jakarta text-[11px] text-[#475569] italic">{encouragement}</span>
+                                <span className="font-jakarta text-[0.6875rem] text-faint italic">{encouragement}</span>
                               </div>
                             </motion.div>
                           )
@@ -509,23 +515,25 @@ export default function ExamSelect({ onOpenAuth }) {
                             key={exam.id}
                             variants={cardVariants}
                             {...hoverProps}
-                            className="bg-[#0D1521] rounded-xl px-6 py-5 flex flex-col gap-3"
+                            className="bg-surface rounded-xl px-6 py-5 flex flex-col gap-3"
                             style={{ borderLeft: `3px solid ${group.accent}99` }}
                           >
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex flex-col gap-1.5">
-                                <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{exam.title}</span>
-                                <span className="font-jakarta text-[13px] text-[#64748B]">
+                                <span className="font-jakarta text-[15px] font-semibold text-foreground">{exam.title}</span>
+                                <span className="font-jakarta text-[0.8125rem] text-dim">
                                   {exam.year} · {exam.totalQuestions} câu · {exam.duration} phút
                                   {exam.source && ` · ${exam.source}`}
                                 </span>
                               </div>
                               <button
                                 onClick={() => openPreview(exam)}
-                                className="flex-shrink-0 px-5 py-2 rounded-md font-jakarta text-[13px] font-semibold transition"
+                                className="flex-shrink-0 px-5 py-2 rounded-md font-jakarta text-[0.8125rem] font-semibold transition"
                                 style={{ background: 'transparent', border: `1px solid ${group.accent}`, color: group.accent }}
                                 onMouseEnter={e => e.currentTarget.style.background = group.accent + '1A'}
                                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                onFocus={e => e.currentTarget.style.background = group.accent + '1A'}
+                                onBlur={e => e.currentTarget.style.background = 'transparent'}
                               >
                                 Bắt đầu
                               </button>
@@ -536,7 +544,7 @@ export default function ExamSelect({ onOpenAuth }) {
                       {!isExpanded && hiddenCount > 0 && (
                         <button
                           onClick={() => setExpandedCategories(prev => ({ ...prev, [groupKey + mode]: true }))}
-                          className="font-jakarta text-[13px] text-center py-2.5 rounded-xl border border-dashed border-[#1E2A44] text-[#475569] hover:text-[#94A3B8] hover:border-[#2A3A5E] transition">
+                          className="font-jakarta text-[0.8125rem] text-center py-2.5 rounded-xl border border-dashed border-border text-faint hover:text-muted hover:border-border-subtle transition">
                           + Xem thêm ({hiddenCount} đề)
                         </button>
                       )}
@@ -569,26 +577,26 @@ export default function ExamSelect({ onOpenAuth }) {
               transition={{ duration: 0.2 }}
               transition={{ duration: 0.2 }}
               onClick={e => e.stopPropagation()}
-              className="w-full max-w-sm rounded-2xl border border-[#1E2A44] p-7 flex flex-col gap-5"
+              className="w-full max-w-sm rounded-2xl border border-border p-7 flex flex-col gap-5"
               style={{ background: 'linear-gradient(180deg, #0F1628 0%, #0D1221 100%)' }}
             >
               <div className="flex flex-col gap-1.5">
-                <span className="font-fraunces text-[18px] font-semibold text-[#F8FAFC]">{previewExam.title}</span>
-                <span className="font-jakarta text-[13px] text-[#64748B]">{previewExam.year}</span>
+                <span className="font-fraunces text-[18px] font-semibold text-foreground">{previewExam.title}</span>
+                <span className="font-jakarta text-[0.8125rem] text-dim">{previewExam.year}</span>
               </div>
               <div className="flex items-center gap-4 flex-wrap">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-jakarta text-[11px] text-[#475569]">Số câu</span>
-                  <span className="font-fraunces text-[16px] font-bold text-[#F8FAFC]">{previewExam.totalQuestions}</span>
+                  <span className="font-jakarta text-[0.6875rem] text-faint">Số câu</span>
+                  <span className="font-fraunces text-[16px] font-bold text-foreground">{previewExam.totalQuestions}</span>
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-jakarta text-[11px] text-[#475569]">Thời gian</span>
-                  <span className="font-fraunces text-[16px] font-bold text-[#F8FAFC]">{previewExam.duration} phút</span>
+                  <span className="font-jakarta text-[0.6875rem] text-faint">Thời gian</span>
+                  <span className="font-fraunces text-[16px] font-bold text-foreground">{previewExam.duration} phút</span>
                 </div>
                 {previewExam.source && (
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-jakarta text-[11px] text-[#475569]">Nguồn</span>
-                    <span className="font-jakarta text-[13px] text-[#94A3B8]">{previewExam.source}</span>
+                    <span className="font-jakarta text-[0.6875rem] text-faint">Nguồn</span>
+                    <span className="font-jakarta text-[0.8125rem] text-muted">{previewExam.source}</span>
                   </div>
                 )}
               </div>
@@ -599,11 +607,11 @@ export default function ExamSelect({ onOpenAuth }) {
                 if (!briefing) return null
                 return (
                   <div className="rounded-xl bg-[#0A1628] border border-[#1E3A5E] px-4 py-3.5 flex flex-col gap-2">
-                    <span className="font-jakarta text-[11px] font-bold text-[#3B82F6] uppercase tracking-wider">Chuẩn bị trước khi thi</span>
-                    <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{briefing.message}</p>
+                    <span className="font-jakarta text-[0.6875rem] font-bold text-info uppercase tracking-wider">Chuẩn bị trước khi thi</span>
+                    <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">{briefing.message}</p>
                     <div className="flex flex-wrap gap-1.5 mt-0.5">
                       {briefing.weakTopics.map(w => (
-                        <span key={w.topic} className="px-2.5 py-1 rounded-full bg-[#2A0F14] border border-[#5A1A24] font-jakarta text-[11px] text-[#FB7185]">
+                        <span key={w.topic} className="px-2.5 py-1 rounded-full bg-[#2A0F14] border border-[#5A1A24] font-jakarta text-[0.6875rem] text-destructive">
                           {w.label} · {w.accuracy}%
                         </span>
                       ))}
@@ -614,13 +622,13 @@ export default function ExamSelect({ onOpenAuth }) {
               <div className="flex gap-3 mt-1">
                 <button
                   onClick={closePreview}
-                  className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-[#1E2A44] text-[#94A3B8] hover:text-[#F8FAFC] transition"
+                  className="flex-1 py-3 rounded-xl font-jakarta text-[0.8125rem] font-semibold border border-border text-muted hover:text-foreground transition"
                 >
                   Huỷ
                 </button>
                 <button
                   onClick={() => confirmStart(previewExam)}
-                  className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
+                  className="flex-1 py-3 rounded-xl font-jakarta text-[0.8125rem] font-bold text-primary-fg hover:opacity-90 transition"
                   style={{ background: '#F2A20C' }}
                 >
                   Bắt đầu thi

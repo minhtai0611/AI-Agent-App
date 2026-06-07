@@ -22,10 +22,10 @@ export default function ChallengeLanding() {
 
   if (!challenger) {
     return (
-      <div className="min-h-screen bg-[#0A0E1A] flex flex-col items-center justify-center gap-4 px-4">
-        <span className="font-fraunces text-[20px] text-[#F8FAFC]">Link không hợp lệ</span>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-4">
+        <span className="font-fraunces text-[20px] text-foreground">Link không hợp lệ</span>
         <button onClick={() => navigate('/')}
-          className="px-6 py-2.5 rounded-xl bg-[#F2A20C] font-jakarta text-[13px] font-bold text-[#0A0E1A]">
+          className="px-6 py-2.5 rounded-xl bg-primary font-jakarta text-[0.8125rem] font-bold text-primary-fg">
           Về trang chủ
         </button>
       </div>
@@ -33,28 +33,28 @@ export default function ChallengeLanding() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex flex-col items-center justify-center gap-6 px-4 py-12"
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-6 px-4 py-12"
       style={{ background: 'radial-gradient(ellipse 120% 80% at 50% 20%, #1B2B4B 0%, #0A0E1A 100%)' }}>
 
       <div className="w-full max-w-sm rounded-2xl border border-[#F2A20C33] p-8 flex flex-col gap-5 text-center"
         style={{ background: 'linear-gradient(135deg, #0D1221 0%, #0A0E1A 100%)' }}>
-        <span className="font-jakarta text-[12px] text-[#64748B] uppercase tracking-widest">Thách đấu</span>
-        <p className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">
-          {challenger.name} <span className="text-[#64748B]">đã đạt</span>
+        <span className="font-jakarta text-xs text-dim uppercase tracking-widest">Thách đấu</span>
+        <p className="font-jakarta text-[15px] font-semibold text-foreground">
+          {challenger.name} <span className="text-dim">đã đạt</span>
         </p>
         <div className="flex flex-col items-center gap-1 py-4">
-          <span className="font-fraunces text-[72px] font-bold text-[#F2A20C] leading-none">
+          <span className="font-fraunces text-[72px] font-bold text-primary leading-none">
             {challenger.score.toFixed(1)}
           </span>
-          <span className="font-jakarta text-[16px] text-[#475569]">/ 10</span>
+          <span className="font-jakarta text-[16px] text-faint">/ 10</span>
         </div>
-        <p className="font-jakarta text-[14px] text-[#94A3B8]">Bạn có thể vượt qua không?</p>
-        <p className="font-jakarta text-[10px] text-[#2A3A50]">Không xác minh · Dữ liệu tự khai báo</p>
+        <p className="font-jakarta text-sm text-muted">Bạn có thể vượt qua không?</p>
+        <p className="font-jakarta text-[0.625rem] text-[#2A3A50]">Không xác minh · Dữ liệu tự khai báo</p>
       </div>
 
       <button
         onClick={() => navigate(`/test/${challenger.examId}`, { state: { challengerScore: challenger.score, challengerName: challenger.name } })}
-        className="px-10 py-3.5 rounded-xl bg-[#F2A20C] font-jakarta text-[15px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
+        className="px-10 py-3.5 rounded-xl bg-primary font-jakarta text-[15px] font-bold text-primary-fg hover:opacity-90 transition"
       >
         Nhận thách đấu →
       </button>

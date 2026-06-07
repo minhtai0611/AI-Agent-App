@@ -1,7 +1,8 @@
 import { useState, useEffect, memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { getHint, reportQuestion } from '../api/aiClient.js'
+import { getHint } from '../api/aiClient.js'
+import ReportButton from './ReportButton.jsx'
 import { loadPreferences } from '../utils/aiPreferences.js'
 import { sanitizeSvg } from '../utils/sanitizeSvg.js'
 import { MathText } from './MathText.jsx'
@@ -27,7 +28,7 @@ function AIRating({ questionId, hintIndex }) {
 
   return (
     <div className="flex items-center gap-1">
-      <span className="font-jakarta text-[10px] text-[#2A3A50] mr-1">Hữu ích?</span>
+      <span className="font-jakarta text-[0.625rem] text-[#2A3A50] mr-1">Hữu ích?</span>
       {['👍', '👎'].map((emoji, i) => {
         const val = i === 0 ? 'up' : 'down'
         return (
@@ -62,48 +63,6 @@ function choiceStyle(index, chosen, aiCorrect, showFeedback) {
   return { bg: '#0D1221', border: '#1E2A44', bw: '1px', labelBg: '#1E2A44', labelText: '#475569', text: '#475569' }
 }
 
-const REPORT_REASONS = ['Sai đáp án', 'Câu hỏi không rõ', 'Lỗi hiển thị']
-
-function ReportButton({ questionId }) {
-  const [open, setOpen] = useState(false)
-  const [sent, setSent] = useState(false)
-  const [sending, setSending] = useState(false)
-
-  async function submit(reason) {
-    setSending(true)
-    await reportQuestion(questionId, reason)
-    setSending(false)
-    setSent(true)
-    setTimeout(() => { setSent(false); setOpen(false) }, 2000)
-  }
-
-  if (sent) return <p className="font-jakarta text-[11px] text-[#34D399] mt-2">Đã gửi báo cáo — cảm ơn!</p>
-
-  return (
-    <div className="relative mt-2">
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="font-jakarta text-[11px] text-[#475569] hover:text-[#64748B] transition"
-      >
-        Báo lỗi
-      </button>
-      {open && (
-        <div className="absolute left-0 top-5 z-20 bg-[#0D1221] border border-[#1E2A44] rounded-xl p-3 flex flex-col gap-1.5 shadow-xl min-w-max">
-          {REPORT_REASONS.map(r => (
-            <button
-              key={r}
-              disabled={sending}
-              onClick={() => submit(r)}
-              className="font-jakarta text-[12px] text-[#94A3B8] hover:text-[#F8FAFC] text-left px-2 py-1 rounded hover:bg-[#1E2A44] transition disabled:opacity-50"
-            >
-              {r}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
 
 function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hintState, onHint, wrongStreak = 0 }) {
   const navigate = useNavigate()
@@ -153,13 +112,13 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
     <div>
       {question.figure?.data && (
         <div
-          className="mb-4 rounded-xl overflow-hidden border border-[#1E2A44] bg-[#0D1221] flex justify-center p-3"
+          className="mb-4 rounded-xl overflow-hidden border border-border bg-surface flex justify-center p-3"
           dangerouslySetInnerHTML={{ __html: sanitizeSvg(question.figure.data) }}
         />
       )}
 
       {question.image && (
-        <div className="mb-4 rounded-xl overflow-hidden border border-[#1E2A44] bg-[#0D1221] flex justify-center p-3">
+        <div className="mb-4 rounded-xl overflow-hidden border border-border bg-surface flex justify-center p-3">
           <img
             src={question.image}
             alt=""
@@ -173,14 +132,14 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
           href={question.imageLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#1E2A44] bg-[#0D1221] font-jakarta text-[13px] text-[#818CF8] hover:border-[#818CF8] hover:bg-[#818CF811] transition w-fit"
+          className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-surface font-jakarta text-[0.8125rem] text-[#818CF8] hover:border-[#818CF8] hover:bg-[#818CF811] transition w-fit"
         >
           <span>🖼</span>
           <span>Xem hình minh họa (nguồn chính thức) →</span>
         </a>
       )}
 
-      <MathText className="font-fraunces text-[20px] text-[#F0F4FF] leading-relaxed mb-5 whitespace-pre-wrap">
+      <MathText className="font-fraunces text-[20px] text-highlight leading-relaxed mb-5 whitespace-pre-wrap">
         {question.question}
       </MathText>
       <div className="flex flex-col gap-2.5">
@@ -204,7 +163,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             >
               <span
-                className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-md font-fraunces text-[13px] font-bold"
+                className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-md font-fraunces text-[0.8125rem] font-bold"
                 style={{ background: s.labelBg, color: s.labelText }}
               >
                 {LABELS[i]}
@@ -236,23 +195,23 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
           </span>
           <div className="flex-1 min-w-0">
             {!isCorrect && (
-              <p className="font-jakarta text-[12px] font-semibold text-[#FB7185] mb-1">
+              <p className="font-jakarta text-xs font-semibold text-destructive mb-1">
                 Đáp án đúng: {LABELS[correctIndex] ?? '?'}
               </p>
             )}
             {isCorrect && (
-              <p className="font-jakarta text-[13px] text-[#6EE7B7]">Đúng rồi.</p>
+              <p className="font-jakarta text-[0.8125rem] text-[#6EE7B7]">Đúng rồi.</p>
             )}
           </div>
         </div>
       )}
 
-      <ReportButton questionId={question.id} />
+      <ReportButton questionId={question.id} topic={question.topic} />
 
       {/* Struggle support — shown after 2 consecutive wrong across questions */}
       {practiceMode && !submitted && showFeedback && !isCorrect && wrongStreak >= 2 && (
         <div className="mt-3 px-4 py-3 rounded-xl border border-[#A78BFA33] bg-[#1A1429]">
-          <p className="font-jakarta text-[12px] text-[#A78BFA] leading-relaxed">
+          <p className="font-jakarta text-xs text-[#A78BFA] leading-relaxed">
             Bài này khó với nhiều học sinh. Xem giải thích hoặc hỏi Oracle để hiểu rõ hơn.
           </p>
         </div>
@@ -263,14 +222,14 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
         <div className="mt-3 flex flex-col gap-2">
           <button
             onClick={() => setShowExplanation(v => !v)}
-            className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A3A60] bg-[#111827] font-jakarta text-[12px] text-[#94A3B8] hover:text-[#F8FAFC] hover:border-[#4A5A80] transition"
+            className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A3A60] bg-surface-elevated font-jakarta text-xs text-muted hover:text-foreground hover:border-[#4A5A80] transition"
           >
             <span>📖</span>
             {showExplanation ? 'Ẩn giải thích' : 'Xem giải thích'}
           </button>
           {showExplanation && question.explanation && (
-            <div className="p-3.5 rounded-xl border border-[#2A3A60] bg-[#111827]">
-              <MathText className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">
+            <div className="p-3.5 rounded-xl border border-[#2A3A60] bg-surface-elevated">
+              <MathText className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">
                 {question.explanation}
               </MathText>
             </div>
@@ -285,25 +244,25 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
             <button
               onClick={handleGetHint}
               disabled={hintLoading}
-              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A3A60] bg-[#111827] font-jakarta text-[12px] text-[#94A3B8] hover:text-[#F8FAFC] hover:border-[#4A5A80] transition disabled:opacity-50"
+              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A3A60] bg-surface-elevated font-jakarta text-xs text-muted hover:text-foreground hover:border-[#4A5A80] transition disabled:opacity-50"
             >
               {hintLoading ? (
-                <span className="inline-block w-3 h-3 border border-[#94A3B8] border-t-transparent rounded-full animate-spin" />
+                <span className="inline-block w-3 h-3 border border-muted border-t-transparent rounded-full animate-spin" />
               ) : (
-                <span className="text-[#F2A20C]">💡</span>
+                <span className="text-primary">💡</span>
               )}
               Gợi ý ({hintCount}/{MAX_HINTS})
-              <span className="text-[#2A3A60] text-[10px]">⚡1</span>
+              <span className="text-[#2A3A60] text-[0.625rem]">⚡1</span>
             </button>
           )}
           {hintError && (
-            <p className="font-jakarta text-[12px] text-[#FB7185]">{hintError}</p>
+            <p className="font-jakarta text-xs text-destructive">{hintError}</p>
           )}
           {hintTexts.map((text, i) => (
-            <div key={i} className="p-3.5 rounded-xl border border-[#2A3A60] bg-[#111827] flex flex-col gap-2">
-              <MathText className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{text}</MathText>
+            <div key={i} className="p-3.5 rounded-xl border border-[#2A3A60] bg-surface-elevated flex flex-col gap-2">
+              <MathText className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">{text}</MathText>
               <div className="flex items-center justify-between">
-                <span className="font-jakarta text-[11px] text-[#475569]">Gợi ý {i + 1}/{MAX_HINTS}</span>
+                <span className="font-jakarta text-[0.6875rem] text-faint">Gợi ý {i + 1}/{MAX_HINTS}</span>
                 <AIRating questionId={question.id} hintIndex={i} />
               </div>
             </div>
@@ -313,9 +272,9 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
           {(hintCount >= 2 || wrongStreak >= 2) && (
             <button
               onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
-              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#6366F144] bg-[#6366F108] font-jakarta text-[12px] font-semibold text-[#818CF8] hover:border-[#6366F188] hover:bg-[#6366F114] transition"
+              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#6366F144] bg-[#6366F108] font-jakarta text-xs font-semibold text-[#818CF8] hover:border-[#6366F188] hover:bg-[#6366F114] transition"
             >
-              <span className="text-[10px]">✦</span> Vẫn chưa hiểu — hỏi Oracle
+              <span className="text-[0.625rem]">✦</span> Vẫn chưa hiểu — hỏi Oracle
             </button>
           )}
         </div>
@@ -328,25 +287,25 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
             <button
               onClick={handleGetHint}
               disabled={hintLoading}
-              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A3A60] bg-[#111827] font-jakarta text-[12px] text-[#94A3B8] hover:text-[#F8FAFC] hover:border-[#4A5A80] transition disabled:opacity-50"
+              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A3A60] bg-surface-elevated font-jakarta text-xs text-muted hover:text-foreground hover:border-[#4A5A80] transition disabled:opacity-50"
             >
               {hintLoading ? (
-                <span className="inline-block w-3 h-3 border border-[#94A3B8] border-t-transparent rounded-full animate-spin" />
+                <span className="inline-block w-3 h-3 border border-muted border-t-transparent rounded-full animate-spin" />
               ) : (
-                <span className="text-[#F2A20C]">💡</span>
+                <span className="text-primary">💡</span>
               )}
               Gợi ý ({hintCount}/{MAX_HINTS})
-              <span className="text-[#2A3A60] text-[10px]">⚡1</span>
+              <span className="text-[#2A3A60] text-[0.625rem]">⚡1</span>
             </button>
           ) : null}
           {hintError && (
-            <p className="font-jakarta text-[12px] text-[#FB7185]">{hintError}</p>
+            <p className="font-jakarta text-xs text-destructive">{hintError}</p>
           )}
           {hintTexts.map((text, i) => (
-            <div key={i} className="p-3.5 rounded-xl border border-[#2A3A60] bg-[#111827] flex flex-col gap-2">
-              <MathText className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{text}</MathText>
+            <div key={i} className="p-3.5 rounded-xl border border-[#2A3A60] bg-surface-elevated flex flex-col gap-2">
+              <MathText className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">{text}</MathText>
               <div className="flex items-center justify-between">
-                <span className="font-jakarta text-[11px] text-[#475569]">Gợi ý {i + 1}/{MAX_HINTS}</span>
+                <span className="font-jakarta text-[0.6875rem] text-faint">Gợi ý {i + 1}/{MAX_HINTS}</span>
                 <AIRating questionId={question.id} hintIndex={i} />
               </div>
             </div>

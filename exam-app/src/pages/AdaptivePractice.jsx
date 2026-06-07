@@ -181,10 +181,10 @@ export default function AdaptivePractice() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center px-4">
           <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-          <p className="font-jakarta text-[14px] text-[#94A3B8]">
+          <p className="font-jakarta text-sm text-muted">
             {mode === 'ai' ? 'AI đang tạo câu hỏi riêng cho bạn...' : 'Đang chọn câu hỏi phù hợp...'}
           </p>
         </div>
@@ -194,17 +194,17 @@ export default function AdaptivePractice() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center px-4">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="flex flex-col items-center gap-4 text-center max-w-sm">
-          <p className="font-jakarta text-[14px] text-red-400">{error}</p>
+          <p className="font-jakarta text-sm text-red-400">{error}</p>
           <div className="flex flex-wrap gap-3">
             <button onClick={() => setMode('static')}
-              className="px-5 py-2 rounded-xl font-jakarta text-[13px] font-bold"
+              className="px-5 py-2 rounded-xl font-jakarta text-[0.8125rem] font-bold"
               style={{ background: '#F2A20C', color: '#0A0E1A' }}>
               Thử lại (từ kho đề)
             </button>
             <button onClick={() => navigate('/exams?mode=practice')}
-              className="px-5 py-2 rounded-xl font-jakarta text-[13px] text-[#64748B] border border-[#1E2A44]">
+              className="px-5 py-2 rounded-xl font-jakarta text-[0.8125rem] text-dim border border-border">
               Quay lại
             </button>
           </div>
@@ -216,11 +216,11 @@ export default function AdaptivePractice() {
   // Mode selection screen
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
-      className="min-h-screen bg-[#0A0E1A] flex flex-col items-center justify-center px-4 gap-8">
+      className="min-h-screen bg-background flex flex-col items-center justify-center px-4 gap-8">
       <div className="flex flex-col items-center gap-2 text-center">
-        <span className="font-fraunces text-[24px] font-bold text-[#F8FAFC]">Luyện tập thích nghi</span>
+        <span className="font-fraunces text-[24px] font-bold text-foreground">Luyện tập thích nghi</span>
         {weakTopics.length > 0 && (
-          <p className="font-jakarta text-[13px] text-[#64748B]">
+          <p className="font-jakarta text-[0.8125rem] text-dim">
             Điểm yếu: {weakTopics.slice(0, 3).map(t => TOPIC_LABELS[t] ?? t).join(' · ')}
           </p>
         )}
@@ -230,17 +230,17 @@ export default function AdaptivePractice() {
         <label className="flex items-center gap-2.5 cursor-pointer px-1">
           <input type="checkbox" checked={interleaved} onChange={e => setInterleaved(e.target.checked)}
             className="rounded accent-amber-400 w-4 h-4" />
-          <span className="font-jakarta text-[13px] text-[#94A3B8]">
+          <span className="font-jakarta text-[0.8125rem] text-muted">
             Xáo trộn chủ đề
-            <span className="ml-1 font-jakarta text-[11px] text-[#475569]">— tăng khả năng ghi nhớ</span>
+            <span className="ml-1 font-jakarta text-[0.6875rem] text-faint">— tăng khả năng ghi nhớ</span>
           </span>
         </label>
         <button
           onClick={() => setMode('static')}
-          className="flex flex-col gap-2 px-6 py-5 rounded-2xl border border-[#1E2A44] bg-[#0D1221] text-left hover:border-[#F2A20C44] transition"
+          className="flex flex-col gap-2 px-6 py-5 rounded-2xl border border-border bg-surface text-left hover:border-[#F2A20C44] transition"
         >
-          <span className="font-jakarta text-[14px] font-semibold text-[#F8FAFC]">Từ kho đề có sẵn</span>
-          <span className="font-jakarta text-[12px] text-[#64748B]">
+          <span className="font-jakarta text-sm font-semibold text-foreground">Từ kho đề có sẵn</span>
+          <span className="font-jakarta text-xs text-dim">
             {SESSION_SIZE} câu từ ngân hàng đề — nhanh, không tốn Tia
           </span>
         </button>
@@ -251,10 +251,10 @@ export default function AdaptivePractice() {
             className="flex flex-col gap-2 px-6 py-5 rounded-2xl border border-[#6366F144] bg-[#0D0D1A] text-left hover:border-[#6366F1] transition"
           >
             <div className="flex items-center justify-between">
-              <span className="font-jakarta text-[14px] font-semibold text-[#F8FAFC]">AI tạo câu hỏi riêng</span>
-              <span className="font-jakarta text-[11px] text-amber-400">⚡ 5 Tia</span>
+              <span className="font-jakarta text-sm font-semibold text-foreground">AI tạo câu hỏi riêng</span>
+              <span className="font-jakarta text-[0.6875rem] text-amber-400">⚡ 5 Tia</span>
             </div>
-            <span className="font-jakarta text-[12px] text-[#64748B]">
+            <span className="font-jakarta text-xs text-dim">
               5 câu hỏi mới hoàn toàn, nhắm đúng điểm yếu của bạn
             </span>
           </button>
@@ -262,7 +262,7 @@ export default function AdaptivePractice() {
       </div>
 
       <button onClick={() => navigate('/exams?mode=practice')}
-        className="font-jakarta text-[13px] text-[#475569] hover:text-[#94A3B8] transition">
+        className="font-jakarta text-[0.8125rem] text-faint hover:text-muted transition">
         ← Quay lại
       </button>
     </motion.div>

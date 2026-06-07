@@ -14,7 +14,7 @@ export default function Timer({ timeLeft, totalTime }) {
 
   return (
     <motion.div
-      className="flex items-center gap-2 px-3 py-1.5 bg-[#1E2A44] rounded-lg"
+      className="flex items-center gap-2 px-3 py-1.5 bg-border rounded-lg"
       animate={urgent ? { scale: [1, 1.05, 1] } : { scale: 1 }}
       transition={urgent ? { duration: 1, repeat: Infinity, ease: 'easeInOut' } : {}}
     >

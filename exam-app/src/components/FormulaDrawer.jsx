@@ -49,7 +49,7 @@ export function FormulaDrawer() {
     <>
       <button
         onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-jakarta text-[12px] text-[#64748B] border border-[#1E2A44] hover:text-[#94A3B8] hover:border-[#2A3A5E] transition"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-jakarta text-xs text-dim border border-border hover:text-muted hover:border-border-subtle transition"
       >
         📋 Công thức
       </button>
@@ -63,7 +63,7 @@ export function FormulaDrawer() {
               onClick={() => setOpen(false)}
             />
             <motion.div
-              className="fixed bottom-0 left-0 right-0 z-50 bg-[#0D1221] border-t border-[#1E2A44] rounded-t-2xl px-4 pt-4 pb-8 max-h-[60vh] flex flex-col gap-3"
+              className="fixed bottom-0 left-0 right-0 z-50 bg-surface border-t border-border rounded-t-2xl px-4 pt-4 pb-8 max-h-[60vh] flex flex-col gap-3"
               initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
               transition={{ type: 'spring', stiffness: 400, damping: 40 }}
               drag="y"
@@ -74,8 +74,8 @@ export function FormulaDrawer() {
               }}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">Bảng công thức</span>
-                <button onClick={() => setOpen(false)} className="text-[#475569] hover:text-[#94A3B8] text-lg leading-none">✕</button>
+                <span className="font-jakarta text-[0.8125rem] font-semibold text-foreground">Bảng công thức</span>
+                <button onClick={() => setOpen(false)} className="text-faint hover:text-muted text-lg leading-none">✕</button>
               </div>
 
               {/* Tab bar */}
@@ -84,7 +84,7 @@ export function FormulaDrawer() {
                   <button
                     key={i}
                     onClick={() => setActiveTab(i)}
-                    className="flex-shrink-0 px-3 py-1.5 rounded-lg font-jakarta text-[12px] font-medium transition"
+                    className="flex-shrink-0 px-3 py-1.5 rounded-lg font-jakarta text-xs font-medium transition"
                     style={activeTab === i
                       ? { background: '#1E2A44', color: '#F8FAFC' }
                       : { color: '#64748B' }}
@@ -98,8 +98,8 @@ export function FormulaDrawer() {
               <div className="overflow-y-auto flex flex-col gap-2">
                 {SHEETS[activeTab].formulas.map((f, i) => (
                   <div key={i} className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#141D2E]">
-                    <span className="font-jakarta text-[11px] text-[#475569] pt-0.5 flex-shrink-0 w-28">{f.label}</span>
-                    <span className="font-mono text-[13px] text-[#E2E8F0]">{f.text}</span>
+                    <span className="font-jakarta text-[0.6875rem] text-faint pt-0.5 flex-shrink-0 w-28">{f.label}</span>
+                    <span className="font-mono text-[0.8125rem] text-[#E2E8F0]">{f.text}</span>
                   </div>
                 ))}
               </div>
