@@ -18,7 +18,10 @@
     "crawl:publish": "node scripts/crawl/pipeline/publish.js",
     "crawl:generate": "node scripts/crawl/generate.js",
     "crawl:publish:check": "node scripts/crawl/pipeline/publish.js --check-only",
-    "crawl:preview": "node scripts/crawl/pipeline/buildPreview.js"
+    "crawl:preview": "node scripts/crawl/pipeline/buildPreview.js",
+    "validate:questions": "node src/data/validateQuestions.js",
+    "verify:math": "node src/data/verifyMath.js",
+    "verify:ai": "node src/data/verifyAnswersAI.js"
   },
   "dependencies": {
     "@dagrejs/dagre": "^3.0.0",

@@ -32613,5 +32613,333 @@
     ],
     "correct": 1,
     "explanation": ""
+  },
+  {
+    "id": "q_vj01_009",
+    "source": "VietJack — Đề thi Toán vào lớp 10 (Trắc nghiệm - Tự luận), Đề 1",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "converted": true,
+    "question": "Giải phương trình: √5·x − 2√5 = 0. Nghiệm của phương trình là",
+    "choices": [
+      "−2",
+      "2√5",
+      "√5/2",
+      "2"
+    ],
+    "correct": 3,
+    "explanation": "√5(x − 2) = 0 ⟹ x = 2"
+  },
+  {
+    "id": "q_vj01_010",
+    "source": "VietJack — Đề thi Toán vào lớp 10 (Trắc nghiệm - Tự luận), Đề 1",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "converted": true,
+    "question": "Hai xe máy khởi hành từ A đến B cách nhau 30 km. Xe thứ nhất nhanh hơn xe thứ hai 5 km/h và đến B trước 5 phút. Vận tốc xe thứ nhất là",
+    "choices": [
+      "36 km/h",
+      "40 km/h",
+      "50 km/h",
+      "45 km/h"
+    ],
+    "correct": 3,
+    "explanation": "Gọi v (km/h) là vận tốc xe 2. Phương trình: 30/v − 30/(v+5) = 1/12 ⟹ v = 40, vận tốc xe 1 = 45 km/h"
+  },
+  {
+    "id": "q_vj02_009",
+    "source": "VietJack — Đề thi Toán vào lớp 10 (Trắc nghiệm - Tự luận), Đề 2",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "converted": true,
+    "question": "Tìm nghiệm dương của phương trình 2x² − 3x − 5 = 0",
+    "choices": [
+      "5",
+      "3/2",
+      "1",
+      "5/2"
+    ],
+    "correct": 3,
+    "explanation": "(2x − 5)(x + 1) = 0 ⟹ x = 5/2 hoặc x = −1. Nghiệm dương là x = 5/2"
+  },
+  {
+    "id": "q_vj02_010",
+    "source": "VietJack — Đề thi Toán vào lớp 10 (Trắc nghiệm - Tự luận), Đề 2",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "converted": true,
+    "question": "Một cửa hàng giảm giá bàn ủi 20% và bộ lau nhà 25%, tổng tiền phải trả là 350 000 đ. Biết giá gốc hai mặt hàng là 450 000 đ. Giá gốc của bàn ủi là",
+    "choices": [
+      "200 000 đ",
+      "225 000 đ",
+      "300 000 đ",
+      "250 000 đ"
+    ],
+    "correct": 3,
+    "explanation": "Gọi a, b là giá gốc. 0,8a + 0,75b = 350; a + b = 450 ⟹ a = 250 000 đ"
+  },
+  {
+    "id": "q_vj04_009",
+    "source": "VietJack — Đề thi Toán vào lớp 10 (Trắc nghiệm - Tự luận), Đề 4",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "converted": true,
+    "question": "Tính: 4√24 − 3√54 + 5√6 − √150",
+    "choices": [
+      "2√6",
+      "√6",
+      "−2√6",
+      "−√6"
+    ],
+    "correct": 3,
+    "explanation": "4√24 = 8√6, 3√54 = 9√6, √150 = 5√6. Tổng = (8−9+5−5)√6 = −√6"
+  },
+  {
+    "id": "q_vj04_010",
+    "source": "VietJack — Đề thi Toán vào lớp 10 (Trắc nghiệm - Tự luận), Đề 4",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "converted": true,
+    "question": "Cho phương trình x² − (2m−1)x − 2m − 1 = 0 có hai nghiệm x₁, x₂ thỏa mãn x₁³ − x₂³ + 2(x₁² − x₂²) = 0. Tổng các giá trị m thỏa mãn là",
+    "choices": [
+      "4/5",
+      "−4",
+      "0",
+      "−4/5"
+    ],
+    "correct": 3,
+    "explanation": "m = 0 hoặc m = −4/5. Tổng = −4/5"
+  },
+  {
+    "id": "q_tdh_001",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cặp số nào sau đây là nghiệm của phương trình 5x + 4y = 8?",
+    "choices": [
+      "(1; 2)",
+      "(1; 0)",
+      "(0; 2)",
+      "(2; −1)"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_tdh_002",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Trong các hệ phương trình sau, hệ nào không phải là hệ hai phương trình bậc nhất hai ẩn?",
+    "choices": [
+      "2x + 3 = 0; 5x + 4y = 0",
+      "3x + y − 1 = 0; 2x + y = 3",
+      "x + 2y − 1 = 0; 3y − 3 = 0",
+      "2x + y − 3 = 0; 0x + 0y = 3"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_tdh_003",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Cho hàm số y = −3x². Khẳng định nào sau đây là SAI?",
+    "choices": [
+      "Đồ thị hàm số nằm phía dưới trục hoành",
+      "Đồ thị hàm số là Parabol đỉnh O",
+      "Đồ thị hàm số nhận trục Oy là trục đối xứng",
+      "Đồ thị hàm số đi qua điểm (1; 3)"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_tdh_004",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Nghiệm của phương trình 2x(x − 7) − 5(x − 7) = 0 là",
+    "choices": [
+      "x = 7; x = −5/2",
+      "x = 7; x = 5/2",
+      "x = −7; x = 5/2",
+      "x = −7; x = −5/2"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_tdh_005",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "question": "Nếu a > b và c > d thì bất đẳng thức nào sau đây luôn đúng?",
+    "choices": [
+      "ac > bd",
+      "a − c > b − d",
+      "a + c > b + d",
+      "a/c > b/d"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_tdh_006",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Hình tròn tâm O bán kính 6 cm là hình gồm tất cả các điểm A thỏa mãn",
+    "choices": [
+      "OA < 6 cm",
+      "OA > 6 cm",
+      "OA ≤ 6 cm",
+      "OA ≥ 6 cm"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_tdh_007",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho đường tròn (O; 4 cm) và điểm M sao cho OM = 3 cm. Khẳng định nào đúng?",
+    "choices": [
+      "Điểm M nằm bên trong đường tròn",
+      "Điểm M nằm bên trên đường tròn",
+      "Điểm M nằm bên ngoài đường tròn",
+      "Điểm M thuộc đường tròn"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_tdh_008",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho đường tròn (O; 6 cm) và điểm A cách O là 10 cm. Kẻ tiếp tuyến AB (B là tiếp điểm). Độ dài AB là",
+    "choices": [
+      "16 cm",
+      "4 cm",
+      "6 cm",
+      "8 cm"
+    ],
+    "correct": 3,
+    "explanation": ""
+  },
+  {
+    "id": "q_tdh_009",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Hai tiếp tuyến tại B và C của đường tròn (O) cắt nhau tại A. Nếu chu vi △ABC = 21 cm, ∠BAC = 60°, độ dài dây BC là",
+    "choices": [
+      "6 cm",
+      "7 cm",
+      "8 cm",
+      "9 cm"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_tdh_010",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "geometry",
+    "difficulty": "medium",
+    "question": "Cho bát giác đều ABCDEFGH nội tiếp đường tròn tâm O. Phép quay thuận chiều 135° biến tam giác OAB thành tam giác nào?",
+    "choices": [
+      "ΔOBC",
+      "ΔOCD",
+      "ΔODE",
+      "ΔOEA"
+    ],
+    "correct": 2,
+    "explanation": ""
+  },
+  {
+    "id": "q_tdh_011",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Gieo ngẫu nhiên ba đồng xu phân biệt một lần. Xác suất biến cố C: 'có ít nhất hai đồng tiền mặt ngửa' là",
+    "choices": [
+      "0.5",
+      "0.25",
+      "0.75",
+      "0"
+    ],
+    "correct": 0,
+    "explanation": ""
+  },
+  {
+    "id": "q_tdh_012",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "statistics",
+    "difficulty": "medium",
+    "question": "Tần số tương đối của nhóm học sinh có thời gian đi từ nhà đến trường thuộc khoảng [10; 15) là",
+    "choices": [
+      "20%",
+      "37.5%",
+      "30%",
+      "12.5%"
+    ],
+    "correct": 1,
+    "explanation": ""
+  },
+  {
+    "id": "q_tdh_013",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "converted": true,
+    "question": "Tính giá trị biểu thức: E = 1/(√2 + 1) + 1/(√2 − 1)",
+    "choices": [
+      "2",
+      "√2",
+      "4",
+      "2√2"
+    ],
+    "correct": 3,
+    "explanation": "Hữu tỉ hóa: 1/(√2+1) = √2−1; 1/(√2−1) = √2+1. Tổng = 2√2"
+  },
+  {
+    "id": "q_tdh_014",
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán năm học 2025-2026",
+    "year": 2025,
+    "topic": "algebra",
+    "difficulty": "medium",
+    "converted": true,
+    "question": "Cho phương trình x² − 5x − 6 = 0 có hai nghiệm x₁ > x₂. Tính 2x₁ + x₂",
+    "choices": [
+      "9",
+      "7",
+      "13",
+      "11"
+    ],
+    "correct": 3,
+    "explanation": "x₁ = 6, x₂ = −1 (theo Vi-ét: S = 5, P = −6). 2(6) + (−1) = 11"
   }
 ]

@@ -2921,5 +2921,117 @@
       "q_hungvuong19_049",
       "q_hungvuong19_050"
     ]
+  },
+  {
+    "id": "lop10_vj_2025_de1",
+    "mode": "thithu",
+    "category": "grade10",
+    "year": 2025,
+    "title": "Đề thi vào lớp 10 Toán — Đề 1 (VietJack 2025)",
+    "duration": 22,
+    "source": "VietJack — Đề thi Toán vào lớp 10 Trắc nghiệm - Tự luận",
+    "questionIds": [
+      "q_vj01_01",
+      "q_vj01_02",
+      "q_vj01_03",
+      "q_vj01_04",
+      "q_vj01_05",
+      "q_vj01_06",
+      "q_vj01_07",
+      "q_vj01_08",
+      "q_vj01_009",
+      "q_vj01_010"
+    ],
+    "totalQuestions": 10
+  },
+  {
+    "id": "lop10_vj_2025_de2",
+    "mode": "thithu",
+    "category": "grade10",
+    "year": 2025,
+    "title": "Đề thi vào lớp 10 Toán — Đề 2 (VietJack 2025)",
+    "duration": 22,
+    "source": "VietJack — Đề thi Toán vào lớp 10 Trắc nghiệm - Tự luận",
+    "questionIds": [
+      "q_vj02_01",
+      "q_vj02_02",
+      "q_vj02_03",
+      "q_vj02_04",
+      "q_vj02_05",
+      "q_vj02_06",
+      "q_vj02_07",
+      "q_vj02_08",
+      "q_vj02_009",
+      "q_vj02_010"
+    ],
+    "totalQuestions": 10
+  },
+  {
+    "id": "lop10_vj_2025_de3",
+    "mode": "thithu",
+    "category": "grade10",
+    "year": 2025,
+    "title": "Đề thi vào lớp 10 Toán — Đề 3 (VietJack 2025)",
+    "duration": 20,
+    "source": "VietJack — Đề thi Toán vào lớp 10 Trắc nghiệm - Tự luận",
+    "questionIds": [
+      "q_vj03_01",
+      "q_vj03_02",
+      "q_vj03_03",
+      "q_vj03_04",
+      "q_vj03_05",
+      "q_vj03_06",
+      "q_vj03_07",
+      "q_vj03_08"
+    ],
+    "totalQuestions": 8
+  },
+  {
+    "id": "lop10_vj_2025_de4",
+    "mode": "thithu",
+    "category": "grade10",
+    "year": 2025,
+    "title": "Đề thi vào lớp 10 Toán — Đề 4 (VietJack 2025)",
+    "duration": 22,
+    "source": "VietJack — Đề thi Toán vào lớp 10 Trắc nghiệm - Tự luận",
+    "questionIds": [
+      "q_vj04_01",
+      "q_vj04_02",
+      "q_vj04_03",
+      "q_vj04_04",
+      "q_vj04_05",
+      "q_vj04_06",
+      "q_vj04_07",
+      "q_vj04_08",
+      "q_vj04_009",
+      "q_vj04_010"
+    ],
+    "totalQuestions": 10
+  },
+  {
+    "id": "lop10_tdh_2025",
+    "mode": "thithu",
+    "category": "grade10",
+    "year": 2025,
+    "title": "Đề thi vào lớp 10 Toán — THCS Đông Hải 2025-2026",
+    "duration": 30,
+    "source": "thuviendethi.net — THCS Đông Hải, Đề thi vào lớp 10 Toán 2025-2026",
+    "questionIds": [
+      "q_tdh_001",
+      "q_tdh_002",
+      "q_tdh_003",
+      "q_tdh_004",
+      "q_tdh_005",
+      "q_tdh_006",
+      "q_tdh_007",
+      "q_tdh_008",
+      "q_tdh_009",
+      "q_tdh_010",
+      "q_tdh_011",
+      "q_tdh_012",
+      "q_tdh_013",
+      "q_tdh_014"
+    ],
+    "totalQuestions": 14
   }
 ]
