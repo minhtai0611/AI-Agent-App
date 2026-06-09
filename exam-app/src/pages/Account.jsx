@@ -44,6 +44,7 @@ import { SpotlightCard } from '../components/SpotlightCard.jsx'
 import { AnimatedShinyText } from '../components/ui/animated-shiny-text.jsx'
 import { ShimmerButton } from '../components/ui/shimmer-button.jsx'
 import { NumberTicker } from '../components/ui/number-ticker.jsx'
+import { GradientBorderCard } from '../components/GradientBorderCard.jsx'
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const REASON_LABELS = {
@@ -1787,9 +1788,10 @@ export default function Account() {
 
             {/* 7-day trial CTA */}
             {tier === 'basic' && !user.trial_used && !trialDone && (
-              <section className="glass-base rounded-2xl p-6 flex flex-col gap-4">
+              <GradientBorderCard>
+              <section className="p-6 flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
-                  <span className="font-fraunces text-[16px] font-semibold text-foreground">Trải nghiệm AI học tập đầy đủ — 7 ngày miễn phí</span>
+                  <span className="font-fraunces text-[16px] font-semibold text-gradient-aurora">Trải nghiệm AI học tập đầy đủ — 7 ngày miễn phí</span>
                   <p className="font-jakarta text-[0.8125rem] text-muted">
                     Mở khóa toàn bộ AI hỗ trợ trong 7 ngày: kế hoạch học cá nhân hoá, phân tích không giới hạn và 500 năng lượng học tập.
                   </p>
@@ -1813,6 +1815,7 @@ export default function Account() {
                   {trialActivating ? 'Đang kích hoạt...' : 'Kích hoạt dùng thử'}
                 </ShimmerButton>
               </section>
+              </GradientBorderCard>
             )}
             {trialDone && (
               <div className="px-5 py-4 rounded-2xl glass-base font-jakarta text-[0.8125rem] text-success">

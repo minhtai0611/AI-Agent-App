@@ -4,7 +4,9 @@ import confetti from 'canvas-confetti'
 import { useAuth } from '../context/AuthContext.jsx'
 import { SpotlightCard } from '../components/SpotlightCard.jsx'
 import { NumberTicker } from '../components/ui/number-ticker.jsx'
+import { ShimmerButton } from '../components/ui/shimmer-button.jsx'
 import { AuroraBackground } from '../components/AuroraBackground.jsx'
+import { GradientBorderCard } from '../components/GradientBorderCard.jsx'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { pageVariants, viewNavigate } from '../utils/animations.js'
 import AchievementCeremony from '../components/AchievementCeremony.jsx'
@@ -976,7 +978,7 @@ export default function Results({ onOpenAuth }) {
             {/* AI Insights */}
             <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center justify-between">
-                <span className="font-fraunces text-[16px] font-semibold text-foreground">Phân tích AI</span>
+                <span className="font-fraunces text-[16px] font-semibold text-gradient-aurora">Phân tích AI</span>
                 {isPaidUser
                   ? <span className="font-jakarta text-[0.6875rem] text-emerald-400/80">Miễn phí</span>
                   : <span className="font-jakarta text-[0.6875rem] text-amber-400/70">⚡3 Tia</span>
@@ -1330,34 +1332,39 @@ export default function Results({ onOpenAuth }) {
         {/* ── Tab: Kế hoạch ── */}
         {activeTab === 'plan' && (
           <motion.div key="plan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
-            <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
-              <span className="font-fraunces text-[16px] font-semibold text-foreground">Kế hoạch học tập 4 tuần</span>
+            <GradientBorderCard>
+            <div className="p-7 flex flex-col gap-4">
+              <span className="font-fraunces text-[16px] font-semibold text-gradient-aurora">Kế hoạch học tập 4 tuần</span>
               <p className="font-jakarta text-[0.8125rem] text-dim leading-relaxed">
                 AI sẽ tạo lịch ôn tập cá nhân hóa dựa trên điểm yếu và lịch sử làm bài của bạn.
               </p>
               {studyPlanError && (
                 <p className="font-jakarta text-[0.8125rem] text-destructive px-1">{studyPlanError}</p>
               )}
-              <motion.button
-                onClick={() => {
-                  if ((user?.credits_balance ?? 0) < 5) {
-                    setStudyPlanError('Không đủ Tia. Cần ít nhất 5 Tia để tạo kế hoạch.')
-                    return
-                  }
-                  navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })
-                }}
-                className={`ripple-btn w-full py-3.5 rounded-xl font-jakarta text-sm font-bold transition flex items-center justify-center gap-2 ${
-                  planReady ? 'text-primary-fg hover:opacity-90' : 'text-faint border border-border'
-                }`}
-                style={planReady ? { background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' } : {}}
-                whileHover={planReady ? { scale: 1.02 } : {}}
-                whileTap={planReady ? { scale: 0.98 } : {}}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              >
-                {!planReady && !studyPlanError && <span className="w-3.5 h-3.5 rounded-full border border-border border-t-primary animate-spin" />}
-                {planReady ? 'Xem kế hoạch học tập ⚡5' : studyPlanError ? 'Không đủ Tia' : 'Đang chuẩn bị…'}
-              </motion.button>
+              {planReady ? (
+                <ShimmerButton
+                  onClick={() => navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })}
+                  className="w-full text-sm font-bold"
+                  shimmerColor="#F2A20C"
+                  background="linear-gradient(135deg, #1a1200, #0D1221)"
+                >
+                  Xem kế hoạch học tập ⚡5
+                </ShimmerButton>
+              ) : (
+                <button
+                  onClick={() => {
+                    if ((user?.credits_balance ?? 0) < 5) {
+                      setStudyPlanError('Không đủ Tia. Cần ít nhất 5 Tia để tạo kế hoạch.')
+                    }
+                  }}
+                  className="w-full py-3.5 rounded-xl font-jakarta text-sm font-bold flex items-center justify-center gap-2 text-faint border border-border transition"
+                >
+                  {!studyPlanError && <span className="w-3.5 h-3.5 rounded-full border border-border border-t-primary animate-spin" />}
+                  {studyPlanError ? 'Không đủ Tia' : 'Đang chuẩn bị…'}
+                </button>
+              )}
             </div>
+            </GradientBorderCard>
             <button onClick={() => { dispatch({ type: 'RESET' }); viewNavigate(navigate, '/exams') }}
               className="w-full py-3 rounded-xl font-jakarta text-[0.8125rem] font-medium text-faint hover:text-muted transition">
               Thi lại

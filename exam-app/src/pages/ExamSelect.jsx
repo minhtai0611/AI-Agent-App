@@ -11,7 +11,9 @@ import AmbientGlows from '../components/AmbientGlows.jsx'
 import { SpotlightCard } from '../components/SpotlightCard.jsx'
 import { BorderBeam } from '../components/ui/border-beam.jsx'
 import { AnimatedShinyText } from '../components/ui/animated-shiny-text.jsx'
+import { ShimmerButton } from '../components/ui/shimmer-button.jsx'
 import { AuroraBackground } from '../components/AuroraBackground.jsx'
+import { GradientBorderCard } from '../components/GradientBorderCard.jsx'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { buildBriefing } from '../utils/examBriefing.js'
 
@@ -342,7 +344,7 @@ export default function ExamSelect({ onOpenAuth }) {
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">✦</span>
-                    <span className="font-jakarta text-[17px] font-bold text-foreground">Toán Oracle</span>
+                    <span className="font-jakarta text-[17px] font-bold text-gradient-aurora">Toán Oracle</span>
                     <AnimatedShinyText className="font-jakarta text-[0.625rem] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded bg-info/10 text-info border border-info/30" shimmerWidth={60}>
                       Oracle AI
                     </AnimatedShinyText>
@@ -569,14 +571,14 @@ export default function ExamSelect({ onOpenAuth }) {
             style={{ background: 'rgba(10,14,26,0.88)', backdropFilter: 'blur(6px)' }}
             onClick={closePreview}
           >
+            <GradientBorderCard className="w-full max-w-sm">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              transition={{ duration: 0.2 }}
               onClick={e => e.stopPropagation()}
-              className="w-full max-w-sm rounded-2xl p-7 flex flex-col gap-5 glass-elevated"
+              className="p-7 flex flex-col gap-5"
             >
               <div className="flex flex-col gap-1.5">
                 <span className="font-fraunces text-[18px] font-semibold text-foreground">{previewExam.title}</span>
@@ -624,15 +626,17 @@ export default function ExamSelect({ onOpenAuth }) {
                 >
                   Huỷ
                 </button>
-                <button
+                <ShimmerButton
                   onClick={() => confirmStart(previewExam)}
-                  className="flex-1 py-3 rounded-xl font-jakarta text-[0.8125rem] font-bold text-primary-fg hover:opacity-90 transition"
-                  style={{ background: '#F2A20C' }}
+                  className="flex-1 text-[0.8125rem] font-bold"
+                  shimmerColor="#FBBF24"
+                  background="linear-gradient(135deg, #92540a, #F2A20C)"
                 >
                   Bắt đầu thi
-                </button>
+                </ShimmerButton>
               </div>
             </motion.div>
+            </GradientBorderCard>
           </motion.div>
         )}
       </AnimatePresence>
