@@ -1521,7 +1521,7 @@ export default function Account() {
                   <span className="font-jakarta text-[0.8125rem] text-highlight leading-snug">{studyNudge}</span>
                   <button
                     onClick={() => navigate('/exam-select')}
-                    className="self-start mt-1.5 px-3 py-1 rounded-lg font-jakarta text-[0.6875rem] font-semibold bg-primary text-primary-fg hover:bg-[#F59E0B] transition-colors"
+                    className="self-start mt-1.5 px-3 py-1 rounded-lg font-jakarta text-[0.6875rem] font-semibold bg-primary text-primary-fg hover:bg-primary/80 transition-colors"
                   >
                     Ôn luyện ngay →
                   </button>
@@ -1645,7 +1645,7 @@ export default function Account() {
                       </div>
                       <button
                         onClick={() => navigate('/exam-select')}
-                        className="px-3 py-1.5 rounded-lg bg-primary text-primary-fg font-jakarta text-xs font-semibold hover:bg-[#F59E0B] transition-colors flex-shrink-0"
+                        className="px-3 py-1.5 rounded-lg bg-primary text-primary-fg font-jakarta text-xs font-semibold hover:bg-primary/80 transition-colors flex-shrink-0"
                       >
                         Luyện ngay
                       </button>
@@ -1690,7 +1690,7 @@ export default function Account() {
                                   style={{ width: `${Math.round((node.mastery ?? 0) * 100)}%`, background: '#EF4444' }}
                                 />
                               </div>
-                              <span className="font-jakarta text-[0.625rem] text-[#EF4444] font-semibold flex-shrink-0">
+                              <span className="font-jakarta text-[0.625rem] text-destructive font-semibold flex-shrink-0">
                                 {Math.round((node.mastery ?? 0) * 100)}%
                               </span>
                             </div>
@@ -2133,7 +2133,7 @@ export default function Account() {
                       className={`flex flex-col items-start px-4 py-2.5 rounded-xl border transition text-left ${
                         aiPrefs.explanation_depth === v
                           ? 'border-success bg-success/10 text-foreground'
-                          : 'border-border bg-background text-dim hover:border-[#10B98150]'
+                          : 'border-border bg-background text-dim hover:border-success/30'
                       }`}
                     >
                       <span className="font-jakarta text-xs font-semibold">{label}</span>

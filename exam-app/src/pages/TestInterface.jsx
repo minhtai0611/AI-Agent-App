@@ -322,14 +322,14 @@ export default function TestInterface() {
         style={{ height: 64, background: 'linear-gradient(180deg, #0F1628 0%, #0D1221 100%)' }}
       >
         <div className="flex items-center gap-2">
-          <span className="font-fraunces font-semibold text-[#F8FAFC] text-[15px]">
+          <span className="font-fraunces font-semibold text-foreground text-[15px]">
             Câu {currentIndex + 1}
           </span>
           <span className="font-jakarta text-dim text-sm">
             / {questions.length}
           </span>
         </div>
-        <span className="font-jakarta text-[#94A3B8] text-sm font-medium truncate max-w-xs hidden sm:block">
+        <span className="font-jakarta text-muted text-sm font-medium truncate max-w-xs hidden sm:block">
           {exam?.title}
         </span>
         <div className="flex items-center gap-3">
@@ -360,7 +360,7 @@ export default function TestInterface() {
           <button
             onClick={toggleFullscreen}
             title={fullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
-            className="p-2 rounded-lg text-dim hover:text-[#F8FAFC] hover:bg-[#1E2A44] transition"
+            className="p-2 rounded-lg text-dim hover:text-foreground hover:bg-surface transition"
           >
             {fullscreen
               ? <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 1H1v4M9 1h4v4M5 13H1V9M9 13h4V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
@@ -372,7 +372,7 @@ export default function TestInterface() {
 
       {/* Progress bar + mobile timer stripe */}
       <div className="relative z-10">
-        <div className="h-1 bg-[#1E2A44]">
+        <div className="h-1 bg-surface">
           <motion.div
             className="h-full"
             style={{ background: 'linear-gradient(90deg, #F2A20C 0%, #F59E0B 100%)' }}
@@ -402,7 +402,7 @@ export default function TestInterface() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-surface bg-[#0D1221]"
+              className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-surface glass-base"
             >
               <span className="font-jakarta text-[12px] text-dim">
                 ⌨ <span className="text-dim">A · B · C · D</span> chọn đáp án &nbsp;·&nbsp;
@@ -417,17 +417,17 @@ export default function TestInterface() {
         {/* Tab-switch warning banner */}
         {showTabWarning && (
           <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-primary/20 glass-base">
-            <span className="font-jakarta text-[12px] text-[#94A3B8]">
+            <span className="font-jakarta text-[12px] text-muted">
               Bạn đã rời khỏi trang <strong className="text-amber-400">{tabSwitchCount}</strong> lần trong khi làm bài.
             </span>
-            <button onClick={() => setShowTabWarning(false)} className="text-dim hover:text-[#94A3B8] text-base leading-none">×</button>
+            <button onClick={() => setShowTabWarning(false)} className="text-dim hover:text-muted text-base leading-none">×</button>
           </div>
         )}
 
         {/* Question badges */}
         <div className="flex items-center gap-2">
           {question?.topic && (
-            <span className="px-2.5 py-1 bg-[#1E2A44] text-primary font-jakarta text-[11px] font-semibold rounded-md tracking-[0.5px]">
+            <span className="px-2.5 py-1 bg-surface text-primary font-jakarta text-[11px] font-semibold rounded-md tracking-[0.5px]">
               {TOPIC_LABELS[question.topic] ?? question.topic}
             </span>
           )}
@@ -498,7 +498,7 @@ export default function TestInterface() {
             <button
               onClick={handlePrev}
               disabled={currentIndex === 0}
-              className="flex items-center gap-1.5 px-4 py-3 md:py-2.5 bg-[#111827] border border-surface rounded-[10px] font-jakarta text-[13px] text-[#94A3B8] font-medium disabled:opacity-40 hover:bg-[#1E2A44] transition"
+              className="flex items-center gap-1.5 px-4 py-3 md:py-2.5 bg-surface border border-surface rounded-[10px] font-jakarta text-[13px] text-muted font-medium disabled:opacity-40 hover:bg-surface transition"
             >
               ← Câu trước
             </button>
@@ -509,7 +509,7 @@ export default function TestInterface() {
               <button
                 onClick={handleNext}
                 disabled={isPractice && !canProceed}
-                className="flex items-center gap-1.5 px-5 py-3 md:py-2.5 bg-[#1E2A44] rounded-[10px] font-jakarta text-[13px] text-[#F8FAFC] font-semibold disabled:opacity-40 hover:bg-[#2A3A5E] transition"
+                className="flex items-center gap-1.5 px-5 py-3 md:py-2.5 bg-surface rounded-[10px] font-jakarta text-[13px] text-foreground font-semibold disabled:opacity-40 hover:bg-surface-elevated transition"
               >
                 Tiếp theo →
               </button>
@@ -517,7 +517,7 @@ export default function TestInterface() {
             {(isLast || !isPractice) && (
               <button
                 onClick={handleSubmit}
-                className="flex items-center gap-1.5 px-5 py-3 md:py-2.5 rounded-[10px] font-jakarta text-[13px] text-[#0A0E1A] font-bold hover:opacity-90 transition"
+                className="flex items-center gap-1.5 px-5 py-3 md:py-2.5 rounded-[10px] font-jakarta text-[13px] text-background font-bold hover:opacity-90 transition"
                 style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
               >
                 Nộp bài
@@ -570,11 +570,11 @@ export default function TestInterface() {
             style={{ background: 'rgba(10,14,26,0.92)', backdropFilter: 'blur(8px)' }}
           >
             <div className="flex flex-col items-center gap-6 text-center">
-              <span className="font-fraunces text-[22px] font-bold text-[#F8FAFC]">Bài thi đã tạm dừng</span>
+              <span className="font-fraunces text-[22px] font-bold text-foreground">Bài thi đã tạm dừng</span>
               <p className="font-jakarta text-[14px] text-dim">Bạn đã rời khỏi tab — bộ đếm giờ đã dừng.</p>
               <button
                 onClick={resumeFromPause}
-                className="px-8 py-3 rounded-xl font-jakarta text-[14px] font-bold text-[#0A0E1A] hover:opacity-90 transition bg-primary"
+                className="px-8 py-3 rounded-xl font-jakarta text-[14px] font-bold text-background hover:opacity-90 transition bg-primary"
               >
                 Tiếp tục thi
               </button>
@@ -596,15 +596,15 @@ export default function TestInterface() {
             <div className="flex flex-col gap-1">
               {allAnswered ? (
                 <>
-                  <span className="font-fraunces text-[#F8FAFC] text-[18px] font-semibold">Nộp bài?</span>
+                  <span className="font-fraunces text-foreground text-[18px] font-semibold">Nộp bài?</span>
                   <span className="font-jakarta text-dim text-[13px]">
                     Bạn đã trả lời đủ {questions.length}/{questions.length} câu.
                   </span>
                 </>
               ) : (
                 <>
-                  <span className="font-fraunces text-[#F8FAFC] text-[18px] font-semibold">Còn câu chưa trả lời</span>
-                  <span className="font-jakarta text-[#94A3B8] text-[13px]">
+                  <span className="font-fraunces text-foreground text-[18px] font-semibold">Còn câu chưa trả lời</span>
+                  <span className="font-jakarta text-muted text-[13px]">
                     Bạn còn{' '}
                     <span className="text-primary font-bold">{unanswered.length} câu</span>
                     {' '}chưa trả lời. Nhấn vào ô để quay lại, hoặc vẫn nộp bài.
@@ -654,13 +654,13 @@ export default function TestInterface() {
             <div className="flex items-center gap-3 mt-1">
               <button
                 onClick={() => setSubmitModal(false)}
-                className="flex-1 py-2.5 rounded-[10px] font-jakarta text-[13px] font-semibold text-[#94A3B8] bg-[#111827] border border-surface hover:bg-[#1E2A44] transition"
+                className="flex-1 py-2.5 rounded-[10px] font-jakarta text-[13px] font-semibold text-muted bg-surface border border-surface hover:bg-surface transition"
               >
                 Làm tiếp
               </button>
               <button
                 onClick={confirmSubmit}
-                className="flex-1 py-2.5 rounded-[10px] font-jakarta text-[13px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
+                className="flex-1 py-2.5 rounded-[10px] font-jakarta text-[13px] font-bold text-background hover:opacity-90 transition"
                 style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
               >
                 Nộp bài

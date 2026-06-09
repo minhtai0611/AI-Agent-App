@@ -28,10 +28,10 @@ export default function ShareView() {
   if (!data) {
     return (
       <div className="min-h-screen bg-surface flex flex-col items-center justify-center gap-4 px-4">
-        <span className="font-fraunces text-[20px] text-[#F8FAFC]">Link không hợp lệ</span>
+        <span className="font-fraunces text-[20px] text-foreground">Link không hợp lệ</span>
         <p className="font-jakarta text-[13px] text-dim text-center">Link chia sẻ đã hết hạn hoặc bị thay đổi.</p>
         <button onClick={() => navigate('/')}
-          className="px-6 py-2.5 rounded-xl bg-primary font-jakarta text-[13px] font-bold text-[#0A0E1A]">
+          className="px-6 py-2.5 rounded-xl bg-primary font-jakarta text-[13px] font-bold text-background">
           Về trang chủ
         </button>
       </div>
@@ -53,7 +53,7 @@ export default function ShareView() {
           <span className="font-jakarta text-[12px] text-dim">{date}</span>
         </div>
 
-        <p className="font-jakarta text-[14px] font-semibold text-[#94A3B8] leading-snug">{data.e}</p>
+        <p className="font-jakarta text-[14px] font-semibold text-muted leading-snug">{data.e}</p>
 
         <div className="flex flex-col items-center gap-1 py-5">
           <span className="font-fraunces text-[72px] font-bold text-primary leading-none">{data.s.toFixed(1)}</span>
@@ -62,11 +62,11 @@ export default function ShareView() {
 
         <div className="flex justify-around border-t border-surface pt-4">
           <div className="flex flex-col items-center gap-1">
-            <span className="font-fraunces text-[20px] font-bold text-[#F8FAFC]">{data.c}/{data.t}</span>
+            <span className="font-fraunces text-[20px] font-bold text-foreground">{data.c}/{data.t}</span>
             <span className="font-jakarta text-[11px] text-dim">Câu đúng</span>
           </div>
           <div className="flex flex-col items-center gap-1">
-            <span className="font-fraunces text-[20px] font-bold text-[#F8FAFC]">
+            <span className="font-fraunces text-[20px] font-bold text-foreground">
               {data.t > 0 ? Math.round((data.c / data.t) * 100) : 0}%
             </span>
             <span className="font-jakarta text-[11px] text-dim">Độ chính xác</span>
@@ -76,7 +76,7 @@ export default function ShareView() {
         {topBadge && (
           <div className="flex items-center justify-center gap-1.5">
             <span className="text-[16px]">{topBadge.icon}</span>
-            <span className="font-jakarta text-[12px] text-[#94A3B8]">{topBadge.label}</span>
+            <span className="font-jakarta text-[12px] text-muted">{topBadge.label}</span>
           </div>
         )}
         <p className="font-jakarta text-[10px] text-dim text-center">✦ exam-app-ey0.pages.dev · Không xác minh</p>
@@ -87,7 +87,7 @@ export default function ShareView() {
         <p className="font-jakarta text-[13px] text-dim">Bạn có thể đạt điểm cao hơn không?</p>
         <button
           onClick={() => navigate('/exams')}
-          className="px-8 py-3 rounded-xl bg-primary font-jakarta text-[14px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
+          className="px-8 py-3 rounded-xl bg-primary font-jakarta text-[14px] font-bold text-background hover:opacity-90 transition"
         >
           Thi thử ngay →
         </button>

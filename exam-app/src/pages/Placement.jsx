@@ -115,8 +115,8 @@ export default function Placement() {
         <div className="w-full max-w-md bg-surface border border-surface rounded-2xl p-8 flex flex-col items-center gap-5 text-center">
           <span className="text-5xl">{correct >= 7 ? '🏆' : correct >= 5 ? '📈' : '📚'}</span>
           <div className="flex flex-col gap-1">
-            <h1 className="font-fraunces text-[24px] font-bold text-[#F8FAFC]">Kiểm tra hoàn thành</h1>
-            <p className="font-jakarta text-[14px] text-[#94A3B8]">
+            <h1 className="font-fraunces text-[24px] font-bold text-foreground">Kiểm tra hoàn thành</h1>
+            <p className="font-jakarta text-[14px] text-muted">
               Bạn trả lời đúng <span className="text-primary font-semibold">{correct}/{answers.length}</span> câu
             </p>
           </div>
@@ -152,14 +152,14 @@ export default function Placement() {
           </div>
           <button
             onClick={() => navigate('/')}
-            className="font-jakarta text-[12px] text-dim hover:text-[#94A3B8] transition"
+            className="font-jakarta text-[12px] text-dim hover:text-muted transition"
           >
             Bỏ qua
           </button>
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-1.5 bg-[#1E2A44] rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-surface rounded-full overflow-hidden">
           <motion.div
             className="h-full rounded-full bg-info"
             animate={{ width: `${((current) / questions.length) * 100}%` }}

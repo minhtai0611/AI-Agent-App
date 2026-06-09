@@ -105,7 +105,7 @@ export default function AdminSecurityEvents() {
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <h1 className="font-fraunces text-[22px] font-bold text-[#F8FAFC]">
+          <h1 className="font-fraunces text-[22px] font-bold text-foreground">
             Security Events Dashboard
           </h1>
           <div className="flex items-center gap-2">
@@ -118,7 +118,7 @@ export default function AdminSecurityEvents() {
               <button
                 onClick={() => fetchEvents(adminKey)}
                 disabled={loading}
-                className="px-3 py-1.5 rounded-lg font-jakarta text-[12px] font-semibold border border-surface text-[#94A3B8] hover:text-[#F8FAFC] hover:border-surface transition disabled:opacity-50"
+                className="px-3 py-1.5 rounded-lg font-jakarta text-[12px] font-semibold border border-surface text-muted hover:text-foreground hover:border-surface transition disabled:opacity-50"
               >
                 {loading ? 'Đang tải...' : 'Làm mới'}
               </button>
@@ -128,8 +128,8 @@ export default function AdminSecurityEvents() {
 
         {/* Admin key input or clear button */}
         {!adminKey ? (
-          <form onSubmit={handleKeySubmit} className="flex flex-col gap-3 bg-[#0D1521] border border-surface rounded-2xl p-6 max-w-md">
-            <label className="font-jakarta text-[13px] font-semibold text-[#94A3B8]">
+          <form onSubmit={handleKeySubmit} className="flex flex-col gap-3 glass-base border border-surface rounded-2xl p-6 max-w-md">
+            <label className="font-jakarta text-[13px] font-semibold text-muted">
               Nhập Admin Key để tiếp tục
             </label>
             <input
@@ -137,7 +137,7 @@ export default function AdminSecurityEvents() {
               value={keyInput}
               onChange={e => setKeyInput(e.target.value)}
               placeholder="Admin key…"
-              className="px-4 py-2.5 rounded-xl border border-surface bg-[#111827] font-jakarta text-[13px] text-[#F0F4FF] placeholder-[#334155] focus:outline-none focus:border-amber-400 transition"
+              className="px-4 py-2.5 rounded-xl border border-surface bg-surface font-jakarta text-[13px] text-foreground placeholder-[#334155] focus:outline-none focus:border-amber-400 transition"
               autoFocus
             />
             {error && (
@@ -145,7 +145,7 @@ export default function AdminSecurityEvents() {
             )}
             <button
               type="submit"
-              className="py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] transition"
+              className="py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-background transition"
               className="bg-primary"
             >
               Xác nhận
@@ -172,7 +172,7 @@ export default function AdminSecurityEvents() {
 
         {/* Events table */}
         {adminKey && !error && (
-          <div className="bg-[#0D1521] border border-surface rounded-2xl overflow-hidden">
+          <div className="glass-base border border-surface rounded-2xl overflow-hidden">
             {loading && events.length === 0 ? (
               <div className="flex items-center justify-center py-16">
                 <span className="font-jakarta text-[13px] text-dim">Đang tải…</span>
@@ -197,12 +197,12 @@ export default function AdminSecurityEvents() {
                     {events.map((ev, i) => (
                       <tr
                         key={ev.id ?? i}
-                        className="border-b border-surface/50 hover:bg-[#111827]/60 transition"
+                        className="border-b border-surface/50 hover:bg-surface/60 transition"
                       >
                         <td className="px-4 py-3 font-jakarta text-[12px] text-dim whitespace-nowrap">
                           {formatTs(ev.created_at)}
                         </td>
-                        <td className="px-4 py-3 font-jakarta text-[12px] text-[#94A3B8] whitespace-nowrap">
+                        <td className="px-4 py-3 font-jakarta text-[12px] text-muted whitespace-nowrap">
                           {ev.event_type || '—'}
                         </td>
                         <td className="px-4 py-3">
@@ -211,7 +211,7 @@ export default function AdminSecurityEvents() {
                         <td className="px-4 py-3 font-jakarta text-[12px] text-dim whitespace-nowrap">
                           {ev.user_id || '—'}
                         </td>
-                        <td className="px-4 py-3 font-jakarta text-[12px] text-[#94A3B8] max-w-[260px]">
+                        <td className="px-4 py-3 font-jakarta text-[12px] text-muted max-w-[260px]">
                           <span title={ev.detail || ''}>
                             {truncate(ev.detail)}
                           </span>

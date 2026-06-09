@@ -21,7 +21,7 @@ function MasteryBar({ score, stage }) {
   const color = STAGE_COLORS[stage] ?? STAGE_COLORS[0]
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 h-1.5 rounded-full bg-[#1E2A44] overflow-hidden">
+      <div className="flex-1 h-1.5 rounded-full bg-surface overflow-hidden">
         <div className="h-full rounded-full transition-all" style={{ width: `${score}%`, background: color }} />
       </div>
       <span className="font-jakarta text-[10px] min-w-[28px] text-right" style={{ color: color + 'CC' }}>
@@ -51,14 +51,14 @@ function TrajectoryCard({ plan }) {
           </div>
         </div>
         <div className="flex flex-col items-end gap-0.5">
-          <span className="font-fraunces text-[20px] font-bold text-[#F8FAFC]">{plan.solid_count}</span>
+          <span className="font-fraunces text-[20px] font-bold text-foreground">{plan.solid_count}</span>
           <span className="font-jakarta text-[10px] text-dim">/ {plan.total_concepts} vững</span>
         </div>
       </div>
 
       {plan.days_remaining != null && (
         <div className="flex items-center gap-2">
-          <div className="flex-1 h-1.5 rounded-full bg-[#1E2A44] overflow-hidden">
+          <div className="flex-1 h-1.5 rounded-full bg-surface overflow-hidden">
             <div
               className="h-full rounded-full"
               style={{
@@ -81,9 +81,9 @@ function TrajectoryCard({ plan }) {
 function FocusConceptCard({ concept }) {
   const color = STAGE_COLORS[concept.stage] ?? STAGE_COLORS[0]
   return (
-    <div className="flex flex-col gap-2 px-3 py-2.5 rounded-xl border border-surface bg-[#0D1221]">
+    <div className="flex flex-col gap-2 px-3 py-2.5 rounded-xl border border-surface glass-base">
       <div className="flex items-start justify-between gap-2">
-        <span className="font-jakarta text-[12px] font-semibold text-[#F0F4FF] leading-tight">
+        <span className="font-jakarta text-[12px] font-semibold text-foreground leading-tight">
           {concept.name_vi}
         </span>
         <span className="font-jakarta text-[10px] font-semibold px-1.5 py-0.5 rounded-md shrink-0"
@@ -95,7 +95,7 @@ function FocusConceptCard({ concept }) {
       {concept.error_types.length > 0 && (
         <div className="flex gap-1 flex-wrap">
           {concept.error_types.map(t => (
-            <span key={t} className="font-jakarta text-[10px] text-[#FB7185] px-1.5 py-0.5 rounded bg-destructive/5">
+            <span key={t} className="font-jakarta text-[10px] text-destructive px-1.5 py-0.5 rounded bg-destructive/5">
               {t}
             </span>
           ))}
@@ -114,20 +114,20 @@ function WeekSchedule({ week }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: inView ? 1 : 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="rounded-2xl border border-surface bg-[#0D1221] overflow-hidden"
+      className="rounded-2xl border border-surface glass-base overflow-hidden"
     >
       <button
         onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-[#111827] transition"
+        className="w-full flex items-center justify-between px-5 py-4 hover:bg-surface transition"
       >
         <div className="flex items-center gap-3">
-          <span className="font-fraunces text-[14px] font-bold text-[#F8FAFC]">Tuần {week.week}</span>
+          <span className="font-fraunces text-[14px] font-bold text-foreground">Tuần {week.week}</span>
           <div className="flex gap-1.5">
             {week.focus_concepts.map(c => (
               <span key={c.concept_id} className="font-jakarta text-[11px] text-dim">
                 {c.name_vi}
               </span>
-            )).reduce((acc, el, i) => (i === 0 ? [el] : [...acc, <span key={`sep-${i}`} className="text-[#1E2A44]">·</span>, el]), [])}
+            )).reduce((acc, el, i) => (i === 0 ? [el] : [...acc, <span key={`sep-${i}`} className="text-border">·</span>, el]), [])}
           </div>
         </div>
         <span className="font-jakarta text-[12px] text-dim">{open ? '▲' : '▼'}</span>
@@ -209,13 +209,13 @@ export default function AdaptiveStudyPlan() {
     >
       {/* Header */}
       <div className="sticky top-12 z-10 bg-surface/95 backdrop-blur border-b border-surface px-4 py-3 flex items-center justify-between">
-        <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-dim hover:text-[#F8FAFC] transition">
+        <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-dim hover:text-foreground transition">
           ← Quay lại
         </button>
-        <span className="font-fraunces text-[15px] font-bold text-[#F8FAFC]">Kế hoạch học thích nghi</span>
+        <span className="font-fraunces text-[15px] font-bold text-foreground">Kế hoạch học thích nghi</span>
         <button
           onClick={() => navigate('/progress')}
-          className="font-jakarta text-[12px] text-dim hover:text-[#94A3B8] transition"
+          className="font-jakarta text-[12px] text-dim hover:text-muted transition"
         >
           Bản đồ
         </button>
@@ -230,17 +230,17 @@ export default function AdaptiveStudyPlan() {
           </div>
         ) : loading ? (
           <div className="flex flex-col gap-4 animate-pulse">
-            <div className="h-32 rounded-2xl bg-[#0D1221] border border-surface" />
-            <div className="h-8 w-48 rounded-lg bg-[#0D1221]" />
-            <div className="h-24 rounded-2xl bg-[#0D1221] border border-surface" />
-            <div className="h-24 rounded-2xl bg-[#0D1221] border border-surface" />
+            <div className="h-32 rounded-2xl glass-base border border-surface" />
+            <div className="h-8 w-48 rounded-lg glass-base" />
+            <div className="h-24 rounded-2xl glass-base border border-surface" />
+            <div className="h-24 rounded-2xl glass-base border border-surface" />
           </div>
         ) : error ? (
           <div className="flex flex-col items-center gap-3 py-16">
-            <span className="font-jakarta text-[13px] text-[#FB7185]">{error}</span>
+            <span className="font-jakarta text-[13px] text-destructive">{error}</span>
             <button
               onClick={() => { setError(null); setLoading(true); getAdaptiveStudyPlan().then(({ data, error: e }) => { if (data) setPlan(data); else setError(e || 'Lỗi'); }).finally(() => setLoading(false)) }}
-              className="px-4 py-2 rounded-xl font-jakarta text-[12px] font-semibold text-[#F8FAFC] border border-surface hover:border-primary/30 transition"
+              className="px-4 py-2 rounded-xl font-jakarta text-[12px] font-semibold text-foreground border border-surface hover:border-primary/30 transition"
             >
               Thử lại
             </button>
@@ -268,10 +268,10 @@ export default function AdaptiveStudyPlan() {
 
             {/* No exam date nudge */}
             {plan.days_remaining == null && (
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-surface bg-[#111827]">
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-surface bg-surface">
                 <span className="text-primary">📅</span>
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-jakarta text-[12px] font-semibold text-[#F8FAFC]">
+                  <span className="font-jakarta text-[12px] font-semibold text-foreground">
                     Thêm ngày thi để dự đoán điểm số
                   </span>
                   <button
@@ -287,7 +287,7 @@ export default function AdaptiveStudyPlan() {
             {/* This week's focus */}
             {plan.focus_concepts.length > 0 && (
               <div className="flex flex-col gap-3">
-                <span className="font-fraunces text-[14px] font-bold text-[#F8FAFC]">
+                <span className="font-fraunces text-[14px] font-bold text-foreground">
                   Ưu tiên luyện tập
                 </span>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -301,7 +301,7 @@ export default function AdaptiveStudyPlan() {
             {/* Weekly schedule */}
             {plan.weekly_schedule.length > 0 && (
               <div className="flex flex-col gap-3">
-                <span className="font-fraunces text-[14px] font-bold text-[#F8FAFC]">
+                <span className="font-fraunces text-[14px] font-bold text-foreground">
                   Lịch học {plan.weeks_remaining != null ? `${Math.min(plan.weeks_remaining, 4)} tuần` : ''}
                 </span>
                 {plan.weekly_schedule.map(week => (
@@ -314,7 +314,7 @@ export default function AdaptiveStudyPlan() {
             {plan.focus_concepts.length === 0 && plan.weekly_schedule.length === 0 && (
               <div className="flex flex-col items-center gap-4 py-12 text-center">
                 <span className="text-4xl">🗺</span>
-                <p className="font-jakarta text-[14px] font-semibold text-[#F8FAFC]">
+                <p className="font-jakarta text-[14px] font-semibold text-foreground">
                   Bắt đầu luyện tập để xây dựng kế hoạch
                 </p>
                 <p className="font-jakarta text-[13px] text-dim max-w-xs">
@@ -322,7 +322,7 @@ export default function AdaptiveStudyPlan() {
                 </p>
                 <button
                   onClick={() => navigate('/review')}
-                  className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A]"
+                  className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-background"
                   style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
                 >
                   Bắt đầu ôn tập

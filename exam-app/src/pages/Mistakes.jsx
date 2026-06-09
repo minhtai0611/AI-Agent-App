@@ -109,7 +109,7 @@ function MistakeRow({ question, userAnswer, examTitle }) {
   const userLabel = typeof userAnswer === 'number' ? (question.choices?.[userAnswer] ?? '—') : '—'
 
   return (
-    <div className="bg-[#0D1521] rounded-xl border border-surface overflow-hidden">
+    <div className="glass-base rounded-xl border border-surface overflow-hidden">
       <button
         className="w-full text-left px-5 py-4 flex items-start justify-between gap-4"
         onClick={fetchExplanation}
@@ -124,7 +124,7 @@ function MistakeRow({ question, userAnswer, examTitle }) {
               Đáp án: <MathText>{correctLabel?.slice(0, 40)}</MathText>
             </span>
             {examTitle && (
-              <span className="px-2 py-0.5 rounded-full bg-[#111827] border border-surface text-dim">{examTitle}</span>
+              <span className="px-2 py-0.5 rounded-full bg-surface border border-surface text-dim">{examTitle}</span>
             )}
             {aiCategory && AI_CATEGORY_META[aiCategory] && (
               <span className="px-2 py-0.5 rounded-full font-jakarta text-[10px] font-semibold border"
@@ -177,8 +177,8 @@ function MistakeRow({ question, userAnswer, examTitle }) {
                 onClick={() => { const next = tag === t.id ? null : t.id; setTag(next); saveTag(question.id, next) }}
                 className={`px-2.5 py-1 rounded-full font-jakarta text-[11px] border transition ${
                   tag === t.id
-                    ? 'border-[#F2A20C] bg-primary/10 text-primary'
-                    : 'border-surface text-dim hover:border-primary/30 hover:text-[#94A3B8]'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-surface text-dim hover:border-primary/30 hover:text-muted'
                 }`}
               >
                 {t.label}
@@ -186,7 +186,7 @@ function MistakeRow({ question, userAnswer, examTitle }) {
             ))}
             <button
               onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
-              className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-full border border-info/20 bg-info/5 font-jakarta text-[11px] font-semibold text-info hover:border-[#6366F166] hover:bg-info/10 transition"
+              className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-full border border-info/20 bg-info/5 font-jakarta text-[11px] font-semibold text-info hover:border-info/40 hover:bg-info/10 transition"
             >
               <span className="text-[9px]">✦</span> Oracle
             </button>
@@ -318,13 +318,13 @@ export default function Mistakes() {
       <div className="max-w-2xl mx-auto px-4 pt-20">
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
-          <button onClick={() => navigate('/exams')} className="font-jakarta text-[13px] text-dim hover:text-[#94A3B8] transition">
+          <button onClick={() => navigate('/exams')} className="font-jakarta text-[13px] text-dim hover:text-muted transition">
             ← Quay lại
           </button>
         </div>
         <div className="flex items-end justify-between mb-6">
           <div>
-            <h1 className="font-fraunces text-[28px] font-bold text-[#F8FAFC]">Sổ tay sai lầm</h1>
+            <h1 className="font-fraunces text-[28px] font-bold text-foreground">Sổ tay sai lầm</h1>
             <p className="font-jakarta text-[13px] text-dim mt-1">
               {questions.length === 0 ? 'Đang tải...' : totalMistakes === 0 ? 'Chưa có câu sai nào!' : `${totalMistakes} câu đã làm sai`}
             </p>
@@ -339,7 +339,7 @@ export default function Mistakes() {
               </button>
               <button
                 onClick={() => navigate('/exams?mode=practice')}
-                className="px-4 py-1.5 rounded-lg font-jakarta text-[11px] text-dim hover:text-[#94A3B8] border border-surface transition"
+                className="px-4 py-1.5 rounded-lg font-jakarta text-[11px] text-dim hover:text-muted border border-surface transition"
               >
                 Luyện từ lỗi sai
               </button>
@@ -349,7 +349,7 @@ export default function Mistakes() {
 
         {/* Weekly AI category summary */}
         {weeklyCategorySummary.length > 0 && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-[#0D1221] border border-surface flex flex-wrap items-center gap-2">
+          <div className="mb-4 px-4 py-3 rounded-xl glass-base border border-surface flex flex-wrap items-center gap-2">
             <span className="font-jakarta text-[11px] font-semibold text-dim uppercase tracking-wider mr-1">Tuần này:</span>
             {weeklyCategorySummary.map(([cat, count]) => {
               const meta = AI_CATEGORY_META[cat]
@@ -360,7 +360,7 @@ export default function Mistakes() {
                   {count} lỗi {meta.label.toLowerCase()}
                 </span>
               )
-            }).filter(Boolean).reduce((acc, el, i) => i === 0 ? [el] : [...acc, <span key={`sep-${i}`} className="text-[#1E2A44]">·</span>, el], [])}
+            }).filter(Boolean).reduce((acc, el, i) => i === 0 ? [el] : [...acc, <span key={`sep-${i}`} className="text-border">·</span>, el], [])}
           </div>
         )}
 
@@ -397,7 +397,7 @@ export default function Mistakes() {
             <button
               onClick={() => setFilterTopic(null)}
               className={`h-8 px-3 rounded-full font-jakarta text-[12px] font-medium border transition ${
-                !filterTopic ? 'border-[#F2A20C] bg-primary/10 text-primary' : 'border-surface text-dim'
+                !filterTopic ? 'border-primary bg-primary/10 text-primary' : 'border-surface text-dim'
               }`}
             >Tất cả</button>
             {topics.map(t => (
@@ -405,7 +405,7 @@ export default function Mistakes() {
                 key={t}
                 onClick={() => setFilterTopic(filterTopic === t ? null : t)}
                 className={`h-8 px-3 rounded-full font-jakarta text-[12px] font-medium border transition ${
-                  filterTopic === t ? 'border-[#F2A20C] bg-primary/10 text-primary' : 'border-surface text-dim'
+                  filterTopic === t ? 'border-primary bg-primary/10 text-primary' : 'border-surface text-dim'
                 }`}
               >
                 {TOPIC_LABELS[t] ?? t} <span className="opacity-60 ml-1">{byTopic[t].length}</span>
@@ -418,7 +418,7 @@ export default function Mistakes() {
         {totalMistakes === 0 && questions.length > 0 && (
           <div className="flex flex-col items-center gap-3 py-20 text-center">
             <span className="text-4xl">🎉</span>
-            <p className="font-jakarta text-[15px] text-[#94A3B8]">Chưa có câu sai nào — hãy làm một bài thi!</p>
+            <p className="font-jakarta text-[15px] text-muted">Chưa có câu sai nào — hãy làm một bài thi!</p>
             <button
               onClick={() => navigate('/exams')}
               className="px-5 py-2 rounded-xl font-jakarta text-[13px] font-bold mt-2 bg-primary text-background"
@@ -449,7 +449,7 @@ export default function Mistakes() {
                     <span className="px-2 py-0.5 rounded-full bg-info/5 border border-info/20 text-info/80">
                       {p.occurrences} lần
                     </span>
-                    <span className="px-2 py-0.5 rounded-full bg-[#111827] border border-surface text-dim">
+                    <span className="px-2 py-0.5 rounded-full bg-surface border border-surface text-dim">
                       {TOPIC_LABELS[p.question.topic] ?? p.question.topic}
                     </span>
                   </div>
@@ -469,7 +469,7 @@ export default function Mistakes() {
           return (
           <div key={topic} className="mb-8">
             <div className="flex items-center gap-2 mb-3">
-              <span className="font-jakarta text-[12px] font-bold text-[#94A3B8] uppercase tracking-wider">
+              <span className="font-jakarta text-[12px] font-bold text-muted uppercase tracking-wider">
                 {TOPIC_LABELS[topic] ?? topic}
               </span>
               <span className="font-jakarta text-[11px] text-dim">{topicEntries.length} câu</span>
@@ -486,7 +486,7 @@ export default function Mistakes() {
               {!isExpanded && hiddenCount > 0 && (
                 <button
                   onClick={() => setExpandedTopics(prev => ({ ...prev, [topic]: true }))}
-                  className="font-jakarta text-[12px] text-center py-2 rounded-xl border border-dashed border-surface text-dim hover:text-[#94A3B8] transition">
+                  className="font-jakarta text-[12px] text-center py-2 rounded-xl border border-dashed border-surface text-dim hover:text-muted transition">
                   + Xem thêm ({hiddenCount} câu)
                 </button>
               )}

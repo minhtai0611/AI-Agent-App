@@ -275,7 +275,7 @@ export default function ExamSelect({ onOpenAuth }) {
           <button
             onClick={() => setYear(null)}
             className={`h-8 px-3 rounded-full font-jakarta text-xs font-medium border transition ${
-              !filterYear ? 'border-primary bg-primary/10 text-primary' : 'border-border text-dim hover:border-[#2A3A50]'
+              !filterYear ? 'border-primary bg-primary/10 text-primary' : 'border-border text-dim hover:border-primary/30'
             }`}
           >Tất cả</button>
           {availableYears.map(y => (
@@ -283,7 +283,7 @@ export default function ExamSelect({ onOpenAuth }) {
               key={y}
               onClick={() => setYear(filterYear === y ? null : y)}
               className={`h-8 px-3 rounded-full font-jakarta text-xs font-medium border transition ${
-                filterYear === y ? 'border-primary bg-primary/10 text-primary' : 'border-border text-dim hover:border-[#2A3A50]'
+                filterYear === y ? 'border-primary bg-primary/10 text-primary' : 'border-border text-dim hover:border-primary/30'
               }`}
             >{y}</button>
           ))}
@@ -381,7 +381,7 @@ export default function ExamSelect({ onOpenAuth }) {
               ].map(({ label, desc, path, accent }) => (
                 <motion.button key={label}
                   onClick={() => navigate(path)}
-                  className="rounded-2xl p-5 border border-border flex flex-col gap-2 text-left transition hover:border-[#2A3A50] hover:bg-surface-elevated"
+                  className="rounded-2xl p-5 border border-border flex flex-col gap-2 text-left transition hover:border-primary/30 hover:bg-surface-elevated"
                   whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
                   <p className="font-jakarta text-sm font-semibold text-foreground">{label}</p>
                   <p className="font-jakarta text-xs text-dim">{desc}</p>

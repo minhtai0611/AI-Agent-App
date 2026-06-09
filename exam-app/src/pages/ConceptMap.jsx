@@ -213,10 +213,10 @@ export default function ConceptMap() {
       <div className="flex items-center justify-between px-6 py-4 border-b border-surface">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate('/exams?mode=lab')}
-            className="font-jakarta text-[13px] text-dim hover:text-[#94A3B8] transition">
+            className="font-jakarta text-[13px] text-dim hover:text-muted transition">
             ← Lab
           </button>
-          <span className="font-fraunces text-[18px] font-bold text-[#F8FAFC]">Bản đồ khái niệm</span>
+          <span className="font-fraunces text-[18px] font-bold text-foreground">Bản đồ khái niệm</span>
         </div>
         <div className="flex items-center gap-2">
           {[0, 9, 10, 11, 12].map(g => (
@@ -224,8 +224,8 @@ export default function ConceptMap() {
               onClick={() => setGradeFilter(g)}
               className={`px-3 py-1.5 rounded-full font-jakarta text-[11px] transition ${
                 gradeFilter === g
-                  ? 'bg-primary text-[#0A0E1A] font-bold'
-                  : 'border border-surface text-dim hover:text-[#94A3B8]'
+                  ? 'bg-primary text-background font-bold'
+                  : 'border border-surface text-dim hover:text-muted'
               }`}>
               {g === 0 ? 'Tất cả' : `Lớp ${g}`}
             </button>
@@ -234,7 +234,7 @@ export default function ConceptMap() {
       </div>
 
       {/* Stats bar */}
-      <div className="flex items-center gap-6 px-6 py-2 bg-[#0D1221] border-b border-surface">
+      <div className="flex items-center gap-6 px-6 py-2 glass-base border-b border-surface">
         <span className="font-jakarta text-[11px] text-dim">{stats.total} khái niệm</span>
         <span className="font-jakarta text-[11px] text-info">{stats.tried} đã học</span>
         <span className="font-jakarta text-[11px] text-success">{stats.strong} thành thạo ≥70%</span>
@@ -280,15 +280,15 @@ export default function ConceptMap() {
 
         {/* Detail panel */}
         {selectedConcept && (
-          <div className="w-72 border-l border-surface bg-[#0D1221] flex flex-col gap-4 p-5 overflow-y-auto">
+          <div className="w-72 border-l border-surface glass-base flex flex-col gap-4 p-5 overflow-y-auto">
             <div className="flex items-start justify-between">
               <div>
-                <span className="font-fraunces text-[16px] font-bold text-[#F8FAFC]">{selectedConcept.name_vi}</span>
+                <span className="font-fraunces text-[16px] font-bold text-foreground">{selectedConcept.name_vi}</span>
                 <div className="font-jakarta text-[11px] text-dim mt-0.5">
                   Lớp {selectedConcept.grade} · {selectedConcept.topic}
                 </div>
               </div>
-              <button onClick={() => setSelected(null)} className="text-dim hover:text-[#F8FAFC] text-lg">×</button>
+              <button onClick={() => setSelected(null)} className="text-dim hover:text-foreground text-lg">×</button>
             </div>
 
             {/* Mastery bar */}
@@ -297,13 +297,13 @@ export default function ConceptMap() {
                 <span>Độ thành thạo</span>
                 <span style={{ color: masteryBorder(selectedMastery) }}>{Math.round(selectedMastery * 100)}%</span>
               </div>
-              <div className="h-2 rounded-full bg-[#1E2A44] overflow-hidden">
+              <div className="h-2 rounded-full bg-surface overflow-hidden">
                 <div className="h-2 rounded-full transition-all" style={{ width: `${selectedMastery * 100}%`, background: masteryBorder(selectedMastery) }} />
               </div>
             </div>
 
             {/* Exam weight */}
-            <div className="flex items-center justify-between font-jakarta text-[12px] text-[#94A3B8]">
+            <div className="flex items-center justify-between font-jakarta text-[12px] text-muted">
               <span>Trọng số đề thi</span>
               <span className="text-amber-400">{'★'.repeat(Math.round(selectedConcept.exam_weight))} {selectedConcept.exam_weight}</span>
             </div>
@@ -311,15 +311,15 @@ export default function ConceptMap() {
             {/* Prerequisites */}
             {selectedConcept.prerequisite_ids.length > 0 && (
               <div className="flex flex-col gap-2">
-                <span className="font-jakarta text-[11px] font-semibold text-[#94A3B8]">Cần học trước</span>
+                <span className="font-jakarta text-[11px] font-semibold text-muted">Cần học trước</span>
                 {selectedConcept.prerequisite_ids.map(pid => {
                   const pc = CONCEPTS.find(c => c.id === pid)
                   const pm = masteryMap[pid] ?? 0
                   return pc ? (
                     <div key={pid} onClick={() => setSelected(pid)}
-                      className="flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer hover:bg-[#111827] transition"
+                      className="flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer hover:bg-surface transition"
                       style={{ border: `1px solid ${masteryBorder(pm)}22` }}>
-                      <span className="font-jakarta text-[12px] text-[#F0F4FF]">{pc.name_vi}</span>
+                      <span className="font-jakarta text-[12px] text-foreground">{pc.name_vi}</span>
                       <span className="font-jakarta text-[10px]" style={{ color: masteryBorder(pm) }}>{Math.round(pm * 100)}%</span>
                     </div>
                   ) : null
@@ -331,7 +331,7 @@ export default function ConceptMap() {
             {rootWeak && rootWeak !== selected && rootConcept && (
               <div className="px-4 py-3 rounded-xl glass-base border border-amber-400/30">
                 <span className="font-jakarta text-[11px] font-semibold text-amber-400">Gốc điểm yếu</span>
-                <p className="font-jakarta text-[12px] text-[#94A3B8] mt-1">
+                <p className="font-jakarta text-[12px] text-muted mt-1">
                   Học <strong className="text-amber-300">{rootConcept.name_vi}</strong> trước để củng cố nền tảng.
                 </p>
                 <button onClick={() => setSelected(rootWeak)}

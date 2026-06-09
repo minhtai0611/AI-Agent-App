@@ -229,11 +229,11 @@ export default function ReviewSession() {
       >
         <div className="flex flex-col items-center gap-4 text-center">
           <span className="text-5xl">{total === 0 ? '✓' : correct === total ? '🎉' : '📚'}</span>
-          <h2 className="font-fraunces text-[28px] font-bold text-[#F8FAFC]">
+          <h2 className="font-fraunces text-[28px] font-bold text-foreground">
             {total === 0 ? 'Không có câu nào cần ôn hôm nay!' : 'Hoàn thành ôn tập!'}
           </h2>
           {total > 0 && (
-            <p className="font-jakarta text-[#94A3B8] text-[15px]">
+            <p className="font-jakarta text-muted text-[15px]">
               Đúng <span className="text-success font-bold">{correct}</span> / {total} câu
             </p>
           )}
@@ -246,13 +246,13 @@ export default function ReviewSession() {
         <div className="flex gap-3 flex-wrap justify-center">
           <button
             onClick={() => navigate('/exams')}
-            className="px-6 py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-surface text-[#94A3B8] hover:text-[#F8FAFC] transition"
+            className="px-6 py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-surface text-muted hover:text-foreground transition"
           >
             Làm đề thi
           </button>
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-3 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] hover:opacity-90 transition bg-primary"
+            className="px-6 py-3 rounded-xl font-jakarta text-[13px] font-bold text-background hover:opacity-90 transition bg-primary"
           >
             Về trang chủ
           </button>
@@ -276,14 +276,14 @@ export default function ReviewSession() {
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-surface">
-        <button onClick={() => navigate('/')} className="font-jakarta text-[13px] text-dim hover:text-[#F8FAFC] transition">
+        <button onClick={() => navigate('/')} className="font-jakarta text-[13px] text-dim hover:text-foreground transition">
           ← Thoát
         </button>
         <div className="flex flex-col items-center gap-0.5">
-          <span className="font-fraunces text-[14px] font-semibold text-[#F8FAFC]">Ôn tập hôm nay</span>
+          <span className="font-fraunces text-[14px] font-semibold text-foreground">Ôn tập hôm nay</span>
           <span className="font-jakarta text-[11px] text-dim">{index + 1} / {questions.length}</span>
         </div>
-        <div className="w-20 h-1.5 rounded-full bg-[#1E2A44] overflow-hidden">
+        <div className="w-20 h-1.5 rounded-full bg-surface overflow-hidden">
           <motion.div
             className="h-full bg-primary rounded-full"
             animate={{ width: `${((index + 1) / questions.length) * 100}%` }}
@@ -295,7 +295,7 @@ export default function ReviewSession() {
       {/* Body */}
       <div className="relative z-10 flex-1 max-w-2xl mx-auto w-full px-4 py-10 flex flex-col gap-6">
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 bg-[#1E2A44] text-primary font-jakarta text-[11px] font-semibold rounded-md">
+          <span className="px-2.5 py-1 bg-surface text-primary font-jakarta text-[11px] font-semibold rounded-md">
             {TOPIC_LABELS[question.topic] ?? question.topic}
           </span>
           <span className="font-jakarta text-[11px] text-dim">Spaced Repetition</span>
@@ -333,10 +333,10 @@ export default function ReviewSession() {
               >
                 {/* Front */}
                 <div
-                  className="bg-[#0D1221] border border-surface rounded-2xl p-6 absolute inset-0"
+                  className="glass-base border border-surface rounded-2xl p-6 absolute inset-0"
                   style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                 >
-                  <MathText className="font-jakarta text-[15px] text-[#F0F4FF] leading-relaxed">{question.question}</MathText>
+                  <MathText className="font-jakarta text-[15px] text-foreground leading-relaxed">{question.question}</MathText>
                 </div>
                 {/* Back */}
                 <div
@@ -351,7 +351,7 @@ export default function ReviewSession() {
                   <span className="font-jakarta text-[13px] font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
                     {isCorrect ? '✓ Chính xác!' : '✗ Chưa đúng'}
                   </span>
-                  <MathText className="font-jakarta text-[14px] text-[#F0F4FF] leading-relaxed">
+                  <MathText className="font-jakarta text-[14px] text-foreground leading-relaxed">
                     {String.fromCharCode(65 + question.correct)}. {question.choices[question.correct]}
                   </MathText>
                 </div>
@@ -408,7 +408,7 @@ export default function ReviewSession() {
                 {/* Oracle button — shown after reveal, especially useful on wrong answers */}
                 <button
                   onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
-                  className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-info/20 bg-info/5 font-jakarta text-[11px] font-semibold text-info hover:border-[#6366F166] hover:bg-info/10 transition"
+                  className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-info/20 bg-info/5 font-jakarta text-[11px] font-semibold text-info hover:border-info/40 hover:bg-info/10 transition"
                 >
                   <span className="text-[10px]">✦</span> Hỏi Oracle
                 </button>

@@ -69,7 +69,7 @@ export default function Navbar({ onOpenAuth }) {
               {user.credits_balance != null && (
                 <button
                   onClick={() => go('/account')}
-                  className="flex items-center gap-1 px-2.5 py-2 rounded-full border border-surface bg-[#111827]/80 hover:border-amber-500/50 transition"
+                  className="flex items-center gap-1 px-2.5 py-2 rounded-full border border-surface bg-surface/80 hover:border-amber-500/50 transition"
                   title="Tia"
                 >
                   <span className="text-amber-400 text-[11px]">⚡</span>
@@ -130,7 +130,7 @@ export default function Navbar({ onOpenAuth }) {
           {user?.credits_balance != null && (
             <button
               onClick={() => go('/account')}
-              className="flex items-center gap-1 px-2.5 py-2 rounded-full border border-surface bg-[#111827]/80"
+              className="flex items-center gap-1 px-2.5 py-2 rounded-full border border-surface bg-surface/80"
             >
               <span className="text-amber-400 text-[11px]">⚡</span>
               <span className="font-jakarta text-[12px] font-semibold text-amber-400">
@@ -139,7 +139,7 @@ export default function Navbar({ onOpenAuth }) {
             </button>
           )}
           <button
-            className="flex items-center justify-center w-10 h-10 text-[#94A3B8] text-lg"
+            className="flex items-center justify-center w-10 h-10 text-muted text-lg"
             onClick={() => setMenuOpen(v => !v)}
             aria-label="Menu"
           >
@@ -150,22 +150,22 @@ export default function Navbar({ onOpenAuth }) {
 
       {/* Mobile drawer */}
       {menuOpen && (
-        <div className="sm:hidden fixed top-12 left-0 right-0 bg-[#0D1221] border-b border-surface px-4 py-3 flex flex-col gap-1 z-40">
-          <button onClick={() => go('/exams')} className="py-3 text-left font-jakarta text-[14px] text-[#F0F4FF] hover:text-white transition">
+        <div className="sm:hidden fixed top-12 left-0 right-0 glass-base border-b border-surface px-4 py-3 flex flex-col gap-1 z-40">
+          <button onClick={() => go('/exams')} className="py-3 text-left font-jakarta text-[14px] text-foreground hover:text-white transition">
             Thi thử
           </button>
-          <button onClick={() => go('/exams?mode=practice')} className="py-3 text-left font-jakarta text-[14px] text-[#94A3B8] hover:text-white transition">
+          <button onClick={() => go('/exams?mode=practice')} className="py-3 text-left font-jakarta text-[14px] text-muted hover:text-white transition">
             Luyện tập
           </button>
-          <button onClick={() => go('/exams?mode=lab')} className="py-3 text-left font-jakarta text-[14px] text-[#94A3B8] hover:text-white transition">
+          <button onClick={() => go('/exams?mode=lab')} className="py-3 text-left font-jakarta text-[14px] text-muted hover:text-white transition">
             Chế độ đặc biệt
           </button>
           {user ? (
             <>
-              <button onClick={() => go('/account')} className="py-3 text-left font-jakarta text-[14px] text-[#94A3B8] hover:text-white transition">
+              <button onClick={() => go('/account')} className="py-3 text-left font-jakarta text-[14px] text-muted hover:text-white transition">
                 Tài khoản
               </button>
-              <button onClick={handleLogout} className="py-3 text-left font-jakarta text-[14px] text-dim hover:text-[#94A3B8] transition">
+              <button onClick={handleLogout} className="py-3 text-left font-jakarta text-[14px] text-dim hover:text-muted transition">
                 Đăng xuất
               </button>
             </>

@@ -123,12 +123,12 @@ export default function ErrorAnalysis() {
       {/* Header */}
       <div className="flex items-center gap-4 px-6 py-4 border-b border-surface">
         <button onClick={() => navigate('/exams?mode=lab')}
-          className="font-jakarta text-[13px] text-dim hover:text-[#94A3B8] transition">
+          className="font-jakarta text-[13px] text-dim hover:text-muted transition">
           ← Lab
         </button>
-        <span className="font-fraunces text-[18px] font-bold text-[#F8FAFC]">Phân tích lỗi sai</span>
+        <span className="font-fraunces text-[18px] font-bold text-foreground">Phân tích lỗi sai</span>
         {aiData?.cached && (
-          <span className="px-2 py-0.5 rounded-full font-jakarta text-[10px] bg-[#1E2A44] text-dim">cache 24h</span>
+          <span className="px-2 py-0.5 rounded-full font-jakarta text-[10px] bg-surface text-dim">cache 24h</span>
         )}
       </div>
 
@@ -136,7 +136,7 @@ export default function ErrorAnalysis() {
         {(!results || results.length < 3) ? (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <span className="text-4xl">📊</span>
-            <span className="font-fraunces text-[18px] font-bold text-[#F8FAFC]">Cần thêm dữ liệu</span>
+            <span className="font-fraunces text-[18px] font-bold text-foreground">Cần thêm dữ liệu</span>
             <p className="font-jakarta text-[13px] text-dim max-w-xs">Hoàn thành ít nhất 3 bài thi để xem phân tích lỗi sai.</p>
             <button onClick={() => navigate('/exams')}
               className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold bg-primary text-background">
@@ -146,8 +146,8 @@ export default function ErrorAnalysis() {
         ) : (
           <>
             {/* ── Error DNA Radar ─────────────────────────────────────────── */}
-            <div className="bg-[#0D1221] border border-surface rounded-2xl p-6">
-              <h2 className="font-fraunces text-[16px] font-bold text-[#F8FAFC] mb-1">DNA lỗi sai</h2>
+            <div className="glass-base border border-surface rounded-2xl p-6">
+              <h2 className="font-fraunces text-[16px] font-bold text-foreground mb-1">DNA lỗi sai</h2>
               <p className="font-jakarta text-[12px] text-dim mb-5">Hồ sơ loại lỗi của bạn từ toàn bộ lịch sử thi</p>
               <ResponsiveContainer width="100%" height={260}>
                 <RadarChart data={radarData}>
@@ -160,8 +160,8 @@ export default function ErrorAnalysis() {
             </div>
 
             {/* ── Heatmap bar chart ───────────────────────────────────────── */}
-            <div className="bg-[#0D1221] border border-surface rounded-2xl p-6">
-              <h2 className="font-fraunces text-[16px] font-bold text-[#F8FAFC] mb-1">Lỗi theo chủ đề</h2>
+            <div className="glass-base border border-surface rounded-2xl p-6">
+              <h2 className="font-fraunces text-[16px] font-bold text-foreground mb-1">Lỗi theo chủ đề</h2>
               <p className="font-jakarta text-[12px] text-dim mb-5">
                 Trọng số tính theo độ gần đây (lỗi gần đây nặng hơn)
               </p>
@@ -195,10 +195,10 @@ export default function ErrorAnalysis() {
             </div>
 
             {/* ── AI Misconception report ─────────────────────────────────── */}
-            <div className="bg-[#0D1221] border border-surface rounded-2xl p-6">
+            <div className="glass-base border border-surface rounded-2xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="font-fraunces text-[16px] font-bold text-[#F8FAFC]">Chẩn đoán AI</h2>
+                  <h2 className="font-fraunces text-[16px] font-bold text-foreground">Chẩn đoán AI</h2>
                   <p className="font-jakarta text-[12px] text-dim mt-0.5">Top 3 hiểu lầm cốt lõi · ⚡2 Tia</p>
                 </div>
                 {!hasMisconceptions && !aiLoading && (
@@ -218,11 +218,11 @@ export default function ErrorAnalysis() {
               {hasMisconceptions && (
                 <div className="flex flex-col gap-4">
                   {aiData.misconceptions.map((m, i) => (
-                    <div key={i} className="flex gap-4 p-4 rounded-xl bg-[#111827] border border-surface">
+                    <div key={i} className="flex gap-4 p-4 rounded-xl bg-surface border border-surface">
                       <span className="text-2xl mt-0.5">{'🔍🧩🎯'[i]}</span>
                       <div className="flex flex-col gap-1">
                         <span className="font-jakarta text-[11px] font-bold text-amber-400 uppercase tracking-wide">{m.concept || `Hiểu lầm ${i + 1}`}</span>
-                        <p className="font-jakarta text-[13px] text-[#F0F4FF]">{m.misconception}</p>
+                        <p className="font-jakarta text-[13px] text-foreground">{m.misconception}</p>
                         <p className="font-jakarta text-[12px] text-dim">💡 {m.suggestion}</p>
                       </div>
                     </div>

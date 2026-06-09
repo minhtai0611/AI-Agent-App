@@ -1055,7 +1055,7 @@ export default function Results({ onOpenAuth }) {
               )}
               <button onClick={() => setActiveTab('plan')}
                 className="px-3 py-1.5 rounded-lg border border-border font-jakarta text-xs text-muted hover:border-faint hover:text-foreground transition flex items-center gap-1.5">
-                {!planReady && <span className="w-2.5 h-2.5 rounded-full border border-[#2A3A50] border-t-primary animate-spin flex-shrink-0" />}
+                {!planReady && <span className="w-2.5 h-2.5 rounded-full border border-border border-t-primary animate-spin flex-shrink-0" />}
                 {planReady ? '→ Kế hoạch' : 'Đang tải kế hoạch…'}
               </button>
               {weakTopics.length > 0 && (
@@ -1352,7 +1352,7 @@ export default function Results({ onOpenAuth }) {
                 whileTap={planReady ? { scale: 0.98 } : {}}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               >
-                {!planReady && !studyPlanError && <span className="w-3.5 h-3.5 rounded-full border border-[#2A3A50] border-t-primary animate-spin" />}
+                {!planReady && !studyPlanError && <span className="w-3.5 h-3.5 rounded-full border border-border border-t-primary animate-spin" />}
                 {planReady ? 'Xem kế hoạch học tập ⚡5' : studyPlanError ? 'Không đủ Tia' : 'Đang chuẩn bị…'}
               </motion.button>
             </div>
@@ -1385,7 +1385,7 @@ export default function Results({ onOpenAuth }) {
                                 background: accuracy >= 70 ? '#34D399' : accuracy >= 40 ? '#F2A20C' : '#FB7185',
                                 minHeight: 4,
                               }} />
-                            <span className="font-jakarta text-[9px] text-[#334155] text-center leading-tight">{week}</span>
+                            <span className="font-jakarta text-[9px] text-faint text-center leading-tight">{week}</span>
                           </div>
                         ))}
                       </div>

@@ -36,7 +36,7 @@ export default function InstallPrompt() {
     <div className="fixed bottom-16 left-4 right-4 z-50 max-w-sm mx-auto glass-base border border-primary/20 rounded-2xl p-5">
       <div className="flex items-center justify-between gap-3">
         <div className="flex flex-col gap-0.5">
-          <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">Thêm vào màn hình chính</span>
+          <span className="font-jakarta text-[13px] font-semibold text-foreground">Thêm vào màn hình chính</span>
           <span className="font-jakarta text-[11px] text-dim">Trải nghiệm nhanh hơn, offline được</span>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -46,7 +46,7 @@ export default function InstallPrompt() {
           >
             Thêm
           </button>
-          <button onClick={dismiss} className="text-dim hover:text-[#94A3B8] text-lg leading-none">×</button>
+          <button onClick={dismiss} className="text-dim hover:text-muted text-lg leading-none">×</button>
         </div>
       </div>
     </div>

@@ -158,7 +158,7 @@ function FeatureShowcase() {
         {/* Left: text */}
         <div className="flex-1 flex flex-col justify-center gap-3">
           <div>
-            <p className="font-fraunces text-[18px] font-bold text-[#F8FAFC] leading-snug">{scene.headline}</p>
+            <p className="font-fraunces text-[18px] font-bold text-foreground leading-snug">{scene.headline}</p>
             <p className="font-jakarta text-[13px] text-dim mt-1.5">{scene.sub}</p>
           </div>
           {/* Progress dots */}
@@ -179,8 +179,8 @@ function FeatureShowcase() {
             <motion.div key={i}
               initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.08 }}
-              className="flex items-center justify-between px-3 py-2 rounded-lg bg-[#111827] border border-surface">
-              <span className="font-jakarta text-[12px] text-[#94A3B8] truncate flex-1 mr-2">{r.text}</span>
+              className="flex items-center justify-between px-3 py-2 rounded-lg bg-surface border border-surface">
+              <span className="font-jakarta text-[12px] text-muted truncate flex-1 mr-2">{r.text}</span>
               <span className="font-jakarta text-[12px] font-bold flex-shrink-0" style={{ color: r.color }}>{r.score}</span>
             </motion.div>
           ))}
@@ -190,7 +190,7 @@ function FeatureShowcase() {
               transition={{ delay: i * 0.1 }}
               className="flex items-start gap-2.5">
               <span className="font-fraunces text-[13px] font-bold flex-shrink-0" style={{ color: scene.accent }}>{r.step}</span>
-              <span className="font-jakarta text-[12px] text-[#94A3B8] leading-relaxed">{r.text}</span>
+              <span className="font-jakarta text-[12px] text-muted leading-relaxed">{r.text}</span>
             </motion.div>
           ))}
           {scene.id === 'analysis' && scene.preview.map((r, i) => (
@@ -199,10 +199,10 @@ function FeatureShowcase() {
               transition={{ delay: i * 0.08 }}
               className="flex flex-col gap-0.5">
               <div className="flex justify-between font-jakarta text-[11px]">
-                <span className="text-[#94A3B8]">{r.topic}</span>
+                <span className="text-muted">{r.topic}</span>
                 <span style={{ color: r.color }}>{r.pct}% {r.note}</span>
               </div>
-              <div className="h-1.5 bg-[#1E2A44] rounded-full overflow-hidden">
+              <div className="h-1.5 bg-surface rounded-full overflow-hidden">
                 <motion.div className="h-full rounded-full"
                   initial={{ width: 0 }} animate={{ width: `${r.pct}%` }}
                   transition={{ delay: i * 0.08 + 0.2, duration: 0.6 }}
@@ -214,9 +214,9 @@ function FeatureShowcase() {
             <motion.div key={i}
               initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg bg-[#111827] border border-surface">
+              className="flex items-center gap-3 px-3 py-2 rounded-lg bg-surface border border-surface">
               <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: r.color }} />
-              <span className="font-jakarta text-[12px] text-[#94A3B8] flex-1 truncate">{r.concept}</span>
+              <span className="font-jakarta text-[12px] text-muted flex-1 truncate">{r.concept}</span>
               <span className="font-jakarta text-[11px] font-bold flex-shrink-0" style={{ color: r.color }}>{r.mastery}%</span>
             </motion.div>
           ))}
@@ -288,7 +288,7 @@ export default function Landing({ onOpenAuth }) {
           <span className="font-jakarta text-[11px] font-semibold text-primary tracking-[3px] uppercase">
             Kỳ thi tuyển sinh {getExamYear()} · Toán Lớp 10
           </span>
-          <h1 className="font-fraunces text-[56px] sm:text-[72px] font-bold text-[#F8FAFC] leading-[1.05] text-center">
+          <h1 className="font-fraunces text-[56px] sm:text-[72px] font-bold text-foreground leading-[1.05] text-center">
             <motion.span
               className="block"
               initial="hidden"
@@ -319,7 +319,7 @@ export default function Landing({ onOpenAuth }) {
               ))}
             </motion.span>
           </h1>
-          <p className="font-jakarta text-[17px] text-[#94A3B8] leading-relaxed max-w-[600px] text-center">
+          <p className="font-jakarta text-[17px] text-muted leading-relaxed max-w-[600px] text-center">
             Toán Oracle giải từng bước — bạn học cách tư duy, không chỉ học đáp án.<br />
             <span className="text-dim text-[15px]">
               40+ đề thật từ 63 tỉnh thành · AI phát hiện lỗi sai và chỉ cách sửa.
@@ -350,13 +350,13 @@ export default function Landing({ onOpenAuth }) {
           </form>
           <div className="flex items-center gap-3">
             <motion.button onClick={() => navigate('/exams')}
-              className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] bg-primary hover:opacity-90 transition"
+              className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-background bg-primary hover:opacity-90 transition"
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
               Thi thử ngay →
             </motion.button>
             <motion.button onClick={() => navigate('/diagnostic')}
-              className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold text-[#94A3B8] border border-surface hover:border-primary/30 hover:text-foreground transition"
+              className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold text-muted border border-surface hover:border-primary/30 hover:text-foreground transition"
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
               Kiểm tra năng lực
@@ -404,8 +404,8 @@ export default function Landing({ onOpenAuth }) {
             )}
             {session?.remediation_concept && (session.remediation_concept.error_count ?? 0) >= 3 && (
               <button onClick={() => navigate('/review')}
-                className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-[#FB7185] hover:opacity-80 transition">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#FB7185] " />
+                className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-destructive hover:opacity-80 transition">
+                <span className="w-1.5 h-1.5 rounded-full bg-destructive " />
                 Sửa lỗi {session.remediation_concept.name_vi} →
               </button>
             )}
@@ -430,11 +430,11 @@ export default function Landing({ onOpenAuth }) {
               </button>
             )}
             <button onClick={() => navigate('/progress')}
-              className="font-jakarta text-[12px] text-dim hover:text-[#94A3B8] transition">
+              className="font-jakarta text-[12px] text-dim hover:text-muted transition">
               Bản đồ
             </button>
             <button onClick={() => navigate('/history')}
-              className="ml-auto font-jakarta text-[12px] text-dim hover:text-[#94A3B8] transition">
+              className="ml-auto font-jakarta text-[12px] text-dim hover:text-muted transition">
               Lịch sử →
             </button>
           </div>
@@ -452,7 +452,7 @@ export default function Landing({ onOpenAuth }) {
             <div className="absolute inset-0 flex items-center justify-center bg-surface/60 backdrop-blur-[1px]">
               <button
                 onClick={onOpenAuth}
-                className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] bg-primary hover:opacity-90 transition shadow-lg">
+                className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-background bg-primary hover:opacity-90 transition shadow-lg">
                 Đăng nhập để xem lộ trình của bạn →
               </button>
             </div>
@@ -470,7 +470,7 @@ export default function Landing({ onOpenAuth }) {
             <span key={label} className="flex items-center gap-1.5">
               <span className="font-fraunces font-bold text-[15px]" style={{ color }}>{value}</span>
               <span>{label}</span>
-              {i < arr.length - 1 && <span className="text-[#1E2A44] mx-2">·</span>}
+              {i < arr.length - 1 && <span className="text-border mx-2">·</span>}
             </span>
           ))}
         </div>
@@ -515,7 +515,7 @@ export default function Landing({ onOpenAuth }) {
             <div className="flex items-center gap-3">
               <span className="font-fraunces text-[28px] font-bold text-primary">6.5</span>
               <div className="flex flex-col">
-                <span className="font-jakarta text-[12px] text-[#94A3B8] font-semibold">Điểm THPT 2025</span>
+                <span className="font-jakarta text-[12px] text-muted font-semibold">Điểm THPT 2025</span>
                 <span className="font-jakarta text-[11px] text-dim">Học sinh · Hà Nội</span>
               </div>
             </div>
@@ -529,7 +529,7 @@ export default function Landing({ onOpenAuth }) {
                   <div className="flex justify-between font-jakarta text-[11px] text-dim">
                     <span>{topic}</span><span style={{ color }}>{pct}%</span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-[#1E2A44]">
+                  <div className="h-1.5 rounded-full bg-surface">
                     <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, background: color }} />
                   </div>
                 </div>
@@ -543,7 +543,7 @@ export default function Landing({ onOpenAuth }) {
           </div>
           {/* Right: 3-step explanation */}
           <div className="flex-1 flex flex-col justify-center gap-4">
-            <p className="font-fraunces text-[20px] font-bold text-[#F8FAFC] leading-tight">
+            <p className="font-fraunces text-[20px] font-bold text-foreground leading-tight">
               AI không chỉ chấm điểm — AI <span className="text-primary">tìm ra lỗi sai</span> của bạn
             </p>
             {[
@@ -553,7 +553,7 @@ export default function Landing({ onOpenAuth }) {
             ].map(({ step, text }) => (
               <div key={step} className="flex items-start gap-3">
                 <span className="font-fraunces text-[15px] font-bold text-primary flex-shrink-0">{step}</span>
-                <span className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">{text}</span>
+                <span className="font-jakarta text-[13px] text-muted leading-relaxed">{text}</span>
               </div>
             ))}
             <button
@@ -590,7 +590,7 @@ export default function Landing({ onOpenAuth }) {
         <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, #1E2A44, transparent)' }} />
 
         <div className="flex flex-col items-center gap-2 text-center">
-          <span className="font-fraunces text-[28px] font-bold text-[#F8FAFC]">Bắt đầu miễn phí</span>
+          <span className="font-fraunces text-[28px] font-bold text-foreground">Bắt đầu miễn phí</span>
           <p className="font-jakarta text-[14px] text-dim">Không cần thẻ ngân hàng · Nâng cấp khi bạn sẵn sàng</p>
         </div>
 
@@ -628,7 +628,7 @@ export default function Landing({ onOpenAuth }) {
                   <>
                     <motion.button
                       onClick={user ? () => navigate('/account') : onOpenAuth}
-                      className="ripple-btn px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-bold text-[#0A0E1A] hover:opacity-90 transition"
+                      className="ripple-btn px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-bold text-background hover:opacity-90 transition"
                       className="bg-primary"
                       whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
@@ -645,11 +645,11 @@ export default function Landing({ onOpenAuth }) {
 
         {/* Top-up packages */}
         <div className="flex flex-col gap-4">
-          <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8] text-center">Hoặc nạp thêm Tia</span>
+          <span className="font-jakarta text-[13px] font-semibold text-muted text-center">Hoặc nạp thêm Tia</span>
           <div className="flex gap-3 flex-wrap justify-center">
             {TOPUP_PACKAGES.map(pkg => (
               <div key={pkg.price}
-                className="flex flex-col items-center gap-1 px-6 py-4 rounded-xl border border-surface bg-[#0D1221]">
+                className="flex flex-col items-center gap-1 px-6 py-4 rounded-xl border border-surface glass-base">
                 <span className="font-fraunces text-[18px] font-bold text-amber-400">⚡ {pkg.credits}</span>
                 <span className="font-jakarta text-[12px] text-dim">{pkg.price}</span>
               </div>
@@ -659,7 +659,7 @@ export default function Landing({ onOpenAuth }) {
 
         {/* Testimonials */}
         <div className="flex flex-col gap-5">
-          <h2 className="font-fraunces text-[22px] font-bold text-[#F8FAFC] text-center">Học sinh nói gì về Zenith</h2>
+          <h2 className="font-fraunces text-[22px] font-bold text-foreground text-center">Học sinh nói gì về Zenith</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               {
@@ -682,7 +682,7 @@ export default function Landing({ onOpenAuth }) {
               },
             ].map(({ name, grade, result, quote }) => (
               <div key={name} className="flex flex-col gap-3 bg-surface border border-surface rounded-2xl px-5 py-4">
-                <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed italic">"{quote}"</p>
+                <p className="font-jakarta text-[13px] text-muted leading-relaxed italic">"{quote}"</p>
                 <div className="mt-auto pt-2 border-t border-surface">
                   <p className="font-jakarta text-[13px] font-semibold text-foreground">{name}</p>
                   <p className="font-jakarta text-[11px] text-dim">{grade}</p>
@@ -695,7 +695,7 @@ export default function Landing({ onOpenAuth }) {
 
         {/* FAQ */}
         <div className="flex flex-col gap-4">
-          <h2 className="font-fraunces text-[22px] font-bold text-[#F8FAFC] text-center">Câu hỏi thường gặp</h2>
+          <h2 className="font-fraunces text-[22px] font-bold text-foreground text-center">Câu hỏi thường gặp</h2>
           <div className="flex flex-col gap-2">
             {[
               {
@@ -720,7 +720,7 @@ export default function Landing({ onOpenAuth }) {
                   {q}
                   <span className="text-dim group-open:rotate-180 transition-transform flex-shrink-0">▾</span>
                 </summary>
-                <p className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed mt-3">{a}</p>
+                <p className="font-jakarta text-[13px] text-muted leading-relaxed mt-3">{a}</p>
               </details>
             ))}
           </div>
@@ -739,7 +739,7 @@ export default function Landing({ onOpenAuth }) {
               <span className="font-jakarta text-[11px] font-bold uppercase tracking-[2px] text-dim">Sản phẩm</span>
               {[['Thi thử', '/exams'], ['Luyện tập', '/exams?mode=practice'], ['Oracle AI', '/oracle'], ['⚗ Lab', '/exams?mode=lab']].map(([label, path]) => (
                 <button key={label} onClick={() => navigate(path)}
-                  className="font-jakarta text-[12px] text-dim hover:text-[#94A3B8] transition text-left">{label}</button>
+                  className="font-jakarta text-[12px] text-dim hover:text-muted transition text-left">{label}</button>
               ))}
             </div>
             <div className="flex flex-col gap-2">
@@ -749,12 +749,12 @@ export default function Landing({ onOpenAuth }) {
                 ['Nâng cấp', '/account', null],
               ].map(([label, path, fn]) => (
                 <button key={label} onClick={fn ?? (() => navigate(path))}
-                  className="font-jakarta text-[12px] text-dim hover:text-[#94A3B8] transition text-left">{label}</button>
+                  className="font-jakarta text-[12px] text-dim hover:text-muted transition text-left">{label}</button>
               ))}
             </div>
           </div>
         </div>
-        <p className="text-center font-jakarta text-[11px] text-[#1E2A44] mt-6">© {new Date().getFullYear()} Zenith. Tất cả đề thi từ nguồn chính thức.</p>
+        <p className="text-center font-jakarta text-[11px] text-border mt-6">© {new Date().getFullYear()} Zenith. Tất cả đề thi từ nguồn chính thức.</p>
       </footer>
     </motion.div>
   )

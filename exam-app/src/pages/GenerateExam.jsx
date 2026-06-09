@@ -13,7 +13,7 @@ function GeneratingSkeleton({ count, arrived }) {
       <div className="max-w-xl mx-auto px-4 pt-10 flex flex-col gap-6">
         <div className="flex items-center gap-3">
           <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
-          <span className="font-jakarta text-[14px] text-[#94A3B8]">
+          <span className="font-jakarta text-[14px] text-muted">
             {arrived > 0 ? `Đã tạo ${arrived}/${count} câu...` : `AI đang tạo ${count} câu hỏi...`}
           </span>
         </div>
@@ -21,7 +21,7 @@ function GeneratingSkeleton({ count, arrived }) {
           <p className="font-jakarta text-[12px] text-dim">Câu hỏi đầu tiên sẽ xuất hiện trong vài giây.</p>
         )}
         {/* Progress bar */}
-        <div className="h-1.5 bg-[#1E2A44] rounded-full overflow-hidden">
+        <div className="h-1.5 bg-surface rounded-full overflow-hidden">
           <motion.div className="h-full bg-amber-400 rounded-full"
             animate={{ width: `${Math.max(4, (arrived / count) * 100)}%` }}
             transition={{ duration: 0.4 }} />
@@ -32,7 +32,7 @@ function GeneratingSkeleton({ count, arrived }) {
             i < arrived ? (
               <motion.div key={i}
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                className="bg-[#0D1221] border border-[#22C55E33] rounded-2xl p-4 flex items-center gap-3">
+                className="glass-base border border-success/20 rounded-2xl p-4 flex items-center gap-3">
                 <span className="text-emerald-400 text-lg">✓</span>
                 <span className="font-jakarta text-[12px] text-dim">Câu {i + 1} đã tạo xong</span>
               </motion.div>
@@ -40,9 +40,9 @@ function GeneratingSkeleton({ count, arrived }) {
               <motion.div key={i}
                 animate={{ opacity: [0.2, 0.5, 0.2] }}
                 transition={{ duration: 1.8, repeat: Infinity, delay: (i - arrived) * 0.15 }}
-                className="bg-[#0D1221] border border-dashed border-surface rounded-2xl p-5 flex flex-col gap-3">
-                <div className="h-3 bg-[#1E2A44] rounded-full w-2/3" />
-                <div className="h-3 bg-[#1E2A44] rounded-full w-full" />
+                className="glass-base border border-dashed border-surface rounded-2xl p-5 flex flex-col gap-3">
+                <div className="h-3 bg-surface rounded-full w-2/3" />
+                <div className="h-3 bg-surface rounded-full w-full" />
               </motion.div>
             )
           ))}
@@ -81,7 +81,7 @@ export default function GenerateExam() {
     return (
       <div className="min-h-screen bg-surface flex flex-col items-center justify-center gap-4 px-4">
         <span className="text-4xl">🔒</span>
-        <span className="font-fraunces text-[20px] font-bold text-[#F8FAFC]">Yêu cầu gói Toàn diện</span>
+        <span className="font-fraunces text-[20px] font-bold text-foreground">Yêu cầu gói Toàn diện</span>
         <p className="font-jakarta text-[13px] text-dim text-center max-w-xs">
           Tính năng tạo đề AI riêng chỉ dành cho gói Toàn diện.
         </p>
@@ -132,19 +132,19 @@ export default function GenerateExam() {
     <div className="min-h-screen bg-surface pb-16">
       <div className="max-w-xl mx-auto px-4 pt-10 flex flex-col gap-6">
         <button onClick={() => navigate('/exams?mode=lab')}
-          className="font-jakarta text-[13px] text-dim hover:text-[#94A3B8] transition self-start">
+          className="font-jakarta text-[13px] text-dim hover:text-muted transition self-start">
           ← Quay lại
         </button>
 
         <div className="flex flex-col gap-1">
-          <span className="font-fraunces text-[24px] font-bold text-[#F8FAFC]">✦ Tạo đề riêng</span>
+          <span className="font-fraunces text-[24px] font-bold text-foreground">✦ Tạo đề riêng</span>
           <span className="font-jakarta text-[13px] text-dim">AI tạo đề thi theo chủ đề và độ khó bạn chọn · 5 Tia</span>
         </div>
 
         {/* Topics */}
-        <div className="bg-[#0D1521] border border-surface rounded-2xl p-5 flex flex-col gap-3">
+        <div className="glass-base border border-surface rounded-2xl p-5 flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">Chủ đề</span>
+            <span className="font-jakarta text-[13px] font-semibold text-foreground">Chủ đề</span>
             <span className="font-jakarta text-[11px] text-dim">
               {selectedTopics.length === 0 ? 'Tất cả chủ đề' : `${selectedTopics.length} đã chọn`}
             </span>
@@ -164,8 +164,8 @@ export default function GenerateExam() {
         </div>
 
         {/* Difficulty */}
-        <div className="bg-[#0D1521] border border-surface rounded-2xl p-5 flex flex-col gap-3">
-          <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">Độ khó</span>
+        <div className="glass-base border border-surface rounded-2xl p-5 flex flex-col gap-3">
+          <span className="font-jakarta text-[13px] font-semibold text-foreground">Độ khó</span>
           <div className="flex gap-2">
             {DIFFICULTIES.map(d => (
               <button key={d.value} onClick={() => setDifficulty(d.value)}
@@ -181,9 +181,9 @@ export default function GenerateExam() {
         </div>
 
         {/* Count */}
-        <div className="bg-[#0D1521] border border-surface rounded-2xl p-5 flex flex-col gap-3">
+        <div className="glass-base border border-surface rounded-2xl p-5 flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF]">Số câu hỏi</span>
+            <span className="font-jakarta text-[13px] font-semibold text-foreground">Số câu hỏi</span>
             <span className="font-jakarta text-[14px] font-bold text-primary">{count} câu</span>
           </div>
           <input type="range" min={5} max={15} step={5} value={count}

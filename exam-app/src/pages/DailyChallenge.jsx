@@ -226,7 +226,7 @@ export default function DailyChallenge() {
       <div className="max-w-xl mx-auto px-4 pt-20">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-dim hover:text-[#94A3B8] transition">
+          <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-dim hover:text-muted transition">
             ← Quay lại
           </button>
           <div className="flex items-center gap-3">
@@ -245,27 +245,27 @@ export default function DailyChallenge() {
           <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-amber-400">
             {TOPIC_LABELS[question.topic] ?? question.topic}
           </span>
-          <h1 className="font-fraunces text-[20px] font-bold text-[#F8FAFC] leading-snug">{title}</h1>
+          <h1 className="font-fraunces text-[20px] font-bold text-foreground leading-snug">{title}</h1>
           {provinceContext && (
             <p className="font-jakarta text-[12px] text-info">📌 {provinceContext}</p>
           )}
         </div>
 
-        <div className="bg-[#0D1521] border border-surface rounded-2xl p-6 flex flex-col gap-5">
+        <div className="glass-base border border-surface rounded-2xl p-6 flex flex-col gap-5">
           <MdMath>{question.question}</MdMath>
 
           <div className="flex flex-col gap-2.5">
             {question.choices.map((choice, i) => {
-              let style = 'border-surface bg-[#111827] text-[#94A3B8]'
+              let style = 'border-surface bg-surface text-muted'
               if (chosen !== null) {
                 if (i === question.correct) style = 'border-success/40 glass-base text-success'
                 else if (i === chosen && !isCorrect) style = 'border-destructive/40 bg-destructive/10 text-destructive'
-                else style = 'border-surface bg-[#111827] text-dim'
+                else style = 'border-surface bg-surface text-dim'
               }
               return (
                 <button key={i} disabled={chosen !== null} onClick={() => handleAnswer(i)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition text-left ${style} ${chosen === null ? 'hover:border-[#F2A20C] hover:text-[#F0F4FF]' : ''}`}>
-                  <span className="w-6 h-6 rounded-full bg-[#1E2A44] flex items-center justify-center font-jakarta text-[11px] font-bold flex-shrink-0">{LABELS[i]}</span>
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition text-left ${style} ${chosen === null ? 'hover:border-primary hover:text-foreground' : ''}`}>
+                  <span className="w-6 h-6 rounded-full bg-surface flex items-center justify-center font-jakarta text-[11px] font-bold flex-shrink-0">{LABELS[i]}</span>
                   <MdMath>{choice}</MdMath>
                 </button>
               )
@@ -299,11 +299,11 @@ export default function DailyChallenge() {
         {chosen !== null && (
           <div className="flex gap-3 mt-6">
             <button onClick={() => navigate('/mistakes')}
-              className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-surface text-[#94A3B8] hover:text-[#F8FAFC] transition">
+              className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-surface text-muted hover:text-foreground transition">
               Sổ sai lầm
             </button>
             <button onClick={() => navigate('/exams')}
-              className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] bg-primary">
+              className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-bold text-background bg-primary">
               Làm đề thi →
             </button>
           </div>

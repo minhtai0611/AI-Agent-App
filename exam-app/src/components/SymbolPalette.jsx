@@ -11,7 +11,7 @@ export default function SymbolPalette({ onInsert }) {
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="sm:hidden w-full flex items-center justify-between px-4 py-2 font-jakarta text-[12px] text-dim hover:text-[#94A3B8] transition"
+        className="sm:hidden w-full flex items-center justify-between px-4 py-2 font-jakarta text-[12px] text-dim hover:text-muted transition"
       >
         <span>Ký hiệu</span>
         <span>{open ? '▴' : '▾'}</span>
@@ -29,7 +29,7 @@ export default function SymbolPalette({ onInsert }) {
                 className={`shrink-0 px-3 py-1.5 font-jakarta text-[11px] transition whitespace-nowrap
                   ${activeGroup === i
                     ? 'border-b-2 border-info text-info'
-                    : 'text-dim hover:text-[#94A3B8]'
+                    : 'text-dim hover:text-muted'
                   }`}
               >
                 {group.name}
@@ -45,7 +45,7 @@ export default function SymbolPalette({ onInsert }) {
                 type="button"
                 title={sym.title}
                 onClick={() => onInsert(sym.insert)}
-                className="w-8 h-8 flex items-center justify-center font-jakarta text-[13px] text-[#94A3B8]
+                className="w-8 h-8 flex items-center justify-center font-jakarta text-[13px] text-muted
                   rounded hover:bg-surface hover:text-foreground transition"
               >
                 {sym.label}

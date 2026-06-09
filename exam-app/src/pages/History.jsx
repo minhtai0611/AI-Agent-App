@@ -57,20 +57,20 @@ export default function History() {
           background: 'radial-gradient(circle, #6366F112 0%, transparent 100%)' }} />
 
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-10 py-4 bg-[#0D1521] border-b border-surface">
-        <button onClick={() => navigate('/')} className="font-jakarta text-sm text-dim hover:text-[#94A3B8] transition">
+      <header className="relative z-10 flex items-center justify-between px-10 py-4 glass-base border-b border-surface">
+        <button onClick={() => navigate('/')} className="font-jakarta text-sm text-dim hover:text-muted transition">
           ← Trang chủ
         </button>
-        <h1 className="font-fraunces text-[24px] font-bold text-[#F8FAFC]">Lịch sử làm bài</h1>
+        <h1 className="font-fraunces text-[24px] font-bold text-foreground">Lịch sử làm bài</h1>
         <div className="w-24" />
       </header>
 
       <div className="relative z-10 flex flex-col gap-6 p-6 sm:p-10 max-w-3xl mx-auto w-full">
         {sorted.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <p className="font-jakarta text-[#94A3B8] text-lg">Bạn chưa làm bài thi nào. Hãy bắt đầu với một đề thử! 📝</p>
+            <p className="font-jakarta text-muted text-lg">Bạn chưa làm bài thi nào. Hãy bắt đầu với một đề thử! 📝</p>
             <button onClick={() => navigate('/exams')}
-              className="px-6 py-2.5 bg-primary text-[#0A0E1A] font-jakarta font-bold text-sm rounded-lg hover:opacity-90 transition">
+              className="px-6 py-2.5 bg-primary text-background font-jakarta font-bold text-sm rounded-lg hover:opacity-90 transition">
               Bắt đầu thi thử
             </button>
           </div>
@@ -82,9 +82,9 @@ export default function History() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.25 }}
-                className="bg-[#0D1221] border border-surface rounded-2xl p-6 flex flex-col gap-3"
+                className="glass-base border border-surface rounded-2xl p-6 flex flex-col gap-3"
               >
-                <span className="font-fraunces text-[15px] font-semibold text-[#F8FAFC]">Xu hướng điểm số</span>
+                <span className="font-fraunces text-[15px] font-semibold text-foreground">Xu hướng điểm số</span>
                 <div style={{ height: 120 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
@@ -118,13 +118,13 @@ export default function History() {
                         <motion.div
                           key={result.id}
                           variants={itemVariants}
-                          className="flex items-center justify-between bg-[#111827] rounded-xl px-6 py-5 cursor-pointer transition-all"
+                          className="flex items-center justify-between bg-surface rounded-xl px-6 py-5 cursor-pointer transition-all"
                           style={{ border: `1px solid ${borderColor}` }}
                           onClick={() => navigate(`/results/${result.id}`, { state: { result } })}
                         >
                           <div className="flex flex-col gap-1.5">
                             <div className="flex items-center gap-2">
-                              <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{examTitle}</span>
+                              <span className="font-jakarta text-[15px] font-semibold text-foreground">{examTitle}</span>
                               {isPersonalBest && (
                                 <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400">🏆 Best</span>
                               )}
@@ -133,7 +133,7 @@ export default function History() {
                           </div>
                           <div className="flex items-center gap-5">
                             <span className="font-fraunces text-[40px] font-bold" style={{ color: scoreColor }}>{result.score}</span>
-                            <span className="px-4 py-2 bg-surface rounded-md font-jakarta text-[13px] text-[#94A3B8] hover:text-[#F8FAFC] transition">
+                            <span className="px-4 py-2 bg-surface rounded-md font-jakarta text-[13px] text-muted hover:text-foreground transition">
                               Chi tiết →
                             </span>
                           </div>
@@ -146,14 +146,14 @@ export default function History() {
                       <button
                         onClick={() => setPage(p => Math.max(1, p - 1))}
                         disabled={page === 1}
-                        className="px-4 py-2 rounded-lg font-jakarta text-[13px] bg-[#111827] border border-surface text-[#94A3B8] disabled:opacity-30 hover:text-[#F8FAFC] transition">
+                        className="px-4 py-2 rounded-lg font-jakarta text-[13px] bg-surface border border-surface text-muted disabled:opacity-30 hover:text-foreground transition">
                         ← Trước
                       </button>
                       <span className="font-jakarta text-[12px] text-dim">{page} / {totalPages}</span>
                       <button
                         onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                         disabled={page === totalPages}
-                        className="px-4 py-2 rounded-lg font-jakarta text-[13px] bg-[#111827] border border-surface text-[#94A3B8] disabled:opacity-30 hover:text-[#F8FAFC] transition">
+                        className="px-4 py-2 rounded-lg font-jakarta text-[13px] bg-surface border border-surface text-muted disabled:opacity-30 hover:text-foreground transition">
                         Tiếp →
                       </button>
                     </div>

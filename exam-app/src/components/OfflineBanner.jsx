@@ -28,7 +28,7 @@ export default function OfflineBanner() {
   if (syncing) {
     return (
       <div className="fixed top-12 left-0 right-0 z-30 flex items-center gap-3 px-4 py-2 glass-base border-b border-success/20">
-        <span className="w-3 h-3 rounded-full border border-[#34D399] border-t-transparent animate-spin flex-shrink-0" />
+        <span className="w-3 h-3 rounded-full border border-success border-t-transparent animate-spin flex-shrink-0" />
         <span className="font-jakarta text-[12px] text-success">Đã có mạng — đang đồng bộ kết quả...</span>
       </div>
     )
@@ -43,7 +43,7 @@ export default function OfflineBanner() {
       </span>
       <button
         onClick={() => setDismissed(true)}
-        className="text-dim hover:text-[#94A3B8] text-lg leading-none ml-3 flex-shrink-0"
+        className="text-dim hover:text-muted text-lg leading-none ml-3 flex-shrink-0"
         aria-label="Đóng"
       >×</button>
     </div>

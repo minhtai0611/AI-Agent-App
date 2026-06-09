@@ -166,7 +166,7 @@ function ConceptNode({ concept, onClick }) {
         {concept.name_vi}
       </span>
       <div className="flex items-center gap-1.5 w-full">
-        <div className="flex-1 h-1 rounded-full bg-[#1E2A44] overflow-hidden">
+        <div className="flex-1 h-1 rounded-full bg-surface overflow-hidden">
           <div className="h-full rounded-full transition-all" style={{ width: `${concept.mastery_score}%`, background: s.text }} />
         </div>
         <span className="font-jakarta text-[10px]" style={{ color: s.text + 'AA' }}>{concept.mastery_score}%</span>
@@ -227,10 +227,10 @@ export default function Progress() {
     >
       {/* Header */}
       <div className="sticky top-12 z-10 bg-surface/95 backdrop-blur border-b border-surface px-4 py-3 flex items-center justify-between">
-        <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-dim hover:text-[#F8FAFC] transition">
+        <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-dim hover:text-foreground transition">
           ← Quay lại
         </button>
-        <span className="font-fraunces text-[15px] font-bold text-[#F8FAFC]">Tiến độ</span>
+        <span className="font-fraunces text-[15px] font-bold text-foreground">Tiến độ</span>
         <div className="w-16" />
       </div>
 
@@ -241,7 +241,7 @@ export default function Progress() {
             <p className="font-jakarta text-[14px] text-dim text-center">Hoàn thành một bài thi để xem tiến độ của bạn.</p>
             <button
               onClick={() => navigate('/exams')}
-              className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] bg-primary"
+              className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-background bg-primary"
             >
               Chọn đề thi →
             </button>
@@ -249,15 +249,15 @@ export default function Progress() {
         ) : (
           <>
             {/* ── Score trend ─────────────────────────────────────────────── */}
-            <div className="bg-[#0D1221] border border-surface rounded-2xl px-6 py-5">
+            <div className="glass-base border border-surface rounded-2xl px-6 py-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-1.5">
                   <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-dim">Xu hướng điểm</span>
                   {avgScore !== null && (
-                    <span className="font-fraunces text-[26px] font-bold text-[#F8FAFC]">{avgScore.toFixed(1)}</span>
+                    <span className="font-fraunces text-[26px] font-bold text-foreground">{avgScore.toFixed(1)}</span>
                   )}
                   {scoreDelta !== null && (
-                    <span className={`font-jakarta text-[13px] font-semibold ${scoreDelta > 0 ? 'text-success' : scoreDelta < 0 ? 'text-[#FB7185]' : 'text-dim'}`}>
+                    <span className={`font-jakarta text-[13px] font-semibold ${scoreDelta > 0 ? 'text-success' : scoreDelta < 0 ? 'text-destructive' : 'text-dim'}`}>
                       {scoreDelta > 0 ? `+${scoreDelta.toFixed(1)}đ` : scoreDelta < 0 ? `${scoreDelta.toFixed(1)}đ` : 'Ổn định'} trong {scores.length} bài gần nhất
                     </span>
                   )}
@@ -267,14 +267,14 @@ export default function Progress() {
               <div className="flex gap-2 mt-4">
                 <button
                   onClick={() => navigate('/exams')}
-                  className="flex-1 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] bg-primary"
+                  className="flex-1 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-background bg-primary"
                 >
                   Thi tiếp →
                 </button>
                 {activeRecovery && (
                   <button
                     onClick={() => navigate(`/study-plan/${activeRecovery.resultId}`)}
-                    className="flex-1 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold border border-surface text-[#94A3B8] hover:text-[#F8FAFC] transition"
+                    className="flex-1 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold border border-surface text-muted hover:text-foreground transition"
                   >
                     Ôn tập trước
                   </button>
@@ -297,7 +297,7 @@ export default function Progress() {
                   </div>
                   <button
                     onClick={() => navigate(`/study-plan/${activeRecovery.resultId}`)}
-                    className="flex-shrink-0 px-4 py-2 rounded-xl font-jakarta text-[12px] font-bold text-[#0A0E1A] bg-success"
+                    className="flex-shrink-0 px-4 py-2 rounded-xl font-jakarta text-[12px] font-bold text-background bg-success"
                   >
                     Tiếp tục →
                   </button>
@@ -311,11 +311,11 @@ export default function Progress() {
                 <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-dim">Chủ đề cần chú ý</span>
                 <motion.div className="flex flex-col gap-3" variants={listVariants} initial="hidden" animate="visible">
                 {weakTopics.map(({ topic, label, accuracy, wrong }) => (
-                  <motion.div key={topic} variants={itemVariants} className="bg-[#0D1221] border border-surface rounded-xl px-5 py-4 flex items-center justify-between gap-4">
+                  <motion.div key={topic} variants={itemVariants} className="glass-base border border-surface rounded-xl px-5 py-4 flex items-center justify-between gap-4">
                     <div className="flex flex-col gap-1 flex-1 min-w-0">
-                      <span className="font-jakarta text-[14px] font-semibold text-[#F8FAFC] truncate">{label}</span>
+                      <span className="font-jakarta text-[14px] font-semibold text-foreground truncate">{label}</span>
                       <div className="flex items-center gap-3">
-                        <div className="flex-1 h-1 bg-[#1E2A44] rounded-full overflow-hidden max-w-[100px]">
+                        <div className="flex-1 h-1 bg-surface rounded-full overflow-hidden max-w-[100px]">
                           <div className="h-full rounded-full" style={{ width: `${accuracy * 100}%`, background: accuracy < 0.4 ? '#FB7185' : accuracy < 0.6 ? '#F2A20C' : '#34D399' }} />
                         </div>
                         <span className="font-jakarta text-[12px] text-dim">{Math.round(accuracy * 100)}% đúng · {wrong} câu sai</span>
@@ -323,7 +323,7 @@ export default function Progress() {
                     </div>
                     <button
                       onClick={() => navigate('/exams')}
-                      className="flex-shrink-0 px-3 py-1.5 rounded-lg font-jakarta text-[12px] font-semibold border border-surface text-[#94A3B8] hover:text-[#F8FAFC] transition"
+                      className="flex-shrink-0 px-3 py-1.5 rounded-lg font-jakarta text-[12px] font-semibold border border-surface text-muted hover:text-foreground transition"
                     >
                       Luyện tập →
                     </button>
@@ -337,7 +337,7 @@ export default function Progress() {
             <button
               type="button"
               onClick={() => setShowMore(v => !v)}
-              className="flex items-center gap-2 font-jakarta text-[13px] text-dim hover:text-[#94A3B8] transition py-1"
+              className="flex items-center gap-2 font-jakarta text-[13px] text-dim hover:text-muted transition py-1"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                 className={`transition-transform duration-200 ${showMore ? 'rotate-180' : ''}`}>
@@ -388,7 +388,7 @@ export default function Progress() {
                       <div key={grade} className="flex flex-col gap-4">
                         <div className="flex items-center gap-3">
                           <span className="font-fraunces text-[13px] font-bold text-primary">Lớp {grade}</span>
-                          <div className="flex-1 h-px bg-[#1E2A44]" />
+                          <div className="flex-1 h-px bg-surface" />
                         </div>
                         {Object.entries(topics).map(([topic, nodes]) => (
                           <div key={topic} className="flex flex-col gap-2">
@@ -414,8 +414,8 @@ export default function Progress() {
                       <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-dim">Tất cả chủ đề</span>
                       {all.map(({ topic, label, accuracy, total }) => (
                         <div key={topic} className="flex items-center gap-3 py-2 border-b border-surface/60">
-                          <span className="font-jakarta text-[13px] text-[#94A3B8] flex-1 min-w-0 truncate">{label}</span>
-                          <div className="w-20 h-1 bg-[#1E2A44] rounded-full overflow-hidden">
+                          <span className="font-jakarta text-[13px] text-muted flex-1 min-w-0 truncate">{label}</span>
+                          <div className="w-20 h-1 bg-surface rounded-full overflow-hidden">
                             <div className="h-full rounded-full" style={{ width: `${accuracy * 100}%`, background: accuracy < 0.4 ? '#FB7185' : accuracy < 0.6 ? '#F2A20C' : '#34D399' }} />
                           </div>
                           <span className="font-jakarta text-[12px] text-dim w-12 text-right">{Math.round(accuracy * 100)}%</span>
@@ -437,10 +437,10 @@ export default function Progress() {
                   return (
                     <div className="flex flex-col gap-2">
                       <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-dim">So sánh tỉnh {user.province}</span>
-                      <div className="bg-[#0D1221] border border-surface rounded-xl px-4 py-3 flex flex-col gap-2">
+                      <div className="glass-base border border-surface rounded-xl px-4 py-3 flex flex-col gap-2">
                         <div className="flex items-center justify-between">
                           <span className="font-jakarta text-[12px] text-dim">Điểm TB 10 đề gần nhất</span>
-                          <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">{avgScore.toFixed(1)}</span>
+                          <span className="font-jakarta text-[13px] font-semibold text-foreground">{avgScore.toFixed(1)}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="font-jakarta text-[12px] text-dim">Ngưỡng an toàn {user.province}</span>
@@ -464,14 +464,14 @@ export default function Progress() {
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
             onClick={e => e.stopPropagation()}
-            className="w-full max-w-sm bg-[#0D1221] border border-surface rounded-2xl p-6 flex flex-col gap-4"
+            className="w-full max-w-sm glass-base border border-surface rounded-2xl p-6 flex flex-col gap-4"
           >
             <div className="flex items-start justify-between">
               <div className="flex flex-col gap-0.5">
-                <span className="font-fraunces text-[17px] font-bold text-[#F8FAFC]">{selected.name_vi}</span>
+                <span className="font-fraunces text-[17px] font-bold text-foreground">{selected.name_vi}</span>
                 <span className="font-jakarta text-[12px] text-dim">{selected.name}</span>
               </div>
-              <button onClick={() => setSelected(null)} className="text-dim hover:text-[#F8FAFC] text-lg">×</button>
+              <button onClick={() => setSelected(null)} className="text-dim hover:text-foreground text-lg">×</button>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex flex-col gap-0.5">
@@ -482,12 +482,12 @@ export default function Progress() {
               </div>
               <div className="flex flex-col gap-0.5">
                 <span className="font-jakarta text-[11px] text-dim">Thành thạo</span>
-                <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">{selected.mastery_score}%</span>
+                <span className="font-jakarta text-[13px] font-semibold text-foreground">{selected.mastery_score}%</span>
               </div>
               {selected.review_count > 0 && (
                 <div className="flex flex-col gap-0.5">
                   <span className="font-jakarta text-[11px] text-dim">Đã ôn</span>
-                  <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">{selected.review_count} lần</span>
+                  <span className="font-jakarta text-[13px] font-semibold text-foreground">{selected.review_count} lần</span>
                 </div>
               )}
             </div>

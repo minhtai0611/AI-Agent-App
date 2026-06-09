@@ -97,9 +97,9 @@ export function FormulaDrawer() {
               {/* Formulas */}
               <div className="overflow-y-auto flex flex-col gap-2">
                 {SHEETS[activeTab].formulas.map((f, i) => (
-                  <div key={i} className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#141D2E]">
+                  <div key={i} className="flex items-start gap-3 px-4 py-3 rounded-xl bg-surface">
                     <span className="font-jakarta text-[0.6875rem] text-faint pt-0.5 flex-shrink-0 w-28">{f.label}</span>
-                    <span className="font-mono text-[0.8125rem] text-[#E2E8F0]">{f.text}</span>
+                    <span className="font-mono text-[0.8125rem] text-foreground">{f.text}</span>
                   </div>
                 ))}
               </div>
