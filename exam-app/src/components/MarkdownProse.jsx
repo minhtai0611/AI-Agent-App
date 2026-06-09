@@ -19,7 +19,7 @@ export default function MarkdownProse({ children, className = '' }) {
           h3: ({ children }) => <h3 className="font-jakarta text-[0.8125rem] font-semibold text-highlight mb-1 mt-2 first:mt-0">{children}</h3>,
           code: ({ children }) => <code className="px-1 py-0.5 rounded bg-border text-primary text-xs font-mono">{children}</code>,
           blockquote: ({ children }) => <blockquote className="border-l-2 border-border-subtle pl-3 italic text-dim">{children}</blockquote>,
-          a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-[#6366F1] hover:text-[#818CF8] underline">{children}</a>,
+          a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-info hover:text-info/70 underline">{children}</a>,
         }}
       >
         {children}
