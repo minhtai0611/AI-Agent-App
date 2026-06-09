@@ -8,6 +8,9 @@ import { ocrExam } from '../api/aiClient.js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pageVariants, viewNavigate } from '../utils/animations.js'
 import AmbientGlows from '../components/AmbientGlows.jsx'
+import { SpotlightCard } from '../components/SpotlightCard.jsx'
+import { BorderBeam } from '../components/ui/border-beam.jsx'
+import { AnimatedShinyText } from '../components/ui/animated-shiny-text.jsx'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { buildBriefing } from '../utils/examBriefing.js'
 
@@ -206,11 +209,11 @@ export default function ExamSelect({ onOpenAuth }) {
       className="min-h-screen bg-background flex flex-col relative overflow-hidden">
       <AmbientGlows className="fixed inset-0 z-0 pointer-events-none" />
       {/* Nav */}
-      <nav className="flex items-center justify-between px-10 py-4 bg-surface border-b border-[#1E2D45]">
+      <nav className="flex items-center justify-between px-10 py-4 bg-surface border-b border-border">
         <button onClick={() => navigate('/')} className="font-jakarta text-sm text-dim hover:text-muted transition">
           ← Trang chủ
         </button>
-        <div className="flex items-center gap-1 bg-[#1A2440] rounded-full p-1">
+        <div className="flex items-center gap-1 glass-base rounded-full p-1">
           {[
             { value: 'timed',    label: 'Có thời gian' },
             { value: 'practice', label: 'Luyện tập' },
@@ -220,7 +223,7 @@ export default function ExamSelect({ onOpenAuth }) {
               className={`px-3 py-2 rounded-full font-jakarta text-xs transition ${
                 mode === opt.value
                   ? opt.value === 'lab'
-                    ? 'bg-[#818CF8] text-white font-semibold'
+                    ? 'bg-info text-white font-semibold'
                     : 'bg-primary text-primary-fg font-semibold'
                   : 'text-muted'
               }`}>
@@ -232,7 +235,7 @@ export default function ExamSelect({ onOpenAuth }) {
 
       {/* Guest notice */}
       {!user && (
-        <div className="mx-10 mt-6 px-5 py-3 rounded-xl border border-[#F2A20C33] bg-surface flex items-center justify-between gap-3">
+        <div className="mx-10 mt-6 px-5 py-3 rounded-xl border border-primary/20 bg-surface flex items-center justify-between gap-3">
           <span className="font-jakarta text-[0.8125rem] text-muted">
             Bạn có <strong className="text-amber-400">1 đề thi miễn phí</strong>. Đăng nhập để làm thêm và nhận phân tích AI.
           </span>
@@ -262,7 +265,7 @@ export default function ExamSelect({ onOpenAuth }) {
             <button
               onClick={() => ocrInputRef.current?.click()}
               disabled={ocrLoading}
-              className="h-9 px-4 rounded-full border border-[#6366F144] bg-[#6366F111] font-jakarta text-xs font-semibold text-[#818CF8] hover:border-[#6366F188] transition disabled:opacity-50 flex items-center gap-1.5"
+              className="h-9 px-4 rounded-full border border-info/30 bg-info/10 font-jakarta text-xs font-semibold text-info hover:border-info/60 transition disabled:opacity-50 flex items-center gap-1.5"
             >
               {ocrLoading ? <><span className="animate-spin">⟳</span> Đang đọc...</> : <>📷 Tải ảnh đề thi</>}
             </button>
@@ -272,7 +275,7 @@ export default function ExamSelect({ onOpenAuth }) {
           <button
             onClick={() => setYear(null)}
             className={`h-8 px-3 rounded-full font-jakarta text-xs font-medium border transition ${
-              !filterYear ? 'border-primary bg-[#F2A20C22] text-primary' : 'border-border text-dim hover:border-[#2A3A50]'
+              !filterYear ? 'border-primary bg-primary/10 text-primary' : 'border-border text-dim hover:border-[#2A3A50]'
             }`}
           >Tất cả</button>
           {availableYears.map(y => (
@@ -280,7 +283,7 @@ export default function ExamSelect({ onOpenAuth }) {
               key={y}
               onClick={() => setYear(filterYear === y ? null : y)}
               className={`h-8 px-3 rounded-full font-jakarta text-xs font-medium border transition ${
-                filterYear === y ? 'border-primary bg-[#F2A20C22] text-primary' : 'border-border text-dim hover:border-[#2A3A50]'
+                filterYear === y ? 'border-primary bg-primary/10 text-primary' : 'border-border text-dim hover:border-[#2A3A50]'
               }`}
             >{y}</button>
           ))}
@@ -289,8 +292,7 @@ export default function ExamSelect({ onOpenAuth }) {
 
       {/* OCR result panel */}
       {(ocrError || ocrQuestions) && (
-        <div className="mx-10 mt-4 px-5 py-4 rounded-xl flex items-center justify-between gap-4"
-          style={{ background: ocrError ? '#1A0808' : '#0A1A10', border: `1px solid ${ocrError ? '#EF444440' : '#10B98140'}` }}>
+        <div className={`mx-10 mt-4 px-5 py-4 rounded-xl flex items-center justify-between gap-4 ${ocrError ? 'bg-destructive/5 border border-destructive/25' : 'bg-success/5 border border-success/25'}`}>
           {ocrError ? (
             <span className="font-jakarta text-[0.8125rem] text-red-400">{ocrError}</span>
           ) : (
@@ -314,7 +316,7 @@ export default function ExamSelect({ onOpenAuth }) {
       {/* Content */}
       <div className="flex flex-col gap-10 p-10">
         <div className="flex flex-col gap-2">
-          <h1 className="font-fraunces text-[36px] font-bold text-foreground">Chọn đề thi</h1>
+          <h1 className="font-fraunces text-[36px] font-bold text-gradient-brand">Chọn đề thi</h1>
           <p className="font-jakarta text-sm text-dim">{motivationalHeader}</p>
         </div>
 
@@ -329,52 +331,47 @@ export default function ExamSelect({ onOpenAuth }) {
             </div>
 
             {/* Hero: Oracle */}
-            <motion.button variants={cardVariants}
-              onClick={() => navigate('/oracle')}
-              className="w-full text-left rounded-2xl p-6 flex items-center justify-between gap-4 border transition relative overflow-hidden"
-              style={{ borderColor: '#6366F144', background: 'linear-gradient(135deg, #0D1521 50%, #130d2a 100%)' }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = '#6366F188'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = '#6366F144'}
-              onFocus={e => e.currentTarget.style.borderColor = '#6366F188'}
-              onBlur={e => e.currentTarget.style.borderColor = '#6366F144'}
-            >
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">✦</span>
-                  <span className="font-jakarta text-[17px] font-bold text-foreground">Toán Oracle</span>
-                  <span className="font-jakarta text-[0.625rem] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
-                    style={{ background: '#6366F122', color: '#818CF8' }}>Oracle AI</span>
+            <SpotlightCard className="rounded-2xl" glowColor="rgba(99,102,241,0.15)">
+              <motion.button variants={cardVariants}
+                onClick={() => navigate('/oracle')}
+                className="w-full text-left rounded-2xl p-6 flex items-center justify-between gap-4 glass-brand transition relative overflow-hidden"
+              >
+                <BorderBeam colorFrom="#818CF8" colorTo="#6366F1" size={160} duration={6} />
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">✦</span>
+                    <span className="font-jakarta text-[17px] font-bold text-foreground">Toán Oracle</span>
+                    <AnimatedShinyText className="font-jakarta text-[0.625rem] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded bg-info/10 text-info border border-info/30" shimmerWidth={60}>
+                      Oracle AI
+                    </AnimatedShinyText>
+                  </div>
+                  <span className="font-jakarta text-[0.8125rem] text-dim leading-relaxed max-w-sm">
+                    Nhập bất kỳ bài toán nào — Oracle giải từng bước chi tiết và chấm bài của bạn
+                  </span>
                 </div>
-                <span className="font-jakarta text-[0.8125rem] text-dim leading-relaxed max-w-sm">
-                  Nhập bất kỳ bài toán nào — Oracle giải từng bước chi tiết và chấm bài của bạn
-                </span>
-              </div>
-              <span className="font-jakarta text-[0.8125rem] font-semibold flex-shrink-0" style={{ color: '#818CF8' }}>Mở Oracle →</span>
-            </motion.button>
+                <span className="font-jakarta text-[0.8125rem] font-semibold flex-shrink-0 text-info">Mở Oracle →</span>
+              </motion.button>
+            </SpotlightCard>
 
             {/* Grid: secondary tools */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {user?.subscription_tier === 'complete' && (
-                <motion.button variants={cardVariants}
-                  onClick={() => navigate('/generate-exam')}
-                  className="text-left rounded-2xl p-5 flex flex-col gap-3 border transition"
-                  style={{ borderColor: '#F2A20C33', background: 'linear-gradient(135deg, #0D1521 60%, #1a120a 100%)' }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = '#F2A20C66'}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = '#F2A20C33'}
-                  onFocus={e => e.currentTarget.style.borderColor = '#F2A20C66'}
-                  onBlur={e => e.currentTarget.style.borderColor = '#F2A20C33'}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl">✦</span>
-                    <span className="font-jakarta text-[0.625rem] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded"
-                      style={{ background: '#F2A20C22', color: '#F2A20C' }}>Toàn diện</span>
-                  </div>
-                  <div>
-                    <p className="font-jakarta text-sm font-semibold text-foreground">Tạo đề riêng</p>
-                    <p className="font-jakarta text-xs text-dim mt-0.5">AI tạo đề theo chủ đề & độ khó bạn chọn</p>
-                  </div>
-                  <span className="font-jakarta text-xs font-semibold mt-auto" style={{ color: '#F2A20C' }}>Tạo đề →</span>
-                </motion.button>
+                <SpotlightCard className="rounded-2xl">
+                  <motion.button variants={cardVariants}
+                    onClick={() => navigate('/generate-exam')}
+                    className="w-full text-left rounded-2xl p-5 flex flex-col gap-3 glass-brand transition"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xl">✦</span>
+                      <span className="font-jakarta text-[0.625rem] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/30">Toàn diện</span>
+                    </div>
+                    <div>
+                      <p className="font-jakarta text-sm font-semibold text-foreground">Tạo đề riêng</p>
+                      <p className="font-jakarta text-xs text-dim mt-0.5">AI tạo đề theo chủ đề & độ khó bạn chọn</p>
+                    </div>
+                    <span className="font-jakarta text-xs font-semibold mt-auto text-primary">Tạo đề →</span>
+                  </motion.button>
+                </SpotlightCard>
               )}
 
               {/* Lab feature cards */}
@@ -462,8 +459,7 @@ export default function ExamSelect({ onOpenAuth }) {
                             <motion.div
                               key={exam.id}
                               variants={cardVariants}
-                              className="rounded-xl px-6 py-5 flex flex-col gap-3 opacity-60"
-                              style={{ background: '#0A0E1A', border: '1px solid #1E2A44' }}
+                              className="glass-base rounded-xl px-6 py-5 flex flex-col gap-3 opacity-60"
                             >
                               <div className="flex items-start justify-between gap-4">
                                 <div className="flex flex-col gap-1.5">
@@ -478,12 +474,11 @@ export default function ExamSelect({ onOpenAuth }) {
                                 {prereqExam && (
                                   <button
                                     onClick={() => openPreview(prereqExam)}
-                                    className="flex-shrink-0 px-4 py-2 rounded-md font-jakarta text-xs font-semibold transition"
-                                    style={{ background: 'transparent', border: '1px solid #2A3A5E', color: '#64748B' }}
+                                    className="flex-shrink-0 px-4 py-2 rounded-md font-jakarta text-xs font-semibold transition border border-border text-dim"
                                     onMouseEnter={e => { e.currentTarget.style.borderColor = group.accent; e.currentTarget.style.color = group.accent }}
-                                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#2A3A5E'; e.currentTarget.style.color = '#64748B' }}
+                                    onMouseLeave={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.color = '' }}
                                     onFocus={e => { e.currentTarget.style.borderColor = group.accent; e.currentTarget.style.color = group.accent }}
-                                    onBlur={e => { e.currentTarget.style.borderColor = '#2A3A5E'; e.currentTarget.style.color = '#64748B' }}
+                                    onBlur={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.color = '' }}
                                   >
                                     Làm đề {prereqExam.year} →
                                   </button>
@@ -511,34 +506,35 @@ export default function ExamSelect({ onOpenAuth }) {
                         }
 
                         return (
-                          <motion.div
-                            key={exam.id}
-                            variants={cardVariants}
-                            {...hoverProps}
-                            className="bg-surface rounded-xl px-6 py-5 flex flex-col gap-3"
-                            style={{ borderLeft: `3px solid ${group.accent}99` }}
-                          >
-                            <div className="flex items-start justify-between gap-4">
-                              <div className="flex flex-col gap-1.5">
-                                <span className="font-jakarta text-[15px] font-semibold text-foreground">{exam.title}</span>
-                                <span className="font-jakarta text-[0.8125rem] text-dim">
-                                  {exam.year} · {exam.totalQuestions} câu · {exam.duration} phút
-                                  {exam.source && ` · ${exam.source}`}
-                                </span>
+                          <SpotlightCard key={exam.id} className="rounded-xl">
+                            <motion.div
+                              variants={cardVariants}
+                              {...hoverProps}
+                              className="glass-base rounded-xl px-6 py-5 flex flex-col gap-3"
+                              style={{ borderLeft: `3px solid ${group.accent}99` }}
+                            >
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex flex-col gap-1.5">
+                                  <span className="font-jakarta text-[15px] font-semibold text-foreground">{exam.title}</span>
+                                  <span className="font-jakarta text-[0.8125rem] text-dim">
+                                    {exam.year} · {exam.totalQuestions} câu · {exam.duration} phút
+                                    {exam.source && ` · ${exam.source}`}
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={() => openPreview(exam)}
+                                  className="flex-shrink-0 px-5 py-2 rounded-md font-jakarta text-[0.8125rem] font-semibold transition"
+                                  style={{ background: 'transparent', border: `1px solid ${group.accent}`, color: group.accent }}
+                                  onMouseEnter={e => e.currentTarget.style.background = group.accent + '1A'}
+                                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                  onFocus={e => e.currentTarget.style.background = group.accent + '1A'}
+                                  onBlur={e => e.currentTarget.style.background = 'transparent'}
+                                >
+                                  Bắt đầu
+                                </button>
                               </div>
-                              <button
-                                onClick={() => openPreview(exam)}
-                                className="flex-shrink-0 px-5 py-2 rounded-md font-jakarta text-[0.8125rem] font-semibold transition"
-                                style={{ background: 'transparent', border: `1px solid ${group.accent}`, color: group.accent }}
-                                onMouseEnter={e => e.currentTarget.style.background = group.accent + '1A'}
-                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                onFocus={e => e.currentTarget.style.background = group.accent + '1A'}
-                                onBlur={e => e.currentTarget.style.background = 'transparent'}
-                              >
-                                Bắt đầu
-                              </button>
-                            </div>
-                          </motion.div>
+                            </motion.div>
+                          </SpotlightCard>
                         )
                       })}
                       {!isExpanded && hiddenCount > 0 && (
@@ -577,8 +573,7 @@ export default function ExamSelect({ onOpenAuth }) {
               transition={{ duration: 0.2 }}
               transition={{ duration: 0.2 }}
               onClick={e => e.stopPropagation()}
-              className="w-full max-w-sm rounded-2xl border border-border p-7 flex flex-col gap-5"
-              style={{ background: 'linear-gradient(180deg, #0F1628 0%, #0D1221 100%)' }}
+              className="w-full max-w-sm rounded-2xl p-7 flex flex-col gap-5 glass-elevated"
             >
               <div className="flex flex-col gap-1.5">
                 <span className="font-fraunces text-[18px] font-semibold text-foreground">{previewExam.title}</span>
@@ -606,12 +601,12 @@ export default function ExamSelect({ onOpenAuth }) {
                 const briefing = buildBriefing(results, previewExam)
                 if (!briefing) return null
                 return (
-                  <div className="rounded-xl bg-[#0A1628] border border-[#1E3A5E] px-4 py-3.5 flex flex-col gap-2">
+                  <div className="rounded-xl glass-base px-4 py-3.5 flex flex-col gap-2">
                     <span className="font-jakarta text-[0.6875rem] font-bold text-info uppercase tracking-wider">Chuẩn bị trước khi thi</span>
                     <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">{briefing.message}</p>
                     <div className="flex flex-wrap gap-1.5 mt-0.5">
                       {briefing.weakTopics.map(w => (
-                        <span key={w.topic} className="px-2.5 py-1 rounded-full bg-[#2A0F14] border border-[#5A1A24] font-jakarta text-[0.6875rem] text-destructive">
+                        <span key={w.topic} className="px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 font-jakarta text-[0.6875rem] text-destructive">
                           {w.label} · {w.accuracy}%
                         </span>
                       ))}
