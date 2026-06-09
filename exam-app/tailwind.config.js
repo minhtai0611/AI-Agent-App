@@ -16,6 +16,27 @@ export default {
         jakarta: ['"Plus Jakarta Sans"', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       },
+      keyframes: {
+        // BorderBeam — light travels around card border via offset-path
+        'border-beam': {
+          '100%': { 'offset-distance': '100%' },
+        },
+        // ShimmerButton — highlight slides across button surface
+        'shimmer-slide': {
+          '0%':   { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(200%)' },
+        },
+        // AnimatedShinyText — shimmer sweep across text
+        'shiny-text': {
+          '0%, 90%, 100%': { 'background-position': 'calc(-100% - var(--shw,100px)) 0' },
+          '30%, 60%':       { 'background-position': 'calc(100% + var(--shw,100px)) 0' },
+        },
+      },
+      animation: {
+        'border-beam':   'border-beam 8s linear infinite',
+        'shimmer-slide': 'shimmer-slide 2s ease-in-out infinite',
+        'shiny-text':    'shiny-text 3s linear infinite',
+      },
       colors: {
         background:        'var(--background)',
         foreground:        'var(--foreground)',
