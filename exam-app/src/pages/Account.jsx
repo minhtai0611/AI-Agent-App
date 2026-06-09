@@ -2362,7 +2362,7 @@ export default function Account() {
                 <a
                   href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Zenith nhé! Dùng link này để nhận 50 Tia miễn phí: ${referralUrl}`)}`}
                   target="_blank" rel="noopener noreferrer"
-                  className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-jakarta text-xs font-semibold bg-[#25D366] text-white hover:opacity-90 transition"
+                  className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-jakarta text-xs font-semibold bg-whatsapp text-white hover:opacity-90 transition"
                 >
                   <span>💬</span> Chia sẻ qua WhatsApp
                 </a>

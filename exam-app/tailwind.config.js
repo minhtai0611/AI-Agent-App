@@ -55,6 +55,7 @@ export default {
         info:              'var(--info)',
         purple:            'var(--purple)',
         highlight:         'var(--highlight)',
+        whatsapp:          '#25D366',
       },
     },
   },
