@@ -1,7 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
-  darkMode: ['selector', '[data-theme="dark"]'],
+  darkMode: ['selector', '[data-theme="dark"], .dark'],
+  safelist: [
+    // Aurora background animation classes — dynamic strings would be purged otherwise
+    'animate-[ambient-float-0_18s_ease-in-out_0s_infinite]',
+    'animate-[ambient-float-1_22s_ease-in-out_3s_infinite]',
+    'animate-[ambient-float-2_26s_ease-in-out_6s_infinite]',
+    'animate-[ambient-float-3_20s_ease-in-out_9s_infinite]',
+  ],
   theme: {
     extend: {
       fontFamily: {
