@@ -7,6 +7,13 @@ const THEME_MODES = ['auto', 'light', 'dark']
 const THEME_ICONS = { auto: '⊙', light: '☀', dark: '☽' }
 const THEME_LABELS = { auto: 'Tự động', light: 'Sáng', dark: 'Tối' }
 
+// Keep data-theme and .dark class in sync so both the CSS light-dark() system
+// and Tailwind's dark: prefix utilities work correctly (GR-6).
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme
+  document.documentElement.classList.toggle('dark', theme === 'dark')
+}
+
 function ThemeToggle() {
   const [mode, setMode] = useState(() => {
     const s = localStorage.getItem('zenith-theme')
@@ -18,7 +25,7 @@ function ThemeToggle() {
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
     function onOsChange(e) {
       if (localStorage.getItem('zenith-theme')) return // user has explicit override
-      document.documentElement.dataset.theme = e.matches ? 'dark' : 'light'
+      applyTheme(e.matches ? 'dark' : 'light')
     }
     mq.addEventListener('change', onOsChange)
     return () => mq.removeEventListener('change', onOsChange)
@@ -29,11 +36,10 @@ function ThemeToggle() {
     setMode(next)
     if (next === 'auto') {
       localStorage.removeItem('zenith-theme')
-      document.documentElement.dataset.theme =
-        window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     } else {
       localStorage.setItem('zenith-theme', next)
-      document.documentElement.dataset.theme = next
+      applyTheme(next)
     }
   }
 
