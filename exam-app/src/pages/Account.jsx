@@ -40,6 +40,9 @@ import { getTierGap } from '../utils/tierGap.js'
 import { getUpgradeContext } from '../utils/upgradeContext.js'
 import { getStreakFreezeInfo } from '../utils/streakFreeze.js'
 import { getTopicNodes, getPriorityTopics } from '../utils/learningGraph.js'
+import { SpotlightCard } from '../components/SpotlightCard.jsx'
+import { AnimatedShinyText } from '../components/ui/animated-shiny-text.jsx'
+import { ShimmerButton } from '../components/ui/shimmer-button.jsx'
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const REASON_LABELS = {
@@ -670,15 +673,16 @@ export default function Account() {
               <p className="font-fraunces text-[18px] font-bold text-foreground truncate">{user.custom_display_name || user.display_name}</p>
               {user.mastery_rank && (
                 <AchievementCeremony trigger={Boolean(user.mastery_rank)}>
-                  <span
+                  <AnimatedShinyText
                     className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
                     style={{
                       background: (MASTERY_RANK_COLORS[user.mastery_rank] ?? '#64748B') + '22',
                       color: MASTERY_RANK_COLORS[user.mastery_rank] ?? '#64748B',
                     }}
+                    shimmerWidth={50}
                   >
                     {MASTERY_RANK_LABELS[user.mastery_rank] ?? user.mastery_rank}
-                  </span>
+                  </AnimatedShinyText>
                 </AchievementCeremony>
               )}
             </div>
@@ -701,8 +705,7 @@ export default function Account() {
           </div>
           {/* Settings gear — mobile only */}
           <button
-            className="lg:hidden absolute top-4 right-4 p-2 rounded-xl"
-            style={{ color: '#64748B', background: '#0D1521' }}
+            className="lg:hidden absolute top-4 right-4 p-2 rounded-xl text-faint glass-base"
             onClick={() => setActiveTab(TAB_SETTINGS)}
             aria-label="Cài đặt"
           >
@@ -784,12 +787,12 @@ export default function Account() {
         {advisorMsg && (
           <div className={`flex items-start gap-3 px-5 py-4 rounded-2xl border ${
             advisorMsg.category === 'urgent'
-              ? 'border-red-500/40 bg-[#1A0808]'
+              ? 'border-destructive/40 bg-destructive/5'
               : advisorMsg.category === 'optimization'
-              ? 'border-[#818CF840] bg-[#818CF808]'
+              ? 'border-info/40 bg-info/5'
               : advisorMsg.category === 'goal'
-              ? 'border-emerald-500/40 bg-[#0A1A12]'
-              : 'border-[#F2A20C33] bg-[#F2A20C08]'
+              ? 'border-success/40 bg-success/5'
+              : 'border-primary/20 bg-primary/5'
           }`}>
             <span className="text-[18px] flex-shrink-0 mt-0.5">
               {advisorMsg.category === 'urgent' ? '🚨'
@@ -982,7 +985,7 @@ export default function Account() {
                   {goalStatus.weeklyHours && (
                     <div className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg bg-background border border-border">
                       <span className="font-jakarta text-[0.625rem] text-faint">Giờ/tuần</span>
-                      <span className="font-fraunces text-sm font-bold text-[#818CF8]">{goalStatus.weeklyHours}h</span>
+                      <span className="font-fraunces text-sm font-bold text-info">{goalStatus.weeklyHours}h</span>
                     </div>
                   )}
                 </div>
@@ -1014,7 +1017,7 @@ export default function Account() {
                     </div>
                     <div className="w-full h-2 bg-border rounded-full overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-[#818CF8] transition-all duration-700"
+                        className="h-full rounded-full bg-info transition-all duration-700"
                         style={{ width: `${Math.round(masteryProgress.pct * 100)}%` }}
                       />
                     </div>
@@ -1212,8 +1215,7 @@ export default function Account() {
                       <span className="font-jakarta text-[0.6875rem] text-dim">Xem bạn đứng ở vị trí nào so với học sinh cùng tỉnh · 30 ngày qua</span>
                     </div>
                     <button onClick={handleCompareProvince} disabled={provinceLoading}
-                      className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-xs font-bold disabled:opacity-60 transition"
-                      style={{ background: '#818CF8', color: '#F8FAFC' }}>
+                      className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-xs font-bold disabled:opacity-60 transition bg-info text-white">
                       {provinceLoading ? 'Đang tải...' : 'So sánh'}
                     </button>
                   </div>
@@ -1223,7 +1225,7 @@ export default function Account() {
                       <div className={`flex flex-col gap-2 px-4 py-4 rounded-xl border ${
                         provinceNarrative.sentiment === 'above' ? 'border-emerald-500/40 bg-emerald-500/5' :
                         provinceNarrative.sentiment === 'below' ? 'border-amber-400/40 bg-amber-400/5' :
-                        'border-[#818CF8]/40 bg-[#818CF8]/5'
+                        'border-info/40 bg-info/5'
                       }`}>
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-jakarta text-[0.8125rem] font-semibold text-highlight">{provinceNarrative.headline}</span>
@@ -1295,14 +1297,14 @@ export default function Account() {
                         </button>
                       </div>
                       {upgradeCtxVisible.strategy && ctx && (
-                        <div className="flex flex-col gap-2 px-4 py-3 rounded-xl border border-[#818CF8]/30 bg-[#818CF8]/5">
-                          <span className="font-jakarta text-xs text-[#A5B4FC] leading-snug">{ctx.pitch}</span>
+                        <div className="flex flex-col gap-2 px-4 py-3 rounded-xl border border-info/30 bg-info/5">
+                          <span className="font-jakarta text-xs text-info/80 leading-snug">{ctx.pitch}</span>
                           <button
                             onClick={() => {
                               setActiveTab(TAB_AITIA)
                               setTimeout(() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' }), 100)
                             }}
-                            className="self-start font-jakarta text-xs font-bold text-[#818CF8] hover:text-[#A5B4FC] transition"
+                            className="self-start font-jakarta text-xs font-bold text-info hover:text-info/80 transition"
                           >
                             Nâng cấp →
                           </button>
@@ -1333,14 +1335,14 @@ export default function Account() {
                         </button>
                       </div>
                       {upgradeCtxVisible.province && ctx && (
-                        <div className="flex flex-col gap-2 px-4 py-3 rounded-xl border border-[#818CF8]/30 bg-[#818CF8]/5">
-                          <span className="font-jakarta text-xs text-[#A5B4FC] leading-snug">{ctx.pitch}</span>
+                        <div className="flex flex-col gap-2 px-4 py-3 rounded-xl border border-info/30 bg-info/5">
+                          <span className="font-jakarta text-xs text-info/80 leading-snug">{ctx.pitch}</span>
                           <button
                             onClick={() => {
                               setActiveTab(TAB_AITIA)
                               setTimeout(() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' }), 100)
                             }}
-                            className="self-start font-jakarta text-xs font-bold text-[#818CF8] hover:text-[#A5B4FC] transition"
+                            className="self-start font-jakarta text-xs font-bold text-info hover:text-info/80 transition"
                           >
                             Nâng cấp →
                           </button>
@@ -1355,11 +1357,11 @@ export default function Account() {
             {/* Learner archetype */}
             {archetype && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-[#818CF81A] border border-[#818CF833] flex items-center justify-center text-[28px] flex-shrink-0">
+                <div className="w-14 h-14 rounded-2xl bg-info/10 border border-info/20 flex items-center justify-center text-[28px] flex-shrink-0">
                   {archetype.icon}
                 </div>
                 <div className="flex flex-col gap-0.5 min-w-0">
-                  <span className="font-jakarta text-[0.625rem] font-semibold text-[#818CF8] uppercase tracking-wide">Phong cách học của bạn</span>
+                  <span className="font-jakarta text-[0.625rem] font-semibold text-info uppercase tracking-wide">Phong cách học của bạn</span>
                   <span className="font-fraunces text-[16px] font-bold text-foreground">{archetype.label}</span>
                   <span className="font-jakarta text-xs text-muted leading-snug">{archetype.desc}</span>
                 </div>
@@ -1371,7 +1373,7 @@ export default function Account() {
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-3">
                 <span className="font-fraunces text-[15px] font-semibold text-foreground">Mục tiêu tiếp theo</span>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[#818CF81A] border border-[#818CF833] flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-info/10 border border-info/20 flex items-center justify-center flex-shrink-0">
                     <span className="text-[22px]">{nextMilestone.icon}</span>
                   </div>
                   <div className="flex flex-col gap-1 flex-1 min-w-0">
@@ -1379,13 +1381,13 @@ export default function Account() {
                     <span className="font-jakarta text-xs text-muted">{nextMilestone.progress}</span>
                     <div className="w-full h-1.5 bg-border rounded-full overflow-hidden mt-0.5">
                       <div
-                        className="h-full rounded-full bg-[#818CF8] transition-all duration-700"
+                        className="h-full rounded-full bg-info transition-all duration-700"
                         style={{ width: `${Math.round(nextMilestone.pct * 100)}%` }}
                       />
                     </div>
                   </div>
                   {nextMilestone.remaining != null && (
-                    <span className="font-jakarta text-[0.6875rem] text-[#818CF8] font-semibold flex-shrink-0">
+                    <span className="font-jakarta text-[0.6875rem] text-info font-semibold flex-shrink-0">
                       còn {nextMilestone.remaining}
                     </span>
                   )}
@@ -1457,7 +1459,7 @@ export default function Account() {
                           .catch(() => {})
                       }
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-jakarta text-xs font-semibold bg-[#818CF820] text-[#818CF8] border border-[#818CF833] hover:bg-[#818CF830] transition"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-jakarta text-xs font-semibold bg-info/10 text-info border border-info/20 hover:bg-info/20 transition"
                   >
                     <span>📤</span> Chia sẻ
                   </button>
@@ -1513,7 +1515,7 @@ export default function Account() {
           <>
             {/* Adaptive study nudge */}
             {studyNudge && (
-              <div className="flex items-start gap-3 px-5 py-4 rounded-2xl border border-[#F2A20C33] bg-[#F2A20C0A]">
+              <div className="flex items-start gap-3 px-5 py-4 rounded-2xl border border-primary/20 bg-primary/5">
                 <span className="text-[20px] flex-shrink-0 mt-px">💪</span>
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
                   <span className="font-jakarta text-[0.8125rem] text-highlight leading-snug">{studyNudge}</span>
@@ -1634,7 +1636,7 @@ export default function Account() {
                   <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-3">
                     <span className="font-fraunces text-[15px] font-semibold text-foreground">Trọng tâm hôm nay</span>
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-[#F2A20C1A] border border-[#F2A20C33] flex items-center justify-center flex-shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
                         <span className="text-[22px]">🎯</span>
                       </div>
                       <div className="flex flex-col gap-0.5 flex-1">
@@ -1760,7 +1762,7 @@ export default function Account() {
 
             {/* 7-day trial CTA */}
             {tier === 'basic' && !user.trial_used && !trialDone && (
-              <section className="bg-gradient-to-br from-[#1A2A10] to-surface border border-[#2D4A1A] rounded-2xl p-6 flex flex-col gap-4">
+              <section className="glass-base rounded-2xl p-6 flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
                   <span className="font-fraunces text-[16px] font-semibold text-foreground">Trải nghiệm AI học tập đầy đủ — 7 ngày miễn phí</span>
                   <p className="font-jakarta text-[0.8125rem] text-muted">
@@ -1768,7 +1770,7 @@ export default function Account() {
                   </p>
                 </div>
                 {trialError && <p className="font-jakarta text-xs text-red-400">{trialError}</p>}
-                <button
+                <ShimmerButton
                   disabled={trialActivating}
                   onClick={async () => {
                     setTrialActivating(true); setTrialError('')
@@ -1780,15 +1782,15 @@ export default function Account() {
                       setTrialDone(true); refundCredits(500); await refreshUser()
                     }
                   }}
-                  className="ripple-btn self-start px-5 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold transition"
-                  style={{ background: trialActivating ? '#1E2A44' : '#10B981', color: trialActivating ? '#475569' : '#0A0E1A' }}
+                  className="self-start text-[0.8125rem]"
+                  background={trialActivating ? 'rgba(30,42,68,1)' : 'linear-gradient(135deg, #065f46, #10B981)'}
                 >
                   {trialActivating ? 'Đang kích hoạt...' : 'Kích hoạt dùng thử'}
-                </button>
+                </ShimmerButton>
               </section>
             )}
             {trialDone && (
-              <div className="px-5 py-4 rounded-2xl border border-[#2D4A1A] bg-[#0A1A0A] font-jakarta text-[0.8125rem] text-[#34D399]">
+              <div className="px-5 py-4 rounded-2xl glass-base font-jakarta text-[0.8125rem] text-success">
                 Đã kích hoạt! Gói Học sinh của bạn sẽ hoạt động trong 7 ngày.
               </div>
             )}
@@ -1821,19 +1823,18 @@ export default function Account() {
 
             {/* Tier gap — "Bạn đang bỏ lỡ..." card */}
             {tierGap && (
-              <section className="bg-surface border border-[#818CF8]/30 rounded-2xl p-6 flex flex-col gap-4">
+              <section className="bg-surface border border-info/30 rounded-2xl p-6 flex flex-col gap-4">
                 <span className="font-fraunces text-[15px] font-semibold text-foreground">Bạn đang bỏ lỡ...</span>
                 <div className="flex flex-wrap gap-2">
                   {tierGap.missingFeatures.map(f => (
-                    <span key={f} className="font-jakarta text-[0.6875rem] px-3 py-1.5 rounded-full border border-[#818CF8]/40 bg-[#818CF8]/8 text-[#A5B4FC]">
+                    <span key={f} className="font-jakarta text-[0.6875rem] px-3 py-1.5 rounded-full border border-info/40 bg-info/10 text-info/80">
                       {f}
                     </span>
                   ))}
                 </div>
                 <button
                   onClick={() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="self-start px-5 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold transition"
-                  style={{ background: '#818CF8', color: '#0A0E1A' }}
+                  className="self-start px-5 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold transition bg-info text-white"
                 >
                   {tierGap.ctaLabel} →
                 </button>
@@ -2086,7 +2087,7 @@ export default function Account() {
               <div className="flex items-center gap-3">
                 <span className="font-fraunces text-[15px] font-semibold text-foreground">Tùy chỉnh AI học tập</span>
                 {aiIsCustomized && (
-                  <span className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-[#818CF820] text-[#818CF8] border border-[#818CF833]">
+                  <span className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-info/10 text-info border border-info/20">
                     Đã tùy chỉnh
                   </span>
                 )}
@@ -2106,7 +2107,7 @@ export default function Account() {
                       onClick={() => setAIPrefs({ ...aiPrefs, hint_style: v })}
                       className={`flex flex-col items-start px-4 py-2.5 rounded-xl border transition text-left ${
                         aiPrefs.hint_style === v
-                          ? 'border-[#818CF8] bg-[#818CF81A] text-foreground'
+                          ? 'border-[#818CF8] bg-info/10 text-foreground'
                           : 'border-border bg-background text-dim hover:border-[#818CF850]'
                       }`}
                     >
