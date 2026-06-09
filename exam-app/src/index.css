@@ -183,6 +183,12 @@
     backdrop-filter: none !important;
     background-color: var(--surface) !important;
   }
+  /* GR-4: .glass-* use backdrop-filter directly, not via Tailwind class name */
+  .glass-base, .glass-elevated, .glass-brand {
+    backdrop-filter: none !important;
+    background-color: var(--surface) !important;
+    background-image: none !important;
+  }
 }
 
 /* ─── Accessibility: Windows High Contrast / Forced Colors ───────────────── */
@@ -221,6 +227,89 @@
   body { background: #fff !important; color: #000 !important; }
   .question-card { page-break-inside: avoid; border: 1px solid #ccc; box-shadow: none; }
   h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+/* ─── Premium Surface System ─────────────────────────────────────────────── */
+
+/* Tier 1 — base glass: cards, panels */
+.glass-base {
+  background: rgba(13, 18, 33, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Tier 2 — elevated glass: modals, hover states */
+.glass-elevated {
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5),
+              inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+/* Tier 3 — brand glass: featured CTAs, highlighted cards */
+.glass-brand {
+  background: linear-gradient(135deg, rgba(242, 162, 12, 0.08) 0%, rgba(13, 18, 33, 0.85) 60%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(242, 162, 12, 0.25);
+  box-shadow: 0 0 30px rgba(242, 162, 12, 0.08),
+              0 8px 40px rgba(0, 0, 0, 0.5),
+              inset 0 1px 0 rgba(242, 162, 12, 0.1);
+}
+
+/* ─── Gradient Text ───────────────────────────────────────────────────────── */
+
+.text-gradient-brand {
+  background: linear-gradient(135deg, #FBBF24 0%, #F2A20C 40%, #FDE68A 80%, #F59E0B 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-aurora {
+  background: linear-gradient(135deg, #818CF8 0%, #C084FC 40%, #F472B6 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ─── Glow Hierarchy ─────────────────────────────────────────────────────── */
+
+.glow-primary {
+  box-shadow: 0 0 20px rgba(242, 162, 12, 0.4),
+              0 0 60px rgba(242, 162, 12, 0.15);
+  transition: box-shadow 0.3s ease;
+}
+.glow-primary:hover {
+  box-shadow: 0 0 30px rgba(242, 162, 12, 0.6),
+              0 0 80px rgba(242, 162, 12, 0.25);
+}
+
+.glow-success {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3),
+              0 0 50px rgba(16, 185, 129, 0.1);
+}
+
+.glow-info {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3),
+              0 0 50px rgba(99, 102, 241, 0.1);
+}
+
+/* ─── Score Circle Pulse ──────────────────────────────────────────────────── */
+
+@keyframes score-pulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(242, 162, 12, 0.6)); }
+  50%       { filter: drop-shadow(0 0 20px rgba(242, 162, 12, 0.9)); }
+}
+.score-circle {
+  animation: score-pulse 3s ease-in-out infinite;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────── */

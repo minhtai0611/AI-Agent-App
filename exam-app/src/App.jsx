@@ -15,6 +15,7 @@ import OfflineBanner from './components/OfflineBanner.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import InstallPrompt from './components/InstallPrompt.jsx'
 import { OracleProvider } from './context/OracleContext.jsx'
+import { NoiseOverlay } from './components/NoiseOverlay.jsx'
 
 const Landing = lazy(() => import('./pages/Landing.jsx'))
 const ExamSelect = lazy(() => import('./pages/ExamSelect.jsx'))
@@ -208,6 +209,7 @@ export default function App() {
       <HistoryProvider>
         <ExamProvider>
           <OracleProvider>
+            <NoiseOverlay />
             <AppInner />
           </OracleProvider>
         </ExamProvider>
