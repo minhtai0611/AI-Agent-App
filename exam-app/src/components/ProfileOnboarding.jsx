@@ -62,8 +62,7 @@ function LegalModal({ title, items, onClose }) {
         <button
           type="button"
           onClick={onClose}
-          className="self-end px-4 py-2 rounded-lg font-jakarta text-xs font-semibold text-primary-fg"
-          style={{ background: '#F2A20C' }}
+          className="self-end px-4 py-2 rounded-lg font-jakarta text-xs font-semibold bg-primary text-background"
         >
           Đã hiểu
         </button>
@@ -132,8 +131,8 @@ export default function ProfileOnboarding({ onDone }) {
                     onClick={() => setGrade(g.value)}
                     className={`flex flex-col items-start px-4 py-3 rounded-xl border transition text-left ${
                       grade === g.value
-                        ? 'border-primary bg-[#F2A20C11]'
-                        : 'border-border bg-surface-elevated hover:border-[#2A3A50]'
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border bg-surface-elevated hover:border-primary/30'
                     }`}
                   >
                     <span className={`font-jakarta text-[0.8125rem] font-semibold ${grade === g.value ? 'text-primary' : 'text-highlight'}`}>{g.label}</span>
@@ -169,8 +168,8 @@ export default function ProfileOnboarding({ onDone }) {
                     onClick={() => setSchoolType(prev => prev === s.value ? '' : s.value)}
                     className={`flex-1 py-2.5 rounded-xl border transition font-jakarta text-xs font-medium ${
                       schoolType === s.value
-                        ? 'border-info bg-[#3B82F611] text-info'
-                        : 'border-border bg-surface-elevated text-dim hover:border-[#2A3A50]'
+                        ? 'border-info bg-info/5 text-info'
+                        : 'border-border bg-surface-elevated text-dim hover:border-primary/30'
                     }`}
                   >
                     {s.label}

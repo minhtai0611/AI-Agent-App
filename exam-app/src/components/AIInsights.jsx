@@ -60,7 +60,7 @@ function TipList({ label, items }) {
       <div className="flex flex-col gap-2.5">
         {items.map((tip, i) => (
           <div key={i} className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-5 h-5 rounded-[10px] bg-[#1A2A40] flex items-center justify-center">
+            <div className="flex-shrink-0 w-5 h-5 rounded-[10px] glass-base flex items-center justify-center">
               <span className="font-jakarta text-[0.625rem] font-semibold text-muted">{i + 1}</span>
             </div>
             <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">{tip}</p>
@@ -105,8 +105,7 @@ function AIErrorMessage({ error }) {
         </span>
         <button
           onClick={() => navigate('/account#topup')}
-          className="px-5 py-2 rounded-lg font-jakarta text-xs font-bold"
-          style={{ background: '#F2A20C', color: '#0A0E1A' }}
+          className="px-5 py-2 rounded-lg font-jakarta text-xs font-bold bg-primary text-background"
         >
           Mua top-up
         </button>
@@ -121,8 +120,7 @@ function AIErrorMessage({ error }) {
         <span className="font-jakarta text-[0.8125rem] text-muted">{error.message || 'Cần nâng cấp gói để sử dụng tính năng này.'}</span>
         <button
           onClick={() => navigate('/account')}
-          className="px-5 py-2 rounded-lg font-jakarta text-xs font-bold"
-          style={{ background: '#F2A20C', color: '#0A0E1A' }}
+          className="px-5 py-2 rounded-lg font-jakarta text-xs font-bold bg-primary text-background"
         >
           Nâng cấp
         </button>
@@ -165,7 +163,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
         <FieldOrSkeleton label="Chủ đề cần cải thiện" value={
           Array.isArray(analysis.weak_topics) && analysis.weak_topics.length > 0
             ? <div className="flex flex-wrap gap-2">{analysis.weak_topics.map(t => (
-                <span key={t} className="px-3 py-1.5 bg-[#2A0F14] border border-[#5A1A24] rounded-full font-jakarta text-xs text-destructive">
+                <span key={t} className="px-3 py-1.5 bg-destructive/10 border border-destructive/30 rounded-full font-jakarta text-xs text-destructive">
                   {TOPIC_LABELS[t] ?? t}
                 </span>))}</div>
             : null
@@ -210,7 +208,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
             <span className="font-jakarta text-[0.8125rem] font-semibold text-muted">Chủ đề cần cải thiện</span>
             <div className="flex flex-wrap gap-2">
               {analysis.weak_topics.map(t => (
-                <span key={t} className="px-3 py-1.5 bg-[#2A0F14] border border-[#5A1A24] rounded-full font-jakarta text-xs text-destructive">
+                <span key={t} className="px-3 py-1.5 bg-destructive/10 border border-destructive/30 rounded-full font-jakarta text-xs text-destructive">
                   {TOPIC_LABELS[t] ?? t}
                 </span>
               ))}
@@ -228,13 +226,13 @@ export default function AIInsights({ analysis, loading, error, score }) {
   return (
     <div className="flex flex-col gap-5">
       {error && (
-        <span className="self-start px-2 py-0.5 rounded-full bg-[#1F1A0A] border border-[#4A3A1A] font-jakarta text-[0.6875rem] text-[#FBBF24]">
+        <span className="self-start px-2 py-0.5 rounded-full bg-primary/10 border border-primary/30 font-jakarta text-[0.6875rem] text-primary/80">
           Ngoại tuyến
         </span>
       )}
 
       {predictedScoreRange && (
-        <div className="flex items-center justify-between bg-surface-elevated border border-[#2A3A60] rounded-xl p-5">
+        <div className="flex items-center justify-between bg-surface-elevated border border-border rounded-xl p-5">
           <div className="flex flex-col gap-1">
             <span className="font-jakarta text-xs text-muted">Dự đoán điểm số kỳ thi thật</span>
             <span className="font-fraunces text-[28px] font-bold text-primary">
@@ -246,7 +244,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
               </span>
             )}
           </div>
-          <div className="px-3 py-2 bg-[#1A2A10] border border-[#2D4A1A] rounded-lg flex-shrink-0">
+          <div className="px-3 py-2 glass-base border-success/20 rounded-lg flex-shrink-0">
             <span className="font-jakarta text-xs font-bold text-success">Tốt</span>
           </div>
         </div>
@@ -257,7 +255,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
           <span className="font-jakarta text-[0.8125rem] font-semibold text-muted">Chủ đề cần cải thiện</span>
           <div className="flex flex-wrap gap-2">
             {weakTopics.map(t => (
-              <span key={t} className="px-3 py-1.5 bg-[#2A0F14] border border-[#5A1A24] rounded-full font-jakarta text-xs text-destructive">
+              <span key={t} className="px-3 py-1.5 bg-destructive/10 border border-destructive/30 rounded-full font-jakarta text-xs text-destructive">
                 {TOPIC_LABELS[t] ?? t}
               </span>
             ))}

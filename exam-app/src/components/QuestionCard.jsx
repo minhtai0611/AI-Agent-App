@@ -28,7 +28,7 @@ function AIRating({ questionId, hintIndex }) {
 
   return (
     <div className="flex items-center gap-1">
-      <span className="font-jakarta text-[0.625rem] text-[#2A3A50] mr-1">Hữu ích?</span>
+      <span className="font-jakarta text-[0.625rem] text-faint mr-1">Hữu ích?</span>
       {['👍', '👎'].map((emoji, i) => {
         const val = i === 0 ? 'up' : 'down'
         return (
@@ -132,7 +132,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
           href={question.imageLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-surface font-jakarta text-[0.8125rem] text-[#818CF8] hover:border-[#818CF8] hover:bg-[#818CF811] transition w-fit"
+          className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-surface font-jakarta text-[0.8125rem] text-info hover:border-info hover:bg-info/5 transition w-fit"
         >
           <span>🖼</span>
           <span>Xem hình minh họa (nguồn chính thức) →</span>
@@ -190,7 +190,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
                 <path d="M4 10l4.5 4.5L16 6" stroke="#10B981" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             ) : (
-              <span className="text-base leading-none" style={{ color: '#FB7185' }}>✗</span>
+              <span className="text-base leading-none text-destructive">✗</span>
             )}
           </span>
           <div className="flex-1 min-w-0">
@@ -200,7 +200,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
               </p>
             )}
             {isCorrect && (
-              <p className="font-jakarta text-[0.8125rem] text-[#6EE7B7]">Đúng rồi.</p>
+              <p className="font-jakarta text-[0.8125rem] text-success">Đúng rồi.</p>
             )}
           </div>
         </div>
@@ -210,8 +210,8 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
 
       {/* Struggle support — shown after 2 consecutive wrong across questions */}
       {practiceMode && !submitted && showFeedback && !isCorrect && wrongStreak >= 2 && (
-        <div className="mt-3 px-4 py-3 rounded-xl border border-[#A78BFA33] bg-[#1A1429]">
-          <p className="font-jakarta text-xs text-[#A78BFA] leading-relaxed">
+        <div className="mt-3 px-4 py-3 rounded-xl glass-base border-info/20">
+          <p className="font-jakarta text-xs text-info/80 leading-relaxed">
             Bài này khó với nhiều học sinh. Xem giải thích hoặc hỏi Oracle để hiểu rõ hơn.
           </p>
         </div>
@@ -222,13 +222,13 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
         <div className="mt-3 flex flex-col gap-2">
           <button
             onClick={() => setShowExplanation(v => !v)}
-            className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A3A60] bg-surface-elevated font-jakarta text-xs text-muted hover:text-foreground hover:border-[#4A5A80] transition"
+            className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-surface-elevated font-jakarta text-xs text-muted hover:text-foreground hover:border-primary/30 transition"
           >
             <span>📖</span>
             {showExplanation ? 'Ẩn giải thích' : 'Xem giải thích'}
           </button>
           {showExplanation && question.explanation && (
-            <div className="p-3.5 rounded-xl border border-[#2A3A60] bg-surface-elevated">
+            <div className="p-3.5 rounded-xl border border-border bg-surface-elevated">
               <MathText className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">
                 {question.explanation}
               </MathText>
@@ -244,7 +244,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
             <button
               onClick={handleGetHint}
               disabled={hintLoading}
-              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A3A60] bg-surface-elevated font-jakarta text-xs text-muted hover:text-foreground hover:border-[#4A5A80] transition disabled:opacity-50"
+              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-surface-elevated font-jakarta text-xs text-muted hover:text-foreground hover:border-primary/30 transition disabled:opacity-50"
             >
               {hintLoading ? (
                 <span className="inline-block w-3 h-3 border border-muted border-t-transparent rounded-full animate-spin" />
@@ -252,14 +252,14 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
                 <span className="text-primary">💡</span>
               )}
               Gợi ý ({hintCount}/{MAX_HINTS})
-              <span className="text-[#2A3A60] text-[0.625rem]">⚡1</span>
+              <span className="text-faint text-[0.625rem]">⚡1</span>
             </button>
           )}
           {hintError && (
             <p className="font-jakarta text-xs text-destructive">{hintError}</p>
           )}
           {hintTexts.map((text, i) => (
-            <div key={i} className="p-3.5 rounded-xl border border-[#2A3A60] bg-surface-elevated flex flex-col gap-2">
+            <div key={i} className="p-3.5 rounded-xl border border-border bg-surface-elevated flex flex-col gap-2">
               <MathText className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">{text}</MathText>
               <div className="flex items-center justify-between">
                 <span className="font-jakarta text-[0.6875rem] text-faint">Gợi ý {i + 1}/{MAX_HINTS}</span>
@@ -272,7 +272,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
           {(hintCount >= 2 || wrongStreak >= 2) && (
             <button
               onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
-              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#6366F144] bg-[#6366F108] font-jakarta text-xs font-semibold text-[#818CF8] hover:border-[#6366F188] hover:bg-[#6366F114] transition"
+              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-info/30 bg-info/5 font-jakarta text-xs font-semibold text-info hover:border-info/50 hover:bg-info/10 transition"
             >
               <span className="text-[0.625rem]">✦</span> Vẫn chưa hiểu — hỏi Oracle
             </button>
@@ -287,7 +287,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
             <button
               onClick={handleGetHint}
               disabled={hintLoading}
-              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A3A60] bg-surface-elevated font-jakarta text-xs text-muted hover:text-foreground hover:border-[#4A5A80] transition disabled:opacity-50"
+              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-surface-elevated font-jakarta text-xs text-muted hover:text-foreground hover:border-primary/30 transition disabled:opacity-50"
             >
               {hintLoading ? (
                 <span className="inline-block w-3 h-3 border border-muted border-t-transparent rounded-full animate-spin" />
@@ -295,14 +295,14 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
                 <span className="text-primary">💡</span>
               )}
               Gợi ý ({hintCount}/{MAX_HINTS})
-              <span className="text-[#2A3A60] text-[0.625rem]">⚡1</span>
+              <span className="text-faint text-[0.625rem]">⚡1</span>
             </button>
           ) : null}
           {hintError && (
             <p className="font-jakarta text-xs text-destructive">{hintError}</p>
           )}
           {hintTexts.map((text, i) => (
-            <div key={i} className="p-3.5 rounded-xl border border-[#2A3A60] bg-surface-elevated flex flex-col gap-2">
+            <div key={i} className="p-3.5 rounded-xl border border-border bg-surface-elevated flex flex-col gap-2">
               <MathText className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">{text}</MathText>
               <div className="flex items-center justify-between">
                 <span className="font-jakarta text-[0.6875rem] text-faint">Gợi ý {i + 1}/{MAX_HINTS}</span>

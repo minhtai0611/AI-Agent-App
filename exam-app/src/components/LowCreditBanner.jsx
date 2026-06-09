@@ -9,8 +9,7 @@ export default function LowCreditBanner({ balance }) {
 
   return (
     <div
-      className="w-full flex items-center justify-between gap-3 px-5 py-2.5 font-jakarta text-xs"
-      style={{ background: '#1A1200', borderBottom: '1px solid #F2A20C33' }}
+      className="w-full flex items-center justify-between gap-3 px-5 py-2.5 font-jakarta text-xs glass-base border-b border-primary/20"
     >
       <span className="text-amber-300">
         ⚡ Còn <strong>{balance}</strong> Tia — nạp thêm để tiếp tục sử dụng tính năng AI.
@@ -18,8 +17,7 @@ export default function LowCreditBanner({ balance }) {
       <div className="flex items-center gap-3 flex-shrink-0">
         <button
           onClick={() => navigate('/account#topup')}
-          className="px-3 py-1 rounded-md font-semibold text-[0.6875rem]"
-          style={{ background: '#F2A20C', color: '#0A0E1A' }}
+          className="px-3 py-1 rounded-md font-semibold text-[0.6875rem] bg-primary text-background"
         >
           Mua thêm
         </button>
