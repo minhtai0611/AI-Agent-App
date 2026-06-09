@@ -2211,7 +2211,7 @@ export default function Account() {
                   value={goalExamDate}
                   onChange={e => { setGoalExamDate(e.target.value); setGoalSaved(false) }}
                   min={new Date().toISOString().slice(0, 10)}
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-jakarta text-[0.8125rem] text-highlight focus:outline-none focus:border-primary transition [color-scheme:dark]"
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-jakarta text-[0.8125rem] text-highlight focus:outline-none focus:border-primary transition [color-scheme:only_dark]"
                 />
               </div>
 

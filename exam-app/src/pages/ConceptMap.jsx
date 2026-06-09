@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   ReactFlow, Background, Controls, MiniMap,
   useNodesState, useEdgesState, MarkerType,
+  Handle, Position,
 } from '@xyflow/react'
 import dagre from '@dagrejs/dagre'
 import '@xyflow/react/dist/style.css'
@@ -56,14 +57,17 @@ function ConceptNode({ data }) {
         minHeight: NODE_H,
         cursor: 'pointer',
         boxShadow: data.selected ? `0 0 0 2px #F2A20C` : undefined,
+        position: 'relative',
       }}
     >
+      <Handle type="target" position={Position.Top} style={{ background: '#334155' }} />
       <div style={{ fontSize: Math.max(10, Math.min(13, size)), fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#F0F4FF', lineHeight: 1.3 }}>
         {data.name_vi}
       </div>
       <div style={{ fontSize: 9, color: '#64748B', fontFamily: 'Plus Jakarta Sans, sans-serif', marginTop: 2 }}>
         Lớp {data.grade} · {Math.round((data.mastery_score || 0) * 100)}%
       </div>
+      <Handle type="source" position={Position.Bottom} style={{ background: '#334155' }} />
     </div>
   )
 }

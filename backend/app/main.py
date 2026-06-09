@@ -3606,6 +3606,8 @@ async def get_daily_challenge(
             rows = await pool.fetch("SELECT id FROM questions ORDER BY id")
             all_ids = [r["id"] for r in rows]
         except Exception:
+            all_ids = []
+        if not all_ids:
             all_ids = list(_load_answer_key().keys())
         if not all_ids:
             raise HTTPException(status_code=503, detail="question_data_unavailable")

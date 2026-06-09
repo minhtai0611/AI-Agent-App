@@ -76,6 +76,7 @@ export function HistoryProvider({ children }) {
           score: r.score,
           createdAt: r.created_at,
           ...payload,
+          finishedAt: payload.finishedAt ?? r.created_at,
         }
       })
       dispatch({ type: 'LOAD', results: mapped })
@@ -107,7 +108,7 @@ export function HistoryProvider({ children }) {
           if (!data) return
           const mapped = data.map(r => {
             const payload = typeof r.payload === 'string' ? JSON.parse(r.payload) : (r.payload || {})
-            return { id: r.result_id, examId: r.exam_id, score: r.score, createdAt: r.created_at, ...payload }
+            return { id: r.result_id, examId: r.exam_id, score: r.score, createdAt: r.created_at, ...payload, finishedAt: payload.finishedAt ?? r.created_at }
           })
           dispatch({ type: 'LOAD', results: mapped })
         })

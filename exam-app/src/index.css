@@ -159,8 +159,8 @@
 }
 
 /* User-explicit override beats prefers-color-scheme — light-dark() reads color-scheme */
-[data-theme="light"] { color-scheme: light; }
-[data-theme="dark"]  { color-scheme: dark;  }
+[data-theme="light"] { color-scheme: only light; }
+[data-theme="dark"]  { color-scheme: only dark;  }
 
 /* ─── Accessibility: High contrast boosts ────────────────────────────────── */
 @media (prefers-contrast: more) {

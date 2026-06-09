@@ -52,7 +52,16 @@ function GeneratingSkeleton({ count, arrived }) {
   )
 }
 
-const TOPICS = Object.keys(TOPIC_LABELS)
+// Deduplicate by Vietnamese label — keeps the canonical key, drops aliases
+const TOPICS = (() => {
+  const seen = new Set()
+  return Object.keys(TOPIC_LABELS).filter(k => {
+    const label = TOPIC_LABELS[k]
+    if (seen.has(label)) return false
+    seen.add(label)
+    return true
+  })
+})()
 const DIFFICULTIES = [
   { value: 'easy',   label: 'Dễ',     color: '#34D399' },
   { value: 'medium', label: 'Vừa',    color: '#F2A20C' },

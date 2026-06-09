@@ -163,7 +163,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
         } rows={2} />
         {/* weak_topics */}
         <FieldOrSkeleton label="Chủ đề cần cải thiện" value={
-          analysis.weak_topics?.length
+          Array.isArray(analysis.weak_topics) && analysis.weak_topics.length > 0
             ? <div className="flex flex-wrap gap-2">{analysis.weak_topics.map(t => (
                 <span key={t} className="px-3 py-1.5 bg-[#2A0F14] border border-[#5A1A24] rounded-full font-jakarta text-xs text-destructive">
                   {TOPIC_LABELS[t] ?? t}
@@ -205,7 +205,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
             <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">{analysis.question_analysis}</p>
           </div>
         )}
-        {analysis.weak_topics && analysis.weak_topics.length > 0 && (
+        {Array.isArray(analysis.weak_topics) && analysis.weak_topics.length > 0 && (
           <div className="flex flex-col gap-2.5">
             <span className="font-jakarta text-[0.8125rem] font-semibold text-muted">Chủ đề cần cải thiện</span>
             <div className="flex flex-wrap gap-2">

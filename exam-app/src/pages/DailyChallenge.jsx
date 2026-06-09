@@ -69,10 +69,11 @@ function computeStreak(streak) {
 
 function MdMath({ children }) {
   return (
-    <Markdown remarkPlugins={[remarkMath, remarkGfm]} rehypePlugins={[rehypeKatex]}
-      className="font-jakarta text-[0.8125rem] text-muted-fg leading-relaxed">
-      {children}
-    </Markdown>
+    <div className="font-jakarta text-[0.8125rem] text-muted-fg leading-relaxed">
+      <Markdown remarkPlugins={[remarkMath, remarkGfm]} rehypePlugins={[rehypeKatex]}>
+        {children}
+      </Markdown>
+    </div>
   )
 }
 
