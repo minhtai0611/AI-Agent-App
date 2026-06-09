@@ -11,6 +11,7 @@ import AmbientGlows from '../components/AmbientGlows.jsx'
 import { SpotlightCard } from '../components/SpotlightCard.jsx'
 import { BorderBeam } from '../components/ui/border-beam.jsx'
 import { AnimatedShinyText } from '../components/ui/animated-shiny-text.jsx'
+import { AuroraBackground } from '../components/AuroraBackground.jsx'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { buildBriefing } from '../utils/examBriefing.js'
 
@@ -314,6 +315,7 @@ export default function ExamSelect({ onOpenAuth }) {
       )}
 
       {/* Content */}
+      <AuroraBackground>
       <div className="flex flex-col gap-10 p-10">
         <div className="flex flex-col gap-2">
           <h1 className="font-fraunces text-[36px] font-bold text-gradient-brand">Chọn đề thi</h1>
@@ -554,6 +556,7 @@ export default function ExamSelect({ onOpenAuth }) {
         )}
 
       </div>
+      </AuroraBackground>
 
       {/* Exam preview modal */}
       <AnimatePresence>

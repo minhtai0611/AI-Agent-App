@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti'
 import { useAuth } from '../context/AuthContext.jsx'
 import { SpotlightCard } from '../components/SpotlightCard.jsx'
 import { NumberTicker } from '../components/ui/number-ticker.jsx'
+import { AuroraBackground } from '../components/AuroraBackground.jsx'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { pageVariants, viewNavigate } from '../utils/animations.js'
 import AchievementCeremony from '../components/AchievementCeremony.jsx'
@@ -759,6 +760,7 @@ export default function Results({ onOpenAuth }) {
         </div>
       )}
 
+      <AuroraBackground variant={score >= 7 ? 'warm' : 'default'}>
       <div className="relative z-10 flex flex-col gap-5 max-w-3xl mx-auto w-full px-4 py-8">
 
         {/* ── Score hero ── */}
@@ -1398,6 +1400,7 @@ export default function Results({ onOpenAuth }) {
         )}
 
       </div>
+      </AuroraBackground>
     </motion.div>
   )
 }

@@ -43,6 +43,7 @@ import { getTopicNodes, getPriorityTopics } from '../utils/learningGraph.js'
 import { SpotlightCard } from '../components/SpotlightCard.jsx'
 import { AnimatedShinyText } from '../components/ui/animated-shiny-text.jsx'
 import { ShimmerButton } from '../components/ui/shimmer-button.jsx'
+import { NumberTicker } from '../components/ui/number-ticker.jsx'
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const REASON_LABELS = {
@@ -652,7 +653,11 @@ export default function Account() {
       variants={pageVariants} initial="hidden" animate="show" exit="exit"
     >
       {/* ── Persistent header ──────────────────────────────────────────── */}
-      <div className="bg-surface border-b border-border">
+      <div className="bg-surface border-b border-border relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+          <div className="absolute bg-amber-500 w-[450px] h-[450px] -top-24 -right-16 opacity-[0.12] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-0_20s_ease-in-out_0s_infinite]" />
+          <div className="absolute bg-indigo-600 w-[350px] h-[350px] -bottom-24 -left-16 opacity-[0.08] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-1_24s_ease-in-out_3s_infinite]" />
+        </div>
         {/* Top row: avatar + name + actions */}
         <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex items-center gap-4 relative">
           {/* Avatar */}
@@ -716,34 +721,54 @@ export default function Account() {
           </button>
         </div>
 
-        {/* Stat chips */}
+        {/* Stats bento grid */}
         <motion.div
-          className="max-w-2xl mx-auto px-4 pb-4 flex items-center justify-around border-t border-border pt-3"
-          initial="hidden" animate="show"
-          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } } }}
+          className="max-w-2xl mx-auto px-4 pb-4 pt-3 border-t border-border grid grid-cols-4 gap-2"
+          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.05, ease: 'easeOut' }}
         >
-          <motion.div variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}>
-            <StatChip icon="🔥" value={streak || 0} label={streakPB > streak ? `ngày (PB ${streakPB})` : 'ngày streak'} />
-          </motion.div>
-          <div className="w-px h-8 bg-border" />
-          <motion.div variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}>
-            <StatChip icon="📊" value={results.length} label="bài thi" />
-          </motion.div>
-          <div className="w-px h-8 bg-border" />
-          <motion.div variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}>
-            <StatChip icon="⭐" value={avgScore} label="điểm tb" />
-          </motion.div>
-          <div className="w-px h-8 bg-border" />
-          <motion.div variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}>
-            <StatChip icon="⚡" value={formatCreditSessions(user.credits_balance ?? 0)} label="AI còn lại" />
-          </motion.div>
+          {/* Hero — avg score */}
+          <SpotlightCard className="col-span-2 glass-brand rounded-2xl p-4 glow-primary" glowColor="rgba(242,162,12,0.15)">
+            <div className="flex flex-col gap-0.5">
+              <span className="font-jakarta text-[0.5rem] text-primary/70 uppercase tracking-widest">Điểm trung bình</span>
+              <div className="font-fraunces text-[36px] font-bold text-gradient-brand leading-none">
+                {results.length > 0
+                  ? <NumberTicker value={parseFloat(avgScore)} startValue={0} decimalPlaces={1} duration={1200} />
+                  : <span className="text-dim text-[28px]">—</span>
+                }
+              </div>
+              <span className="font-jakarta text-[0.5625rem] text-dim">{results.length} bài thi</span>
+            </div>
+          </SpotlightCard>
+
+          {/* Streak */}
+          <SpotlightCard className="glass-base rounded-xl p-3 flex flex-col gap-0.5" glowColor="rgba(251,146,60,0.12)">
+            <span className="text-lg leading-none">🔥</span>
+            <div className="font-fraunces text-[24px] font-bold text-foreground leading-none">
+              {streak > 0 ? <NumberTicker value={streak} duration={700} /> : 0}
+            </div>
+            <span className="font-jakarta text-[0.5rem] text-dim leading-tight">{streakPB > streak ? `PB ${streakPB}` : 'streak'}</span>
+          </SpotlightCard>
+
+          {/* Credits */}
+          <SpotlightCard className="glass-base rounded-xl p-3 flex flex-col gap-0.5" glowColor="rgba(242,162,12,0.12)">
+            <span className="text-lg leading-none">⚡</span>
+            <div className="font-fraunces text-[24px] font-bold text-foreground leading-none">
+              <NumberTicker value={user.credits_balance ?? 0} duration={700} />
+            </div>
+            <span className="font-jakarta text-[0.5rem] text-dim leading-tight">AI còn lại</span>
+          </SpotlightCard>
+
           {(user.solid_concept_count ?? 0) > 0 && (
-            <>
-              <div className="w-px h-8 bg-border" />
-              <motion.div variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}>
-                <StatChip icon="🧠" value={user.solid_concept_count} label="khái niệm" />
-              </motion.div>
-            </>
+            <SpotlightCard className="col-span-2 glass-base rounded-xl p-3 flex items-center gap-2" glowColor="rgba(16,185,129,0.1)">
+              <span className="text-lg flex-shrink-0">🧠</span>
+              <div>
+                <div className="font-fraunces text-[20px] font-bold text-foreground leading-none">
+                  <NumberTicker value={user.solid_concept_count} duration={700} />
+                </div>
+                <span className="font-jakarta text-[0.5rem] text-dim">khái niệm</span>
+              </div>
+            </SpotlightCard>
           )}
         </motion.div>
 
