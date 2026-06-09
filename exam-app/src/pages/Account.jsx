@@ -527,6 +527,17 @@ export default function Account() {
     }).catch(() => { simBriefingFetched.current = false })
   }, [simulationMode, scoreCI, user?.target_score, weakTopics, results.length])
 
+  // Grade change request — must be before the early return (Rules of Hooks)
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token')
+    if (!token || !user?.grade) return
+    const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+    fetch(`${BASE}/users/me/grade-change-request`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(data => setGradeRequest(data))
+      .catch(() => {})
+  }, [user?.grade])
+
   // ── Loading skeleton ──
   if (loading || !user) {
     return (
@@ -565,16 +576,6 @@ export default function Account() {
       setSaveError(msg); toast.error(msg)
     } finally { setSaving(false) }
   }
-
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token')
-    if (!token || !user?.grade) return
-    const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-    fetch(`${BASE}/users/me/grade-change-request`, { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json())
-      .then(data => setGradeRequest(data))
-      .catch(() => {})
-  }, [user?.grade])
 
   async function handleSubmitGradeChange() {
     if (!gradeChangeTarget) { setGradeChangeError('Vui lòng chọn lớp muốn đổi.'); return }
