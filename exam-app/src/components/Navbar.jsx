@@ -3,58 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ZenithLogo from './ZenithLogo'
 
-const THEME_MODES = ['auto', 'light', 'dark']
-const THEME_ICONS = { auto: '⊙', light: '☀', dark: '☽' }
-const THEME_LABELS = { auto: 'Tự động', light: 'Sáng', dark: 'Tối' }
-
-// Keep data-theme and .dark class in sync so both the CSS light-dark() system
-// and Tailwind's dark: prefix utilities work correctly (GR-6).
-function applyTheme(theme) {
-  document.documentElement.dataset.theme = theme
-  document.documentElement.classList.toggle('dark', theme === 'dark')
-}
-
-function ThemeToggle() {
-  const [mode, setMode] = useState(() => {
-    const s = localStorage.getItem('zenith-theme')
-    return s === 'light' || s === 'dark' ? s : 'auto'
-  })
-
-  // When in auto mode, follow live OS preference changes
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    function onOsChange(e) {
-      if (localStorage.getItem('zenith-theme')) return // user has explicit override
-      applyTheme(e.matches ? 'dark' : 'light')
-    }
-    mq.addEventListener('change', onOsChange)
-    return () => mq.removeEventListener('change', onOsChange)
-  }, [])
-
-  function cycle() {
-    const next = THEME_MODES[(THEME_MODES.indexOf(mode) + 1) % THEME_MODES.length]
-    setMode(next)
-    if (next === 'auto') {
-      localStorage.removeItem('zenith-theme')
-      applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-    } else {
-      localStorage.setItem('zenith-theme', next)
-      applyTheme(next)
-    }
-  }
-
-  return (
-    <button
-      onClick={cycle}
-      title={`Giao diện: ${THEME_LABELS[mode]}`}
-      aria-label={`Giao diện: ${THEME_LABELS[mode]}`}
-      className="w-7 h-7 flex items-center justify-center rounded-full border border-border bg-surface-elevated/80 hover:border-border-subtle text-muted hover:text-foreground transition text-sm"
-    >
-      {THEME_ICONS[mode]}
-    </button>
-  )
-}
-
 function vNavigate(navigate, path) {
   if (document.startViewTransition) {
     document.startViewTransition(() => navigate(path))
@@ -111,22 +59,21 @@ export default function Navbar({ onOpenAuth }) {
 
         {/* Desktop nav items */}
         <div className="hidden sm:flex items-center gap-3">
-          <ThemeToggle />
           {user ? (
             <>
               {pendingSync > 0 && (
-                <span className="font-jakarta text-[0.625rem] text-amber-400/70 border border-amber-400/30 rounded px-1.5 py-0.5">
+                <span className="font-jakarta text-[10px] text-amber-400/70 border border-amber-400/30 rounded px-1.5 py-0.5">
                   {pendingSync} chờ đồng bộ
                 </span>
               )}
               {user.credits_balance != null && (
                 <button
                   onClick={() => go('/account')}
-                  className="flex items-center gap-1 px-2.5 py-2 rounded-full border border-border bg-surface-elevated/80 hover:border-amber-500/50 transition"
+                  className="flex items-center gap-1 px-2.5 py-2 rounded-full border border-surface bg-[#111827]/80 hover:border-amber-500/50 transition"
                   title="Tia"
                 >
-                  <span className="text-amber-400 text-[0.6875rem]">⚡</span>
-                  <span className="font-jakarta text-xs font-semibold text-amber-400">
+                  <span className="text-amber-400 text-[11px]">⚡</span>
+                  <span className="font-jakarta text-[12px] font-semibold text-amber-400">
                     {user.credits_balance}
                   </span>
                 </button>
@@ -156,7 +103,7 @@ export default function Navbar({ onOpenAuth }) {
                   {user.custom_display_name || user.display_name}
                 </span>
                 {user.mastery_rank && user.mastery_rank !== 'Pemula' && (
-                  <span className="font-jakarta text-[0.625rem] font-semibold px-1.5 py-0.5 rounded-md border border-[#6366F130] bg-[#6366F10A] text-[#818CF8]">
+                  <span className="font-jakarta text-[10px] font-semibold px-1.5 py-0.5 rounded-md border border-info/20 bg-info/5 text-info">
                     {user.mastery_rank}
                   </span>
                 )}
@@ -171,8 +118,7 @@ export default function Navbar({ onOpenAuth }) {
           ) : (
             <button
               onClick={onOpenAuth}
-              className="text-sm px-3 py-2.5 rounded-md font-medium transition-colors"
-              style={{ background: '#F2A20C', color: '#0A0E1A' }}
+              className="text-sm px-3 py-2.5 rounded-md font-medium transition-colors bg-primary text-background"
             >
               Đăng nhập
             </button>
@@ -184,16 +130,16 @@ export default function Navbar({ onOpenAuth }) {
           {user?.credits_balance != null && (
             <button
               onClick={() => go('/account')}
-              className="flex items-center gap-1 px-2.5 py-2 rounded-full border border-border bg-surface-elevated/80"
+              className="flex items-center gap-1 px-2.5 py-2 rounded-full border border-surface bg-[#111827]/80"
             >
-              <span className="text-amber-400 text-[0.6875rem]">⚡</span>
-              <span className="font-jakarta text-xs font-semibold text-amber-400">
+              <span className="text-amber-400 text-[11px]">⚡</span>
+              <span className="font-jakarta text-[12px] font-semibold text-amber-400">
                 {user.credits_balance}
               </span>
             </button>
           )}
           <button
-            className="flex items-center justify-center w-10 h-10 text-muted text-lg"
+            className="flex items-center justify-center w-10 h-10 text-[#94A3B8] text-lg"
             onClick={() => setMenuOpen(v => !v)}
             aria-label="Menu"
           >
@@ -204,35 +150,31 @@ export default function Navbar({ onOpenAuth }) {
 
       {/* Mobile drawer */}
       {menuOpen && (
-        <div className="sm:hidden fixed top-12 left-0 right-0 bg-surface border-b border-border px-4 py-3 flex flex-col gap-1 z-40">
-          <button onClick={() => go('/exams')} className="py-3 text-left font-jakarta text-sm text-highlight hover:text-white transition">
+        <div className="sm:hidden fixed top-12 left-0 right-0 bg-[#0D1221] border-b border-surface px-4 py-3 flex flex-col gap-1 z-40">
+          <button onClick={() => go('/exams')} className="py-3 text-left font-jakarta text-[14px] text-[#F0F4FF] hover:text-white transition">
             Thi thử
           </button>
-          <button onClick={() => go('/exams?mode=practice')} className="py-3 text-left font-jakarta text-sm text-muted hover:text-white transition">
+          <button onClick={() => go('/exams?mode=practice')} className="py-3 text-left font-jakarta text-[14px] text-[#94A3B8] hover:text-white transition">
             Luyện tập
           </button>
-          <button onClick={() => go('/exams?mode=lab')} className="py-3 text-left font-jakarta text-sm text-muted hover:text-white transition">
+          <button onClick={() => go('/exams?mode=lab')} className="py-3 text-left font-jakarta text-[14px] text-[#94A3B8] hover:text-white transition">
             Chế độ đặc biệt
           </button>
           {user ? (
             <>
-              <button onClick={() => go('/account')} className="py-3 text-left font-jakarta text-sm text-muted hover:text-white transition">
+              <button onClick={() => go('/account')} className="py-3 text-left font-jakarta text-[14px] text-[#94A3B8] hover:text-white transition">
                 Tài khoản
               </button>
-              <button onClick={handleLogout} className="py-3 text-left font-jakarta text-sm text-dim hover:text-muted transition">
+              <button onClick={handleLogout} className="py-3 text-left font-jakarta text-[14px] text-dim hover:text-[#94A3B8] transition">
                 Đăng xuất
               </button>
             </>
           ) : (
             <button onClick={() => { onOpenAuth(); setMenuOpen(false) }}
-              className="py-3 text-left font-jakarta text-sm font-semibold text-primary">
+              className="py-3 text-left font-jakarta text-[14px] font-semibold text-primary">
               Đăng nhập
             </button>
           )}
-          <div className="flex items-center gap-2 py-2 border-t border-border mt-1 pt-3">
-            <span className="font-jakarta text-[0.8125rem] text-faint flex-1">Giao diện</span>
-            <ThemeToggle />
-          </div>
         </div>
       )}
     </>

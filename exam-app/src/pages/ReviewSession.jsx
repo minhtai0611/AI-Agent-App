@@ -8,7 +8,6 @@ import { usePageMeta } from '../hooks/usePageMeta.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { MathText } from '../components/MathText.jsx'
 import { QuestionCardSkeleton } from '../components/Skeleton.jsx'
-import ReportButton from '../components/ReportButton.jsx'
 import { migrateReviewItems, getDueReviewItems, answerReviewItem } from '../api/aiClient.js'
 
 function todayStr() {
@@ -208,7 +207,7 @@ export default function ReviewSession() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background px-4 py-10 max-w-2xl mx-auto w-full flex flex-col gap-4">
+      <div className="min-h-screen bg-surface px-4 py-10 max-w-2xl mx-auto w-full flex flex-col gap-4">
         <QuestionCardSkeleton />
       </div>
     )
@@ -225,21 +224,21 @@ export default function ReviewSession() {
     })()
     return (
       <motion.div
-        className="min-h-screen bg-background flex flex-col items-center justify-center gap-8 px-4"
+        className="min-h-screen bg-surface flex flex-col items-center justify-center gap-8 px-4"
         variants={pageVariants} initial="hidden" animate="show" exit="exit"
       >
         <div className="flex flex-col items-center gap-4 text-center">
           <span className="text-5xl">{total === 0 ? '✓' : correct === total ? '🎉' : '📚'}</span>
-          <h2 className="font-fraunces text-[28px] font-bold text-foreground">
+          <h2 className="font-fraunces text-[28px] font-bold text-[#F8FAFC]">
             {total === 0 ? 'Không có câu nào cần ôn hôm nay!' : 'Hoàn thành ôn tập!'}
           </h2>
           {total > 0 && (
-            <p className="font-jakarta text-muted text-[15px]">
+            <p className="font-jakarta text-[#94A3B8] text-[15px]">
               Đúng <span className="text-success font-bold">{correct}</span> / {total} câu
             </p>
           )}
           {dailyStreak > 0 && (
-            <p className="font-jakarta text-[0.8125rem] text-amber-400">
+            <p className="font-jakarta text-[13px] text-amber-400">
               🔥 {dailyStreak} ngày liên tiếp — tiếp tục chuỗi với Thử thách hôm nay!
             </p>
           )}
@@ -247,14 +246,13 @@ export default function ReviewSession() {
         <div className="flex gap-3 flex-wrap justify-center">
           <button
             onClick={() => navigate('/exams')}
-            className="px-6 py-3 rounded-xl font-jakarta text-[0.8125rem] font-semibold border border-border text-muted hover:text-foreground transition"
+            className="px-6 py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-surface text-[#94A3B8] hover:text-[#F8FAFC] transition"
           >
             Làm đề thi
           </button>
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-3 rounded-xl font-jakarta text-[0.8125rem] font-bold text-primary-fg hover:opacity-90 transition"
-            style={{ background: '#F2A20C' }}
+            className="px-6 py-3 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] hover:opacity-90 transition bg-primary"
           >
             Về trang chủ
           </button>
@@ -269,7 +267,7 @@ export default function ReviewSession() {
 
   return (
     <motion.div
-      className="min-h-screen bg-background flex flex-col relative overflow-hidden"
+      className="min-h-screen bg-surface flex flex-col relative overflow-hidden"
       variants={pageVariants} initial="hidden" animate="show" exit="exit"
     >
       <div className="absolute pointer-events-none rounded-full"
@@ -277,15 +275,15 @@ export default function ReviewSession() {
           background: 'radial-gradient(circle, #6366F112 0%, transparent 100%)' }} />
 
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-border">
-        <button onClick={() => navigate('/')} className="font-jakarta text-[0.8125rem] text-dim hover:text-foreground transition">
+      <div className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-surface">
+        <button onClick={() => navigate('/')} className="font-jakarta text-[13px] text-dim hover:text-[#F8FAFC] transition">
           ← Thoát
         </button>
         <div className="flex flex-col items-center gap-0.5">
-          <span className="font-fraunces text-sm font-semibold text-foreground">Ôn tập hôm nay</span>
-          <span className="font-jakarta text-[0.6875rem] text-faint">{index + 1} / {questions.length}</span>
+          <span className="font-fraunces text-[14px] font-semibold text-[#F8FAFC]">Ôn tập hôm nay</span>
+          <span className="font-jakarta text-[11px] text-dim">{index + 1} / {questions.length}</span>
         </div>
-        <div className="w-20 h-1.5 rounded-full bg-border overflow-hidden">
+        <div className="w-20 h-1.5 rounded-full bg-[#1E2A44] overflow-hidden">
           <motion.div
             className="h-full bg-primary rounded-full"
             animate={{ width: `${((index + 1) / questions.length) * 100}%` }}
@@ -297,10 +295,10 @@ export default function ReviewSession() {
       {/* Body */}
       <div className="relative z-10 flex-1 max-w-2xl mx-auto w-full px-4 py-10 flex flex-col gap-6">
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 bg-border text-primary font-jakarta text-[0.6875rem] font-semibold rounded-md">
+          <span className="px-2.5 py-1 bg-[#1E2A44] text-primary font-jakarta text-[11px] font-semibold rounded-md">
             {TOPIC_LABELS[question.topic] ?? question.topic}
           </span>
-          <span className="font-jakarta text-[0.6875rem] text-faint">Spaced Repetition</span>
+          <span className="font-jakarta text-[11px] text-dim">Spaced Repetition</span>
           <AnimatePresence mode="wait">
             {stageLabel && (
               <motion.span
@@ -309,7 +307,7 @@ export default function ReviewSession() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.75 }}
                 transition={{ type: 'spring', stiffness: 320, damping: 18 }}
-                className="font-jakarta text-[0.6875rem] text-[#34D399]"
+                className="font-jakarta text-[11px] text-success"
               >
                 → {stageLabel}
               </motion.span>
@@ -335,10 +333,10 @@ export default function ReviewSession() {
               >
                 {/* Front */}
                 <div
-                  className="bg-surface border border-border rounded-2xl p-6 absolute inset-0"
+                  className="bg-[#0D1221] border border-surface rounded-2xl p-6 absolute inset-0"
                   style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                 >
-                  <MathText className="font-jakarta text-[15px] text-highlight leading-relaxed">{question.question}</MathText>
+                  <MathText className="font-jakarta text-[15px] text-[#F0F4FF] leading-relaxed">{question.question}</MathText>
                 </div>
                 {/* Back */}
                 <div
@@ -350,10 +348,10 @@ export default function ReviewSession() {
                     border: `1px solid ${isCorrect ? '#10B981' : '#EF4444'}`,
                   }}
                 >
-                  <span className="font-jakarta text-[0.8125rem] font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
+                  <span className="font-jakarta text-[13px] font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
                     {isCorrect ? '✓ Chính xác!' : '✗ Chưa đúng'}
                   </span>
-                  <MathText className="font-jakarta text-sm text-highlight leading-relaxed">
+                  <MathText className="font-jakarta text-[14px] text-[#F0F4FF] leading-relaxed">
                     {String.fromCharCode(65 + question.correct)}. {question.choices[question.correct]}
                   </MathText>
                 </div>
@@ -376,7 +374,7 @@ export default function ReviewSession() {
                     key={i}
                     onClick={() => handleAnswer(i)}
                     disabled={revealed}
-                    className="w-full text-left px-5 py-4 rounded-xl font-jakarta text-sm font-medium transition-all"
+                    className="w-full text-left px-5 py-4 rounded-xl font-jakarta text-[14px] font-medium transition-all"
                     style={{ background: bg, border: `1px solid ${border}`, color: textColor }}
                   >
                     <span className="font-semibold mr-3">{String.fromCharCode(65 + i)}.</span>
@@ -391,7 +389,7 @@ export default function ReviewSession() {
                 <div className="flex items-center gap-3 px-5 py-3 rounded-xl"
                   style={{ background: isCorrect ? '#0D2A1A' : '#2A0F14', border: `1px solid ${isCorrect ? '#10B981' : '#EF4444'}` }}>
                   <span className="text-xl">{isCorrect ? '✓' : '✗'}</span>
-                  <span className="font-jakarta text-sm font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
+                  <span className="font-jakarta text-[14px] font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
                     {isCorrect
                       ? 'Chính xác!'
                       : `Đáp án đúng: ${String.fromCharCode(65 + question.correct)}. ${question.choices[question.correct]}`}
@@ -400,8 +398,8 @@ export default function ReviewSession() {
 
                 {/* Struggle support — after 2 consecutive wrong */}
                 {!isCorrect && wrongStreak >= 2 && (
-                  <div className="px-4 py-3 rounded-xl border border-[#A78BFA33] bg-[#1A1429]">
-                    <p className="font-jakarta text-xs text-[#A78BFA] leading-relaxed">
+                  <div className="px-4 py-3 rounded-xl glass-base border border-info/20">
+                    <p className="font-jakarta text-[12px] text-info/80 leading-relaxed">
                       Bài này khó với nhiều học sinh. Hỏi Oracle để hiểu rõ hơn.
                     </p>
                   </div>
@@ -410,15 +408,13 @@ export default function ReviewSession() {
                 {/* Oracle button — shown after reveal, especially useful on wrong answers */}
                 <button
                   onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
-                  className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#6366F133] bg-[#6366F108] font-jakarta text-[0.6875rem] font-semibold text-[#818CF8] hover:border-[#6366F166] hover:bg-[#6366F114] transition"
+                  className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-info/20 bg-info/5 font-jakarta text-[11px] font-semibold text-info hover:border-[#6366F166] hover:bg-info/10 transition"
                 >
-                  <span className="text-[0.625rem]">✦</span> Hỏi Oracle
+                  <span className="text-[10px]">✦</span> Hỏi Oracle
                 </button>
 
-                <ReportButton questionId={question.id} topic={question.topic} />
-
                 <div className="flex flex-col gap-2">
-                  <span className="font-jakarta text-[0.6875rem] text-faint text-center">Mức độ tự tin:</span>
+                  <span className="font-jakarta text-[11px] text-dim text-center">Mức độ tự tin:</span>
                   <div className="flex gap-2">
                     {[
                       { label: 'Đoán', quality: 1, color: '#FB7185' },
@@ -428,7 +424,7 @@ export default function ReviewSession() {
                       <button
                         key={label}
                         onClick={() => handleNext(quality)}
-                        className="flex-1 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-semibold border transition"
+                        className="flex-1 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold border transition"
                         style={{ borderColor: color + '55', color }}
                       >
                         {label}
@@ -440,7 +436,7 @@ export default function ReviewSession() {
             )}
 
             {!revealed && (
-              <p className="text-center font-jakarta text-xs text-[#2A3A50]">Chọn một đáp án để tiếp tục</p>
+              <p className="text-center font-jakarta text-[12px] text-dim">Chọn một đáp án để tiếp tục</p>
             )}
           </motion.div>
         </AnimatePresence>

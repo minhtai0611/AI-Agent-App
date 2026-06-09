@@ -33,22 +33,20 @@ export default function InstallPrompt() {
   if (!visible) return null
 
   return (
-    <div className="fixed bottom-16 left-4 right-4 z-50 max-w-sm mx-auto"
-      style={{ background: '#0D1221', border: '1px solid #F2A20C33', borderRadius: 16, padding: '16px 20px' }}>
+    <div className="fixed bottom-16 left-4 right-4 z-50 max-w-sm mx-auto glass-base border border-primary/20 rounded-2xl p-5">
       <div className="flex items-center justify-between gap-3">
         <div className="flex flex-col gap-0.5">
-          <span className="font-jakarta text-[0.8125rem] font-semibold text-foreground">Thêm vào màn hình chính</span>
-          <span className="font-jakarta text-[0.6875rem] text-dim">Trải nghiệm nhanh hơn, offline được</span>
+          <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">Thêm vào màn hình chính</span>
+          <span className="font-jakarta text-[11px] text-dim">Trải nghiệm nhanh hơn, offline được</span>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={install}
-            className="px-4 py-1.5 rounded-lg font-jakarta text-xs font-bold"
-            style={{ background: '#F2A20C', color: '#0A0E1A' }}
+            className="px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-bold bg-primary text-background"
           >
             Thêm
           </button>
-          <button onClick={dismiss} className="text-faint hover:text-muted text-lg leading-none">×</button>
+          <button onClick={dismiss} className="text-dim hover:text-[#94A3B8] text-lg leading-none">×</button>
         </div>
       </div>
     </div>

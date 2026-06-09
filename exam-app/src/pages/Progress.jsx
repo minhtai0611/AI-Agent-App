@@ -162,14 +162,14 @@ function ConceptNode({ concept, onClick }) {
       className="flex flex-col items-start gap-1 px-3 py-2.5 rounded-xl border text-left transition hover:opacity-80"
       style={{ background: s.bg, borderColor: s.border }}
     >
-      <span className="font-jakarta text-xs font-semibold leading-tight" style={{ color: s.text }}>
+      <span className="font-jakarta text-[12px] font-semibold leading-tight" style={{ color: s.text }}>
         {concept.name_vi}
       </span>
       <div className="flex items-center gap-1.5 w-full">
-        <div className="flex-1 h-1 rounded-full bg-border overflow-hidden">
+        <div className="flex-1 h-1 rounded-full bg-[#1E2A44] overflow-hidden">
           <div className="h-full rounded-full transition-all" style={{ width: `${concept.mastery_score}%`, background: s.text }} />
         </div>
-        <span className="font-jakarta text-[0.625rem]" style={{ color: s.text + 'AA' }}>{concept.mastery_score}%</span>
+        <span className="font-jakarta text-[10px]" style={{ color: s.text + 'AA' }}>{concept.mastery_score}%</span>
       </div>
     </button>
   )
@@ -222,15 +222,15 @@ export default function Progress() {
 
   return (
     <motion.div
-      className="min-h-screen bg-background pb-16"
+      className="min-h-screen bg-surface pb-16"
       variants={pageVariants} initial="hidden" animate="show" exit="exit"
     >
       {/* Header */}
-      <div className="sticky top-12 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
-        <button onClick={() => navigate(-1)} className="font-jakarta text-[0.8125rem] text-dim hover:text-foreground transition">
+      <div className="sticky top-12 z-10 bg-surface/95 backdrop-blur border-b border-surface px-4 py-3 flex items-center justify-between">
+        <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-dim hover:text-[#F8FAFC] transition">
           ← Quay lại
         </button>
-        <span className="font-fraunces text-[15px] font-bold text-foreground">Tiến độ</span>
+        <span className="font-fraunces text-[15px] font-bold text-[#F8FAFC]">Tiến độ</span>
         <div className="w-16" />
       </div>
 
@@ -238,11 +238,10 @@ export default function Progress() {
 
         {emptyState ? (
           <div className="flex flex-col items-center gap-4 py-20">
-            <p className="font-jakarta text-sm text-faint text-center">Hoàn thành một bài thi để xem tiến độ của bạn.</p>
+            <p className="font-jakarta text-[14px] text-dim text-center">Hoàn thành một bài thi để xem tiến độ của bạn.</p>
             <button
               onClick={() => navigate('/exams')}
-              className="px-5 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold text-primary-fg"
-              style={{ background: '#F2A20C' }}
+              className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] bg-primary"
             >
               Chọn đề thi →
             </button>
@@ -250,15 +249,15 @@ export default function Progress() {
         ) : (
           <>
             {/* ── Score trend ─────────────────────────────────────────────── */}
-            <div className="bg-surface border border-border rounded-2xl px-6 py-5">
+            <div className="bg-[#0D1221] border border-surface rounded-2xl px-6 py-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <span className="font-jakarta text-[0.6875rem] font-bold tracking-[2px] uppercase text-faint">Xu hướng điểm</span>
+                  <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-dim">Xu hướng điểm</span>
                   {avgScore !== null && (
-                    <span className="font-fraunces text-[26px] font-bold text-foreground">{avgScore.toFixed(1)}</span>
+                    <span className="font-fraunces text-[26px] font-bold text-[#F8FAFC]">{avgScore.toFixed(1)}</span>
                   )}
                   {scoreDelta !== null && (
-                    <span className={`font-jakarta text-[0.8125rem] font-semibold ${scoreDelta > 0 ? 'text-[#34D399]' : scoreDelta < 0 ? 'text-destructive' : 'text-dim'}`}>
+                    <span className={`font-jakarta text-[13px] font-semibold ${scoreDelta > 0 ? 'text-success' : scoreDelta < 0 ? 'text-[#FB7185]' : 'text-dim'}`}>
                       {scoreDelta > 0 ? `+${scoreDelta.toFixed(1)}đ` : scoreDelta < 0 ? `${scoreDelta.toFixed(1)}đ` : 'Ổn định'} trong {scores.length} bài gần nhất
                     </span>
                   )}
@@ -268,15 +267,14 @@ export default function Progress() {
               <div className="flex gap-2 mt-4">
                 <button
                   onClick={() => navigate('/exams')}
-                  className="flex-1 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold text-primary-fg"
-                  style={{ background: '#F2A20C' }}
+                  className="flex-1 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] bg-primary"
                 >
                   Thi tiếp →
                 </button>
                 {activeRecovery && (
                   <button
                     onClick={() => navigate(`/study-plan/${activeRecovery.resultId}`)}
-                    className="flex-1 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-semibold border border-border text-muted hover:text-foreground transition"
+                    className="flex-1 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold border border-surface text-[#94A3B8] hover:text-[#F8FAFC] transition"
                   >
                     Ôn tập trước
                   </button>
@@ -286,21 +284,20 @@ export default function Progress() {
 
             {/* ── Active Recovery Path ────────────────────────────────────── */}
             {activeRecovery && (
-              <div className="bg-[#0A1F14] border border-[#2D4A1A] rounded-2xl px-6 py-5">
+              <div className="glass-base border border-success/20 rounded-2xl px-6 py-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex flex-col gap-1">
-                    <span className="font-jakarta text-[0.6875rem] font-bold tracking-[2px] uppercase text-[#34D399]">Kế hoạch phục hồi đang chạy</span>
-                    <p className="font-jakarta text-[0.8125rem] text-muted-fg mt-1">
+                    <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-success">Kế hoạch phục hồi đang chạy</span>
+                    <p className="font-jakarta text-[13px] text-foreground mt-1">
                       {activeRecovery.data.focus_areas.map(a => a.topic).join(' · ')}
                     </p>
-                    <p className="font-jakarta text-xs text-dim mt-0.5 line-clamp-2">
+                    <p className="font-jakarta text-[12px] text-dim mt-0.5 line-clamp-2">
                       {activeRecovery.data.score_gap}
                     </p>
                   </div>
                   <button
                     onClick={() => navigate(`/study-plan/${activeRecovery.resultId}`)}
-                    className="flex-shrink-0 px-4 py-2 rounded-xl font-jakarta text-xs font-bold text-primary-fg"
-                    style={{ background: '#10B981' }}
+                    className="flex-shrink-0 px-4 py-2 rounded-xl font-jakarta text-[12px] font-bold text-[#0A0E1A] bg-success"
                   >
                     Tiếp tục →
                   </button>
@@ -311,22 +308,22 @@ export default function Progress() {
             {/* ── Weak topic cards ────────────────────────────────────────── */}
             {weakTopics.length > 0 && (
               <div className="flex flex-col gap-3">
-                <span className="font-jakarta text-[0.6875rem] font-bold tracking-[2px] uppercase text-faint">Chủ đề cần chú ý</span>
+                <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-dim">Chủ đề cần chú ý</span>
                 <motion.div className="flex flex-col gap-3" variants={listVariants} initial="hidden" animate="visible">
                 {weakTopics.map(({ topic, label, accuracy, wrong }) => (
-                  <motion.div key={topic} variants={itemVariants} className="bg-surface border border-border rounded-xl px-5 py-4 flex items-center justify-between gap-4">
+                  <motion.div key={topic} variants={itemVariants} className="bg-[#0D1221] border border-surface rounded-xl px-5 py-4 flex items-center justify-between gap-4">
                     <div className="flex flex-col gap-1 flex-1 min-w-0">
-                      <span className="font-jakarta text-sm font-semibold text-foreground truncate">{label}</span>
+                      <span className="font-jakarta text-[14px] font-semibold text-[#F8FAFC] truncate">{label}</span>
                       <div className="flex items-center gap-3">
-                        <div className="flex-1 h-1 bg-border rounded-full overflow-hidden max-w-[100px]">
+                        <div className="flex-1 h-1 bg-[#1E2A44] rounded-full overflow-hidden max-w-[100px]">
                           <div className="h-full rounded-full" style={{ width: `${accuracy * 100}%`, background: accuracy < 0.4 ? '#FB7185' : accuracy < 0.6 ? '#F2A20C' : '#34D399' }} />
                         </div>
-                        <span className="font-jakarta text-xs text-dim">{Math.round(accuracy * 100)}% đúng · {wrong} câu sai</span>
+                        <span className="font-jakarta text-[12px] text-dim">{Math.round(accuracy * 100)}% đúng · {wrong} câu sai</span>
                       </div>
                     </div>
                     <button
                       onClick={() => navigate('/exams')}
-                      className="flex-shrink-0 px-3 py-1.5 rounded-lg font-jakarta text-xs font-semibold border border-border text-muted hover:text-foreground transition"
+                      className="flex-shrink-0 px-3 py-1.5 rounded-lg font-jakarta text-[12px] font-semibold border border-surface text-[#94A3B8] hover:text-[#F8FAFC] transition"
                     >
                       Luyện tập →
                     </button>
@@ -340,7 +337,7 @@ export default function Progress() {
             <button
               type="button"
               onClick={() => setShowMore(v => !v)}
-              className="flex items-center gap-2 font-jakarta text-[0.8125rem] text-faint hover:text-muted transition py-1"
+              className="flex items-center gap-2 font-jakarta text-[13px] text-dim hover:text-[#94A3B8] transition py-1"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                 className={`transition-transform duration-200 ${showMore ? 'rotate-180' : ''}`}>
@@ -360,7 +357,7 @@ export default function Progress() {
                 {/* Concept map */}
                 {!conceptsLoaded ? (
                   <div className="py-8 flex items-center justify-center">
-                    <span className="font-jakarta text-[0.8125rem] text-faint">Đang tải bản đồ học tập…</span>
+                    <span className="font-jakarta text-[13px] text-dim">Đang tải bản đồ học tập…</span>
                   </div>
                 ) : concepts.length > 0 ? (
                   <div className="flex flex-col gap-6 relative">
@@ -383,19 +380,19 @@ export default function Progress() {
                     <div className="flex gap-2 flex-wrap">
                       {STAGE_COLORS.map((s, i) => (
                         <div key={i} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border" style={{ background: s.bg, borderColor: s.border }}>
-                          <span className="font-jakarta text-[0.625rem] font-semibold" style={{ color: s.text }}>{s.label}</span>
+                          <span className="font-jakarta text-[10px] font-semibold" style={{ color: s.text }}>{s.label}</span>
                         </div>
                       ))}
                     </div>
                     {Object.entries(conceptsByGrade).sort(([a], [b]) => Number(a) - Number(b)).map(([grade, topics]) => (
                       <div key={grade} className="flex flex-col gap-4">
                         <div className="flex items-center gap-3">
-                          <span className="font-fraunces text-[0.8125rem] font-bold text-primary">Lớp {grade}</span>
-                          <div className="flex-1 h-px bg-border" />
+                          <span className="font-fraunces text-[13px] font-bold text-primary">Lớp {grade}</span>
+                          <div className="flex-1 h-px bg-[#1E2A44]" />
                         </div>
                         {Object.entries(topics).map(([topic, nodes]) => (
                           <div key={topic} className="flex flex-col gap-2">
-                            <span className="font-jakarta text-[0.6875rem] font-semibold text-faint uppercase tracking-wider pl-1">{topic}</span>
+                            <span className="font-jakarta text-[11px] font-semibold text-dim uppercase tracking-wider pl-1">{topic}</span>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                               {nodes.map(c => <ConceptNode key={c.id} concept={c} onClick={setSelected} />)}
                             </div>
@@ -405,7 +402,7 @@ export default function Progress() {
                     ))}
                   </div>
                 ) : (
-                  <p className="font-jakarta text-[0.8125rem] text-faint text-center py-4">Chưa có dữ liệu bản đồ học tập. Hoàn thành thêm bài thi để xây dựng bản đồ.</p>
+                  <p className="font-jakarta text-[13px] text-dim text-center py-4">Chưa có dữ liệu bản đồ học tập. Hoàn thành thêm bài thi để xây dựng bản đồ.</p>
                 )}
 
                 {/* Topic accuracy full list */}
@@ -414,14 +411,14 @@ export default function Progress() {
                   if (!all.length) return null
                   return (
                     <div className="flex flex-col gap-2">
-                      <span className="font-jakarta text-[0.6875rem] font-bold tracking-[2px] uppercase text-faint">Tất cả chủ đề</span>
+                      <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-dim">Tất cả chủ đề</span>
                       {all.map(({ topic, label, accuracy, total }) => (
-                        <div key={topic} className="flex items-center gap-3 py-2 border-b border-border/60">
-                          <span className="font-jakarta text-[0.8125rem] text-muted flex-1 min-w-0 truncate">{label}</span>
-                          <div className="w-20 h-1 bg-border rounded-full overflow-hidden">
+                        <div key={topic} className="flex items-center gap-3 py-2 border-b border-surface/60">
+                          <span className="font-jakarta text-[13px] text-[#94A3B8] flex-1 min-w-0 truncate">{label}</span>
+                          <div className="w-20 h-1 bg-[#1E2A44] rounded-full overflow-hidden">
                             <div className="h-full rounded-full" style={{ width: `${accuracy * 100}%`, background: accuracy < 0.4 ? '#FB7185' : accuracy < 0.6 ? '#F2A20C' : '#34D399' }} />
                           </div>
-                          <span className="font-jakarta text-xs text-faint w-12 text-right">{Math.round(accuracy * 100)}%</span>
+                          <span className="font-jakarta text-[12px] text-dim w-12 text-right">{Math.round(accuracy * 100)}%</span>
                         </div>
                       ))}
                     </div>
@@ -439,19 +436,19 @@ export default function Progress() {
                   const gap = thresh.typical - avgScore
                   return (
                     <div className="flex flex-col gap-2">
-                      <span className="font-jakarta text-[0.6875rem] font-bold tracking-[2px] uppercase text-faint">So sánh tỉnh {user.province}</span>
-                      <div className="bg-surface border border-border rounded-xl px-4 py-3 flex flex-col gap-2">
+                      <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-dim">So sánh tỉnh {user.province}</span>
+                      <div className="bg-[#0D1221] border border-surface rounded-xl px-4 py-3 flex flex-col gap-2">
                         <div className="flex items-center justify-between">
-                          <span className="font-jakarta text-xs text-dim">Điểm TB 10 đề gần nhất</span>
-                          <span className="font-jakarta text-[0.8125rem] font-semibold text-foreground">{avgScore.toFixed(1)}</span>
+                          <span className="font-jakarta text-[12px] text-dim">Điểm TB 10 đề gần nhất</span>
+                          <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">{avgScore.toFixed(1)}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="font-jakarta text-xs text-dim">Ngưỡng an toàn {user.province}</span>
-                          <span className="font-jakarta text-xs" style={{ color: aboveTypical ? '#34D399' : '#F2A20C' }}>{thresh.typical} {aboveTypical ? '✓' : `(thiếu ${gap.toFixed(1)}đ)`}</span>
+                          <span className="font-jakarta text-[12px] text-dim">Ngưỡng an toàn {user.province}</span>
+                          <span className="font-jakarta text-[12px]" style={{ color: aboveTypical ? '#34D399' : '#F2A20C' }}>{thresh.typical} {aboveTypical ? '✓' : `(thiếu ${gap.toFixed(1)}đ)`}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="font-jakarta text-xs text-dim">Trường tốt yêu cầu</span>
-                          <span className="font-jakarta text-xs" style={{ color: aboveTop ? '#34D399' : '#475569' }}>{thresh.top}+</span>
+                          <span className="font-jakarta text-[12px] text-dim">Trường tốt yêu cầu</span>
+                          <span className="font-jakarta text-[12px]" style={{ color: aboveTop ? '#34D399' : '#475569' }}>{thresh.top}+</span>
                         </div>
                       </div>
                     </div>
@@ -467,42 +464,42 @@ export default function Progress() {
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
             onClick={e => e.stopPropagation()}
-            className="w-full max-w-sm bg-surface border border-border rounded-2xl p-6 flex flex-col gap-4"
+            className="w-full max-w-sm bg-[#0D1221] border border-surface rounded-2xl p-6 flex flex-col gap-4"
           >
             <div className="flex items-start justify-between">
               <div className="flex flex-col gap-0.5">
-                <span className="font-fraunces text-[17px] font-bold text-foreground">{selected.name_vi}</span>
-                <span className="font-jakarta text-xs text-faint">{selected.name}</span>
+                <span className="font-fraunces text-[17px] font-bold text-[#F8FAFC]">{selected.name_vi}</span>
+                <span className="font-jakarta text-[12px] text-dim">{selected.name}</span>
               </div>
-              <button onClick={() => setSelected(null)} className="text-faint hover:text-foreground text-lg">×</button>
+              <button onClick={() => setSelected(null)} className="text-dim hover:text-[#F8FAFC] text-lg">×</button>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex flex-col gap-0.5">
-                <span className="font-jakarta text-[0.6875rem] text-faint">Giai đoạn</span>
-                <span className="font-jakarta text-[0.8125rem] font-semibold" style={{ color: STAGE_COLORS[selected.stage ?? 0].text }}>
+                <span className="font-jakarta text-[11px] text-dim">Giai đoạn</span>
+                <span className="font-jakarta text-[13px] font-semibold" style={{ color: STAGE_COLORS[selected.stage ?? 0].text }}>
                   {STAGE_COLORS[selected.stage ?? 0].label}
                 </span>
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="font-jakarta text-[0.6875rem] text-faint">Thành thạo</span>
-                <span className="font-jakarta text-[0.8125rem] font-semibold text-foreground">{selected.mastery_score}%</span>
+                <span className="font-jakarta text-[11px] text-dim">Thành thạo</span>
+                <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">{selected.mastery_score}%</span>
               </div>
               {selected.review_count > 0 && (
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-jakarta text-[0.6875rem] text-faint">Đã ôn</span>
-                  <span className="font-jakarta text-[0.8125rem] font-semibold text-foreground">{selected.review_count} lần</span>
+                  <span className="font-jakarta text-[11px] text-dim">Đã ôn</span>
+                  <span className="font-jakarta text-[13px] font-semibold text-[#F8FAFC]">{selected.review_count} lần</span>
                 </div>
               )}
             </div>
             {selected.prerequisite_ids?.length > 0 && (
               <div className="flex flex-col gap-1">
-                <span className="font-jakarta text-[0.6875rem] text-faint">Cần học trước</span>
+                <span className="font-jakarta text-[11px] text-dim">Cần học trước</span>
                 <div className="flex gap-1.5 flex-wrap">
                   {selected.prerequisite_ids.map(pid => {
                     const prereq = concepts.find(c => c.id === pid)
                     const s = STAGE_COLORS[prereq?.stage ?? 0]
                     return (
-                      <span key={pid} className="px-2 py-0.5 rounded-md border font-jakarta text-[0.6875rem]"
+                      <span key={pid} className="px-2 py-0.5 rounded-md border font-jakarta text-[11px]"
                         style={{ background: s.bg, borderColor: s.border, color: s.text }}>
                         {prereq?.name_vi ?? pid}
                       </span>
@@ -513,7 +510,7 @@ export default function Progress() {
             )}
             <button
               onClick={() => { setSelected(null); navigate(`/oracle?q=${encodeURIComponent('Giải thích khái niệm: ' + selected.name_vi)}`) }}
-              className="w-full py-2.5 rounded-xl border border-[#6366F133] bg-[#6366F108] font-jakarta text-[0.8125rem] font-semibold text-[#818CF8] hover:bg-[#6366F114] transition"
+              className="w-full py-2.5 rounded-xl border border-info/20 bg-info/5 font-jakarta text-[13px] font-semibold text-info hover:bg-info/10 transition"
             >
               ✦ Hỏi Oracle về {selected.name_vi}
             </button>

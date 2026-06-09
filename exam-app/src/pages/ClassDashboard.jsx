@@ -67,27 +67,27 @@ export default function ClassDashboard() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-background px-4 py-10 max-w-3xl mx-auto flex flex-col gap-8">
+    <div className="min-h-screen bg-surface px-4 py-10 max-w-3xl mx-auto flex flex-col gap-8">
       <div className="flex flex-col gap-1">
-        <span className="font-fraunces text-[28px] font-bold text-foreground">Lớp học</span>
-        <span className="font-jakarta text-sm text-dim">Tạo hoặc tham gia lớp học</span>
+        <span className="font-fraunces text-[28px] font-bold text-[#F8FAFC]">Lớp học</span>
+        <span className="font-jakarta text-[14px] text-dim">Tạo hoặc tham gia lớp học</span>
       </div>
 
       {/* Create class */}
-      <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-4">
-        <span className="font-jakarta text-[0.8125rem] font-semibold text-muted uppercase tracking-wider">Tạo lớp mới (giáo viên)</span>
+      <div className="bg-[#0D1221] border border-surface rounded-2xl p-6 flex flex-col gap-4">
+        <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8] uppercase tracking-wider">Tạo lớp mới (giáo viên)</span>
         <form onSubmit={handleCreate} className="flex gap-3">
           <input
             value={createName}
             onChange={e => setCreateName(e.target.value)}
             placeholder="Tên lớp học..."
             maxLength={60}
-            className="flex-1 bg-[#141D2E] border border-border-subtle rounded-lg px-4 py-2.5 font-jakarta text-sm text-foreground placeholder-[#3A4A6E] focus:outline-none focus:border-[#F2A20C55]"
+            className="flex-1 bg-surface border border-surface rounded-lg px-4 py-2.5 font-jakarta text-[14px] text-[#F8FAFC] placeholder-[#3A4A6E] focus:outline-none focus:border-[#F2A20C55]"
           />
           <button
             type="submit"
             disabled={creating || !createName.trim()}
-            className="px-5 py-2.5 rounded-lg font-jakarta text-[0.8125rem] font-bold text-primary-fg bg-primary disabled:opacity-50 transition"
+            className="px-5 py-2.5 rounded-lg font-jakarta text-[13px] font-bold text-[#0A0E1A] bg-primary disabled:opacity-50 transition"
           >
             {creating ? '...' : 'Tạo'}
           </button>
@@ -95,20 +95,20 @@ export default function ClassDashboard() {
       </div>
 
       {/* Join class */}
-      <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-4">
-        <span className="font-jakarta text-[0.8125rem] font-semibold text-muted uppercase tracking-wider">Tham gia lớp (học sinh)</span>
+      <div className="bg-[#0D1221] border border-surface rounded-2xl p-6 flex flex-col gap-4">
+        <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8] uppercase tracking-wider">Tham gia lớp (học sinh)</span>
         <form onSubmit={handleJoin} className="flex gap-3">
           <input
             value={joinCode}
             onChange={e => setJoinCode(e.target.value.toUpperCase())}
             placeholder="Nhập mã lớp..."
             maxLength={20}
-            className="flex-1 bg-[#141D2E] border border-border-subtle rounded-lg px-4 py-2.5 font-jakarta text-sm text-foreground placeholder-[#3A4A6E] focus:outline-none focus:border-[#6366F155] font-mono tracking-widest"
+            className="flex-1 bg-surface border border-surface rounded-lg px-4 py-2.5 font-jakarta text-[14px] text-[#F8FAFC] placeholder-[#3A4A6E] focus:outline-none focus:border-[#6366F155] font-mono tracking-widest"
           />
           <button
             type="submit"
             disabled={joining || !joinCode.trim()}
-            className="px-5 py-2.5 rounded-lg font-jakarta text-[0.8125rem] font-bold text-foreground bg-[#6366F1] disabled:opacity-50 transition"
+            className="px-5 py-2.5 rounded-lg font-jakarta text-[13px] font-bold text-[#F8FAFC] bg-info disabled:opacity-50 transition"
           >
             {joining ? '...' : 'Vào lớp'}
           </button>
@@ -117,32 +117,32 @@ export default function ClassDashboard() {
 
       {/* Class list */}
       <div className="flex flex-col gap-3">
-        <span className="font-jakarta text-[0.8125rem] font-semibold text-muted uppercase tracking-wider">Lớp của bạn</span>
+        <span className="font-jakarta text-[13px] font-semibold text-[#94A3B8] uppercase tracking-wider">Lớp của bạn</span>
         {loading ? (
           <div className="flex flex-col gap-3">
             {[1, 2].map(i => (
-              <div key={i} className="h-16 rounded-2xl bg-surface border border-border animate-pulse" />
+              <div key={i} className="h-16 rounded-2xl bg-[#0D1221] border border-surface animate-pulse" />
             ))}
           </div>
         ) : classes.length === 0 ? (
-          <p className="font-jakarta text-[0.8125rem] text-faint text-center py-8">Bạn chưa tham gia lớp nào</p>
+          <p className="font-jakarta text-[13px] text-dim text-center py-8">Bạn chưa tham gia lớp nào</p>
         ) : (
           classes.map(cls => (
             <motion.button
               key={cls.id}
               whileHover={{ scale: 1.01 }}
               onClick={() => handleSelectClass(cls)}
-              className="flex items-center justify-between px-6 py-4 rounded-2xl border border-border bg-surface hover:border-border-subtle transition text-left"
+              className="flex items-center justify-between px-6 py-4 rounded-2xl border border-surface bg-[#0D1221] hover:border-surface transition text-left"
             >
               <div className="flex flex-col gap-0.5">
-                <span className="font-jakarta text-[15px] font-semibold text-foreground">{cls.name}</span>
-                <span className="font-mono text-xs text-[#6366F1]">{cls.code}</span>
+                <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">{cls.name}</span>
+                <span className="font-mono text-[12px] text-info">{cls.code}</span>
               </div>
               <div className="flex items-center gap-2">
                 {cls.teacher_id === user?.id && (
-                  <span className="font-jakarta text-[0.6875rem] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400">GIÁO VIÊN</span>
+                  <span className="font-jakarta text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400">GIÁO VIÊN</span>
                 )}
-                <span className="text-border-subtle text-lg">›</span>
+                <span className="text-[#2A3A5E] text-lg">›</span>
               </div>
             </motion.button>
           ))
@@ -151,37 +151,37 @@ export default function ClassDashboard() {
 
       {/* Class results panel (teacher only) */}
       {selectedClass && selectedClass.teacher_id === user?.id && (
-        <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-4">
+        <div className="bg-[#0D1221] border border-surface rounded-2xl p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <span className="font-jakarta text-[15px] font-semibold text-foreground">Kết quả — {selectedClass.name}</span>
-            <button onClick={() => setSelectedClass(null)} className="font-jakarta text-xs text-dim hover:text-muted">Đóng</button>
+            <span className="font-jakarta text-[15px] font-semibold text-[#F8FAFC]">Kết quả — {selectedClass.name}</span>
+            <button onClick={() => setSelectedClass(null)} className="font-jakarta text-[12px] text-dim hover:text-[#94A3B8]">Đóng</button>
           </div>
           {loadingResults ? (
-            <div className="h-20 rounded-xl bg-[#141D2E] animate-pulse" />
+            <div className="h-20 rounded-xl bg-surface animate-pulse" />
           ) : classResults.length === 0 ? (
-            <p className="font-jakarta text-[0.8125rem] text-faint text-center py-6">Chưa có học sinh nào nộp bài</p>
+            <p className="font-jakarta text-[13px] text-dim text-center py-6">Chưa có học sinh nào nộp bài</p>
           ) : (
             <>
             {/* Mobile card view */}
             <div className="sm:hidden flex flex-col gap-2">
               {classResults.map((r, i) => (
-                <div key={i} className="bg-[#141D2E] border border-border rounded-xl p-4 flex flex-col gap-1">
-                  <span className="font-jakarta text-[0.8125rem] font-semibold text-highlight truncate">{r.student_name ?? r.student_email ?? '—'}</span>
-                  <span className="font-jakarta text-xs text-dim truncate">{r.exam_id}</span>
+                <div key={i} className="bg-surface border border-surface rounded-xl p-4 flex flex-col gap-1">
+                  <span className="font-jakarta text-[13px] font-semibold text-[#F0F4FF] truncate">{r.student_name ?? r.student_email ?? '—'}</span>
+                  <span className="font-jakarta text-[12px] text-dim truncate">{r.exam_id}</span>
                   <div className="flex items-center justify-between mt-1">
-                    <span className="font-jakarta text-[0.8125rem] font-bold" style={{ color: r.score >= 8 ? '#10B981' : r.score >= 5 ? '#F2A20C' : '#FB7185' }}>
+                    <span className="font-jakarta text-[13px] font-bold" style={{ color: r.score >= 8 ? '#10B981' : r.score >= 5 ? '#F2A20C' : '#FB7185' }}>
                       {typeof r.score === 'number' ? r.score.toFixed(1) : '—'}
                     </span>
-                    <span className="font-jakarta text-[0.6875rem] text-faint">{r.finished_at ? new Date(r.finished_at).toLocaleDateString('vi-VN') : '—'}</span>
+                    <span className="font-jakarta text-[11px] text-dim">{r.finished_at ? new Date(r.finished_at).toLocaleDateString('vi-VN') : '—'}</span>
                   </div>
                 </div>
               ))}
             </div>
             {/* Desktop table */}
             <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full font-jakarta text-[0.8125rem]">
+              <table className="w-full font-jakarta text-[13px]">
                 <thead>
-                  <tr className="text-faint border-b border-border">
+                  <tr className="text-dim border-b border-surface">
                     <th className="text-left pb-3 pr-4">Học sinh</th>
                     <th className="text-left pb-3 pr-4">Đề thi</th>
                     <th className="text-right pb-3 pr-4">Điểm</th>
@@ -191,12 +191,12 @@ export default function ClassDashboard() {
                 <tbody>
                   {classResults.map((r, i) => (
                     <tr key={i} className="border-b border-[#0F1828] last:border-0">
-                      <td className="py-3 pr-4 text-muted">{r.student_name ?? r.student_email ?? '—'}</td>
+                      <td className="py-3 pr-4 text-[#94A3B8]">{r.student_name ?? r.student_email ?? '—'}</td>
                       <td className="py-3 pr-4 text-dim max-w-[160px] truncate">{r.exam_id}</td>
                       <td className="py-3 pr-4 text-right font-semibold" style={{ color: r.score >= 8 ? '#10B981' : r.score >= 5 ? '#F2A20C' : '#FB7185' }}>
                         {typeof r.score === 'number' ? r.score.toFixed(1) : '—'}
                       </td>
-                      <td className="py-3 text-right text-faint">{r.finished_at ? new Date(r.finished_at).toLocaleDateString('vi-VN') : '—'}</td>
+                      <td className="py-3 text-right text-dim">{r.finished_at ? new Date(r.finished_at).toLocaleDateString('vi-VN') : '—'}</td>
                     </tr>
                   ))}
                 </tbody>

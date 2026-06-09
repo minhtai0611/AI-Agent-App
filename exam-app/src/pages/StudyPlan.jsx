@@ -19,10 +19,10 @@ function Skeleton() {
   return (
     <div className="flex flex-col gap-5 animate-pulse">
       <div className="flex items-center gap-2">
-        <span className="font-jakarta text-[0.8125rem] text-faint">Đang tạo kế hoạch phục hồi…</span>
+        <span className="font-jakarta text-[13px] text-dim">Đang tạo kế hoạch phục hồi…</span>
       </div>
-      <div className="h-24 bg-surface border border-border rounded-2xl" />
-      <div className="h-48 bg-surface border border-border rounded-2xl" />
+      <div className="h-24 bg-[#0D1221] border border-surface rounded-2xl" />
+      <div className="h-48 bg-[#0D1221] border border-surface rounded-2xl" />
     </div>
   )
 }
@@ -40,17 +40,17 @@ function CheckpointBar({ target, current }) {
   return (
     <div className="flex flex-col gap-1.5 mt-4">
       <div className="flex items-center justify-between">
-        <span className="font-jakarta text-[0.6875rem] font-semibold text-faint uppercase tracking-wider">Checkpoint</span>
-        <span className="font-jakarta text-xs text-dim">{filled}/{target} câu đúng liên tiếp</span>
+        <span className="font-jakarta text-[11px] font-semibold text-dim uppercase tracking-wider">Checkpoint</span>
+        <span className="font-jakarta text-[12px] text-dim">{filled}/{target} câu đúng liên tiếp</span>
       </div>
-      <div className="h-1.5 bg-border rounded-full overflow-hidden">
+      <div className="h-1.5 bg-[#1E2A44] rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full${shouldAnimate ? ' transition-[width] duration-[250ms] ease-linear' : ''}`}
           style={{ width: `${pct * 100}%`, background: pct >= 1 ? '#10B981' : 'linear-gradient(90deg, #F2A20C, #10B981)' }}
         />
       </div>
       {pct >= 1 && (
-        <span className="font-jakarta text-[0.6875rem] text-[#34D399]">Đã đạt checkpoint — tiếp tục luyện tập hoặc thử lại đề thi.</span>
+        <span className="font-jakarta text-[11px] text-success">Đã đạt checkpoint — tiếp tục luyện tập hoặc thử lại đề thi.</span>
       )}
     </div>
   )
@@ -86,17 +86,17 @@ function FocusCard({ area, index, streak, onPractice }) {
               <AchievementCeremony
                 key="resolved"
                 trigger={isResolved}
-                className="w-6 h-6 rounded-full bg-[#10B9811A] border border-[#10B98140] flex items-center justify-center font-jakarta text-[0.6875rem] font-bold text-success"
+                className="w-6 h-6 rounded-full bg-success/5 border border-success/20 flex items-center justify-center font-jakarta text-[11px] font-bold text-success"
               >
                 ✓
               </AchievementCeremony>
             ) : (
-              <span className="w-6 h-6 rounded-full bg-[#F2A20C1A] border border-[#F2A20C40] flex items-center justify-center font-jakarta text-[0.6875rem] font-bold text-primary">
+              <span className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-jakarta text-[11px] font-bold text-primary">
                 {index + 1}
               </span>
             )}
           </AnimatePresence>
-          <span className={`font-fraunces text-[15px] font-semibold ${isResolved ? 'text-muted' : 'text-foreground'}`}>
+          <span className={`font-fraunces text-[15px] font-semibold ${isResolved ? 'text-[#94A3B8]' : 'text-[#F8FAFC]'}`}>
             <MathText>{area.topic}</MathText>
           </span>
         </div>
@@ -110,22 +110,22 @@ function FocusCard({ area, index, streak, onPractice }) {
       </button>
 
       {open && (
-        <div className="px-6 pb-6 flex flex-col gap-4 border-t border-border pt-4">
+        <div className="px-6 pb-6 flex flex-col gap-4 border-t border-surface pt-4">
           {/* Error pattern */}
-          <div className="bg-[#1A1505] border border-[#4A3A05] rounded-xl px-4 py-3">
-            <p className="font-jakarta text-xs font-semibold text-primary mb-1">Lỗi phát hiện</p>
-            <p className="font-jakarta text-[0.8125rem] text-muted-fg leading-relaxed">
+          <div className="glass-base border border-primary/20 rounded-xl px-4 py-3">
+            <p className="font-jakarta text-[12px] font-semibold text-primary mb-1">Lỗi phát hiện</p>
+            <p className="font-jakarta text-[13px] text-foreground leading-relaxed">
               <MathText>{area.error_pattern}</MathText>
             </p>
           </div>
 
           {/* Tasks */}
           <div className="flex flex-col gap-2">
-            <span className="font-jakarta text-[0.6875rem] font-semibold text-faint uppercase tracking-wider">Luyện tập</span>
+            <span className="font-jakarta text-[11px] font-semibold text-dim uppercase tracking-wider">Luyện tập</span>
             {area.tasks.map((task, i) => (
               <div key={i} className="flex items-start gap-2.5">
                 <span className="mt-1 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-                <span className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">
+                <span className="font-jakarta text-[13px] text-[#94A3B8] leading-relaxed">
                   <MathText>{task}</MathText>
                 </span>
               </div>
@@ -144,7 +144,7 @@ function FocusCard({ area, index, streak, onPractice }) {
           <button
             type="button"
             onClick={() => onPractice(index)}
-            className="mt-1 w-full py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-semibold border border-[#F2A20C40] text-primary hover:bg-[#F2A20C0D] transition"
+            className="mt-1 w-full py-2.5 rounded-xl font-jakarta text-[13px] font-semibold border border-primary/20 text-primary hover:bg-[#F2A20C0D] transition"
           >
             Luyện tập chủ đề này →
           </button>
@@ -219,12 +219,11 @@ export default function StudyPlan() {
 
   if (!result) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="font-jakarta text-[15px] text-muted">Hoàn thành một bài thi để nhận kế hoạch phục hồi cá nhân hóa của bạn →</p>
+      <div className="min-h-screen bg-surface flex flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="font-jakarta text-[15px] text-[#94A3B8]">Hoàn thành một bài thi để nhận kế hoạch phục hồi cá nhân hóa của bạn →</p>
         <button
           onClick={() => navigate('/exams')}
-          className="px-5 py-2 rounded-xl font-jakarta text-[0.8125rem] font-bold mt-2"
-          style={{ background: '#F2A20C', color: '#0A0E1A' }}
+          className="px-5 py-2 rounded-xl font-jakarta text-[13px] font-bold mt-2 bg-primary text-background"
         >
           Chọn đề thi
         </button>
@@ -235,13 +234,13 @@ export default function StudyPlan() {
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
-      className="min-h-screen bg-background flex flex-col"
+      className="min-h-screen bg-surface flex flex-col"
     >
-      <nav className="flex items-center justify-between px-8 bg-surface border-b border-border" style={{ height: 64 }}>
-        <button onClick={() => navigate(-1)} className="font-jakarta text-[0.8125rem] text-muted hover:text-foreground transition">
+      <nav className="flex items-center justify-between px-8 bg-[#0D1221] border-b border-surface" style={{ height: 64 }}>
+        <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-[#94A3B8] hover:text-[#F8FAFC] transition">
           ← Quay lại
         </button>
-        <span className="font-jakarta text-sm font-semibold text-foreground">Kế hoạch phục hồi</span>
+        <span className="font-jakarta text-[14px] font-semibold text-[#F8FAFC]">Kế hoạch phục hồi</span>
         <div className="w-20" />
       </nav>
 
@@ -250,7 +249,7 @@ export default function StudyPlan() {
           <Skeleton />
         ) : error ? (
           <div className="flex flex-col items-center gap-4 py-16">
-            <p className="font-jakarta text-muted">Không thể tạo kế hoạch phục hồi</p>
+            <p className="font-jakarta text-[#94A3B8]">Không thể tạo kế hoạch phục hồi</p>
             <button
               onClick={() => {
                 setError(false); setLoading(true)
@@ -263,7 +262,7 @@ export default function StudyPlan() {
                   })
                 })
               }}
-              className="px-5 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-semibold text-primary-fg"
+              className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold text-[#0A0E1A]"
               style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
             >
               Thử lại
@@ -272,35 +271,35 @@ export default function StudyPlan() {
         ) : plan ? (
           <>
             {/* Score gap */}
-            <div className="bg-surface border border-border rounded-2xl px-6 py-5">
+            <div className="bg-[#0D1221] border border-surface rounded-2xl px-6 py-5">
               <div className="flex items-center gap-2 mb-2">
-                <span className="font-jakarta text-[0.6875rem] font-bold tracking-[2px] uppercase text-primary">Mục tiêu</span>
+                <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-primary">Mục tiêu</span>
               </div>
-              <p className="font-fraunces text-[17px] font-semibold text-foreground leading-snug">
+              <p className="font-fraunces text-[17px] font-semibold text-[#F8FAFC] leading-snug">
                 {plan.score_gap}
               </p>
             </div>
 
             {/* SM-2 backlog warning + top focus concepts from adaptive plan */}
             {adaptivePlan && (adaptivePlan.focus_concepts?.length > 0 || (adaptivePlan.in_progress_count ?? 0) > 3) && (
-              <div className="bg-[#0A1020] border border-border rounded-2xl px-5 py-4 flex flex-col gap-3">
+              <div className="bg-surface border border-surface rounded-2xl px-5 py-4 flex flex-col gap-3">
                 {(adaptivePlan.in_progress_count ?? 0) > 3 && (
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#2A1A05] border border-[#7A5500]">
-                    <span className="text-primary text-sm">⚠</span>
-                    <p className="font-jakarta text-xs text-primary leading-snug">
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg glass-base border border-primary/20">
+                    <span className="text-primary text-[14px]">⚠</span>
+                    <p className="font-jakarta text-[12px] text-primary leading-snug">
                       {adaptivePlan.in_progress_count} khái niệm đang học — ưu tiên ôn lại trước khi học mới.
                     </p>
                   </div>
                 )}
                 {adaptivePlan.focus_concepts?.slice(0, 3).length > 0 && (
                   <div className="flex flex-col gap-2">
-                    <span className="font-jakarta text-[0.6875rem] font-semibold text-faint uppercase tracking-wider">
+                    <span className="font-jakarta text-[11px] font-semibold text-dim uppercase tracking-wider">
                       Trọng tâm tuần này (Learning Graph)
                     </span>
                     <div className="flex flex-wrap gap-2">
                       {adaptivePlan.focus_concepts.slice(0, 3).map(c => (
                         <span key={c.concept_id}
-                          className="font-jakarta text-xs font-semibold px-2.5 py-1 rounded-lg border border-[#6366F130] bg-[#6366F108] text-[#818CF8]">
+                          className="font-jakarta text-[12px] font-semibold px-2.5 py-1 rounded-lg border border-info/20 bg-info/5 text-info">
                           ✦ {c.name_vi}
                         </span>
                       ))}
@@ -313,7 +312,7 @@ export default function StudyPlan() {
             {/* Focus areas */}
             {Array.isArray(plan.focus_areas) && plan.focus_areas.length > 0 && (
               <div className="flex flex-col gap-3">
-                <span className="font-jakarta text-[0.6875rem] font-bold tracking-[2px] uppercase text-faint">
+                <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-dim">
                   {plan.focus_areas.length === 1 ? 'Trọng tâm cần sửa' : `${plan.focus_areas.length} trọng tâm cần sửa`}
                 </span>
                 {plan.focus_areas.map((area, i) => (
@@ -329,18 +328,17 @@ export default function StudyPlan() {
             )}
 
             {/* Retake CTA */}
-            <div className="bg-[#0A1F14] border border-[#2D4A1A] rounded-2xl px-6 py-5 flex items-center justify-between gap-4">
+            <div className="glass-base border border-success/20 rounded-2xl px-6 py-5 flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
-                <span className="font-jakarta text-xs font-semibold text-[#34D399]">Sau khi luyện xong</span>
-                <p className="font-jakarta text-[0.8125rem] text-muted-fg">
+                <span className="font-jakarta text-[12px] font-semibold text-success">Sau khi luyện xong</span>
+                <p className="font-jakarta text-[13px] text-foreground">
                   {plan.retake_note ?? 'Thử lại đề thi để đo tiến độ thực sự.'}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={handleRetake}
-                className="flex-shrink-0 px-4 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold text-primary-fg whitespace-nowrap"
-                style={{ background: '#10B981' }}
+                className="flex-shrink-0 px-4 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-[#0A0E1A] whitespace-nowrap bg-success"
               >
                 Thử lại đề →
               </button>

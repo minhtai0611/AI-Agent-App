@@ -99,8 +99,8 @@ export default function Placement() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <span className="font-jakarta text-sm text-faint">Đang tải câu hỏi...</span>
+      <div className="min-h-screen bg-surface flex items-center justify-center">
+        <span className="font-jakarta text-[14px] text-dim">Đang tải câu hỏi...</span>
       </div>
     )
   }
@@ -109,24 +109,24 @@ export default function Placement() {
     const correct = answers.filter(a => a.correct).length
     return (
       <motion.div
-        className="min-h-screen bg-background flex flex-col items-center justify-center px-4 gap-6"
+        className="min-h-screen bg-surface flex flex-col items-center justify-center px-4 gap-6"
         variants={pageVariants} initial="hidden" animate="show" exit="exit"
       >
-        <div className="w-full max-w-md bg-[#0D1527] border border-border rounded-2xl p-8 flex flex-col items-center gap-5 text-center">
+        <div className="w-full max-w-md bg-surface border border-surface rounded-2xl p-8 flex flex-col items-center gap-5 text-center">
           <span className="text-5xl">{correct >= 7 ? '🏆' : correct >= 5 ? '📈' : '📚'}</span>
           <div className="flex flex-col gap-1">
-            <h1 className="font-fraunces text-[24px] font-bold text-foreground">Kiểm tra hoàn thành</h1>
-            <p className="font-jakarta text-sm text-muted">
+            <h1 className="font-fraunces text-[24px] font-bold text-[#F8FAFC]">Kiểm tra hoàn thành</h1>
+            <p className="font-jakarta text-[14px] text-[#94A3B8]">
               Bạn trả lời đúng <span className="text-primary font-semibold">{correct}/{answers.length}</span> câu
             </p>
           </div>
-          <p className="font-jakarta text-[0.8125rem] text-dim leading-relaxed">
+          <p className="font-jakarta text-[13px] text-dim leading-relaxed">
             Zenith đã ghi nhận năng lực của bạn và sẽ gợi ý lộ trình học phù hợp.
           </p>
           <div className="flex gap-3 w-full">
             <button
               onClick={() => navigate('/')}
-              className="flex-1 py-3 rounded-xl font-jakarta text-sm font-semibold bg-[#6366F1] text-white hover:bg-[#4F46E5] transition"
+              className="flex-1 py-3 rounded-xl font-jakarta text-[14px] font-semibold bg-info text-white hover:bg-info/80 transition"
             >
               Bắt đầu học →
             </button>
@@ -142,26 +142,26 @@ export default function Placement() {
 
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
-      className="min-h-screen bg-background flex flex-col items-center px-4 py-8">
+      className="min-h-screen bg-surface flex flex-col items-center px-4 py-8">
       <div className="w-full max-w-xl flex flex-col gap-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5">
-            <span className="font-jakarta text-[0.6875rem] font-semibold text-[#6366F1] tracking-[2px] uppercase">Kiểm tra năng lực</span>
-            <span className="font-jakarta text-[0.8125rem] text-faint">Câu {current + 1} / {questions.length}</span>
+            <span className="font-jakarta text-[11px] font-semibold text-info tracking-[2px] uppercase">Kiểm tra năng lực</span>
+            <span className="font-jakarta text-[13px] text-dim">Câu {current + 1} / {questions.length}</span>
           </div>
           <button
             onClick={() => navigate('/')}
-            className="font-jakarta text-xs text-faint hover:text-muted transition"
+            className="font-jakarta text-[12px] text-dim hover:text-[#94A3B8] transition"
           >
             Bỏ qua
           </button>
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-[#1E2A44] rounded-full overflow-hidden">
           <motion.div
-            className="h-full rounded-full bg-[#6366F1]"
+            className="h-full rounded-full bg-info"
             animate={{ width: `${((current) / questions.length) * 100}%` }}
             transition={{ duration: 0.4 }}
           />
@@ -172,9 +172,9 @@ export default function Placement() {
           <motion.div
             key={question.id}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
-            className="bg-[#0D1527] border border-border rounded-2xl p-6 flex flex-col gap-5"
+            className="bg-surface border border-surface rounded-2xl p-6 flex flex-col gap-5"
           >
-            <p className="font-jakarta text-[15px] text-[#E2E8F0] leading-relaxed">
+            <p className="font-jakarta text-[15px] text-foreground leading-relaxed">
               <MathText>{question.question}</MathText>
             </p>
 
@@ -194,7 +194,7 @@ export default function Placement() {
                     key={i}
                     onClick={() => handleChoice(i)}
                     disabled={revealed}
-                    className="w-full text-left px-4 py-3.5 rounded-xl font-jakarta text-sm font-medium transition-all"
+                    className="w-full text-left px-4 py-3.5 rounded-xl font-jakarta text-[14px] font-medium transition-all"
                     style={{ background: bg, border: `1px solid ${border}`, color: textColor }}
                   >
                     <span className="font-semibold mr-2">{String.fromCharCode(65 + i)}.</span>
@@ -211,7 +211,7 @@ export default function Placement() {
                   style={{ background: isCorrect ? '#0D2A1A' : '#2A0F14', border: `1px solid ${isCorrect ? '#10B981' : '#EF4444'}` }}
                 >
                   <span className="text-lg">{isCorrect ? '✓' : '✗'}</span>
-                  <span className="font-jakarta text-[0.8125rem] font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
+                  <span className="font-jakarta text-[13px] font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
                     {isCorrect ? 'Chính xác!' : `Đáp án: ${String.fromCharCode(65 + question.correct)}. ${question.choices?.[question.correct]}`}
                   </span>
                 </div>
@@ -219,7 +219,7 @@ export default function Placement() {
                 <button
                   onClick={handleNext}
                   disabled={submitting}
-                  className="w-full py-3 rounded-xl font-jakarta text-sm font-semibold bg-[#6366F1] text-white hover:bg-[#4F46E5] transition disabled:opacity-60"
+                  className="w-full py-3 rounded-xl font-jakarta text-[14px] font-semibold bg-info text-white hover:bg-info/80 transition disabled:opacity-60"
                 >
                   {current + 1 >= questions.length
                     ? (submitting ? 'Đang lưu...' : 'Hoàn thành →')
@@ -229,7 +229,7 @@ export default function Placement() {
             )}
 
             {!revealed && (
-              <p className="text-center font-jakarta text-xs text-[#2A3A50]">Chọn một đáp án để tiếp tục</p>
+              <p className="text-center font-jakarta text-[12px] text-dim">Chọn một đáp án để tiếp tục</p>
             )}
           </motion.div>
         </AnimatePresence>

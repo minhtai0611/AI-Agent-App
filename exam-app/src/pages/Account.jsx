@@ -941,11 +941,11 @@ export default function Account() {
             {goalStatus && (
               <section className={`border rounded-2xl p-6 flex flex-col gap-3 ${
                 goalStatus.status === 'at_risk'
-                  ? 'bg-[#1A0A0A] border-red-500/40'
+                  ? 'bg-destructive/5 border-red-500/40'
                   : goalStatus.status === 'steady'
                   ? 'bg-surface border-border'
                   : goalStatus.status === 'ahead'
-                  ? 'bg-[#0A1A12] border-emerald-500/40'
+                  ? 'bg-success/5 border-emerald-500/40'
                   : 'bg-surface border-border'
               }`}>
                 <div className="flex items-start justify-between gap-3">
@@ -1618,9 +1618,9 @@ export default function Account() {
                     </div>
                   )}
                   {scoreProjection && (
-                    <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-[#10B9810D] border border-[#10B98133]">
+                    <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-success/5 border border-success/20">
                       <span className="text-[0.8125rem] mt-px">🎯</span>
-                      <span className="font-jakarta text-xs text-[#34D399]">{scoreProjection.summary}</span>
+                      <span className="font-jakarta text-xs text-success">{scoreProjection.summary}</span>
                     </div>
                   )}
                   {(chartInsightsLoading || chartInsights?.spark_insight) && (
@@ -1813,7 +1813,7 @@ export default function Account() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {trialUrgency.lossItems.map(item => (
-                    <span key={item} className="font-jakarta text-[0.6875rem] px-2.5 py-1 rounded-full bg-[#F2A20C15] border border-[#F2A20C30] text-primary">
+                    <span key={item} className="font-jakarta text-[0.6875rem] px-2.5 py-1 rounded-full bg-primary/5 border border-primary/20 text-primary">
                       {item}
                     </span>
                   ))}
@@ -2107,8 +2107,8 @@ export default function Account() {
                       onClick={() => setAIPrefs({ ...aiPrefs, hint_style: v })}
                       className={`flex flex-col items-start px-4 py-2.5 rounded-xl border transition text-left ${
                         aiPrefs.hint_style === v
-                          ? 'border-[#818CF8] bg-info/10 text-foreground'
-                          : 'border-border bg-background text-dim hover:border-[#818CF850]'
+                          ? 'border-info bg-info/10 text-foreground'
+                          : 'border-border bg-background text-dim hover:border-info/30'
                       }`}
                     >
                       <span className="font-jakarta text-xs font-semibold">{label}</span>
@@ -2132,7 +2132,7 @@ export default function Account() {
                       onClick={() => setAIPrefs({ ...aiPrefs, explanation_depth: v })}
                       className={`flex flex-col items-start px-4 py-2.5 rounded-xl border transition text-left ${
                         aiPrefs.explanation_depth === v
-                          ? 'border-success bg-[#10B9811A] text-foreground'
+                          ? 'border-success bg-success/10 text-foreground'
                           : 'border-border bg-background text-dim hover:border-[#10B98150]'
                       }`}
                     >
@@ -2151,7 +2151,7 @@ export default function Account() {
                 </div>
                 <button
                   onClick={() => setAIPrefs({ ...aiPrefs, language_mix: aiPrefs.language_mix === 'mixed' ? 'vietnamese-only' : 'mixed' })}
-                  className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${aiPrefs.language_mix === 'mixed' ? 'bg-[#818CF8]' : 'bg-border'}`}
+                  className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${aiPrefs.language_mix === 'mixed' ? 'bg-info' : 'bg-border'}`}
                 >
                   <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${aiPrefs.language_mix === 'mixed' ? 'translate-x-7' : 'translate-x-1'}`} />
                 </button>

@@ -119,16 +119,16 @@ export default function ErrorAnalysis() {
   const hasMisconceptions = aiData?.misconceptions?.length > 0
 
   return (
-    <div className="min-h-screen bg-background pb-16">
+    <div className="min-h-screen bg-surface pb-16">
       {/* Header */}
-      <div className="flex items-center gap-4 px-6 py-4 border-b border-border">
+      <div className="flex items-center gap-4 px-6 py-4 border-b border-surface">
         <button onClick={() => navigate('/exams?mode=lab')}
-          className="font-jakarta text-[0.8125rem] text-dim hover:text-muted transition">
+          className="font-jakarta text-[13px] text-dim hover:text-[#94A3B8] transition">
           ← Lab
         </button>
-        <span className="font-fraunces text-[18px] font-bold text-foreground">Phân tích lỗi sai</span>
+        <span className="font-fraunces text-[18px] font-bold text-[#F8FAFC]">Phân tích lỗi sai</span>
         {aiData?.cached && (
-          <span className="px-2 py-0.5 rounded-full font-jakarta text-[0.625rem] bg-border text-faint">cache 24h</span>
+          <span className="px-2 py-0.5 rounded-full font-jakarta text-[10px] bg-[#1E2A44] text-dim">cache 24h</span>
         )}
       </div>
 
@@ -136,20 +136,19 @@ export default function ErrorAnalysis() {
         {(!results || results.length < 3) ? (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <span className="text-4xl">📊</span>
-            <span className="font-fraunces text-[18px] font-bold text-foreground">Cần thêm dữ liệu</span>
-            <p className="font-jakarta text-[0.8125rem] text-dim max-w-xs">Hoàn thành ít nhất 3 bài thi để xem phân tích lỗi sai.</p>
+            <span className="font-fraunces text-[18px] font-bold text-[#F8FAFC]">Cần thêm dữ liệu</span>
+            <p className="font-jakarta text-[13px] text-dim max-w-xs">Hoàn thành ít nhất 3 bài thi để xem phân tích lỗi sai.</p>
             <button onClick={() => navigate('/exams')}
-              className="px-5 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold"
-              style={{ background: '#F2A20C', color: '#0A0E1A' }}>
+              className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold bg-primary text-background">
               Vào thi ngay
             </button>
           </div>
         ) : (
           <>
             {/* ── Error DNA Radar ─────────────────────────────────────────── */}
-            <div className="bg-surface border border-border rounded-2xl p-6">
-              <h2 className="font-fraunces text-[16px] font-bold text-foreground mb-1">DNA lỗi sai</h2>
-              <p className="font-jakarta text-xs text-dim mb-5">Hồ sơ loại lỗi của bạn từ toàn bộ lịch sử thi</p>
+            <div className="bg-[#0D1221] border border-surface rounded-2xl p-6">
+              <h2 className="font-fraunces text-[16px] font-bold text-[#F8FAFC] mb-1">DNA lỗi sai</h2>
+              <p className="font-jakarta text-[12px] text-dim mb-5">Hồ sơ loại lỗi của bạn từ toàn bộ lịch sử thi</p>
               <ResponsiveContainer width="100%" height={260}>
                 <RadarChart data={radarData}>
                   <PolarGrid stroke="#1E2A44" />
@@ -161,13 +160,13 @@ export default function ErrorAnalysis() {
             </div>
 
             {/* ── Heatmap bar chart ───────────────────────────────────────── */}
-            <div className="bg-surface border border-border rounded-2xl p-6">
-              <h2 className="font-fraunces text-[16px] font-bold text-foreground mb-1">Lỗi theo chủ đề</h2>
-              <p className="font-jakarta text-xs text-dim mb-5">
+            <div className="bg-[#0D1221] border border-surface rounded-2xl p-6">
+              <h2 className="font-fraunces text-[16px] font-bold text-[#F8FAFC] mb-1">Lỗi theo chủ đề</h2>
+              <p className="font-jakarta text-[12px] text-dim mb-5">
                 Trọng số tính theo độ gần đây (lỗi gần đây nặng hơn)
               </p>
               {barData.length === 0 ? (
-                <p className="font-jakarta text-[0.8125rem] text-faint text-center py-8">Chưa có dữ liệu lỗi.</p>
+                <p className="font-jakarta text-[13px] text-dim text-center py-8">Chưa có dữ liệu lỗi.</p>
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={barData} margin={{ left: -10 }}>
@@ -196,16 +195,15 @@ export default function ErrorAnalysis() {
             </div>
 
             {/* ── AI Misconception report ─────────────────────────────────── */}
-            <div className="bg-surface border border-border rounded-2xl p-6">
+            <div className="bg-[#0D1221] border border-surface rounded-2xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="font-fraunces text-[16px] font-bold text-foreground">Chẩn đoán AI</h2>
-                  <p className="font-jakarta text-xs text-dim mt-0.5">Top 3 hiểu lầm cốt lõi · ⚡2 Tia</p>
+                  <h2 className="font-fraunces text-[16px] font-bold text-[#F8FAFC]">Chẩn đoán AI</h2>
+                  <p className="font-jakarta text-[12px] text-dim mt-0.5">Top 3 hiểu lầm cốt lõi · ⚡2 Tia</p>
                 </div>
                 {!hasMisconceptions && !aiLoading && (
                   <button onClick={fetchAI}
-                    className="px-4 py-2 rounded-lg font-jakarta text-xs font-bold transition"
-                    style={{ background: '#F2A20C', color: '#0A0E1A' }}>
+                    className="px-4 py-2 rounded-lg font-jakarta text-[12px] font-bold transition bg-primary text-background">
                     Phân tích ngay
                   </button>
                 )}
@@ -213,26 +211,26 @@ export default function ErrorAnalysis() {
               {aiLoading && (
                 <div className="flex items-center gap-2 py-6">
                   <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-                  <span className="font-jakarta text-[0.8125rem] text-dim">AI đang phân tích lỗi sai của bạn...</span>
+                  <span className="font-jakarta text-[13px] text-dim">AI đang phân tích lỗi sai của bạn...</span>
                 </div>
               )}
-              {aiError && <p className="font-jakarta text-xs text-red-400 py-3">{aiError}</p>}
+              {aiError && <p className="font-jakarta text-[12px] text-red-400 py-3">{aiError}</p>}
               {hasMisconceptions && (
                 <div className="flex flex-col gap-4">
                   {aiData.misconceptions.map((m, i) => (
-                    <div key={i} className="flex gap-4 p-4 rounded-xl bg-surface-elevated border border-border">
+                    <div key={i} className="flex gap-4 p-4 rounded-xl bg-[#111827] border border-surface">
                       <span className="text-2xl mt-0.5">{'🔍🧩🎯'[i]}</span>
                       <div className="flex flex-col gap-1">
-                        <span className="font-jakarta text-[0.6875rem] font-bold text-amber-400 uppercase tracking-wide">{m.concept || `Hiểu lầm ${i + 1}`}</span>
-                        <p className="font-jakarta text-[0.8125rem] text-highlight">{m.misconception}</p>
-                        <p className="font-jakarta text-xs text-dim">💡 {m.suggestion}</p>
+                        <span className="font-jakarta text-[11px] font-bold text-amber-400 uppercase tracking-wide">{m.concept || `Hiểu lầm ${i + 1}`}</span>
+                        <p className="font-jakarta text-[13px] text-[#F0F4FF]">{m.misconception}</p>
+                        <p className="font-jakarta text-[12px] text-dim">💡 {m.suggestion}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
               {!hasMisconceptions && !aiLoading && !aiError && (
-                <p className="font-jakarta text-[0.8125rem] text-faint py-4 text-center">
+                <p className="font-jakarta text-[13px] text-dim py-4 text-center">
                   Nhấn "Phân tích ngay" để AI xác định hiểu lầm cốt lõi của bạn.
                 </p>
               )}

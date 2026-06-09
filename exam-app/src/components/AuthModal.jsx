@@ -50,7 +50,7 @@ export default function AuthModal({ open, onClose }) {
     >
       <div
         className="relative rounded-xl p-8 flex flex-col items-center gap-5 w-80"
-        style={{ background: '#0A0E1A', border: '1px solid #F2A20C' }}
+        className="glass-base border border-primary"
       >
         <button
           onClick={onClose}

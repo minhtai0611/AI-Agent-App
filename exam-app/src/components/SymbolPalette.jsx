@@ -6,12 +6,12 @@ export default function SymbolPalette({ onInsert }) {
   const [open, setOpen] = useState(() => window.innerWidth >= 640)
 
   return (
-    <div className="border-t border-border-subtle bg-background">
+    <div className="border-t border-surface bg-surface">
       {/* Mobile toggle */}
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="sm:hidden w-full flex items-center justify-between px-4 py-2 font-jakarta text-xs text-faint hover:text-muted transition"
+        className="sm:hidden w-full flex items-center justify-between px-4 py-2 font-jakarta text-[12px] text-dim hover:text-[#94A3B8] transition"
       >
         <span>Ký hiệu</span>
         <span>{open ? '▴' : '▾'}</span>
@@ -20,16 +20,16 @@ export default function SymbolPalette({ onInsert }) {
       {open && (
         <div>
           {/* Tab bar */}
-          <div className="flex gap-0 overflow-x-auto scrollbar-none border-b border-border-subtle">
+          <div className="flex gap-0 overflow-x-auto scrollbar-none border-b border-surface">
             {SYMBOL_GROUPS.map((group, i) => (
               <button
                 key={group.name}
                 type="button"
                 onClick={() => setActiveGroup(i)}
-                className={`shrink-0 px-3 py-1.5 font-jakarta text-[0.6875rem] transition whitespace-nowrap
+                className={`shrink-0 px-3 py-1.5 font-jakarta text-[11px] transition whitespace-nowrap
                   ${activeGroup === i
-                    ? 'border-b-2 border-[#6366F1] text-[#6366F1]'
-                    : 'text-faint hover:text-muted'
+                    ? 'border-b-2 border-info text-info'
+                    : 'text-dim hover:text-[#94A3B8]'
                   }`}
               >
                 {group.name}
@@ -45,8 +45,8 @@ export default function SymbolPalette({ onInsert }) {
                 type="button"
                 title={sym.title}
                 onClick={() => onInsert(sym.insert)}
-                className="w-8 h-8 flex items-center justify-center font-jakarta text-[0.8125rem] text-muted
-                  rounded hover:bg-[#1E293B] hover:text-[#E2E8F0] transition"
+                className="w-8 h-8 flex items-center justify-center font-jakarta text-[13px] text-[#94A3B8]
+                  rounded hover:bg-surface hover:text-foreground transition"
               >
                 {sym.label}
               </button>

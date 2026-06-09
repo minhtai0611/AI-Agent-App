@@ -15,7 +15,6 @@ import 'katex/dist/katex.min.css'
 
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { MathText } from '../components/MathText.jsx'
-import ReportButton from '../components/ReportButton.jsx'
 const TOPIC_ORDER = ['algebra', 'geometry', 'statistics', 'combinatorics']
 
 const ERROR_TAGS = [
@@ -54,7 +53,7 @@ function saveAiCategory(questionId, category) {
 function MdMath({ children }) {
   return (
     <Markdown remarkPlugins={[remarkMath, remarkGfm]} rehypePlugins={[rehypeKatex]}
-      className="font-jakarta text-[0.8125rem] text-muted-fg leading-relaxed prose-invert">
+      className="font-jakarta text-[13px] text-foreground leading-relaxed prose-invert">
       {children}
     </Markdown>
   )
@@ -110,32 +109,32 @@ function MistakeRow({ question, userAnswer, examTitle }) {
   const userLabel = typeof userAnswer === 'number' ? (question.choices?.[userAnswer] ?? '—') : '—'
 
   return (
-    <div className="bg-surface rounded-xl border border-border overflow-hidden">
+    <div className="bg-[#0D1521] rounded-xl border border-surface overflow-hidden">
       <button
         className="w-full text-left px-5 py-4 flex items-start justify-between gap-4"
         onClick={fetchExplanation}
       >
         <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-          <MathText className="font-jakarta text-[0.8125rem] text-muted-fg line-clamp-2">{question.question}</MathText>
-          <div className="flex flex-wrap gap-2 text-[0.6875rem]">
-            <span className="px-2 py-0.5 rounded-full bg-[#2A0F14] border border-[#5A1A24] text-destructive">
+          <MathText className="font-jakarta text-[13px] text-foreground line-clamp-2">{question.question}</MathText>
+          <div className="flex flex-wrap gap-2 text-[11px]">
+            <span className="px-2 py-0.5 rounded-full bg-destructive/10 border border-destructive/30 text-destructive">
               Bạn chọn: <MathText>{userLabel?.slice(0, 40)}</MathText>
             </span>
-            <span className="px-2 py-0.5 rounded-full bg-[#0A2A1A] border border-[#1A5A2A] text-[#34D399]">
+            <span className="px-2 py-0.5 rounded-full bg-success/5 border border-success/20 text-success">
               Đáp án: <MathText>{correctLabel?.slice(0, 40)}</MathText>
             </span>
             {examTitle && (
-              <span className="px-2 py-0.5 rounded-full bg-surface-elevated border border-border text-faint">{examTitle}</span>
+              <span className="px-2 py-0.5 rounded-full bg-[#111827] border border-surface text-dim">{examTitle}</span>
             )}
             {aiCategory && AI_CATEGORY_META[aiCategory] && (
-              <span className="px-2 py-0.5 rounded-full font-jakarta text-[0.625rem] font-semibold border"
+              <span className="px-2 py-0.5 rounded-full font-jakarta text-[10px] font-semibold border"
                 style={{ borderColor: AI_CATEGORY_META[aiCategory].color + '44', color: AI_CATEGORY_META[aiCategory].color, background: AI_CATEGORY_META[aiCategory].color + '18' }}>
                 {AI_CATEGORY_META[aiCategory].label}
               </span>
             )}
           </div>
         </div>
-        <span className="text-faint flex-shrink-0 mt-0.5">
+        <span className="text-dim flex-shrink-0 mt-0.5">
           {explLoading ? <span className="animate-spin inline-block">⟳</span> : expanded ? '▲' : '▼'}
         </span>
       </button>
@@ -149,37 +148,37 @@ function MistakeRow({ question, userAnswer, examTitle }) {
           transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
           style={{ overflow: 'hidden' }}
         >
-        <div className="px-5 pb-4 flex flex-col gap-3 border-t border-border pt-3">
+        <div className="px-5 pb-4 flex flex-col gap-3 border-t border-surface pt-3">
           {explLoading && (
-            <div className="flex items-center gap-2 text-faint font-jakarta text-xs">
+            <div className="flex items-center gap-2 text-dim font-jakarta text-[12px]">
               <span className="animate-spin">⟳</span> Đang tải giải thích...
             </div>
           )}
           {explError && (
-            <p className="font-jakarta text-xs text-red-400">{explError}</p>
+            <p className="font-jakarta text-[12px] text-red-400">{explError}</p>
           )}
           {displayExpl && (
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-[0.6875rem] font-semibold text-faint uppercase tracking-wider">Giải thích</span>
-                {explLoading && <span className="font-jakarta text-[0.625rem] text-primary animate-pulse">AI đang cải thiện...</span>}
+                <span className="font-jakarta text-[11px] font-semibold text-dim uppercase tracking-wider">Giải thích</span>
+                {explLoading && <span className="font-jakarta text-[10px] text-primary animate-pulse">AI đang cải thiện...</span>}
               </div>
               <MdMath>{displayExpl}</MdMath>
             </div>
           )}
           {!user && (
-            <p className="font-jakarta text-[0.6875rem] text-amber-400">Đăng nhập để dùng AI giải thích ⚡1</p>
+            <p className="font-jakarta text-[11px] text-amber-400">Đăng nhập để dùng AI giải thích ⚡1</p>
           )}
           <div className="flex items-center gap-2 pt-1 flex-wrap">
-            <span className="font-jakarta text-[0.6875rem] text-faint">Loại lỗi:</span>
+            <span className="font-jakarta text-[11px] text-dim">Loại lỗi:</span>
             {ERROR_TAGS.map(t => (
               <button
                 key={t.id}
                 onClick={() => { const next = tag === t.id ? null : t.id; setTag(next); saveTag(question.id, next) }}
-                className={`px-2.5 py-1 rounded-full font-jakarta text-[0.6875rem] border transition ${
+                className={`px-2.5 py-1 rounded-full font-jakarta text-[11px] border transition ${
                   tag === t.id
-                    ? 'border-primary bg-[#F2A20C22] text-primary'
-                    : 'border-border text-faint hover:border-[#2A3A50] hover:text-muted'
+                    ? 'border-[#F2A20C] bg-primary/10 text-primary'
+                    : 'border-surface text-dim hover:border-primary/30 hover:text-[#94A3B8]'
                 }`}
               >
                 {t.label}
@@ -187,12 +186,11 @@ function MistakeRow({ question, userAnswer, examTitle }) {
             ))}
             <button
               onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
-              className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#6366F133] bg-[#6366F108] font-jakarta text-[0.6875rem] font-semibold text-[#818CF8] hover:border-[#6366F166] hover:bg-[#6366F114] transition"
+              className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-full border border-info/20 bg-info/5 font-jakarta text-[11px] font-semibold text-info hover:border-[#6366F166] hover:bg-info/10 transition"
             >
               <span className="text-[9px]">✦</span> Oracle
             </button>
           </div>
-          <ReportButton questionId={question.id} topic={question.topic} />
         </div>
         </motion.div>
       )}
@@ -316,18 +314,18 @@ export default function Mistakes() {
 
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
-      className="min-h-screen bg-background pb-16">
+      className="min-h-screen bg-surface pb-16">
       <div className="max-w-2xl mx-auto px-4 pt-20">
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
-          <button onClick={() => navigate('/exams')} className="font-jakarta text-[0.8125rem] text-dim hover:text-muted transition">
+          <button onClick={() => navigate('/exams')} className="font-jakarta text-[13px] text-dim hover:text-[#94A3B8] transition">
             ← Quay lại
           </button>
         </div>
         <div className="flex items-end justify-between mb-6">
           <div>
-            <h1 className="font-fraunces text-[28px] font-bold text-foreground">Sổ tay sai lầm</h1>
-            <p className="font-jakarta text-[0.8125rem] text-dim mt-1">
+            <h1 className="font-fraunces text-[28px] font-bold text-[#F8FAFC]">Sổ tay sai lầm</h1>
+            <p className="font-jakarta text-[13px] text-dim mt-1">
               {questions.length === 0 ? 'Đang tải...' : totalMistakes === 0 ? 'Chưa có câu sai nào!' : `${totalMistakes} câu đã làm sai`}
             </p>
           </div>
@@ -335,14 +333,13 @@ export default function Mistakes() {
             <div className="flex flex-col gap-2 items-end">
               <button
                 onClick={() => navigate('/battle')}
-                className="px-4 py-2 rounded-xl font-jakarta text-xs font-bold"
-                style={{ background: '#F2A20C', color: '#0A0E1A' }}
+                className="px-4 py-2 rounded-xl font-jakarta text-[12px] font-bold bg-primary text-background"
               >
                 Chiến đấu 🔥
               </button>
               <button
                 onClick={() => navigate('/exams?mode=practice')}
-                className="px-4 py-1.5 rounded-lg font-jakarta text-[0.6875rem] text-dim hover:text-muted border border-border transition"
+                className="px-4 py-1.5 rounded-lg font-jakarta text-[11px] text-dim hover:text-[#94A3B8] border border-surface transition"
               >
                 Luyện từ lỗi sai
               </button>
@@ -352,18 +349,18 @@ export default function Mistakes() {
 
         {/* Weekly AI category summary */}
         {weeklyCategorySummary.length > 0 && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-surface border border-border flex flex-wrap items-center gap-2">
-            <span className="font-jakarta text-[0.6875rem] font-semibold text-faint uppercase tracking-wider mr-1">Tuần này:</span>
+          <div className="mb-4 px-4 py-3 rounded-xl bg-[#0D1221] border border-surface flex flex-wrap items-center gap-2">
+            <span className="font-jakarta text-[11px] font-semibold text-dim uppercase tracking-wider mr-1">Tuần này:</span>
             {weeklyCategorySummary.map(([cat, count]) => {
               const meta = AI_CATEGORY_META[cat]
               if (!meta) return null
               return (
-                <span key={cat} className="font-jakarta text-xs font-medium"
+                <span key={cat} className="font-jakarta text-[12px] font-medium"
                   style={{ color: meta.color }}>
                   {count} lỗi {meta.label.toLowerCase()}
                 </span>
               )
-            }).filter(Boolean).reduce((acc, el, i) => i === 0 ? [el] : [...acc, <span key={`sep-${i}`} className="text-border">·</span>, el], [])}
+            }).filter(Boolean).reduce((acc, el, i) => i === 0 ? [el] : [...acc, <span key={`sep-${i}`} className="text-[#1E2A44]">·</span>, el], [])}
           </div>
         )}
 
@@ -372,8 +369,8 @@ export default function Mistakes() {
           <div className="flex flex-wrap gap-2 mb-4">
             <button
               onClick={() => setFilterCategory(null)}
-              className={`h-7 px-3 rounded-full font-jakarta text-[0.6875rem] font-medium border transition ${
-                !filterCategory ? 'border-[#818CF8] bg-[#818CF822] text-[#818CF8]' : 'border-border text-dim'
+              className={`h-7 px-3 rounded-full font-jakarta text-[11px] font-medium border transition ${
+                !filterCategory ? 'border-info bg-info/10 text-info' : 'border-surface text-dim'
               }`}
             >AI: Tất cả</button>
             {Object.keys(AI_CATEGORY_META).filter(cat => Object.values(aiCategories).includes(cat)).map(cat => {
@@ -382,7 +379,7 @@ export default function Mistakes() {
               return (
                 <button key={cat}
                   onClick={() => setFilterCategory(filterCategory === cat ? null : cat)}
-                  className="h-7 px-3 rounded-full font-jakarta text-[0.6875rem] font-medium border transition"
+                  className="h-7 px-3 rounded-full font-jakarta text-[11px] font-medium border transition"
                   style={filterCategory === cat
                     ? { borderColor: meta.color, background: meta.color + '22', color: meta.color }
                     : { borderColor: '#1E2A44', color: '#64748B' }}
@@ -399,16 +396,16 @@ export default function Mistakes() {
           <div className="flex flex-wrap gap-2 mb-6">
             <button
               onClick={() => setFilterTopic(null)}
-              className={`h-8 px-3 rounded-full font-jakarta text-xs font-medium border transition ${
-                !filterTopic ? 'border-primary bg-[#F2A20C22] text-primary' : 'border-border text-dim'
+              className={`h-8 px-3 rounded-full font-jakarta text-[12px] font-medium border transition ${
+                !filterTopic ? 'border-[#F2A20C] bg-primary/10 text-primary' : 'border-surface text-dim'
               }`}
             >Tất cả</button>
             {topics.map(t => (
               <button
                 key={t}
                 onClick={() => setFilterTopic(filterTopic === t ? null : t)}
-                className={`h-8 px-3 rounded-full font-jakarta text-xs font-medium border transition ${
-                  filterTopic === t ? 'border-primary bg-[#F2A20C22] text-primary' : 'border-border text-dim'
+                className={`h-8 px-3 rounded-full font-jakarta text-[12px] font-medium border transition ${
+                  filterTopic === t ? 'border-[#F2A20C] bg-primary/10 text-primary' : 'border-surface text-dim'
                 }`}
               >
                 {TOPIC_LABELS[t] ?? t} <span className="opacity-60 ml-1">{byTopic[t].length}</span>
@@ -421,11 +418,10 @@ export default function Mistakes() {
         {totalMistakes === 0 && questions.length > 0 && (
           <div className="flex flex-col items-center gap-3 py-20 text-center">
             <span className="text-4xl">🎉</span>
-            <p className="font-jakarta text-[15px] text-muted">Chưa có câu sai nào — hãy làm một bài thi!</p>
+            <p className="font-jakarta text-[15px] text-[#94A3B8]">Chưa có câu sai nào — hãy làm một bài thi!</p>
             <button
               onClick={() => navigate('/exams')}
-              className="px-5 py-2 rounded-xl font-jakarta text-[0.8125rem] font-bold mt-2"
-              style={{ background: '#F2A20C', color: '#0A0E1A' }}
+              className="px-5 py-2 rounded-xl font-jakarta text-[13px] font-bold mt-2 bg-primary text-background"
             >
               Chọn đề thi
             </button>
@@ -434,26 +430,26 @@ export default function Mistakes() {
 
         {/* Error patterns — systematic wrong choices */}
         {errorPatterns.length > 0 && !filterTopic && (
-          <div className="mb-8 bg-surface border border-[#2A1A40] rounded-2xl p-5 flex flex-col gap-4">
+          <div className="mb-8 glass-base border border-info/20 rounded-2xl p-5 flex flex-col gap-4">
             <div className="flex items-center gap-2">
-              <span className="font-jakarta text-xs font-bold text-[#A78BFA] uppercase tracking-wider">Lỗi hệ thống</span>
-              <span className="font-jakarta text-[0.6875rem] text-faint">Những lựa chọn bạn lặp lại ≥{PATTERN_THRESHOLD} lần</span>
+              <span className="font-jakarta text-[12px] font-bold text-info/80 uppercase tracking-wider">Lỗi hệ thống</span>
+              <span className="font-jakarta text-[11px] text-dim">Những lựa chọn bạn lặp lại ≥{PATTERN_THRESHOLD} lần</span>
             </div>
             <div className="flex flex-col gap-3">
               {errorPatterns.map((p, i) => (
-                <div key={`${p.question.id}-${p.wrongChoiceIndex}`} className="flex flex-col gap-1.5 px-4 py-3 rounded-xl bg-[#150D2A] border border-[#2A1A40]">
-                  <MathText className="font-jakarta text-[0.8125rem] text-muted-fg line-clamp-2">{p.question.question}</MathText>
-                  <div className="flex flex-wrap gap-2 text-[0.6875rem]">
-                    <span className="px-2 py-0.5 rounded-full bg-[#2A0F14] border border-[#5A1A24] text-destructive">
+                <div key={`${p.question.id}-${p.wrongChoiceIndex}`} className="flex flex-col gap-1.5 px-4 py-3 rounded-xl bg-info/5 border border-info/20">
+                  <MathText className="font-jakarta text-[13px] text-foreground line-clamp-2">{p.question.question}</MathText>
+                  <div className="flex flex-wrap gap-2 text-[11px]">
+                    <span className="px-2 py-0.5 rounded-full bg-destructive/10 border border-destructive/30 text-destructive">
                       Hay chọn nhầm: <MathText>{p.wrongChoiceText.slice(0, 40)}</MathText>
                     </span>
-                    <span className="px-2 py-0.5 rounded-full bg-[#0A2A1A] border border-[#1A5A2A] text-[#34D399]">
+                    <span className="px-2 py-0.5 rounded-full bg-success/5 border border-success/20 text-success">
                       Đúng: <MathText>{p.correctText.slice(0, 40)}</MathText>
                     </span>
-                    <span className="px-2 py-0.5 rounded-full bg-[#1A1240] border border-[#2A1A60] text-[#A78BFA]">
+                    <span className="px-2 py-0.5 rounded-full bg-info/5 border border-info/20 text-info/80">
                       {p.occurrences} lần
                     </span>
-                    <span className="px-2 py-0.5 rounded-full bg-surface-elevated border border-border text-faint">
+                    <span className="px-2 py-0.5 rounded-full bg-[#111827] border border-surface text-dim">
                       {TOPIC_LABELS[p.question.topic] ?? p.question.topic}
                     </span>
                   </div>
@@ -473,10 +469,10 @@ export default function Mistakes() {
           return (
           <div key={topic} className="mb-8">
             <div className="flex items-center gap-2 mb-3">
-              <span className="font-jakarta text-xs font-bold text-muted uppercase tracking-wider">
+              <span className="font-jakarta text-[12px] font-bold text-[#94A3B8] uppercase tracking-wider">
                 {TOPIC_LABELS[topic] ?? topic}
               </span>
-              <span className="font-jakarta text-[0.6875rem] text-faint">{topicEntries.length} câu</span>
+              <span className="font-jakarta text-[11px] text-dim">{topicEntries.length} câu</span>
             </div>
             <div className="flex flex-col gap-2">
               {visibleEntries.map(entry => (
@@ -490,7 +486,7 @@ export default function Mistakes() {
               {!isExpanded && hiddenCount > 0 && (
                 <button
                   onClick={() => setExpandedTopics(prev => ({ ...prev, [topic]: true }))}
-                  className="font-jakarta text-xs text-center py-2 rounded-xl border border-dashed border-border text-faint hover:text-muted transition">
+                  className="font-jakarta text-[12px] text-center py-2 rounded-xl border border-dashed border-surface text-dim hover:text-[#94A3B8] transition">
                   + Xem thêm ({hiddenCount} câu)
                 </button>
               )}

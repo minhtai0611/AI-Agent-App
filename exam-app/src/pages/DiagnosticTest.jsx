@@ -6,7 +6,6 @@ import { seedDiagnostic } from '../api/aiClient.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { MathText } from '../components/MathText.jsx'
-import ReportButton from '../components/ReportButton.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
 
@@ -116,43 +115,42 @@ export default function DiagnosticTest() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <span className="font-jakarta text-faint text-sm">Đang tải câu hỏi...</span>
+      <div className="min-h-screen bg-surface flex items-center justify-center">
+        <span className="font-jakarta text-dim text-[14px]">Đang tải câu hỏi...</span>
       </div>
     )
   }
 
   if (phase === 'intro') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="min-h-screen bg-surface flex items-center justify-center px-4">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
-          className="max-w-md w-full bg-surface border border-border rounded-2xl p-8 flex flex-col gap-5 text-center">
+          className="max-w-md w-full bg-[#0D1221] border border-surface rounded-2xl p-8 flex flex-col gap-5 text-center">
           <span className="text-4xl">🧪</span>
           <div>
-            <h1 className="font-fraunces text-[24px] font-bold text-foreground mb-2">Kiểm tra đầu vào</h1>
-            <p className="font-jakarta text-sm text-muted leading-relaxed">
+            <h1 className="font-fraunces text-[24px] font-bold text-[#F8FAFC] mb-2">Kiểm tra đầu vào</h1>
+            <p className="font-jakarta text-[14px] text-[#94A3B8] leading-relaxed">
               {DIAGNOSTIC_TOPICS.length * QUESTIONS_PER_TOPIC} câu hỏi · 2 câu mỗi chủ đề
             </p>
-            <p className="font-jakarta text-[0.8125rem] text-dim mt-2 leading-relaxed">
+            <p className="font-jakarta text-[13px] text-dim mt-2 leading-relaxed">
               Kết quả sẽ giúp AI chọn đúng dạng bài bạn cần luyện nhất.
             </p>
           </div>
           <div className="flex flex-col gap-2 text-left">
             {DIAGNOSTIC_TOPICS.map(t => (
-              <div key={t} className="flex items-center gap-2 font-jakarta text-[0.8125rem] text-dim">
-                <span className="w-1.5 h-1.5 rounded-full bg-border flex-shrink-0" />
+              <div key={t} className="flex items-center gap-2 font-jakarta text-[13px] text-dim">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1E2A44] flex-shrink-0" />
                 {TOPIC_LABELS[t] ?? t}
               </div>
             ))}
           </div>
           <div className="flex flex-col gap-2 mt-2">
             <button onClick={startTest}
-              className="w-full py-3 rounded-xl font-jakarta text-sm font-bold"
-              style={{ background: '#F2A20C', color: '#0A0E1A' }}>
+              className="w-full py-3 rounded-xl font-jakarta text-[14px] font-bold bg-primary text-background">
               Bắt đầu kiểm tra
             </button>
             <button onClick={() => navigate(-1)}
-              className="font-jakarta text-[0.8125rem] text-faint hover:text-muted transition py-1">
+              className="font-jakarta text-[13px] text-dim hover:text-[#94A3B8] transition py-1">
               Bỏ qua
             </button>
           </div>
@@ -167,18 +165,18 @@ export default function DiagnosticTest() {
     const progress = ((currentIdx) / questions.length) * 100
 
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center px-4 pt-16 pb-16">
+      <div className="min-h-screen bg-surface flex flex-col items-center px-4 pt-16 pb-16">
         {/* Progress bar */}
         <div className="w-full max-w-xl mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="font-jakarta text-xs text-faint">
+            <span className="font-jakarta text-[12px] text-dim">
               Câu {currentIdx + 1} / {questions.length}
             </span>
-            <span className="font-jakarta text-[0.6875rem] font-semibold text-dim uppercase tracking-wider">
+            <span className="font-jakarta text-[11px] font-semibold text-dim uppercase tracking-wider">
               {TOPIC_LABELS[q.topic] ?? q.topic}
             </span>
           </div>
-          <div className="h-1 bg-border rounded-full">
+          <div className="h-1 bg-[#1E2A44] rounded-full">
             <div className="h-1 bg-primary rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }} />
           </div>
@@ -189,8 +187,8 @@ export default function DiagnosticTest() {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             className="w-full max-w-xl">
-            <div className="bg-surface border border-border rounded-2xl p-6 mb-4">
-              <MathText className="font-jakarta text-[15px] text-highlight leading-relaxed">
+            <div className="bg-[#0D1221] border border-surface rounded-2xl p-6 mb-4">
+              <MathText className="font-jakarta text-[15px] text-[#F0F4FF] leading-relaxed">
                 {q.question}
               </MathText>
             </div>
@@ -203,21 +201,18 @@ export default function DiagnosticTest() {
                   <button key={i}
                     onClick={() => chosen === undefined && handleAnswer(i)}
                     disabled={chosen !== undefined}
-                    className="w-full text-left px-5 py-3.5 rounded-xl border font-jakarta text-sm transition"
+                    className="w-full text-left px-5 py-3.5 rounded-xl border font-jakarta text-[14px] transition"
                     style={{
                       borderColor: isCorrect ? '#34D39944' : isWrong ? '#FB718544' : '#1E2A44',
                       background: isCorrect ? '#0A2A1A' : isWrong ? '#2A0F14' : '#0D1521',
                       color: isCorrect ? '#34D399' : isWrong ? '#FB7185' : '#CBD5E1',
                     }}>
-                    <span className="text-faint mr-3">{String.fromCharCode(65 + i)}.</span>
+                    <span className="text-dim mr-3">{String.fromCharCode(65 + i)}.</span>
                     <MathText>{choice}</MathText>
                   </button>
                 )
               })}
             </div>
-            {chosen !== undefined && (
-              <ReportButton questionId={q.id} topic={q.topic} />
-            )}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -231,24 +226,24 @@ export default function DiagnosticTest() {
 
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
-      className="min-h-screen bg-background flex flex-col items-center px-4 pt-16 pb-16">
+      className="min-h-screen bg-surface flex flex-col items-center px-4 pt-16 pb-16">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}
         className="w-full max-w-xl flex flex-col gap-6">
         <div className="text-center">
           <span className="text-4xl">{overallPct >= 70 ? '🎉' : overallPct >= 40 ? '📊' : '💪'}</span>
-          <h1 className="font-fraunces text-[24px] font-bold text-foreground mt-3">Kết quả chẩn đoán</h1>
-          <p className="font-jakarta text-sm text-muted mt-1">{totalCorrect}/{totalQ} câu đúng · {overallPct}% tổng thể</p>
+          <h1 className="font-fraunces text-[24px] font-bold text-[#F8FAFC] mt-3">Kết quả chẩn đoán</h1>
+          <p className="font-jakarta text-[14px] text-[#94A3B8] mt-1">{totalCorrect}/{totalQ} câu đúng · {overallPct}% tổng thể</p>
         </div>
 
         {/* Topic breakdown bars */}
-        <div className="bg-surface border border-border rounded-2xl p-5 flex flex-col gap-3">
+        <div className="bg-[#0D1221] border border-surface rounded-2xl p-5 flex flex-col gap-3">
           {resultsData.map(({ topic, correct, total, pct }) => (
             <div key={topic} className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="font-jakarta text-[0.8125rem] font-medium text-muted-fg">{TOPIC_LABELS[topic] ?? topic}</span>
-                <span className="font-jakarta text-xs text-dim">{correct}/{total}</span>
+                <span className="font-jakarta text-[13px] font-medium text-foreground">{TOPIC_LABELS[topic] ?? topic}</span>
+                <span className="font-jakarta text-[12px] text-dim">{correct}/{total}</span>
               </div>
-              <div className="h-1.5 bg-border rounded-full">
+              <div className="h-1.5 bg-[#1E2A44] rounded-full">
                 <div className="h-1.5 rounded-full transition-all duration-500"
                   style={{
                     width: `${pct}%`,
@@ -259,18 +254,17 @@ export default function DiagnosticTest() {
           ))}
         </div>
 
-        <p className="font-jakarta text-[0.8125rem] text-dim text-center">
+        <p className="font-jakarta text-[13px] text-dim text-center">
           AI sẽ ưu tiên luyện những chủ đề bạn còn yếu khi bạn dùng chế độ Luyện thích nghi.
         </p>
 
         <div className="flex flex-col gap-2">
           <button onClick={() => navigate('/practice/adaptive')}
-            className="w-full py-3 rounded-xl font-jakarta text-sm font-bold"
-            style={{ background: '#F2A20C', color: '#0A0E1A' }}>
+            className="w-full py-3 rounded-xl font-jakarta text-[14px] font-bold bg-primary text-background">
             Bắt đầu luyện tập thích nghi →
           </button>
           <button onClick={() => navigate('/exams?mode=timed')}
-            className="font-jakarta text-[0.8125rem] text-faint hover:text-muted transition text-center py-1">
+            className="font-jakarta text-[13px] text-dim hover:text-[#94A3B8] transition text-center py-1">
             Quay lại
           </button>
         </div>

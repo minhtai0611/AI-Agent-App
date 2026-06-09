@@ -46,7 +46,7 @@ export default function ReportButton({ questionId, topic }) {
 
   if (sent) {
     return (
-      <p className="font-jakarta text-[0.6875rem] text-[#34D399] mt-2">
+      <p className="font-jakarta text-[0.6875rem] text-success mt-2">
         Đã gửi báo cáo{topic ? <> về <strong>{topic}</strong></> : ''} — cảm ơn!
       </p>
     )
