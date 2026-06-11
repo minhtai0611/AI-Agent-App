@@ -101,7 +101,7 @@ function AIErrorMessage({ error }) {
     return (
       <div className="flex flex-col gap-3 py-4 items-center text-center">
         <span className="font-jakarta text-[0.8125rem] text-muted">
-          Hết Tia — còn <strong className="text-amber-400">{error.balance}</strong> Tia, cần <strong>{error.required}</strong>.
+          Hết credits — còn <strong className="text-amber-400">{error.balance}</strong> credits, cần <strong>{error.required}</strong>.
         </span>
         <button
           onClick={() => navigate('/account#topup')}

@@ -240,7 +240,7 @@ export default function AdaptivePractice() {
         >
           <span className="font-jakarta text-[14px] font-semibold text-foreground">Từ kho đề có sẵn</span>
           <span className="font-jakarta text-[12px] text-dim">
-            {SESSION_SIZE} câu từ ngân hàng đề — nhanh, không tốn Tia
+            {SESSION_SIZE} câu từ ngân hàng đề — nhanh, không tốn credits
           </span>
         </button>
 
@@ -251,7 +251,7 @@ export default function AdaptivePractice() {
           >
             <div className="flex items-center justify-between">
               <span className="font-jakarta text-[14px] font-semibold text-foreground">AI tạo câu hỏi riêng</span>
-              <span className="font-jakarta text-[11px] text-amber-400">⚡ 5 Tia</span>
+              <span className="font-jakarta text-[11px] text-amber-400">⚡ 5 credits</span>
             </div>
             <span className="font-jakarta text-[12px] text-dim">
               5 câu hỏi mới hoàn toàn, nhắm đúng điểm yếu của bạn

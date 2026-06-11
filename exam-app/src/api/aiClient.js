@@ -259,6 +259,14 @@ export function getConceptMastery() {
   return wrap(client.get('/users/me/concept-mastery'))
 }
 
+export function getConceptMasteryHistory(conceptId) {
+  return wrap(client.get(`/users/me/concept-mastery/${conceptId}/history`))
+}
+
+export function getReviewItemCounts() {
+  return wrap(client.get('/users/me/review-items/counts'))
+}
+
 export function getSessionToday() {
   return wrap(client.get('/users/me/session/today'))
 }

@@ -54,10 +54,10 @@ const REASON_LABELS = {
   'study-plan':                 'Kế hoạch học tập',
   'subscription_bonus_student': 'Nâng cấp gói Học sinh',
   'subscription_bonus_complete':'Nâng cấp gói Toàn diện',
-  'admin_grant':                   'Nạp Tia',
+  'admin_grant':                   'Nạp Credits',
   'trial_activation':              'Kích hoạt dùng thử',
   'grade_change_request':          'Yêu cầu đổi lớp',
-  'grade_change_rejection_refund': 'Hoàn Tia (từ chối đổi lớp)',
+  'grade_change_rejection_refund': 'Hoàn Credits (từ chối đổi lớp)',
 }
 
 const TIER_LABELS  = { basic: 'Cơ bản', student: 'Học sinh', complete: 'Toàn diện' }
@@ -72,27 +72,27 @@ const MASTERY_RANK_LABELS = {
 const MASTERY_RANK_COLORS = {
   'Pemula':    '#64748B',
   'Học sinh':  '#818CF8',
-  'Sinh viên': '#F2A20C',
+  'Sinh viên': '#6366F1',
   'Chuyên gia':'#10B981',
 }
-const TIER_COLORS  = { basic: '#64748B', student: '#F2A20C', complete: '#10B981' }
+const TIER_COLORS  = { basic: '#64748B', student: '#6366F1', complete: '#10B981' }
 const TIER_ALLOC   = { basic: 50, student: 500, complete: 2000 }
 const GRADE_LABELS = { '9': 'Lớp 9 trở xuống', '10': 'Lớp 10', '11': 'Lớp 11', '12': 'Lớp 12' }
 
 const PLANS_MONTHLY = [
   { tier: 'basic',    label: 'Cơ bản',    price: 'Miễn phí',       credits: 50,   studyPlan: false, badge: null,
-    features: ['5 Oracle/ngày', 'Tất cả chế độ thi', 'Thử thách hằng ngày'] },
+    features: ['5 lượt Zenith AI/ngày', 'Tất cả chế độ thi', 'Thử thách hằng ngày'] },
   { tier: 'student',  label: 'Học sinh',  price: '29,000đ/tháng',  credits: 500,  studyPlan: true,  badge: 'PHỔ BIẾN',
-    features: ['Oracle không giới hạn', 'AI Phân tích miễn phí', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
+    features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
   { tier: 'complete', label: 'Toàn diện', price: '59,000đ/tháng',  credits: 2000, studyPlan: true,  badge: null,
     features: ['Tất cả gói Học sinh', 'Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
 ]
 const PLANS_ANNUAL = [
   { tier: 'basic',    label: 'Cơ bản',    price: 'Miễn phí',        credits: 50,   studyPlan: false, badge: null,
-    features: ['5 Oracle/ngày', 'Tất cả chế độ thi', 'Thử thách hằng ngày'] },
-  { tier: 'student',  label: 'Học sinh',  price: '261,000đ/năm',    credits: 500,  studyPlan: true,  badge: 'PHỔ BIẾN', bonus: '+1,000 Tia', effective: '21,750đ/tháng',
-    features: ['Oracle không giới hạn', 'AI Phân tích miễn phí', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
-  { tier: 'complete', label: 'Toàn diện', price: '531,000đ/năm',    credits: 2000, studyPlan: true,  badge: null, bonus: '+3,000 Tia', effective: '44,250đ/tháng',
+    features: ['5 lượt Zenith AI/ngày', 'Tất cả chế độ thi', 'Thử thách hằng ngày'] },
+  { tier: 'student',  label: 'Học sinh',  price: '261,000đ/năm',    credits: 500,  studyPlan: true,  badge: 'PHỔ BIẾN', bonus: '+1,000 credits', effective: '21,750đ/tháng',
+    features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
+  { tier: 'complete', label: 'Toàn diện', price: '531,000đ/năm',    credits: 2000, studyPlan: true,  badge: null, bonus: '+3,000 credits', effective: '44,250đ/tháng',
     features: ['Tất cả gói Học sinh', 'Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
 ]
 const TOPUP_PACKAGES = [
@@ -669,7 +669,7 @@ export default function Account() {
               className="w-14 h-14 rounded-full object-cover flex-shrink-0"
             />
           ) : (
-            <div className="w-14 h-14 rounded-full bg-amber-500 flex items-center justify-center font-bold text-lg text-black flex-shrink-0">
+            <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center font-bold text-lg text-primary-fg flex-shrink-0">
               {((user.custom_display_name || user.display_name) || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || '?'}
             </div>
           )}
@@ -698,7 +698,7 @@ export default function Account() {
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={() => { setActiveTab(TAB_PROGRESS); setEditMode(true); setEditGrade(user.grade || ''); setEditProvince(user.province || '') }}
-              className="px-2.5 py-1.5 rounded-lg font-jakarta text-[0.6875rem] text-amber-400 hover:bg-amber-400/10 transition"
+              className="px-2.5 py-1.5 rounded-lg font-jakarta text-[0.6875rem] text-primary hover:bg-primary/10 transition"
             >
               ✏️ Sửa
             </button>
@@ -778,7 +778,7 @@ export default function Account() {
           {[
             [TAB_PROGRESS,  'Tiến Độ'],
             [TAB_ANALYTICS, 'Phân Tích'],
-            [TAB_AITIA,     'AI & Tia'],
+            [TAB_AITIA,     'AI & Credits'],
           ].map(([key, label]) => (
             <button
               key={key}
@@ -1074,8 +1074,7 @@ export default function Account() {
                   {saveError && <p className="font-jakarta text-xs text-red-400">{saveError}</p>}
                   <div className="flex gap-2">
                     <button onClick={handleSaveProfile} disabled={saving}
-                      className="px-5 py-2 rounded-lg font-jakarta text-[0.8125rem] font-bold transition"
-                      style={{ background: '#F2A20C', color: '#0A0E1A' }}>
+                      className="px-5 py-2 rounded-lg font-jakarta text-[0.8125rem] font-bold transition bg-primary text-primary-fg">
                       {saving ? 'Đang lưu...' : 'Lưu'}
                     </button>
                     <button onClick={() => { setEditMode(false); setSaveError('') }}
@@ -1140,7 +1139,7 @@ export default function Account() {
                         />
                         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-background border border-border">
                           <span className="text-amber-400 text-[0.8125rem]">⚡</span>
-                          <span className="font-jakarta text-xs text-dim">Chi phí xét duyệt: <strong className="text-amber-400">5 Tia</strong> · Sau khi duyệt cần đợi 90 ngày để đổi tiếp.</span>
+                          <span className="font-jakarta text-xs text-dim">Chi phí xét duyệt: <strong className="text-amber-400">5 credits</strong> · Sau khi duyệt cần đợi 90 ngày để đổi tiếp.</span>
                         </div>
                         {gradeChangeError && <p className="font-jakarta text-xs text-red-400">{gradeChangeError}</p>}
                         <div className="flex gap-2">
@@ -1900,7 +1899,7 @@ export default function Account() {
                         )}
                       </div>
                       <div className="flex items-center gap-3 flex-wrap">
-                        <span className="font-jakarta text-xs text-dim">⚡ {plan.credits.toLocaleString()} Tia/tháng</span>
+                        <span className="font-jakarta text-xs text-dim">⚡ {plan.credits.toLocaleString()} credits/tháng</span>
                         {plan.bonus && <span className="font-jakarta text-xs text-amber-300">🎁 {plan.bonus}</span>}
                       </div>
                       {plan.features && (
@@ -1948,7 +1947,7 @@ export default function Account() {
 
             {/* Top-up packages */}
             <section id="topup" className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
-              <span className="font-fraunces text-[15px] font-semibold text-foreground">Nạp thêm Tia</span>
+              <span className="font-fraunces text-[15px] font-semibold text-foreground">Nạp thêm Credits</span>
 
               {/* Personalized recommendation */}
               {topupRec ? (
@@ -1963,7 +1962,7 @@ export default function Account() {
                         <span className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400">{topupRec.pack.label}</span>
                         <span className="font-jakarta text-[0.6875rem] text-dim">Gợi ý cho bạn</span>
                       </div>
-                      <span className="font-fraunces text-[18px] font-bold text-amber-400">⚡ {topupRec.pack.credits} Tia</span>
+                      <span className="font-fraunces text-[18px] font-bold text-amber-400">⚡ {topupRec.pack.credits} credits</span>
                       <span className="font-jakarta text-[0.6875rem] text-dim">Đủ cho ~{topupRec.coversDays} ngày học tập AI</span>
                     </div>
                     <span className="font-fraunces text-[16px] font-bold text-highlight flex-shrink-0">{topupRec.pack.price}</span>
@@ -2006,7 +2005,7 @@ export default function Account() {
             {/* Credit log */}
             {creditLog.length > 0 && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
-                <span className="font-fraunces text-[15px] font-semibold text-foreground">Lịch sử Tia</span>
+                <span className="font-fraunces text-[15px] font-semibold text-foreground">Lịch sử Credits</span>
                 <div className="flex flex-col gap-1">
                   {(showAllCredits ? creditLog : creditLog.slice(0, 8)).map((entry, i) => (
                     <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0">
@@ -2365,9 +2364,9 @@ export default function Account() {
             {referral?.referral_code && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-fraunces text-[15px] font-semibold text-foreground">Chia sẻ & Kiếm Tia</span>
+                  <span className="font-fraunces text-[15px] font-semibold text-foreground">Chia sẻ & Kiếm Credits</span>
                   <span className="font-jakarta text-xs text-dim">
-                    Bạn và người được mời đều nhận <span className="text-amber-400">⚡ 50 Tia</span> khi họ đăng ký.
+                    Bạn và người được mời đều nhận <span className="text-amber-400">⚡ 50 credits</span> khi họ đăng ký.
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -2388,7 +2387,7 @@ export default function Account() {
                   </button>
                 </div>
                 <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Zenith nhé! Dùng link này để nhận 50 Tia miễn phí: ${referralUrl}`)}`}
+                  href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Zenith nhé! Dùng link này để nhận 50 credits miễn phí: ${referralUrl}`)}`}
                   target="_blank" rel="noopener noreferrer"
                   className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-jakarta text-xs font-semibold bg-whatsapp text-white hover:opacity-90 transition"
                 >
@@ -2400,7 +2399,7 @@ export default function Account() {
                       <span className="text-amber-400 font-bold">{referral.successful_referrals}</span> người đã tham gia qua link
                     </span>
                     <span className="font-jakarta text-xs text-amber-400">
-                      ⚡ {(referral.successful_referrals ?? 0) * 50} Tia đã kiếm
+                      ⚡ {(referral.successful_referrals ?? 0) * 50} credits đã kiếm
                     </span>
                   </div>
                 )}
@@ -2475,7 +2474,7 @@ export default function Account() {
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-fraunces text-[16px] font-bold text-foreground">Nạp ⚡ {topupPkg.credits} Tia</p>
+                  <p className="font-fraunces text-[16px] font-bold text-foreground">Nạp ⚡ {topupPkg.credits} credits</p>
                   <p className="font-jakarta text-[0.8125rem] text-dim mt-0.5">{topupPkg.price} · Chuyển khoản ngân hàng</p>
                 </div>
                 <button onClick={() => { setTopupPkg(null); setCopyBankDone(false) }} className="text-faint hover:text-foreground text-xl leading-none">×</button>
@@ -2507,7 +2506,7 @@ export default function Account() {
                 {copyBankDone ? '✓ Đã sao chép' : 'Sao chép thông tin'}
               </button>
               <p className="font-jakarta text-[0.6875rem] text-faint text-center">
-                Sau khi chuyển khoản, Tia sẽ được cộng trong 1–2 giờ làm việc.
+                Sau khi chuyển khoản, credits sẽ được cộng trong 1–2 giờ làm việc.
               </p>
             </motion.div>
           </motion.div>
@@ -2570,7 +2569,7 @@ export default function Account() {
             >
               <span className="font-fraunces text-[16px] font-bold text-red-400">Xóa tài khoản vĩnh viễn</span>
               <p className="font-jakarta text-[0.8125rem] text-muted">
-                Hành động này <strong className="text-foreground">không thể hoàn tác</strong>. Tất cả dữ liệu bao gồm lịch sử thi và Tia sẽ bị xóa.
+                Hành động này <strong className="text-foreground">không thể hoàn tác</strong>. Tất cả dữ liệu bao gồm lịch sử thi và credits sẽ bị xóa.
               </p>
               <div className="flex flex-col gap-1.5">
                 <span className="font-jakarta text-xs text-dim">Nhập địa chỉ email của bạn để xác nhận:</span>
@@ -2615,7 +2614,7 @@ export default function Account() {
         {[
           { id: TAB_PROGRESS,  label: 'Tiến Độ',   icon: '📈' },
           { id: TAB_ANALYTICS, label: 'Phân Tích',  icon: '🧠' },
-          { id: TAB_AITIA,     label: 'AI & Tia',   icon: '⚡' },
+          { id: TAB_AITIA,     label: 'AI & Credits',   icon: '⚡' },
         ].map(tab => (
           <button
             key={tab.id}

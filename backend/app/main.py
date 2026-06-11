@@ -449,6 +449,16 @@ _SCHEMA_DDL = [
     "CREATE INDEX IF NOT EXISTS user_devices_user_idx ON user_devices (user_id)",
     # IP-based province suggestion — populated silently on device upsert, no user permission required
     "ALTER TABLE user_devices ADD COLUMN ip_province TEXT DEFAULT NULL",
+    # Sprint V2 — Concept mastery history for timeline visualization
+    """CREATE TABLE IF NOT EXISTS concept_mastery_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        concept_id TEXT NOT NULL,
+        mastery_score INTEGER NOT NULL,
+        stage INTEGER NOT NULL,
+        recorded_at TEXT DEFAULT (datetime('now'))
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_cmh_user_concept ON concept_mastery_history(user_id, concept_id, recorded_at)",
 ]
 
 
@@ -2847,6 +2857,11 @@ async def answer_review_item(
                    WHERE user_id=$3 AND concept_id=$4""",
                 new_mastery, new_stage, current_user.user_id, concept_id,
             )
+            await pool.execute(
+                """INSERT INTO concept_mastery_history (user_id, concept_id, mastery_score, stage)
+                   VALUES ($1, $2, $3, $4)""",
+                current_user.user_id, concept_id, new_mastery, new_stage,
+            )
         else:
             initial_mastery = 20 if body.quality >= 3 else 5
             new_stage = _mastery_to_stage(initial_mastery)
@@ -2854,6 +2869,11 @@ async def answer_review_item(
             await pool.execute(
                 """INSERT INTO concept_mastery (user_id, concept_id, mastery_score, stage, review_count)
                    VALUES ($1, $2, $3, $4, 1)""",
+                current_user.user_id, concept_id, initial_mastery, new_stage,
+            )
+            await pool.execute(
+                """INSERT INTO concept_mastery_history (user_id, concept_id, mastery_score, stage)
+                   VALUES ($1, $2, $3, $4)""",
                 current_user.user_id, concept_id, initial_mastery, new_stage,
             )
 
@@ -2973,6 +2993,47 @@ async def get_concept_mastery(
                 c["source"] = "bkt_estimate"  # flag: not from review items
 
     return {"concepts": concepts}
+
+
+@app.get("/users/me/concept-mastery/{concept_id}/history")
+async def get_concept_mastery_history(
+    concept_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Return mastery score history for a single concept (most recent 60 records)."""
+    rows = await pool.fetch(
+        """SELECT mastery_score, stage, recorded_at
+           FROM concept_mastery_history
+           WHERE user_id=$1 AND concept_id=$2
+           ORDER BY recorded_at ASC
+           LIMIT 60""",
+        current_user.user_id, concept_id,
+    )
+    return {"history": [dict(r) for r in rows]}
+
+
+@app.get("/users/me/review-items/counts")
+async def get_review_item_counts(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Return per-concept review item counts (total + due today)."""
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    rows = await pool.fetch(
+        """SELECT concept_id,
+                  COUNT(*) AS total,
+                  SUM(CASE WHEN next_review_date <= $2 THEN 1 ELSE 0 END) AS due
+           FROM review_items
+           WHERE user_id=$1 AND concept_id IS NOT NULL
+           GROUP BY concept_id""",
+        current_user.user_id, today,
+    )
+    counts = {}
+    for r in rows:
+        counts[r["concept_id"]] = {"total": r["total"], "due": int(r["due"] or 0)}
+    return {"counts": counts}
 
 
 # ── Session / Daily Engine endpoints ─────────────────────────────────────────

@@ -12,7 +12,7 @@ export default function LowCreditBanner({ balance }) {
       className="w-full flex items-center justify-between gap-3 px-5 py-2.5 font-jakarta text-xs glass-base border-b border-primary/20"
     >
       <span className="text-amber-300">
-        ⚡ Còn <strong>{balance}</strong> Tia — nạp thêm để tiếp tục sử dụng tính năng AI.
+        ⚡ Còn <strong>{balance}</strong> credits — nạp thêm để tiếp tục sử dụng tính năng AI.
       </span>
       <div className="flex items-center gap-3 flex-shrink-0">
         <button

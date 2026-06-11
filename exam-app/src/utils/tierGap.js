@@ -11,7 +11,7 @@ export function getTierGap(tier) {
     return {
       missingFeatures: [
         'Kế hoạch học tập AI cá nhân hoá 4 tuần',
-        'Oracle AI không giới hạn (500 Tia/tháng)',
+        'Zenith AI không giới hạn (500 credits/tháng)',
         'AI Phân tích kết quả miễn phí',
         'Xu hướng tiến bộ 30 ngày',
       ],

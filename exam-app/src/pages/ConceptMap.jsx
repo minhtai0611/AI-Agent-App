@@ -7,7 +7,7 @@ import {
 import dagre from '@dagrejs/dagre'
 import '@xyflow/react/dist/style.css'
 import { useAuth } from '../context/AuthContext.jsx'
-import { getConceptMastery } from '../api/aiClient.js'
+import { getConceptMastery, getConceptMasteryHistory, getReviewItemCounts } from '../api/aiClient.js'
 import { CONCEPTS, TOPIC_COLORS } from '../data/concepts.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 
@@ -45,6 +45,7 @@ function layoutGraph(nodes, edges) {
 // ── Custom node ───────────────────────────────────────────────────────────────
 function ConceptNode({ data }) {
   const size = 8 + data.exam_weight * 2   // font size proportional to weight
+  const isMastered = (data.mastery_score ?? 0) >= 0.85
   return (
     <div
       style={{
@@ -55,7 +56,12 @@ function ConceptNode({ data }) {
         width: NODE_W,
         minHeight: NODE_H,
         cursor: 'pointer',
-        boxShadow: data.selected ? `0 0 0 2px #F2A20C` : undefined,
+        boxShadow: data.selected
+          ? `0 0 0 2px #6366F1`
+          : isMastered
+          ? `0 0 8px 1px #10B98133`
+          : undefined,
+        animation: isMastered ? 'masteryPulse 2.5s ease-in-out infinite' : undefined,
       }}
     >
       <div style={{ fontSize: Math.max(10, Math.min(13, size)), fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#F0F4FF', lineHeight: 1.3 }}>
@@ -69,6 +75,42 @@ function ConceptNode({ data }) {
 }
 
 const nodeTypes = { concept: ConceptNode }
+
+// ── Mastery sparkline (SVG, no library) ──────────────────────────────────────
+function MasterySparkline({ history }) {
+  if (!history || history.length < 2) return null
+  const W = 220, H = 48, PAD = 4
+  const scores = history.map(h => h.mastery_score)
+  const min = Math.min(...scores, 0)
+  const max = Math.max(...scores, 20)
+  const range = max - min || 1
+  const pts = scores.map((s, i) => {
+    const x = PAD + (i / (scores.length - 1)) * (W - PAD * 2)
+    const y = H - PAD - ((s - min) / range) * (H - PAD * 2)
+    return `${x},${y}`
+  })
+  const last = history[history.length - 1]
+  const lastColor = masteryBorder(last.mastery_score / 100)
+  return (
+    <svg width={W} height={H} style={{ overflow: 'visible' }}>
+      <polyline
+        points={pts.join(' ')}
+        fill="none"
+        stroke={lastColor}
+        strokeWidth="1.5"
+        strokeOpacity="0.7"
+      />
+      {pts.map((pt, i) => {
+        const [x, y] = pt.split(',').map(Number)
+        return (
+          <circle key={i} cx={x} cy={y} r={i === pts.length - 1 ? 3.5 : 2}
+            fill={masteryBorder(scores[i] / 100)}
+            opacity={i === pts.length - 1 ? 1 : 0.5} />
+        )
+      })}
+    </svg>
+  )
+}
 
 // ── Prerequisite gap trace ────────────────────────────────────────────────────
 function findRootWeakness(conceptId, masteryMap) {
@@ -101,19 +143,41 @@ export default function ConceptMap() {
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
   const [gradeFilter, setGradeFilter] = useState(0)   // 0 = all
+  const [reviewCounts, setReviewCounts] = useState({})
+  const [conceptHistory, setConceptHistory] = useState(null)
+  const [historyLoading, setHistoryLoading] = useState(false)
 
-  // ── Fetch mastery ──────────────────────────────────────────────────────────
+  // ── Fetch mastery + review counts ─────────────────────────────────────────
   useEffect(() => {
     if (!user?.id) { setLoading(false); return }
-    getConceptMastery().then(({ data }) => {
-      if (data?.concepts) {
+    Promise.all([
+      getConceptMastery(),
+      getReviewItemCounts(),
+    ]).then(([masteryRes, countsRes]) => {
+      if (masteryRes.data?.concepts) {
         const map = {}
-        data.concepts.forEach(c => { map[c.id] = c.mastery_score ?? 0 })
+        masteryRes.data.concepts.forEach(c => { map[c.id] = c.mastery_score ?? 0 })
         setMasteryMap(map)
+      }
+      if (countsRes.data?.counts) {
+        setReviewCounts(countsRes.data.counts)
       }
       setLoading(false)
     })
   }, [user?.id])
+
+  // ── Fetch concept history when selection changes ───────────────────────────
+  useEffect(() => {
+    if (!selected || !user?.id) { setConceptHistory(null); return }
+    setHistoryLoading(true)
+    getConceptMasteryHistory(selected).then(({ data }) => {
+      setConceptHistory(data?.history ?? [])
+      setHistoryLoading(false)
+    }).catch(() => {
+      setConceptHistory([])
+      setHistoryLoading(false)
+    })
+  }, [selected, user?.id])
 
   // ── Build graph ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -180,9 +244,9 @@ export default function ConceptMap() {
       return {
         ...e,
         style: inChain
-          ? { stroke: '#F2A20C', strokeWidth: 2.5 }
+          ? { stroke: '#F59E0B', strokeWidth: 2.5 }
           : { stroke: '#1E2A44', strokeWidth: 1 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: inChain ? '#F2A20C' : '#1E2A44' },
+        markerEnd: { type: MarkerType.ArrowClosed, color: inChain ? '#F59E0B' : '#1E2A44' },
       }
     }))
   }, [gapChain, selected])
@@ -209,6 +273,12 @@ export default function ConceptMap() {
 
   return (
     <div className="min-h-screen bg-surface flex flex-col">
+      <style>{`
+        @keyframes masteryPulse {
+          0%, 100% { box-shadow: 0 0 8px 1px #10B98133; }
+          50%       { box-shadow: 0 0 16px 4px #10B98166; }
+        }
+      `}</style>
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-surface">
         <div className="flex items-center gap-4">
@@ -302,11 +372,45 @@ export default function ConceptMap() {
               </div>
             </div>
 
-            {/* Exam weight */}
+            {/* Exam weight + review count */}
             <div className="flex items-center justify-between font-jakarta text-[12px] text-muted">
               <span>Trọng số đề thi</span>
               <span className="text-amber-400">{'★'.repeat(Math.round(selectedConcept.exam_weight))} {selectedConcept.exam_weight}</span>
             </div>
+            {reviewCounts[selected] != null && (
+              <div className="flex items-center gap-2">
+                <span className="font-jakarta text-[11px] text-dim">Câu ôn tập</span>
+                <span className="font-jakarta text-[11px] px-2 py-0.5 rounded-full bg-surface border border-surface"
+                  style={{ color: reviewCounts[selected].due > 0 ? '#F59E0B' : '#475569' }}>
+                  {reviewCounts[selected].due > 0
+                    ? `${reviewCounts[selected].due} đến hạn`
+                    : `${reviewCounts[selected].total} câu`}
+                </span>
+              </div>
+            )}
+
+            {/* Mastery history timeline */}
+            {historyLoading ? (
+              <div className="font-jakarta text-[11px] text-dim text-center py-2">Đang tải lịch sử...</div>
+            ) : conceptHistory && conceptHistory.length >= 2 ? (
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between font-jakarta text-[11px] text-muted">
+                  <span>Lịch sử tiến độ</span>
+                  <span className="text-dim">{conceptHistory.length} lần ôn</span>
+                </div>
+                <div className="overflow-hidden rounded-lg" style={{ background: '#0D1221', padding: '6px 4px' }}>
+                  <MasterySparkline history={conceptHistory} />
+                </div>
+                <div className="flex justify-between font-jakarta text-[10px] text-dim">
+                  <span>{conceptHistory[0].recorded_at?.slice(0, 10)}</span>
+                  <span>{conceptHistory[conceptHistory.length - 1].recorded_at?.slice(0, 10)}</span>
+                </div>
+              </div>
+            ) : conceptHistory && conceptHistory.length === 1 ? (
+              <div className="font-jakarta text-[11px] text-dim text-center py-1">
+                Bắt đầu ôn tập để xem biểu đồ tiến độ
+              </div>
+            ) : null}
 
             {/* Prerequisites */}
             {selectedConcept.prerequisite_ids.length > 0 && (
@@ -342,9 +446,14 @@ export default function ConceptMap() {
             )}
 
             <button
-              onClick={() => navigate('/exams?mode=practice')}
+              onClick={() => navigate(`/practice/adaptive?topic=${selectedConcept.topic}`)}
               className="mt-auto w-full py-2.5 rounded-xl font-jakarta text-[13px] font-bold transition bg-primary text-background">
               Luyện tập ngay
+            </button>
+            <button
+              onClick={() => navigate('/review')}
+              className="w-full py-2 rounded-xl font-jakarta text-[12px] font-semibold transition border border-info/30 text-info hover:bg-info/10">
+              Ôn tập câu hôm nay
             </button>
           </div>
         )}

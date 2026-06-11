@@ -855,7 +855,7 @@ export default function MathOracle() {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
-  usePageMeta('Oracle AI · Giải toán từng bước', { description: 'Nhập bài toán và Oracle AI giải từng bước chi tiết. Hỗ trợ LaTeX, tiếng Việt, nhiều dạng toán THPT.' })
+  usePageMeta('Zenith AI · Giải toán từng bước', { description: 'Nhập bài toán và Zenith AI giải từng bước chi tiết. Hỗ trợ LaTeX, tiếng Việt, nhiều dạng toán THPT.' })
   const { user } = useAuth()
   const isPaidTier = user?.subscription_tier === 'student' || user?.subscription_tier === 'complete'
   const MAX_RETRIES = 2

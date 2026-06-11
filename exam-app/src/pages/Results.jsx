@@ -194,7 +194,7 @@ function pctColor(acc) {
 
 function arcColor(score) {
   if (score >= 8) return '#10B981'
-  if (score >= 5) return '#F2A20C'
+  if (score >= 5) return '#F59E0B'
   return '#FB7185'
 }
 
@@ -311,6 +311,7 @@ export default function Results({ onOpenAuth }) {
   const { results, addResult } = useHistory()
   const { user, refundCredits, refreshUser } = useAuth()
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
+  const [practiceNudgeDismissed, setPracticeNudgeDismissed] = useState(false)
   const [result, setResult] = useState(() => location.state?.result ?? null)
   const [allQuestions, setAllQuestions] = useState([])
   const [analysis, setAnalysis] = useState(null)
@@ -422,7 +423,7 @@ export default function Results({ onOpenAuth }) {
         setPlanReady(true)
       } else if (!window[prefetchFlag]) {
         if ((user?.credits_balance ?? 0) < 5) {
-          setStudyPlanError('Không đủ Tia. Cần ít nhất 5 Tia để tạo kế hoạch.')
+          setStudyPlanError('Không đủ credits. Cần ít nhất 5 Tia để tạo kế hoạch.')
         } else {
           window[prefetchFlag] = true
           if (!cancelled) setStudyPlanLoading(true)
@@ -495,7 +496,7 @@ export default function Results({ onOpenAuth }) {
         } else {
           const failed = !!error
           if (streamStatus === 402) {
-            setAiError('Không đủ Tia để phân tích. Nạp thêm Tia trong trang Tài khoản.')
+            setAiError('Không đủ credits để phân tích. Nạp thêm credits trong trang Tài khoản.')
           } else if (streamStatus === 401) {
             setAiError('Vui lòng đăng nhập để dùng tính năng AI.')
           } else if (failed) {
@@ -508,7 +509,7 @@ export default function Results({ onOpenAuth }) {
             refundCredits(3)
             aiAnalyzeResult(payload).then(({ data, status: fbStatus }) => {
               if (cancelled || !data) {
-                if (fbStatus === 402) setAiError('Không đủ Tia để phân tích. Nạp thêm Tia trong trang Tài khoản.')
+                if (fbStatus === 402) setAiError('Không đủ credits để phân tích. Nạp thêm credits trong trang Tài khoản.')
                 return
               }
               const aiAnalysis = { ...data, _source: 'ai' }
@@ -525,6 +526,10 @@ export default function Results({ onOpenAuth }) {
     run()
     return () => { cancelled = true; abortCtrl.abort() }
   }, [result?.id, user?.id, isCurrent, retryKey]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Overall score delta vs immediate previous exam (any exam, not just same)
+  const prevResult = result ? results.find(r => r.id !== result.id) : null
+  const overallDelta = prevResult != null ? result.score - prevResult.score : null
 
   // Personal best check — computed before early returns so hook order stays stable
   const pastSameExam = result ? results.filter(r => r.examId === result.examId && r.id !== result.id) : []
@@ -827,6 +832,19 @@ export default function Results({ onOpenAuth }) {
                 <span className="font-jakarta text-[0.6875rem] text-faint">Đã trả lời</span>
                 <span className="font-fraunces text-[15px] font-semibold text-foreground">{result.answeredCount}/{allQuestions.length || result.answeredCount}</span>
               </div>
+              {overallDelta != null && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.0, duration: 0.3 }}
+                  className="flex flex-col gap-0.5"
+                >
+                  <span className="font-jakarta text-[0.6875rem] text-faint">So bài trước</span>
+                  <span className="font-fraunces text-[15px] font-semibold" style={{ color: overallDelta > 0 ? '#10B981' : overallDelta < 0 ? '#FB7185' : '#64748B' }}>
+                    {overallDelta > 0 ? '+' : ''}{overallDelta.toFixed(1)}
+                  </span>
+                </motion.div>
+              )}
             </motion.div>
           </motion.div>
         </motion.div>
@@ -893,7 +911,7 @@ export default function Results({ onOpenAuth }) {
                       formatter={v => [v.toFixed(1), 'Điểm']}
                       labelFormatter={n => `Lần ${n}`}
                     />
-                    <Line type="monotone" dataKey="s" stroke="#F2A20C" strokeWidth={2} dot={{ r: 3, fill: '#F2A20C' }} />
+                    <Line type="monotone" dataKey="s" stroke="#818CF8" strokeWidth={2} dot={{ r: 3, fill: '#818CF8' }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -933,7 +951,7 @@ export default function Results({ onOpenAuth }) {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className="relative px-4 py-2.5 font-jakarta text-[0.8125rem] font-medium transition-colors flex items-center gap-1"
-              style={{ color: activeTab === tab.id ? '#F2A20C' : '#64748B' }}
+              style={{ color: activeTab === tab.id ? 'var(--primary)' : '#64748B' }}
             >
               {tab.label}
               {tab.loading && (
@@ -981,7 +999,7 @@ export default function Results({ onOpenAuth }) {
                 <span className="font-fraunces text-[16px] font-semibold text-gradient-aurora">Phân tích AI</span>
                 {isPaidUser
                   ? <span className="font-jakarta text-[0.6875rem] text-emerald-400/80">Miễn phí</span>
-                  : <span className="font-jakarta text-[0.6875rem] text-amber-400/70">⚡3 Tia</span>
+                  : <span className="font-jakarta text-[0.6875rem] text-amber-400/70">⚡3 credits</span>
                 }
               </div>
               {/* Streaming progress bar */}
@@ -1000,6 +1018,35 @@ export default function Results({ onOpenAuth }) {
               </AIErrorBoundary>
             </div>
 
+            {/* Post-analysis practice nudge — appears when stream completes */}
+            {analysis?._streaming_done && !practiceNudgeDismissed && user && (analysis?.weak_topics ?? []).length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.25, delay: 0.3 }}
+                className="flex items-center justify-between gap-3 px-5 py-3.5 rounded-xl border border-info/30 bg-info/5"
+              >
+                <p className="font-jakarta text-[13px] text-foreground min-w-0">
+                  Bạn muốn ôn ngay <strong className="text-info">{getTopicLabel(analysis.weak_topics[0])}</strong> không?
+                </p>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => { setPracticeNudgeDismissed(true); navigate(`/practice/adaptive?topic=${analysis.weak_topics[0]}`) }}
+                    className="px-3 py-1.5 rounded-lg font-jakarta text-xs font-bold bg-info text-background hover:opacity-90 transition"
+                  >
+                    Ôn ngay →
+                  </button>
+                  <button
+                    onClick={() => setPracticeNudgeDismissed(true)}
+                    className="font-jakarta text-xs text-dim hover:text-muted transition"
+                  >
+                    Để sau
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
             {/* Next exam recommendation */}
             {nextExam && (
               <div className="bg-surface border border-border rounded-xl px-5 py-4 flex items-center justify-between gap-3">
@@ -1009,8 +1056,7 @@ export default function Results({ onOpenAuth }) {
                 </div>
                 <button
                   onClick={() => navigate(`/test/${nextExam.id}`)}
-                  className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-xs font-bold"
-                  style={{ background: '#F2A20C', color: '#0A0E1A' }}
+                  className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-xs font-bold bg-primary text-primary-fg"
                 >
                   Bắt đầu →
                 </button>
@@ -1063,7 +1109,7 @@ export default function Results({ onOpenAuth }) {
                 {planReady ? '→ Kế hoạch' : 'Đang tải kế hoạch…'}
               </button>
               {weakTopics.length > 0 && (
-                <button onClick={() => navigate('/practice/adaptive')}
+                <button onClick={() => navigate(`/practice/adaptive?topic=${weakTopics[0]}`)}
                   className="px-3 py-1.5 rounded-lg border border-info/30 font-jakarta text-xs text-info hover:border-info hover:text-info/80 transition flex items-center gap-1.5">
                   <span>⚡</span> Luyện điểm yếu
                 </button>
@@ -1284,7 +1330,7 @@ export default function Results({ onOpenAuth }) {
                 <div className="flex flex-col gap-4">
                   {schoolFitList.map(school => {
                     const prob = school.prob
-                    const barColor = prob >= 70 ? '#10B981' : prob >= 40 ? '#F2A20C' : '#FB7185'
+                    const barColor = prob >= 70 ? '#10B981' : prob >= 40 ? '#F59E0B' : '#FB7185'
                     return (
                       <div key={school.id} className="flex flex-col gap-1.5">
                         <div className="flex items-center justify-between">
@@ -1345,7 +1391,7 @@ export default function Results({ onOpenAuth }) {
                 <ShimmerButton
                   onClick={() => navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })}
                   className="w-full text-sm font-bold"
-                  shimmerColor="#F2A20C"
+                  shimmerColor="#6366F1"
                   background="linear-gradient(135deg, #1a1200, #0D1221)"
                 >
                   Xem kế hoạch học tập ⚡5
@@ -1354,13 +1400,13 @@ export default function Results({ onOpenAuth }) {
                 <button
                   onClick={() => {
                     if ((user?.credits_balance ?? 0) < 5) {
-                      setStudyPlanError('Không đủ Tia. Cần ít nhất 5 Tia để tạo kế hoạch.')
+                      setStudyPlanError('Không đủ credits. Cần ít nhất 5 Tia để tạo kế hoạch.')
                     }
                   }}
                   className="w-full py-3.5 rounded-xl font-jakarta text-sm font-bold flex items-center justify-center gap-2 text-faint border border-border transition"
                 >
                   {!studyPlanError && <span className="w-3.5 h-3.5 rounded-full border border-border border-t-primary animate-spin" />}
-                  {studyPlanError ? 'Không đủ Tia' : 'Đang chuẩn bị…'}
+                  {studyPlanError ? 'Không đủ credits' : 'Đang chuẩn bị…'}
                 </button>
               )}
             </div>
@@ -1391,7 +1437,7 @@ export default function Results({ onOpenAuth }) {
                             <div className="w-full rounded-t"
                               style={{
                                 height: `${Math.max(4, accuracy * 0.6)}px`,
-                                background: accuracy >= 70 ? '#34D399' : accuracy >= 40 ? '#F2A20C' : '#FB7185',
+                                background: accuracy >= 70 ? '#34D399' : accuracy >= 40 ? '#F59E0B' : '#FB7185',
                                 minHeight: 4,
                               }} />
                             <span className="font-jakarta text-[9px] text-faint text-center leading-tight">{week}</span>

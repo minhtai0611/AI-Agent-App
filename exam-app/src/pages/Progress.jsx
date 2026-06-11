@@ -10,7 +10,7 @@ import { usePageMeta } from '../hooks/usePageMeta.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 
 // Province cutoff thresholds (mirrors _PROVINCE_DATA in backend)
-const PROVINCE_THRESHOLDS = {
+export const PROVINCE_THRESHOLDS = {
   // D4 — most competitive
   'Hà Nội':               { typical: 8.0, top: 9.2 },
   'TP.HCM':               { typical: 7.8, top: 9.0 },
@@ -133,7 +133,7 @@ function Sparkline({ scores }) {
   })
   const last = pts[pts.length - 1].split(',')
   const trend = scores[scores.length - 1] - scores[0]
-  const color = trend > 0 ? '#10B981' : trend < 0 ? '#FB7185' : '#F2A20C'
+  const color = trend > 0 ? '#10B981' : trend < 0 ? '#FB7185' : '#F59E0B'
   return (
     <svg width={W} height={H} style={{ overflow: 'visible' }}>
       <polyline points={pts.join(' ')} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -147,7 +147,7 @@ function Sparkline({ scores }) {
 const STAGE_COLORS = [
   { bg: '#1A1F2E', border: '#2A3A50', text: '#475569', label: 'Chưa học' },
   { bg: '#0D1F3C', border: '#1E4080', text: '#60A5FA', label: 'Mới tiếp cận' },
-  { bg: '#1F1505', border: '#6B3A0A', text: '#F2A20C', label: 'Đang học' },
+  { bg: '#1F1505', border: '#6B3A0A', text: '#F59E0B', label: 'Đang học' },
   { bg: '#1A1505', border: '#7A5500', text: '#FBBF24', label: 'Luyện tập' },
   { bg: '#0D2A1A', border: '#15603A', text: '#34D399', label: 'Vững' },
   { bg: '#052A1A', border: '#0A7A3A', text: '#10B981', label: 'Thành thạo' },
@@ -282,6 +282,49 @@ export default function Progress() {
               </div>
             </div>
 
+            {/* ── Province Benchmark ──────────────────────────────────────── */}
+            {user?.province && avgScore !== null && PROVINCE_THRESHOLDS[user.province] && (() => {
+              const { typical, top } = PROVINCE_THRESHOLDS[user.province]
+              const pctTypical = Math.min(avgScore / typical, 1)
+              const pctTop     = Math.min(avgScore / top, 1)
+              const gapTypical = Math.max(typical - avgScore, 0)
+              const gapTop     = Math.max(top - avgScore, 0)
+              return (
+                <div className="glass-base border border-surface rounded-2xl px-6 py-5 flex flex-col gap-4">
+                  <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-dim">
+                    So sánh với {user.province}
+                  </span>
+                  <div className="flex flex-col gap-3">
+                    {[
+                      { label: 'Điểm sàn phổ biến', target: typical, pct: pctTypical, gap: gapTypical },
+                      { label: 'Điểm trường top', target: top, pct: pctTop, gap: gapTop },
+                    ].map(({ label, target, pct, gap }) => (
+                      <div key={label} className="flex flex-col gap-1.5">
+                        <div className="flex justify-between font-jakarta text-[12px]">
+                          <span className="text-muted">{label}</span>
+                          <span className="font-semibold" style={{ color: gap === 0 ? '#10B981' : gap < 1 ? '#F59E0B' : '#FB7185' }}>
+                            {gap === 0 ? `✓ ${target}` : `${avgScore.toFixed(1)} / ${target} (còn ${gap.toFixed(1)}đ)`}
+                          </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-surface overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-700"
+                            style={{
+                              width: `${pct * 100}%`,
+                              background: gap === 0 ? '#10B981' : gap < 1 ? '#F59E0B' : '#6366F1',
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="font-jakarta text-[11px] text-dim">
+                    Ngưỡng điểm tham khảo dựa trên kỳ thi tuyển sinh tại {user.province}
+                  </p>
+                </div>
+              )
+            })()}
+
             {/* ── Active Recovery Path ────────────────────────────────────── */}
             {activeRecovery && (
               <div className="glass-base border border-success/20 rounded-2xl px-6 py-5">
@@ -316,7 +359,7 @@ export default function Progress() {
                       <span className="font-jakarta text-[14px] font-semibold text-foreground truncate">{label}</span>
                       <div className="flex items-center gap-3">
                         <div className="flex-1 h-1 bg-surface rounded-full overflow-hidden max-w-[100px]">
-                          <div className="h-full rounded-full" style={{ width: `${accuracy * 100}%`, background: accuracy < 0.4 ? '#FB7185' : accuracy < 0.6 ? '#F2A20C' : '#34D399' }} />
+                          <div className="h-full rounded-full" style={{ width: `${accuracy * 100}%`, background: accuracy < 0.4 ? '#FB7185' : accuracy < 0.6 ? '#F59E0B' : '#34D399' }} />
                         </div>
                         <span className="font-jakarta text-[12px] text-dim">{Math.round(accuracy * 100)}% đúng · {wrong} câu sai</span>
                       </div>
@@ -416,7 +459,7 @@ export default function Progress() {
                         <div key={topic} className="flex items-center gap-3 py-2 border-b border-surface/60">
                           <span className="font-jakarta text-[13px] text-muted flex-1 min-w-0 truncate">{label}</span>
                           <div className="w-20 h-1 bg-surface rounded-full overflow-hidden">
-                            <div className="h-full rounded-full" style={{ width: `${accuracy * 100}%`, background: accuracy < 0.4 ? '#FB7185' : accuracy < 0.6 ? '#F2A20C' : '#34D399' }} />
+                            <div className="h-full rounded-full" style={{ width: `${accuracy * 100}%`, background: accuracy < 0.4 ? '#FB7185' : accuracy < 0.6 ? '#F59E0B' : '#34D399' }} />
                           </div>
                           <span className="font-jakarta text-[12px] text-dim w-12 text-right">{Math.round(accuracy * 100)}%</span>
                         </div>

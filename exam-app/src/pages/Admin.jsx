@@ -99,7 +99,7 @@ function GrantCreditsModal({ user, adminKey, onClose, onDone }) {
 
   async function submit() {
     const n = parseInt(amount, 10)
-    if (!n || n <= 0) { setError('Số Tia phải lớn hơn 0'); return }
+    if (!n || n <= 0) { setError('Số credits phải lớn hơn 0'); return }
     setLoading(true)
     const { error: err } = await adminGrantCredits(adminKey, user.id, n)
     setLoading(false)
@@ -111,11 +111,11 @@ function GrantCreditsModal({ user, adminKey, onClose, onDone }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
       <div className="max-w-sm w-full glass-base border border-surface rounded-2xl p-6 flex flex-col gap-4">
-        <span className="font-fraunces text-[15px] font-bold text-foreground">Tặng Tia — {user.display_name || user.email}</span>
+        <span className="font-fraunces text-[15px] font-bold text-foreground">Tặng Credits — {user.display_name || user.email}</span>
         <input
           type="number" min="1" value={amount} onChange={e => setAmount(e.target.value)}
           className="px-4 py-2.5 rounded-xl border border-surface bg-surface font-jakarta text-[13px] text-foreground focus:outline-none focus:border-amber-400"
-          placeholder="Số Tia"
+          placeholder="Số credits"
         />
         {error && <p className="font-jakarta text-[12px] text-red-400">{error}</p>}
         <div className="flex gap-2">
@@ -382,7 +382,7 @@ function UserRow({ user, adminKey, onRefresh }) {
               {!!user.is_locked && (
                 <button onClick={handleUnlock} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-emerald-400 hover:bg-surface transition">Mở khóa</button>
               )}
-              <button onClick={() => { setModal('grant'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-muted hover:bg-surface transition">Tặng Tia</button>
+              <button onClick={() => { setModal('grant'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-muted hover:bg-surface transition">Tặng Credits</button>
               <button onClick={() => { setModal('editProfile'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-muted hover:bg-surface transition">Sửa hồ sơ</button>
               <button onClick={() => { setModal('devices'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-jakarta text-[12px] text-left text-muted hover:bg-surface transition">Thiết bị</button>
               <div className="border-t border-surface" />

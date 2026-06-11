@@ -4,6 +4,7 @@ import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-
 import { ExamProvider } from './context/ExamContext.jsx'
 import { HistoryProvider } from './context/HistoryContext.jsx'
 import { useAuth } from './context/AuthContext.jsx'
+import { useHistory } from './context/HistoryContext.jsx'
 import { useExamDispatch } from './context/ExamContext.jsx'
 import { loadExamById, loadQuestionsByIds } from './api/index.js'
 import Navbar from './components/Navbar.jsx'
@@ -40,6 +41,7 @@ const AdaptiveStudyPlan = lazy(() => import('./pages/AdaptiveStudyPlan.jsx'))
 const Placement = lazy(() => import('./pages/Placement.jsx'))
 const ConceptMap = lazy(() => import('./pages/ConceptMap.jsx'))
 const ErrorAnalysis = lazy(() => import('./pages/ErrorAnalysis.jsx'))
+const Home = lazy(() => import('./pages/Home.jsx'))
 
 const PageFallback = () => <div className="min-h-screen bg-background" />
 
@@ -67,6 +69,7 @@ function SuspensionModal({ reason, onLogout }) {
 function AppInner() {
   const [authOpen, setAuthOpen] = useState(false)
   const { user, loading, logout } = useAuth()
+  const { results } = useHistory()
   const dispatch = useExamDispatch()
   const navigate = useNavigate()
   const location = useLocation()
@@ -123,7 +126,7 @@ function AppInner() {
   }, [resumeBanner, dispatch, navigate])
 
   const showOnboarding = !loading && user && !user.grade
-  const showExtendedOnboarding = !loading && user && user.grade && !user.extended_onboarding_done
+  const showExtendedOnboarding = !loading && user && user.grade && !user.extended_onboarding_done && results.length >= 1
   const showLowCredit = !loading && user && (user.credits_balance ?? 0) < 10
   const showSuspension = !loading && Boolean(user?.is_suspended)
   const showLocked = !loading && Boolean(user?.is_locked)
@@ -158,7 +161,23 @@ function AppInner() {
         <Suspense fallback={<PageFallback />}>
           <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<Landing onOpenAuth={() => setAuthOpen(true)} />} />
+            {/* Root: authenticated → /home, guest → Landing */}
+            <Route path="/" element={
+              loading
+                ? <PageFallback />
+                : user
+                  ? <Navigate to="/home" replace />
+                  : <Landing onOpenAuth={() => setAuthOpen(true)} />
+            } />
+            {/* Authenticated home */}
+            <Route path="/home" element={
+              loading
+                ? <PageFallback />
+                : user
+                  ? <Home />
+                  : <Navigate to="/" replace />
+            } />
+            {/* Core exam flow */}
             <Route path="/exams" element={<ExamSelect onOpenAuth={() => setAuthOpen(true)} />} />
             <Route path="/test/:examId" element={<TestInterface />} />
             <Route path="/results/current" element={<Results onOpenAuth={() => setAuthOpen(true)} />} />
@@ -169,18 +188,25 @@ function AppInner() {
             <Route path="/account" element={<Account />} />
             <Route path="/review" element={<ReviewSession />} />
             <Route path="/mistakes" element={<Mistakes />} />
-            <Route path="/practice/adaptive" element={<AdaptivePractice />} />
-            <Route path="/daily" element={<DailyChallenge />} />
+            {/* Learning routes — canonical paths */}
+            <Route path="/practice" element={<AdaptivePractice />} />
+            <Route path="/practice/daily" element={<DailyChallenge />} />
+            <Route path="/practice/diagnostic" element={<DiagnosticTest />} />
+            <Route path="/mastery" element={<ConceptMap />} />
+            {/* Legacy redirects — keep old URLs alive */}
+            <Route path="/practice/adaptive" element={<Navigate to="/practice" replace />} />
+            <Route path="/daily" element={<Navigate to="/practice/daily" replace />} />
+            <Route path="/diagnostic" element={<Navigate to="/practice/diagnostic" replace />} />
+            <Route path="/concept-map" element={<Navigate to="/mastery" replace />} />
+            {/* Other pages */}
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/security-events" element={<AdminSecurityEvents />} />
             <Route path="/share" element={<ShareView />} />
             <Route path="/challenge" element={<ChallengeLanding />} />
-            <Route path="/diagnostic" element={<DiagnosticTest />} />
             <Route path="/generate-exam" element={<GenerateExam />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/study-plan/adaptive" element={<AdaptiveStudyPlan />} />
             <Route path="/placement" element={<Placement />} />
-            <Route path="/concept-map" element={<ConceptMap />} />
             <Route path="/error-analysis" element={<ErrorAnalysis />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
@@ -188,13 +214,13 @@ function AppInner() {
         </Suspense>
       </div>
       {resumeBanner && !resumeDismissed && (resumeBanner.userId ?? null) === (user?.id ?? null) && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-[#F2A20C44] px-6 py-4 flex items-center justify-between gap-4">
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-primary/25 px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
             <span className="font-jakarta text-[0.8125rem] font-semibold text-foreground">Bạn có bài thi đang dở</span>
             <span className="font-jakarta text-[0.6875rem] text-dim">{resumeBanner.answeredCount} câu đã trả lời · Tiếp tục từ điểm dừng?</span>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={handleResume} style={{ background: '#F2A20C', color: '#0A0E1A' }} className="px-4 py-2 rounded-lg font-jakarta text-xs font-bold">Tiếp tục</button>
+            <button onClick={handleResume} className="px-4 py-2 rounded-lg font-jakarta text-xs font-bold bg-primary text-primary-fg">Tiếp tục</button>
             <button onClick={() => { setResumeDismissed(true); sessionStorage.removeItem(`exam-draft-${resumeBanner.examId}`) }} className="px-3 py-2 rounded-lg font-jakarta text-xs text-dim border border-border">Bỏ qua</button>
           </div>
         </div>

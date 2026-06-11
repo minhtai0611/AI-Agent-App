@@ -102,6 +102,7 @@ export default function ReviewSession() {
   const [results, setResults] = useState([])
   const [done, setDone] = useState(false)
   const [stageLabel, setStageLabel] = useState(null)
+  const [stage5Topics, setStage5Topics] = useState([])
   const [wrongStreak, setWrongStreak] = useState(0)
   const startTimeRef = useRef(null)
 
@@ -185,6 +186,7 @@ export default function ReviewSession() {
           const { data } = await answerReviewItem(serverItem.id, quality, responseTimeSec)
           if (data?.stage_advanced && data?.new_stage) {
             setStageLabel(STAGE_NAMES[data.new_stage] ?? 'Tiếp theo')
+            if (data.new_stage === 5) setStage5Topics(t => [...t, question.topic])
           }
         } catch { /* non-fatal — progress still advances */ }
       }
@@ -241,6 +243,33 @@ export default function ReviewSession() {
             <p className="font-jakarta text-[13px] text-amber-400">
               🔥 {dailyStreak} ngày liên tiếp — tiếp tục chuỗi với Thử thách hôm nay!
             </p>
+          )}
+          {stage5Topics.length > 0 && (
+            <div className="flex flex-col items-center gap-3 px-5 py-4 rounded-2xl border border-success/30 text-center"
+              style={{ background: '#0D2A1A' }}>
+              <span className="text-3xl">🏆</span>
+              <p className="font-fraunces text-[16px] font-bold text-success">
+                {stage5Topics.length === 1 ? 'Thành thạo khái niệm mới!' : `Thành thạo ${stage5Topics.length} khái niệm!`}
+              </p>
+              <div className="flex flex-wrap gap-1.5 justify-center">
+                {stage5Topics.map(t => (
+                  <span key={t} className="font-jakarta text-[11px] px-2.5 py-1 rounded-full border border-success/25 text-success"
+                    style={{ background: '#0D2A1A' }}>
+                    {TOPIC_LABELS[t] ?? t}
+                  </span>
+                ))}
+              </div>
+              <button
+                onClick={() => {
+                  const text = `Tôi vừa thành thạo ${stage5Topics.map(t => TOPIC_LABELS[t] ?? t).join(', ')} trên Zenith! 🎯`
+                  if (navigator.share) navigator.share({ title: 'Zenith — Thành tích học tập', text }).catch(() => {})
+                  else navigator.clipboard?.writeText(text).catch(() => {})
+                }}
+                className="font-jakarta text-[11px] text-success/70 hover:text-success transition"
+              >
+                Chia sẻ thành tích →
+              </button>
+            </div>
           )}
         </div>
         <div className="flex gap-3 flex-wrap justify-center">
@@ -410,7 +439,7 @@ export default function ReviewSession() {
                   onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
                   className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-info/20 bg-info/5 font-jakarta text-[11px] font-semibold text-info hover:border-info/40 hover:bg-info/10 transition"
                 >
-                  <span className="text-[10px]">✦</span> Hỏi Oracle
+                  <span className="text-[10px]">✦</span> Hỏi Zenith AI
                 </button>
 
                 <div className="flex flex-col gap-2">

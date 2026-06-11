@@ -100,7 +100,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
     } else if (status === 401) {
       setHintError('Đăng nhập để sử dụng gợi ý AI')
     } else if (status === 402 && typeof error === 'object' && error.code === 'insufficient_credits') {
-      setHintError(`Hết Tia (còn ${error.balance}, cần ${error.required})`)
+      setHintError(`Hết credits (còn ${error.balance}, cần ${error.required})`)
     } else if (status === 429) {
       setHintError('Vui lòng chờ trước khi yêu cầu gợi ý tiếp theo')
     } else {
@@ -274,7 +274,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
               onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
               className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-info/30 bg-info/5 font-jakarta text-xs font-semibold text-info hover:border-info/50 hover:bg-info/10 transition"
             >
-              <span className="text-[0.625rem]">✦</span> Vẫn chưa hiểu — hỏi Oracle
+              <span className="text-[0.625rem]">✦</span> Vẫn chưa hiểu — Hỏi Zenith AI
             </button>
           )}
         </div>

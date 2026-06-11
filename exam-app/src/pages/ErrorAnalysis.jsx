@@ -199,7 +199,7 @@ export default function ErrorAnalysis() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="font-fraunces text-[16px] font-bold text-foreground">Chẩn đoán AI</h2>
-                  <p className="font-jakarta text-[12px] text-dim mt-0.5">Top 3 hiểu lầm cốt lõi · ⚡2 Tia</p>
+                  <p className="font-jakarta text-[12px] text-dim mt-0.5">Top 3 hiểu lầm cốt lõi · ⚡2 credits</p>
                 </div>
                 {!hasMisconceptions && !aiLoading && (
                   <button onClick={fetchAI}

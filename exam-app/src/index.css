@@ -103,10 +103,10 @@
   --border:           light-dark(oklch(0.82 0.010 74),  oklch(0.25 0.018 280));
   --border-subtle:    #2A3A5E;
   --border-subtle:    light-dark(oklch(0.88 0.008 74),  oklch(0.32 0.015 280));
-  --primary:          #F2A20C;
-  --primary:          light-dark(oklch(0.68 0.170 74),  oklch(0.78 0.170 74));
-  --primary-fg:       #0A0E1A;
-  --primary-fg:       light-dark(oklch(0.13 0.015 74),  oklch(0.11 0.015 74));
+  --primary:          #6366F1;
+  --primary:          light-dark(oklch(0.50 0.200 264), oklch(0.62 0.200 264));
+  --primary-fg:       #FFFFFF;
+  --primary-fg:       light-dark(oklch(1.000 0.000 0),  oklch(1.000 0.000 0));
   --muted:            #94A3B8;
   --muted:            light-dark(oklch(0.50 0.015 280), oklch(0.55 0.015 280));
   --muted-fg:         #CBD5E1;
@@ -125,6 +125,20 @@
   --purple:           light-dark(oklch(0.52 0.20 295),  oklch(0.68 0.20 295));
   --highlight:        #F0F4FF;
   --highlight:        light-dark(oklch(0.94 0.030 74),  oklch(0.20 0.030 74));
+
+  /* Mastery stage semantic tokens (0=unknown → 5=mastered) */
+  --mastery-0:        #475569;
+  --mastery-0-bg:     #1E2A44;
+  --mastery-1:        #EF4444;
+  --mastery-1-bg:     #7F1D1D;
+  --mastery-2:        #F97316;
+  --mastery-2-bg:     #431407;
+  --mastery-3:        #F59E0B;
+  --mastery-3-bg:     #78350F;
+  --mastery-4:        #22C55E;
+  --mastery-4-bg:     #14532D;
+  --mastery-5:        #10B981;
+  --mastery-5-bg:     #022C22;
 
   /* Legacy --z-* color aliases — point to new semantic tokens so existing CSS continues to work */
   --z-bg-base:        var(--background);
@@ -267,7 +281,7 @@
 /* ─── Gradient Text ───────────────────────────────────────────────────────── */
 
 .text-gradient-brand {
-  background: linear-gradient(135deg, #FBBF24 0%, #F2A20C 40%, #FDE68A 80%, #F59E0B 100%);
+  background: linear-gradient(135deg, #818CF8 0%, #6366F1 40%, #A5B4FC 80%, #4F46E5 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -416,13 +430,13 @@ body {
 
 /* ── Oracle bubble state machine ──────────────────────────────────────────── */
 @keyframes oracle-idle {
-  0%, 100% { box-shadow: 0 0 0 0 var(--oracle-glow, #F2A20C40); }
-  50%       { box-shadow: 0 0 8px 4px var(--oracle-glow, #F2A20C30); }
+  0%, 100% { box-shadow: 0 0 0 0 var(--oracle-glow, #6366F140); }
+  50%       { box-shadow: 0 0 8px 4px var(--oracle-glow, #6366F130); }
 }
 @keyframes oracle-thinking {
-  0%, 100% { box-shadow: 0 0 0 0 var(--oracle-glow, #F2A20C40); }
-  33%       { box-shadow: 0 0 12px 6px var(--oracle-glow, #F2A20C50); }
-  66%       { box-shadow: 0 0 4px 2px var(--oracle-glow, #F2A20C30); }
+  0%, 100% { box-shadow: 0 0 0 0 var(--oracle-glow, #6366F140); }
+  33%       { box-shadow: 0 0 12px 6px var(--oracle-glow, #6366F150); }
+  66%       { box-shadow: 0 0 4px 2px var(--oracle-glow, #6366F130); }
 }
 @keyframes oracle-celebrating {
   0%   { transform: scale(1); }

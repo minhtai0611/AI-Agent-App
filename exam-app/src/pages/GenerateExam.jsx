@@ -138,7 +138,7 @@ export default function GenerateExam() {
 
         <div className="flex flex-col gap-1">
           <span className="font-fraunces text-[24px] font-bold text-foreground">✦ Tạo đề riêng</span>
-          <span className="font-jakarta text-[13px] text-dim">AI tạo đề thi theo chủ đề và độ khó bạn chọn · 5 Tia</span>
+          <span className="font-jakarta text-[13px] text-dim">AI tạo đề thi theo chủ đề và độ khó bạn chọn · 5 credits</span>
         </div>
 
         {/* Topics */}
@@ -199,7 +199,7 @@ export default function GenerateExam() {
         <button onClick={handleGenerate} disabled={loading}
           className="w-full py-3.5 rounded-xl font-jakarta text-[14px] font-bold disabled:opacity-60 transition"
           style={{ background: loading ? '#1E2A44' : '#F2A20C', color: loading ? '#64748B' : '#0A0E1A' }}>
-          {loading ? 'Đang tạo đề...' : `Tạo đề · ⚡5 Tia`}
+          {loading ? 'Đang tạo đề...' : `Tạo đề · ⚡5 credits`}
         </button>
       </div>
     </div>
