@@ -145,8 +145,7 @@ export default function AdminSecurityEvents() {
             )}
             <button
               type="submit"
-              className="py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-background transition"
-              className="bg-primary"
+              className="py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-background transition bg-primary"
             >
               Xác nhận
             </button>
