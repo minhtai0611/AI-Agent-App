@@ -70,7 +70,7 @@ function computeStreak(streak) {
 function MdMath({ children }) {
   return (
     <Markdown remarkPlugins={[remarkMath, remarkGfm]} rehypePlugins={[rehypeKatex]}
-      className="font-jakarta text-[13px] text-foreground leading-relaxed">
+      className="font-sans text-[13px] text-foreground leading-relaxed">
       {children}
     </Markdown>
   )
@@ -191,7 +191,7 @@ export default function DailyChallenge() {
   if (loading) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[var(--accent-border)] border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -199,7 +199,7 @@ export default function DailyChallenge() {
   if (!question) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center px-4">
-        <p className="font-jakarta text-[14px] text-dim text-center">Không tìm thấy câu hỏi hôm nay.</p>
+        <p className="font-sans text-[14px] text-dim text-center">Không tìm thấy câu hỏi hôm nay.</p>
       </div>
     )
   }
@@ -226,28 +226,28 @@ export default function DailyChallenge() {
       <div className="max-w-xl mx-auto px-4 pt-20">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-dim hover:text-muted transition">
+          <button onClick={() => navigate(-1)} className="font-sans text-[13px] text-dim hover:text-muted transition">
             ← Quay lại
           </button>
           <div className="flex items-center gap-3">
             {streak.current > 0 && (
               <AchievementCeremony trigger={streak.completedToday}>
-                <span className="font-jakarta text-[13px] font-semibold text-amber-400">🔥 {streak.current} ngày</span>
+                <span className="font-sans text-[13px] font-semibold text-[var(--accent)]">🔥 {streak.current} ngày</span>
               </AchievementCeremony>
             )}
           </div>
         </div>
         {gapMessage && (
-          <p className="font-jakarta text-[13px] text-dim mb-4">{gapMessage}</p>
+          <p className="font-sans text-[13px] text-dim mb-4">{gapMessage}</p>
         )}
 
         <div className="flex flex-col gap-2 mb-6">
-          <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-amber-400">
+          <span className="font-sans text-[11px] font-bold tracking-[2px] uppercase text-[var(--accent)]">
             {TOPIC_LABELS[question.topic] ?? question.topic}
           </span>
-          <h1 className="font-fraunces text-[20px] font-bold text-foreground leading-snug">{title}</h1>
+          <h1 className="font-sans text-[20px] font-bold text-foreground leading-snug">{title}</h1>
           {provinceContext && (
-            <p className="font-jakarta text-[12px] text-info">📌 {provinceContext}</p>
+            <p className="font-sans text-[12px] text-info">📌 {provinceContext}</p>
           )}
         </div>
 
@@ -265,7 +265,7 @@ export default function DailyChallenge() {
               return (
                 <button key={i} disabled={chosen !== null} onClick={() => handleAnswer(i)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition text-left ${style} ${chosen === null ? 'hover:border-primary hover:text-foreground' : ''}`}>
-                  <span className="w-6 h-6 rounded-full bg-surface flex items-center justify-center font-jakarta text-[11px] font-bold flex-shrink-0">{LABELS[i]}</span>
+                  <span className="w-6 h-6 rounded-full bg-surface flex items-center justify-center font-sans text-[11px] font-bold flex-shrink-0">{LABELS[i]}</span>
                   <MdMath>{choice}</MdMath>
                 </button>
               )
@@ -274,14 +274,14 @@ export default function DailyChallenge() {
 
           {chosen !== null && (
             <div className={`rounded-xl px-4 py-3 ${isCorrect ? 'glass-base border border-success/20' : 'glass-base border border-primary/20'}`}>
-              <p className={`font-jakarta text-[13px] font-semibold ${isCorrect ? 'text-success' : 'text-primary'}`}>
+              <p className={`font-sans text-[13px] font-semibold ${isCorrect ? 'text-success' : 'text-primary'}`}>
                 {isCorrect ? 'Đúng rồi.' : 'Chưa đúng.'}
               </p>
               {message && (
-                <p className="font-jakarta text-[12px] text-dim mt-1">{message}</p>
+                <p className="font-sans text-[12px] text-dim mt-1">{message}</p>
               )}
               {streak.current >= 5 && (
-                <p className="font-jakarta text-[12px] text-dim mt-1">
+                <p className="font-sans text-[12px] text-dim mt-1">
                   Chuỗi {streak.current} ngày của bạn — đừng để đứt.
                 </p>
               )}
@@ -290,7 +290,7 @@ export default function DailyChallenge() {
 
           {question.explanation && chosen !== null && (
             <div className="flex flex-col gap-2 pt-2 border-t border-surface">
-              <span className="font-jakarta text-[11px] font-semibold text-dim uppercase tracking-wider">Giải thích</span>
+              <span className="font-sans text-[11px] font-semibold text-dim uppercase tracking-wider">Giải thích</span>
               <MdMath>{question.explanation}</MdMath>
             </div>
           )}
@@ -299,11 +299,11 @@ export default function DailyChallenge() {
         {chosen !== null && (
           <div className="flex gap-3 mt-6">
             <button onClick={() => navigate('/mistakes')}
-              className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-surface text-muted hover:text-foreground transition">
+              className="flex-1 py-3 rounded-xl font-sans text-[13px] font-semibold border border-surface text-muted hover:text-foreground transition">
               Sổ sai lầm
             </button>
             <button onClick={() => navigate('/exams')}
-              className="flex-1 py-3 rounded-xl font-jakarta text-[13px] font-bold text-background bg-primary">
+              className="flex-1 py-3 rounded-xl font-sans text-[13px] font-bold text-background bg-primary">
               Làm đề thi →
             </button>
           </div>

@@ -26,7 +26,7 @@ function scoreToStage(score) {
 function masteryColorClass(score) {
   if (!score || score === 0) return 'text-dim'
   if (score < 0.4) return 'text-red-400'
-  if (score < 0.7) return 'text-amber-400'
+  if (score < 0.7) return 'text-[var(--accent)]'
   return 'text-success'
 }
 
@@ -62,20 +62,20 @@ function ScorePredictionCard({ data, navigate }) {
       className={`border rounded-xl p-4 flex items-center justify-between gap-4 ${on_track ? 'border-success/30 bg-success/5' : 'border-amber-500/30 bg-amber-500/5'}`}
     >
       <div className="flex flex-col gap-0.5 min-w-0">
-        <p className="font-jakarta text-[11px] font-semibold uppercase tracking-wider text-dim">Dự đoán điểm</p>
+        <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Dự đoán điểm</p>
         <div className="flex items-baseline gap-2">
-          <span className="font-fraunces text-[22px] font-bold text-foreground">{predicted?.toFixed(1)}</span>
+          <span className="font-sans text-[22px] font-bold text-foreground">{predicted?.toFixed(1)}</span>
           {lo != null && hi != null && (
-            <span className="font-jakarta text-[11px] text-dim">({lo.toFixed(1)} – {hi.toFixed(1)})</span>
+            <span className="font-sans text-[11px] text-dim">({lo.toFixed(1)} – {hi.toFixed(1)})</span>
           )}
         </div>
-        <p className="font-jakarta text-[11px] text-dim">
+        <p className="font-sans text-[11px] text-dim">
           {on_track ? '↗ Đang tiến đúng hướng' : '⚠ Cần tăng tốc luyện tập'}
         </p>
       </div>
       <button
         onClick={() => navigate('/progress')}
-        className="font-jakarta text-[12px] text-info hover:text-foreground transition-colors shrink-0"
+        className="font-sans text-[12px] text-info hover:text-foreground transition-colors shrink-0"
       >
         Xem tiến độ →
       </button>
@@ -176,27 +176,27 @@ function DailyFocusCard({ action, loading, navigate, onDismiss }) {
       className={`border rounded-xl p-5 ${cfg.accent}`}
     >
       {cfg.eyebrow && (
-        <p className="font-jakarta text-[11px] font-semibold uppercase tracking-wider text-muted mb-2">
+        <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-muted mb-2">
           {cfg.eyebrow}
         </p>
       )}
-      <h2 className="font-fraunces text-[20px] font-bold text-foreground leading-tight mb-1">
+      <h2 className="font-sans text-[20px] font-bold text-foreground leading-tight mb-1">
         {cfg.title}
       </h2>
-      <p className="font-jakarta text-[13px] text-muted mb-4">
+      <p className="font-sans text-[13px] text-muted mb-4">
         {cfg.description}
       </p>
       <div className="flex items-center gap-3">
         <button
           onClick={() => cfg.path && navigate(cfg.path)}
-          className="px-5 py-2.5 rounded-lg font-jakarta text-[13px] font-semibold bg-primary text-primary-fg hover:opacity-90 active:opacity-80 transition"
+          className="px-5 py-2.5 rounded-lg font-sans text-[13px] font-semibold bg-primary text-primary-fg hover:opacity-90 active:opacity-80 transition"
         >
           {cfg.cta} →
         </button>
         {onDismiss && action.type !== 'done' && (
           <button
             onClick={onDismiss}
-            className="font-jakarta text-[12px] text-dim hover:text-muted transition"
+            className="font-sans text-[12px] text-dim hover:text-muted transition"
           >
             Không phải bây giờ
           </button>
@@ -218,9 +218,9 @@ function StatBox({ label, value, sub, loading }) {
         </>
       ) : (
         <>
-          <span className="font-fraunces text-[22px] font-bold text-foreground leading-none">{value}</span>
-          <span className="font-jakarta text-[11px] text-muted leading-tight">{label}</span>
-          {sub && <span className="font-jakarta text-[10px] text-dim mt-0.5">{sub}</span>}
+          <span className="font-sans text-[22px] font-bold text-foreground leading-none">{value}</span>
+          <span className="font-sans text-[11px] text-muted leading-tight">{label}</span>
+          {sub && <span className="font-sans text-[10px] text-dim mt-0.5">{sub}</span>}
         </>
       )}
     </div>
@@ -238,14 +238,14 @@ function WeakConceptCard({ concept, score, onClick }) {
       className="w-full text-left bg-surface border border-border rounded-lg px-3 py-2.5 hover:border-border-subtle transition-colors flex items-center justify-between gap-3 group"
     >
       <div className="min-w-0">
-        <p className="font-jakarta text-[12px] font-semibold text-foreground truncate group-hover:text-white transition-colors">
+        <p className="font-sans text-[12px] font-semibold text-foreground truncate group-hover:text-[var(--primary)] transition-colors">
           {concept.name_vi}
         </p>
-        <p className="font-jakarta text-[10px] text-dim">
+        <p className="font-sans text-[10px] text-dim">
           Lớp {concept.grade} · {STAGE_LABELS[stage]}
         </p>
       </div>
-      <span className={`font-jakarta text-[12px] font-bold shrink-0 tabular-nums ${masteryColorClass(score)}`}>
+      <span className={`font-sans text-[12px] font-bold shrink-0 tabular-nums ${masteryColorClass(score)}`}>
         {pct}%
       </span>
     </button>
@@ -258,7 +258,7 @@ function RecentExamCard({ result, navigate }) {
   if (!result) return null
   const exam = result.examId ? loadExamById(result.examId) : null
   const score = result.score ?? 0
-  const scoreColor = score >= 7 ? 'text-success' : score >= 5 ? 'text-amber-400' : 'text-red-400'
+  const scoreColor = score >= 7 ? 'text-success' : score >= 5 ? 'text-[var(--accent)]' : 'text-red-400'
   const date = result.createdAt
     ? new Date(result.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
     : ''
@@ -267,21 +267,21 @@ function RecentExamCard({ result, navigate }) {
     <div className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3 h-full">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="font-jakarta text-[10px] uppercase tracking-wider text-dim mb-0.5">
+          <p className="font-sans text-[10px] uppercase tracking-wider text-dim mb-0.5">
             Bài thi gần nhất
           </p>
-          <p className="font-jakarta text-[12px] font-semibold text-foreground leading-tight line-clamp-2">
+          <p className="font-sans text-[12px] font-semibold text-foreground leading-tight line-clamp-2">
             {exam?.title ?? (result.examId ? `Bài thi ${result.examId}` : 'Bài thi không xác định')}
           </p>
         </div>
-        <span className={`font-fraunces text-[24px] font-bold shrink-0 tabular-nums ${scoreColor}`}>
+        <span className={`font-sans text-[24px] font-bold shrink-0 tabular-nums ${scoreColor}`}>
           {fmtScore(score)}
         </span>
       </div>
-      <p className="font-jakarta text-[11px] text-dim">{date}</p>
+      <p className="font-sans text-[11px] text-dim">{date}</p>
       <button
         onClick={() => navigate(`/results/${result.id}`)}
-        className="mt-auto text-left font-jakarta text-[12px] font-semibold text-info hover:text-foreground transition-colors"
+        className="mt-auto text-left font-sans text-[12px] font-semibold text-info hover:text-foreground transition-colors"
       >
         Xem phân tích AI →
       </button>
@@ -331,25 +331,25 @@ function RecentMistakesSection({ results, navigate }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <p className="font-jakarta text-[11px] font-semibold uppercase tracking-wider text-dim">
+        <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">
           Lỗi sai gần nhất
         </p>
         <button
           onClick={() => navigate('/mistakes')}
-          className="font-jakarta text-[11px] text-info hover:text-foreground transition-colors"
+          className="font-sans text-[11px] text-info hover:text-foreground transition-colors"
         >
           Xem tất cả →
         </button>
       </div>
       <div className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3">
-        <p className="font-jakarta text-[12px] text-muted">
+        <p className="font-sans text-[12px] text-muted">
           Bài thi gần nhất: <span className="text-destructive font-semibold">{wrongTotal} câu sai</span>
         </p>
         {weakTopics.map(([topic, tb]) => (
           <div key={topic} className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <span className="font-jakarta text-[12px] text-foreground">{getTopicLabel(topic)}</span>
-              <span className="font-jakarta text-[11px] text-destructive">{Math.round(tb.accuracy * 100)}%</span>
+              <span className="font-sans text-[12px] text-foreground">{getTopicLabel(topic)}</span>
+              <span className="font-sans text-[11px] text-destructive">{Math.round(tb.accuracy * 100)}%</span>
             </div>
             <div className="h-1.5 rounded-full bg-border overflow-hidden">
               <div className="h-full rounded-full bg-destructive/60" style={{ width: `${tb.accuracy * 100}%` }} />
@@ -358,7 +358,7 @@ function RecentMistakesSection({ results, navigate }) {
         ))}
         <button
           onClick={() => navigate('/practice')}
-          className="self-start font-jakarta text-[12px] text-primary hover:text-foreground transition-colors"
+          className="self-start font-sans text-[12px] text-primary hover:text-foreground transition-colors"
         >
           Luyện lại ngay →
         </button>
@@ -373,7 +373,7 @@ function ProvinceBenchmarkCard({ user, results, navigate }) {
   if (!user?.province || results.length < 2) return null
   const threshold = PROVINCE_THRESHOLDS[user.province] ?? { typical: 6.5, top: 8.0 }
   const avgScore = results.slice(0, 5).reduce((sum, r) => sum + (r.score ?? 0), 0) / Math.min(results.length, 5)
-  const statusColor = avgScore >= threshold.typical ? '#10B981' : avgScore >= threshold.typical * 0.85 ? '#F59E0B' : '#EF4444'
+  const statusColor = avgScore >= threshold.typical ? 'var(--success)' : avgScore >= threshold.typical * 0.85 ? 'var(--warning)' : 'var(--destructive)'
   const pctOfTop = Math.min(100, Math.round((avgScore / threshold.top) * 100))
   return (
     <motion.div
@@ -383,19 +383,19 @@ function ProvinceBenchmarkCard({ user, results, navigate }) {
       className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3"
     >
       <div className="flex items-center justify-between">
-        <p className="font-jakarta text-[11px] font-semibold uppercase tracking-wider text-dim">
+        <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">
           So với chuẩn {user.province}
         </p>
-        <button onClick={() => navigate('/progress')} className="font-jakarta text-[11px] text-info hover:text-foreground transition-colors">
+        <button onClick={() => navigate('/progress')} className="font-sans text-[11px] text-info hover:text-foreground transition-colors">
           Chi tiết →
         </button>
       </div>
       <div className="flex items-center gap-4">
         <div className="flex flex-col gap-0.5 shrink-0">
-          <span className="font-fraunces text-[22px] font-bold leading-none" style={{ color: statusColor }}>
+          <span className="font-sans text-[22px] font-bold leading-none" style={{ color: statusColor }}>
             {avgScore.toFixed(1)}
           </span>
-          <span className="font-jakarta text-[10px] text-dim">Điểm TB (5 bài)</span>
+          <span className="font-sans text-[10px] text-dim">Điểm TB (5 bài)</span>
         </div>
         <div className="flex-1 flex flex-col gap-2">
           <div className="relative h-2 rounded-full bg-border overflow-hidden">
@@ -403,7 +403,7 @@ function ProvinceBenchmarkCard({ user, results, navigate }) {
             <div className="absolute top-0 bottom-0 w-px" style={{ left: `${(threshold.typical / 10) * 100}%`, background: '#F59E0B99' }} />
             <div className="absolute top-0 bottom-0 w-px" style={{ left: `${(threshold.top / 10) * 100}%`, background: '#818CF899' }} />
           </div>
-          <div className="flex items-center justify-between font-jakarta text-[10px]">
+          <div className="flex items-center justify-between font-sans text-[10px]">
             <span style={{ color: statusColor }}>
               {avgScore >= threshold.typical
                 ? `✓ Trên ngưỡng đỗ (${threshold.typical.toFixed(1)})`
@@ -411,7 +411,7 @@ function ProvinceBenchmarkCard({ user, results, navigate }) {
             </span>
             <span className="text-dim">Top: {threshold.top.toFixed(1)}</span>
           </div>
-          <div className="font-jakarta text-[10px] text-dim">{pctOfTop}% tiến đến top trường</div>
+          <div className="font-sans text-[10px] text-dim">{pctOfTop}% tiến đến top trường</div>
         </div>
       </div>
     </motion.div>
@@ -435,7 +435,7 @@ function QuickLinks({ navigate }) {
         <button
           key={l.path}
           onClick={() => navigate(l.path)}
-          className="px-3 py-1.5 rounded-lg bg-surface border border-border font-jakarta text-[12px] text-muted hover:text-foreground hover:border-border-subtle transition-colors"
+          className="px-3 py-1.5 rounded-lg bg-surface border border-border font-sans text-[12px] text-muted hover:text-foreground hover:border-border-subtle transition-colors"
         >
           {l.label}
         </button>
@@ -561,8 +561,8 @@ export default function Home() {
 
         {/* ── Header ── */}
         <div>
-          <p className="font-jakarta text-[12px] text-dim">{greeting}{displayName ? `, ${displayName}` : ''}</p>
-          <h1 className="font-fraunces text-[24px] font-bold text-foreground leading-tight mt-0.5">
+          <p className="font-sans text-[12px] text-dim">{greeting}{displayName ? `, ${displayName}` : ''}</p>
+          <h1 className="font-sans text-[24px] font-bold text-foreground leading-tight mt-0.5">
             {!hasLearningData && !loading ? 'Bắt đầu hành trình học toán' : 'Lộ trình của bạn hôm nay'}
           </h1>
         </div>
@@ -594,12 +594,12 @@ export default function Home() {
             ) : (
               <>
                 <div className="flex items-end justify-between gap-2">
-                  <span className="font-fraunces text-[22px] font-bold text-foreground leading-none">{results?.length ?? 0}</span>
+                  <span className="font-sans text-[22px] font-bold text-foreground leading-none">{results?.length ?? 0}</span>
                   {results?.length >= 2 && <ExamSparkline results={results} />}
                 </div>
-                <span className="font-jakarta text-[11px] text-muted leading-tight">Bài thi đã làm</span>
+                <span className="font-sans text-[11px] text-muted leading-tight">Bài thi đã làm</span>
                 {results?.length > 0 && (
-                  <span className="font-jakarta text-[10px] text-dim mt-0.5">Gần nhất: {fmtScore(results[0]?.score)}/10</span>
+                  <span className="font-sans text-[10px] text-dim mt-0.5">Gần nhất: {fmtScore(results[0]?.score)}/10</span>
                 )}
               </>
             )}
@@ -620,12 +620,12 @@ export default function Home() {
             {weakConcepts.length > 0 && (
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <p className="font-jakarta text-[11px] font-semibold uppercase tracking-wider text-dim">
+                  <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">
                     Cần luyện tập
                   </p>
                   <button
                     onClick={() => navigate('/mastery')}
-                    className="font-jakarta text-[11px] text-info hover:text-foreground transition-colors"
+                    className="font-sans text-[11px] text-info hover:text-foreground transition-colors"
                   >
                     Xem bản đồ →
                   </button>
@@ -641,7 +641,7 @@ export default function Home() {
                   ))}
                 </div>
                 {!loading && weakConcepts.length === 0 && (
-                  <p className="font-jakarta text-[12px] text-dim italic">Không có khái niệm yếu — tiếp tục luyện tập!</p>
+                  <p className="font-sans text-[12px] text-dim italic">Không có khái niệm yếu — tiếp tục luyện tập!</p>
                 )}
               </div>
             )}
@@ -650,7 +650,7 @@ export default function Home() {
             {recentResult && (
               <div className="flex flex-col gap-2">
                 {weakConcepts.length === 0 && (
-                  <p className="font-jakarta text-[11px] font-semibold uppercase tracking-wider text-dim">
+                  <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">
                     Kết quả gần nhất
                   </p>
                 )}
@@ -658,7 +658,7 @@ export default function Home() {
                 {results.length > 1 && (
                   <button
                     onClick={() => navigate('/history')}
-                    className="font-jakarta text-[12px] text-muted hover:text-foreground transition-colors text-left"
+                    className="font-sans text-[12px] text-muted hover:text-foreground transition-colors text-left"
                   >
                     Xem {results.length - 1} bài thi trước →
                   </button>
@@ -671,7 +671,7 @@ export default function Home() {
         {/* ── Empty state (new user, no data yet) ── */}
         {!loading && !hasLearningData && (
           <div className="bg-surface border border-border rounded-xl p-6 flex flex-col gap-3">
-            <p className="font-jakarta text-[11px] font-semibold uppercase tracking-wider text-dim">
+            <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">
               Cách hoạt động
             </p>
             <div className="flex flex-col gap-2">
@@ -681,10 +681,10 @@ export default function Home() {
                 { n: '3', text: 'Zenith tạo lịch ôn tập cá nhân theo thuật toán FSRS.' },
               ].map(s => (
                 <div key={s.n} className="flex items-start gap-3">
-                  <span className="shrink-0 w-5 h-5 rounded-full bg-primary/20 text-primary font-jakarta text-[11px] font-bold flex items-center justify-center mt-0.5">
+                  <span className="shrink-0 w-5 h-5 rounded-full bg-primary/20 text-primary font-sans text-[11px] font-bold flex items-center justify-center mt-0.5">
                     {s.n}
                   </span>
-                  <p className="font-jakarta text-[13px] text-muted">{s.text}</p>
+                  <p className="font-sans text-[13px] text-muted">{s.text}</p>
                 </div>
               ))}
             </div>
@@ -699,7 +699,7 @@ export default function Home() {
         {/* ── Quick links ── */}
         {hasLearningData && (
           <div className="flex flex-col gap-2">
-            <p className="font-jakarta text-[11px] font-semibold uppercase tracking-wider text-dim">
+            <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">
               Truy cập nhanh
             </p>
             <QuickLinks navigate={navigate} />

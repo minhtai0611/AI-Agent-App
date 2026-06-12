@@ -46,7 +46,7 @@ export default function ReportButton({ questionId, topic }) {
 
   if (sent) {
     return (
-      <p className="font-jakarta text-[0.6875rem] text-success mt-2">
+      <p className="font-sans text-[0.6875rem] text-success mt-2">
         Đã gửi báo cáo{topic ? <> về <strong>{topic}</strong></> : ''} — cảm ơn!
       </p>
     )
@@ -56,7 +56,7 @@ export default function ReportButton({ questionId, topic }) {
     <div className="relative mt-2" ref={containerRef} onBlur={onContainerBlur}>
       <button
         onClick={() => setOpen(v => !v)}
-        className="font-jakarta text-[0.6875rem] text-faint hover:text-dim transition"
+        className="font-sans text-[0.6875rem] text-faint hover:text-dim transition"
       >
         Báo lỗi
       </button>
@@ -70,7 +70,7 @@ export default function ReportButton({ questionId, topic }) {
                 if (r === 'Khác') { setShowOther(true) }
                 else { submit(r) }
               }}
-              className="font-jakarta text-xs text-muted hover:text-foreground text-left px-2 py-1 rounded hover:bg-border transition disabled:opacity-50"
+              className="font-sans text-xs text-muted hover:text-foreground text-left px-2 py-1 rounded hover:bg-border transition disabled:opacity-50"
             >
               {r}
             </button>
@@ -82,12 +82,12 @@ export default function ReportButton({ questionId, topic }) {
                 onChange={e => setOtherText(e.target.value.slice(0, 200))}
                 placeholder="Mô tả lỗi..."
                 rows={3}
-                className="font-jakarta text-xs bg-background border border-border rounded-lg px-2 py-1.5 text-foreground placeholder:text-faint resize-none focus:outline-none focus:border-primary"
+                className="font-sans text-xs bg-background border border-border rounded-lg px-2 py-1.5 text-foreground placeholder:text-faint resize-none focus:outline-none focus:border-primary"
               />
               <button
                 disabled={sending || !otherText.trim()}
                 onClick={() => submit('Khác')}
-                className="font-jakarta text-xs bg-primary text-primary-fg rounded-lg px-3 py-1 disabled:opacity-40 transition"
+                className="font-sans text-xs bg-primary text-primary-fg rounded-lg px-3 py-1 disabled:opacity-40 transition"
               >
                 {sending ? 'Đang gửi...' : 'Gửi'}
               </button>

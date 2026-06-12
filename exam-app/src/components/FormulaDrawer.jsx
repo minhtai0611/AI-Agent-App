@@ -49,7 +49,7 @@ export function FormulaDrawer() {
     <>
       <button
         onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-jakarta text-xs text-dim border border-border hover:text-muted hover:border-border-subtle transition"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs text-dim border border-border hover:text-muted hover:border-border-subtle transition"
       >
         📋 Công thức
       </button>
@@ -74,7 +74,7 @@ export function FormulaDrawer() {
               }}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="font-jakarta text-[0.8125rem] font-semibold text-foreground">Bảng công thức</span>
+                <span className="font-sans text-[0.8125rem] font-semibold text-foreground">Bảng công thức</span>
                 <button onClick={() => setOpen(false)} className="text-faint hover:text-muted text-lg leading-none">✕</button>
               </div>
 
@@ -84,9 +84,9 @@ export function FormulaDrawer() {
                   <button
                     key={i}
                     onClick={() => setActiveTab(i)}
-                    className="flex-shrink-0 px-3 py-1.5 rounded-lg font-jakarta text-xs font-medium transition"
+                    className="flex-shrink-0 px-3 py-1.5 rounded-lg font-sans text-xs font-medium transition"
                     style={activeTab === i
-                      ? { background: '#1E2A44', color: '#F8FAFC' }
+                      ? { background: 'var(--primary)', color: 'var(--primary-fg)' }
                       : { color: '#64748B' }}
                   >
                     {s.label}
@@ -98,7 +98,7 @@ export function FormulaDrawer() {
               <div className="overflow-y-auto flex flex-col gap-2">
                 {SHEETS[activeTab].formulas.map((f, i) => (
                   <div key={i} className="flex items-start gap-3 px-4 py-3 rounded-xl bg-surface">
-                    <span className="font-jakarta text-[0.6875rem] text-faint pt-0.5 flex-shrink-0 w-28">{f.label}</span>
+                    <span className="font-sans text-[0.6875rem] text-faint pt-0.5 flex-shrink-0 w-28">{f.label}</span>
                     <span className="font-mono text-[0.8125rem] text-foreground">{f.text}</span>
                   </div>
                 ))}

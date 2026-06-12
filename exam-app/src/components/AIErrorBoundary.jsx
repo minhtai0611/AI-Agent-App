@@ -17,7 +17,7 @@ export default class AIErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center py-8 font-jakarta text-sm text-faint">
+        <div className="flex items-center justify-center py-8 font-sans text-sm text-faint">
           Phân tích AI không khả dụng
         </div>
       )

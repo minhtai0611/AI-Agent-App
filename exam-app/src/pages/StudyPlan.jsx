@@ -19,7 +19,7 @@ function Skeleton() {
   return (
     <div className="flex flex-col gap-5 animate-pulse">
       <div className="flex items-center gap-2">
-        <span className="font-jakarta text-[13px] text-dim">Đang tạo kế hoạch phục hồi…</span>
+        <span className="font-sans text-[13px] text-dim">Đang tạo kế hoạch phục hồi…</span>
       </div>
       <div className="h-24 glass-base border border-surface rounded-2xl" />
       <div className="h-48 glass-base border border-surface rounded-2xl" />
@@ -40,8 +40,8 @@ function CheckpointBar({ target, current }) {
   return (
     <div className="flex flex-col gap-1.5 mt-4">
       <div className="flex items-center justify-between">
-        <span className="font-jakarta text-[11px] font-semibold text-dim uppercase tracking-wider">Checkpoint</span>
-        <span className="font-jakarta text-[12px] text-dim">{filled}/{target} câu đúng liên tiếp</span>
+        <span className="font-sans text-[11px] font-semibold text-dim uppercase tracking-wider">Checkpoint</span>
+        <span className="font-sans text-[12px] text-dim">{filled}/{target} câu đúng liên tiếp</span>
       </div>
       <div className="h-1.5 bg-surface rounded-full overflow-hidden">
         <div
@@ -50,7 +50,7 @@ function CheckpointBar({ target, current }) {
         />
       </div>
       {pct >= 1 && (
-        <span className="font-jakarta text-[11px] text-success">Đã đạt checkpoint — tiếp tục luyện tập hoặc thử lại đề thi.</span>
+        <span className="font-sans text-[11px] text-success">Đã đạt checkpoint — tiếp tục luyện tập hoặc thử lại đề thi.</span>
       )}
     </div>
   )
@@ -71,8 +71,8 @@ function FocusCard({ area, index, streak, onPractice }) {
       transition={{ duration: 0.4, ease: 'easeOut' }}
       className="rounded-2xl overflow-hidden"
       style={{
-        background: isResolved ? '#0A1A10' : '#0D1221',
-        border: `1px solid ${isResolved ? '#2D4A1A' : '#1E2A44'}`,
+        background: isResolved ? 'var(--primary-subtle)' : 'var(--surface)',
+        border: `1px solid ${isResolved ? 'var(--primary-border)' : 'var(--border)'}`,
       }}
     >
       <button
@@ -86,17 +86,17 @@ function FocusCard({ area, index, streak, onPractice }) {
               <AchievementCeremony
                 key="resolved"
                 trigger={isResolved}
-                className="w-6 h-6 rounded-full bg-success/5 border border-success/20 flex items-center justify-center font-jakarta text-[11px] font-bold text-success"
+                className="w-6 h-6 rounded-full bg-success/5 border border-success/20 flex items-center justify-center font-sans text-[11px] font-bold text-success"
               >
                 ✓
               </AchievementCeremony>
             ) : (
-              <span className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-jakarta text-[11px] font-bold text-primary">
+              <span className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-sans text-[11px] font-bold text-primary">
                 {index + 1}
               </span>
             )}
           </AnimatePresence>
-          <span className={`font-fraunces text-[15px] font-semibold ${isResolved ? 'text-muted' : 'text-foreground'}`}>
+          <span className={`font-sans text-[15px] font-semibold ${isResolved ? 'text-muted' : 'text-foreground'}`}>
             <MathText>{area.topic}</MathText>
           </span>
         </div>
@@ -113,19 +113,19 @@ function FocusCard({ area, index, streak, onPractice }) {
         <div className="px-6 pb-6 flex flex-col gap-4 border-t border-surface pt-4">
           {/* Error pattern */}
           <div className="glass-base border border-primary/20 rounded-xl px-4 py-3">
-            <p className="font-jakarta text-[12px] font-semibold text-primary mb-1">Lỗi phát hiện</p>
-            <p className="font-jakarta text-[13px] text-foreground leading-relaxed">
+            <p className="font-sans text-[12px] font-semibold text-primary mb-1">Lỗi phát hiện</p>
+            <p className="font-sans text-[13px] text-foreground leading-relaxed">
               <MathText>{area.error_pattern}</MathText>
             </p>
           </div>
 
           {/* Tasks */}
           <div className="flex flex-col gap-2">
-            <span className="font-jakarta text-[11px] font-semibold text-dim uppercase tracking-wider">Luyện tập</span>
+            <span className="font-sans text-[11px] font-semibold text-dim uppercase tracking-wider">Luyện tập</span>
             {area.tasks.map((task, i) => (
               <div key={i} className="flex items-start gap-2.5">
                 <span className="mt-1 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-                <span className="font-jakarta text-[13px] text-muted leading-relaxed">
+                <span className="font-sans text-[13px] text-muted leading-relaxed">
                   <MathText>{task}</MathText>
                 </span>
               </div>
@@ -144,7 +144,7 @@ function FocusCard({ area, index, streak, onPractice }) {
           <button
             type="button"
             onClick={() => onPractice(index)}
-            className="mt-1 w-full py-2.5 rounded-xl font-jakarta text-[13px] font-semibold border border-primary/20 text-primary hover:bg-primary/5 transition"
+            className="mt-1 w-full py-2.5 rounded-xl font-sans text-[13px] font-semibold border border-primary/20 text-primary hover:bg-primary/5 transition"
           >
             Luyện tập chủ đề này →
           </button>
@@ -220,10 +220,10 @@ export default function StudyPlan() {
   if (!result) {
     return (
       <div className="min-h-screen bg-surface flex flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="font-jakarta text-[15px] text-muted">Hoàn thành một bài thi để nhận kế hoạch phục hồi cá nhân hóa của bạn →</p>
+        <p className="font-sans text-[15px] text-muted">Hoàn thành một bài thi để nhận kế hoạch phục hồi cá nhân hóa của bạn →</p>
         <button
           onClick={() => navigate('/exams')}
-          className="px-5 py-2 rounded-xl font-jakarta text-[13px] font-bold mt-2 bg-primary text-background"
+          className="px-5 py-2 rounded-xl font-sans text-[13px] font-bold mt-2 bg-primary text-background"
         >
           Chọn đề thi
         </button>
@@ -237,10 +237,10 @@ export default function StudyPlan() {
       className="min-h-screen bg-surface flex flex-col"
     >
       <nav className="flex items-center justify-between px-8 glass-base border-b border-surface" style={{ height: 64 }}>
-        <button onClick={() => navigate(-1)} className="font-jakarta text-[13px] text-muted hover:text-foreground transition">
+        <button onClick={() => navigate(-1)} className="font-sans text-[13px] text-muted hover:text-foreground transition">
           ← Quay lại
         </button>
-        <span className="font-jakarta text-[14px] font-semibold text-foreground">Kế hoạch phục hồi</span>
+        <span className="font-sans text-[14px] font-semibold text-foreground">Kế hoạch phục hồi</span>
         <div className="w-20" />
       </nav>
 
@@ -249,7 +249,7 @@ export default function StudyPlan() {
           <Skeleton />
         ) : error ? (
           <div className="flex flex-col items-center gap-4 py-16">
-            <p className="font-jakarta text-muted">Không thể tạo kế hoạch phục hồi</p>
+            <p className="font-sans text-muted">Không thể tạo kế hoạch phục hồi</p>
             <button
               onClick={() => {
                 setError(false); setLoading(true)
@@ -262,7 +262,7 @@ export default function StudyPlan() {
                   })
                 })
               }}
-              className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold text-background"
+              className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-semibold text-background"
               style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
             >
               Thử lại
@@ -273,9 +273,9 @@ export default function StudyPlan() {
             {/* Score gap */}
             <div className="glass-base border border-surface rounded-2xl px-6 py-5">
               <div className="flex items-center gap-2 mb-2">
-                <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-primary">Mục tiêu</span>
+                <span className="font-sans text-[11px] font-bold tracking-[2px] uppercase text-primary">Mục tiêu</span>
               </div>
-              <p className="font-fraunces text-[17px] font-semibold text-foreground leading-snug">
+              <p className="font-sans text-[17px] font-semibold text-foreground leading-snug">
                 {plan.score_gap}
               </p>
             </div>
@@ -286,20 +286,20 @@ export default function StudyPlan() {
                 {(adaptivePlan.in_progress_count ?? 0) > 3 && (
                   <div className="flex items-center gap-2 px-3 py-2 rounded-lg glass-base border border-primary/20">
                     <span className="text-primary text-[14px]">⚠</span>
-                    <p className="font-jakarta text-[12px] text-primary leading-snug">
+                    <p className="font-sans text-[12px] text-primary leading-snug">
                       {adaptivePlan.in_progress_count} khái niệm đang học — ưu tiên ôn lại trước khi học mới.
                     </p>
                   </div>
                 )}
                 {adaptivePlan.focus_concepts?.slice(0, 3).length > 0 && (
                   <div className="flex flex-col gap-2">
-                    <span className="font-jakarta text-[11px] font-semibold text-dim uppercase tracking-wider">
+                    <span className="font-sans text-[11px] font-semibold text-dim uppercase tracking-wider">
                       Trọng tâm tuần này (Learning Graph)
                     </span>
                     <div className="flex flex-wrap gap-2">
                       {adaptivePlan.focus_concepts.slice(0, 3).map(c => (
                         <span key={c.concept_id}
-                          className="font-jakarta text-[12px] font-semibold px-2.5 py-1 rounded-lg border border-info/20 bg-info/5 text-info">
+                          className="font-sans text-[12px] font-semibold px-2.5 py-1 rounded-lg border border-info/20 bg-info/5 text-info">
                           ✦ {c.name_vi}
                         </span>
                       ))}
@@ -312,7 +312,7 @@ export default function StudyPlan() {
             {/* Focus areas */}
             {Array.isArray(plan.focus_areas) && plan.focus_areas.length > 0 && (
               <div className="flex flex-col gap-3">
-                <span className="font-jakarta text-[11px] font-bold tracking-[2px] uppercase text-dim">
+                <span className="font-sans text-[11px] font-bold tracking-[2px] uppercase text-dim">
                   {plan.focus_areas.length === 1 ? 'Trọng tâm cần sửa' : `${plan.focus_areas.length} trọng tâm cần sửa`}
                 </span>
                 {plan.focus_areas.map((area, i) => (
@@ -330,15 +330,15 @@ export default function StudyPlan() {
             {/* Retake CTA */}
             <div className="glass-base border border-success/20 rounded-2xl px-6 py-5 flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
-                <span className="font-jakarta text-[12px] font-semibold text-success">Sau khi luyện xong</span>
-                <p className="font-jakarta text-[13px] text-foreground">
+                <span className="font-sans text-[12px] font-semibold text-success">Sau khi luyện xong</span>
+                <p className="font-sans text-[13px] text-foreground">
                   {plan.retake_note ?? 'Thử lại đề thi để đo tiến độ thực sự.'}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={handleRetake}
-                className="flex-shrink-0 px-4 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-background whitespace-nowrap bg-success"
+                className="flex-shrink-0 px-4 py-2.5 rounded-xl font-sans text-[13px] font-bold text-background whitespace-nowrap bg-success"
               >
                 Thử lại đề →
               </button>

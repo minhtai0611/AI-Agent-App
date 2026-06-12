@@ -9,17 +9,17 @@ export default function Timer({ timeLeft, totalTime }) {
   const fraction = totalTime > 0 ? timeLeft / totalTime : 1
   const pct = Math.max(0, Math.min(1, fraction))
   const offset = CIRC * (1 - pct)
-  const color = timeLeft > 30 ? '#10B981' : timeLeft > 10 ? '#F2A20C' : '#FB7185'
+  const color = timeLeft > 30 ? 'var(--success)' : timeLeft > 10 ? 'var(--accent)' : 'var(--destructive)'
   const urgent = timeLeft <= 10 && timeLeft > 0
 
   return (
     <motion.div
-      className="flex items-center gap-2 px-3 py-1.5 bg-border rounded-lg"
+      className="flex items-center gap-2 px-3 py-1.5 bg-[var(--surface)] border border-[var(--border)] rounded-lg"
       animate={urgent ? { scale: [1, 1.05, 1] } : { scale: 1 }}
       transition={urgent ? { duration: 1, repeat: Infinity, ease: 'easeInOut' } : {}}
     >
       <svg width="44" height="44" viewBox="0 0 44 44" className="flex-shrink-0 -rotate-90">
-        <circle cx="22" cy="22" r={RADIUS} fill="none" stroke="#1E2A44" strokeWidth="3" />
+        <circle cx="22" cy="22" r={RADIUS} fill="none" stroke="var(--border)" strokeWidth="3" />
         <circle
           cx="22" cy="22" r={RADIUS}
           fill="none"

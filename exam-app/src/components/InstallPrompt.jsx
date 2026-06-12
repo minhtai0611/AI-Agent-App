@@ -36,13 +36,13 @@ export default function InstallPrompt() {
     <div className="fixed bottom-16 left-4 right-4 z-50 max-w-sm mx-auto glass-base border border-primary/20 rounded-2xl p-5">
       <div className="flex items-center justify-between gap-3">
         <div className="flex flex-col gap-0.5">
-          <span className="font-jakarta text-[13px] font-semibold text-foreground">Thêm vào màn hình chính</span>
-          <span className="font-jakarta text-[11px] text-dim">Trải nghiệm nhanh hơn, offline được</span>
+          <span className="font-sans text-[13px] font-semibold text-foreground">Thêm vào màn hình chính</span>
+          <span className="font-sans text-[11px] text-dim">Trải nghiệm nhanh hơn, offline được</span>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={install}
-            className="px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-bold bg-primary text-background"
+            className="px-4 py-1.5 rounded-lg font-sans text-[12px] font-bold bg-primary text-background"
           >
             Thêm
           </button>

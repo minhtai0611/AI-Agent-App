@@ -29,7 +29,7 @@ export default function OfflineBanner() {
     return (
       <div className="fixed top-12 left-0 right-0 z-30 flex items-center gap-3 px-4 py-2 glass-base border-b border-success/20">
         <span className="w-3 h-3 rounded-full border border-success border-t-transparent animate-spin flex-shrink-0" />
-        <span className="font-jakarta text-[12px] text-success">Đã có mạng — đang đồng bộ kết quả...</span>
+        <span className="font-sans text-[12px] text-success">Đã có mạng — đang đồng bộ kết quả...</span>
       </div>
     )
   }
@@ -38,7 +38,7 @@ export default function OfflineBanner() {
 
   return (
     <div className="fixed top-12 left-0 right-0 z-30 flex items-center justify-between px-4 py-2 glass-base border-b border-primary/20">
-      <span className="font-jakarta text-[12px] text-primary/80">
+      <span className="font-sans text-[12px] text-primary/80">
         Không có mạng — tính năng AI không khả dụng · Đề thi vẫn hoạt động bình thường
       </span>
       <button

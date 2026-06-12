@@ -116,7 +116,7 @@ export default function DiagnosticTest() {
   if (loading) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
-        <span className="font-jakarta text-dim text-[14px]">Đang tải câu hỏi...</span>
+        <span className="font-sans text-dim text-[14px]">Đang tải câu hỏi...</span>
       </div>
     )
   }
@@ -128,17 +128,17 @@ export default function DiagnosticTest() {
           className="max-w-md w-full glass-base border border-surface rounded-2xl p-8 flex flex-col gap-5 text-center">
           <span className="text-4xl">🧪</span>
           <div>
-            <h1 className="font-fraunces text-[24px] font-bold text-foreground mb-2">Kiểm tra đầu vào</h1>
-            <p className="font-jakarta text-[14px] text-muted leading-relaxed">
+            <h1 className="font-sans text-[24px] font-bold text-foreground mb-2">Kiểm tra đầu vào</h1>
+            <p className="font-sans text-[14px] text-muted leading-relaxed">
               {DIAGNOSTIC_TOPICS.length * QUESTIONS_PER_TOPIC} câu hỏi · 2 câu mỗi chủ đề
             </p>
-            <p className="font-jakarta text-[13px] text-dim mt-2 leading-relaxed">
+            <p className="font-sans text-[13px] text-dim mt-2 leading-relaxed">
               Kết quả sẽ giúp AI chọn đúng dạng bài bạn cần luyện nhất.
             </p>
           </div>
           <div className="flex flex-col gap-2 text-left">
             {DIAGNOSTIC_TOPICS.map(t => (
-              <div key={t} className="flex items-center gap-2 font-jakarta text-[13px] text-dim">
+              <div key={t} className="flex items-center gap-2 font-sans text-[13px] text-dim">
                 <span className="w-1.5 h-1.5 rounded-full bg-surface flex-shrink-0" />
                 {TOPIC_LABELS[t] ?? t}
               </div>
@@ -146,11 +146,11 @@ export default function DiagnosticTest() {
           </div>
           <div className="flex flex-col gap-2 mt-2">
             <button onClick={startTest}
-              className="w-full py-3 rounded-xl font-jakarta text-[14px] font-bold bg-primary text-background">
+              className="w-full py-3 rounded-xl font-sans text-[14px] font-bold bg-primary text-background">
               Bắt đầu kiểm tra
             </button>
             <button onClick={() => navigate(-1)}
-              className="font-jakarta text-[13px] text-dim hover:text-muted transition py-1">
+              className="font-sans text-[13px] text-dim hover:text-muted transition py-1">
               Bỏ qua
             </button>
           </div>
@@ -169,10 +169,10 @@ export default function DiagnosticTest() {
         {/* Progress bar */}
         <div className="w-full max-w-xl mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="font-jakarta text-[12px] text-dim">
+            <span className="font-sans text-[12px] text-dim">
               Câu {currentIdx + 1} / {questions.length}
             </span>
-            <span className="font-jakarta text-[11px] font-semibold text-dim uppercase tracking-wider">
+            <span className="font-sans text-[11px] font-semibold text-dim uppercase tracking-wider">
               {TOPIC_LABELS[q.topic] ?? q.topic}
             </span>
           </div>
@@ -188,7 +188,7 @@ export default function DiagnosticTest() {
             transition={{ duration: 0.15 }}
             className="w-full max-w-xl">
             <div className="glass-base border border-surface rounded-2xl p-6 mb-4">
-              <MathText className="font-jakarta text-[15px] text-foreground leading-relaxed">
+              <MathText className="font-sans text-[15px] text-foreground leading-relaxed">
                 {q.question}
               </MathText>
             </div>
@@ -201,9 +201,9 @@ export default function DiagnosticTest() {
                   <button key={i}
                     onClick={() => chosen === undefined && handleAnswer(i)}
                     disabled={chosen !== undefined}
-                    className="w-full text-left px-5 py-3.5 rounded-xl border font-jakarta text-[14px] transition"
+                    className="w-full text-left px-5 py-3.5 rounded-xl border font-sans text-[14px] transition"
                     style={{
-                      borderColor: isCorrect ? '#34D39944' : isWrong ? '#FB718544' : '#1E2A44',
+                      borderColor: isCorrect ? 'var(--primary-border)' : isWrong ? 'rgba(220,38,38,0.3)' : 'var(--border)',
                       background: isCorrect ? '#0A2A1A' : isWrong ? '#2A0F14' : '#0D1521',
                       color: isCorrect ? '#34D399' : isWrong ? '#FB7185' : '#CBD5E1',
                     }}>
@@ -231,8 +231,8 @@ export default function DiagnosticTest() {
         className="w-full max-w-xl flex flex-col gap-6">
         <div className="text-center">
           <span className="text-4xl">{overallPct >= 70 ? '🎉' : overallPct >= 40 ? '📊' : '💪'}</span>
-          <h1 className="font-fraunces text-[24px] font-bold text-foreground mt-3">Kết quả chẩn đoán</h1>
-          <p className="font-jakarta text-[14px] text-muted mt-1">{totalCorrect}/{totalQ} câu đúng · {overallPct}% tổng thể</p>
+          <h1 className="font-sans text-[24px] font-bold text-foreground mt-3">Kết quả chẩn đoán</h1>
+          <p className="font-sans text-[14px] text-muted mt-1">{totalCorrect}/{totalQ} câu đúng · {overallPct}% tổng thể</p>
         </div>
 
         {/* Topic breakdown bars */}
@@ -240,8 +240,8 @@ export default function DiagnosticTest() {
           {resultsData.map(({ topic, correct, total, pct }) => (
             <div key={topic} className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="font-jakarta text-[13px] font-medium text-foreground">{TOPIC_LABELS[topic] ?? topic}</span>
-                <span className="font-jakarta text-[12px] text-dim">{correct}/{total}</span>
+                <span className="font-sans text-[13px] font-medium text-foreground">{TOPIC_LABELS[topic] ?? topic}</span>
+                <span className="font-sans text-[12px] text-dim">{correct}/{total}</span>
               </div>
               <div className="h-1.5 bg-surface rounded-full">
                 <div className="h-1.5 rounded-full transition-all duration-500"
@@ -254,17 +254,17 @@ export default function DiagnosticTest() {
           ))}
         </div>
 
-        <p className="font-jakarta text-[13px] text-dim text-center">
+        <p className="font-sans text-[13px] text-dim text-center">
           AI sẽ ưu tiên luyện những chủ đề bạn còn yếu khi bạn dùng chế độ Luyện thích nghi.
         </p>
 
         <div className="flex flex-col gap-2">
           <button onClick={() => navigate('/practice/adaptive')}
-            className="w-full py-3 rounded-xl font-jakarta text-[14px] font-bold bg-primary text-background">
+            className="w-full py-3 rounded-xl font-sans text-[14px] font-bold bg-primary text-background">
             Bắt đầu luyện tập thích nghi →
           </button>
           <button onClick={() => navigate('/exams?mode=timed')}
-            className="font-jakarta text-[13px] text-dim hover:text-muted transition text-center py-1">
+            className="font-sans text-[13px] text-dim hover:text-muted transition text-center py-1">
             Quay lại
           </button>
         </div>

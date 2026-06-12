@@ -61,45 +61,45 @@ export default function ResultShareCard({ result, examTitle, personalBest, onClo
         {/* Preview card */}
         <div style={{
           width: '100%',
-          background: 'linear-gradient(135deg, #0A0E1A 0%, #0D1526 100%)',
-          border: '1px solid #1E2A44',
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
           borderRadius: 20,
           padding: 32,
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontFamily: 'Inter, system-ui, sans-serif',
           display: 'flex',
           flexDirection: 'column',
           gap: 20,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 13, color: '#64748B' }}>Kết quả thi thử</span>
-            <span style={{ fontSize: 13, color: '#64748B' }}>{date}</span>
+            <span style={{ fontSize: 13, color: 'var(--fg-tertiary)' }}>Kết quả thi thử</span>
+            <span style={{ fontSize: 13, color: 'var(--fg-tertiary)' }}>{date}</span>
           </div>
 
-          <p style={{ fontSize: 14, fontWeight: 600, color: '#94A3B8', lineHeight: 1.4, margin: 0 }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg-secondary)', lineHeight: 1.4, margin: 0 }}>
             {examTitle || 'Đề thi toán'}
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center', padding: '20px 0' }}>
-            <span style={{ fontSize: 64, fontWeight: 700, color: '#F2A20C', lineHeight: 1, fontFamily: 'Georgia, serif' }}>
+            <span style={{ fontSize: 64, fontWeight: 700, color: 'var(--primary)', lineHeight: 1 }}>
               {score.toFixed(1)}
             </span>
-            <span style={{ fontSize: 16, color: '#475569' }}>/ 10</span>
+            <span style={{ fontSize: 16, color: 'var(--fg-secondary)' }}>/ 10</span>
             {personalBest && (
-              <span style={{ marginTop: 8, fontSize: 13, color: '#10B981', fontWeight: 600 }}>
+              <span style={{ marginTop: 8, fontSize: 13, color: 'var(--success)', fontWeight: 600 }}>
                 🏆 Kỷ lục cá nhân!
               </span>
             )}
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: '1px solid #1E2A44', paddingTop: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-around', borderTop: '1px solid var(--border)', paddingTop: 16 }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: '#F8FAFC' }}>{correct}/{total}</div>
-              <div style={{ fontSize: 11, color: '#475569', marginTop: 2 }}>Câu đúng</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--foreground)' }}>{correct}/{total}</div>
+              <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 2 }}>Câu đúng</div>
             </div>
           </div>
 
-          <div style={{ textAlign: 'center', borderTop: '1px solid #111827', paddingTop: 14 }}>
-            <span style={{ fontSize: 11, color: '#2A3A50' }}>✦ exam-app-ey0.pages.dev · Không xác minh</span>
+          <div style={{ textAlign: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: 14 }}>
+            <span style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>✦ exam-app-ey0.pages.dev · Không xác minh</span>
           </div>
         </div>
 
@@ -107,22 +107,22 @@ export default function ResultShareCard({ result, examTitle, personalBest, onClo
         <div className="flex gap-3 w-full">
           <button
             onClick={handleCopy}
-            className="flex-1 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold transition flex items-center justify-center gap-2"
-            style={{ background: copied ? '#10B981' : '#F2A20C', color: '#0A0E1A' }}
+            className="flex-1 py-2.5 rounded-xl font-sans text-[0.8125rem] font-bold transition flex items-center justify-center gap-2"
+            style={{ background: copied ? 'var(--success)' : 'var(--accent)', color: 'var(--accent-fg)' }}
           >
             {copied ? '✓ Đã sao chép' : '🔗 Sao chép link'}
           </button>
           {typeof navigator.share === 'function' && (
             <button
               onClick={handleNativeShare}
-              className="px-4 py-2.5 rounded-xl font-jakarta text-[0.8125rem] text-muted border border-border hover:text-foreground transition"
+              className="px-4 py-2.5 rounded-xl font-sans text-[0.8125rem] text-muted border border-border hover:text-foreground transition"
             >
               📤
             </button>
           )}
           <button
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl font-jakarta text-[0.8125rem] text-dim hover:text-muted border border-border transition"
+            className="px-4 py-2.5 rounded-xl font-sans text-[0.8125rem] text-dim hover:text-muted border border-border transition"
           >
             Đóng
           </button>

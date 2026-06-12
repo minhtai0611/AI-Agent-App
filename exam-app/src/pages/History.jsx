@@ -58,19 +58,19 @@ export default function History() {
 
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between px-10 py-4 glass-base border-b border-surface">
-        <button onClick={() => navigate('/')} className="font-jakarta text-sm text-dim hover:text-muted transition">
+        <button onClick={() => navigate('/')} className="font-sans text-sm text-dim hover:text-muted transition">
           ← Trang chủ
         </button>
-        <h1 className="font-fraunces text-[24px] font-bold text-foreground">Lịch sử làm bài</h1>
+        <h1 className="font-sans text-[24px] font-bold text-foreground">Lịch sử làm bài</h1>
         <div className="w-24" />
       </header>
 
       <div className="relative z-10 flex flex-col gap-6 p-6 sm:p-10 max-w-3xl mx-auto w-full">
         {sorted.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <p className="font-jakarta text-muted text-lg">Bạn chưa làm bài thi nào. Hãy bắt đầu với một đề thử! 📝</p>
+            <p className="font-sans text-muted text-lg">Bạn chưa làm bài thi nào. Hãy bắt đầu với một đề thử! 📝</p>
             <button onClick={() => navigate('/exams')}
-              className="px-6 py-2.5 bg-primary text-background font-jakarta font-bold text-sm rounded-lg hover:opacity-90 transition">
+              className="px-6 py-2.5 bg-primary text-background font-sans font-bold text-sm rounded-lg hover:opacity-90 transition">
               Bắt đầu thi thử
             </button>
           </div>
@@ -84,18 +84,18 @@ export default function History() {
                 transition={{ duration: 0.25 }}
                 className="glass-base border border-surface rounded-2xl p-6 flex flex-col gap-3"
               >
-                <span className="font-fraunces text-[15px] font-semibold text-foreground">Xu hướng điểm số</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">Xu hướng điểm số</span>
                 <div style={{ height: 120 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
                       <XAxis dataKey="date" tick={{ fill: '#475569', fontSize: 10, fontFamily: 'Plus Jakarta Sans, sans-serif' }} axisLine={false} tickLine={false} />
                       <YAxis domain={[0, 10]} tick={{ fill: '#475569', fontSize: 10 }} axisLine={false} tickLine={false} width={24} />
                       <Tooltip
-                        contentStyle={{ background: '#0D1221', border: '1px solid #1E2A44', borderRadius: 8, fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 12 }}
+                        contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontFamily: 'Inter, sans-serif', fontSize: 12 }}
                         labelStyle={{ color: '#94A3B8' }}
                         itemStyle={{ color: '#F2A20C' }}
                       />
-                      <Line type="monotone" dataKey="score" stroke="#F2A20C" strokeWidth={2} dot={{ r: 4, fill: '#F2A20C', stroke: '#0D1221', strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                      <Line type="monotone" dataKey="score" stroke="var(--accent)" strokeWidth={2} dot={{ r: 4, fill: 'var(--accent)', stroke: 'var(--bg)', strokeWidth: 2 }} activeDot={{ r: 6 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -124,16 +124,16 @@ export default function History() {
                         >
                           <div className="flex flex-col gap-1.5">
                             <div className="flex items-center gap-2">
-                              <span className="font-jakarta text-[15px] font-semibold text-foreground">{examTitle}</span>
+                              <span className="font-sans text-[15px] font-semibold text-foreground">{examTitle}</span>
                               {isPersonalBest && (
-                                <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400">🏆 Best</span>
+                                <span className="font-sans text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">🏆 Best</span>
                               )}
                             </div>
-                            <span className="font-jakarta text-[13px] text-dim">{formatDate(result.finishedAt)}</span>
+                            <span className="font-sans text-[13px] text-dim">{formatDate(result.finishedAt)}</span>
                           </div>
                           <div className="flex items-center gap-5">
-                            <span className="font-fraunces text-[40px] font-bold" style={{ color: scoreColor }}>{result.score}</span>
-                            <span className="px-4 py-2 bg-surface rounded-md font-jakarta text-[13px] text-muted hover:text-foreground transition">
+                            <span className="font-sans text-[40px] font-bold" style={{ color: scoreColor }}>{result.score}</span>
+                            <span className="px-4 py-2 bg-surface rounded-md font-sans text-[13px] text-muted hover:text-foreground transition">
                               Chi tiết →
                             </span>
                           </div>
@@ -146,14 +146,14 @@ export default function History() {
                       <button
                         onClick={() => setPage(p => Math.max(1, p - 1))}
                         disabled={page === 1}
-                        className="px-4 py-2 rounded-lg font-jakarta text-[13px] bg-surface border border-surface text-muted disabled:opacity-30 hover:text-foreground transition">
+                        className="px-4 py-2 rounded-lg font-sans text-[13px] bg-surface border border-surface text-muted disabled:opacity-30 hover:text-foreground transition">
                         ← Trước
                       </button>
-                      <span className="font-jakarta text-[12px] text-dim">{page} / {totalPages}</span>
+                      <span className="font-sans text-[12px] text-dim">{page} / {totalPages}</span>
                       <button
                         onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                         disabled={page === totalPages}
-                        className="px-4 py-2 rounded-lg font-jakarta text-[13px] bg-surface border border-surface text-muted disabled:opacity-30 hover:text-foreground transition">
+                        className="px-4 py-2 rounded-lg font-sans text-[13px] bg-surface border border-surface text-muted disabled:opacity-30 hover:text-foreground transition">
                         Tiếp →
                       </button>
                     </div>

@@ -40,11 +40,7 @@ import { getTierGap } from '../utils/tierGap.js'
 import { getUpgradeContext } from '../utils/upgradeContext.js'
 import { getStreakFreezeInfo } from '../utils/streakFreeze.js'
 import { getTopicNodes, getPriorityTopics } from '../utils/learningGraph.js'
-import { SpotlightCard } from '../components/SpotlightCard.jsx'
-import { AnimatedShinyText } from '../components/ui/animated-shiny-text.jsx'
-import { ShimmerButton } from '../components/ui/shimmer-button.jsx'
 import { NumberTicker } from '../components/ui/number-ticker.jsx'
-import { GradientBorderCard } from '../components/GradientBorderCard.jsx'
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const REASON_LABELS = {
@@ -71,11 +67,11 @@ const MASTERY_RANK_LABELS = {
 }
 const MASTERY_RANK_COLORS = {
   'Pemula':    '#64748B',
-  'Học sinh':  '#818CF8',
+  'Học sinh': 'var(--info)',
   'Sinh viên': '#6366F1',
-  'Chuyên gia':'#10B981',
+  'Chuyên gia': 'var(--success)',
 }
-const TIER_COLORS  = { basic: '#64748B', student: '#6366F1', complete: '#10B981' }
+const TIER_COLORS = { basic: 'var(--fg-tertiary)', student: 'var(--info)', complete: 'var(--success)' }
 const TIER_ALLOC   = { basic: 50, student: 500, complete: 2000 }
 const GRADE_LABELS = { '9': 'Lớp 9 trở xuống', '10': 'Lớp 10', '11': 'Lớp 11', '12': 'Lớp 12' }
 
@@ -155,10 +151,10 @@ function aggregateTopicAccuracy(results) {
 function StatChip({ icon, value, label }) {
   return (
     <div className="flex flex-col items-center gap-0.5 px-4">
-      <span className="font-fraunces text-[17px] font-bold text-primary">
+      <span className="font-sans text-[17px] font-bold text-primary">
         <span className={icon === '🔥' ? 'streak-fire' : undefined}>{icon}</span> {value}
       </span>
-      <span className="font-jakarta text-[0.6875rem] text-dim">{label}</span>
+      <span className="font-sans text-[0.6875rem] text-dim">{label}</span>
     </div>
   )
 }
@@ -167,7 +163,7 @@ function TabButton({ active, onClick, children }) {
   return (
     <button
       onClick={onClick}
-      className={`flex-1 py-2.5 rounded-lg font-jakarta text-[0.8125rem] font-medium transition ${
+      className={`flex-1 py-2.5 rounded-lg font-sans text-[0.8125rem] font-medium transition ${
         active ? 'bg-primary text-primary-fg font-semibold' : 'text-dim hover:text-muted'
       }`}
     >
@@ -180,7 +176,7 @@ function TabButton({ active, onClick, children }) {
 function CreditGauge({ balance, tier }) {
   const alloc = TIER_ALLOC[tier] ?? 50
   const pct   = Math.min(balance / alloc, 1)
-  const color = pct > 0.6 ? '#10B981' : pct > 0.2 ? '#F2A20C' : '#EF4444'
+  const color = pct > 0.6 ? 'var(--success)' : pct > 0.2 ? 'var(--warning)' : 'var(--destructive)'
 
   // SVG arc: cx=60, cy=60, r=50, semicircle from 180° to 0°
   const r = 50, cx = 60, cy = 60
@@ -193,7 +189,7 @@ function CreditGauge({ balance, tier }) {
         {/* background track */}
         <path
           d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
-          fill="none" stroke="#1E2A44" strokeWidth="10" strokeLinecap="round"
+          fill="none" stroke="var(--border)" strokeWidth="10" strokeLinecap="round"
         />
         {/* fill */}
         <path
@@ -210,7 +206,7 @@ function CreditGauge({ balance, tier }) {
           / {alloc.toLocaleString()}
         </text>
       </svg>
-      <span className="font-jakarta text-[0.6875rem] text-faint">Năng lượng học tập còn lại</span>
+      <span className="font-sans text-[0.6875rem] text-faint">Năng lượng học tập còn lại</span>
     </div>
   )
 }
@@ -566,7 +562,7 @@ export default function Account() {
   // ── Additional non-hook derived values (all useMemos declared above early-return) ──
   const plans  = billing === 'annual' ? PLANS_ANNUAL : PLANS_MONTHLY
   const readinessPct   = readiness?.readiness ?? 0
-  const readinessColor = readinessPct >= 70 ? '#34D399' : readinessPct >= 40 ? '#F2A20C' : '#EF4444'
+  const readinessColor = readinessPct >= 70 ? 'var(--success)' : readinessPct >= 40 ? 'var(--warning)' : 'var(--destructive)'
   const readinessLabel = readinessPct >= 70 ? 'Sẵn sàng tốt' : readinessPct >= 40 ? 'Đang tiến bộ' : 'Cần luyện thêm'
 
   // ── Handlers ──
@@ -676,35 +672,34 @@ export default function Account() {
           {/* Name + mastery rank + email */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <p className="font-fraunces text-[18px] font-bold text-foreground truncate">{user.custom_display_name || user.display_name}</p>
+              <p className="font-sans text-[18px] font-bold text-foreground truncate">{user.custom_display_name || user.display_name}</p>
               {user.mastery_rank && (
                 <AchievementCeremony trigger={Boolean(user.mastery_rank)}>
-                  <AnimatedShinyText
-                    className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                  <span
+                    className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
                     style={{
                       background: (MASTERY_RANK_COLORS[user.mastery_rank] ?? '#64748B') + '22',
                       color: MASTERY_RANK_COLORS[user.mastery_rank] ?? '#64748B',
                     }}
-                    shimmerWidth={50}
                   >
                     {MASTERY_RANK_LABELS[user.mastery_rank] ?? user.mastery_rank}
-                  </AnimatedShinyText>
+                  </span>
                 </AchievementCeremony>
               )}
             </div>
-            <p className="font-jakarta text-xs text-dim truncate">{user.email}</p>
+            <p className="font-sans text-xs text-dim truncate">{user.email}</p>
           </div>
           {/* Actions — secondary, muted */}
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={() => { setActiveTab(TAB_PROGRESS); setEditMode(true); setEditGrade(user.grade || ''); setEditProvince(user.province || '') }}
-              className="px-2.5 py-1.5 rounded-lg font-jakarta text-[0.6875rem] text-primary hover:bg-primary/10 transition"
+              className="px-2.5 py-1.5 rounded-lg font-sans text-[0.6875rem] text-primary hover:bg-primary/10 transition"
             >
               ✏️ Sửa
             </button>
             <button
               onClick={logout}
-              className="px-2.5 py-1.5 rounded-lg font-jakarta text-[0.6875rem] text-faint hover:text-muted transition"
+              className="px-2.5 py-1.5 rounded-lg font-sans text-[0.6875rem] text-faint hover:text-muted transition"
             >
               Đăng xuất
             </button>
@@ -729,47 +724,47 @@ export default function Account() {
           transition={{ duration: 0.35, delay: 0.05, ease: 'easeOut' }}
         >
           {/* Hero — avg score */}
-          <SpotlightCard className="col-span-2 glass-brand rounded-2xl p-4 glow-primary" glowColor="rgba(242,162,12,0.15)">
+          <div className="col-span-2 glass-brand rounded-2xl p-4">
             <div className="flex flex-col gap-0.5">
-              <span className="font-jakarta text-[0.5rem] text-primary/70 uppercase tracking-widest">Điểm trung bình</span>
-              <div className="font-fraunces text-[36px] font-bold text-gradient-brand leading-none">
+              <span className="font-sans text-[0.5rem] text-primary/70 uppercase tracking-widest">Điểm trung bình</span>
+              <div className="text-[36px] font-bold text-primary leading-none">
                 {results.length > 0
                   ? <NumberTicker value={parseFloat(avgScore)} startValue={0} decimalPlaces={1} duration={1200} />
                   : <span className="text-dim text-[28px]">—</span>
                 }
               </div>
-              <span className="font-jakarta text-[0.5625rem] text-dim">{results.length} bài thi</span>
+              <span className="font-sans text-[0.5625rem] text-dim">{results.length} bài thi</span>
             </div>
-          </SpotlightCard>
+          </div>
 
           {/* Streak */}
-          <SpotlightCard className="glass-base rounded-xl p-3 flex flex-col gap-0.5" glowColor="rgba(251,146,60,0.12)">
+          <div className="glass-base rounded-xl p-3 flex flex-col gap-0.5">
             <span className="text-lg leading-none">🔥</span>
-            <div className="font-fraunces text-[24px] font-bold text-foreground leading-none">
+            <div className="text-[24px] font-bold text-foreground leading-none">
               {streak > 0 ? <NumberTicker value={streak} duration={700} /> : 0}
             </div>
-            <span className="font-jakarta text-[0.5rem] text-dim leading-tight">{streakPB > streak ? `PB ${streakPB}` : 'streak'}</span>
-          </SpotlightCard>
+            <span className="font-sans text-[0.5rem] text-dim leading-tight">{streakPB > streak ? `PB ${streakPB}` : 'streak'}</span>
+          </div>
 
           {/* Credits */}
-          <SpotlightCard className="glass-base rounded-xl p-3 flex flex-col gap-0.5" glowColor="rgba(242,162,12,0.12)">
+          <div className="glass-base rounded-xl p-3 flex flex-col gap-0.5">
             <span className="text-lg leading-none">⚡</span>
-            <div className="font-fraunces text-[24px] font-bold text-foreground leading-none">
+            <div className="text-[24px] font-bold text-foreground leading-none">
               <NumberTicker value={user.credits_balance ?? 0} duration={700} />
             </div>
-            <span className="font-jakarta text-[0.5rem] text-dim leading-tight">AI còn lại</span>
-          </SpotlightCard>
+            <span className="font-sans text-[0.5rem] text-dim leading-tight">AI còn lại</span>
+          </div>
 
           {(user.solid_concept_count ?? 0) > 0 && (
-            <SpotlightCard className="col-span-2 glass-base rounded-xl p-3 flex items-center gap-2" glowColor="rgba(16,185,129,0.1)">
+            <div className="col-span-2 glass-base rounded-xl p-3 flex items-center gap-2">
               <span className="text-lg flex-shrink-0">🧠</span>
               <div>
-                <div className="font-fraunces text-[20px] font-bold text-foreground leading-none">
+                <div className="text-[20px] font-bold text-foreground leading-none">
                   <NumberTicker value={user.solid_concept_count} duration={700} />
                 </div>
-                <span className="font-jakarta text-[0.5rem] text-dim">khái niệm</span>
+                <span className="font-sans text-[0.5rem] text-dim">khái niệm</span>
               </div>
-            </SpotlightCard>
+            </div>
           )}
         </motion.div>
 
@@ -783,7 +778,7 @@ export default function Account() {
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              className={`flex-1 py-3 font-jakarta text-[0.8125rem] font-medium border-b-2 transition ${
+              className={`flex-1 py-3 font-sans text-[0.8125rem] font-medium border-b-2 transition ${
                 activeTab === key
                   ? 'border-primary text-primary'
                   : 'border-transparent text-dim hover:text-muted'
@@ -828,7 +823,7 @@ export default function Account() {
                 : advisorMsg.category === 'consistency' ? '🔄'
                 : '✨'}
             </span>
-            <p className="font-jakarta text-[0.8125rem] text-highlight leading-snug">{advisorMsg.message}</p>
+            <p className="font-sans text-[0.8125rem] text-highlight leading-snug">{advisorMsg.message}</p>
           </div>
         )}
 
@@ -840,7 +835,7 @@ export default function Account() {
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col items-center gap-4">
                 {/* Large ring */}
                 <svg width="88" height="88" viewBox="0 0 88 88">
-                  <circle cx="44" cy="44" r="36" fill="none" stroke="#1E2A44" strokeWidth="7" />
+                  <circle cx="44" cy="44" r="36" fill="none" stroke="var(--border)" strokeWidth="7" />
                   <circle cx="44" cy="44" r="36" fill="none" stroke={readinessColor} strokeWidth="7"
                     strokeDasharray={`${2 * Math.PI * 36}`}
                     strokeDashoffset={`${2 * Math.PI * 36 * (1 - readinessPct / 100)}`}
@@ -851,8 +846,8 @@ export default function Account() {
                   <text x="44" y="49" textAnchor="middle" fill={readinessColor} fontSize="18" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="700">{readinessPct}%</text>
                 </svg>
                 <div className="flex flex-col items-center gap-0.5">
-                  <span className="font-fraunces text-[18px] font-bold" style={{ color: readinessColor }}>{readinessLabel}</span>
-                  <span className="font-jakarta text-xs text-dim">Mức sẵn sàng · 30 ngày gần nhất</span>
+                  <span className="font-sans text-[18px] font-bold" style={{ color: readinessColor }}>{readinessLabel}</span>
+                  <span className="font-sans text-xs text-dim">Mức sẵn sàng · 30 ngày gần nhất</span>
                 </div>
                 {daysUntil != null && examPhase && (
                   <div
@@ -860,8 +855,8 @@ export default function Account() {
                     style={{ borderColor: urgencyColor + '33', background: examPhase.bg }}
                   >
                     <span className="text-[15px]">{examPhase.icon}</span>
-                    <span className="font-fraunces text-[15px] font-bold" style={{ color: urgencyColor }}>{daysUntil} ngày</span>
-                    <span className="font-jakarta text-xs" style={{ color: urgencyColor + 'CC' }}>{examPhase.label}</span>
+                    <span className="font-sans text-[15px] font-bold" style={{ color: urgencyColor }}>{daysUntil} ngày</span>
+                    <span className="font-sans text-xs" style={{ color: urgencyColor + 'CC' }}>{examPhase.label}</span>
                   </div>
                 )}
               </section>
@@ -870,9 +865,9 @@ export default function Account() {
             {/* Streak recovery nudge */}
             {streakRecovery?.canRecover && (
               <div className="rounded-xl px-4 py-3 flex items-center gap-3"
-                style={{ background: '#1A1205', border: '1px solid #F2A20C44' }}>
+                style={{ background: 'var(--accent-subtle)', border: '1px solid var(--accent-border)' }}>
                 <span className="streak-fire text-lg">🔥</span>
-                <p className="text-sm" style={{ color: '#F2A20C' }}>
+                <p className="text-sm" style={{ color: 'var(--accent)' }}>
                   {streakRecovery.reason}
                 </p>
               </div>
@@ -883,47 +878,47 @@ export default function Account() {
               <section className="border rounded-2xl p-6 flex flex-col gap-3"
                 style={{
                   background: simulationMode.intensity === 'max' ? '#1A0505' : simulationMode.intensity === 'high' ? '#1A0A05' : '#1A1205',
-                  borderColor: simulationMode.intensity === 'max' ? '#EF444480' : simulationMode.intensity === 'high' ? '#F9731680' : '#F2A20C80',
+                  borderColor: simulationMode.intensity === 'max' ? 'rgba(220,38,38,0.5)' : simulationMode.intensity === 'high' ? 'rgba(249,115,22,0.5)' : 'var(--accent-border)',
                 }}>
                 {/* Header row: intensity badge + CTA button */}
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div className="flex items-center gap-2">
                     <span className="text-[18px]">{simulationMode.intensity === 'max' ? '🚨' : simulationMode.intensity === 'high' ? '🔴' : '🟠'}</span>
-                    <span className="font-jakarta text-[0.6875rem] font-bold px-2.5 py-1 rounded-full"
-                      style={{ background: simulationMode.intensity === 'max' ? '#EF444422' : simulationMode.intensity === 'high' ? '#F9731622' : '#F2A20C22', color: simulationMode.intensity === 'max' ? '#EF4444' : simulationMode.intensity === 'high' ? '#F97316' : '#F2A20C' }}>
+                    <span className="font-sans text-[0.6875rem] font-bold px-2.5 py-1 rounded-full"
+                      style={{ background: simulationMode.intensity === 'max' ? 'rgba(220,38,38,0.1)' : simulationMode.intensity === 'high' ? 'rgba(249,115,22,0.1)' : 'var(--accent-subtle)', color: simulationMode.intensity === 'max' ? 'var(--destructive)' : simulationMode.intensity === 'high' ? 'var(--warning)' : 'var(--accent)' }}>
                       CHẾ ĐỘ ÔN THI — {simulationMode.intensity === 'max' ? 'TỐI ĐA' : simulationMode.intensity === 'high' ? 'CAO' : 'TRUNG BÌNH'}
                     </span>
                   </div>
                   <button onClick={() => navigate('/exam-select')}
-                    className="px-4 py-2 rounded-xl font-jakarta text-xs font-bold transition flex-shrink-0"
-                    style={{ background: simulationMode.intensity === 'max' ? '#EF4444' : simulationMode.intensity === 'high' ? '#F97316' : '#F2A20C', color: '#0A0E1A' }}>
+                    className="px-4 py-2 rounded-xl font-sans text-xs font-bold transition flex-shrink-0"
+                    style={{ background: simulationMode.intensity === 'max' ? 'var(--destructive)' : simulationMode.intensity === 'high' ? 'var(--warning)' : 'var(--accent)', color: 'var(--accent-fg)' }}>
                     Thi thử ngay →
                   </button>
                 </div>
                 {/* Existing briefing + focus tip */}
-                <p className="font-jakarta text-[0.8125rem] text-highlight leading-snug">{simulationMode.briefing}</p>
-                <p className="font-jakarta text-xs text-muted leading-snug">{simulationMode.focusTip}</p>
+                <p className="font-sans text-[0.8125rem] text-highlight leading-snug">{simulationMode.briefing}</p>
+                <p className="font-sans text-xs text-muted leading-snug">{simulationMode.focusTip}</p>
                 {/* Score confidence interval */}
                 {scoreCI && (
-                  <p className="font-jakarta text-xs leading-snug"
+                  <p className="font-sans text-xs leading-snug"
                     style={{ color: scoreCI.onTrack ? '#4ADE80' : '#FBBF24' }}>
                     Dự đoán điểm thi: <strong>{scoreCI.projectedScore.toFixed(1)}</strong> (khoảng {scoreCI.low.toFixed(1)}–{scoreCI.high.toFixed(1)}) · Độ tin cậy: {scoreCI.confidenceLabel}
                   </p>
                 )}
                 {/* Daily simulation plan */}
                 {dailyPlan && (
-                  <p className="font-jakarta text-xs text-muted-fg leading-snug">{dailyPlan.todayMessage}</p>
+                  <p className="font-sans text-xs text-muted-fg leading-snug">{dailyPlan.todayMessage}</p>
                 )}
                 {/* AI briefing */}
                 {simBriefing && (
-                  <p className="font-jakarta text-xs text-muted leading-snug italic">{simBriefing}</p>
+                  <p className="font-sans text-xs text-muted leading-snug italic">{simBriefing}</p>
                 )}
               </section>
             ) : (
               /* No exam date set → prompt user to configure one */
               !user?.exam_date ? (
                 <section className="rounded-2xl p-5 flex items-center gap-4"
-                  style={{ background: '#0D1521', border: '1px solid #1E2A44' }}>
+                  style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
                   <span className="text-2xl">📅</span>
                   <div>
                     <p className="text-sm font-semibold" style={{ color: '#CBD5E1' }}>
@@ -946,17 +941,17 @@ export default function Account() {
                 <div className="flex flex-col gap-0.5">
                   <div className="flex items-center gap-2">
                     <span className="text-[16px]">{examPhase.icon}</span>
-                    <span className="font-jakarta text-[0.6875rem] font-bold px-2 py-0.5 rounded-full"
+                    <span className="font-sans text-[0.6875rem] font-bold px-2 py-0.5 rounded-full"
                       style={{ background: urgencyColor + '22', color: urgencyColor }}>
                       {examPhase.label}
                     </span>
                   </div>
-                  <span className="font-jakarta text-[0.8125rem] text-highlight leading-snug mt-1">{examPhase.headline}</span>
+                  <span className="font-sans text-[0.8125rem] text-highlight leading-snug mt-1">{examPhase.headline}</span>
                 </div>
                 <button
                   onClick={() => navigate('/exam-select')}
-                  className="px-4 py-2 rounded-xl font-jakarta text-xs font-bold transition flex-shrink-0"
-                  style={{ background: urgencyColor, color: '#0A0E1A' }}
+                  className="px-4 py-2 rounded-xl font-sans text-xs font-bold transition flex-shrink-0"
+                  style={{ background: urgencyColor, color: 'var(--primary-fg)' }}
                 >
                   {examPhase.cta}
                 </button>
@@ -977,41 +972,41 @@ export default function Account() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex flex-col gap-1 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-fraunces text-sm font-semibold text-foreground">
+                      <span className="font-sans text-sm font-semibold text-foreground">
                         {goalStatus.status === 'ahead' ? '🎯' : goalStatus.status === 'at_risk' ? '⚠️' : goalStatus.status === 'no_data' ? '📋' : '📈'}
                         {' '}{goalStatus.headline}
                       </span>
                     </div>
-                    <p className="font-jakarta text-xs text-muted leading-snug">{goalStatus.detail}</p>
+                    <p className="font-sans text-xs text-muted leading-snug">{goalStatus.detail}</p>
                   </div>
                   <button
                     onClick={() => setActiveTab(TAB_SETTINGS)}
-                    className="font-jakarta text-[0.6875rem] text-faint hover:text-dim transition flex-shrink-0"
+                    className="font-sans text-[0.6875rem] text-faint hover:text-dim transition flex-shrink-0"
                   >
                     Sửa mục tiêu →
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <div className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg bg-background border border-border">
-                    <span className="font-jakarta text-[0.625rem] text-faint">Còn lại</span>
-                    <span className="font-fraunces text-sm font-bold" style={{ color: urgencyColor }}>{goalStatus.daysUntil} ngày</span>
+                    <span className="font-sans text-[0.625rem] text-faint">Còn lại</span>
+                    <span className="font-sans text-sm font-bold" style={{ color: urgencyColor }}>{goalStatus.daysUntil} ngày</span>
                   </div>
                   {goalStatus.projectedScore != null && (
                     <div className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg bg-background border border-border">
-                      <span className="font-jakarta text-[0.625rem] text-faint">Dự đoán</span>
-                      <span className="font-fraunces text-sm font-bold text-emerald-400">{goalStatus.projectedScore.toFixed(1)}</span>
+                      <span className="font-sans text-[0.625rem] text-faint">Dự đoán</span>
+                      <span className="font-sans text-sm font-bold text-emerald-400">{goalStatus.projectedScore.toFixed(1)}</span>
                     </div>
                   )}
                   {goalStatus.targetSchool && (
                     <div className="flex flex-col gap-0.5 px-3 py-2 rounded-lg bg-background border border-border max-w-[200px]">
-                      <span className="font-jakarta text-[0.625rem] text-faint">Trường mục tiêu</span>
-                      <span className="font-jakarta text-xs font-semibold text-highlight truncate">{goalStatus.targetSchool}</span>
+                      <span className="font-sans text-[0.625rem] text-faint">Trường mục tiêu</span>
+                      <span className="font-sans text-xs font-semibold text-highlight truncate">{goalStatus.targetSchool}</span>
                     </div>
                   )}
                   {goalStatus.weeklyHours && (
                     <div className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg bg-background border border-border">
-                      <span className="font-jakarta text-[0.625rem] text-faint">Giờ/tuần</span>
-                      <span className="font-fraunces text-sm font-bold text-info">{goalStatus.weeklyHours}h</span>
+                      <span className="font-sans text-[0.625rem] text-faint">Giờ/tuần</span>
+                      <span className="font-sans text-sm font-bold text-info">{goalStatus.weeklyHours}h</span>
                     </div>
                   )}
                 </div>
@@ -1022,23 +1017,23 @@ export default function Account() {
             {masteryProgress && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <span className="font-fraunces text-[15px] font-semibold text-foreground">Cấp độ học tập</span>
+                  <span className="font-sans text-[15px] font-semibold text-foreground">Cấp độ học tập</span>
                   {masteryProgress.next && (
-                    <span className="font-jakarta text-[0.6875rem] text-dim">
+                    <span className="font-sans text-[0.6875rem] text-dim">
                       còn {masteryProgress.needed} khái niệm đến {masteryProgress.next.label}
                     </span>
                   )}
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center text-[24px] flex-shrink-0"
-                    style={{ background: (MASTERY_TIERS.find(t => t.id === user.mastery_rank)?.id ? '#818CF81A' : '#64748B1A') }}>
+                    style={{ background: (MASTERY_TIERS.find(t => t.id === user.mastery_rank)?.id ? 'var(--primary-subtle)' : 'var(--surface)') }}>
                     {masteryProgress.current.icon}
                   </div>
                   <div className="flex flex-col gap-2 flex-1">
                     <div className="flex items-center justify-between">
-                      <span className="font-fraunces text-sm font-bold text-foreground">{masteryProgress.current.label}</span>
+                      <span className="font-sans text-sm font-bold text-foreground">{masteryProgress.current.label}</span>
                       {masteryProgress.next && (
-                        <span className="font-jakarta text-xs text-dim">{masteryProgress.next.icon} {masteryProgress.next.label}</span>
+                        <span className="font-sans text-xs text-dim">{masteryProgress.next.icon} {masteryProgress.next.label}</span>
                       )}
                     </div>
                     <div className="w-full h-2 bg-border rounded-full overflow-hidden">
@@ -1047,7 +1042,7 @@ export default function Account() {
                         style={{ width: `${Math.round(masteryProgress.pct * 100)}%` }}
                       />
                     </div>
-                    <span className="font-jakarta text-[0.6875rem] text-dim">
+                    <span className="font-sans text-[0.6875rem] text-dim">
                       {user.solid_concept_count ?? 0} khái niệm vững chắc
                       {masteryProgress.next ? ` · mục tiêu ${masteryProgress.next.minSolid}` : ' · cấp cao nhất'}
                     </span>
@@ -1059,26 +1054,26 @@ export default function Account() {
             {/* Profile card */}
             <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center justify-between">
-                <span className="font-fraunces text-[16px] font-semibold text-foreground">Thông tin học sinh</span>
+                <span className="font-sans text-[16px] font-semibold text-foreground">Thông tin học sinh</span>
               </div>
 
               {/* Edit form (province only — grade has its own section below) */}
               {editMode ? (
                 <div className="flex flex-col gap-3">
                   <input
-                    className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-jakarta text-[0.8125rem] text-highlight focus:outline-none focus:border-amber-400"
+                    className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-highlight focus:outline-none focus:border-[var(--accent-border)]"
                     placeholder="Tỉnh / Thành phố"
                     value={editProvince}
                     onChange={e => setEditProvince(e.target.value)}
                   />
-                  {saveError && <p className="font-jakarta text-xs text-red-400">{saveError}</p>}
+                  {saveError && <p className="font-sans text-xs text-red-400">{saveError}</p>}
                   <div className="flex gap-2">
                     <button onClick={handleSaveProfile} disabled={saving}
-                      className="px-5 py-2 rounded-lg font-jakarta text-[0.8125rem] font-bold transition bg-primary text-primary-fg">
+                      className="px-5 py-2 rounded-lg font-sans text-[0.8125rem] font-bold transition bg-primary text-primary-fg">
                       {saving ? 'Đang lưu...' : 'Lưu'}
                     </button>
                     <button onClick={() => { setEditMode(false); setSaveError('') }}
-                      className="px-5 py-2 rounded-lg font-jakarta text-[0.8125rem] text-dim hover:text-foreground transition">
+                      className="px-5 py-2 rounded-lg font-sans text-[0.8125rem] text-dim hover:text-foreground transition">
                       Huỷ
                     </button>
                   </div>
@@ -1086,17 +1081,17 @@ export default function Account() {
               ) : (
                 <div className="flex gap-6 flex-wrap">
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-jakarta text-[0.6875rem] text-faint">Lớp</span>
-                    <span className="font-jakarta text-[0.8125rem] text-highlight">{GRADE_LABELS[user.grade] || '—'}</span>
+                    <span className="font-sans text-[0.6875rem] text-faint">Lớp</span>
+                    <span className="font-sans text-[0.8125rem] text-highlight">{GRADE_LABELS[user.grade] || '—'}</span>
                   </div>
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-jakarta text-[0.6875rem] text-faint">Tỉnh / Thành phố</span>
-                    <span className="font-jakarta text-[0.8125rem] text-highlight">{user.province || '—'}</span>
+                    <span className="font-sans text-[0.6875rem] text-faint">Tỉnh / Thành phố</span>
+                    <span className="font-sans text-[0.8125rem] text-highlight">{user.province || '—'}</span>
                   </div>
                   {user.school_type && (
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-jakarta text-[0.6875rem] text-faint">Loại trường</span>
-                      <span className="font-jakarta text-[0.8125rem] text-highlight">{user.school_type}</span>
+                      <span className="font-sans text-[0.6875rem] text-faint">Loại trường</span>
+                      <span className="font-sans text-[0.8125rem] text-highlight">{user.school_type}</span>
                     </div>
                   )}
                 </div>
@@ -1109,47 +1104,47 @@ export default function Account() {
                 return (
                   <div className="pt-3 border-t border-border">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-jakarta text-xs text-dim">Thay đổi lớp học</span>
-                      {isPending && <span className="font-jakarta text-[0.6875rem] px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400">Đang chờ duyệt</span>}
-                      {isApproved && <span className="font-jakarta text-[0.6875rem] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">Đã duyệt</span>}
+                      <span className="font-sans text-xs text-dim">Thay đổi lớp học</span>
+                      {isPending && <span className="font-sans text-[0.6875rem] px-2 py-0.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)]">Đang chờ duyệt</span>}
+                      {isApproved && <span className="font-sans text-[0.6875rem] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">Đã duyệt</span>}
                     </div>
 
                     {isPending ? (
-                      <p className="font-jakarta text-xs text-dim">
-                        Yêu cầu đổi sang <strong className="text-amber-400">{GRADE_LABELS[gradeRequest.requested_grade]}</strong> đang chờ admin duyệt.
+                      <p className="font-sans text-xs text-dim">
+                        Yêu cầu đổi sang <strong className="text-[var(--accent)]">{GRADE_LABELS[gradeRequest.requested_grade]}</strong> đang chờ admin duyệt.
                       </p>
                     ) : showGradeChangeForm ? (
                       <div className="flex flex-col gap-3">
                         <div className="flex gap-2 flex-wrap">
                           {['9','10','11','12'].filter(g => g !== user.grade).map(g => (
                             <button key={g} type="button" onClick={() => setGradeChangeTarget(g)}
-                              className={`px-4 py-2 rounded-lg border font-jakarta text-xs font-medium transition ${
-                                gradeChangeTarget === g ? 'border-amber-400 text-amber-400 bg-amber-400/10' : 'border-border text-dim'
+                              className={`px-4 py-2 rounded-lg border font-sans text-xs font-medium transition ${
+                                gradeChangeTarget === g ? 'border-[var(--accent-border)] text-[var(--accent)] bg-[var(--accent)]/10' : 'border-border text-dim'
                               }`}>
                               {GRADE_LABELS[g]}
                             </button>
                           ))}
                         </div>
                         <textarea
-                          className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-jakarta text-[0.8125rem] text-highlight focus:outline-none focus:border-amber-400 resize-none"
+                          className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-highlight focus:outline-none focus:border-[var(--accent-border)] resize-none"
                           placeholder="Lý do đổi lớp (ít nhất 30 ký tự)..."
                           rows={3}
                           value={gradeChangeReason}
                           onChange={e => { setGradeChangeReason(e.target.value); setGradeChangeError('') }}
                         />
                         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-background border border-border">
-                          <span className="text-amber-400 text-[0.8125rem]">⚡</span>
-                          <span className="font-jakarta text-xs text-dim">Chi phí xét duyệt: <strong className="text-amber-400">5 credits</strong> · Sau khi duyệt cần đợi 90 ngày để đổi tiếp.</span>
+                          <span className="text-[var(--accent)] text-[0.8125rem]">⚡</span>
+                          <span className="font-sans text-xs text-dim">Chi phí xét duyệt: <strong className="text-[var(--accent)]">5 credits</strong> · Sau khi duyệt cần đợi 90 ngày để đổi tiếp.</span>
                         </div>
-                        {gradeChangeError && <p className="font-jakarta text-xs text-red-400">{gradeChangeError}</p>}
+                        {gradeChangeError && <p className="font-sans text-xs text-red-400">{gradeChangeError}</p>}
                         <div className="flex gap-2">
                           <button onClick={handleSubmitGradeChange} disabled={gradeChangeSubmitting}
-                            className="px-5 py-2 rounded-lg font-jakarta text-[0.8125rem] font-bold transition"
-                            style={{ background: '#F2A20C', color: '#0A0E1A' }}>
+                            className="px-5 py-2 rounded-lg font-sans text-[0.8125rem] font-bold transition"
+                            style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}>
                             {gradeChangeSubmitting ? 'Đang gửi...' : 'Gửi yêu cầu →'}
                           </button>
                           <button onClick={() => { setShowGradeChangeForm(false); setGradeChangeError(''); setGradeChangeReason(''); setGradeChangeTarget('') }}
-                            className="px-5 py-2 rounded-lg font-jakarta text-[0.8125rem] text-dim hover:text-foreground transition">
+                            className="px-5 py-2 rounded-lg font-sans text-[0.8125rem] text-dim hover:text-foreground transition">
                             Huỷ
                           </button>
                         </div>
@@ -1157,7 +1152,7 @@ export default function Account() {
                     ) : (
                       <button
                         onClick={() => setShowGradeChangeForm(true)}
-                        className="font-jakarta text-xs text-faint hover:text-amber-400 transition underline underline-offset-2"
+                        className="font-sans text-xs text-faint hover:text-[var(--accent)] transition underline underline-offset-2"
                       >
                         Yêu cầu đổi lớp
                       </button>
@@ -1171,8 +1166,8 @@ export default function Account() {
             {/* Username card */}
             <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
               <div className="flex flex-col gap-0.5">
-                <span className="font-fraunces text-[15px] font-semibold text-foreground">Tên hiển thị</span>
-                <span className="font-jakarta text-xs text-dim">Tên phải là duy nhất · 2–30 ký tự</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">Tên hiển thị</span>
+                <span className="font-sans text-xs text-dim">Tên phải là duy nhất · 2–30 ký tự</span>
               </div>
               <div className="flex gap-2">
                 <input
@@ -1180,7 +1175,7 @@ export default function Account() {
                   onChange={e => { setUsernameInput(e.target.value); setUsernameError('') }}
                   placeholder={user.custom_display_name || user.display_name || 'Nhập tên mới...'}
                   maxLength={30}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-jakarta text-[0.8125rem] text-highlight placeholder-faint focus:outline-none focus:border-amber-400"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-highlight placeholder-faint focus:outline-none focus:border-[var(--accent-border)]"
                 />
                 <button
                   disabled={usernameLoading || !usernameInput.trim()}
@@ -1196,36 +1191,36 @@ export default function Account() {
                       setUsernameInput('')
                     }
                   }}
-                  className="ripple-btn px-5 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold disabled:opacity-40 transition"
-                  style={{ background: '#F2A20C', color: '#0A0E1A' }}>
+                  className="ripple-btn px-5 py-2.5 rounded-xl font-sans text-[0.8125rem] font-bold disabled:opacity-40 transition"
+                  style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}>
                   {usernameLoading ? '...' : 'Lưu'}
                 </button>
               </div>
-              {usernameError && <p className="font-jakarta text-xs text-red-400">{usernameError}</p>}
+              {usernameError && <p className="font-sans text-xs text-red-400">{usernameError}</p>}
             </section>
 
             {/* Complete tier features: Strategy + Province Comparison */}
             {user.subscription_tier === 'complete' && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
-                <span className="font-fraunces text-[15px] font-semibold text-foreground">Tính năng Toàn diện</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">Tính năng Toàn diện</span>
 
                 {/* Exam Strategy */}
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between gap-3 flex-wrap">
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-jakarta text-[0.8125rem] font-semibold text-highlight">Tư vấn chiến lược thi</span>
-                      <span className="font-jakarta text-[0.6875rem] text-dim">AI phân tích điểm yếu và lên kế hoạch ôn thi cá nhân hoá · 1 lần/tháng</span>
+                      <span className="font-sans text-[0.8125rem] font-semibold text-highlight">Tư vấn chiến lược thi</span>
+                      <span className="font-sans text-[0.6875rem] text-dim">AI phân tích điểm yếu và lên kế hoạch ôn thi cá nhân hoá · 1 lần/tháng</span>
                     </div>
                     <button onClick={handleExamStrategy} disabled={strategyLoading}
-                      className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-xs font-bold disabled:opacity-60 transition"
-                      style={{ background: '#10B981', color: '#0A0E1A' }}>
+                      className="flex-shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold disabled:opacity-60 transition"
+                      style={{ background: 'var(--success)', color: 'var(--primary-fg)' }}>
                       {strategyLoading ? 'Đang tạo...' : 'Lấy chiến lược'}
                     </button>
                   </div>
-                  {strategyError && <p className="font-jakarta text-xs text-amber-400">{strategyError}</p>}
+                  {strategyError && <p className="font-sans text-xs text-[var(--accent)]">{strategyError}</p>}
                   {strategyResult?.strategy && (
                     <div className="bg-background border border-border rounded-xl p-4">
-                      <p className="font-jakarta text-[0.8125rem] text-muted-fg leading-relaxed whitespace-pre-wrap">{strategyResult.strategy}</p>
+                      <p className="font-sans text-[0.8125rem] text-muted-fg leading-relaxed whitespace-pre-wrap">{strategyResult.strategy}</p>
                     </div>
                   )}
                 </div>
@@ -1236,11 +1231,11 @@ export default function Account() {
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between gap-3 flex-wrap">
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-jakarta text-[0.8125rem] font-semibold text-highlight">So sánh với tỉnh thành</span>
-                      <span className="font-jakarta text-[0.6875rem] text-dim">Xem bạn đứng ở vị trí nào so với học sinh cùng tỉnh · 30 ngày qua</span>
+                      <span className="font-sans text-[0.8125rem] font-semibold text-highlight">So sánh với tỉnh thành</span>
+                      <span className="font-sans text-[0.6875rem] text-dim">Xem bạn đứng ở vị trí nào so với học sinh cùng tỉnh · 30 ngày qua</span>
                     </div>
                     <button onClick={handleCompareProvince} disabled={provinceLoading}
-                      className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-xs font-bold disabled:opacity-60 transition bg-info text-white">
+                      className="flex-shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold disabled:opacity-60 transition bg-info text-white">
                       {provinceLoading ? 'Đang tải...' : 'So sánh'}
                     </button>
                   </div>
@@ -1249,32 +1244,32 @@ export default function Account() {
                       {/* Narrative card */}
                       <div className={`flex flex-col gap-2 px-4 py-4 rounded-xl border ${
                         provinceNarrative.sentiment === 'above' ? 'border-emerald-500/40 bg-emerald-500/5' :
-                        provinceNarrative.sentiment === 'below' ? 'border-amber-400/40 bg-amber-400/5' :
+                        provinceNarrative.sentiment === 'below' ? 'border-[var(--accent-border)]/40 bg-[var(--accent)]/5' :
                         'border-info/40 bg-info/5'
                       }`}>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-jakarta text-[0.8125rem] font-semibold text-highlight">{provinceNarrative.headline}</span>
+                          <span className="font-sans text-[0.8125rem] font-semibold text-highlight">{provinceNarrative.headline}</span>
                           {provinceNarrative.badge && (
-                            <span className={`font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${
-                              provinceNarrative.sentiment === 'above' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-400/20 text-amber-400'
+                            <span className={`font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${
+                              provinceNarrative.sentiment === 'above' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[var(--accent)]/20 text-[var(--accent)]'
                             }`}>{provinceNarrative.badge}</span>
                           )}
                         </div>
-                        <span className="font-jakarta text-xs text-muted leading-snug">{provinceNarrative.detail}</span>
+                        <span className="font-sans text-xs text-muted leading-snug">{provinceNarrative.detail}</span>
                       </div>
                       {/* Secondary numbers */}
                       <div className="grid grid-cols-3 gap-3">
                         <div className="flex flex-col gap-0.5 bg-background border border-border rounded-xl px-4 py-3">
-                          <span className="font-jakarta text-[0.625rem] text-faint">Điểm của bạn</span>
-                          <span className="font-jakarta text-[17px] font-bold text-primary">{provinceData.your_avg}</span>
+                          <span className="font-sans text-[0.625rem] text-faint">Điểm của bạn</span>
+                          <span className="font-sans text-[17px] font-bold text-primary">{provinceData.your_avg}</span>
                         </div>
                         <div className="flex flex-col gap-0.5 bg-background border border-border rounded-xl px-4 py-3">
-                          <span className="font-jakarta text-[0.625rem] text-faint">TB {provinceData.province}</span>
-                          <span className="font-jakarta text-[17px] font-bold text-muted">{provinceData.province_avg}</span>
+                          <span className="font-sans text-[0.625rem] text-faint">TB {provinceData.province}</span>
+                          <span className="font-sans text-[17px] font-bold text-muted">{provinceData.province_avg}</span>
                         </div>
                         <div className="flex flex-col gap-0.5 bg-background border border-border rounded-xl px-4 py-3">
-                          <span className="font-jakarta text-[0.625rem] text-faint">Phần trăm xếp</span>
-                          <span className="font-jakarta text-[17px] font-bold text-success">
+                          <span className="font-sans text-[0.625rem] text-faint">Phần trăm xếp</span>
+                          <span className="font-sans text-[17px] font-bold text-success">
                             {provinceData.percentile != null ? `Top ${100 - provinceData.percentile}%` : '—'}
                           </span>
                         </div>
@@ -1282,13 +1277,13 @@ export default function Account() {
                       {/* MOAT2: provincial difficulty intelligence */}
                       {provincialCtx && (
                         <div className="flex flex-col gap-1.5 px-4 py-3 rounded-xl bg-background border border-border">
-                          <span className="font-jakarta text-[0.6875rem] text-faint">
+                          <span className="font-sans text-[0.6875rem] text-faint">
                             Độ khó tỉnh {user.province}: <span className="text-primary font-semibold">{provincialCtx.difficultyLabel}</span>
                             {' · '}Điểm chuẩn TB: <span className="text-muted font-semibold">{provincialCtx.typical_cutoff}</span>
                             {' · '}Trường top: <span className="text-success font-semibold">{provincialCtx.top_schools_cutoff}</span>
                           </span>
                           {difficultyInsight && (
-                            <span className="font-jakarta text-[0.6875rem] text-dim italic leading-snug">{difficultyInsight}</span>
+                            <span className="font-sans text-[0.6875rem] text-dim italic leading-snug">{difficultyInsight}</span>
                           )}
                         </div>
                       )}
@@ -1301,7 +1296,7 @@ export default function Account() {
             {/* Upgrade context — strategy + province for non-complete users */}
             {user.subscription_tier !== 'complete' && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
-                <span className="font-fraunces text-[15px] font-semibold text-foreground">Tính năng AI nâng cao</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">Tính năng AI nâng cao</span>
 
                 {/* Strategy upgrade context */}
                 {(() => {
@@ -1310,26 +1305,26 @@ export default function Account() {
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between gap-3 flex-wrap">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-jakarta text-[0.8125rem] font-semibold text-muted">Tư vấn chiến lược thi</span>
-                          <span className="font-jakarta text-[0.6875rem] text-faint">AI phân tích điểm yếu và lên kế hoạch ôn thi cá nhân hoá · 1 lần/tháng</span>
+                          <span className="font-sans text-[0.8125rem] font-semibold text-muted">Tư vấn chiến lược thi</span>
+                          <span className="font-sans text-[0.6875rem] text-faint">AI phân tích điểm yếu và lên kế hoạch ôn thi cá nhân hoá · 1 lần/tháng</span>
                         </div>
                         <button
                           onClick={() => setUpgradeCtxVisible(v => ({ ...v, strategy: !v.strategy }))}
-                          className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-xs font-bold transition opacity-60 cursor-not-allowed"
-                          style={{ background: '#1E2A44', color: '#64748B' }}
+                          className="flex-shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold transition opacity-60 cursor-not-allowed"
+                          style={{ background: 'var(--border)', color: 'var(--fg-tertiary)' }}
                         >
                           Lấy chiến lược
                         </button>
                       </div>
                       {upgradeCtxVisible.strategy && ctx && (
                         <div className="flex flex-col gap-2 px-4 py-3 rounded-xl border border-info/30 bg-info/5">
-                          <span className="font-jakarta text-xs text-info/80 leading-snug">{ctx.pitch}</span>
+                          <span className="font-sans text-xs text-info/80 leading-snug">{ctx.pitch}</span>
                           <button
                             onClick={() => {
                               setActiveTab(TAB_AITIA)
                               setTimeout(() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' }), 100)
                             }}
-                            className="self-start font-jakarta text-xs font-bold text-info hover:text-info/80 transition"
+                            className="self-start font-sans text-xs font-bold text-info hover:text-info/80 transition"
                           >
                             Nâng cấp →
                           </button>
@@ -1348,26 +1343,26 @@ export default function Account() {
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between gap-3 flex-wrap">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-jakarta text-[0.8125rem] font-semibold text-muted">So sánh với tỉnh thành</span>
-                          <span className="font-jakarta text-[0.6875rem] text-faint">Xem bạn đứng ở vị trí nào so với học sinh cùng tỉnh · 30 ngày qua</span>
+                          <span className="font-sans text-[0.8125rem] font-semibold text-muted">So sánh với tỉnh thành</span>
+                          <span className="font-sans text-[0.6875rem] text-faint">Xem bạn đứng ở vị trí nào so với học sinh cùng tỉnh · 30 ngày qua</span>
                         </div>
                         <button
                           onClick={() => setUpgradeCtxVisible(v => ({ ...v, province: !v.province }))}
-                          className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-xs font-bold transition opacity-60 cursor-not-allowed"
-                          style={{ background: '#1E2A44', color: '#64748B' }}
+                          className="flex-shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold transition opacity-60 cursor-not-allowed"
+                          style={{ background: 'var(--border)', color: 'var(--fg-tertiary)' }}
                         >
                           So sánh
                         </button>
                       </div>
                       {upgradeCtxVisible.province && ctx && (
                         <div className="flex flex-col gap-2 px-4 py-3 rounded-xl border border-info/30 bg-info/5">
-                          <span className="font-jakarta text-xs text-info/80 leading-snug">{ctx.pitch}</span>
+                          <span className="font-sans text-xs text-info/80 leading-snug">{ctx.pitch}</span>
                           <button
                             onClick={() => {
                               setActiveTab(TAB_AITIA)
                               setTimeout(() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' }), 100)
                             }}
-                            className="self-start font-jakarta text-xs font-bold text-info hover:text-info/80 transition"
+                            className="self-start font-sans text-xs font-bold text-info hover:text-info/80 transition"
                           >
                             Nâng cấp →
                           </button>
@@ -1386,9 +1381,9 @@ export default function Account() {
                   {archetype.icon}
                 </div>
                 <div className="flex flex-col gap-0.5 min-w-0">
-                  <span className="font-jakarta text-[0.625rem] font-semibold text-info uppercase tracking-wide">Phong cách học của bạn</span>
-                  <span className="font-fraunces text-[16px] font-bold text-foreground">{archetype.label}</span>
-                  <span className="font-jakarta text-xs text-muted leading-snug">{archetype.desc}</span>
+                  <span className="font-sans text-[0.625rem] font-semibold text-info uppercase tracking-wide">Phong cách học của bạn</span>
+                  <span className="font-sans text-[16px] font-bold text-foreground">{archetype.label}</span>
+                  <span className="font-sans text-xs text-muted leading-snug">{archetype.desc}</span>
                 </div>
               </section>
             )}
@@ -1396,14 +1391,14 @@ export default function Account() {
             {/* Next milestone */}
             {nextMilestone && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-3">
-                <span className="font-fraunces text-[15px] font-semibold text-foreground">Mục tiêu tiếp theo</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">Mục tiêu tiếp theo</span>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-info/10 border border-info/20 flex items-center justify-center flex-shrink-0">
                     <span className="text-[22px]">{nextMilestone.icon}</span>
                   </div>
                   <div className="flex flex-col gap-1 flex-1 min-w-0">
-                    <span className="font-fraunces text-sm font-bold text-foreground">{nextMilestone.label}</span>
-                    <span className="font-jakarta text-xs text-muted">{nextMilestone.progress}</span>
+                    <span className="font-sans text-sm font-bold text-foreground">{nextMilestone.label}</span>
+                    <span className="font-sans text-xs text-muted">{nextMilestone.progress}</span>
                     <div className="w-full h-1.5 bg-border rounded-full overflow-hidden mt-0.5">
                       <div
                         className="h-full rounded-full bg-info transition-all duration-700"
@@ -1412,7 +1407,7 @@ export default function Account() {
                     </div>
                   </div>
                   {nextMilestone.remaining != null && (
-                    <span className="font-jakarta text-[0.6875rem] text-info font-semibold flex-shrink-0">
+                    <span className="font-sans text-[0.6875rem] text-info font-semibold flex-shrink-0">
                       còn {nextMilestone.remaining}
                     </span>
                   )}
@@ -1422,7 +1417,7 @@ export default function Account() {
 
             {/* Badges grid */}
             <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
-              <span className="font-fraunces text-[15px] font-semibold text-foreground">Huy hiệu</span>
+              <span className="font-sans text-[15px] font-semibold text-foreground">Huy hiệu</span>
               <motion.div
                 className="grid grid-cols-1 sm:grid-cols-2 gap-3"
                 initial="hidden"
@@ -1439,7 +1434,7 @@ export default function Account() {
                         visible:  { opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 20 } },
                       }}
                       className={`relative flex items-start gap-3 px-4 py-3 rounded-xl border transition ${
-                        earned ? 'border-amber-400/40 bg-amber-400/5' : 'border-border bg-surface-elevated opacity-50 grayscale'
+                        earned ? 'border-[var(--accent-border)]/40 bg-[var(--accent)]/5' : 'border-border bg-surface-elevated opacity-50 grayscale'
                       }`}
                     >
                       {earned && (
@@ -1457,8 +1452,8 @@ export default function Account() {
                         {b.icon}
                       </motion.span>
                       <div className="flex flex-col gap-0.5 min-w-0">
-                        <span className="font-jakarta text-xs font-semibold text-highlight">{b.label}</span>
-                        <span className="font-jakarta text-[0.6875rem] text-dim">
+                        <span className="font-sans text-xs font-semibold text-highlight">{b.label}</span>
+                        <span className="font-sans text-[0.6875rem] text-dim">
                           {earned ? b.desc : badgeProgress(b.id)}
                         </span>
                       </div>
@@ -1472,7 +1467,7 @@ export default function Account() {
             {progressReport && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="font-fraunces text-[15px] font-semibold text-foreground">Báo cáo học tập</span>
+                  <span className="font-sans text-[15px] font-semibold text-foreground">Báo cáo học tập</span>
                   <button
                     onClick={() => {
                       const text = reportToText(progressReport)
@@ -1484,47 +1479,47 @@ export default function Account() {
                           .catch(() => {})
                       }
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-jakarta text-xs font-semibold bg-info/10 text-info border border-info/20 hover:bg-info/20 transition"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-sans text-xs font-semibold bg-info/10 text-info border border-info/20 hover:bg-info/20 transition"
                   >
                     <span>📤</span> Chia sẻ
                   </button>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="flex flex-col items-center gap-0.5 px-3 py-3 rounded-xl bg-background border border-border">
-                    <span className="font-fraunces text-[20px] font-bold text-highlight">{progressReport.totalExams}</span>
-                    <span className="font-jakarta text-[0.625rem] text-dim">Bài thi</span>
+                    <span className="font-sans text-[20px] font-bold text-highlight">{progressReport.totalExams}</span>
+                    <span className="font-sans text-[0.625rem] text-dim">Bài thi</span>
                   </div>
                   <div className="flex flex-col items-center gap-0.5 px-3 py-3 rounded-xl bg-background border border-border">
-                    <span className="font-fraunces text-[20px] font-bold text-amber-400">{progressReport.avgScore}</span>
-                    <span className="font-jakarta text-[0.625rem] text-dim">Điểm TB</span>
+                    <span className="font-sans text-[20px] font-bold text-[var(--accent)]">{progressReport.avgScore}</span>
+                    <span className="font-sans text-[0.625rem] text-dim">Điểm TB</span>
                   </div>
                   <div className="flex flex-col items-center gap-0.5 px-3 py-3 rounded-xl bg-background border border-border">
-                    <span className={`font-fraunces text-[20px] font-bold ${progressReport.scoreImprovement > 0 ? 'text-emerald-400' : progressReport.scoreImprovement < 0 ? 'text-red-400' : 'text-highlight'}`}>
+                    <span className={`font-sans text-[20px] font-bold ${progressReport.scoreImprovement > 0 ? 'text-emerald-400' : progressReport.scoreImprovement < 0 ? 'text-red-400' : 'text-highlight'}`}>
                       {progressReport.scoreImprovement > 0 ? '+' : ''}{progressReport.scoreImprovement}
                     </span>
-                    <span className="font-jakarta text-[0.625rem] text-dim">Cải thiện</span>
+                    <span className="font-sans text-[0.625rem] text-dim">Cải thiện</span>
                   </div>
                   <div className="flex flex-col items-center gap-0.5 px-3 py-3 rounded-xl bg-background border border-border">
-                    <span className="font-fraunces text-[20px] font-bold text-highlight">{progressReport.streakDays}</span>
-                    <span className="font-jakarta text-[0.625rem] text-dim">Streak ngày</span>
+                    <span className="font-sans text-[20px] font-bold text-highlight">{progressReport.streakDays}</span>
+                    <span className="font-sans text-[0.625rem] text-dim">Streak ngày</span>
                   </div>
                 </div>
                 {progressReport.topTopics.length > 0 && (
                   <div className="flex flex-col gap-1.5">
-                    <span className="font-jakarta text-[0.6875rem] font-semibold text-muted">Điểm mạnh</span>
+                    <span className="font-sans text-[0.6875rem] font-semibold text-muted">Điểm mạnh</span>
                     <div className="flex flex-wrap gap-2">
                       {progressReport.topTopics.map(t => (
-                        <span key={t} className="font-jakarta text-[0.6875rem] px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">{t}</span>
+                        <span key={t} className="font-sans text-[0.6875rem] px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">{t}</span>
                       ))}
                     </div>
                   </div>
                 )}
                 {progressReport.weakTopics.length > 0 && (
                   <div className="flex flex-col gap-1.5">
-                    <span className="font-jakarta text-[0.6875rem] font-semibold text-muted">Cần ôn thêm</span>
+                    <span className="font-sans text-[0.6875rem] font-semibold text-muted">Cần ôn thêm</span>
                     <div className="flex flex-wrap gap-2">
                       {progressReport.weakTopics.map(t => (
-                        <span key={t} className="font-jakarta text-[0.6875rem] px-2.5 py-1 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-400">{t}</span>
+                        <span key={t} className="font-sans text-[0.6875rem] px-2.5 py-1 rounded-full bg-[var(--accent)]/15 border border-[var(--accent-border)]/30 text-[var(--accent)]">{t}</span>
                       ))}
                     </div>
                   </div>
@@ -1543,10 +1538,10 @@ export default function Account() {
               <div className="flex items-start gap-3 px-5 py-4 rounded-2xl border border-primary/20 bg-primary/5">
                 <span className="text-[20px] flex-shrink-0 mt-px">💪</span>
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="font-jakarta text-[0.8125rem] text-highlight leading-snug">{studyNudge}</span>
+                  <span className="font-sans text-[0.8125rem] text-highlight leading-snug">{studyNudge}</span>
                   <button
                     onClick={() => navigate('/exam-select')}
-                    className="self-start mt-1.5 px-3 py-1 rounded-lg font-jakarta text-[0.6875rem] font-semibold bg-primary text-primary-fg hover:bg-primary/80 transition-colors"
+                    className="self-start mt-1.5 px-3 py-1 rounded-lg font-sans text-[0.6875rem] font-semibold bg-primary text-primary-fg hover:bg-primary/80 transition-colors"
                   >
                     Ôn luyện ngay →
                   </button>
@@ -1558,32 +1553,32 @@ export default function Account() {
             {weeklyReport && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-fraunces text-[15px] font-semibold text-foreground">Báo cáo tuần này</span>
-                  <span className="font-jakarta text-[0.6875rem] text-faint">7 ngày qua</span>
+                  <span className="font-sans text-[15px] font-semibold text-foreground">Báo cáo tuần này</span>
+                  <span className="font-sans text-[0.6875rem] text-faint">7 ngày qua</span>
                 </div>
-                <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">{weeklyReport.summary}</p>
+                <p className="font-sans text-[0.8125rem] text-muted leading-relaxed">{weeklyReport.summary}</p>
                 <div className="flex gap-4 pt-1">
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-fraunces text-[20px] font-bold text-foreground">{weeklyReport.examCount}</span>
-                    <span className="font-jakarta text-[0.6875rem] text-dim">bài thi</span>
+                    <span className="font-sans text-[20px] font-bold text-foreground">{weeklyReport.examCount}</span>
+                    <span className="font-sans text-[0.6875rem] text-dim">bài thi</span>
                   </div>
                   <div className="w-px bg-border" />
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-fraunces text-[20px] font-bold text-foreground">{weeklyReport.avgScore}</span>
-                    <span className="font-jakarta text-[0.6875rem] text-dim">điểm trung bình</span>
+                    <span className="font-sans text-[20px] font-bold text-foreground">{weeklyReport.avgScore}</span>
+                    <span className="font-sans text-[0.6875rem] text-dim">điểm trung bình</span>
                   </div>
                   {weeklyReport.topWeakTopic && (
                     <>
                       <div className="w-px bg-border" />
                       <div className="flex flex-col gap-0.5 min-w-0">
-                        <span className="font-fraunces text-sm font-bold text-primary truncate">{weeklyReport.topWeakTopic}</span>
-                        <span className="font-jakarta text-[0.6875rem] text-dim">cần ôn nhất</span>
+                        <span className="font-sans text-sm font-bold text-primary truncate">{weeklyReport.topWeakTopic}</span>
+                        <span className="font-sans text-[0.6875rem] text-dim">cần ôn nhất</span>
                       </div>
                     </>
                   )}
                 </div>
                 {(weeklyAISummaryLoading || weeklyAISummary) && (
-                  <p className="font-jakarta text-xs italic text-dim leading-relaxed mt-1">
+                  <p className="font-sans text-xs italic text-dim leading-relaxed mt-1">
                     {weeklyAISummaryLoading ? '...' : weeklyAISummary}
                   </p>
                 )}
@@ -1593,19 +1588,19 @@ export default function Account() {
             {results.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
                 <span className="text-[48px]">📊</span>
-                <span className="font-fraunces text-[18px] text-foreground">Chưa có dữ liệu</span>
-                <span className="font-jakarta text-[0.8125rem] text-dim">Hoàn thành ít nhất một bài thi để xem thống kê.</span>
+                <span className="font-sans text-[18px] text-foreground">Chưa có dữ liệu</span>
+                <span className="font-sans text-[0.8125rem] text-dim">Hoàn thành ít nhất một bài thi để xem thống kê.</span>
               </div>
             ) : (
               <>
                 {/* Advisor message card */}
                 {advisorMsg && (
                   <section className="rounded-2xl p-5 flex items-start gap-4"
-                    style={{ background: '#0D1521', border: '1px solid #1E2A44' }}>
+                    style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
                     <span className="text-2xl mt-0.5">🤖</span>
                     <div className="flex flex-col gap-1">
                       <p className="text-xs font-semibold uppercase tracking-wider"
-                        style={{ color: '#818CF8' }}>
+                        style={{ color: 'var(--info)' }}>
                         Nhận xét AI
                       </p>
                       <p className="text-sm leading-relaxed" style={{ color: '#CBD5E1' }}>
@@ -1617,21 +1612,21 @@ export default function Account() {
 
                 {/* Score sparkline */}
                 <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-3">
-                  <span className="font-fraunces text-[15px] font-semibold text-foreground">Xu hướng điểm số</span>
-                  <span className="font-jakarta text-[0.6875rem] text-faint">10 bài thi gần nhất</span>
+                  <span className="font-sans text-[15px] font-semibold text-foreground">Xu hướng điểm số</span>
+                  <span className="font-sans text-[0.6875rem] text-faint">10 bài thi gần nhất</span>
                   <ResponsiveContainer width="100%" height={100}>
                     <LineChart data={sparkData}>
                       <Line
                         type="monotone" dataKey="score"
-                        stroke="#F2A20C" strokeWidth={2}
+                        stroke="var(--accent)" strokeWidth={2}
                         dot={false} isAnimationActive={false}
                       />
                       {user?.target_score && (
                         <ReferenceLine
                           y={user.target_score}
-                          stroke="#818CF8"
+                          stroke="var(--info)"
                           strokeDasharray="4 2"
-                          label={{ value: `Mục tiêu ${user.target_score}`, fill: '#818CF8', fontSize: 10, position: 'insideTopRight' }}
+                          label={{ value: `Mục tiêu ${user.target_score}`, fill: 'var(--info)', fontSize: 10, position: 'insideTopRight' }}
                         />
                       )}
                     </LineChart>
@@ -1639,17 +1634,17 @@ export default function Account() {
                   {trendInsight && (
                     <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-background border border-border">
                       <span className="text-[0.8125rem] mt-px">💡</span>
-                      <span className="font-jakarta text-xs text-muted">{trendInsight}</span>
+                      <span className="font-sans text-xs text-muted">{trendInsight}</span>
                     </div>
                   )}
                   {scoreProjection && (
                     <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-success/5 border border-success/20">
                       <span className="text-[0.8125rem] mt-px">🎯</span>
-                      <span className="font-jakarta text-xs text-success">{scoreProjection.summary}</span>
+                      <span className="font-sans text-xs text-success">{scoreProjection.summary}</span>
                     </div>
                   )}
                   {(chartInsightsLoading || chartInsights?.spark_insight) && (
-                    <p className="font-jakarta text-xs italic text-dim mt-1">
+                    <p className="font-sans text-xs italic text-dim mt-1">
                       {chartInsightsLoading ? '...' : chartInsights.spark_insight}
                     </p>
                   )}
@@ -1659,18 +1654,18 @@ export default function Account() {
                 {/* Today's focus */}
                 {todayFocus && (
                   <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-3">
-                    <span className="font-fraunces text-[15px] font-semibold text-foreground">Trọng tâm hôm nay</span>
+                    <span className="font-sans text-[15px] font-semibold text-foreground">Trọng tâm hôm nay</span>
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
                         <span className="text-[22px]">🎯</span>
                       </div>
                       <div className="flex flex-col gap-0.5 flex-1">
-                        <span className="font-fraunces text-[16px] font-bold text-foreground">{todayFocus.topic}</span>
-                        <span className="font-jakarta text-xs text-muted">Độ chính xác hiện tại: <span className="text-primary font-semibold">{todayFocus.score}%</span></span>
+                        <span className="font-sans text-[16px] font-bold text-foreground">{todayFocus.topic}</span>
+                        <span className="font-sans text-xs text-muted">Độ chính xác hiện tại: <span className="text-primary font-semibold">{todayFocus.score}%</span></span>
                       </div>
                       <button
                         onClick={() => navigate('/exam-select')}
-                        className="px-3 py-1.5 rounded-lg bg-primary text-primary-fg font-jakarta text-xs font-semibold hover:bg-primary/80 transition-colors flex-shrink-0"
+                        className="px-3 py-1.5 rounded-lg bg-primary text-primary-fg font-sans text-xs font-semibold hover:bg-primary/80 transition-colors flex-shrink-0"
                       >
                         Luyện ngay
                       </button>
@@ -1681,15 +1676,15 @@ export default function Account() {
                 {/* ─── MOAT 1: Learning Graph ─────────────────────────────── */}
                 <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
                   <div className="flex flex-col gap-1">
-                    <span className="font-fraunces text-[15px] font-semibold text-foreground">Lộ trình học tập — Điểm mấu chốt tiếp theo</span>
-                    <span className="font-jakarta text-[0.6875rem] text-faint">Các chủ đề bạn cần chinh phục để mở khoá kiến thức nâng cao</span>
+                    <span className="font-sans text-[15px] font-semibold text-foreground">Lộ trình học tập — Điểm mấu chốt tiếp theo</span>
+                    <span className="font-sans text-[0.6875rem] text-faint">Các chủ đề bạn cần chinh phục để mở khoá kiến thức nâng cao</span>
                   </div>
 
                   {/* Priority topics (up to 3) */}
                   {priorityTopics.length === 0 ? (
                     <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-background border border-border">
                       <span className="text-[0.8125rem]">📊</span>
-                      <span className="font-jakarta text-xs text-dim">Chưa đủ dữ liệu — làm thêm bài thi để xem gợi ý</span>
+                      <span className="font-sans text-xs text-dim">Chưa đủ dữ liệu — làm thêm bài thi để xem gợi ý</span>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-3">
@@ -1699,9 +1694,9 @@ export default function Account() {
                         return (
                           <div key={node.id} className="flex flex-col gap-2 px-4 py-3 rounded-xl bg-background border border-border">
                             <div className="flex items-center justify-between gap-3">
-                              <span className="font-jakarta text-[0.8125rem] font-semibold text-foreground">{node.label}</span>
+                              <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{node.label}</span>
                               <span
-                                className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                                className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
                                 style={{ background: '#EF444420', color: '#EF4444', border: '1px solid #EF444440' }}
                               >
                                 Yếu
@@ -1715,12 +1710,12 @@ export default function Account() {
                                   style={{ width: `${Math.round((node.mastery ?? 0) * 100)}%`, background: '#EF4444' }}
                                 />
                               </div>
-                              <span className="font-jakarta text-[0.625rem] text-destructive font-semibold flex-shrink-0">
+                              <span className="font-sans text-[0.625rem] text-destructive font-semibold flex-shrink-0">
                                 {Math.round((node.mastery ?? 0) * 100)}%
                               </span>
                             </div>
                             {prereqLabels.length > 0 && (
-                              <span className="font-jakarta text-[0.6875rem] text-faint">
+                              <span className="font-sans text-[0.6875rem] text-faint">
                                 Cần học trước: <span className="text-muted">{prereqLabels.join(', ')}</span>
                               </span>
                             )}
@@ -1732,7 +1727,7 @@ export default function Account() {
 
                   <button
                     onClick={() => navigate('/progress')}
-                    className="self-start font-jakarta text-xs text-dim hover:text-muted transition"
+                    className="self-start font-sans text-xs text-dim hover:text-muted transition"
                   >
                     Xem bản đồ học tập →
                   </button>
@@ -1752,34 +1747,34 @@ export default function Account() {
             <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4 items-center">
               <CreditGauge balance={user.credits_balance ?? 0} tier={tier} />
               {runwayDays !== null && (
-                <p className="font-jakarta text-xs text-dim text-center">
-                  Theo tốc độ học hiện tại, đủ cho ~<span className="text-amber-400 font-semibold">{runwayDays} ngày</span> học tập AI.
+                <p className="font-sans text-xs text-dim text-center">
+                  Theo tốc độ học hiện tại, đủ cho ~<span className="text-[var(--accent)] font-semibold">{runwayDays} ngày</span> học tập AI.
                 </p>
               )}
               <div className="flex gap-6 flex-wrap justify-center">
                 <div className="flex flex-col items-center gap-0.5">
-                  <span className="font-jakarta text-[0.6875rem] text-faint">Gói hiện tại</span>
-                  <span className="font-jakarta text-[0.8125rem] font-bold px-3 py-0.5 rounded-full"
+                  <span className="font-sans text-[0.6875rem] text-faint">Gói hiện tại</span>
+                  <span className="font-sans text-[0.8125rem] font-bold px-3 py-0.5 rounded-full"
                     style={{ background: (TIER_COLORS[tier] || '#64748B') + '22', color: TIER_COLORS[tier] || '#64748B' }}>
                     {TIER_LABELS[tier] || tier}
                   </span>
                 </div>
                 {user.subscription_period === 'annual' && (
                   <div className="flex flex-col items-center gap-0.5">
-                    <span className="font-jakarta text-[0.6875rem] text-faint">Chu kỳ</span>
-                    <span className="font-jakarta text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">Hàng năm</span>
+                    <span className="font-sans text-[0.6875rem] text-faint">Chu kỳ</span>
+                    <span className="font-sans text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">Hàng năm</span>
                   </div>
                 )}
                 {user.credits_reset_at && (
                   <div className="flex flex-col items-center gap-0.5">
-                    <span className="font-jakarta text-[0.6875rem] text-faint">Làm mới vào</span>
-                    <span className="font-jakarta text-[0.8125rem] text-highlight">{formatDate(user.credits_reset_at)}</span>
+                    <span className="font-sans text-[0.6875rem] text-faint">Làm mới vào</span>
+                    <span className="font-sans text-[0.8125rem] text-highlight">{formatDate(user.credits_reset_at)}</span>
                   </div>
                 )}
                 {user.subscription_expires_at && (
                   <div className="flex flex-col items-center gap-0.5">
-                    <span className="font-jakarta text-[0.6875rem] text-faint">Hết hạn</span>
-                    <span className="font-jakarta text-[0.8125rem] text-highlight">{formatDate(user.subscription_expires_at)}</span>
+                    <span className="font-sans text-[0.6875rem] text-faint">Hết hạn</span>
+                    <span className="font-sans text-[0.8125rem] text-highlight">{formatDate(user.subscription_expires_at)}</span>
                   </div>
                 )}
               </div>
@@ -1787,16 +1782,15 @@ export default function Account() {
 
             {/* 7-day trial CTA */}
             {tier === 'basic' && !user.trial_used && !trialDone && (
-              <GradientBorderCard>
-              <section className="p-6 flex flex-col gap-4">
+              <section className="p-6 flex flex-col gap-4 glass-brand rounded-2xl">
                 <div className="flex flex-col gap-1">
-                  <span className="font-fraunces text-[16px] font-semibold text-gradient-aurora">Trải nghiệm AI học tập đầy đủ — 7 ngày miễn phí</span>
-                  <p className="font-jakarta text-[0.8125rem] text-muted">
+                  <span className="text-[16px] font-semibold text-primary">Trải nghiệm AI học tập đầy đủ — 7 ngày miễn phí</span>
+                  <p className="font-sans text-[0.8125rem] text-muted-fg">
                     Mở khóa toàn bộ AI hỗ trợ trong 7 ngày: kế hoạch học cá nhân hoá, phân tích không giới hạn và 500 năng lượng học tập.
                   </p>
                 </div>
-                {trialError && <p className="font-jakarta text-xs text-red-400">{trialError}</p>}
-                <ShimmerButton
+                {trialError && <p className="font-sans text-xs text-destructive">{trialError}</p>}
+                <button
                   disabled={trialActivating}
                   onClick={async () => {
                     setTrialActivating(true); setTrialError('')
@@ -1808,16 +1802,14 @@ export default function Account() {
                       setTrialDone(true); refundCredits(500); await refreshUser()
                     }
                   }}
-                  className="self-start text-[0.8125rem]"
-                  background={trialActivating ? 'rgba(30,42,68,1)' : 'linear-gradient(135deg, #065f46, #10B981)'}
+                  className="btn-primary self-start text-[0.8125rem] disabled:opacity-50"
                 >
                   {trialActivating ? 'Đang kích hoạt...' : 'Kích hoạt dùng thử'}
-                </ShimmerButton>
+                </button>
               </section>
-              </GradientBorderCard>
             )}
             {trialDone && (
-              <div className="px-5 py-4 rounded-2xl glass-base font-jakarta text-[0.8125rem] text-success">
+              <div className="px-5 py-4 rounded-2xl glass-base font-sans text-[0.8125rem] text-success">
                 Đã kích hoạt! Gói Học sinh của bạn sẽ hoạt động trong 7 ngày.
               </div>
             )}
@@ -1825,22 +1817,22 @@ export default function Account() {
             {/* Trial urgency banner */}
             {trialUrgency && (
               <section className="border rounded-2xl p-5 flex flex-col gap-3"
-                style={{ background: 'linear-gradient(135deg, #1A0E0A 0%, #0D1521 100%)', borderColor: trialUrgency.daysLeft <= 1 ? '#EF444460' : '#F2A20C60' }}>
+                style={{ background: 'var(--surface)', borderColor: trialUrgency.daysLeft <= 1 ? 'rgba(220,38,38,0.4)' : 'var(--accent-border)' }}>
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div className="flex flex-col gap-1">
-                    <span className="font-fraunces text-sm font-semibold text-highlight">{trialUrgency.message}</span>
-                    <span className="font-jakarta text-xs text-muted">Sau khi hết hạn bạn sẽ mất quyền truy cập vào:</span>
+                    <span className="font-sans text-sm font-semibold text-highlight">{trialUrgency.message}</span>
+                    <span className="font-sans text-xs text-muted">Sau khi hết hạn bạn sẽ mất quyền truy cập vào:</span>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     {Array.from({ length: 7 }).map((_, i) => (
                       <div key={i} className="w-2 h-2 rounded-full transition-colors"
-                        style={{ background: i < (7 - trialUrgency.daysLeft) ? '#F2A20C' : '#1E2A44' }} />
+                        style={{ background: i < (7 - trialUrgency.daysLeft) ? 'var(--accent)' : 'var(--border)' }} />
                     ))}
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {trialUrgency.lossItems.map(item => (
-                    <span key={item} className="font-jakarta text-[0.6875rem] px-2.5 py-1 rounded-full bg-primary/5 border border-primary/20 text-primary">
+                    <span key={item} className="font-sans text-[0.6875rem] px-2.5 py-1 rounded-full bg-primary/5 border border-primary/20 text-primary">
                       {item}
                     </span>
                   ))}
@@ -1851,17 +1843,17 @@ export default function Account() {
             {/* Tier gap — "Bạn đang bỏ lỡ..." card */}
             {tierGap && (
               <section className="bg-surface border border-info/30 rounded-2xl p-6 flex flex-col gap-4">
-                <span className="font-fraunces text-[15px] font-semibold text-foreground">Bạn đang bỏ lỡ...</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">Bạn đang bỏ lỡ...</span>
                 <div className="flex flex-wrap gap-2">
                   {tierGap.missingFeatures.map(f => (
-                    <span key={f} className="font-jakarta text-[0.6875rem] px-3 py-1.5 rounded-full border border-info/40 bg-info/10 text-info/80">
+                    <span key={f} className="font-sans text-[0.6875rem] px-3 py-1.5 rounded-full border border-info/40 bg-info/10 text-info/80">
                       {f}
                     </span>
                   ))}
                 </div>
                 <button
                   onClick={() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="self-start px-5 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold transition bg-info text-white"
+                  className="self-start px-5 py-2.5 rounded-xl font-sans text-[0.8125rem] font-bold transition bg-info text-white"
                 >
                   {tierGap.ctaLabel} →
                 </button>
@@ -1872,11 +1864,11 @@ export default function Account() {
             {/* Plan cards */}
             <section id="upgrade-plans" className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center justify-between flex-wrap gap-3">
-                <span className="font-fraunces text-[16px] font-semibold text-foreground">Nâng cấp gói</span>
+                <span className="font-sans text-[16px] font-semibold text-foreground">Nâng cấp gói</span>
                 <div className="flex items-center gap-1 bg-surface-elevated rounded-full p-1">
                   {['monthly', 'annual'].map(b => (
                     <button key={b} onClick={() => setBilling(b)}
-                      className={`px-4 py-1.5 rounded-full font-jakarta text-xs transition ${billing === b ? 'bg-primary text-primary-fg font-semibold' : 'text-muted'}`}>
+                      className={`px-4 py-1.5 rounded-full font-sans text-xs transition ${billing === b ? 'bg-primary text-primary-fg font-semibold' : 'text-muted'}`}>
                       {b === 'monthly' ? 'Hàng tháng' : 'Hàng năm (−25%)'}
                     </button>
                   ))}
@@ -1886,26 +1878,26 @@ export default function Account() {
                 {plans.map(plan => (
                   <div key={plan.tier}
                     className={`flex items-center justify-between gap-4 px-5 py-4 rounded-xl border transition ${
-                      tier === plan.tier ? 'border-amber-400/60 bg-amber-400/5' : 'border-border bg-surface-elevated'
+                      tier === plan.tier ? 'border-[var(--accent-border)]/60 bg-[var(--accent)]/5' : 'border-border bg-surface-elevated'
                     }`}>
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-jakarta text-sm font-bold text-highlight">{plan.label}</span>
+                        <span className="font-sans text-sm font-bold text-highlight">{plan.label}</span>
                         {plan.badge && (
-                          <span className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400">{plan.badge}</span>
+                          <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">{plan.badge}</span>
                         )}
                         {tier === plan.tier && (
-                          <span className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-400">Hiện tại</span>
+                          <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-400">Hiện tại</span>
                         )}
                       </div>
                       <div className="flex items-center gap-3 flex-wrap">
-                        <span className="font-jakarta text-xs text-dim">⚡ {plan.credits.toLocaleString()} credits/tháng</span>
-                        {plan.bonus && <span className="font-jakarta text-xs text-amber-300">🎁 {plan.bonus}</span>}
+                        <span className="font-sans text-xs text-dim">⚡ {plan.credits.toLocaleString()} credits/tháng</span>
+                        {plan.bonus && <span className="font-sans text-xs text-[var(--accent)]">🎁 {plan.bonus}</span>}
                       </div>
                       {plan.features && (
                         <div className="flex flex-col gap-1 mt-1">
                           {plan.features.map(f => (
-                            <span key={f} className="font-jakarta text-xs text-muted flex items-center gap-1.5">
+                            <span key={f} className="font-sans text-xs text-muted flex items-center gap-1.5">
                               <span className="text-emerald-400 text-[0.625rem]">✓</span>{f}
                             </span>
                           ))}
@@ -1913,14 +1905,14 @@ export default function Account() {
                       )}
                       {plan.effective && (
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-jakarta text-[0.6875rem] text-faint">≈ {plan.effective}</span>
+                          <span className="font-sans text-[0.6875rem] text-faint">≈ {plan.effective}</span>
                           {billing === 'annual' && plan.tier === 'student' && studentSavingsDays > 0 && (
-                            <span className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
+                            <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
                               +{studentSavingsDays} ngày học tập AI miễn phí
                             </span>
                           )}
                           {billing === 'annual' && plan.tier === 'complete' && completeSavingsDays > 0 && (
-                            <span className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
+                            <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
                               +{completeSavingsDays} ngày học tập AI miễn phí
                             </span>
                           )}
@@ -1928,48 +1920,48 @@ export default function Account() {
                       )}
                     </div>
                     <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                      <span className="font-fraunces text-[15px] font-bold text-highlight">{plan.price}</span>
+                      <span className="font-sans text-[15px] font-bold text-highlight">{plan.price}</span>
                       {tier !== plan.tier && plan.tier !== 'basic' && (
-                        <span className="font-jakarta text-[0.6875rem] text-amber-400">Liên hệ nâng cấp</span>
+                        <span className="font-sans text-[0.6875rem] text-[var(--accent)]">Liên hệ nâng cấp</span>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
               <div className="px-5 py-4 rounded-xl border border-border bg-background flex flex-col gap-1.5">
-                <span className="font-jakarta text-xs font-semibold text-muted">Thanh toán (Chuyển khoản ngân hàng)</span>
-                <span className="font-jakarta text-xs text-dim">
+                <span className="font-sans text-xs font-semibold text-muted">Thanh toán (Chuyển khoản ngân hàng)</span>
+                <span className="font-sans text-xs text-dim">
                   Chuyển khoản theo số tài khoản được cung cấp và gửi email xác nhận. Kích hoạt trong 1–2 giờ làm việc.
                 </span>
-                <span className="font-jakarta text-[0.6875rem] text-faint">* MoMo · VNPay · ZaloPay · PayOS sẽ sớm ra mắt</span>
+                <span className="font-sans text-[0.6875rem] text-faint">* MoMo · VNPay · ZaloPay · PayOS sẽ sớm ra mắt</span>
               </div>
             </section>
 
             {/* Top-up packages */}
             <section id="topup" className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
-              <span className="font-fraunces text-[15px] font-semibold text-foreground">Nạp thêm Credits</span>
+              <span className="font-sans text-[15px] font-semibold text-foreground">Nạp thêm Credits</span>
 
               {/* Personalized recommendation */}
               {topupRec ? (
                 <div className="flex flex-col gap-3">
-                  <p className="font-jakarta text-xs text-muted">{topupRec.reasoning}</p>
+                  <p className="font-sans text-xs text-muted">{topupRec.reasoning}</p>
                   <button
                     onClick={() => setTopupPkg(topupRec.pack)}
-                    className="flex items-center justify-between gap-4 px-5 py-4 rounded-xl border border-amber-400/50 bg-amber-400/5 hover:bg-amber-400/10 transition w-full text-left"
+                    className="flex items-center justify-between gap-4 px-5 py-4 rounded-xl border border-[var(--accent-border)]/50 bg-[var(--accent)]/5 hover:bg-[var(--accent)]/10 transition w-full text-left"
                   >
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center gap-2">
-                        <span className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400">{topupRec.pack.label}</span>
-                        <span className="font-jakarta text-[0.6875rem] text-dim">Gợi ý cho bạn</span>
+                        <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">{topupRec.pack.label}</span>
+                        <span className="font-sans text-[0.6875rem] text-dim">Gợi ý cho bạn</span>
                       </div>
-                      <span className="font-fraunces text-[18px] font-bold text-amber-400">⚡ {topupRec.pack.credits} credits</span>
-                      <span className="font-jakarta text-[0.6875rem] text-dim">Đủ cho ~{topupRec.coversDays} ngày học tập AI</span>
+                      <span className="font-sans text-[18px] font-bold text-[var(--accent)]">⚡ {topupRec.pack.credits} credits</span>
+                      <span className="font-sans text-[0.6875rem] text-dim">Đủ cho ~{topupRec.coversDays} ngày học tập AI</span>
                     </div>
-                    <span className="font-fraunces text-[16px] font-bold text-highlight flex-shrink-0">{topupRec.pack.price}</span>
+                    <span className="font-sans text-[16px] font-bold text-highlight flex-shrink-0">{topupRec.pack.price}</span>
                   </button>
                   <button
                     onClick={() => {}}
-                    className="font-jakarta text-[0.6875rem] text-faint hover:text-dim transition text-center"
+                    className="font-sans text-[0.6875rem] text-faint hover:text-dim transition text-center"
                     onClickCapture={(e) => { e.preventDefault(); e.stopPropagation() }}
                   >
                     Xem tất cả gói →
@@ -1977,10 +1969,10 @@ export default function Account() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 hidden" aria-hidden="true">
                     {TOPUP_PACKAGES.map(pkg => (
                       <button key={pkg.price} onClick={() => setTopupPkg(pkg)}
-                        className="flex flex-col items-center gap-1.5 px-4 py-4 rounded-xl border border-border bg-surface-elevated hover:border-amber-400/50 hover:bg-amber-400/5 transition">
-                        <span className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-border text-muted">{pkg.label}</span>
-                        <span className="font-fraunces text-[18px] font-bold text-amber-400">⚡ {pkg.credits}</span>
-                        <span className="font-jakarta text-xs text-highlight">{pkg.price}</span>
+                        className="flex flex-col items-center gap-1.5 px-4 py-4 rounded-xl border border-border bg-surface-elevated hover:border-[var(--accent-border)]/50 hover:bg-[var(--accent)]/5 transition">
+                        <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-border text-muted">{pkg.label}</span>
+                        <span className="font-sans text-[18px] font-bold text-[var(--accent)]">⚡ {pkg.credits}</span>
+                        <span className="font-sans text-xs text-highlight">{pkg.price}</span>
                       </button>
                     ))}
                   </div>
@@ -1991,11 +1983,11 @@ export default function Account() {
                     <button
                       key={pkg.price}
                       onClick={() => setTopupPkg(pkg)}
-                      className="flex flex-col items-center gap-1.5 px-4 py-4 rounded-xl border border-border bg-surface-elevated hover:border-amber-400/50 hover:bg-amber-400/5 transition"
+                      className="flex flex-col items-center gap-1.5 px-4 py-4 rounded-xl border border-border bg-surface-elevated hover:border-[var(--accent-border)]/50 hover:bg-[var(--accent)]/5 transition"
                     >
-                      <span className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-border text-muted">{pkg.label}</span>
-                      <span className="font-fraunces text-[18px] font-bold text-amber-400">⚡ {pkg.credits}</span>
-                      <span className="font-jakarta text-xs text-highlight">{pkg.price}</span>
+                      <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-border text-muted">{pkg.label}</span>
+                      <span className="font-sans text-[18px] font-bold text-[var(--accent)]">⚡ {pkg.credits}</span>
+                      <span className="font-sans text-xs text-highlight">{pkg.price}</span>
                     </button>
                   ))}
                 </div>
@@ -2005,15 +1997,15 @@ export default function Account() {
             {/* Credit log */}
             {creditLog.length > 0 && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
-                <span className="font-fraunces text-[15px] font-semibold text-foreground">Lịch sử Credits</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">Lịch sử Credits</span>
                 <div className="flex flex-col gap-1">
                   {(showAllCredits ? creditLog : creditLog.slice(0, 8)).map((entry, i) => (
                     <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-jakarta text-xs text-muted">{REASON_LABELS[entry.reason] ?? entry.reason}</span>
-                        <span className="font-jakarta text-[0.6875rem] text-faint">{formatDate(entry.created_at)}</span>
+                        <span className="font-sans text-xs text-muted">{REASON_LABELS[entry.reason] ?? entry.reason}</span>
+                        <span className="font-sans text-[0.6875rem] text-faint">{formatDate(entry.created_at)}</span>
                       </div>
-                      <span className={`font-fraunces text-sm font-bold ${entry.delta > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      <span className={`font-sans text-sm font-bold ${entry.delta > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                         {entry.delta > 0 ? '+' : ''}{entry.delta}
                       </span>
                     </div>
@@ -2021,7 +2013,7 @@ export default function Account() {
                 </div>
                 {creditLog.length > 8 && !showAllCredits && (
                   <button onClick={() => setShowAllCredits(true)}
-                    className="font-jakarta text-xs text-amber-400 hover:text-amber-300 transition text-center">
+                    className="font-sans text-xs text-[var(--accent)] hover:text-[var(--accent)] transition text-center">
                     + Xem thêm ({creditLog.length - 8} mục)
                   </button>
                 )}
@@ -2041,22 +2033,22 @@ export default function Account() {
                 <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
                   <div className="flex items-center gap-3">
                     <span className="text-[20px]">🧊</span>
-                    <span className="font-fraunces text-[15px] font-semibold text-foreground">Streak Freeze</span>
+                    <span className="font-sans text-[15px] font-semibold text-foreground">Streak Freeze</span>
                     {user.subscription_tier === 'basic' && (
-                      <span className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400 border border-amber-400/30">
+                      <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)] border border-[var(--accent-border)]/30">
                         Cần nâng cấp
                       </span>
                     )}
                   </div>
-                  <p className="font-jakarta text-xs text-dim leading-relaxed">
+                  <p className="font-sans text-xs text-dim leading-relaxed">
                     Dùng freeze để bảo vệ streak khi bạn bỏ lỡ một ngày. Gói {tierLabel} được {freezeInfo.weeklyQuota} freeze/tuần.
                   </p>
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-jakarta text-xs font-semibold text-muted">Số freeze còn lại</span>
-                      <span className="font-fraunces text-[22px] font-bold text-highlight">
+                      <span className="font-sans text-xs font-semibold text-muted">Số freeze còn lại</span>
+                      <span className="font-sans text-[22px] font-bold text-highlight">
                         {freezeInfo.balance}
-                        <span className="font-jakarta text-[0.8125rem] font-normal text-faint ml-1">/ {freezeInfo.weeklyQuota} tuần</span>
+                        <span className="font-sans text-[0.8125rem] font-normal text-faint ml-1">/ {freezeInfo.weeklyQuota} tuần</span>
                       </span>
                     </div>
                     <div className="flex flex-col items-end gap-1.5">
@@ -2088,9 +2080,9 @@ export default function Account() {
                           }
                           setFreezeLoading(false)
                         }}
-                        className="px-4 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold transition disabled:cursor-not-allowed"
+                        className="px-4 py-2.5 rounded-xl font-sans text-[0.8125rem] font-bold transition disabled:cursor-not-allowed"
                         style={{
-                          background: freezeInfo.canFreeze && !freezeLoading ? '#3B82F6' : '#1E2A44',
+                          background: freezeInfo.canFreeze && !freezeLoading ? 'var(--info)' : 'var(--border)',
                           color: freezeInfo.canFreeze && !freezeLoading ? '#F8FAFC' : '#475569',
                           opacity: freezeLoading ? 0.7 : 1,
                         }}
@@ -2098,10 +2090,10 @@ export default function Account() {
                         {freezeLoading ? 'Đang xử lý...' : 'Dùng freeze hôm nay'}
                       </button>
                       {freezeSuccess && (
-                        <span className="font-jakarta text-[0.6875rem] text-emerald-400">Đã dùng freeze ✓</span>
+                        <span className="font-sans text-[0.6875rem] text-emerald-400">Đã dùng freeze ✓</span>
                       )}
                       {freezeError && (
-                        <span className="font-jakarta text-[0.6875rem] text-red-400">{freezeError}</span>
+                        <span className="font-sans text-[0.6875rem] text-red-400">{freezeError}</span>
                       )}
                     </div>
                   </div>
@@ -2112,9 +2104,9 @@ export default function Account() {
             {/* AI Learning Preferences */}
             <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center gap-3">
-                <span className="font-fraunces text-[15px] font-semibold text-foreground">Tùy chỉnh AI học tập</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">Tùy chỉnh AI học tập</span>
                 {aiIsCustomized && (
-                  <span className="font-jakarta text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-info/10 text-info border border-info/20">
+                  <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-info/10 text-info border border-info/20">
                     Đã tùy chỉnh
                   </span>
                 )}
@@ -2122,7 +2114,7 @@ export default function Account() {
 
               {/* hint_style */}
               <div className="flex flex-col gap-2">
-                <span className="font-jakarta text-xs font-semibold text-muted">Phong cách gợi ý</span>
+                <span className="font-sans text-xs font-semibold text-muted">Phong cách gợi ý</span>
                 <div className="flex gap-2 flex-wrap">
                   {[
                     { v: 'socratic', label: 'Socratic',   desc: 'Đặt câu hỏi gợi mở' },
@@ -2138,8 +2130,8 @@ export default function Account() {
                           : 'border-border bg-background text-dim hover:border-info/30'
                       }`}
                     >
-                      <span className="font-jakarta text-xs font-semibold">{label}</span>
-                      <span className="font-jakarta text-[0.625rem] mt-0.5">{desc}</span>
+                      <span className="font-sans text-xs font-semibold">{label}</span>
+                      <span className="font-sans text-[0.625rem] mt-0.5">{desc}</span>
                     </button>
                   ))}
                 </div>
@@ -2147,7 +2139,7 @@ export default function Account() {
 
               {/* explanation_depth */}
               <div className="flex flex-col gap-2">
-                <span className="font-jakarta text-xs font-semibold text-muted">Độ chi tiết giải thích</span>
+                <span className="font-sans text-xs font-semibold text-muted">Độ chi tiết giải thích</span>
                 <div className="flex gap-2 flex-wrap">
                   {[
                     { v: 'brief',        label: 'Ngắn gọn',    desc: '1–2 câu' },
@@ -2163,8 +2155,8 @@ export default function Account() {
                           : 'border-border bg-background text-dim hover:border-success/30'
                       }`}
                     >
-                      <span className="font-jakarta text-xs font-semibold">{label}</span>
-                      <span className="font-jakarta text-[0.625rem] mt-0.5">{desc}</span>
+                      <span className="font-sans text-xs font-semibold">{label}</span>
+                      <span className="font-sans text-[0.625rem] mt-0.5">{desc}</span>
                     </button>
                   ))}
                 </div>
@@ -2173,8 +2165,8 @@ export default function Account() {
               {/* language_mix */}
               <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-jakarta text-[0.8125rem] font-semibold text-highlight">Pha tiếng Anh thuật ngữ toán</span>
-                  <span className="font-jakarta text-[0.6875rem] text-dim">AI có thể dùng thuật ngữ toán tiếng Anh khi cần rõ hơn.</span>
+                  <span className="font-sans text-[0.8125rem] font-semibold text-highlight">Pha tiếng Anh thuật ngữ toán</span>
+                  <span className="font-sans text-[0.6875rem] text-dim">AI có thể dùng thuật ngữ toán tiếng Anh khi cần rõ hơn.</span>
                 </div>
                 <button
                   onClick={() => setAIPrefs({ ...aiPrefs, language_mix: aiPrefs.language_mix === 'mixed' ? 'vietnamese-only' : 'mixed' })}
@@ -2187,8 +2179,8 @@ export default function Account() {
               {/* weak_topic_focus */}
               <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-jakarta text-[0.8125rem] font-semibold text-highlight">Ưu tiên chủ đề yếu</span>
-                  <span className="font-jakarta text-[0.6875rem] text-dim">AI tự động nhấn mạnh vào khu vực bạn còn yếu nhất.</span>
+                  <span className="font-sans text-[0.8125rem] font-semibold text-highlight">Ưu tiên chủ đề yếu</span>
+                  <span className="font-sans text-[0.6875rem] text-dim">AI tự động nhấn mạnh vào khu vực bạn còn yếu nhất.</span>
                 </div>
                 <button
                   onClick={() => setAIPrefs({ ...aiPrefs, weak_topic_focus: !aiPrefs.weak_topic_focus })}
@@ -2213,7 +2205,7 @@ export default function Account() {
                       onClick={() => setAIPrefs({ ...aiPrefs, encouragement_level: opt.value })}
                       className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
                       style={{
-                        background: aiPrefs.encouragement_level === opt.value ? '#818CF8' : '#1E2A44',
+                        background: aiPrefs.encouragement_level === opt.value ? 'var(--info)' : 'var(--border)',
                         color: aiPrefs.encouragement_level === opt.value ? '#fff' : '#94A3B8',
                       }}>
                       {opt.label}
@@ -2227,43 +2219,43 @@ export default function Account() {
             {/* Learning goals */}
             <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center justify-between">
-                <span className="font-fraunces text-[15px] font-semibold text-foreground">Mục tiêu học tập</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">Mục tiêu học tập</span>
                 {goalSaved && (
-                  <span className="font-jakarta text-[0.6875rem] text-emerald-400">Đã lưu ✓</span>
+                  <span className="font-sans text-[0.6875rem] text-emerald-400">Đã lưu ✓</span>
                 )}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="font-jakarta text-xs font-semibold text-muted">Ngày thi dự kiến</label>
+                <label className="font-sans text-xs font-semibold text-muted">Ngày thi dự kiến</label>
                 <input
                   type="date"
                   value={goalExamDate}
                   onChange={e => { setGoalExamDate(e.target.value); setGoalSaved(false) }}
                   min={new Date().toISOString().slice(0, 10)}
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-jakarta text-[0.8125rem] text-highlight focus:outline-none focus:border-primary transition [color-scheme:only_dark]"
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-sans text-[0.8125rem] text-highlight focus:outline-none focus:border-primary transition [color-scheme:only_dark]"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="font-jakarta text-xs font-semibold text-muted">Trường mục tiêu</label>
+                <label className="font-sans text-xs font-semibold text-muted">Trường mục tiêu</label>
                 <input
                   type="text"
                   value={goalSchool}
                   onChange={e => { setGoalSchool(e.target.value); setGoalSaved(false) }}
                   placeholder="VD: THPT Chuyên Lê Hồng Phong"
                   maxLength={200}
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-jakarta text-[0.8125rem] text-highlight placeholder-faint focus:outline-none focus:border-primary transition"
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-sans text-[0.8125rem] text-highlight placeholder-faint focus:outline-none focus:border-primary transition"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="font-jakarta text-xs font-semibold text-muted">Số giờ học mỗi tuần</label>
+                <label className="font-sans text-xs font-semibold text-muted">Số giờ học mỗi tuần</label>
                 <input
                   type="number"
                   value={goalHours}
                   onChange={e => { setGoalHours(e.target.value); setGoalSaved(false) }}
                   min={1} max={168} placeholder="VD: 10"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-jakarta text-[0.8125rem] text-highlight placeholder-faint focus:outline-none focus:border-primary transition"
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-sans text-[0.8125rem] text-highlight placeholder-faint focus:outline-none focus:border-primary transition"
                 />
               </div>
 
@@ -2279,8 +2271,8 @@ export default function Account() {
                   await refreshUser()
                   setGoalSaving(false); setGoalSaved(true)
                 }}
-                className="self-start px-5 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold transition"
-                style={{ background: goalSaving ? '#1E2A44' : '#F2A20C', color: goalSaving ? '#475569' : '#0A0E1A' }}
+                className="self-start px-5 py-2.5 rounded-xl font-sans text-[0.8125rem] font-bold transition"
+                style={{ background: goalSaving ? 'var(--border)' : 'var(--accent)', color: goalSaving ? 'var(--fg-tertiary)' : 'var(--accent-fg)' }}
               >
                 {goalSaving ? 'Đang lưu...' : 'Lưu mục tiêu'}
               </button>
@@ -2288,27 +2280,27 @@ export default function Account() {
 
             {/* Account status */}
             <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
-              <span className="font-fraunces text-[15px] font-semibold text-foreground">Trạng thái tài khoản</span>
+              <span className="font-sans text-[15px] font-semibold text-foreground">Trạng thái tài khoản</span>
               <div className="flex items-center gap-3">
                 {!!user.is_locked ? (
-                  <span className="font-jakarta text-xs font-bold px-3 py-1 rounded-full bg-red-500/20 text-red-400">Đã khóa</span>
+                  <span className="font-sans text-xs font-bold px-3 py-1 rounded-full bg-red-500/20 text-red-400">Đã khóa</span>
                 ) : !!user.is_deactivated ? (
-                  <span className="font-jakarta text-xs font-bold px-3 py-1 rounded-full bg-amber-400/20 text-amber-400">Tạm ngưng</span>
+                  <span className="font-sans text-xs font-bold px-3 py-1 rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">Tạm ngưng</span>
                 ) : (
-                  <span className="font-jakarta text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400">Hoạt động</span>
+                  <span className="font-sans text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400">Hoạt động</span>
                 )}
               </div>
               {!!user.is_locked && (
-                <p className="font-jakarta text-xs text-muted">{user.lock_reason || 'Liên hệ hỗ trợ để mở khóa tài khoản.'}</p>
+                <p className="font-sans text-xs text-muted">{user.lock_reason || 'Liên hệ hỗ trợ để mở khóa tài khoản.'}</p>
               )}
               {!!user.is_deactivated && !user.is_locked && (
                 <div className="flex items-center justify-between gap-4">
-                  <span className="font-jakarta text-xs text-muted">Bạn có thể kích hoạt lại bất kỳ lúc nào.</span>
+                  <span className="font-sans text-xs text-muted">Bạn có thể kích hoạt lại bất kỳ lúc nào.</span>
                   <button
                     disabled={reactivating}
                     onClick={async () => { setReactivating(true); await reactivateAccount(); setReactivating(false) }}
-                    className="shrink-0 px-4 py-2 rounded-lg font-jakarta text-xs font-bold transition"
-                    style={{ background: '#F2A20C', color: '#0A0E1A', opacity: reactivating ? 0.6 : 1 }}
+                    className="shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold transition"
+                    style={{ background: 'var(--accent)', color: 'var(--accent-fg)', opacity: reactivating ? 0.6 : 1 }}
                   >
                     {reactivating ? 'Đang kích hoạt...' : 'Kích hoạt lại'}
                   </button>
@@ -2318,11 +2310,11 @@ export default function Account() {
 
             {/* Notifications */}
             <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
-              <span className="font-fraunces text-[15px] font-semibold text-foreground">Thông báo</span>
+              <span className="font-sans text-[15px] font-semibold text-foreground">Thông báo</span>
               <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-jakarta text-[0.8125rem] font-semibold text-highlight">Nhắc nhở học tập hàng ngày</span>
-                  <span className="font-jakarta text-[0.6875rem] text-dim">Nhận thông báo nhắc ôn luyện mỗi ngày.</span>
+                  <span className="font-sans text-[0.8125rem] font-semibold text-highlight">Nhắc nhở học tập hàng ngày</span>
+                  <span className="font-sans text-[0.6875rem] text-dim">Nhận thông báo nhắc ôn luyện mỗi ngày.</span>
                 </div>
                 <button
                   onClick={async () => {
@@ -2334,14 +2326,14 @@ export default function Account() {
                       setReminderEnabled(false)
                     }
                   }}
-                  className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${reminderEnabled ? 'bg-amber-400' : 'bg-border'}`}
+                  className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${reminderEnabled ? 'bg-[var(--accent)]' : 'bg-border'}`}
                 >
                   <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${reminderEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
                 </button>
               </div>
               {reminderEnabled && (
                 <div className="flex items-center gap-3 pt-1">
-                  <span className="font-jakarta text-xs text-muted">Giờ nhắc nhở:</span>
+                  <span className="font-sans text-xs text-muted">Giờ nhắc nhở:</span>
                   <select
                     value={reminderHour}
                     onChange={e => {
@@ -2349,7 +2341,7 @@ export default function Account() {
                       setReminderHour(h)
                       localStorage.setItem('study_reminder_hour', String(h))
                     }}
-                    className="px-3 py-1.5 rounded-lg border border-border bg-surface-elevated font-jakarta text-xs text-highlight focus:outline-none focus:border-amber-400/60"
+                    className="px-3 py-1.5 rounded-lg border border-border bg-surface-elevated font-sans text-xs text-highlight focus:outline-none focus:border-[var(--accent-border)]/60"
                   >
                     {Array.from({ length: 18 }, (_, i) => i + 6).map(h => (
                       <option key={h} value={h}>{h}:00</option>
@@ -2364,15 +2356,15 @@ export default function Account() {
             {referral?.referral_code && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-fraunces text-[15px] font-semibold text-foreground">Chia sẻ & Kiếm Credits</span>
-                  <span className="font-jakarta text-xs text-dim">
-                    Bạn và người được mời đều nhận <span className="text-amber-400">⚡ 50 credits</span> khi họ đăng ký.
+                  <span className="font-sans text-[15px] font-semibold text-foreground">Chia sẻ & Kiếm Credits</span>
+                  <span className="font-sans text-xs text-dim">
+                    Bạn và người được mời đều nhận <span className="text-[var(--accent)]">⚡ 50 credits</span> khi họ đăng ký.
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
                     readOnly value={referralUrl}
-                    className="flex-1 px-3 py-2 rounded-lg border border-border bg-background font-jakarta text-[0.6875rem] text-dim select-all"
+                    className="flex-1 px-3 py-2 rounded-lg border border-border bg-background font-sans text-[0.6875rem] text-dim select-all"
                   />
                   <button
                     onClick={() => {
@@ -2380,8 +2372,8 @@ export default function Account() {
                         .then(() => toast.success('Đã sao chép link giới thiệu'))
                         .catch(() => {})
                     }}
-                    className="px-3 py-2 rounded-lg font-jakarta text-xs font-bold flex-shrink-0"
-                    style={{ background: '#F2A20C', color: '#0A0E1A' }}
+                    className="px-3 py-2 rounded-lg font-sans text-xs font-bold flex-shrink-0"
+                    style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}
                   >
                     Sao chép
                   </button>
@@ -2389,16 +2381,16 @@ export default function Account() {
                 <a
                   href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Zenith nhé! Dùng link này để nhận 50 credits miễn phí: ${referralUrl}`)}`}
                   target="_blank" rel="noopener noreferrer"
-                  className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-jakarta text-xs font-semibold bg-whatsapp text-white hover:opacity-90 transition"
+                  className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-sans text-xs font-semibold bg-whatsapp text-white hover:opacity-90 transition"
                 >
                   <span>💬</span> Chia sẻ qua WhatsApp
                 </a>
                 {(referral.successful_referrals ?? 0) > 0 && (
                   <div className="flex items-center gap-3 pt-1 border-t border-border">
-                    <span className="font-jakarta text-xs text-dim">
-                      <span className="text-amber-400 font-bold">{referral.successful_referrals}</span> người đã tham gia qua link
+                    <span className="font-sans text-xs text-dim">
+                      <span className="text-[var(--accent)] font-bold">{referral.successful_referrals}</span> người đã tham gia qua link
                     </span>
-                    <span className="font-jakarta text-xs text-amber-400">
+                    <span className="font-sans text-xs text-[var(--accent)]">
                       ⚡ {(referral.successful_referrals ?? 0) * 50} credits đã kiếm
                     </span>
                   </div>
@@ -2410,7 +2402,7 @@ export default function Account() {
             <section className="bg-surface border border-red-500/20 rounded-2xl p-7 flex flex-col gap-4">
               <button
                 onClick={() => setDangerOpen(v => !v)}
-                className="flex items-center gap-2 font-jakarta text-[0.8125rem] text-red-400 hover:text-red-300 transition self-start"
+                className="flex items-center gap-2 font-sans text-[0.8125rem] text-red-400 hover:text-red-300 transition self-start"
               >
                 <span>Xóa hoặc tạm ngưng tài khoản</span>
                 <span className="text-[0.625rem]">{dangerOpen ? '▲' : '▼'}</span>
@@ -2427,12 +2419,12 @@ export default function Account() {
                   >
                     <div className="flex items-start justify-between gap-4 flex-wrap pt-2 border-t border-border">
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-jakarta text-[0.8125rem] font-semibold text-highlight">Tạm ngưng tài khoản</span>
-                        <span className="font-jakarta text-xs text-dim">Vô hiệu hóa tài khoản tạm thời. Bạn có thể kích hoạt lại sau.</span>
+                        <span className="font-sans text-[0.8125rem] font-semibold text-highlight">Tạm ngưng tài khoản</span>
+                        <span className="font-sans text-xs text-dim">Vô hiệu hóa tài khoản tạm thời. Bạn có thể kích hoạt lại sau.</span>
                       </div>
                       <button
                         onClick={() => setShowDeactivateModal(true)}
-                        className="shrink-0 px-4 py-2 rounded-lg font-jakarta text-xs font-bold border border-amber-400/40 text-amber-400 hover:bg-amber-400/10 transition"
+                        className="shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold border border-[var(--accent-border)]/40 text-[var(--accent)] hover:bg-[var(--accent)]/10 transition"
                       >
                         Tạm ngưng
                       </button>
@@ -2440,12 +2432,12 @@ export default function Account() {
                     <div className="border-t border-border" />
                     <div className="flex items-start justify-between gap-4 flex-wrap">
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-jakarta text-[0.8125rem] font-semibold text-highlight">Xóa tài khoản vĩnh viễn</span>
-                        <span className="font-jakarta text-xs text-dim">Tất cả dữ liệu sẽ bị xóa và không thể khôi phục.</span>
+                        <span className="font-sans text-[0.8125rem] font-semibold text-highlight">Xóa tài khoản vĩnh viễn</span>
+                        <span className="font-sans text-xs text-dim">Tất cả dữ liệu sẽ bị xóa và không thể khôi phục.</span>
                       </div>
                       <button
                         onClick={() => { setShowDeleteModal(true); setDeleteEmail(''); setDangerError('') }}
-                        className="shrink-0 px-4 py-2 rounded-lg font-jakarta text-xs font-bold border border-red-500/40 text-red-400 hover:bg-red-500/10 transition"
+                        className="shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold border border-red-500/40 text-red-400 hover:bg-red-500/10 transition"
                       >
                         Xóa tài khoản
                       </button>
@@ -2474,8 +2466,8 @@ export default function Account() {
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-fraunces text-[16px] font-bold text-foreground">Nạp ⚡ {topupPkg.credits} credits</p>
-                  <p className="font-jakarta text-[0.8125rem] text-dim mt-0.5">{topupPkg.price} · Chuyển khoản ngân hàng</p>
+                  <p className="font-sans text-[16px] font-bold text-foreground">Nạp ⚡ {topupPkg.credits} credits</p>
+                  <p className="font-sans text-[0.8125rem] text-dim mt-0.5">{topupPkg.price} · Chuyển khoản ngân hàng</p>
                 </div>
                 <button onClick={() => { setTopupPkg(null); setCopyBankDone(false) }} className="text-faint hover:text-foreground text-xl leading-none">×</button>
               </div>
@@ -2489,8 +2481,8 @@ export default function Account() {
                   ['Nội dung CK', `TOPUP ${user.email} ${topupPkg.credits}TIA`],
                 ].map(([label, value]) => (
                   <div key={label} className="flex items-center justify-between gap-2">
-                    <span className="font-jakarta text-[0.6875rem] text-faint">{label}</span>
-                    <span className="font-jakarta text-xs font-semibold text-highlight text-right">{value}</span>
+                    <span className="font-sans text-[0.6875rem] text-faint">{label}</span>
+                    <span className="font-sans text-xs font-semibold text-highlight text-right">{value}</span>
                   </div>
                 ))}
               </div>
@@ -2500,12 +2492,12 @@ export default function Account() {
                   const text = `Ngân hàng: ${BANK_INFO.bank_name}\nSố TK: ${BANK_INFO.account_number}\nChủ TK: ${BANK_INFO.account_name}\nSố tiền: ${topupPkg.price}\nNội dung: TOPUP ${user.email} ${topupPkg.credits}TIA`
                   navigator.clipboard?.writeText(text).then(() => setCopyBankDone(true)).catch(() => {})
                 }}
-                className="py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold transition"
-                style={{ background: copyBankDone ? '#10B981' : '#F2A20C', color: '#0A0E1A' }}
+                className="py-2.5 rounded-xl font-sans text-[0.8125rem] font-bold transition"
+                style={{ background: copyBankDone ? 'var(--success)' : 'var(--accent)', color: 'var(--accent-fg)' }}
               >
                 {copyBankDone ? '✓ Đã sao chép' : 'Sao chép thông tin'}
               </button>
-              <p className="font-jakarta text-[0.6875rem] text-faint text-center">
+              <p className="font-sans text-[0.6875rem] text-faint text-center">
                 Sau khi chuyển khoản, credits sẽ được cộng trong 1–2 giờ làm việc.
               </p>
             </motion.div>
@@ -2524,11 +2516,11 @@ export default function Account() {
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
               className="max-w-sm w-full bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5"
             >
-              <span className="font-fraunces text-[16px] font-bold text-foreground">Tạm ngưng tài khoản?</span>
-              <p className="font-jakarta text-[0.8125rem] text-muted">
+              <span className="font-sans text-[16px] font-bold text-foreground">Tạm ngưng tài khoản?</span>
+              <p className="font-sans text-[0.8125rem] text-muted">
                 Bạn sẽ không thể sử dụng dịch vụ cho đến khi kích hoạt lại. Dữ liệu của bạn sẽ được giữ nguyên.
               </p>
-              {dangerError && <p className="font-jakarta text-xs text-red-400">{dangerError}</p>}
+              {dangerError && <p className="font-sans text-xs text-red-400">{dangerError}</p>}
               <div className="flex gap-2">
                 <button
                   disabled={dangerLoading}
@@ -2539,14 +2531,14 @@ export default function Account() {
                     if (error) { setDangerError(typeof error === 'string' ? error : 'Thất bại, vui lòng thử lại') }
                     else { setShowDeactivateModal(false); logout() }
                   }}
-                  className="flex-1 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold transition"
-                  style={{ background: dangerLoading ? '#1E2A44' : '#F2A20C', color: dangerLoading ? '#475569' : '#0A0E1A' }}
+                  className="flex-1 py-2.5 rounded-xl font-sans text-[0.8125rem] font-bold transition"
+                  style={{ background: dangerLoading ? 'var(--border)' : 'var(--accent)', color: dangerLoading ? 'var(--fg-tertiary)' : 'var(--accent-fg)' }}
                 >
                   {dangerLoading ? 'Đang xử lý...' : 'Xác nhận tạm ngưng'}
                 </button>
                 <button
                   onClick={() => { setShowDeactivateModal(false); setDangerError('') }}
-                  className="px-4 py-2.5 rounded-xl font-jakarta text-[0.8125rem] text-dim hover:text-foreground transition"
+                  className="px-4 py-2.5 rounded-xl font-sans text-[0.8125rem] text-dim hover:text-foreground transition"
                 >
                   Huỷ
                 </button>
@@ -2567,20 +2559,20 @@ export default function Account() {
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
               className="max-w-sm w-full bg-surface border border-red-500/30 rounded-2xl p-7 flex flex-col gap-5"
             >
-              <span className="font-fraunces text-[16px] font-bold text-red-400">Xóa tài khoản vĩnh viễn</span>
-              <p className="font-jakarta text-[0.8125rem] text-muted">
+              <span className="font-sans text-[16px] font-bold text-red-400">Xóa tài khoản vĩnh viễn</span>
+              <p className="font-sans text-[0.8125rem] text-muted">
                 Hành động này <strong className="text-foreground">không thể hoàn tác</strong>. Tất cả dữ liệu bao gồm lịch sử thi và credits sẽ bị xóa.
               </p>
               <div className="flex flex-col gap-1.5">
-                <span className="font-jakarta text-xs text-dim">Nhập địa chỉ email của bạn để xác nhận:</span>
+                <span className="font-sans text-xs text-dim">Nhập địa chỉ email của bạn để xác nhận:</span>
                 <input
-                  className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-jakarta text-[0.8125rem] text-highlight focus:outline-none focus:border-red-400"
+                  className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-highlight focus:outline-none focus:border-red-400"
                   placeholder={user.email}
                   value={deleteEmail}
                   onChange={e => setDeleteEmail(e.target.value)}
                 />
               </div>
-              {dangerError && <p className="font-jakarta text-xs text-red-400">{dangerError}</p>}
+              {dangerError && <p className="font-sans text-xs text-red-400">{dangerError}</p>}
               <div className="flex gap-2">
                 <button
                   disabled={dangerLoading || deleteEmail !== user.email}
@@ -2591,14 +2583,14 @@ export default function Account() {
                     if (error) { setDangerError(typeof error === 'string' ? error : 'Thất bại, vui lòng thử lại') }
                     else { setShowDeleteModal(false); logout() }
                   }}
-                  className="flex-1 py-2.5 rounded-xl font-jakarta text-[0.8125rem] font-bold transition disabled:opacity-40"
+                  className="flex-1 py-2.5 rounded-xl font-sans text-[0.8125rem] font-bold transition disabled:opacity-40"
                   style={{ background: '#EF4444', color: '#fff' }}
                 >
                   {dangerLoading ? 'Đang xóa...' : 'Xóa vĩnh viễn'}
                 </button>
                 <button
                   onClick={() => { setShowDeleteModal(false); setDangerError(''); setDeleteEmail('') }}
-                  className="px-4 py-2.5 rounded-xl font-jakarta text-[0.8125rem] text-dim hover:text-foreground transition"
+                  className="px-4 py-2.5 rounded-xl font-sans text-[0.8125rem] text-dim hover:text-foreground transition"
                 >
                   Huỷ
                 </button>
@@ -2610,7 +2602,7 @@ export default function Account() {
 
       {/* Mobile bottom navigation — hidden on lg+ */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 pb-safe"
-        style={{ background: '#0A0E1A', borderTop: '1px solid #1E2A44', paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
+        style={{ background: 'var(--bg)', borderTop: '1px solid var(--border)', paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
         {[
           { id: TAB_PROGRESS,  label: 'Tiến Độ',   icon: '📈' },
           { id: TAB_ANALYTICS, label: 'Phân Tích',  icon: '🧠' },
@@ -2621,8 +2613,8 @@ export default function Account() {
             onClick={() => setActiveTab(tab.id)}
             className="flex flex-col items-center gap-0.5 py-2 px-4 rounded-xl transition-colors"
             style={{
-              color: activeTab === tab.id ? '#818CF8' : '#64748B',
-              background: activeTab === tab.id ? '#818CF822' : 'transparent',
+              color: activeTab === tab.id ? 'var(--primary)' : 'var(--fg-tertiary)',
+              background: activeTab === tab.id ? 'var(--primary-subtle)' : 'transparent',
               minWidth: 72,
             }}
           >

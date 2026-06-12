@@ -231,16 +231,16 @@ export default function ReviewSession() {
       >
         <div className="flex flex-col items-center gap-4 text-center">
           <span className="text-5xl">{total === 0 ? '✓' : correct === total ? '🎉' : '📚'}</span>
-          <h2 className="font-fraunces text-[28px] font-bold text-foreground">
+          <h2 className="font-sans text-[28px] font-bold text-foreground">
             {total === 0 ? 'Không có câu nào cần ôn hôm nay!' : 'Hoàn thành ôn tập!'}
           </h2>
           {total > 0 && (
-            <p className="font-jakarta text-muted text-[15px]">
+            <p className="font-sans text-muted text-[15px]">
               Đúng <span className="text-success font-bold">{correct}</span> / {total} câu
             </p>
           )}
           {dailyStreak > 0 && (
-            <p className="font-jakarta text-[13px] text-amber-400">
+            <p className="font-sans text-[13px] text-[var(--accent)]">
               🔥 {dailyStreak} ngày liên tiếp — tiếp tục chuỗi với Thử thách hôm nay!
             </p>
           )}
@@ -248,12 +248,12 @@ export default function ReviewSession() {
             <div className="flex flex-col items-center gap-3 px-5 py-4 rounded-2xl border border-success/30 text-center"
               style={{ background: '#0D2A1A' }}>
               <span className="text-3xl">🏆</span>
-              <p className="font-fraunces text-[16px] font-bold text-success">
+              <p className="font-sans text-[16px] font-bold text-success">
                 {stage5Topics.length === 1 ? 'Thành thạo khái niệm mới!' : `Thành thạo ${stage5Topics.length} khái niệm!`}
               </p>
               <div className="flex flex-wrap gap-1.5 justify-center">
                 {stage5Topics.map(t => (
-                  <span key={t} className="font-jakarta text-[11px] px-2.5 py-1 rounded-full border border-success/25 text-success"
+                  <span key={t} className="font-sans text-[11px] px-2.5 py-1 rounded-full border border-success/25 text-success"
                     style={{ background: '#0D2A1A' }}>
                     {TOPIC_LABELS[t] ?? t}
                   </span>
@@ -265,7 +265,7 @@ export default function ReviewSession() {
                   if (navigator.share) navigator.share({ title: 'Zenith — Thành tích học tập', text }).catch(() => {})
                   else navigator.clipboard?.writeText(text).catch(() => {})
                 }}
-                className="font-jakarta text-[11px] text-success/70 hover:text-success transition"
+                className="font-sans text-[11px] text-success/70 hover:text-success transition"
               >
                 Chia sẻ thành tích →
               </button>
@@ -275,13 +275,13 @@ export default function ReviewSession() {
         <div className="flex gap-3 flex-wrap justify-center">
           <button
             onClick={() => navigate('/exams')}
-            className="px-6 py-3 rounded-xl font-jakarta text-[13px] font-semibold border border-surface text-muted hover:text-foreground transition"
+            className="px-6 py-3 rounded-xl font-sans text-[13px] font-semibold border border-surface text-muted hover:text-foreground transition"
           >
             Làm đề thi
           </button>
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-3 rounded-xl font-jakarta text-[13px] font-bold text-background hover:opacity-90 transition bg-primary"
+            className="px-6 py-3 rounded-xl font-sans text-[13px] font-bold text-background hover:opacity-90 transition bg-primary"
           >
             Về trang chủ
           </button>
@@ -305,12 +305,12 @@ export default function ReviewSession() {
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-surface">
-        <button onClick={() => navigate('/')} className="font-jakarta text-[13px] text-dim hover:text-foreground transition">
+        <button onClick={() => navigate('/')} className="font-sans text-[13px] text-dim hover:text-foreground transition">
           ← Thoát
         </button>
         <div className="flex flex-col items-center gap-0.5">
-          <span className="font-fraunces text-[14px] font-semibold text-foreground">Ôn tập hôm nay</span>
-          <span className="font-jakarta text-[11px] text-dim">{index + 1} / {questions.length}</span>
+          <span className="font-sans text-[14px] font-semibold text-foreground">Ôn tập hôm nay</span>
+          <span className="font-sans text-[11px] text-dim">{index + 1} / {questions.length}</span>
         </div>
         <div className="w-20 h-1.5 rounded-full bg-surface overflow-hidden">
           <motion.div
@@ -324,10 +324,10 @@ export default function ReviewSession() {
       {/* Body */}
       <div className="relative z-10 flex-1 max-w-2xl mx-auto w-full px-4 py-10 flex flex-col gap-6">
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 bg-surface text-primary font-jakarta text-[11px] font-semibold rounded-md">
+          <span className="px-2.5 py-1 bg-surface text-primary font-sans text-[11px] font-semibold rounded-md">
             {TOPIC_LABELS[question.topic] ?? question.topic}
           </span>
-          <span className="font-jakarta text-[11px] text-dim">Spaced Repetition</span>
+          <span className="font-sans text-[11px] text-dim">Spaced Repetition</span>
           <AnimatePresence mode="wait">
             {stageLabel && (
               <motion.span
@@ -336,7 +336,7 @@ export default function ReviewSession() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.75 }}
                 transition={{ type: 'spring', stiffness: 320, damping: 18 }}
-                className="font-jakarta text-[11px] text-success"
+                className="font-sans text-[11px] text-success"
               >
                 → {stageLabel}
               </motion.span>
@@ -365,7 +365,7 @@ export default function ReviewSession() {
                   className="glass-base border border-surface rounded-2xl p-6 absolute inset-0"
                   style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                 >
-                  <MathText className="font-jakarta text-[15px] text-foreground leading-relaxed">{question.question}</MathText>
+                  <MathText className="font-sans text-[15px] text-foreground leading-relaxed">{question.question}</MathText>
                 </div>
                 {/* Back */}
                 <div
@@ -377,10 +377,10 @@ export default function ReviewSession() {
                     border: `1px solid ${isCorrect ? '#10B981' : '#EF4444'}`,
                   }}
                 >
-                  <span className="font-jakarta text-[13px] font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
+                  <span className="font-sans text-[13px] font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
                     {isCorrect ? '✓ Chính xác!' : '✗ Chưa đúng'}
                   </span>
-                  <MathText className="font-jakarta text-[14px] text-foreground leading-relaxed">
+                  <MathText className="font-sans text-[14px] text-foreground leading-relaxed">
                     {String.fromCharCode(65 + question.correct)}. {question.choices[question.correct]}
                   </MathText>
                 </div>
@@ -391,19 +391,19 @@ export default function ReviewSession() {
               {question.choices.map((choice, i) => {
                 const isChosen = chosen === i
                 const isCorrectChoice = i === question.correct
-                let bg = '#0D1221', border = '#1E2A44', textColor = '#94A3B8'
+                let bg = 'var(--surface)', border = 'var(--border)', textColor = 'var(--fg-tertiary)'
                 if (revealed) {
                   if (isCorrectChoice) { bg = '#0D2A1A'; border = '#10B981'; textColor = '#10B981' }
                   else if (isChosen) { bg = '#2A0F14'; border = '#EF4444'; textColor = '#FB7185' }
                 } else if (isChosen) {
-                  bg = '#1E2A44'; border = '#F2A20C'; textColor = '#F8FAFC'
+                  bg = 'var(--accent-subtle)'; border = 'var(--accent)'; textColor = 'var(--accent)'
                 }
                 return (
                   <button
                     key={i}
                     onClick={() => handleAnswer(i)}
                     disabled={revealed}
-                    className="w-full text-left px-5 py-4 rounded-xl font-jakarta text-[14px] font-medium transition-all"
+                    className="w-full text-left px-5 py-4 rounded-xl font-sans text-[14px] font-medium transition-all"
                     style={{ background: bg, border: `1px solid ${border}`, color: textColor }}
                   >
                     <span className="font-semibold mr-3">{String.fromCharCode(65 + i)}.</span>
@@ -418,7 +418,7 @@ export default function ReviewSession() {
                 <div className="flex items-center gap-3 px-5 py-3 rounded-xl"
                   style={{ background: isCorrect ? '#0D2A1A' : '#2A0F14', border: `1px solid ${isCorrect ? '#10B981' : '#EF4444'}` }}>
                   <span className="text-xl">{isCorrect ? '✓' : '✗'}</span>
-                  <span className="font-jakarta text-[14px] font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
+                  <span className="font-sans text-[14px] font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
                     {isCorrect
                       ? 'Chính xác!'
                       : `Đáp án đúng: ${String.fromCharCode(65 + question.correct)}. ${question.choices[question.correct]}`}
@@ -428,7 +428,7 @@ export default function ReviewSession() {
                 {/* Struggle support — after 2 consecutive wrong */}
                 {!isCorrect && wrongStreak >= 2 && (
                   <div className="px-4 py-3 rounded-xl glass-base border border-info/20">
-                    <p className="font-jakarta text-[12px] text-info/80 leading-relaxed">
+                    <p className="font-sans text-[12px] text-info/80 leading-relaxed">
                       Bài này khó với nhiều học sinh. Hỏi Oracle để hiểu rõ hơn.
                     </p>
                   </div>
@@ -437,13 +437,13 @@ export default function ReviewSession() {
                 {/* Oracle button — shown after reveal, especially useful on wrong answers */}
                 <button
                   onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
-                  className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-info/20 bg-info/5 font-jakarta text-[11px] font-semibold text-info hover:border-info/40 hover:bg-info/10 transition"
+                  className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-info/20 bg-info/5 font-sans text-[11px] font-semibold text-info hover:border-info/40 hover:bg-info/10 transition"
                 >
                   <span className="text-[10px]">✦</span> Hỏi Zenith AI
                 </button>
 
                 <div className="flex flex-col gap-2">
-                  <span className="font-jakarta text-[11px] text-dim text-center">Mức độ tự tin:</span>
+                  <span className="font-sans text-[11px] text-dim text-center">Mức độ tự tin:</span>
                   <div className="flex gap-2">
                     {[
                       { label: 'Đoán', quality: 1, color: '#FB7185' },
@@ -453,7 +453,7 @@ export default function ReviewSession() {
                       <button
                         key={label}
                         onClick={() => handleNext(quality)}
-                        className="flex-1 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold border transition"
+                        className="flex-1 py-2.5 rounded-xl font-sans text-[13px] font-semibold border transition"
                         style={{ borderColor: color + '55', color }}
                       >
                         {label}
@@ -465,7 +465,7 @@ export default function ReviewSession() {
             )}
 
             {!revealed && (
-              <p className="text-center font-jakarta text-[12px] text-dim">Chọn một đáp án để tiếp tục</p>
+              <p className="text-center font-sans text-[12px] text-dim">Chọn một đáp án để tiếp tục</p>
             )}
           </motion.div>
         </AnimatePresence>

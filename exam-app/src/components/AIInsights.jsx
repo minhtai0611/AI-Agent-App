@@ -34,12 +34,12 @@ function FieldSkeleton({ rows = 2 }) {
 function FieldOrSkeleton({ label, value, rows = 2 }) {
   return (
     <div className="flex flex-col gap-2">
-      {label && <span className="font-jakarta text-[0.8125rem] font-semibold text-muted">{label}</span>}
+      {label && <span className="font-sans text-[0.8125rem] font-semibold text-muted">{label}</span>}
       <AnimatePresence mode="wait">
         {value ? (
           <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
             {typeof value === 'string'
-              ? <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">{value}</p>
+              ? <p className="font-sans text-[0.8125rem] text-muted leading-relaxed">{value}</p>
               : value}
           </motion.div>
         ) : (
@@ -56,14 +56,14 @@ function TipList({ label, items }) {
   if (!items || items.length === 0) return null
   return (
     <div className="flex flex-col gap-2.5">
-      <span className="font-jakarta text-[0.8125rem] font-semibold text-muted">{label}</span>
+      <span className="font-sans text-[0.8125rem] font-semibold text-muted">{label}</span>
       <div className="flex flex-col gap-2.5">
         {items.map((tip, i) => (
           <div key={i} className="flex items-start gap-3">
             <div className="flex-shrink-0 w-5 h-5 rounded-[10px] glass-base flex items-center justify-center">
-              <span className="font-jakarta text-[0.625rem] font-semibold text-muted">{i + 1}</span>
+              <span className="font-sans text-[0.625rem] font-semibold text-muted">{i + 1}</span>
             </div>
-            <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">{tip}</p>
+            <p className="font-sans text-[0.8125rem] text-muted leading-relaxed">{tip}</p>
           </div>
         ))}
       </div>
@@ -76,15 +76,15 @@ function SchoolSection({ schoolInsight, schools, score }) {
   return (
     <div className="flex flex-col gap-3 pt-2 border-t border-border">
       <div className="flex items-center justify-between">
-        <span className="font-jakarta text-[0.8125rem] font-semibold text-muted">Trường phù hợp</span>
+        <span className="font-sans text-[0.8125rem] font-semibold text-muted">Trường phù hợp</span>
         {score !== undefined && (
-          <span className="font-jakarta text-[0.6875rem] text-faint">
+          <span className="font-sans text-[0.6875rem] text-faint">
             Điểm Toán: <span className="text-primary font-bold">{score}/10</span>
           </span>
         )}
       </div>
       {schoolInsight && (
-        <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
+        <p className="font-sans text-[0.8125rem] text-muted leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
           {schoolInsight}
         </p>
       )}
@@ -92,9 +92,9 @@ function SchoolSection({ schoolInsight, schools, score }) {
         <div className="flex flex-col gap-2">
           {schools.map((s, i) => (
             <div key={i} className="flex flex-col gap-0.5 px-3 py-2 rounded-lg bg-surface-elevated border border-border">
-              <span className="font-jakarta text-[0.8125rem] font-semibold text-foreground">{s.name}</span>
-              <span className="font-jakarta text-xs text-dim">{s.score_range} · {s.type}</span>
-              {s.note && <span className="font-jakarta text-xs text-muted">{s.note}</span>}
+              <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{s.name}</span>
+              <span className="font-sans text-xs text-dim">{s.score_range} · {s.type}</span>
+              {s.note && <span className="font-sans text-xs text-muted">{s.note}</span>}
             </div>
           ))}
         </div>
@@ -111,12 +111,12 @@ function AIErrorMessage({ error }) {
   if (typeof error === 'object' && error.code === 'insufficient_credits') {
     return (
       <div className="flex flex-col gap-3 py-4 items-center text-center">
-        <span className="font-jakarta text-[0.8125rem] text-muted">
-          Hết credits — còn <strong className="text-amber-400">{error.balance}</strong> credits, cần <strong>{error.required}</strong>.
+        <span className="font-sans text-[0.8125rem] text-muted">
+          Hết credits — còn <strong className="text-[var(--accent)]">{error.balance}</strong> credits, cần <strong>{error.required}</strong>.
         </span>
         <button
           onClick={() => navigate('/account#topup')}
-          className="px-5 py-2 rounded-lg font-jakarta text-xs font-bold bg-primary text-background"
+          className="px-5 py-2 rounded-lg font-sans text-xs font-bold bg-primary text-background"
         >
           Mua top-up
         </button>
@@ -128,10 +128,10 @@ function AIErrorMessage({ error }) {
   if (typeof error === 'object' && error.code === 'tier_required') {
     return (
       <div className="flex flex-col gap-3 py-4 items-center text-center">
-        <span className="font-jakarta text-[0.8125rem] text-muted">{error.message || 'Cần nâng cấp gói để sử dụng tính năng này.'}</span>
+        <span className="font-sans text-[0.8125rem] text-muted">{error.message || 'Cần nâng cấp gói để sử dụng tính năng này.'}</span>
         <button
           onClick={() => navigate('/account')}
-          className="px-5 py-2 rounded-lg font-jakarta text-xs font-bold bg-primary text-background"
+          className="px-5 py-2 rounded-lg font-sans text-xs font-bold bg-primary text-background"
         >
           Nâng cấp
         </button>
@@ -142,7 +142,7 @@ function AIErrorMessage({ error }) {
   // Generic string error
   const msg = typeof error === 'string' ? error : 'Phân tích AI không khả dụng — đang dùng phân tích ngoại tuyến'
   return (
-    <div className="flex items-center justify-center py-8 font-jakarta text-sm text-faint">{msg}</div>
+    <div className="flex items-center justify-center py-8 font-sans text-sm text-faint">{msg}</div>
   )
 }
 
@@ -156,7 +156,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
         {/* insights — word-level fade + static stream cursor */}
         <FieldOrSkeleton value={
           analysis.insights
-            ? <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">
+            ? <p className="font-sans text-[0.8125rem] text-muted leading-relaxed">
                 <StreamingText text={analysis.insights} />
                 <span className="stream-cursor opacity-70 ml-0.5">|</span>
               </p>
@@ -165,7 +165,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
         {/* question_analysis — word-level fade */}
         <FieldOrSkeleton label="Phân tích câu trả lời" value={
           analysis.question_analysis
-            ? <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">
+            ? <p className="font-sans text-[0.8125rem] text-muted leading-relaxed">
                 <StreamingText text={analysis.question_analysis} />
               </p>
             : null
@@ -174,7 +174,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
         <FieldOrSkeleton label="Chủ đề cần cải thiện" value={
           Array.isArray(analysis.weak_topics) && analysis.weak_topics.length > 0
             ? <div className="flex flex-wrap gap-2">{analysis.weak_topics.map(t => (
-                <span key={t} className="px-3 py-1.5 bg-destructive/10 border border-destructive/30 rounded-full font-jakarta text-xs text-destructive">
+                <span key={t} className="px-3 py-1.5 bg-destructive/10 border border-destructive/30 rounded-full font-sans text-xs text-destructive">
                   {TOPIC_LABELS[t] ?? t}
                 </span>))}</div>
             : null
@@ -183,7 +183,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
         <FieldOrSkeleton label="Khuyến nghị từ AI" value={
           analysis.recommendations?.length
             ? <div className="flex flex-col gap-2">{analysis.recommendations.map((r, i, arr) => (
-                <p key={i} className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">
+                <p key={i} className="font-sans text-[0.8125rem] text-muted leading-relaxed">
                   {'• '}
                   {i === arr.length - 1
                     ? <StreamingText text={r} />
@@ -206,20 +206,20 @@ export default function AIInsights({ analysis, loading, error, score }) {
     return (
       <div key="ai" className="flex flex-col gap-5">
         {analysis.insights && (
-          <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">{analysis.insights}</p>
+          <p className="font-sans text-[0.8125rem] text-muted leading-relaxed">{analysis.insights}</p>
         )}
         {analysis.question_analysis && (
           <div className="flex flex-col gap-2">
-            <span className="font-jakarta text-[0.8125rem] font-semibold text-muted">Phân tích câu trả lời</span>
-            <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed">{analysis.question_analysis}</p>
+            <span className="font-sans text-[0.8125rem] font-semibold text-muted">Phân tích câu trả lời</span>
+            <p className="font-sans text-[0.8125rem] text-muted leading-relaxed">{analysis.question_analysis}</p>
           </div>
         )}
         {Array.isArray(analysis.weak_topics) && analysis.weak_topics.length > 0 && (
           <div className="flex flex-col gap-2.5">
-            <span className="font-jakarta text-[0.8125rem] font-semibold text-muted">Chủ đề cần cải thiện</span>
+            <span className="font-sans text-[0.8125rem] font-semibold text-muted">Chủ đề cần cải thiện</span>
             <div className="flex flex-wrap gap-2">
               {analysis.weak_topics.map(t => (
-                <span key={t} className="px-3 py-1.5 bg-destructive/10 border border-destructive/30 rounded-full font-jakarta text-xs text-destructive">
+                <span key={t} className="px-3 py-1.5 bg-destructive/10 border border-destructive/30 rounded-full font-sans text-xs text-destructive">
                   {TOPIC_LABELS[t] ?? t}
                 </span>
               ))}
@@ -238,7 +238,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
   return (
     <div className="flex flex-col gap-5">
       {error && (
-        <span className="self-start px-2 py-0.5 rounded-full bg-primary/10 border border-primary/30 font-jakarta text-[0.6875rem] text-primary/80">
+        <span className="self-start px-2 py-0.5 rounded-full bg-primary/10 border border-primary/30 font-sans text-[0.6875rem] text-primary/80">
           Ngoại tuyến
         </span>
       )}
@@ -246,28 +246,28 @@ export default function AIInsights({ analysis, loading, error, score }) {
       {predictedScoreRange && (
         <div className="flex items-center justify-between bg-surface-elevated border border-border rounded-xl p-5">
           <div className="flex flex-col gap-1">
-            <span className="font-jakarta text-xs text-muted">Dự đoán điểm số kỳ thi thật</span>
-            <span className="font-fraunces text-[28px] font-bold text-primary">
+            <span className="font-sans text-xs text-muted">Dự đoán điểm số kỳ thi thật</span>
+            <span className="font-sans font-bold text-[28px] text-[var(--primary)]">
               {predictedScoreRange[0]} – {predictedScoreRange[1]}
             </span>
             {percentile !== undefined && (
-              <span className="font-jakarta text-[0.6875rem] text-faint">
+              <span className="font-sans text-[0.6875rem] text-faint">
                 Top {100 - percentile}% trong lịch sử của bạn
               </span>
             )}
           </div>
           <div className="px-3 py-2 glass-base border-success/20 rounded-lg flex-shrink-0">
-            <span className="font-jakarta text-xs font-bold text-success">Tốt</span>
+            <span className="font-sans text-xs font-bold text-success">Tốt</span>
           </div>
         </div>
       )}
 
       {weakTopics && weakTopics.length > 0 && (
         <div className="flex flex-col gap-2.5">
-          <span className="font-jakarta text-[0.8125rem] font-semibold text-muted">Chủ đề cần cải thiện</span>
+          <span className="font-sans text-[0.8125rem] font-semibold text-muted">Chủ đề cần cải thiện</span>
           <div className="flex flex-wrap gap-2">
             {weakTopics.map(t => (
-              <span key={t} className="px-3 py-1.5 bg-destructive/10 border border-destructive/30 rounded-full font-jakarta text-xs text-destructive">
+              <span key={t} className="px-3 py-1.5 bg-destructive/10 border border-destructive/30 rounded-full font-sans text-xs text-destructive">
                 {TOPIC_LABELS[t] ?? t}
               </span>
             ))}

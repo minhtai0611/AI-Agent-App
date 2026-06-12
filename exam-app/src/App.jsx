@@ -16,7 +16,7 @@ import OfflineBanner from './components/OfflineBanner.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import InstallPrompt from './components/InstallPrompt.jsx'
 import { OracleProvider } from './context/OracleContext.jsx'
-import { NoiseOverlay } from './components/NoiseOverlay.jsx'
+
 
 const Landing = lazy(() => import('./pages/Landing.jsx'))
 const ExamSelect = lazy(() => import('./pages/ExamSelect.jsx'))
@@ -51,13 +51,13 @@ function SuspensionModal({ reason, onLogout }) {
       <div className="max-w-sm w-full bg-surface border border-red-500/40 rounded-2xl p-8 flex flex-col gap-5 text-center">
         <span className="text-red-400 text-4xl">⚠</span>
         <div className="flex flex-col gap-2">
-          <span className="font-fraunces text-[18px] font-bold text-foreground">Tài khoản bị tạm khoá</span>
-          {reason && <p className="font-jakarta text-[0.8125rem] text-muted">{reason}</p>}
-          <p className="font-jakarta text-xs text-faint">Liên hệ hỗ trợ nếu bạn cho rằng đây là nhầm lẫn.</p>
+          <span className="font-sans text-[18px] font-bold text-foreground">Tài khoản bị tạm khoá</span>
+          {reason && <p className="font-sans text-[0.8125rem] text-muted">{reason}</p>}
+          <p className="font-sans text-xs text-faint">Liên hệ hỗ trợ nếu bạn cho rằng đây là nhầm lẫn.</p>
         </div>
         <button
           onClick={onLogout}
-          className="w-full py-3 rounded-xl font-jakarta text-[0.8125rem] font-bold bg-border text-muted hover:text-foreground transition"
+          className="w-full py-3 rounded-xl font-sans text-[0.8125rem] font-bold bg-border text-muted hover:text-foreground transition"
         >
           Đăng xuất
         </button>
@@ -216,12 +216,12 @@ function AppInner() {
       {resumeBanner && !resumeDismissed && (resumeBanner.userId ?? null) === (user?.id ?? null) && (
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-primary/25 px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
-            <span className="font-jakarta text-[0.8125rem] font-semibold text-foreground">Bạn có bài thi đang dở</span>
-            <span className="font-jakarta text-[0.6875rem] text-dim">{resumeBanner.answeredCount} câu đã trả lời · Tiếp tục từ điểm dừng?</span>
+            <span className="font-sans text-[0.8125rem] font-semibold text-foreground">Bạn có bài thi đang dở</span>
+            <span className="font-sans text-[0.6875rem] text-dim">{resumeBanner.answeredCount} câu đã trả lời · Tiếp tục từ điểm dừng?</span>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={handleResume} className="px-4 py-2 rounded-lg font-jakarta text-xs font-bold bg-primary text-primary-fg">Tiếp tục</button>
-            <button onClick={() => { setResumeDismissed(true); sessionStorage.removeItem(`exam-draft-${resumeBanner.examId}`) }} className="px-3 py-2 rounded-lg font-jakarta text-xs text-dim border border-border">Bỏ qua</button>
+            <button onClick={handleResume} className="px-4 py-2 rounded-lg font-sans text-xs font-bold bg-primary text-primary-fg">Tiếp tục</button>
+            <button onClick={() => { setResumeDismissed(true); sessionStorage.removeItem(`exam-draft-${resumeBanner.examId}`) }} className="px-3 py-2 rounded-lg font-sans text-xs text-dim border border-border">Bỏ qua</button>
           </div>
         </div>
       )}
@@ -235,7 +235,6 @@ export default function App() {
       <HistoryProvider>
         <ExamProvider>
           <OracleProvider>
-            <NoiseOverlay />
             <AppInner />
           </OracleProvider>
         </ExamProvider>

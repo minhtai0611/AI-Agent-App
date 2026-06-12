@@ -69,25 +69,25 @@ export default function ClassDashboard() {
   return (
     <div className="min-h-screen bg-surface px-4 py-10 max-w-3xl mx-auto flex flex-col gap-8">
       <div className="flex flex-col gap-1">
-        <span className="font-fraunces text-[28px] font-bold text-foreground">Lớp học</span>
-        <span className="font-jakarta text-[14px] text-dim">Tạo hoặc tham gia lớp học</span>
+        <span className="font-sans text-[28px] font-bold text-foreground">Lớp học</span>
+        <span className="font-sans text-[14px] text-dim">Tạo hoặc tham gia lớp học</span>
       </div>
 
       {/* Create class */}
       <div className="glass-base border border-surface rounded-2xl p-6 flex flex-col gap-4">
-        <span className="font-jakarta text-[13px] font-semibold text-muted uppercase tracking-wider">Tạo lớp mới (giáo viên)</span>
+        <span className="font-sans text-[13px] font-semibold text-muted uppercase tracking-wider">Tạo lớp mới (giáo viên)</span>
         <form onSubmit={handleCreate} className="flex gap-3">
           <input
             value={createName}
             onChange={e => setCreateName(e.target.value)}
             placeholder="Tên lớp học..."
             maxLength={60}
-            className="flex-1 bg-surface border border-surface rounded-lg px-4 py-2.5 font-jakarta text-[14px] text-foreground placeholder-faint focus:outline-none focus:border-primary/30"
+            className="flex-1 bg-surface border border-surface rounded-lg px-4 py-2.5 font-sans text-[14px] text-foreground placeholder-faint focus:outline-none focus:border-primary/30"
           />
           <button
             type="submit"
             disabled={creating || !createName.trim()}
-            className="px-5 py-2.5 rounded-lg font-jakarta text-[13px] font-bold text-background bg-primary disabled:opacity-50 transition"
+            className="px-5 py-2.5 rounded-lg font-sans text-[13px] font-bold text-background bg-primary disabled:opacity-50 transition"
           >
             {creating ? '...' : 'Tạo'}
           </button>
@@ -96,19 +96,19 @@ export default function ClassDashboard() {
 
       {/* Join class */}
       <div className="glass-base border border-surface rounded-2xl p-6 flex flex-col gap-4">
-        <span className="font-jakarta text-[13px] font-semibold text-muted uppercase tracking-wider">Tham gia lớp (học sinh)</span>
+        <span className="font-sans text-[13px] font-semibold text-muted uppercase tracking-wider">Tham gia lớp (học sinh)</span>
         <form onSubmit={handleJoin} className="flex gap-3">
           <input
             value={joinCode}
             onChange={e => setJoinCode(e.target.value.toUpperCase())}
             placeholder="Nhập mã lớp..."
             maxLength={20}
-            className="flex-1 bg-surface border border-surface rounded-lg px-4 py-2.5 font-jakarta text-[14px] text-foreground placeholder-faint focus:outline-none focus:border-info/30 font-mono tracking-widest"
+            className="flex-1 bg-surface border border-surface rounded-lg px-4 py-2.5 font-sans text-[14px] text-foreground placeholder-faint focus:outline-none focus:border-info/30 font-mono tracking-widest"
           />
           <button
             type="submit"
             disabled={joining || !joinCode.trim()}
-            className="px-5 py-2.5 rounded-lg font-jakarta text-[13px] font-bold text-foreground bg-info disabled:opacity-50 transition"
+            className="px-5 py-2.5 rounded-lg font-sans text-[13px] font-bold text-foreground bg-info disabled:opacity-50 transition"
           >
             {joining ? '...' : 'Vào lớp'}
           </button>
@@ -117,7 +117,7 @@ export default function ClassDashboard() {
 
       {/* Class list */}
       <div className="flex flex-col gap-3">
-        <span className="font-jakarta text-[13px] font-semibold text-muted uppercase tracking-wider">Lớp của bạn</span>
+        <span className="font-sans text-[13px] font-semibold text-muted uppercase tracking-wider">Lớp của bạn</span>
         {loading ? (
           <div className="flex flex-col gap-3">
             {[1, 2].map(i => (
@@ -125,7 +125,7 @@ export default function ClassDashboard() {
             ))}
           </div>
         ) : classes.length === 0 ? (
-          <p className="font-jakarta text-[13px] text-dim text-center py-8">Bạn chưa tham gia lớp nào</p>
+          <p className="font-sans text-[13px] text-dim text-center py-8">Bạn chưa tham gia lớp nào</p>
         ) : (
           classes.map(cls => (
             <motion.button
@@ -135,12 +135,12 @@ export default function ClassDashboard() {
               className="flex items-center justify-between px-6 py-4 rounded-2xl border border-surface glass-base hover:border-surface transition text-left"
             >
               <div className="flex flex-col gap-0.5">
-                <span className="font-jakarta text-[15px] font-semibold text-foreground">{cls.name}</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">{cls.name}</span>
                 <span className="font-mono text-[12px] text-info">{cls.code}</span>
               </div>
               <div className="flex items-center gap-2">
                 {cls.teacher_id === user?.id && (
-                  <span className="font-jakarta text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-400">GIÁO VIÊN</span>
+                  <span className="font-sans text-[11px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">GIÁO VIÊN</span>
                 )}
                 <span className="text-faint text-lg">›</span>
               </div>
@@ -153,33 +153,33 @@ export default function ClassDashboard() {
       {selectedClass && selectedClass.teacher_id === user?.id && (
         <div className="glass-base border border-surface rounded-2xl p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <span className="font-jakarta text-[15px] font-semibold text-foreground">Kết quả — {selectedClass.name}</span>
-            <button onClick={() => setSelectedClass(null)} className="font-jakarta text-[12px] text-dim hover:text-muted">Đóng</button>
+            <span className="font-sans text-[15px] font-semibold text-foreground">Kết quả — {selectedClass.name}</span>
+            <button onClick={() => setSelectedClass(null)} className="font-sans text-[12px] text-dim hover:text-muted">Đóng</button>
           </div>
           {loadingResults ? (
             <div className="h-20 rounded-xl bg-surface animate-pulse" />
           ) : classResults.length === 0 ? (
-            <p className="font-jakarta text-[13px] text-dim text-center py-6">Chưa có học sinh nào nộp bài</p>
+            <p className="font-sans text-[13px] text-dim text-center py-6">Chưa có học sinh nào nộp bài</p>
           ) : (
             <>
             {/* Mobile card view */}
             <div className="sm:hidden flex flex-col gap-2">
               {classResults.map((r, i) => (
                 <div key={i} className="bg-surface border border-surface rounded-xl p-4 flex flex-col gap-1">
-                  <span className="font-jakarta text-[13px] font-semibold text-foreground truncate">{r.student_name ?? r.student_email ?? '—'}</span>
-                  <span className="font-jakarta text-[12px] text-dim truncate">{r.exam_id}</span>
+                  <span className="font-sans text-[13px] font-semibold text-foreground truncate">{r.student_name ?? r.student_email ?? '—'}</span>
+                  <span className="font-sans text-[12px] text-dim truncate">{r.exam_id}</span>
                   <div className="flex items-center justify-between mt-1">
-                    <span className="font-jakarta text-[13px] font-bold" style={{ color: r.score >= 8 ? '#10B981' : r.score >= 5 ? '#F2A20C' : '#FB7185' }}>
+                    <span className="font-sans text-[13px] font-bold" style={{ color: r.score >= 8 ? '#10B981' : r.score >= 5 ? '#F2A20C' : '#FB7185' }}>
                       {typeof r.score === 'number' ? r.score.toFixed(1) : '—'}
                     </span>
-                    <span className="font-jakarta text-[11px] text-dim">{r.finished_at ? new Date(r.finished_at).toLocaleDateString('vi-VN') : '—'}</span>
+                    <span className="font-sans text-[11px] text-dim">{r.finished_at ? new Date(r.finished_at).toLocaleDateString('vi-VN') : '—'}</span>
                   </div>
                 </div>
               ))}
             </div>
             {/* Desktop table */}
             <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full font-jakarta text-[13px]">
+              <table className="w-full font-sans text-[13px]">
                 <thead>
                   <tr className="text-dim border-b border-surface">
                     <th className="text-left pb-3 pr-4">Học sinh</th>

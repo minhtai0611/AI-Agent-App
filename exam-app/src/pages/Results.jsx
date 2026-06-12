@@ -2,11 +2,7 @@ import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import CountUp from 'react-countup'
 import confetti from 'canvas-confetti'
 import { useAuth } from '../context/AuthContext.jsx'
-import { SpotlightCard } from '../components/SpotlightCard.jsx'
 import { NumberTicker } from '../components/ui/number-ticker.jsx'
-import { ShimmerButton } from '../components/ui/shimmer-button.jsx'
-import { AuroraBackground } from '../components/AuroraBackground.jsx'
-import { GradientBorderCard } from '../components/GradientBorderCard.jsx'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { pageVariants, viewNavigate } from '../utils/animations.js'
 import AchievementCeremony from '../components/AchievementCeremony.jsx'
@@ -86,7 +82,7 @@ function SchoolCard({ school, studentScore }) {
     >
       <div className="flex items-start justify-between gap-2">
         <h4
-          className="font-jakarta font-semibold text-sm text-highlight leading-snug"
+          className="font-sans font-semibold text-sm text-highlight leading-snug"
           style={{ overflowWrap: 'break-word', hyphens: 'none' }}
         >
           {school.name}
@@ -112,7 +108,7 @@ function SchoolCard({ school, studentScore }) {
         </div>
       )}
       {school.note && (
-        <p className="font-jakarta text-[0.8125rem] text-dim leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
+        <p className="font-sans text-[0.8125rem] text-dim leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
           {school.note}
         </p>
       )}
@@ -265,9 +261,9 @@ function ProvincePatternTip({ province }) {
   if (!patterns || patterns.length === 0) return null
   return (
     <div className="glass-base rounded-xl px-5 py-4 flex flex-col gap-2">
-      <span className="font-jakarta text-xs font-semibold text-info">📌 Xu hướng đề thi {province}</span>
+      <span className="font-sans text-xs font-semibold text-info">📌 Xu hướng đề thi {province}</span>
       {patterns.map((p, i) => (
-        <p key={i} className="font-jakarta text-[0.8125rem] text-muted">{p.note}</p>
+        <p key={i} className="font-sans text-[0.8125rem] text-muted">{p.note}</p>
       ))}
     </div>
   )
@@ -288,13 +284,13 @@ function ScoreCorrelation({ examId, score, province }) {
   const [, { school, predictedScore }] = range
   return (
     <div className="glass-base rounded-xl px-5 py-4 flex flex-col gap-1">
-      <span className="font-jakarta text-xs font-semibold text-success">📊 Dự đoán thực tế</span>
-      <p className="font-jakarta text-[0.8125rem] text-muted">
+      <span className="font-sans text-xs font-semibold text-success">📊 Dự đoán thực tế</span>
+      <p className="font-sans text-[0.8125rem] text-muted">
         Điểm thi thử của bạn tương ứng với khoảng{' '}
         <strong className="text-foreground">{predictedScore} điểm</strong> tuyển sinh vào{' '}
         <strong className="text-foreground">{school}</strong>.
       </p>
-      <span className="font-jakarta text-[0.625rem] text-faint">Ước tính dựa trên dữ liệu lịch sử · Không phải kết quả chính thức</span>
+      <span className="font-sans text-[0.625rem] text-faint">Ước tính dựa trên dữ liệu lịch sử · Không phải kết quả chính thức</span>
     </div>
   )
 }
@@ -639,8 +635,8 @@ export default function Results({ onOpenAuth }) {
     if (!isCurrent && results.length > 0 && !results.find(r => r.id === resultId)) {
       return (
         <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
-          <p className="font-jakarta text-lg text-muted">Không tìm thấy kết quả</p>
-          <button onClick={() => navigate('/history')} className="font-jakarta text-sm text-primary underline">
+          <p className="font-sans text-lg text-muted">Không tìm thấy kết quả</p>
+          <button onClick={() => navigate('/history')} className="font-sans text-sm text-primary underline">
             Xem lịch sử
           </button>
         </div>
@@ -720,13 +716,13 @@ export default function Results({ onOpenAuth }) {
       {/* NavBar */}
       <nav className="relative z-10 flex items-center justify-between px-8 bg-surface border-b border-border" style={{ height: 64 }}>
         <button onClick={() => navigate('/')}
-          className="flex items-center gap-1.5 font-jakarta text-[0.8125rem] text-muted hover:text-foreground transition">
+          className="flex items-center gap-1.5 font-sans text-[0.8125rem] text-muted hover:text-foreground transition">
           ← Trang chủ
         </button>
-        <span className="font-jakarta text-sm font-semibold text-foreground">Kết quả thi</span>
+        <span className="font-sans text-sm font-semibold text-foreground">Kết quả thi</span>
         <div className="flex items-center gap-2">
           <button onClick={() => setShowShareCard(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-elevated border border-border rounded-lg font-jakarta text-xs text-muted hover:text-foreground transition"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-elevated border border-border rounded-lg font-sans text-xs text-muted hover:text-foreground transition"
             title="Chia sẻ kết quả">
             📤
           </button>
@@ -743,14 +739,14 @@ export default function Results({ onOpenAuth }) {
                 const url = `${BASE_URL}/challenge?c=${payload}`
                 navigator.clipboard?.writeText(url).then(() => toast.success('Đã sao chép link thách đấu')).catch(() => {})
               }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-elevated border border-border rounded-lg font-jakarta text-xs text-muted hover:text-foreground transition"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-elevated border border-border rounded-lg font-sans text-xs text-muted hover:text-foreground transition"
               title="Thách đấu bạn bè"
             >
               ⚔️
             </button>
           )}
           <button onClick={() => navigate('/history')}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-elevated border border-border rounded-lg font-jakarta text-xs text-muted hover:text-foreground transition">
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-elevated border border-border rounded-lg font-sans text-xs text-muted hover:text-foreground transition">
             Lịch sử
           </button>
         </div>
@@ -767,7 +763,6 @@ export default function Results({ onOpenAuth }) {
         </div>
       )}
 
-      <AuroraBackground variant={score >= 7 ? 'warm' : 'default'}>
       <div className="relative z-10 flex flex-col gap-5 max-w-3xl mx-auto w-full px-4 py-8">
 
         {/* ── Score hero ── */}
@@ -777,7 +772,7 @@ export default function Results({ onOpenAuth }) {
         >
           <div ref={scoreRef} className="flex-shrink-0 score-circle">
             <svg width="120" height="120" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="54" stroke="#1E2A44" strokeWidth="6" fill="none" />
+              <circle cx="60" cy="60" r="54" stroke="var(--border)" strokeWidth="6" fill="none" />
               <motion.circle
                 cx="60" cy="60" r="54" stroke={color} strokeWidth="6" fill="none"
                 strokeLinecap="round" strokeDasharray={CIRC}
@@ -815,22 +810,22 @@ export default function Results({ onOpenAuth }) {
             variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12, delayChildren: 0.6 } } }}
           >
             <motion.div variants={{ hidden: { opacity: 0, x: -8 }, show: { opacity: 1, x: 0 } }} className="flex items-center gap-3">
-              <span className={`font-fraunces text-[26px] font-bold leading-tight ${score >= 7 ? 'text-gradient-brand' : 'text-foreground'}`}>{scoreLabel(score)}</span>
+              <span className={`font-sans text-[26px] font-bold leading-tight ${score >= 7 ? 'text-gradient-brand' : 'text-foreground'}`}>{scoreLabel(score)}</span>
               <HelixDecor color={color} />
             </motion.div>
-            <motion.span variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }} className="font-jakarta text-[0.8125rem] text-faint">{examObj?.title ?? examId}</motion.span>
+            <motion.span variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }} className="font-sans text-[0.8125rem] text-faint">{examObj?.title ?? examId}</motion.span>
             <motion.div variants={{ hidden: { opacity: 0, y: 6 }, show: { opacity: 1, y: 0 } }} className="flex items-center gap-6 flex-wrap">
               <div className="flex flex-col gap-0.5">
-                <span className="font-jakarta text-[0.6875rem] text-faint">Độ chính xác</span>
-                <span className="font-fraunces text-[15px] font-semibold text-foreground">{Math.round(accuracy * 100)}%</span>
+                <span className="font-sans text-[0.6875rem] text-faint">Độ chính xác</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">{Math.round(accuracy * 100)}%</span>
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="font-jakarta text-[0.6875rem] text-faint">Thời gian</span>
-                <span className="font-fraunces text-[15px] font-semibold text-foreground">{formatTime(timeSpent)}</span>
+                <span className="font-sans text-[0.6875rem] text-faint">Thời gian</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">{formatTime(timeSpent)}</span>
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="font-jakarta text-[0.6875rem] text-faint">Đã trả lời</span>
-                <span className="font-fraunces text-[15px] font-semibold text-foreground">{result.answeredCount}/{allQuestions.length || result.answeredCount}</span>
+                <span className="font-sans text-[0.6875rem] text-faint">Đã trả lời</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">{result.answeredCount}/{allQuestions.length || result.answeredCount}</span>
               </div>
               {overallDelta != null && (
                 <motion.div
@@ -839,8 +834,8 @@ export default function Results({ onOpenAuth }) {
                   transition={{ delay: 1.0, duration: 0.3 }}
                   className="flex flex-col gap-0.5"
                 >
-                  <span className="font-jakarta text-[0.6875rem] text-faint">So bài trước</span>
-                  <span className="font-fraunces text-[15px] font-semibold" style={{ color: overallDelta > 0 ? '#10B981' : overallDelta < 0 ? '#FB7185' : '#64748B' }}>
+                  <span className="font-sans text-[0.6875rem] text-faint">So bài trước</span>
+                  <span className="font-sans text-[15px] font-semibold" style={{ color: overallDelta > 0 ? '#10B981' : overallDelta < 0 ? '#FB7185' : '#64748B' }}>
                     {overallDelta > 0 ? '+' : ''}{overallDelta.toFixed(1)}
                   </span>
                 </motion.div>
@@ -853,7 +848,7 @@ export default function Results({ onOpenAuth }) {
         {percentile != null && (
           <div className="flex items-center gap-3 px-5 py-3 rounded-xl glass-base">
             <span className="text-[18px]">📊</span>
-            <span className="font-jakarta text-[0.8125rem] text-muted">
+            <span className="font-sans text-[0.8125rem] text-muted">
               Bạn đạt <strong className="text-info">top {100 - percentile}%</strong> người làm đề này
             </span>
           </div>
@@ -866,10 +861,10 @@ export default function Results({ onOpenAuth }) {
               className="flex flex-col gap-2 px-5 py-3.5 rounded-xl glass-brand">
               <div className="flex items-center gap-3">
                 <span className="text-xl">🏆</span>
-                <span className="font-jakarta text-sm font-semibold text-primary">Điểm cao nhất của bạn trên đề thi này!</span>
+                <span className="font-sans text-sm font-semibold text-primary">Điểm cao nhất của bạn trên đề thi này!</span>
               </div>
               {recoveryPathTopic && (
-                <p className="font-jakarta text-[0.8125rem] text-muted pl-9">
+                <p className="font-sans text-[0.8125rem] text-muted pl-9">
                   Bạn đã sửa được lỗi ở <span className="text-primary font-semibold">{recoveryPathTopic}</span>. Điểm của bạn phản ánh điều đó.
                 </p>
               )}
@@ -879,9 +874,9 @@ export default function Results({ onOpenAuth }) {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="flex items-center gap-3 px-5 py-3.5 rounded-xl glass-base">
               <span className="text-xl">💪</span>
-              <span className="font-jakarta text-[0.8125rem] text-muted">
+              <span className="font-sans text-[0.8125rem] text-muted">
                 Hôm nay chưa phải ngày tốt nhất của bạn — không sao cả. Kỷ lục của bạn vẫn là{' '}
-                <strong className="text-amber-400">{personalBestScore}</strong> điểm. Hãy ôn lại và thử lại!
+                <strong className="text-[var(--accent)]">{personalBestScore}</strong> điểm. Hãy ôn lại và thử lại!
               </span>
             </motion.div>
           )}
@@ -897,8 +892,8 @@ export default function Results({ onOpenAuth }) {
           return (
             <div className="flex items-center gap-4 px-5 py-4 rounded-xl glass-base">
               <div className="flex flex-col gap-0.5 min-w-[110px]">
-                <span className="font-jakarta text-[0.6875rem] text-faint">Xu hướng ({sorted.length} lần thi)</span>
-                <span className="font-jakarta text-[0.8125rem] font-semibold" style={{ color: diff >= 0 ? '#10B981' : '#FB7185' }}>
+                <span className="font-sans text-[0.6875rem] text-faint">Xu hướng ({sorted.length} lần thi)</span>
+                <span className="font-sans text-[0.8125rem] font-semibold" style={{ color: diff >= 0 ? '#10B981' : '#FB7185' }}>
                   {diff >= 0 ? '+' : ''}{diff.toFixed(1)} so với lần trước
                 </span>
               </div>
@@ -923,8 +918,8 @@ export default function Results({ onOpenAuth }) {
         {challengerData && result && (
           <div className="flex items-center justify-between gap-4 px-5 py-3.5 rounded-xl glass-base">
             <div className="flex flex-col gap-0.5">
-              <span className="font-jakarta text-xs text-dim">So với {challengerData.name}</span>
-              <span className="font-jakarta text-[0.8125rem] font-semibold" style={{
+              <span className="font-sans text-xs text-dim">So với {challengerData.name}</span>
+              <span className="font-sans text-[0.8125rem] font-semibold" style={{
                 color: (result.score ?? 0) >= challengerData.score ? '#10B981' : '#FB7185'
               }}>
                 {(result.score ?? 0) >= challengerData.score ? '🏆 Bạn thắng! ' : '💪 Cố lên! '}
@@ -937,10 +932,10 @@ export default function Results({ onOpenAuth }) {
         {/* Sign-in nudge */}
         {!user && !nudgeDismissed && (
           <div className="flex items-center justify-between gap-3 px-5 py-3 rounded-xl glass-base">
-            <button onClick={onOpenAuth} className="font-jakarta text-[0.8125rem] text-amber-400 hover:text-amber-300 transition-colors text-left">
+            <button onClick={onOpenAuth} className="font-sans text-[0.8125rem] text-[var(--accent)] hover:text-[var(--accent)] transition-colors text-left">
               Đăng nhập để lưu kết quả vào tài khoản →
             </button>
-            <button onClick={() => setNudgeDismissed(true)} className="text-gray-500 hover:text-gray-300 text-lg leading-none flex-shrink-0">×</button>
+            <button onClick={() => setNudgeDismissed(true)} className="text-[var(--muted-fg)] hover:text-[var(--fg-secondary)] text-lg leading-none flex-shrink-0">×</button>
           </div>
         )}
 
@@ -950,7 +945,7 @@ export default function Results({ onOpenAuth }) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className="relative px-4 py-2.5 font-jakarta text-[0.8125rem] font-medium transition-colors flex items-center gap-1"
+              className="relative px-4 py-2.5 font-sans text-[0.8125rem] font-medium transition-colors flex items-center gap-1"
               style={{ color: activeTab === tab.id ? 'var(--primary)' : '#64748B' }}
             >
               {tab.label}
@@ -974,7 +969,7 @@ export default function Results({ onOpenAuth }) {
           <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-5">
             {/* Hồ sơ năng lực */}
             <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-6">
-              <span className="font-fraunces text-[16px] font-semibold text-foreground">Hồ sơ năng lực</span>
+              <span className="font-sans text-[16px] font-semibold text-foreground">Hồ sơ năng lực</span>
               <motion.div
                 className="grid grid-cols-1 sm:grid-cols-2 gap-3"
                 variants={_listVariants} initial="hidden" animate="visible"
@@ -984,9 +979,9 @@ export default function Results({ onOpenAuth }) {
                   return (
                     <motion.div key={topic} variants={_itemVariants}
                       className={`flex flex-col gap-2 px-4 py-3 rounded-xl ${verdict.cls}`}>
-                      <span className="font-jakarta text-[0.8125rem] font-semibold text-highlight">{getTopicLabel(topic)}</span>
-                      <span className="font-jakarta text-xs text-dim">{tb.correct}/{tb.total} · {Math.round(tb.accuracy * 100)}%</span>
-                      <span className="font-jakarta text-[0.6875rem] font-bold" style={{ color: verdict.color }}>{verdict.text}</span>
+                      <span className="font-sans text-[0.8125rem] font-semibold text-highlight">{getTopicLabel(topic)}</span>
+                      <span className="font-sans text-xs text-dim">{tb.correct}/{tb.total} · {Math.round(tb.accuracy * 100)}%</span>
+                      <span className="font-sans text-[0.6875rem] font-bold" style={{ color: verdict.color }}>{verdict.text}</span>
                     </motion.div>
                   )
                 })}
@@ -996,10 +991,10 @@ export default function Results({ onOpenAuth }) {
             {/* AI Insights */}
             <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center justify-between">
-                <span className="font-fraunces text-[16px] font-semibold text-gradient-aurora">Phân tích AI</span>
+                <span className="font-sans text-[16px] font-semibold text-gradient-aurora">Phân tích AI</span>
                 {isPaidUser
-                  ? <span className="font-jakarta text-[0.6875rem] text-emerald-400/80">Miễn phí</span>
-                  : <span className="font-jakarta text-[0.6875rem] text-amber-400/70">⚡3 credits</span>
+                  ? <span className="font-sans text-[0.6875rem] text-emerald-400/80">Miễn phí</span>
+                  : <span className="font-sans text-[0.6875rem] text-[var(--accent)]/70">⚡3 credits</span>
                 }
               </div>
               {/* Streaming progress bar */}
@@ -1027,19 +1022,19 @@ export default function Results({ onOpenAuth }) {
                 transition={{ duration: 0.25, delay: 0.3 }}
                 className="flex items-center justify-between gap-3 px-5 py-3.5 rounded-xl border border-info/30 bg-info/5"
               >
-                <p className="font-jakarta text-[13px] text-foreground min-w-0">
+                <p className="font-sans text-[13px] text-foreground min-w-0">
                   Bạn muốn ôn ngay <strong className="text-info">{getTopicLabel(analysis.weak_topics[0])}</strong> không?
                 </p>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => { setPracticeNudgeDismissed(true); navigate(`/practice/adaptive?topic=${analysis.weak_topics[0]}`) }}
-                    className="px-3 py-1.5 rounded-lg font-jakarta text-xs font-bold bg-info text-background hover:opacity-90 transition"
+                    className="px-3 py-1.5 rounded-lg font-sans text-xs font-bold bg-info text-background hover:opacity-90 transition"
                   >
                     Ôn ngay →
                   </button>
                   <button
                     onClick={() => setPracticeNudgeDismissed(true)}
-                    className="font-jakarta text-xs text-dim hover:text-muted transition"
+                    className="font-sans text-xs text-dim hover:text-muted transition"
                   >
                     Để sau
                   </button>
@@ -1051,12 +1046,12 @@ export default function Results({ onOpenAuth }) {
             {nextExam && (
               <div className="bg-surface border border-border rounded-xl px-5 py-4 flex items-center justify-between gap-3">
                 <div className="flex flex-col gap-0.5 min-w-0">
-                  <span className="font-jakarta text-[0.6875rem] text-dim">Đề tiếp theo cho bạn</span>
-                  <span className="font-jakarta text-sm font-semibold text-foreground truncate">{nextExam.title}</span>
+                  <span className="font-sans text-[0.6875rem] text-dim">Đề tiếp theo cho bạn</span>
+                  <span className="font-sans text-sm font-semibold text-foreground truncate">{nextExam.title}</span>
                 </div>
                 <button
                   onClick={() => navigate(`/test/${nextExam.id}`)}
-                  className="flex-shrink-0 px-4 py-2 rounded-lg font-jakarta text-xs font-bold bg-primary text-primary-fg"
+                  className="flex-shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold bg-primary text-primary-fg"
                 >
                   Bắt đầu →
                 </button>
@@ -1067,14 +1062,14 @@ export default function Results({ onOpenAuth }) {
             {predictedScoreData && (
               <div className="flex items-center justify-between gap-4 px-5 py-4 rounded-xl glass-base">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-jakarta text-[0.6875rem] text-dim">Dự đoán điểm thi thật</span>
-                  <span className="font-jakarta text-[15px] font-bold text-success">
+                  <span className="font-sans text-[0.6875rem] text-dim">Dự đoán điểm thi thật</span>
+                  <span className="font-sans text-[15px] font-bold text-success">
                     {predictedScoreData.predicted}/10
                     <span className="font-normal text-faint text-xs ml-1.5">
                       ({predictedScoreData.low}–{predictedScoreData.high})
                     </span>
                   </span>
-                  <span className="font-jakarta text-[0.6875rem] text-faint">
+                  <span className="font-sans text-[0.6875rem] text-faint">
                     Độ tin cậy: {predictedScoreData.confidence === 'high' ? 'Cao' : predictedScoreData.confidence === 'medium' ? 'Trung bình' : 'Thấp'}
                     {' '}· Dựa trên {predictedScoreData.sample_size} bài làm gần nhất
                   </span>
@@ -1093,29 +1088,29 @@ export default function Results({ onOpenAuth }) {
             <div className="flex flex-wrap gap-2 pt-1">
               {wrongCount > 0 && (
                 <button onClick={() => setActiveTab('wrong')}
-                  className="px-3 py-1.5 rounded-lg border border-border font-jakarta text-xs text-muted hover:border-faint hover:text-foreground transition flex items-center gap-1.5">
+                  className="px-3 py-1.5 rounded-lg border border-border font-sans text-xs text-muted hover:border-faint hover:text-foreground transition flex items-center gap-1.5">
                   <span className="text-destructive">✗</span> {wrongCount} câu sai
                 </button>
               )}
               {schoolFitList.length > 0 && (
                 <button onClick={() => setActiveTab('schools')}
-                  className="px-3 py-1.5 rounded-lg border border-border font-jakarta text-xs text-muted hover:border-faint hover:text-foreground transition flex items-center gap-1.5">
+                  className="px-3 py-1.5 rounded-lg border border-border font-sans text-xs text-muted hover:border-faint hover:text-foreground transition flex items-center gap-1.5">
                   <span>⌂</span> Trường phù hợp
                 </button>
               )}
               <button onClick={() => setActiveTab('plan')}
-                className="px-3 py-1.5 rounded-lg border border-border font-jakarta text-xs text-muted hover:border-faint hover:text-foreground transition flex items-center gap-1.5">
+                className="px-3 py-1.5 rounded-lg border border-border font-sans text-xs text-muted hover:border-faint hover:text-foreground transition flex items-center gap-1.5">
                 {!planReady && <span className="w-2.5 h-2.5 rounded-full border border-border border-t-primary animate-spin flex-shrink-0" />}
                 {planReady ? '→ Kế hoạch' : 'Đang tải kế hoạch…'}
               </button>
               {weakTopics.length > 0 && (
                 <button onClick={() => navigate(`/practice/adaptive?topic=${weakTopics[0]}`)}
-                  className="px-3 py-1.5 rounded-lg border border-info/30 font-jakarta text-xs text-info hover:border-info hover:text-info/80 transition flex items-center gap-1.5">
+                  className="px-3 py-1.5 rounded-lg border border-info/30 font-sans text-xs text-info hover:border-info hover:text-info/80 transition flex items-center gap-1.5">
                   <span>⚡</span> Luyện điểm yếu
                 </button>
               )}
               <button onClick={() => { dispatch({ type: 'RESET' }); viewNavigate(navigate, '/exams') }}
-                className="px-3 py-1.5 rounded-lg border border-border font-jakarta text-xs text-muted hover:border-faint hover:text-foreground transition">
+                className="px-3 py-1.5 rounded-lg border border-border font-sans text-xs text-muted hover:border-faint hover:text-foreground transition">
                 Thi lại
               </button>
             </div>
@@ -1126,7 +1121,7 @@ export default function Results({ onOpenAuth }) {
         {activeTab === 'wrong' && (
           <motion.div key="wrong" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
             {wrongQuestions.length === 0 ? (
-              <div className="py-16 text-center font-jakarta text-faint">Không có câu sai — xuất sắc!</div>
+              <div className="py-16 text-center font-sans text-faint">Không có câu sai — xuất sắc!</div>
             ) : (
               <>
                 <div className="flex flex-col gap-3">
@@ -1140,14 +1135,14 @@ export default function Results({ onOpenAuth }) {
                           className="w-full flex items-center justify-between px-5 py-3.5 bg-surface-elevated hover:bg-surface transition text-left"
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <span className="w-5 h-5 rounded-full bg-destructive/10 border border-destructive flex items-center justify-center font-jakarta text-[0.625rem] font-bold text-destructive flex-shrink-0">
+                            <span className="w-5 h-5 rounded-full bg-destructive/10 border border-destructive flex items-center justify-center font-sans text-[0.625rem] font-bold text-destructive flex-shrink-0">
                               {idx + 1}
                             </span>
-                            <span className="font-jakarta text-[0.8125rem] text-muted overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                            <span className="font-sans text-[0.8125rem] text-muted overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                               <MathText>{q.question}</MathText>
                             </span>
                             {timing != null && (
-                              <span className={`font-jakarta text-[0.6875rem] flex-shrink-0 ${timing > 120 ? 'text-amber-400' : 'text-faint'}`}>
+                              <span className={`font-sans text-[0.6875rem] flex-shrink-0 ${timing > 120 ? 'text-[var(--accent)]' : 'text-faint'}`}>
                                 ⏱ {timing >= 60 ? `${Math.floor(timing/60)}m${timing%60}s` : `${timing}s`}
                               </span>
                             )}
@@ -1159,7 +1154,7 @@ export default function Results({ onOpenAuth }) {
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
                               <div className="px-5 py-4 flex flex-col gap-3 border-t border-border">
-                                <MathText className="font-jakarta text-[0.8125rem] text-highlight leading-relaxed">{q.question}</MathText>
+                                <MathText className="font-sans text-[0.8125rem] text-highlight leading-relaxed">{q.question}</MathText>
                                 <div className="flex flex-col gap-2">
                                   {q.choices.map((c, i) => {
                                     const chosen = answers[q.id] ?? null
@@ -1172,11 +1167,11 @@ export default function Results({ onOpenAuth }) {
                                     return (
                                     <div key={i} className="flex items-start gap-2.5 px-4 py-2.5 rounded-lg"
                                       style={{ background: bg, border: `1px solid ${borderColor}` }}>
-                                      <span className="font-jakarta text-xs font-bold flex-shrink-0"
+                                      <span className="font-sans text-xs font-bold flex-shrink-0"
                                         style={{ color: labelColor }}>
                                         {String.fromCharCode(65 + i)}.
                                       </span>
-                                      <span className="font-jakarta text-[0.8125rem]" style={{ color: textColor }}>
+                                      <span className="font-sans text-[0.8125rem]" style={{ color: textColor }}>
                                         <MathText>{c}</MathText>
                                         {isCorrect && <span className="ml-2 text-[0.6875rem]">✓ Đáp án đúng</span>}
                                         {isChosen && !isCorrect && <span className="ml-2 text-[0.6875rem] text-destructive">← Bạn đã chọn</span>}
@@ -1191,15 +1186,15 @@ export default function Results({ onOpenAuth }) {
                                   const shown = revealedSteps[q.id] ?? 0
                                   return (
                                     <div className="flex flex-col gap-2 pt-1 border-t border-border">
-                                      <span className="font-jakarta text-[0.6875rem] font-semibold text-success">Lời giải</span>
+                                      <span className="font-sans text-[0.6875rem] font-semibold text-success">Lời giải</span>
                                       {steps.slice(0, shown).map((step, si) => (
                                         <div key={si} className="flex gap-2 px-3 py-2 rounded-lg bg-success/5 border border-success/20">
                                           {steps.length > 1 && (
-                                            <span className="font-jakarta text-[0.625rem] font-bold text-success mt-0.5 flex-shrink-0">
+                                            <span className="font-sans text-[0.625rem] font-bold text-success mt-0.5 flex-shrink-0">
                                               {si + 1}.
                                             </span>
                                           )}
-                                          <MathText className="font-jakarta text-xs text-success/80 leading-relaxed">
+                                          <MathText className="font-sans text-xs text-success/80 leading-relaxed">
                                             {step}
                                           </MathText>
                                         </div>
@@ -1207,7 +1202,7 @@ export default function Results({ onOpenAuth }) {
                                       {shown === 0 && (
                                         <button
                                           onClick={() => setRevealedSteps(prev => ({ ...prev, [q.id]: 1 }))}
-                                          className="self-start font-jakarta text-xs text-success hover:text-success/60 transition"
+                                          className="self-start font-sans text-xs text-success hover:text-success/60 transition"
                                         >
                                           Xem lời giải →
                                         </button>
@@ -1216,13 +1211,13 @@ export default function Results({ onOpenAuth }) {
                                         <div className="flex items-center gap-3">
                                           <button
                                             onClick={() => setRevealedSteps(prev => ({ ...prev, [q.id]: shown + 1 }))}
-                                            className="font-jakarta text-xs text-success hover:text-success/60 transition"
+                                            className="font-sans text-xs text-success hover:text-success/60 transition"
                                           >
                                             Xem bước tiếp theo →
                                           </button>
                                           <button
                                             onClick={() => setRevealedSteps(prev => ({ ...prev, [q.id]: steps.length }))}
-                                            className="font-jakarta text-xs text-faint hover:text-muted transition"
+                                            className="font-sans text-xs text-faint hover:text-muted transition"
                                           >
                                             Xem tất cả
                                           </button>
@@ -1243,7 +1238,7 @@ export default function Results({ onOpenAuth }) {
                 {/* Oracle CTA */}
                 {weakTopics.length > 0 && (
                   <div className="flex flex-col gap-3 px-5 py-4 rounded-xl glass-base">
-                    <p className="font-jakarta text-[0.8125rem] text-muted">
+                    <p className="font-sans text-[0.8125rem] text-muted">
                       Bạn sai <strong className="text-foreground">{wrongCount} câu</strong>
                       {weakTopics.length > 0 && <> về <strong className="text-foreground">{weakTopics.map(t => getTopicLabel(t)).join(', ')}</strong></>}
                       {' '}— hỏi <strong className="text-info">Toán Oracle</strong> về chủ đề này?
@@ -1253,7 +1248,7 @@ export default function Results({ onOpenAuth }) {
                         weakTopics,
                         wrongQuestions: wrongQuestions.slice(0, 3).map(q => ({ topic: q.topic, question: q.question })),
                       }})}
-                      className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-jakarta text-xs font-bold text-info border border-info/30 hover:bg-info/10 transition"
+                      className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-sans text-xs font-bold text-info border border-info/30 hover:bg-info/10 transition"
                     >
                       <span>✦</span>Hỏi Toán Oracle
                     </button>
@@ -1261,7 +1256,7 @@ export default function Results({ onOpenAuth }) {
                 )}
 
                 <button onClick={() => navigate('/review')}
-                  className="w-full py-3 rounded-xl font-jakarta text-[0.8125rem] font-semibold border border-primary/25 text-primary hover:border-primary transition">
+                  className="w-full py-3 rounded-xl font-sans text-[0.8125rem] font-semibold border border-primary/25 text-primary hover:border-primary transition">
                   Ôn tập theo lịch (Spaced Repetition)
                 </button>
               </>
@@ -1281,15 +1276,15 @@ export default function Results({ onOpenAuth }) {
             {isCollegeUser ? (
               <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
                 <div className="flex items-center justify-between">
-                  <span className="font-fraunces text-[16px] font-semibold text-foreground">Gợi ý đại học / cao đẳng</span>
-                  <span className="font-jakarta text-[0.6875rem] text-faint">Điểm Toán: <span className="text-primary font-bold">{score.toFixed(1)}/10</span></span>
+                  <span className="font-sans text-[16px] font-semibold text-foreground">Gợi ý đại học / cao đẳng</span>
+                  <span className="font-sans text-[0.6875rem] text-faint">Điểm Toán: <span className="text-primary font-bold">{score.toFixed(1)}/10</span></span>
                 </div>
                 {aiLoading && !analysis?.school_insight && (
-                  <p className="font-jakarta text-[0.8125rem] text-faint">Đang phân tích...</p>
+                  <p className="font-sans text-[0.8125rem] text-faint">Đang phân tích...</p>
                 )}
                 {analysis?.school_insight ? (
                   <>
-                    <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
+                    <p className="font-sans text-[0.8125rem] text-muted leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
                       {analysis.school_insight}
                     </p>
                     <SchoolList schools={analysis.schools?.length ? analysis.schools : parseSchoolsFromText(analysis.school_insight)} studentScore={score} />
@@ -1298,24 +1293,24 @@ export default function Results({ onOpenAuth }) {
                   <div className="flex flex-col gap-3">
                     {!user?.grade ? (
                       <>
-                        <p className="font-jakarta text-[0.8125rem] text-dim">Hãy cập nhật lớp học trong hồ sơ để nhận gợi ý trường phù hợp.</p>
+                        <p className="font-sans text-[0.8125rem] text-dim">Hãy cập nhật lớp học trong hồ sơ để nhận gợi ý trường phù hợp.</p>
                         <button onClick={() => navigate('/account')}
-                          className="self-start px-4 py-1.5 rounded-lg font-jakarta text-xs font-semibold border border-primary/40 text-primary hover:bg-primary/10 transition">
+                          className="self-start px-4 py-1.5 rounded-lg font-sans text-xs font-semibold border border-primary/40 text-primary hover:bg-primary/10 transition">
                           Cập nhật hồ sơ →
                         </button>
                       </>
                     ) : (
                       <>
-                        <p className="font-jakarta text-[0.8125rem] text-dim">Gợi ý trường chưa được tạo trong lần phân tích này.</p>
+                        <p className="font-sans text-[0.8125rem] text-dim">Gợi ý trường chưa được tạo trong lần phân tích này.</p>
                         <button onClick={() => { localStorage.removeItem(`ai-analysis-${user.id}-${result.id}`); setAnalysis(null); setAiError(false); setAiLoading(false); setRetryKey(k => k + 1) }}
-                          className="self-start px-4 py-1.5 rounded-lg font-jakarta text-xs font-semibold border border-primary/40 text-primary hover:bg-primary/10 transition">
+                          className="self-start px-4 py-1.5 rounded-lg font-sans text-xs font-semibold border border-primary/40 text-primary hover:bg-primary/10 transition">
                           Thử phân tích lại →
                         </button>
                       </>
                     )}
                   </div>
                 )}
-                <p className="font-jakarta text-[0.6875rem] text-faint">
+                <p className="font-sans text-[0.6875rem] text-faint">
                   Gợi ý từ AI dựa trên điểm Toán và hồ sơ của bạn. Không phải kết quả tuyển sinh chính thức.
                 </p>
               </div>
@@ -1323,10 +1318,10 @@ export default function Results({ onOpenAuth }) {
               /* Grade ≤9 or unknown: show THPT probability bars */
               <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
                 <div className="flex items-center justify-between">
-                  <span className="font-fraunces text-[16px] font-semibold text-foreground">Khả năng đỗ THPT</span>
-                  <span className="font-jakarta text-[0.6875rem] text-faint">Điểm Toán: <span className="text-primary font-bold">{score.toFixed(1)}/10</span></span>
+                  <span className="font-sans text-[16px] font-semibold text-foreground">Khả năng đỗ THPT</span>
+                  <span className="font-sans text-[0.6875rem] text-faint">Điểm Toán: <span className="text-primary font-bold">{score.toFixed(1)}/10</span></span>
                 </div>
-                <p className="font-jakarta text-xs text-faint">Dựa trên điểm chuẩn môn Toán các năm gần nhất.</p>
+                <p className="font-sans text-xs text-faint">Dựa trên điểm chuẩn môn Toán các năm gần nhất.</p>
                 <div className="flex flex-col gap-4">
                   {schoolFitList.map(school => {
                     const prob = school.prob
@@ -1335,10 +1330,10 @@ export default function Results({ onOpenAuth }) {
                       <div key={school.id} className="flex flex-col gap-1.5">
                         <div className="flex items-center justify-between">
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-jakarta text-[0.8125rem] font-semibold text-highlight">{school.name}</span>
-                            <span className="font-jakarta text-[0.6875rem] text-faint">{school.district} · Chuẩn Toán: {school.cutoff}</span>
+                            <span className="font-sans text-[0.8125rem] font-semibold text-highlight">{school.name}</span>
+                            <span className="font-sans text-[0.6875rem] text-faint">{school.district} · Chuẩn Toán: {school.cutoff}</span>
                           </div>
-                          <span className="font-fraunces text-[20px] font-bold flex-shrink-0 ml-4" style={{ color: barColor }}>
+                          <span className="font-sans text-[20px] font-bold flex-shrink-0 ml-4" style={{ color: barColor }}>
                             {prob}%
                           </span>
                         </div>
@@ -1355,7 +1350,7 @@ export default function Results({ onOpenAuth }) {
                     )
                   })}
                 </div>
-                <p className="font-jakarta text-[0.6875rem] text-faint">
+                <p className="font-sans text-[0.6875rem] text-faint">
                   Xác suất ước tính theo hàm sigmoid so với điểm chuẩn năm gần nhất. Không phải kết quả chính thức.
                 </p>
               </div>
@@ -1364,8 +1359,8 @@ export default function Results({ onOpenAuth }) {
             {/* AI school insight — only shown for grade ≤9 as supplementary */}
             {!isCollegeUser && analysis?.school_insight && (
               <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
-                <span className="font-jakarta text-xs font-bold text-amber-400/70 uppercase tracking-wider">Gợi ý từ AI</span>
-                <p className="font-jakarta text-[0.8125rem] text-muted leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
+                <span className="font-sans text-xs font-bold text-[var(--accent)]/70 uppercase tracking-wider">Gợi ý từ AI</span>
+                <p className="font-sans text-[0.8125rem] text-muted leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
                   {analysis.school_insight}
                 </p>
                 <SchoolList schools={analysis.schools?.length ? analysis.schools : parseSchoolsFromText(analysis.school_insight)} studentScore={score} />
@@ -1378,24 +1373,21 @@ export default function Results({ onOpenAuth }) {
         {/* ── Tab: Kế hoạch ── */}
         {activeTab === 'plan' && (
           <motion.div key="plan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
-            <GradientBorderCard>
-            <div className="p-7 flex flex-col gap-4">
-              <span className="font-fraunces text-[16px] font-semibold text-gradient-aurora">Kế hoạch học tập 4 tuần</span>
-              <p className="font-jakarta text-[0.8125rem] text-dim leading-relaxed">
+            <div className="glass-brand rounded-2xl p-7 flex flex-col gap-4">
+              <span className="text-[16px] font-semibold text-primary">Kế hoạch học tập 4 tuần</span>
+              <p className="font-sans text-[0.8125rem] text-dim leading-relaxed">
                 AI sẽ tạo lịch ôn tập cá nhân hóa dựa trên điểm yếu và lịch sử làm bài của bạn.
               </p>
               {studyPlanError && (
-                <p className="font-jakarta text-[0.8125rem] text-destructive px-1">{studyPlanError}</p>
+                <p className="font-sans text-[0.8125rem] text-destructive px-1">{studyPlanError}</p>
               )}
               {planReady ? (
-                <ShimmerButton
+                <button
                   onClick={() => navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })}
-                  className="w-full text-sm font-bold"
-                  shimmerColor="#6366F1"
-                  background="linear-gradient(135deg, #1a1200, #0D1221)"
+                  className="btn-primary w-full text-sm font-bold"
                 >
                   Xem kế hoạch học tập ⚡5
-                </ShimmerButton>
+                </button>
               ) : (
                 <button
                   onClick={() => {
@@ -1403,16 +1395,15 @@ export default function Results({ onOpenAuth }) {
                       setStudyPlanError('Không đủ credits. Cần ít nhất 5 Tia để tạo kế hoạch.')
                     }
                   }}
-                  className="w-full py-3.5 rounded-xl font-jakarta text-sm font-bold flex items-center justify-center gap-2 text-faint border border-border transition"
+                  className="w-full py-3.5 rounded-xl font-sans text-sm font-bold flex items-center justify-center gap-2 text-faint border border-border transition"
                 >
                   {!studyPlanError && <span className="w-3.5 h-3.5 rounded-full border border-border border-t-primary animate-spin" />}
                   {studyPlanError ? 'Không đủ credits' : 'Đang chuẩn bị…'}
                 </button>
               )}
             </div>
-            </GradientBorderCard>
             <button onClick={() => { dispatch({ type: 'RESET' }); viewNavigate(navigate, '/exams') }}
-              className="w-full py-3 rounded-xl font-jakarta text-[0.8125rem] font-medium text-faint hover:text-muted transition">
+              className="w-full py-3 rounded-xl font-sans text-[0.8125rem] font-medium text-faint hover:text-muted transition">
               Thi lại
             </button>
           </motion.div>
@@ -1422,25 +1413,25 @@ export default function Results({ onOpenAuth }) {
         {activeTab === 'trends' && (
           <motion.div key="trends" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
             <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-5">
-              <span className="font-fraunces text-[16px] font-semibold text-foreground">Xu hướng 30 ngày</span>
+              <span className="font-sans text-[16px] font-semibold text-foreground">Xu hướng 30 ngày</span>
               {!topicTrends || topicTrends.length === 0 ? (
-                <p className="font-jakarta text-[0.8125rem] text-dim">Chưa đủ dữ liệu — hãy làm thêm bài để xem xu hướng.</p>
+                <p className="font-sans text-[0.8125rem] text-dim">Chưa đủ dữ liệu — hãy làm thêm bài để xem xu hướng.</p>
               ) : (
                 <div className="flex flex-col gap-5">
                   {topicTrends.map(({ topic, weeks }) => (
                     <div key={topic} className="flex flex-col gap-2">
-                      <span className="font-jakarta text-[0.8125rem] font-semibold text-muted-fg">{getTopicLabel(topic)}</span>
+                      <span className="font-sans text-[0.8125rem] font-semibold text-muted-fg">{getTopicLabel(topic)}</span>
                       <div className="flex items-end gap-2">
                         {weeks.map(({ week, accuracy }) => (
                           <div key={week} className="flex flex-col items-center gap-1 flex-1">
-                            <span className="font-jakarta text-[0.625rem] text-faint">{accuracy}%</span>
+                            <span className="font-sans text-[0.625rem] text-faint">{accuracy}%</span>
                             <div className="w-full rounded-t"
                               style={{
                                 height: `${Math.max(4, accuracy * 0.6)}px`,
                                 background: accuracy >= 70 ? '#34D399' : accuracy >= 40 ? '#F59E0B' : '#FB7185',
                                 minHeight: 4,
                               }} />
-                            <span className="font-jakarta text-[9px] text-faint text-center leading-tight">{week}</span>
+                            <span className="font-sans text-[9px] text-faint text-center leading-tight">{week}</span>
                           </div>
                         ))}
                       </div>
@@ -1453,7 +1444,6 @@ export default function Results({ onOpenAuth }) {
         )}
 
       </div>
-      </AuroraBackground>
     </motion.div>
   )
 }

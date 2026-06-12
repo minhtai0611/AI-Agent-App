@@ -123,12 +123,12 @@ export default function ErrorAnalysis() {
       {/* Header */}
       <div className="flex items-center gap-4 px-6 py-4 border-b border-surface">
         <button onClick={() => navigate('/exams?mode=lab')}
-          className="font-jakarta text-[13px] text-dim hover:text-muted transition">
+          className="font-sans text-[13px] text-dim hover:text-muted transition">
           ← Lab
         </button>
-        <span className="font-fraunces text-[18px] font-bold text-foreground">Phân tích lỗi sai</span>
+        <span className="font-sans text-[18px] font-bold text-foreground">Phân tích lỗi sai</span>
         {aiData?.cached && (
-          <span className="px-2 py-0.5 rounded-full font-jakarta text-[10px] bg-surface text-dim">cache 24h</span>
+          <span className="px-2 py-0.5 rounded-full font-sans text-[10px] bg-surface text-dim">cache 24h</span>
         )}
       </div>
 
@@ -136,10 +136,10 @@ export default function ErrorAnalysis() {
         {(!results || results.length < 3) ? (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <span className="text-4xl">📊</span>
-            <span className="font-fraunces text-[18px] font-bold text-foreground">Cần thêm dữ liệu</span>
-            <p className="font-jakarta text-[13px] text-dim max-w-xs">Hoàn thành ít nhất 3 bài thi để xem phân tích lỗi sai.</p>
+            <span className="font-sans text-[18px] font-bold text-foreground">Cần thêm dữ liệu</span>
+            <p className="font-sans text-[13px] text-dim max-w-xs">Hoàn thành ít nhất 3 bài thi để xem phân tích lỗi sai.</p>
             <button onClick={() => navigate('/exams')}
-              className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold bg-primary text-background">
+              className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-bold bg-primary text-background">
               Vào thi ngay
             </button>
           </div>
@@ -147,11 +147,11 @@ export default function ErrorAnalysis() {
           <>
             {/* ── Error DNA Radar ─────────────────────────────────────────── */}
             <div className="glass-base border border-surface rounded-2xl p-6">
-              <h2 className="font-fraunces text-[16px] font-bold text-foreground mb-1">DNA lỗi sai</h2>
-              <p className="font-jakarta text-[12px] text-dim mb-5">Hồ sơ loại lỗi của bạn từ toàn bộ lịch sử thi</p>
+              <h2 className="font-sans text-[16px] font-bold text-foreground mb-1">DNA lỗi sai</h2>
+              <p className="font-sans text-[12px] text-dim mb-5">Hồ sơ loại lỗi của bạn từ toàn bộ lịch sử thi</p>
               <ResponsiveContainer width="100%" height={260}>
                 <RadarChart data={radarData}>
-                  <PolarGrid stroke="#1E2A44" />
+                  <PolarGrid stroke="var(--border)" />
                   <PolarAngleAxis dataKey="type" tick={{ fontSize: 11, fill: '#94A3B8', fontFamily: 'Plus Jakarta Sans, sans-serif' }} />
                   <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
                   <Radar name="Bạn" dataKey="value" stroke="#F2A20C" fill="#F2A20C" fillOpacity={0.25} />
@@ -161,16 +161,16 @@ export default function ErrorAnalysis() {
 
             {/* ── Heatmap bar chart ───────────────────────────────────────── */}
             <div className="glass-base border border-surface rounded-2xl p-6">
-              <h2 className="font-fraunces text-[16px] font-bold text-foreground mb-1">Lỗi theo chủ đề</h2>
-              <p className="font-jakarta text-[12px] text-dim mb-5">
+              <h2 className="font-sans text-[16px] font-bold text-foreground mb-1">Lỗi theo chủ đề</h2>
+              <p className="font-sans text-[12px] text-dim mb-5">
                 Trọng số tính theo độ gần đây (lỗi gần đây nặng hơn)
               </p>
               {barData.length === 0 ? (
-                <p className="font-jakarta text-[13px] text-dim text-center py-8">Chưa có dữ liệu lỗi.</p>
+                <p className="font-sans text-[13px] text-dim text-center py-8">Chưa có dữ liệu lỗi.</p>
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={barData} margin={{ left: -10 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1E2A44" vertical={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                     <XAxis
                       dataKey="topic"
                       tickFormatter={topicLabel}
@@ -182,7 +182,7 @@ export default function ErrorAnalysis() {
                     />
                     <YAxis tick={{ fontSize: 10, fill: '#475569' }} />
                     <Tooltip
-                      contentStyle={{ background: '#111827', border: '1px solid #1E2A44', borderRadius: 8, fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 12 }}
+                      contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontFamily: 'Inter, sans-serif', fontSize: 12 }}
                       labelFormatter={topicLabel}
                     />
                     <Legend wrapperStyle={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 11 }} />
@@ -198,39 +198,39 @@ export default function ErrorAnalysis() {
             <div className="glass-base border border-surface rounded-2xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="font-fraunces text-[16px] font-bold text-foreground">Chẩn đoán AI</h2>
-                  <p className="font-jakarta text-[12px] text-dim mt-0.5">Top 3 hiểu lầm cốt lõi · ⚡2 credits</p>
+                  <h2 className="font-sans text-[16px] font-bold text-foreground">Chẩn đoán AI</h2>
+                  <p className="font-sans text-[12px] text-dim mt-0.5">Top 3 hiểu lầm cốt lõi · ⚡2 credits</p>
                 </div>
                 {!hasMisconceptions && !aiLoading && (
                   <button onClick={fetchAI}
-                    className="px-4 py-2 rounded-lg font-jakarta text-[12px] font-bold transition bg-primary text-background">
+                    className="px-4 py-2 rounded-lg font-sans text-[12px] font-bold transition bg-primary text-background">
                     Phân tích ngay
                   </button>
                 )}
               </div>
               {aiLoading && (
                 <div className="flex items-center gap-2 py-6">
-                  <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-                  <span className="font-jakarta text-[13px] text-dim">AI đang phân tích lỗi sai của bạn...</span>
+                  <div className="w-4 h-4 border-2 border-[var(--accent-border)] border-t-transparent rounded-full animate-spin" />
+                  <span className="font-sans text-[13px] text-dim">AI đang phân tích lỗi sai của bạn...</span>
                 </div>
               )}
-              {aiError && <p className="font-jakarta text-[12px] text-red-400 py-3">{aiError}</p>}
+              {aiError && <p className="font-sans text-[12px] text-red-400 py-3">{aiError}</p>}
               {hasMisconceptions && (
                 <div className="flex flex-col gap-4">
                   {aiData.misconceptions.map((m, i) => (
                     <div key={i} className="flex gap-4 p-4 rounded-xl bg-surface border border-surface">
                       <span className="text-2xl mt-0.5">{'🔍🧩🎯'[i]}</span>
                       <div className="flex flex-col gap-1">
-                        <span className="font-jakarta text-[11px] font-bold text-amber-400 uppercase tracking-wide">{m.concept || `Hiểu lầm ${i + 1}`}</span>
-                        <p className="font-jakarta text-[13px] text-foreground">{m.misconception}</p>
-                        <p className="font-jakarta text-[12px] text-dim">💡 {m.suggestion}</p>
+                        <span className="font-sans text-[11px] font-bold text-[var(--accent)] uppercase tracking-wide">{m.concept || `Hiểu lầm ${i + 1}`}</span>
+                        <p className="font-sans text-[13px] text-foreground">{m.misconception}</p>
+                        <p className="font-sans text-[12px] text-dim">💡 {m.suggestion}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
               {!hasMisconceptions && !aiLoading && !aiError && (
-                <p className="font-jakarta text-[13px] text-dim py-4 text-center">
+                <p className="font-sans text-[13px] text-dim py-4 text-center">
                   Nhấn "Phân tích ngay" để AI xác định hiểu lầm cốt lõi của bạn.
                 </p>
               )}

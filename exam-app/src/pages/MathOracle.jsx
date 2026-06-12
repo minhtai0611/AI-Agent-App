@@ -296,10 +296,10 @@ function MathPreview({ text }) {
   const display = preparePreview(text)
   return (
     <div className="rounded-xl border border-surface bg-surface px-4 py-3">
-      <p className="font-jakarta text-[10px] font-semibold text-dim tracking-widest uppercase mb-2">
+      <p className="font-sans text-[10px] font-semibold text-dim tracking-widest uppercase mb-2">
         Xem trước
       </p>
-      <div className="font-jakarta text-[15px] text-muted leading-relaxed overflow-x-auto">
+      <div className="font-sans text-[15px] text-muted leading-relaxed overflow-x-auto">
         <Markdown
           remarkPlugins={[remarkGfm, REMARK_MATH_OPTS]}
           rehypePlugins={[rehypeKatex]}
@@ -332,7 +332,7 @@ function StepList({ steps, figures = {} }) {
           const partKey = partMatch[1].toLowerCase()
           return (
             <li key={i} className="mt-2 mb-1">
-              <span className="font-jakarta text-[11px] font-semibold text-primary tracking-widest uppercase">
+              <span className="font-sans text-[11px] font-semibold text-primary tracking-widest uppercase">
                 {trimmed.replace(/\*\*/g, '')}
               </span>
               {figures[partKey] && <FigureBlock figure={figures[partKey]} />}
@@ -345,7 +345,7 @@ function StepList({ steps, figures = {} }) {
             <span className="shrink-0 w-6 h-6 rounded-full bg-primary/15 border border-primary/30 text-primary text-[11px] font-bold flex items-center justify-center mt-0.5">
               {stepCounter}
             </span>
-            <div className="font-jakarta text-[15px] text-foreground leading-relaxed">
+            <div className="font-sans text-[15px] text-foreground leading-relaxed">
               <MathText>{s}</MathText>
             </div>
           </li>
@@ -365,11 +365,11 @@ function StepReveal({ steps, figures = {} }) {
       {showing < total && (
         <div className="flex items-center gap-3 pt-1">
           <button onClick={() => setRevealed(r => r + 1)}
-            className="px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-semibold border border-primary/40 text-primary hover:bg-primary/10 transition">
+            className="px-4 py-1.5 rounded-lg font-sans text-[12px] font-semibold border border-primary/40 text-primary hover:bg-primary/10 transition">
             Tiếp theo →
           </button>
           <button onClick={() => setRevealed(total)}
-            className="font-jakarta text-[11px] text-dim hover:text-muted transition">
+            className="font-sans text-[11px] text-dim hover:text-muted transition">
             Xem tất cả ({total - showing} bước còn lại)
           </button>
         </div>
@@ -384,7 +384,7 @@ function StatsBadge({ stats }) {
   const problems = stats.problems || 0
   const topics = Object.keys(stats.topics || {}).length
   return (
-    <div className="flex items-center gap-3 font-jakarta text-[12px] text-dim">
+    <div className="flex items-center gap-3 font-sans text-[12px] text-dim">
       <span className="flex items-center gap-1.5">
         <span className="w-1.5 h-1.5 rounded-full bg-success" />
         {total.toLocaleString()} wiki units
@@ -537,12 +537,12 @@ function GeoGebraEmbed({ commands, onError }) {
       {/* Loading overlay — sits on top until GeoGebra is ready */}
       {status === 'loading' && (
         <div className="absolute inset-0 flex items-center justify-center bg-surface">
-          <span className="font-jakarta text-[12px] text-dim">Đang tải GeoGebra…</span>
+          <span className="font-sans text-[12px] text-dim">Đang tải GeoGebra…</span>
         </div>
       )}
       {status === 'error' && null}
       {undefinedObjs.length > 0 && (
-        <p className="font-jakarta text-[10px] text-primary mt-1">
+        <p className="font-sans text-[10px] text-primary mt-1">
           ⚠ {undefinedObjs.length} đối tượng không dựng được: {undefinedObjs.join(', ')}
         </p>
       )}
@@ -556,7 +556,7 @@ function FigureBlock({ figure }) {
 
   return (
     <div className="rounded-xl border border-surface bg-surface p-4 flex flex-col gap-3">
-      <p className="font-jakarta text-[10px] font-semibold text-dim tracking-widest uppercase">
+      <p className="font-sans text-[10px] font-semibold text-dim tracking-widest uppercase">
         Hình minh họa
       </p>
 
@@ -583,10 +583,10 @@ function AnswerCard({ result, problem }) {
       {/* Problem statement */}
       {problem && (
         <div className="rounded-xl border border-surface bg-surface px-5 py-4">
-          <p className="font-jakarta text-[10px] font-semibold text-dim tracking-widest uppercase mb-2">
+          <p className="font-sans text-[10px] font-semibold text-dim tracking-widest uppercase mb-2">
             Bài toán
           </p>
-          <div className="font-jakarta text-[15px] text-foreground leading-relaxed overflow-x-auto">
+          <div className="font-sans text-[15px] text-foreground leading-relaxed overflow-x-auto">
             <Markdown
               remarkPlugins={[remarkGfm, REMARK_MATH_OPTS]}
               rehypePlugins={[rehypeKatex]}
@@ -610,7 +610,7 @@ function AnswerCard({ result, problem }) {
 
       {/* Unverified warning banner */}
       {showUnverifiedWarning && (
-        <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 font-jakarta text-[13px] text-primary">
+        <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 font-sans text-[13px] text-primary">
           Kết quả chưa được xác minh — kiểm tra lại cẩn thận
         </div>
       )}
@@ -619,25 +619,25 @@ function AnswerCard({ result, problem }) {
       {answer.steps?.length > 0 && (
         <div className="rounded-xl border border-surface bg-surface p-5">
           <div className="flex items-center justify-between mb-4">
-            <p className="font-jakarta text-[11px] font-semibold text-dim tracking-widest uppercase">Lời giải</p>
+            <p className="font-sans text-[11px] font-semibold text-dim tracking-widest uppercase">Lời giải</p>
             <div className="flex items-center gap-3">
               {answer.problem_type && (
-                <span className="font-jakarta text-[11px] text-dim capitalize">
+                <span className="font-sans text-[11px] text-dim capitalize">
                   {answer.problem_type.replace(/_/g, ' ')}
                 </span>
               )}
               {!result.wiki_assisted && (
-                <span className="font-jakarta text-[11px] font-semibold tracking-widest uppercase"
+                <span className="font-sans text-[11px] font-semibold tracking-widest uppercase"
                   style={{ color: '#6366F1', opacity: 0.7 }}>
                   AI trực tiếp
                 </span>
               )}
-              <span className="font-jakarta text-[11px] font-semibold tracking-widest uppercase"
+              <span className="font-sans text-[11px] font-semibold tracking-widest uppercase"
                 style={{ color: CONFIDENCE_COLOR[confidence] }}>
                 {CONFIDENCE_LABEL[confidence]}
               </span>
               {!validation.valid && validation.issues?.length > 0 && (
-                <span className="font-jakarta text-[11px] text-destructive">⚠ {validation.issues[0]}</span>
+                <span className="font-sans text-[11px] text-destructive">⚠ {validation.issues[0]}</span>
               )}
             </div>
           </div>
@@ -647,7 +647,7 @@ function AnswerCard({ result, problem }) {
 
       {/* Enrichment badge */}
       {result.enriched > 0 && (
-        <div className="flex items-center gap-2 font-jakarta text-[12px] text-success">
+        <div className="flex items-center gap-2 font-sans text-[12px] text-success">
           <span className="w-1.5 h-1.5 rounded-full bg-success shrink-0" />
           Oracle đã học thêm {result.enriched} đơn vị tri thức mới
           {result.enriched_topics?.length > 0 && ` (${result.enriched_topics.join(', ')})`}
@@ -658,7 +658,7 @@ function AnswerCard({ result, problem }) {
       {result.retrieved_ids?.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {result.retrieved_ids.map(id => (
-            <span key={id} className="font-jakarta text-[11px] bg-surface border border-surface text-dim rounded-full px-3 py-1">
+            <span key={id} className="font-sans text-[11px] bg-surface border border-surface text-dim rounded-full px-3 py-1">
               {id}
             </span>
           ))}
@@ -680,8 +680,8 @@ function ReviewCard({ result, problem, solution }) {
       {/* Problem */}
       {problem && (
         <div className="rounded-xl border border-surface bg-surface px-5 py-4">
-          <p className="font-jakarta text-[10px] font-semibold text-dim tracking-widest uppercase mb-2">Bài toán</p>
-          <div className="font-jakarta text-[15px] text-foreground leading-relaxed overflow-x-auto">
+          <p className="font-sans text-[10px] font-semibold text-dim tracking-widest uppercase mb-2">Bài toán</p>
+          <div className="font-sans text-[15px] text-foreground leading-relaxed overflow-x-auto">
             <Markdown
               remarkPlugins={[remarkGfm, REMARK_MATH_OPTS]}
               rehypePlugins={[rehypeKatex]}
@@ -700,8 +700,8 @@ function ReviewCard({ result, problem, solution }) {
       {/* Solution submitted */}
       {solution && (
         <div className="rounded-xl border border-surface bg-surface px-5 py-4">
-          <p className="font-jakarta text-[10px] font-semibold text-dim tracking-widest uppercase mb-2">Lời giải đã nộp</p>
-          <div className="font-jakarta text-[15px] text-muted leading-relaxed overflow-x-auto">
+          <p className="font-sans text-[10px] font-semibold text-dim tracking-widest uppercase mb-2">Lời giải đã nộp</p>
+          <div className="font-sans text-[15px] text-muted leading-relaxed overflow-x-auto">
             <Markdown
               remarkPlugins={[remarkGfm, REMARK_MATH_OPTS]}
               rehypePlugins={[rehypeKatex]}
@@ -722,16 +722,16 @@ function ReviewCard({ result, problem, solution }) {
         style={{ borderColor: `${verdictColor}40`, background: `${verdictColor}08` }}>
         <div className="flex items-center gap-3">
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: verdictColor }} />
-          <span className="font-jakarta text-[15px] font-semibold" style={{ color: verdictColor }}>{verdictLabel}</span>
-          <span className="font-jakarta text-[22px] font-bold" style={{ color: verdictColor }}>{result.score}</span>
+          <span className="font-sans text-[15px] font-semibold" style={{ color: verdictColor }}>{verdictLabel}</span>
+          <span className="font-sans text-[22px] font-bold" style={{ color: verdictColor }}>{result.score}</span>
         </div>
       </div>
 
       {/* Feedback */}
       {result.feedback && (
         <div className="rounded-xl border border-surface bg-surface px-5 py-4">
-          <p className="font-jakarta text-[10px] font-semibold text-dim tracking-widest uppercase mb-2">Nhận xét</p>
-          <div className="font-jakarta text-[14px] text-foreground leading-relaxed">
+          <p className="font-sans text-[10px] font-semibold text-dim tracking-widest uppercase mb-2">Nhận xét</p>
+          <div className="font-sans text-[14px] text-foreground leading-relaxed">
             <MathText>{result.feedback}</MathText>
           </div>
         </div>
@@ -740,12 +740,12 @@ function ReviewCard({ result, problem, solution }) {
       {/* Correct steps */}
       {result.correct_steps?.length > 0 && (
         <div className="rounded-xl border border-success/20 bg-success/5 px-5 py-4">
-          <p className="font-jakarta text-[10px] font-semibold text-success tracking-widest uppercase mb-3">Các bước đúng</p>
+          <p className="font-sans text-[10px] font-semibold text-success tracking-widest uppercase mb-3">Các bước đúng</p>
           <ol className="flex flex-col gap-2">
             {result.correct_steps.map((s, i) => (
               <li key={i} className="flex gap-3 items-start">
                 <span className="shrink-0 w-5 h-5 rounded-full bg-success/20 border border-success/30 text-success text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
-                <div className="font-jakarta text-[14px] text-muted leading-relaxed"><MathText>{s}</MathText></div>
+                <div className="font-sans text-[14px] text-muted leading-relaxed"><MathText>{s}</MathText></div>
               </li>
             ))}
           </ol>
@@ -755,12 +755,12 @@ function ReviewCard({ result, problem, solution }) {
       {/* Errors */}
       {result.errors?.length > 0 && (
         <div className="rounded-xl border border-destructive/20 bg-destructive/5 px-5 py-4">
-          <p className="font-jakarta text-[10px] font-semibold text-destructive tracking-widest uppercase mb-3">Lỗi phát hiện</p>
+          <p className="font-sans text-[10px] font-semibold text-destructive tracking-widest uppercase mb-3">Lỗi phát hiện</p>
           <ul className="flex flex-col gap-2">
             {result.errors.map((e, i) => (
               <li key={i} className="flex gap-2 items-start">
                 <span className="shrink-0 text-destructive text-[12px] mt-0.5">✕</span>
-                <div className="font-jakarta text-[14px] text-muted leading-relaxed"><MathText>{e}</MathText></div>
+                <div className="font-sans text-[14px] text-muted leading-relaxed"><MathText>{e}</MathText></div>
               </li>
             ))}
           </ul>
@@ -770,8 +770,8 @@ function ReviewCard({ result, problem, solution }) {
       {/* Correct approach */}
       {result.correct_approach && (
         <div className="rounded-xl border border-info/20 bg-info/5 px-5 py-4">
-          <p className="font-jakarta text-[10px] font-semibold text-info tracking-widest uppercase mb-2">Phương pháp đúng</p>
-          <div className="font-jakarta text-[14px] text-muted leading-relaxed"><MathText>{result.correct_approach}</MathText></div>
+          <p className="font-sans text-[10px] font-semibold text-info tracking-widest uppercase mb-2">Phương pháp đúng</p>
+          <div className="font-sans text-[14px] text-muted leading-relaxed"><MathText>{result.correct_approach}</MathText></div>
         </div>
       )}
     </div>
@@ -1129,7 +1129,7 @@ export default function MathOracle() {
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}
       className="min-h-screen relative overflow-hidden"
-      style={{ background: 'radial-gradient(ellipse 120% 80% at 50% 0%, #1B2B4B 0%, #0A0E1A 60%)' }}>
+      style={{ background: 'var(--bg)' }}>
 
       {/* Ambient glow */}
       <div className="absolute pointer-events-none rounded-full opacity-40"
@@ -1140,7 +1140,7 @@ export default function MathOracle() {
       {history.length > 0 && (
         <div className="hidden lg:flex flex-col gap-1 fixed left-4 top-24 w-48 max-h-[70vh] overflow-y-auto z-20">
           <div className="flex items-center justify-between px-1 mb-1">
-            <p className="font-jakarta text-[10px] font-semibold text-dim tracking-widest uppercase">
+            <p className="font-sans text-[10px] font-semibold text-dim tracking-widest uppercase">
               Lịch sử
             </p>
             <button onClick={clearHistory}
@@ -1157,7 +1157,7 @@ export default function MathOracle() {
                   if (ta) { ta.value = item.problem; autoResize(ta); ta.focus() }
                   setQuestion(item.problem)
                 }}
-                className="flex-1 text-left font-jakarta text-[11px] text-dim hover:text-muted hover:bg-surface border border-transparent hover:border-surface rounded-lg px-2.5 py-1.5 transition truncate"
+                className="flex-1 text-left font-sans text-[11px] text-dim hover:text-muted hover:bg-surface border border-transparent hover:border-surface rounded-lg px-2.5 py-1.5 transition truncate"
                 title={item.problem}>
                 {item.problem}
               </button>
@@ -1174,14 +1174,14 @@ export default function MathOracle() {
 
         {/* Back */}
         <button onClick={() => navigate('/')}
-          className="self-start font-jakarta text-sm text-dim hover:text-muted transition flex items-center gap-1.5">
+          className="self-start font-sans text-sm text-dim hover:text-muted transition flex items-center gap-1.5">
           ← Trang chủ
         </button>
 
         {/* Header */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="font-jakarta text-[10px] font-semibold text-info tracking-[3px] uppercase">
+            <span className="font-sans text-[10px] font-semibold text-info tracking-[3px] uppercase">
               Experimental · AI Knowledge System
             </span>
             {/* Wiki status dot */}
@@ -1192,10 +1192,10 @@ export default function MathOracle() {
                 : <div className="w-1.5 h-1.5 rounded-full bg-faint" title="" />
             }
           </div>
-          <h1 className="font-fraunces text-[52px] font-bold text-foreground leading-none tracking-tight">
+          <h1 className="font-sans text-[52px] font-bold text-foreground leading-none tracking-tight">
             Toán Oracle
           </h1>
-          <p className="font-jakarta text-[15px] text-dim leading-relaxed max-w-[480px]">
+          <p className="font-sans text-[15px] text-dim leading-relaxed max-w-[480px]">
             Đặt câu hỏi toán — Oracle truy vấn kho tri thức và giải từng bước.
           </p>
         </div>
@@ -1210,7 +1210,7 @@ export default function MathOracle() {
                 <button key={m} type="button"
                   onClick={() => locked ? navigate('/account') : (setChatMode(m), setMessages([]), setError(null))}
                   title={locked ? 'Yêu cầu gói Học sinh trở lên' : undefined}
-                  className="font-jakarta text-[12px] font-semibold px-4 py-1.5 rounded-full transition flex items-center gap-1"
+                  className="font-sans text-[12px] font-semibold px-4 py-1.5 rounded-full transition flex items-center gap-1"
                   style={locked
                     ? { background: 'transparent', border: '1px solid var(--surface)', color: 'var(--dim)', opacity: 0.6 }
                     : chatMode === m
@@ -1229,7 +1229,7 @@ export default function MathOracle() {
               <button
                 type="button"
                 onClick={() => setHistoryOpen(o => !o)}
-                className="font-jakarta text-[11px] text-dim hover:text-muted border border-surface rounded-full px-3 py-1 transition">
+                className="font-sans text-[11px] text-dim hover:text-muted border border-surface rounded-full px-3 py-1 transition">
                 Lịch sử
               </button>
               {historyOpen && (
@@ -1245,7 +1245,7 @@ export default function MathOracle() {
                             if (ta) { ta.value = item.problem; autoResize(ta); ta.focus() }
                             setQuestion(item.problem)
                           }}
-                          className="flex-1 text-left px-4 py-2.5 font-jakarta text-[12px] text-muted hover:bg-surface transition truncate">
+                          className="flex-1 text-left px-4 py-2.5 font-sans text-[12px] text-muted hover:bg-surface transition truncate">
                           {item.problem}
                         </button>
                         <button onClick={() => deleteHistory(item.id)}
@@ -1256,7 +1256,7 @@ export default function MathOracle() {
                     ))}
                     {history.length > 0 && (
                       <button onClick={() => { clearHistory(); setHistoryOpen(false) }}
-                        className="w-full px-4 py-2 font-jakarta text-[11px] text-dim hover:text-destructive transition text-center border-t border-surface">
+                        className="w-full px-4 py-2 font-sans text-[11px] text-dim hover:text-destructive transition text-center border-t border-surface">
                         Xoá tất cả
                       </button>
                     )}
@@ -1271,7 +1271,7 @@ export default function MathOracle() {
             <button
               type="button"
               onClick={() => { setMessages([]); setError(null) }}
-              className="font-jakarta text-[11px] text-dim hover:text-muted transition ml-auto lg:ml-0">
+              className="font-sans text-[11px] text-dim hover:text-muted transition ml-auto lg:ml-0">
               Cuộc trò chuyện mới
             </button>
           )}
@@ -1343,13 +1343,13 @@ export default function MathOracle() {
                     <div className="absolute bottom-full right-0 mb-1 z-20 rounded-lg border border-surface bg-surface shadow-xl overflow-hidden" style={{ minWidth: 160 }}>
                       <button type="button"
                         onClick={() => { setCameraMenu(null); fileInputRef.current?.click() }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 font-jakarta text-[13px] text-muted hover:bg-surface transition text-left">
+                        className="w-full flex items-center gap-2.5 px-3 py-2 font-sans text-[13px] text-muted hover:bg-surface transition text-left">
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                         Tải ảnh lên
                       </button>
                       <button type="button"
                         onClick={() => { setCameraMenu(null); cameraInputRef.current?.click() }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 font-jakarta text-[13px] text-muted hover:bg-surface transition text-left border-t border-surface">
+                        className="w-full flex items-center gap-2.5 px-3 py-2 font-sans text-[13px] text-muted hover:bg-surface transition text-left border-t border-surface">
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                         Chụp ảnh
                       </button>
@@ -1359,9 +1359,9 @@ export default function MathOracle() {
               </div>
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleOcrFile} style={{ display: 'none' }} />
               <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleOcrFile} style={{ display: 'none' }} />
-              <span className="font-jakarta text-[11px] text-dim">⌘ Enter</span>
+              <span className="font-sans text-[11px] text-dim">⌘ Enter</span>
               <button type="submit" disabled={!question.trim() || loading || ocring || ocringS}
-                className="px-4 py-1.5 bg-info text-white font-jakarta font-semibold text-sm rounded-lg disabled:opacity-40 hover:bg-info/80 transition">
+                className="px-4 py-1.5 bg-info text-white font-sans font-semibold text-sm rounded-lg disabled:opacity-40 hover:bg-info/80 transition">
                 {loading
                   ? (chatMode === 'review' ? 'Đang chấm…' : 'Đang tính…')
                   : (chatMode === 'review' ? 'Chấm bài' : 'Giải')}
@@ -1406,13 +1406,13 @@ export default function MathOracle() {
                       <div className="absolute bottom-full right-0 mb-1 z-20 rounded-lg border border-surface bg-surface shadow-xl overflow-hidden" style={{ minWidth: 160 }}>
                         <button type="button"
                           onClick={() => { setCameraMenu(null); solutionFileInputRef.current?.click() }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 font-jakarta text-[13px] text-muted hover:bg-surface transition text-left">
+                          className="w-full flex items-center gap-2.5 px-3 py-2 font-sans text-[13px] text-muted hover:bg-surface transition text-left">
                           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                           Tải ảnh lên
                         </button>
                         <button type="button"
                           onClick={() => { setCameraMenu(null); solutionCameraInputRef.current?.click() }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 font-jakarta text-[13px] text-muted hover:bg-surface transition text-left border-t border-surface">
+                          className="w-full flex items-center gap-2.5 px-3 py-2 font-sans text-[13px] text-muted hover:bg-surface transition text-left border-t border-surface">
                           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                           Chụp ảnh
                         </button>
@@ -1422,7 +1422,7 @@ export default function MathOracle() {
                 </div>
                 <input ref={solutionFileInputRef} type="file" accept="image/*" onChange={handleOcrSolution} style={{ display: 'none' }} />
                 <input ref={solutionCameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleOcrSolution} style={{ display: 'none' }} />
-                <span className="font-jakarta text-[11px] text-dim">Lời giải</span>
+                <span className="font-sans text-[11px] text-dim">Lời giải</span>
               </div>
             </div>
           )}
@@ -1440,7 +1440,7 @@ export default function MathOracle() {
                     if (ta) { ta.value = eg.insert; autoResize(ta); ta.focus() }
                     setQuestion(eg.insert)
                   }}
-                  className="font-jakarta text-[12px] text-dim border border-surface rounded-full px-3 py-1 hover:border-info hover:text-info transition">
+                  className="font-sans text-[12px] text-dim border border-surface rounded-full px-3 py-1 hover:border-info hover:text-info transition">
                   <MathText inline>{eg.label}</MathText>
                 </button>
               ))}
@@ -1450,7 +1450,7 @@ export default function MathOracle() {
 
         {/* OCR loading */}
         {(ocring || ocringS) && (
-          <div className="font-jakarta text-[14px] text-dim">
+          <div className="font-sans text-[14px] text-dim">
             {ocringS ? 'Đang nhận diện ảnh lời giải…' : 'Đang nhận diện ảnh…'}
           </div>
         )}
@@ -1463,7 +1463,7 @@ export default function MathOracle() {
                 return (
                   <div key={idx} className="flex justify-end">
                     <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-surface border border-surface px-4 py-3">
-                      <div className="font-jakarta text-[14px] text-primary leading-relaxed">
+                      <div className="font-sans text-[14px] text-primary leading-relaxed">
                         <MathText>{msg.content}</MathText>
                       </div>
                     </div>
@@ -1490,7 +1490,7 @@ export default function MathOracle() {
               return (
                 <div key={idx} className="flex justify-start">
                   <div className="max-w-[90%] rounded-2xl rounded-tl-sm bg-surface border border-surface px-4 py-3">
-                    <div className="font-jakarta text-[14px] text-foreground leading-relaxed">
+                    <div className="font-sans text-[14px] text-foreground leading-relaxed">
                       <MathText>{msg.content}</MathText>
                     </div>
                   </div>
@@ -1503,7 +1503,7 @@ export default function MathOracle() {
 
         {/* Loading */}
         {loading && (
-          <div className="font-jakarta text-[14px] text-dim">
+          <div className="font-sans text-[14px] text-dim">
             {retryAttempt > 0
               ? `Đang thử lại sau timeout (lần ${retryAttempt + 1}/${MAX_RETRIES + 1})…`
               : chatMode === 'review' ? 'Oracle đang chấm bài…'
@@ -1514,7 +1514,7 @@ export default function MathOracle() {
 
         {/* Error */}
         {error && (
-          <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 font-jakarta text-sm text-destructive flex items-center justify-between gap-4">
+          <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 font-sans text-sm text-destructive flex items-center justify-between gap-4">
             <span>{error}</span>
             {/timed out|timeout|không kết nối/i.test(error) && lastSolveQuestion && (
               <button
@@ -1535,7 +1535,7 @@ export default function MathOracle() {
                 ? `/practice/adaptive?topic=${safeTopic}`
                 : '/practice/adaptive'
               )}
-              className="font-jakarta text-[13px] font-semibold text-info hover:text-info border border-info/30 hover:border-info/60 rounded-lg px-4 py-2 transition">
+              className="font-sans text-[13px] font-semibold text-info hover:text-info border border-info/30 hover:border-info/60 rounded-lg px-4 py-2 transition">
               Luyện bài tương tự →
             </button>
           </div>

@@ -43,29 +43,27 @@ export default function AuthModal({ open, onClose }) {
       ref={backdropRef}
       onClick={handleBackdropClick}
       className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}
+      style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}
       role="dialog"
       aria-modal="true"
       aria-label="Đăng nhập"
     >
-      <div
-        className="glass-base border border-primary relative rounded-xl p-8 flex flex-col items-center gap-5 w-80"
-      >
+      <div className="glass-elevated border border-[var(--primary-border)] relative rounded-xl p-8 flex flex-col items-center gap-5 w-80">
         <button
           onClick={onClose}
-          className="absolute top-3 right-4 text-gray-400 hover:text-white text-xl leading-none"
+          className="absolute top-3 right-4 text-[var(--fg-tertiary)] hover:text-[var(--foreground)] text-xl leading-none transition-colors"
           aria-label="Đóng"
         >
           ×
         </button>
 
-        <h2 className="text-white text-lg font-semibold">Đăng nhập</h2>
-        <p className="text-gray-400 text-sm text-center">
+        <h2 className="font-sans font-semibold text-[var(--foreground)] text-lg">Đăng nhập</h2>
+        <p className="font-sans text-[var(--muted-fg)] text-sm text-center">
           Lưu kết quả thi và theo dõi tiến trình học tập của bạn.
         </p>
 
         {loading ? (
-          <div className="text-amber-400 text-sm">Đang xử lý…</div>
+          <div className="font-sans text-[var(--primary)] text-sm">Đang xử lý…</div>
         ) : (
           <GoogleLogin
             onSuccess={handleSuccess}
@@ -75,7 +73,7 @@ export default function AuthModal({ open, onClose }) {
         )}
 
         {error && (
-          <p className="text-red-400 text-sm text-center">{error}</p>
+          <p className="font-sans text-[var(--destructive)] text-sm text-center">{error}</p>
         )}
       </div>
     </div>

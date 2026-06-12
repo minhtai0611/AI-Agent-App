@@ -1,4 +1,10 @@
-/* Self-hosted fonts — eliminates dependency on fonts.googleapis.com / fonts.gstatic.com */
+/* ─── Fonts ──────────────────────────────────────────────────────────────────
+   Inter: primary UI font (variable font, all weights 100–900).
+   JetBrains Mono: math/code rendering (KaTeX). Self-hosted WOFF2.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Inter — loaded from Google Fonts (swap for self-hosted WOFF2 in production) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
 /* JetBrains Mono (variable: wght axis) */
 @font-face {
@@ -26,193 +32,197 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* Fraunces (variable: opsz + wght axes) */
-@font-face {
-  font-family: 'Fraunces';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('/fonts/fraunces-vietnamese.woff2') format('woff2');
-  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
-@font-face {
-  font-family: 'Fraunces';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('/fonts/fraunces-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-@font-face {
-  font-family: 'Fraunces';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('/fonts/fraunces-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* Plus Jakarta Sans (variable: wght axis) */
-@font-face {
-  font-family: 'Plus Jakarta Sans';
-  font-style: normal;
-  font-weight: 200 800;
-  font-display: swap;
-  src: url('/fonts/plus-jakarta-sans-vietnamese.woff2') format('woff2');
-  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
-@font-face {
-  font-family: 'Plus Jakarta Sans';
-  font-style: normal;
-  font-weight: 200 800;
-  font-display: swap;
-  src: url('/fonts/plus-jakarta-sans-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-@font-face {
-  font-family: 'Plus Jakarta Sans';
-  font-style: normal;
-  font-weight: 200 800;
-  font-display: swap;
-  src: url('/fonts/plus-jakarta-sans-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Zenith Semantic Color Tokens ───────────────────────────────────────────
+/* ─── Meridian — Warm Editorial Color Tokens ─────────────────────────────────
    Light defaults in :root; dark overrides in .dark / [data-theme="dark"].
-   shadcn/ui-style pattern — works in all browsers, no light-dark() dependency.
+   CSS variable names preserved for Tailwind class compatibility.
    ─────────────────────────────────────────────────────────────────────────── */
 :root {
   color-scheme: light;
 
-  /* ── Light theme (warm cream / indigo) — Midnight Bloom-inspired palette ── */
-  --background:        oklch(0.97 0.008  74);
-  --foreground:        oklch(0.13 0.015 280);
-  --surface:           oklch(0.93 0.008  74);
-  --surface-elevated:  oklch(1.00 0.000   0);
-  --border:            oklch(0.82 0.010  74);
-  --border-subtle:     oklch(0.88 0.008  74);
-  --primary:           oklch(0.50 0.200 264);
-  --primary-fg:        oklch(1.00 0.000   0);
-  --muted:             oklch(0.50 0.015 280);
-  --muted-fg:          oklch(0.40 0.010 280);
-  --dim:               oklch(0.35 0.008 280);
-  --faint:             oklch(0.28 0.005 280);
-  --success:           oklch(0.52 0.16  155);
-  --destructive:       oklch(0.55 0.22   27);
-  --info:              oklch(0.52 0.18  255);
-  --purple:            oklch(0.52 0.20  295);
-  --highlight:         oklch(0.94 0.030  74);
+  /* ── Surfaces ── */
+  --background:        #FAFAF8;  /* warm off-white page */
+  --foreground:        #1C1917;  /* warm near-black text */
+  --surface:           #F2F0EB;  /* card / panel fill */
+  --surface-elevated:  #FAFAF8;  /* modals, dropdowns */
+  --border:            #D6D3CC;  /* default border */
+  --border-subtle:     #E7E5E4;  /* very subtle dividers */
 
-  /* Glass surface tokens — light mode (frosted white) */
-  --glass-bg:          rgba(255, 255, 255, 0.72);
-  --glass-bg-elevated: rgba(255, 255, 255, 0.88);
-  --glass-border:      rgba(0, 0, 0, 0.08);
-  --glass-shadow:      0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+  /* ── Text ── */
+  --muted:             #A8A29E;  /* muted text (stone-400) */
+  --muted-fg:          #78716C;  /* secondary text (stone-500) */
+  --dim:               #57534E;  /* dim text (stone-600) */
+  --faint:             #44403C;  /* faint text (stone-700) */
 
-  /* Mastery stage tokens (0=unknown → 5=mastered) */
-  --mastery-0:        #475569;
-  --mastery-0-bg:     #1E2A44;
-  --mastery-1:        #EF4444;
-  --mastery-1-bg:     #7F1D1D;
-  --mastery-2:        #F97316;
-  --mastery-2-bg:     #431407;
-  --mastery-3:        #F59E0B;
-  --mastery-3-bg:     #78350F;
-  --mastery-4:        #22C55E;
-  --mastery-4-bg:     #14532D;
-  --mastery-5:        #10B981;
-  --mastery-5-bg:     #022C22;
+  /* ── Text aliases (plan tokens) ── */
+  --fg-secondary:      var(--muted-fg);
+  --fg-tertiary:       var(--muted);
+  --fg-disabled:       #D6D3D1;
+  --surface-raised:    var(--surface-elevated);
 
-  /* Legacy --z-* color aliases — point to semantic tokens */
-  --z-bg-base:        var(--background);
-  --z-bg-surface:     var(--surface);
-  --z-bg-elevated:    var(--surface-elevated);
-  --z-border:         var(--border);
-  --z-border-subtle:  var(--border-subtle);
-  --z-text-primary:   var(--foreground);
-  --z-text-secondary: var(--muted-fg);
-  --z-text-muted:     var(--muted);
-  --z-text-dim:       var(--dim);
-  --z-text-faint:     var(--faint);
-  --z-accent:         var(--primary);
-  --z-accent-dim:     var(--primary);
-  --z-success:        var(--success);
-  --z-error:          var(--destructive);
-  --z-info:           var(--info);
-  --z-purple:         var(--purple);
+  /* ── Brand — forest green ── */
+  --primary:           #166534;
+  --primary-fg:        #FFFFFF;
+  --primary-subtle:    #F0FDF4;  /* green-50 */
+  --primary-border:    #BBF7D0;  /* green-200 */
 
-  /* Non-color tokens — unchanged */
-  --z-ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
-  --z-ease-smooth:   cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --z-ease-out:      cubic-bezier(0.0, 0.0, 0.2, 1);
-  --z-radius-sm:     8px;
-  --z-radius-md:     12px;
-  --z-radius-lg:     16px;
-  --z-radius-xl:     20px;
+  /* ── Accent — terracotta ── */
+  --accent:            #C2410C;
+  --accent-fg:         #FFFFFF;
+  --accent-subtle:     #FFF7ED;
+  --accent-border:     #FED7AA;  /* orange-200 */
 
-  /* Blur tokens (zeroed by prefers-reduced-transparency) */
+  /* ── Status ── */
+  --success:           #16A34A;
+  --warning:           #D97706;
+  --destructive:       #DC2626;
+  --info:              #2563EB;
+  --purple:            #7C3AED;
+  --highlight:         #F0FDF4;  /* subtle green highlight */
+
+  /* ── Choice feedback state (QuestionCard) ── */
+  --choice-chosen-bg:   #FFF7ED;  /* accent-subtle, selected-but-not-answered */
+  --choice-wrong-bg:    #FEF2F2;  /* red-50 */
+  --choice-wrong-border:#FECACA;  /* red-200 */
+
+  /* ── Mastery scale (0=unknown → 5=mastered) ── */
+  --mastery-0:         #A8A29E;
+  --mastery-0-bg:      #F5F5F4;
+  --mastery-1:         #DC2626;
+  --mastery-1-bg:      #FEF2F2;
+  --mastery-2:         #EA580C;
+  --mastery-2-bg:      #FFF7ED;
+  --mastery-3:         #D97706;
+  --mastery-3-bg:      #FFFBEB;
+  --mastery-4:         #16A34A;
+  --mastery-4-bg:      #F0FDF4;
+  --mastery-5:         #166534;
+  --mastery-5-bg:      #DCFCE7;
+
+  /* ── Shadows ── */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.05);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.10), 0 10px 10px rgba(0,0,0,0.04);
+
+  /* ── Border radius ── */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-full: 9999px;
+
+  /* ── Easing (name-locked — used in animation definitions) ── */
+  --z-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --z-ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --z-ease-out:    cubic-bezier(0.0, 0.0, 0.2, 1);
+
+  /* ── Transitions ── */
+  --transition-fast:  100ms ease;
+  --transition-base:  150ms ease;
+  --transition-slow:  250ms ease-in-out;
+
+  /* ── Blur (zeroed by prefers-reduced-transparency) ── */
   --z-blur-sm: blur(4px);
   --z-blur-md: blur(8px);
+
+  /* ── Radius aliases (legacy compat) ── */
+  --z-radius-sm:  var(--radius-md);
+  --z-radius-md:  var(--radius-lg);
+  --z-radius-lg:  var(--radius-xl);
+  --z-radius-xl:  20px;
 }
 
 /* ── Dark theme ── */
 .dark, [data-theme="dark"] {
   color-scheme: dark;
 
-  --background:        oklch(0.11 0.012 280);
-  --foreground:        oklch(0.94 0.006 280);
-  --surface:           oklch(0.14 0.012 280);
-  --surface-elevated:  oklch(0.17 0.010 280);
-  --border:            oklch(0.25 0.018 280);
-  --border-subtle:     oklch(0.32 0.015 280);
-  --primary:           oklch(0.62 0.200 264);
-  --primary-fg:        oklch(1.00 0.000   0);
-  --muted:             oklch(0.55 0.015 280);
-  --muted-fg:          oklch(0.68 0.010 280);
-  --dim:               oklch(0.55 0.008 280);
-  --faint:             oklch(0.42 0.005 280);
-  --success:           oklch(0.68 0.16  155);
-  --destructive:       oklch(0.70 0.22   27);
-  --info:              oklch(0.68 0.18  255);
-  --purple:            oklch(0.68 0.20  295);
-  --highlight:         oklch(0.20 0.030  74);
+  --background:        #171410;
+  --foreground:        #F5F0E8;
+  --surface:           #252219;
+  --surface-elevated:  #2D2A22;
+  --border:            #3D3A30;
+  --border-subtle:     #4F4A40;
 
-  /* Glass surface tokens — dark mode (smoky navy) */
-  --glass-bg:          rgba(13, 18, 33, 0.70);
-  --glass-bg-elevated: rgba(17, 24, 39, 0.85);
-  --glass-border:      rgba(255, 255, 255, 0.08);
-  --glass-shadow:      0 4px 24px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.05);
+  --muted:             #57534E;
+  --muted-fg:          #A8A29E;
+  --dim:               #78716C;
+  --faint:             #57534E;
+
+  --fg-secondary:      var(--muted-fg);
+  --fg-tertiary:       var(--muted);
+  --fg-disabled:       #44403C;
+  --surface-raised:    var(--surface-elevated);
+
+  --primary:           #4ADE80;
+  --primary-fg:        #14532D;
+  --primary-subtle:    rgba(22, 101, 52, 0.25);
+  --primary-border:    #166534;
+
+  --accent:            #FB923C;
+  --accent-fg:         #7C2D12;
+  --accent-subtle:     rgba(194, 65, 12, 0.20);
+  --accent-border:     #C2410C;
+
+  --success:           #4ADE80;
+  --warning:           #FCD34D;
+  --destructive:       #F87171;
+  --info:              #60A5FA;
+  --purple:            #A78BFA;
+  --highlight:         rgba(22, 101, 52, 0.25);
+
+  --mastery-0:         #78716C;
+  --mastery-0-bg:      #292524;
+  --mastery-1:         #F87171;
+  --mastery-1-bg:      #450A0A;
+  --mastery-2:         #FB923C;
+  --mastery-2-bg:      #431407;
+  --mastery-3:         #FCD34D;
+  --mastery-3-bg:      #78350F;
+  --mastery-4:         #4ADE80;
+  --mastery-4-bg:      #14532D;
+  --mastery-5:         #86EFAC;
+  --mastery-5-bg:      #052E16;
+
+  --choice-chosen-bg:   rgba(194, 65, 12, 0.15);
+  --choice-wrong-bg:    rgba(220, 38, 38, 0.15);
+  --choice-wrong-border:rgba(220, 38, 38, 0.35);
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.20);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.25);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.30), 0 2px 4px rgba(0,0,0,0.25);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.35), 0 4px 6px rgba(0,0,0,0.20);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.40), 0 10px 10px rgba(0,0,0,0.20);
 }
 
 /* ─── Accessibility: High contrast boosts ────────────────────────────────── */
 @media (prefers-contrast: more) {
   :root {
-    --muted-fg: oklch(0.25 0.010 280);
-    --dim:      oklch(0.18 0.008 280);
-    --faint:    oklch(0.12 0.005 280);
-    --border:   oklch(0.60 0.010  74);
+    --muted-fg: #44403C;
+    --dim:      #292524;
+    --faint:    #1C1917;
+    --border:   #A8A29E;
   }
   .dark, [data-theme="dark"] {
-    --muted-fg: oklch(0.80 0.010 280);
-    --dim:      oklch(0.70 0.008 280);
-    --faint:    oklch(0.62 0.005 280);
-    --border:   oklch(0.40 0.018 280);
+    --muted-fg: #D6D3D1;
+    --dim:      #E7E5E4;
+    --faint:    #F5F5F4;
+    --border:   #78716C;
   }
 }
 
-/* ─── Accessibility: Reduced transparency — disable glassmorphism ────────── */
+/* ─── Accessibility: Reduced transparency ────────────────────────────────── */
 @media (prefers-reduced-transparency: reduce) {
   :root { --z-blur-sm: none; --z-blur-md: none; }
   [class*="backdrop-blur"] {
     backdrop-filter: none !important;
     background-color: var(--surface) !important;
   }
-  /* GR-4: .glass-* use backdrop-filter directly, not via Tailwind class name */
   .glass-base, .glass-elevated, .glass-brand {
     backdrop-filter: none !important;
     background-color: var(--surface) !important;
@@ -228,7 +238,7 @@
   }
 }
 
-/* ─── Accessibility: Touch targets (coarse pointer = touch screen) ───────── */
+/* ─── Accessibility: Touch targets ───────────────────────────────────────── */
 @media (pointer: coarse) {
   button, [role="button"], input, select {
     min-height: 44px;
@@ -243,7 +253,7 @@
   border-radius: 3px;
 }
 
-/* ─── Reduced data: skip heavy decorative assets on metered connections ───── */
+/* ─── Reduced data: skip heavy decorative assets ─────────────────────────── */
 @media (prefers-reduced-data: reduce) {
   @font-face { font-display: optional; }
   .ambient-glow, .starfield-canvas, video[autoplay] { display: none !important; }
@@ -260,97 +270,99 @@
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 
-/* ─── Premium Surface System ─────────────────────────────────────────────── */
-
-/* Tier 1 — base glass: cards, panels */
-.glass-base {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-}
-
-/* Tier 2 — elevated glass: modals, hover states */
-.glass-elevated {
-  background: var(--glass-bg-elevated);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-}
-
-/* Tier 3 — brand glass: featured CTAs, highlighted cards */
-.glass-brand {
-  background: linear-gradient(135deg, rgba(242,162,12,0.08) 0%, var(--glass-bg-elevated) 60%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(242,162,12,0.25);
-  box-shadow: 0 0 30px rgba(242,162,12,0.08), var(--glass-shadow);
-}
-
-/* ─── Gradient Text ───────────────────────────────────────────────────────── */
-
-.text-gradient-brand {
-  background: linear-gradient(135deg, #818CF8 0%, #6366F1 40%, #A5B4FC 80%, #4F46E5 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.text-gradient-aurora {
-  background: linear-gradient(135deg, #818CF8 0%, #C084FC 40%, #F472B6 80%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* ─── Glow Hierarchy ─────────────────────────────────────────────────────── */
-
-.glow-primary {
-  box-shadow: 0 0 20px rgba(242, 162, 12, 0.4),
-              0 0 60px rgba(242, 162, 12, 0.15);
-  transition: box-shadow 0.3s ease;
-}
-.glow-primary:hover {
-  box-shadow: 0 0 30px rgba(242, 162, 12, 0.6),
-              0 0 80px rgba(242, 162, 12, 0.25);
-}
-
-.glow-success {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3),
-              0 0 50px rgba(16, 185, 129, 0.1);
-}
-
-.glow-info {
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3),
-              0 0 50px rgba(99, 102, 241, 0.1);
-}
-
-/* ─── Score Circle Pulse ──────────────────────────────────────────────────── */
-
-@keyframes score-pulse {
-  0%, 100% { filter: drop-shadow(0 0 8px rgba(242, 162, 12, 0.6)); }
-  50%       { filter: drop-shadow(0 0 20px rgba(242, 162, 12, 0.9)); }
-}
-.score-circle {
-  animation: score-pulse 3s ease-in-out infinite;
-}
-
-/* ─────────────────────────────────────────────────────────────────────────── */
-
 body {
   background-color: var(--background);
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--foreground);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   font-size: 16px;
-  line-height: 1.6;
-  letter-spacing: 0.01em;
+  line-height: 1.5;
+  letter-spacing: 0em;
 }
 
-/* ─── Answer Feedback Animations ──────────────────────────────────────────── */
+/* ─── Surface System ─────────────────────────────────────────────────────────
+   Class names preserved from old system — 73+ JSX files reference these.
+   Bodies completely replaced: no backdrop-filter, no blur, no transparency.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.glass-base {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.glass-elevated {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+}
+
+.glass-brand {
+  background: var(--primary-subtle);
+  border: 1px solid var(--primary-border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Additional surface utilities */
+.surface-flat    { background: var(--surface); border: 1px solid var(--border); }
+.surface-raised  { background: var(--surface-elevated); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+.surface-overlay { background: var(--background); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-xl); }
+
+/* ─── Button Utilities ───────────────────────────────────────────────────── */
+
+.btn-primary, .btn-accent, .btn-outline, .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  border: 1px solid transparent;
+}
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-fg);
+}
+.btn-primary:hover { background: #14532D; }
+
+.btn-accent {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.btn-accent:hover { background: #9A3412; }
+
+.btn-outline {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--foreground);
+}
+.btn-outline:hover { background: var(--surface); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted-fg);
+}
+.btn-ghost:hover { background: var(--surface); color: var(--foreground); }
+
+/* ─── Text Utilities ─────────────────────────────────────────────────────── */
+
+.text-gradient-brand {
+  background: linear-gradient(135deg, #166534 0%, #15803D 50%, #4ADE80 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ─── Answer Feedback Animations (name-locked — QuestionCard.jsx lines 150–151) ── */
+
 @keyframes z-correct-flash {
   0%   { background-color: transparent; }
-  40%  { background-color: rgba(16, 185, 129, 0.25); }
+  40%  { background-color: rgba(22, 163, 74, 0.20); }
   100% { background-color: transparent; }
 }
 @keyframes z-wrong-shake {
@@ -378,128 +390,26 @@ body {
   animation-delay: 80ms;
 }
 
+/* ─── Skeleton Loading (name-locked — Skeleton.jsx + Account.jsx + Results.jsx) ── */
+
 @keyframes shimmer {
   0%   { background-position: -400px 0; }
   100% { background-position:  400px 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background: linear-gradient(90deg, #E7E5E4 25%, #D6D3D1 50%, #E7E5E4 75%);
   background-size: 800px 100%;
   animation: shimmer 1.4s infinite linear;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
+}
+.dark .skeleton,
+[data-theme="dark"] .skeleton {
+  background: linear-gradient(90deg, #3D3A30 25%, #4F4A40 50%, #3D3A30 75%);
+  background-size: 800px 100%;
 }
 
-/* Exam content protection — block casual copy/select */
-.exam-content {
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-}
+/* ─── Touch Ripple (name-locked — main.jsx lines 18–19 set --ripple-x/y) ── */
 
-@keyframes toast-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-/* KaTeX — normalize math font size to match surrounding text in all contexts */
-.katex { font-size: 1em; }
-
-/* Stream cursor — appears during AI streaming, no blink, fades out when done */
-.stream-cursor {
-  transition: opacity 0.2s ease;
-}
-
-/* Word-level streaming fade — applied to newly arrived text chunks */
-@keyframes word-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-.word-fade {
-  animation: word-fade-in 0.1s ease-out forwards;
-}
-
-/* View Transitions API — custom slide keyframes (progressive enhancement for browsers that support it) */
-@keyframes vt-slide-in-from-right  { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes vt-slide-out-to-left    { from { opacity: 1; transform: translateX(0); }    to { opacity: 0; transform: translateX(-60px); } }
-::view-transition-new(root)  { animation: vt-slide-in-from-right 0.28s cubic-bezier(0.25,0.46,0.45,0.94) both; }
-::view-transition-old(root)  { animation: vt-slide-out-to-left   0.20s ease-in both; }
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-new(root), ::view-transition-old(root) { animation: none; }
-}
-
-/* Zenith wordmark shimmer */
-@keyframes zenith-shimmer {
-  0%   { background-position: 200% center; }
-  100% { background-position: -200% center; }
-}
-
-/* AuroraBackground orb animations — referenced via Tailwind arbitrary animate-[ambient-float-N...] */
-@keyframes ambient-float-0 {
-  0%, 100% { transform: translate(0%, 0%) scale(1); }
-  33%       { transform: translate(3%, -4%) scale(1.05); }
-  66%       { transform: translate(-2%, 3%) scale(0.97); }
-}
-@keyframes ambient-float-1 {
-  0%, 100% { transform: translate(0%, 0%) scale(1); }
-  40%       { transform: translate(-4%, 3%) scale(1.07); }
-  70%       { transform: translate(2%, -2%) scale(0.95); }
-}
-@keyframes ambient-float-2 {
-  0%, 100% { transform: translate(0%, 0%) scale(1); }
-  25%       { transform: translate(4%, 2%) scale(0.96); }
-  60%       { transform: translate(-3%, -3%) scale(1.06); }
-}
-@keyframes ambient-float-3 {
-  0%, 100% { transform: translate(0%, 0%) scale(1); }
-  35%       { transform: translate(-2%, 4%) scale(1.04); }
-  75%       { transform: translate(3%, -1%) scale(0.98); }
-}
-
-/* TestInterface breathing ring behind timer */
-@keyframes breathe {
-  0%, 100% { transform: scale(1);    opacity: 0.07; }
-  50%       { transform: scale(1.12); opacity: 0.14; }
-}
-
-/* ── Oracle bubble state machine ──────────────────────────────────────────── */
-@keyframes oracle-idle {
-  0%, 100% { box-shadow: 0 0 0 0 var(--oracle-glow, #6366F140); }
-  50%       { box-shadow: 0 0 8px 4px var(--oracle-glow, #6366F130); }
-}
-@keyframes oracle-thinking {
-  0%, 100% { box-shadow: 0 0 0 0 var(--oracle-glow, #6366F140); }
-  33%       { box-shadow: 0 0 12px 6px var(--oracle-glow, #6366F150); }
-  66%       { box-shadow: 0 0 4px 2px var(--oracle-glow, #6366F130); }
-}
-@keyframes oracle-celebrating {
-  0%   { transform: scale(1); }
-  30%  { transform: scale(1.22); }
-  55%  { transform: scale(0.95); }
-  75%  { transform: scale(1.08); }
-  100% { transform: scale(1); }
-}
-@keyframes oracle-error {
-  0%, 100% { transform: translateX(0); }
-  20%  { transform: translateX(-4px); }
-  40%  { transform: translateX(4px); }
-  60%  { transform: translateX(-3px); }
-  80%  { transform: translateX(3px); }
-}
-
-[data-oracle-state="idle"] {
-  animation: oracle-idle 2.5s ease-in-out infinite;
-}
-[data-oracle-state="thinking"] {
-  animation: oracle-thinking 0.7s ease-in-out infinite;
-}
-[data-oracle-state="celebrating"] {
-  animation: oracle-celebrating 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-[data-oracle-state="error"] {
-  animation: oracle-error 0.35s ease-in-out forwards;
-}
-
-/* Touch ripple on interactive buttons */
 .ripple-btn {
   position: relative;
   overflow: hidden;
@@ -511,10 +421,10 @@ body {
   height: 200%;
   top: calc(var(--ripple-y, 50%) - 100%);
   left: calc(var(--ripple-x, 50%) - 100%);
-  background: rgba(255,255,255,0.15);
+  background: rgba(22, 101, 52, 0.12);
   border-radius: 50%;
   transform: scale(0);
-  mix-blend-mode: overlay;
+  mix-blend-mode: multiply;
   pointer-events: none;
 }
 .ripple-btn:active::after {
@@ -523,35 +433,53 @@ body {
   transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
-/* Streak fire flicker — applied to .streak-fire spans */
-@keyframes streak-flicker {
-  0%   { transform: scale(1)    rotate(-2deg); filter: brightness(1); }
-  25%  { transform: scale(1.08) rotate(1deg);  filter: brightness(1.15); }
-  50%  { transform: scale(0.95) rotate(-1deg); filter: brightness(0.9); }
-  75%  { transform: scale(1.05) rotate(2deg);  filter: brightness(1.1); }
-  100% { transform: scale(1)    rotate(-2deg); filter: brightness(1); }
-}
-.streak-fire {
-  display: inline-block;
-  animation: streak-flicker 0.5s ease-in-out infinite alternate;
-  transform-origin: center bottom;
-}
-@media (prefers-reduced-motion: reduce) {
-  .streak-fire { animation: none; }
+/* ─── Utility: Exam content protection ───────────────────────────────────── */
+
+.exam-content {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 
-/* View Transitions API — smooth page-level cross-fades */
-@keyframes vt-fade-in  { from { opacity: 0; transform: translateY(6px) } }
-@keyframes vt-fade-out { to   { opacity: 0; transform: translateY(-6px) } }
+/* ─── KaTeX math ─────────────────────────────────────────────────────────── */
+
+.katex { font-size: 1em; }
+
+/* ─── AI streaming ───────────────────────────────────────────────────────── */
+
+.stream-cursor {
+  transition: opacity 0.2s ease;
+}
+
+@keyframes word-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.word-fade {
+  animation: word-fade-in 0.1s ease-out forwards;
+}
+
+/* ─── Toast ──────────────────────────────────────────────────────────────── */
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── View Transitions (fade only — slide removed) ───────────────────────── */
+
+@keyframes vt-fade-in  { from { opacity: 0; } }
+@keyframes vt-fade-out { to   { opacity: 0; } }
 
 ::view-transition-old(root) {
-  animation: 180ms ease-in both vt-fade-out;
+  animation: 150ms ease-in both vt-fade-out;
 }
 ::view-transition-new(root) {
-  animation: 260ms ease-out both vt-fade-in;
+  animation: 200ms ease-out both vt-fade-in;
 }
 
-/* Reduced-motion baseline — belt-and-suspenders for MotionConfig reducedMotion="user" */
+/* ─── Reduced motion baseline ─────────────────────────────────────────────── */
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -559,4 +487,5 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  ::view-transition-new(root), ::view-transition-old(root) { animation: none; }
 }

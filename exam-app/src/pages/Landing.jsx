@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { useAuth } from '../context/AuthContext.jsx'
-import AmbientGlows from '../components/AmbientGlows.jsx'
+
 import { useHistory } from '../context/HistoryContext.jsx'
 import { computeStreak } from '../utils/streak.js'
 import { getDaysUntilExam, getExamYear } from '../utils/examCountdown.js'
@@ -132,8 +132,8 @@ const MAP_CONCEPTS = [
   { id: 'prob', name: 'Xác suất thống kê', afterStage: 3 },
 ]
 
-const STAGE_NODE_COLOR = ['#334155', '#EF4444', '#F97316', '#F59E0B', '#22C55E', '#10B981']
-const STAGE_NODE_BG    = ['#1E2A44', '#7F1D1D', '#431407', '#78350F', '#14532D', '#022C22']
+const STAGE_NODE_COLOR = ['var(--fg-tertiary)', 'var(--mastery-1)', 'var(--mastery-2)', 'var(--mastery-3)', 'var(--mastery-4)', 'var(--mastery-5)']
+const STAGE_NODE_BG    = ['var(--surface)', 'var(--mastery-1-bg)', 'var(--mastery-2-bg)', 'var(--mastery-3-bg)', 'var(--mastery-4-bg)', 'var(--mastery-5-bg)']
 const STAGE_NAME_VI    = ['Chưa học', 'Bắt đầu', 'Đang học', 'Khá tốt', 'Thành thạo', 'Xuất sắc']
 
 function Demo1MasteryMap() {
@@ -142,20 +142,20 @@ function Demo1MasteryMap() {
   return (
     <div className="flex flex-col gap-4 text-left w-full max-w-3xl">
       <div className="text-center">
-        <span className="font-jakarta text-[11px] font-semibold tracking-[3px] uppercase text-dim">Bản đồ kiến thức</span>
-        <h2 className="font-fraunces text-[28px] font-bold text-foreground mt-2">
+        <span className="font-sans text-[11px] font-semibold tracking-[3px] uppercase text-dim">Bản đồ kiến thức</span>
+        <h2 className="font-sans text-[28px] font-bold text-foreground mt-2">
           Nhìn thấy chính xác bạn đang ở đâu
         </h2>
-        <p className="font-jakarta text-[13px] text-dim mt-1">Mỗi khái niệm bạn luyện tập đều được theo dõi tự động.</p>
+        <p className="font-sans text-[13px] text-dim mt-1">Mỗi khái niệm bạn luyện tập đều được theo dõi tự động.</p>
       </div>
 
       {/* Before/after toggle */}
       <div className="flex items-center justify-center gap-2">
         <button
           onClick={() => setShowAfter(false)}
-          className="px-4 py-1.5 rounded-full font-jakarta text-[12px] font-semibold transition"
+          className="px-4 py-1.5 rounded-full font-sans text-[12px] font-semibold transition"
           style={!showAfter
-            ? { background: '#334155', color: '#F0F4FF', border: '1px solid #475569' }
+            ? { background: 'var(--surface)', color: 'var(--foreground)', border: '1px solid var(--border)' }
             : { background: 'transparent', color: 'var(--dim)', border: '1px solid var(--surface)' }
           }
         >
@@ -163,9 +163,9 @@ function Demo1MasteryMap() {
         </button>
         <button
           onClick={() => setShowAfter(true)}
-          className="px-4 py-1.5 rounded-full font-jakarta text-[12px] font-semibold transition"
+          className="px-4 py-1.5 rounded-full font-sans text-[12px] font-semibold transition"
           style={showAfter
-            ? { background: '#14532D', color: '#10B981', border: '1px solid #22C55E44' }
+            ? { background: 'var(--primary)', color: 'var(--primary-fg)', border: '1px solid var(--primary-border)' }
             : { background: 'transparent', color: 'var(--dim)', border: '1px solid var(--surface)' }
           }
         >
@@ -192,10 +192,10 @@ function Demo1MasteryMap() {
               onMouseLeave={() => setHovered(null)}
               className="rounded-xl border p-3 cursor-default select-none flex flex-col gap-1 relative"
             >
-              <p className="font-jakarta text-[11px] font-semibold leading-tight" style={{ color: STAGE_NODE_COLOR[stage] }}>
+              <p className="font-sans text-[11px] font-semibold leading-tight" style={{ color: STAGE_NODE_COLOR[stage] }}>
                 {c.name}
               </p>
-              <p className="font-jakarta text-[9px]" style={{ color: STAGE_NODE_COLOR[stage] + '99' }}>
+              <p className="font-sans text-[9px]" style={{ color: STAGE_NODE_COLOR[stage] + '99' }}>
                 {STAGE_NAME_VI[stage]}
               </p>
               {/* Tooltip on hover */}
@@ -203,7 +203,7 @@ function Demo1MasteryMap() {
                 <motion.div
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="absolute -top-10 left-0 z-20 px-2.5 py-1.5 rounded-lg text-[10px] font-jakarta font-semibold whitespace-nowrap pointer-events-none"
+                  className="absolute -top-10 left-0 z-20 px-2.5 py-1.5 rounded-lg text-[10px] font-sans font-semibold whitespace-nowrap pointer-events-none"
                   style={{ background: STAGE_NODE_BG[c.afterStage], border: `1px solid ${STAGE_NODE_COLOR[c.afterStage]}55`, color: STAGE_NODE_COLOR[c.afterStage] }}
                 >
                   {STAGE_NAME_VI[c.afterStage]} · {c.afterStage * 20}% thành thạo
@@ -213,7 +213,7 @@ function Demo1MasteryMap() {
           )
         })}
       </div>
-      <p className="font-jakarta text-[12px] text-dim text-center">
+      <p className="font-sans text-[12px] text-dim text-center">
         Zenith tự động cập nhật bản đồ sau mỗi bài làm — không cần cài đặt.
       </p>
     </div>
@@ -232,11 +232,11 @@ function Demo3Recommendations({ onOpenAuth }) {
   return (
     <div className="flex flex-col gap-4 text-left w-full max-w-3xl">
       <div className="text-center">
-        <span className="font-jakarta text-[11px] font-semibold tracking-[3px] uppercase text-dim">Đề xuất thích nghi</span>
-        <h2 className="font-fraunces text-[28px] font-bold text-foreground mt-2">
+        <span className="font-sans text-[11px] font-semibold tracking-[3px] uppercase text-dim">Đề xuất thích nghi</span>
+        <h2 className="font-sans text-[28px] font-bold text-foreground mt-2">
           Zenith biết bạn nên học gì tiếp theo
         </h2>
-        <p className="font-jakarta text-[13px] text-dim mt-1">Dựa trên học sinh lớp 12 tại Hà Nội, điểm 6.2</p>
+        <p className="font-sans text-[13px] text-dim mt-1">Dựa trên học sinh lớp 12 tại Hà Nội, điểm 6.2</p>
       </div>
       <div className="relative flex flex-col gap-2">
         {DEMO_RECS.map((rec, i) => (
@@ -248,12 +248,12 @@ function Demo3Recommendations({ onOpenAuth }) {
             onClick={() => setClicked(true)}
             className="flex items-center gap-4 px-5 py-4 rounded-xl bg-surface border border-surface cursor-pointer hover:border-border transition-colors"
           >
-            <span className="font-fraunces text-[22px] font-bold flex-shrink-0" style={{ color: rec.color }}>{rec.rank}</span>
+            <span className="font-sans text-[22px] font-bold flex-shrink-0" style={{ color: rec.color }}>{rec.rank}</span>
             <div className="flex-1 min-w-0">
-              <p className="font-jakarta text-[13px] font-semibold text-foreground">{rec.title}</p>
-              <p className="font-jakarta text-[11px] text-dim">{rec.sub}</p>
+              <p className="font-sans text-[13px] font-semibold text-foreground">{rec.title}</p>
+              <p className="font-sans text-[11px] text-dim">{rec.sub}</p>
             </div>
-            <span className="font-jakarta text-[12px] text-dim flex-shrink-0">→</span>
+            <span className="font-sans text-[12px] text-dim flex-shrink-0">→</span>
           </motion.div>
         ))}
 
@@ -263,17 +263,17 @@ function Demo3Recommendations({ onOpenAuth }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="absolute inset-0 rounded-xl flex items-center justify-center"
-            style={{ backdropFilter: 'blur(6px)', background: 'rgba(10,14,26,0.75)' }}
+            style={{ backdropFilter: 'blur(6px)', background: 'rgba(0,0,0,0.55)' }}
           >
             <div className="flex flex-col items-center gap-3 text-center px-4">
-              <p className="font-jakarta text-[14px] font-semibold text-foreground">Đăng nhập để xem lộ trình của bạn</p>
+              <p className="font-sans text-[14px] font-semibold text-foreground">Đăng nhập để xem lộ trình của bạn</p>
               <button
                 onClick={onOpenAuth}
-                className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-primary-fg bg-primary hover:opacity-90 transition"
+                className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-bold text-primary-fg bg-primary hover:opacity-90 transition"
               >
                 Bắt đầu miễn phí →
               </button>
-              <button onClick={() => setClicked(false)} className="font-jakarta text-[11px] text-dim hover:text-muted transition">
+              <button onClick={() => setClicked(false)} className="font-sans text-[11px] text-dim hover:text-muted transition">
                 Xem ví dụ
               </button>
             </div>
@@ -296,16 +296,16 @@ function Demo4ScoreSlider({ onOpenAuth }) {
   return (
     <div className="flex flex-col gap-4 text-left w-full max-w-3xl">
       <div className="text-center">
-        <span className="font-jakarta text-[11px] font-semibold tracking-[3px] uppercase text-dim">Dự đoán điểm</span>
-        <h2 className="font-fraunces text-[28px] font-bold text-foreground mt-2">
+        <span className="font-sans text-[11px] font-semibold tracking-[3px] uppercase text-dim">Dự đoán điểm</span>
+        <h2 className="font-sans text-[28px] font-bold text-foreground mt-2">
           Bạn có thể đạt bao nhiêu điểm?
         </h2>
-        <p className="font-jakarta text-[13px] text-dim mt-1">Điều chỉnh điểm hiện tại để xem dự đoán Zenith</p>
+        <p className="font-sans text-[13px] text-dim mt-1">Điều chỉnh điểm hiện tại để xem dự đoán Zenith</p>
       </div>
       <div className="bg-surface border border-surface rounded-2xl p-6 flex flex-col gap-5">
         {/* Slider */}
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between font-jakarta text-[12px]">
+          <div className="flex items-center justify-between font-sans text-[12px]">
             <span className="text-dim">Điểm thi thử hiện tại</span>
             <span className="font-bold text-foreground text-[16px]">{current.toFixed(1)}</span>
           </div>
@@ -316,7 +316,7 @@ function Demo4ScoreSlider({ onOpenAuth }) {
             className="w-full h-2 rounded-full appearance-none cursor-pointer"
             style={{ accentColor: 'var(--primary)' }}
           />
-          <div className="flex justify-between font-jakarta text-[10px] text-dim">
+          <div className="flex justify-between font-sans text-[10px] text-dim">
             <span>4.0</span><span>6.0</span><span>8.0</span><span>9.5</span>
           </div>
         </div>
@@ -324,12 +324,12 @@ function Demo4ScoreSlider({ onOpenAuth }) {
         {/* Prediction */}
         <div className={`rounded-xl px-5 py-4 flex items-center justify-between gap-4 border ${onTrack ? 'border-success/30 bg-success/5' : 'border-amber-500/30 bg-amber-500/5'}`}>
           <div className="flex flex-col gap-0.5">
-            <p className="font-jakarta text-[11px] font-semibold uppercase tracking-wider text-dim">Dự đoán sau {Math.max(2, weeks)} tuần</p>
+            <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Dự đoán sau {Math.max(2, weeks)} tuần</p>
             <div className="flex items-baseline gap-2">
-              <span className="font-fraunces text-[28px] font-bold" style={{ color: onTrack ? '#10B981' : '#F59E0B' }}>{predicted.toFixed(1)}</span>
-              <span className="font-jakarta text-[12px] text-dim">({lo} – {hi})</span>
+              <span className="font-sans text-[28px] font-bold" style={{ color: onTrack ? 'var(--success)' : 'var(--warning)' }}>{predicted.toFixed(1)}</span>
+              <span className="font-sans text-[12px] text-dim">({lo} – {hi})</span>
             </div>
-            <p className="font-jakarta text-[11px] text-dim">
+            <p className="font-sans text-[11px] text-dim">
               {onTrack ? '↗ Đang tiến đúng hướng để đạt mục tiêu' : '⚠ Cần tăng tốc luyện tập để bứt phá'}
             </p>
           </div>
@@ -337,11 +337,11 @@ function Demo4ScoreSlider({ onOpenAuth }) {
 
         <button
           onClick={onOpenAuth}
-          className="w-full py-3 rounded-xl font-jakarta text-[13px] font-bold text-primary-fg bg-primary hover:opacity-90 transition"
+          className="w-full py-3 rounded-xl font-sans text-[13px] font-bold text-primary-fg bg-primary hover:opacity-90 transition"
         >
           Nhận dự đoán chính xác của bạn →
         </button>
-        <p className="font-jakarta text-[11px] text-dim text-center">Dự đoán thực dùng thuật toán Kalman dựa trên lịch sử làm bài của bạn</p>
+        <p className="font-sans text-[11px] text-dim text-center">Dự đoán thực dùng thuật toán Kalman dựa trên lịch sử làm bài của bạn</p>
       </div>
     </div>
   )
@@ -368,7 +368,7 @@ function FeatureShowcase() {
       <div className="flex items-center gap-2 justify-center flex-wrap">
         {SCENES.map((s, i) => (
           <button key={s.id} onClick={() => pick(i)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full font-jakarta text-[12px] font-semibold transition"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full font-sans text-[12px] font-semibold transition"
             style={active === i
               ? { background: s.accent + '22', border: `1px solid ${s.accent}55`, color: s.accent }
               : { background: 'transparent', border: '1px solid var(--surface)', color: 'var(--dim)' }
@@ -389,14 +389,14 @@ function FeatureShowcase() {
         {/* Left: text */}
         <div className="flex-1 flex flex-col justify-center gap-3">
           <div>
-            <p className="font-fraunces text-[18px] font-bold text-foreground leading-snug">{scene.headline}</p>
-            <p className="font-jakarta text-[13px] text-dim mt-1.5">{scene.sub}</p>
+            <p className="font-sans text-[18px] font-bold text-foreground leading-snug">{scene.headline}</p>
+            <p className="font-sans text-[13px] text-dim mt-1.5">{scene.sub}</p>
           </div>
           {/* Progress dots */}
           <div className="flex items-center gap-2">
             {SCENES.map((s, i) => (
               <motion.div key={s.id}
-                animate={{ width: active === i ? 24 : 6, background: active === i ? scene.accent : '#1E2A44' }}
+                animate={{ width: active === i ? 24 : 6, background: active === i ? scene.accent : 'var(--border)' }}
                 className="h-1.5 rounded-full cursor-pointer"
                 onClick={() => pick(i)}
               />
@@ -411,8 +411,8 @@ function FeatureShowcase() {
               initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.08 }}
               className="flex items-center justify-between px-3 py-2 rounded-lg bg-surface border border-surface">
-              <span className="font-jakarta text-[12px] text-muted truncate flex-1 mr-2">{r.text}</span>
-              <span className="font-jakarta text-[12px] font-bold flex-shrink-0" style={{ color: r.color }}>{r.score}</span>
+              <span className="font-sans text-[12px] text-muted truncate flex-1 mr-2">{r.text}</span>
+              <span className="font-sans text-[12px] font-bold flex-shrink-0" style={{ color: r.color }}>{r.score}</span>
             </motion.div>
           ))}
           {scene.id === 'oracle' && scene.preview.map((r, i) => (
@@ -420,8 +420,8 @@ function FeatureShowcase() {
               initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.1 }}
               className="flex items-start gap-2.5">
-              <span className="font-fraunces text-[13px] font-bold flex-shrink-0" style={{ color: scene.accent }}>{r.step}</span>
-              <span className="font-jakarta text-[12px] text-muted leading-relaxed">{r.text}</span>
+              <span className="font-sans text-[13px] font-bold flex-shrink-0" style={{ color: scene.accent }}>{r.step}</span>
+              <span className="font-sans text-[12px] text-muted leading-relaxed">{r.text}</span>
             </motion.div>
           ))}
           {scene.id === 'analysis' && scene.preview.map((r, i) => (
@@ -429,7 +429,7 @@ function FeatureShowcase() {
               initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.08 }}
               className="flex flex-col gap-0.5">
-              <div className="flex justify-between font-jakarta text-[11px]">
+              <div className="flex justify-between font-sans text-[11px]">
                 <span className="text-muted">{r.topic}</span>
                 <span style={{ color: r.color }}>{r.pct}% {r.note}</span>
               </div>
@@ -447,8 +447,8 @@ function FeatureShowcase() {
               transition={{ delay: i * 0.1 }}
               className="flex items-center gap-3 px-3 py-2 rounded-lg bg-surface border border-surface">
               <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: r.color }} />
-              <span className="font-jakarta text-[12px] text-muted flex-1 truncate">{r.concept}</span>
-              <span className="font-jakarta text-[11px] font-bold flex-shrink-0" style={{ color: r.color }}>{r.mastery}%</span>
+              <span className="font-sans text-[12px] text-muted flex-1 truncate">{r.concept}</span>
+              <span className="font-sans text-[11px] font-bold flex-shrink-0" style={{ color: r.color }}>{r.mastery}%</span>
             </motion.div>
           ))}
         </div>
@@ -513,9 +513,7 @@ export default function Landing({ onOpenAuth }) {
     <motion.div
       className="min-h-screen relative overflow-hidden flex flex-col items-center"
       variants={pageVariants} initial="hidden" animate="show" exit="exit"
-      style={{ background: 'radial-gradient(ellipse 140% 100% at 50% 35%, #1B2B4B 0%, #0A0E1A 100%)' }}
     >
-      <AmbientGlows className="absolute inset-0 z-0" />
 
       {/* Sticky header CTA — appears after scrolling past hero */}
       <motion.div
@@ -523,20 +521,20 @@ export default function Landing({ onOpenAuth }) {
         animate={{ y: showStickyCta ? 0 : -64, opacity: showStickyCta ? 1 : 0 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3 border-b border-surface"
-        style={{ background: 'rgba(10,14,26,0.92)', backdropFilter: 'blur(12px)' }}
+        style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
       >
-        <span className="font-fraunces text-[15px] font-bold text-foreground">Zenith</span>
+        <span className="font-sans text-[15px] font-bold text-foreground">Zenith</span>
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate('/exams')}
-            className="px-4 py-2 rounded-lg font-jakarta text-[12px] font-semibold text-primary-fg bg-primary hover:opacity-90 transition"
+            className="px-4 py-2 rounded-lg font-sans text-[12px] font-semibold text-primary-fg bg-primary hover:opacity-90 transition"
           >
             Bắt đầu miễn phí →
           </button>
           {!user && (
             <button
               onClick={onOpenAuth}
-              className="px-4 py-2 rounded-lg font-jakarta text-[12px] font-semibold text-muted border border-surface hover:text-foreground transition"
+              className="px-4 py-2 rounded-lg font-sans text-[12px] font-semibold text-muted border border-surface hover:text-foreground transition"
             >
               Đăng nhập
             </button>
@@ -550,10 +548,10 @@ export default function Landing({ onOpenAuth }) {
       >
         <motion.div style={{ y: heroY }} className="flex flex-col items-center gap-5">
           <ZenithLogo variant="hero" />
-          <span className="font-jakarta text-[11px] font-semibold text-primary tracking-[3px] uppercase">
+          <span className="font-sans text-[11px] font-semibold text-primary tracking-[3px] uppercase">
             Kỳ thi tuyển sinh {getExamYear()} · Toán Lớp 10
           </span>
-          <h1 className="font-fraunces text-[56px] sm:text-[72px] font-bold text-foreground leading-[1.05] text-center">
+          <h1 className="font-sans text-[56px] sm:text-[72px] font-bold text-foreground leading-[1.05] text-center">
             <motion.span
               className="block"
               initial="hidden"
@@ -583,7 +581,7 @@ export default function Landing({ onOpenAuth }) {
               ))}
             </motion.span>
           </h1>
-          <p className="font-jakarta text-[17px] text-muted leading-relaxed max-w-[600px] text-center">
+          <p className="font-sans text-[17px] text-muted leading-relaxed max-w-[600px] text-center">
             Zenith phân tích từng bài thi, tìm đúng điểm yếu của bạn, và tạo lộ trình ôn tập cá nhân.<br />
             <span className="text-dim text-[15px]">
               Dữ liệu thực từ đề thi {province} · AI phát hiện lỗi sai và chỉ cách sửa.
@@ -605,30 +603,30 @@ export default function Landing({ onOpenAuth }) {
             <input
               name="query"
               placeholder="Nhập bài toán cần giải..."
-              className="flex-1 bg-transparent font-jakarta text-[15px] text-foreground placeholder-dim outline-none min-w-0"
+              className="flex-1 bg-transparent font-sans text-[15px] text-foreground placeholder-dim outline-none min-w-0"
             />
             <button type="submit"
-              className="flex-shrink-0 px-4 py-1.5 rounded-lg bg-info text-white font-jakarta text-[13px] font-semibold hover:bg-info/80 transition">
+              className="flex-shrink-0 px-4 py-1.5 rounded-lg bg-info text-white font-sans text-[13px] font-semibold hover:bg-info/80 transition">
               Hỏi →
             </button>
           </form>
           <div className="flex flex-col items-center gap-2">
             <div className="flex items-center gap-3">
               <motion.button onClick={() => navigate('/exams')}
-                className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-background bg-primary hover:opacity-90 transition"
+                className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-bold text-background bg-primary hover:opacity-90 transition"
                 whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
                 Thi thử ngay →
               </motion.button>
               <motion.button onClick={() => navigate('/diagnostic')}
-                className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-semibold text-muted border border-surface hover:border-primary/30 hover:text-foreground transition"
+                className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-semibold text-muted border border-surface hover:border-primary/30 hover:text-foreground transition"
                 whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
                 Kiểm tra năng lực
               </motion.button>
             </div>
             {!user && (
-              <p className="font-jakarta text-[11px] text-dim">
+              <p className="font-sans text-[11px] text-dim">
                 Không cần tạo tài khoản · Xem ngay kết quả
               </p>
             )}
@@ -642,21 +640,21 @@ export default function Landing({ onOpenAuth }) {
           >
             {session?.placement_needed && (
               <button onClick={() => navigate('/placement')}
-                className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-info hover:opacity-80 transition">
+                className="flex items-center gap-1.5 font-sans text-[13px] font-semibold text-info hover:opacity-80 transition">
                 <span className="w-1.5 h-1.5 rounded-full bg-info " />
                 Bắt đầu kiểm tra năng lực →
               </button>
             )}
             {session?.pending_count > 0 && (
               <button onClick={() => navigate('/daily')}
-                className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-primary hover:opacity-80 transition">
+                className="flex items-center gap-1.5 font-sans text-[13px] font-semibold text-primary hover:opacity-80 transition">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary " />
                 {session.pending_count} câu sai đang chờ — thử lại không?
               </button>
             )}
             {(session?.learning_streak > 0 || streak > 0) && (
               <motion.span
-                className="font-jakarta text-[13px] font-semibold text-primary"
+                className="font-sans text-[13px] font-semibold text-primary"
                 animate={{ scale: [1, 1.08, 1] }}
                 transition={{ duration: 0.8, repeat: Infinity, ease: 'easeInOut' }}
               >
@@ -664,48 +662,48 @@ export default function Landing({ onOpenAuth }) {
               </motion.span>
             )}
             {daysUntil != null && (
-              <span className="font-jakarta text-[13px] font-semibold text-info">📅 Còn {daysUntil} ngày</span>
+              <span className="font-sans text-[13px] font-semibold text-info">📅 Còn {daysUntil} ngày</span>
             )}
             {(session?.due_count > 0) && (
               <button onClick={() => navigate('/review')}
-                className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-success hover:opacity-80 transition">
+                className="flex items-center gap-1.5 font-sans text-[13px] font-semibold text-success hover:opacity-80 transition">
                 <span className="w-1.5 h-1.5 rounded-full bg-success " />
                 {session.due_count} câu cần ôn
               </button>
             )}
             {session?.remediation_concept && (session.remediation_concept.error_count ?? 0) >= 3 && (
               <button onClick={() => navigate('/review')}
-                className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-destructive hover:opacity-80 transition">
+                className="flex items-center gap-1.5 font-sans text-[13px] font-semibold text-destructive hover:opacity-80 transition">
                 <span className="w-1.5 h-1.5 rounded-full bg-destructive " />
                 Sửa lỗi {session.remediation_concept.name_vi} →
               </button>
             )}
             {session?.advance_concept && !session?.is_complete && (
               <button onClick={() => navigate('/practice/adaptive')}
-                className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold text-info hover:opacity-80 transition">
+                className="flex items-center gap-1.5 font-sans text-[13px] font-semibold text-info hover:opacity-80 transition">
                 ✦ Học {session.advance_concept.name_vi}
               </button>
             )}
             {readiness != null && (
-              <span className="font-jakarta text-[13px] font-semibold text-info">
+              <span className="font-sans text-[13px] font-semibold text-info">
                 📊 {readiness.readiness}% sẵn sàng
               </span>
             )}
             {session?.predicted_score != null && (
               <button
                 onClick={() => navigate('/study-plan/adaptive')}
-                className="flex items-center gap-1.5 font-jakarta text-[13px] font-semibold hover:opacity-80 transition"
-                style={{ color: session.on_track ? '#34D399' : '#F2A20C' }}
+                className="flex items-center gap-1.5 font-sans text-[13px] font-semibold hover:opacity-80 transition"
+                style={{ color: session.on_track ? 'var(--success)' : 'var(--accent)' }}
               >
                 {session.on_track ? '↗' : '⚠'} Dự kiến {session.predicted_score?.toFixed(1)}
               </button>
             )}
             <button onClick={() => navigate('/progress')}
-              className="font-jakarta text-[12px] text-dim hover:text-muted transition">
+              className="font-sans text-[12px] text-dim hover:text-muted transition">
               Bản đồ
             </button>
             <button onClick={() => navigate('/history')}
-              className="ml-auto font-jakarta text-[12px] text-dim hover:text-muted transition">
+              className="ml-auto font-sans text-[12px] text-dim hover:text-muted transition">
               Lịch sử →
             </button>
           </div>
@@ -715,15 +713,15 @@ export default function Landing({ onOpenAuth }) {
         {!user && (
           <div className="w-full max-w-xl relative rounded-2xl border border-surface overflow-hidden">
             <div className="px-5 py-4 flex items-center gap-5 flex-wrap blur-[3px] pointer-events-none select-none opacity-60">
-              <span className="font-jakarta text-[13px] font-semibold text-primary">🔥 12 ngày</span>
-              <span className="font-jakarta text-[13px] font-semibold text-info">📅 Còn 47 ngày</span>
-              <span className="font-jakarta text-[13px] font-semibold text-success">📊 72% sẵn sàng</span>
-              <span className="font-jakarta text-[13px] font-semibold text-info">↗ Dự kiến 7.5</span>
+              <span className="font-sans text-[13px] font-semibold text-primary">🔥 12 ngày</span>
+              <span className="font-sans text-[13px] font-semibold text-info">📅 Còn 47 ngày</span>
+              <span className="font-sans text-[13px] font-semibold text-success">📊 72% sẵn sàng</span>
+              <span className="font-sans text-[13px] font-semibold text-info">↗ Dự kiến 7.5</span>
             </div>
             <div className="absolute inset-0 flex items-center justify-center bg-surface/60 backdrop-blur-[1px]">
               <button
                 onClick={onOpenAuth}
-                className="px-5 py-2.5 rounded-xl font-jakarta text-[13px] font-bold text-background bg-primary hover:opacity-90 transition shadow-lg">
+                className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-bold text-background bg-primary hover:opacity-90 transition shadow-lg">
                 Đăng nhập để xem lộ trình của bạn →
               </button>
             </div>
@@ -731,7 +729,7 @@ export default function Landing({ onOpenAuth }) {
         )}
 
         {/* Proof strip */}
-        <div className="flex items-center gap-2 flex-wrap justify-center font-jakarta text-[13px] text-dim">
+        <div className="flex items-center gap-2 flex-wrap justify-center font-sans text-[13px] text-dim">
           {[
             { value: '1,104', label: 'câu từ đề thi thật', color: '#6366F1' },
             { value: '63', label: 'tỉnh thành', color: '#6366F1' },
@@ -739,7 +737,7 @@ export default function Landing({ onOpenAuth }) {
             { value: 'FSRS', label: 'ghi nhớ thông minh', color: '#34D399' },
           ].map(({ value, label, color }, i, arr) => (
             <span key={label} className="flex items-center gap-1.5">
-              <span className="font-fraunces font-bold text-[15px]" style={{ color }}>{value}</span>
+              <span className="font-sans font-bold text-[15px]" style={{ color }}>{value}</span>
               <span>{label}</span>
               {i < arr.length - 1 && <span className="text-border mx-2">·</span>}
             </span>
@@ -768,15 +766,15 @@ export default function Landing({ onOpenAuth }) {
             <div key={title}
               className="flex flex-col gap-2 bg-surface border border-surface rounded-2xl px-5 py-4 text-left">
               <span className="text-xl" style={{ color: iconColor }}>{icon}</span>
-              <span className="font-jakarta text-[14px] font-semibold text-foreground">{title}</span>
-              <span className="font-jakarta text-[12px] text-dim leading-relaxed">{desc}</span>
+              <span className="font-sans text-[14px] font-semibold text-foreground">{title}</span>
+              <span className="font-sans text-[12px] text-dim leading-relaxed">{desc}</span>
             </div>
           ))}
         </div>
         {/* ── Problem section ── */}
         <div className="w-full max-w-3xl flex flex-col gap-5 text-center">
-          <span className="font-jakarta text-[11px] font-semibold tracking-[3px] uppercase text-dim">Vấn đề</span>
-          <h2 className="font-fraunces text-[28px] font-bold text-foreground leading-tight">
+          <span className="font-sans text-[11px] font-semibold tracking-[3px] uppercase text-dim">Vấn đề</span>
+          <h2 className="font-sans text-[28px] font-bold text-foreground leading-tight">
             Ôn thi không thiếu đề — thiếu hướng dẫn đúng chỗ
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
@@ -787,8 +785,8 @@ export default function Landing({ onOpenAuth }) {
             ].map(({ icon, problem, reality }) => (
               <div key={problem} className="bg-surface border border-surface rounded-xl p-4 flex flex-col gap-2">
                 <span className="text-2xl">{icon}</span>
-                <p className="font-jakarta text-[13px] font-semibold text-foreground">{problem}</p>
-                <p className="font-jakarta text-[12px] text-dim leading-relaxed">{reality}</p>
+                <p className="font-sans text-[13px] font-semibold text-foreground">{problem}</p>
+                <p className="font-sans text-[12px] text-dim leading-relaxed">{reality}</p>
               </div>
             ))}
           </div>
@@ -797,8 +795,8 @@ export default function Landing({ onOpenAuth }) {
         {/* ── How Zenith Works ── */}
         <div className="w-full max-w-3xl flex flex-col gap-5">
           <div className="text-center">
-            <span className="font-jakarta text-[11px] font-semibold tracking-[3px] uppercase text-dim">Cách hoạt động</span>
-            <h2 className="font-fraunces text-[28px] font-bold text-foreground mt-2">3 bước từ đề thi đến làm chủ kiến thức</h2>
+            <span className="font-sans text-[11px] font-semibold tracking-[3px] uppercase text-dim">Cách hoạt động</span>
+            <h2 className="font-sans text-[28px] font-bold text-foreground mt-2">3 bước từ đề thi đến làm chủ kiến thức</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
@@ -807,9 +805,9 @@ export default function Landing({ onOpenAuth }) {
               { step: '03', title: 'Luyện đúng chỗ', desc: 'Thuật toán FSRS lên lịch ôn tập cá nhân — học ít hơn, nhớ lâu hơn' },
             ].map(({ step, title, desc }) => (
               <div key={step} className="flex flex-col gap-3 bg-surface border border-surface rounded-xl p-5">
-                <span className="font-fraunces text-[32px] font-bold text-primary/30 leading-none">{step}</span>
-                <p className="font-jakarta text-[14px] font-semibold text-foreground">{title}</p>
-                <p className="font-jakarta text-[12px] text-dim leading-relaxed">{desc}</p>
+                <span className="font-sans text-[32px] font-bold text-primary/30 leading-none">{step}</span>
+                <p className="font-sans text-[14px] font-semibold text-foreground">{title}</p>
+                <p className="font-sans text-[12px] text-dim leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -824,8 +822,8 @@ export default function Landing({ onOpenAuth }) {
         {/* ── Error Analysis Demo (Demo 2) ── */}
         <div className="w-full max-w-3xl flex flex-col gap-5">
           <div className="text-center">
-            <span className="font-jakarta text-[11px] font-semibold tracking-[3px] uppercase text-dim">Phân tích lỗi sai</span>
-            <h2 className="font-fraunces text-[28px] font-bold text-foreground mt-2">
+            <span className="font-sans text-[11px] font-semibold tracking-[3px] uppercase text-dim">Phân tích lỗi sai</span>
+            <h2 className="font-sans text-[28px] font-bold text-foreground mt-2">
               Zenith không chỉ chấm điểm — mà giải thích tại sao sai
             </h2>
           </div>
@@ -833,40 +831,40 @@ export default function Landing({ onOpenAuth }) {
             {/* Left: error analysis card */}
             <div className="flex-1 bg-surface border border-surface rounded-2xl p-5 flex flex-col gap-4">
               <div className="flex flex-col gap-1.5 pb-3 border-b border-surface">
-                <p className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase text-dim">Câu hỏi</p>
-                <p className="font-jakarta text-[13px] text-foreground">Tìm tập xác định của f(x) = log₂(x² − 4x + 3)</p>
+                <p className="font-sans text-[10px] font-bold tracking-[2px] uppercase text-dim">Câu hỏi</p>
+                <p className="font-sans text-[13px] text-foreground">Tìm tập xác định của f(x) = log₂(x² − 4x + 3)</p>
               </div>
               <div className="flex items-start gap-3">
                 <span className="w-5 h-5 rounded-full bg-destructive/15 text-destructive font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">✗</span>
                 <div>
-                  <p className="font-jakarta text-[10px] text-dim uppercase tracking-wide mb-0.5">Bạn chọn</p>
-                  <p className="font-jakarta text-[13px] text-muted">A. (1; 3)</p>
+                  <p className="font-sans text-[10px] text-dim uppercase tracking-wide mb-0.5">Bạn chọn</p>
+                  <p className="font-sans text-[13px] text-muted">A. (1; 3)</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <span className="w-5 h-5 rounded-full bg-success/15 text-success font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">✓</span>
                 <div>
-                  <p className="font-jakarta text-[10px] text-dim uppercase tracking-wide mb-0.5">Đáp án đúng</p>
-                  <p className="font-jakarta text-[13px] text-foreground font-semibold">B. (−∞; 1) ∪ (3; +∞)</p>
+                  <p className="font-sans text-[10px] text-dim uppercase tracking-wide mb-0.5">Đáp án đúng</p>
+                  <p className="font-sans text-[13px] text-foreground font-semibold">B. (−∞; 1) ∪ (3; +∞)</p>
                 </div>
               </div>
               <div className="flex flex-col gap-2 pt-3 border-t border-surface">
-                <p className="font-jakarta text-[10px] font-bold tracking-[2px] uppercase text-dim">Phân tích lỗi</p>
+                <p className="font-sans text-[10px] font-bold tracking-[2px] uppercase text-dim">Phân tích lỗi</p>
                 <div className="bg-destructive/8 border border-destructive/20 rounded-lg px-3 py-2.5">
-                  <p className="font-jakarta text-[12px] text-muted leading-relaxed">
+                  <p className="font-sans text-[12px] text-muted leading-relaxed">
                     Quên đảo chiều bất phương trình khi tìm điều kiện đối số logarithm — x² − 4x + 3 {'>'} 0 cho phần bù của (1; 3), không phải chính (1; 3).
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {['Hàm logarithm', 'Miền xác định', 'Bất phương trình bậc hai'].map(tag => (
-                    <span key={tag} className="font-jakarta text-[10px] px-2 py-0.5 rounded-full bg-info/10 text-info border border-info/20">{tag}</span>
+                    <span key={tag} className="font-sans text-[10px] px-2 py-0.5 rounded-full bg-info/10 text-info border border-info/20">{tag}</span>
                   ))}
                 </div>
               </div>
             </div>
             {/* Right: explanation */}
             <div className="flex-1 flex flex-col justify-center gap-4">
-              <p className="font-fraunces text-[20px] font-bold text-foreground leading-tight">
+              <p className="font-sans text-[20px] font-bold text-foreground leading-tight">
                 AI không chỉ chấm điểm — AI <span className="text-primary">tìm ra lỗi sai</span> của bạn
               </p>
               {[
@@ -875,13 +873,13 @@ export default function Landing({ onOpenAuth }) {
                 { step: '③', text: 'Đề xuất bài luyện đúng điểm yếu — không luyện lan man' },
               ].map(({ step, text }) => (
                 <div key={step} className="flex items-start gap-3">
-                  <span className="font-fraunces text-[15px] font-bold text-primary flex-shrink-0">{step}</span>
-                  <span className="font-jakarta text-[13px] text-muted leading-relaxed">{text}</span>
+                  <span className="font-sans text-[15px] font-bold text-primary flex-shrink-0">{step}</span>
+                  <span className="font-sans text-[13px] text-muted leading-relaxed">{text}</span>
                 </div>
               ))}
               <button
                 onClick={() => user ? navigate('/exams') : onOpenAuth()}
-                className="self-start mt-2 font-jakarta text-[13px] font-semibold text-primary hover:opacity-80 transition">
+                className="self-start mt-2 font-sans text-[13px] font-semibold text-primary hover:opacity-80 transition">
                 {user ? 'Làm bài thử để xem phân tích →' : 'Đăng ký để xem lỗi của bạn →'}
               </button>
             </div>
@@ -897,11 +895,11 @@ export default function Landing({ onOpenAuth }) {
         {/* ── Methodology — Phase 4 §8 ── */}
         <div className="w-full max-w-3xl flex flex-col gap-5">
           <div className="text-center">
-            <span className="font-jakarta text-[11px] font-semibold tracking-[3px] uppercase text-dim">Tại sao nó hoạt động</span>
-            <h2 className="font-fraunces text-[28px] font-bold text-foreground mt-2">
+            <span className="font-sans text-[11px] font-semibold tracking-[3px] uppercase text-dim">Tại sao nó hoạt động</span>
+            <h2 className="font-sans text-[28px] font-bold text-foreground mt-2">
               Khoa học đằng sau Zenith
             </h2>
-            <p className="font-jakarta text-[13px] text-dim mt-1 max-w-[540px] mx-auto">
+            <p className="font-sans text-[13px] text-dim mt-1 max-w-[540px] mx-auto">
               Không phải trực giác. Không phải tông học. Là thuật toán được nghiên cứu và kiểm chứng.
             </p>
           </div>
@@ -933,18 +931,18 @@ export default function Landing({ onOpenAuth }) {
                 <div className="flex items-center gap-2">
                   <span className="text-xl">{icon}</span>
                   <div>
-                    <p className="font-jakarta text-[13px] font-bold text-foreground">{name}</p>
-                    <p className="font-jakarta text-[10px] font-semibold px-2 py-0.5 rounded-full inline-block mt-0.5"
+                    <p className="font-sans text-[13px] font-bold text-foreground">{name}</p>
+                    <p className="font-sans text-[10px] font-semibold px-2 py-0.5 rounded-full inline-block mt-0.5"
                       style={{ background: color + '18', color }}>
                       {tag}
                     </p>
                   </div>
                 </div>
-                <p className="font-jakarta text-[12px] text-dim leading-relaxed">{desc}</p>
+                <p className="font-sans text-[12px] text-dim leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
-          <p className="font-jakarta text-[12px] text-dim text-center">
+          <p className="font-sans text-[12px] text-dim text-center">
             Dữ liệu đề thi từ Bộ GD&ĐT · 27 tỉnh thành · Cập nhật sau mỗi kỳ thi
           </p>
         </div>
@@ -961,9 +959,9 @@ export default function Landing({ onOpenAuth }) {
         return (
           <div className="relative z-10 w-full px-4 sm:px-8 py-3 flex items-center justify-center gap-3"
             style={{ background: phase.bg, borderTop: `1px solid ${phase.border}`, borderBottom: `1px solid ${phase.border}` }}>
-            <span className="font-jakarta text-[13px] font-semibold" style={{ color: phase.color }}>{phase.msg}</span>
+            <span className="font-sans text-[13px] font-semibold" style={{ color: phase.color }}>{phase.msg}</span>
             <button onClick={() => navigate('/study-plan/adaptive')}
-              className="flex-shrink-0 font-jakarta text-[12px] font-semibold underline underline-offset-2 hover:opacity-80 transition"
+              className="flex-shrink-0 font-sans text-[12px] font-semibold underline underline-offset-2 hover:opacity-80 transition"
               style={{ color: phase.color }}>
               Xem kế hoạch →
             </button>
@@ -973,11 +971,11 @@ export default function Landing({ onOpenAuth }) {
 
       {/* Pricing section */}
       <div className="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-6 pb-24 flex flex-col gap-10">
-        <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, #1E2A44, transparent)' }} />
+        <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, var(--border), transparent)' }} />
 
         <div className="flex flex-col items-center gap-2 text-center">
-          <span className="font-fraunces text-[28px] font-bold text-foreground">Bắt đầu miễn phí</span>
-          <p className="font-jakarta text-[14px] text-dim">Không cần thẻ ngân hàng · Nâng cấp khi bạn sẵn sàng</p>
+          <span className="font-sans text-[28px] font-bold text-foreground">Bắt đầu miễn phí</span>
+          <p className="font-sans text-[14px] text-dim">Không cần thẻ ngân hàng · Nâng cấp khi bạn sẵn sàng</p>
         </div>
 
         <div className="flex flex-col gap-3">
@@ -986,41 +984,41 @@ export default function Landing({ onOpenAuth }) {
               key={plan.tier}
               className="flex items-start justify-between gap-4 px-6 py-5 rounded-2xl border cursor-default"
               style={{
-                background: plan.tier === 'student' ? '#0F1A10' : '#0D1221',
-                border: `1px solid ${plan.tier === 'student' ? '#6366F144' : '#1E2A44'}`,
+                background: plan.tier === 'student' ? 'var(--primary-subtle)' : 'var(--surface)',
+                border: `1px solid ${plan.tier === 'student' ? '#6366F144' : 'var(--border)'}`,
               }}
             >
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-jakarta text-[15px] font-bold text-foreground">{plan.label}</span>
+                  <span className="font-sans text-[15px] font-bold text-foreground">{plan.label}</span>
                   {plan.badge && (
-                    <span className="font-jakarta text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary">
+                    <span className="font-sans text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary">
                       {plan.badge}
                     </span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-jakarta text-[12px] text-dim">⚡ {plan.credits.toLocaleString()} credits / tháng</span>
+                  <span className="font-sans text-[12px] text-dim">⚡ {plan.credits.toLocaleString()} credits / tháng</span>
                 </div>
                 <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
                   {plan.features.map(f => (
-                    <span key={f} className="font-jakarta text-[12px] text-dim">✓ {f}</span>
+                    <span key={f} className="font-sans text-[12px] text-dim">✓ {f}</span>
                   ))}
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                <span className="font-fraunces text-[16px] font-bold text-foreground">{plan.price}</span>
+                <span className="font-sans text-[16px] font-bold text-foreground">{plan.price}</span>
                 {plan.tier !== 'basic' && (
                   <>
                     <motion.button
                       onClick={user ? () => navigate('/account') : onOpenAuth}
-                      className="ripple-btn px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-bold text-primary-fg bg-primary hover:opacity-90 transition"
+                      className="ripple-btn px-4 py-1.5 rounded-lg font-sans text-[12px] font-bold text-primary-fg bg-primary hover:opacity-90 transition"
                       whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                     >
                       {user ? (plan.tier === 'student' ? 'Bắt đầu học ngay' : 'Mở khóa toàn bộ') : 'Đăng nhập'}
                     </motion.button>
-                    <span className="font-jakarta text-[10px] text-dim">✓ Hoàn tiền trong 7 ngày</span>
+                    <span className="font-sans text-[10px] text-dim">✓ Hoàn tiền trong 7 ngày</span>
                   </>
                 )}
               </div>
@@ -1030,13 +1028,13 @@ export default function Landing({ onOpenAuth }) {
 
         {/* Top-up packages */}
         <div className="flex flex-col gap-4">
-          <span className="font-jakarta text-[13px] font-semibold text-muted text-center">Hoặc nạp thêm credits</span>
+          <span className="font-sans text-[13px] font-semibold text-muted text-center">Hoặc nạp thêm credits</span>
           <div className="flex gap-3 flex-wrap justify-center">
             {TOPUP_PACKAGES.map(pkg => (
               <div key={pkg.price}
                 className="flex flex-col items-center gap-1 px-6 py-4 rounded-xl border border-surface glass-base">
-                <span className="font-fraunces text-[18px] font-bold text-primary">⚡ {pkg.credits}</span>
-                <span className="font-jakarta text-[12px] text-dim">{pkg.price}</span>
+                <span className="font-sans text-[18px] font-bold text-primary">⚡ {pkg.credits}</span>
+                <span className="font-sans text-[12px] text-dim">{pkg.price}</span>
               </div>
             ))}
           </div>
@@ -1044,7 +1042,7 @@ export default function Landing({ onOpenAuth }) {
 
         {/* Testimonials */}
         <div className="flex flex-col gap-5">
-          <h2 className="font-fraunces text-[22px] font-bold text-foreground text-center">Học sinh nói gì về Zenith</h2>
+          <h2 className="font-sans text-[22px] font-bold text-foreground text-center">Học sinh nói gì về Zenith</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               {
@@ -1067,11 +1065,11 @@ export default function Landing({ onOpenAuth }) {
               },
             ].map(({ name, grade, result, quote }) => (
               <div key={name} className="flex flex-col gap-3 bg-surface border border-surface rounded-2xl px-5 py-4">
-                <p className="font-jakarta text-[13px] text-muted leading-relaxed italic">"{quote}"</p>
+                <p className="font-sans text-[13px] text-muted leading-relaxed italic">"{quote}"</p>
                 <div className="mt-auto pt-2 border-t border-surface">
-                  <p className="font-jakarta text-[13px] font-semibold text-foreground">{name}</p>
-                  <p className="font-jakarta text-[11px] text-dim">{grade}</p>
-                  <p className="font-jakarta text-[11px] text-success mt-0.5">✓ {result}</p>
+                  <p className="font-sans text-[13px] font-semibold text-foreground">{name}</p>
+                  <p className="font-sans text-[11px] text-dim">{grade}</p>
+                  <p className="font-sans text-[11px] text-success mt-0.5">✓ {result}</p>
                 </div>
               </div>
             ))}
@@ -1090,28 +1088,28 @@ export default function Landing({ onOpenAuth }) {
           return (
             <div className="flex flex-col gap-4">
               <div className="text-center">
-                <span className="font-jakarta text-[11px] font-semibold tracking-[3px] uppercase text-dim">Mục tiêu trường</span>
-                <h2 className="font-fraunces text-[22px] font-bold text-foreground mt-2">Biết chính xác bạn cần bao nhiêu điểm</h2>
-                <p className="font-jakarta text-[13px] text-dim mt-1">Ngưỡng điểm tham khảo tại {displayProvince}</p>
+                <span className="font-sans text-[11px] font-semibold tracking-[3px] uppercase text-dim">Mục tiêu trường</span>
+                <h2 className="font-sans text-[22px] font-bold text-foreground mt-2">Biết chính xác bạn cần bao nhiêu điểm</h2>
+                <p className="font-sans text-[13px] text-dim mt-1">Ngưỡng điểm tham khảo tại {displayProvince}</p>
               </div>
               <div className="flex flex-col gap-2">
                 {targets.map(({ name, typical, top }) => (
                   <div key={name} className="bg-surface border border-surface rounded-xl px-5 py-3.5 flex items-center justify-between gap-4">
-                    <p className="font-jakarta text-[13px] font-semibold text-foreground flex-1 min-w-0 truncate">{name}</p>
+                    <p className="font-sans text-[13px] font-semibold text-foreground flex-1 min-w-0 truncate">{name}</p>
                     <div className="flex items-center gap-5 flex-shrink-0">
                       <div className="text-right">
-                        <p className="font-jakarta text-[9px] uppercase tracking-wider text-dim">Đỗ thường</p>
-                        <p className="font-fraunces text-[15px] font-bold text-muted">{typical.toFixed(1)}</p>
+                        <p className="font-sans text-[9px] uppercase tracking-wider text-dim">Đỗ thường</p>
+                        <p className="font-sans text-[15px] font-bold text-muted">{typical.toFixed(1)}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-jakarta text-[9px] uppercase tracking-wider text-dim">Top trường</p>
-                        <p className="font-fraunces text-[15px] font-bold text-primary">{top.toFixed(1)}</p>
+                        <p className="font-sans text-[9px] uppercase tracking-wider text-dim">Top trường</p>
+                        <p className="font-sans text-[15px] font-bold text-primary">{top.toFixed(1)}</p>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              <p className="font-jakarta text-[11px] text-border text-center">
+              <p className="font-sans text-[11px] text-border text-center">
                 Số liệu tham khảo · Cập nhật theo kỳ thi tuyển sinh gần nhất
               </p>
             </div>
@@ -1120,7 +1118,7 @@ export default function Landing({ onOpenAuth }) {
 
         {/* FAQ */}
         <div className="flex flex-col gap-4">
-          <h2 className="font-fraunces text-[22px] font-bold text-foreground text-center">Câu hỏi thường gặp</h2>
+          <h2 className="font-sans text-[22px] font-bold text-foreground text-center">Câu hỏi thường gặp</h2>
           <div className="flex flex-col gap-2">
             {[
               {
@@ -1141,11 +1139,11 @@ export default function Landing({ onOpenAuth }) {
               },
             ].map(({ q, a }) => (
               <details key={q} className="group bg-surface border border-surface rounded-xl px-5 py-4 cursor-pointer">
-                <summary className="font-jakarta text-[14px] font-semibold text-foreground list-none flex items-center justify-between gap-3">
+                <summary className="font-sans text-[14px] font-semibold text-foreground list-none flex items-center justify-between gap-3">
                   {q}
                   <span className="text-dim group-open:rotate-180 transition-transform flex-shrink-0">▾</span>
                 </summary>
-                <p className="font-jakarta text-[13px] text-muted leading-relaxed mt-3">{a}</p>
+                <p className="font-sans text-[13px] text-muted leading-relaxed mt-3">{a}</p>
               </details>
             ))}
           </div>
@@ -1156,30 +1154,30 @@ export default function Landing({ onOpenAuth }) {
       <footer className="relative z-10 w-full border-t border-surface mt-8 px-6 sm:px-10 py-8">
         <div className="max-w-3xl mx-auto flex flex-col sm:flex-row gap-6 justify-between">
           <div className="flex flex-col gap-2">
-            <span className="font-fraunces text-[15px] font-bold text-foreground">Zenith</span>
-            <span className="font-jakarta text-[12px] text-dim">Ôn thi Toán THPT & Lớp 10 cùng AI</span>
+            <span className="font-sans text-[15px] font-bold text-foreground">Zenith</span>
+            <span className="font-sans text-[12px] text-dim">Ôn thi Toán THPT & Lớp 10 cùng AI</span>
           </div>
           <div className="flex gap-8 flex-wrap">
             <div className="flex flex-col gap-2">
-              <span className="font-jakarta text-[11px] font-bold uppercase tracking-[2px] text-dim">Sản phẩm</span>
+              <span className="font-sans text-[11px] font-bold uppercase tracking-[2px] text-dim">Sản phẩm</span>
               {[['Thi thử', '/exams'], ['Luyện tập', '/exams?mode=practice'], ['Zenith AI', '/oracle'], ['⚗ Lab', '/exams?mode=lab']].map(([label, path]) => (
                 <button key={label} onClick={() => navigate(path)}
-                  className="font-jakarta text-[12px] text-dim hover:text-muted transition text-left">{label}</button>
+                  className="font-sans text-[12px] text-dim hover:text-muted transition text-left">{label}</button>
               ))}
             </div>
             <div className="flex flex-col gap-2">
-              <span className="font-jakarta text-[11px] font-bold uppercase tracking-[2px] text-dim">Tài khoản</span>
+              <span className="font-sans text-[11px] font-bold uppercase tracking-[2px] text-dim">Tài khoản</span>
               {[
                 ['Đăng nhập', null, onOpenAuth],
                 ['Nâng cấp', '/account', null],
               ].map(([label, path, fn]) => (
                 <button key={label} onClick={fn ?? (() => navigate(path))}
-                  className="font-jakarta text-[12px] text-dim hover:text-muted transition text-left">{label}</button>
+                  className="font-sans text-[12px] text-dim hover:text-muted transition text-left">{label}</button>
               ))}
             </div>
           </div>
         </div>
-        <p className="text-center font-jakarta text-[11px] text-border mt-6">© {new Date().getFullYear()} Zenith. Tất cả đề thi từ nguồn chính thức.</p>
+        <p className="text-center font-sans text-[11px] text-border mt-6">© {new Date().getFullYear()} Zenith. Tất cả đề thi từ nguồn chính thức.</p>
       </footer>
     </motion.div>
   )

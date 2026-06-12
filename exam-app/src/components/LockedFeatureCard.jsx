@@ -1,23 +1,22 @@
 export function LockedFeatureCard({ label, tier, onUpgrade }) {
   return (
-    <div className="relative rounded-2xl border border-surface glass-base p-5 flex flex-col gap-3 overflow-hidden min-h-[120px]">
-      <div className="absolute inset-0 backdrop-blur-[2px] bg-surface/60 flex flex-col items-center justify-center gap-2 z-10">
+    <div className="relative rounded-2xl border border-[var(--border)] glass-base p-5 flex flex-col gap-3 overflow-hidden min-h-[120px]">
+      <div className="absolute inset-0 bg-[var(--surface)] flex flex-col items-center justify-center gap-2 z-10" style={{ opacity: 0.97 }}>
         <span className="text-2xl">🔒</span>
-        <span className="font-jakarta text-[13px] font-semibold text-foreground">{label}</span>
-        <span className="font-jakarta text-[11px] text-dim">
+        <span className="font-sans text-[13px] font-semibold text-[var(--foreground)]">{label}</span>
+        <span className="font-sans text-[11px] text-[var(--dim)]">
           Yêu cầu gói {tier === 'student' ? 'Học sinh' : 'Toàn diện'}
         </span>
         {onUpgrade && (
           <button
             onClick={onUpgrade}
-            className="mt-1 px-4 py-1.5 rounded-lg font-jakarta text-[12px] font-bold text-background"
-            className="bg-primary"
+            className="mt-1 px-4 py-1.5 rounded-lg font-sans text-[12px] font-bold bg-[var(--primary)] text-[var(--primary-fg)]"
           >
             Nâng cấp
           </button>
         )}
       </div>
-      <div className="h-16 rounded-xl bg-surface opacity-30" />
+      <div className="h-16 rounded-xl bg-[var(--surface)] opacity-30" />
     </div>
   )
 }

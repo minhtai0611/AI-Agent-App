@@ -100,7 +100,7 @@ export default function Placement() {
   if (loading) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
-        <span className="font-jakarta text-[14px] text-dim">Đang tải câu hỏi...</span>
+        <span className="font-sans text-[14px] text-dim">Đang tải câu hỏi...</span>
       </div>
     )
   }
@@ -115,18 +115,18 @@ export default function Placement() {
         <div className="w-full max-w-md bg-surface border border-surface rounded-2xl p-8 flex flex-col items-center gap-5 text-center">
           <span className="text-5xl">{correct >= 7 ? '🏆' : correct >= 5 ? '📈' : '📚'}</span>
           <div className="flex flex-col gap-1">
-            <h1 className="font-fraunces text-[24px] font-bold text-foreground">Kiểm tra hoàn thành</h1>
-            <p className="font-jakarta text-[14px] text-muted">
+            <h1 className="font-sans text-[24px] font-bold text-foreground">Kiểm tra hoàn thành</h1>
+            <p className="font-sans text-[14px] text-muted">
               Bạn trả lời đúng <span className="text-primary font-semibold">{correct}/{answers.length}</span> câu
             </p>
           </div>
-          <p className="font-jakarta text-[13px] text-dim leading-relaxed">
+          <p className="font-sans text-[13px] text-dim leading-relaxed">
             Zenith đã ghi nhận năng lực của bạn và sẽ gợi ý lộ trình học phù hợp.
           </p>
           <div className="flex gap-3 w-full">
             <button
               onClick={() => navigate('/')}
-              className="flex-1 py-3 rounded-xl font-jakarta text-[14px] font-semibold bg-info text-white hover:bg-info/80 transition"
+              className="flex-1 py-3 rounded-xl font-sans text-[14px] font-semibold bg-info text-white hover:bg-info/80 transition"
             >
               Bắt đầu học →
             </button>
@@ -147,12 +147,12 @@ export default function Placement() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5">
-            <span className="font-jakarta text-[11px] font-semibold text-info tracking-[2px] uppercase">Kiểm tra năng lực</span>
-            <span className="font-jakarta text-[13px] text-dim">Câu {current + 1} / {questions.length}</span>
+            <span className="font-sans text-[11px] font-semibold text-info tracking-[2px] uppercase">Kiểm tra năng lực</span>
+            <span className="font-sans text-[13px] text-dim">Câu {current + 1} / {questions.length}</span>
           </div>
           <button
             onClick={() => navigate('/')}
-            className="font-jakarta text-[12px] text-dim hover:text-muted transition"
+            className="font-sans text-[12px] text-dim hover:text-muted transition"
           >
             Bỏ qua
           </button>
@@ -174,14 +174,14 @@ export default function Placement() {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
             className="bg-surface border border-surface rounded-2xl p-6 flex flex-col gap-5"
           >
-            <p className="font-jakarta text-[15px] text-foreground leading-relaxed">
+            <p className="font-sans text-[15px] text-foreground leading-relaxed">
               <MathText>{question.question}</MathText>
             </p>
 
             <div className="flex flex-col gap-2.5">
               {question.choices?.map((choice, i) => {
                 let bg = '#141D2E'
-                let border = '#1E2A44'
+                let border = 'var(--border)'
                 let textColor = '#94A3B8'
                 if (revealed) {
                   if (i === question.correct) { bg = '#0D2A1A'; border = '#10B981'; textColor = '#34D399' }
@@ -194,7 +194,7 @@ export default function Placement() {
                     key={i}
                     onClick={() => handleChoice(i)}
                     disabled={revealed}
-                    className="w-full text-left px-4 py-3.5 rounded-xl font-jakarta text-[14px] font-medium transition-all"
+                    className="w-full text-left px-4 py-3.5 rounded-xl font-sans text-[14px] font-medium transition-all"
                     style={{ background: bg, border: `1px solid ${border}`, color: textColor }}
                   >
                     <span className="font-semibold mr-2">{String.fromCharCode(65 + i)}.</span>
@@ -211,7 +211,7 @@ export default function Placement() {
                   style={{ background: isCorrect ? '#0D2A1A' : '#2A0F14', border: `1px solid ${isCorrect ? '#10B981' : '#EF4444'}` }}
                 >
                   <span className="text-lg">{isCorrect ? '✓' : '✗'}</span>
-                  <span className="font-jakarta text-[13px] font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
+                  <span className="font-sans text-[13px] font-semibold" style={{ color: isCorrect ? '#10B981' : '#FB7185' }}>
                     {isCorrect ? 'Chính xác!' : `Đáp án: ${String.fromCharCode(65 + question.correct)}. ${question.choices?.[question.correct]}`}
                   </span>
                 </div>
@@ -219,7 +219,7 @@ export default function Placement() {
                 <button
                   onClick={handleNext}
                   disabled={submitting}
-                  className="w-full py-3 rounded-xl font-jakarta text-[14px] font-semibold bg-info text-white hover:bg-info/80 transition disabled:opacity-60"
+                  className="w-full py-3 rounded-xl font-sans text-[14px] font-semibold bg-info text-white hover:bg-info/80 transition disabled:opacity-60"
                 >
                   {current + 1 >= questions.length
                     ? (submitting ? 'Đang lưu...' : 'Hoàn thành →')
@@ -229,7 +229,7 @@ export default function Placement() {
             )}
 
             {!revealed && (
-              <p className="text-center font-jakarta text-[12px] text-dim">Chọn một đáp án để tiếp tục</p>
+              <p className="text-center font-sans text-[12px] text-dim">Chọn một đáp án để tiếp tục</p>
             )}
           </motion.div>
         </AnimatePresence>
