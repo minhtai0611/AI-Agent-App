@@ -22,6 +22,8 @@ async def verify_google_token(id_token_str: str) -> dict:
         return payload
     except google.auth.exceptions.GoogleAuthError as exc:
         raise ValueError(f"Invalid or expired Google token: {exc}") from exc
+    except Exception as exc:
+        raise ValueError(f"Google token verification failed: {exc}") from exc
 
 
 def create_jwt(user_id: int) -> str:

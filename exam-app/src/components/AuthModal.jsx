@@ -49,8 +49,7 @@ export default function AuthModal({ open, onClose }) {
       aria-label="Đăng nhập"
     >
       <div
-        className="relative rounded-xl p-8 flex flex-col items-center gap-5 w-80"
-        className="glass-base border border-primary"
+        className="glass-base border border-primary relative rounded-xl p-8 flex flex-col items-center gap-5 w-80"
       >
         <button
           onClick={onClose}

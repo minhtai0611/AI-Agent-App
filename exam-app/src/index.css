@@ -83,50 +83,38 @@
 @tailwind utilities;
 
 /* ─── Zenith Semantic Color Tokens ───────────────────────────────────────────
-   Two declarations per token:
-   1. Hex fallback  — browsers that don't support light-dark() keep dark theme (current look)
-   2. light-dark()  — Chrome 123+, Firefox 120+, Safari 17.5+ auto-adapts to OS preference
-   User override via [data-theme] attribute (set in index.html inline script).
+   Light defaults in :root; dark overrides in .dark / [data-theme="dark"].
+   shadcn/ui-style pattern — works in all browsers, no light-dark() dependency.
    ─────────────────────────────────────────────────────────────────────────── */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
-  --background:       #0A0E1A;
-  --background:       light-dark(oklch(0.97 0.008 74),  oklch(0.11 0.012 280));
-  --foreground:       #F8FAFC;
-  --foreground:       light-dark(oklch(0.13 0.015 280), oklch(0.94 0.006 280));
-  --surface:          #0D1221;
-  --surface:          light-dark(oklch(0.93 0.008 74),  oklch(0.14 0.012 280));
-  --surface-elevated: #111827;
-  --surface-elevated: light-dark(oklch(1.00 0.000 0),   oklch(0.17 0.010 280));
-  --border:           #1E2A44;
-  --border:           light-dark(oklch(0.82 0.010 74),  oklch(0.25 0.018 280));
-  --border-subtle:    #2A3A5E;
-  --border-subtle:    light-dark(oklch(0.88 0.008 74),  oklch(0.32 0.015 280));
-  --primary:          #6366F1;
-  --primary:          light-dark(oklch(0.50 0.200 264), oklch(0.62 0.200 264));
-  --primary-fg:       #FFFFFF;
-  --primary-fg:       light-dark(oklch(1.000 0.000 0),  oklch(1.000 0.000 0));
-  --muted:            #94A3B8;
-  --muted:            light-dark(oklch(0.50 0.015 280), oklch(0.55 0.015 280));
-  --muted-fg:         #CBD5E1;
-  --muted-fg:         light-dark(oklch(0.40 0.010 280), oklch(0.68 0.010 280));
-  --dim:              #64748B;
-  --dim:              light-dark(oklch(0.35 0.008 280), oklch(0.55 0.008 280));
-  --faint:            #475569;
-  --faint:            light-dark(oklch(0.28 0.005 280), oklch(0.42 0.005 280));
-  --success:          #10B981;
-  --success:          light-dark(oklch(0.52 0.16 155),  oklch(0.68 0.16 155));
-  --destructive:      #FB7185;
-  --destructive:      light-dark(oklch(0.55 0.22 27),   oklch(0.70 0.22 27));
-  --info:             #3B82F6;
-  --info:             light-dark(oklch(0.52 0.18 255),  oklch(0.68 0.18 255));
-  --purple:           #8B5CF6;
-  --purple:           light-dark(oklch(0.52 0.20 295),  oklch(0.68 0.20 295));
-  --highlight:        #F0F4FF;
-  --highlight:        light-dark(oklch(0.94 0.030 74),  oklch(0.20 0.030 74));
+  /* ── Light theme (warm cream / indigo) — Midnight Bloom-inspired palette ── */
+  --background:        oklch(0.97 0.008  74);
+  --foreground:        oklch(0.13 0.015 280);
+  --surface:           oklch(0.93 0.008  74);
+  --surface-elevated:  oklch(1.00 0.000   0);
+  --border:            oklch(0.82 0.010  74);
+  --border-subtle:     oklch(0.88 0.008  74);
+  --primary:           oklch(0.50 0.200 264);
+  --primary-fg:        oklch(1.00 0.000   0);
+  --muted:             oklch(0.50 0.015 280);
+  --muted-fg:          oklch(0.40 0.010 280);
+  --dim:               oklch(0.35 0.008 280);
+  --faint:             oklch(0.28 0.005 280);
+  --success:           oklch(0.52 0.16  155);
+  --destructive:       oklch(0.55 0.22   27);
+  --info:              oklch(0.52 0.18  255);
+  --purple:            oklch(0.52 0.20  295);
+  --highlight:         oklch(0.94 0.030  74);
 
-  /* Mastery stage semantic tokens (0=unknown → 5=mastered) */
+  /* Glass surface tokens — light mode (frosted white) */
+  --glass-bg:          rgba(255, 255, 255, 0.72);
+  --glass-bg-elevated: rgba(255, 255, 255, 0.88);
+  --glass-border:      rgba(0, 0, 0, 0.08);
+  --glass-shadow:      0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+
+  /* Mastery stage tokens (0=unknown → 5=mastered) */
   --mastery-0:        #475569;
   --mastery-0-bg:     #1E2A44;
   --mastery-1:        #EF4444;
@@ -140,7 +128,7 @@
   --mastery-5:        #10B981;
   --mastery-5-bg:     #022C22;
 
-  /* Legacy --z-* color aliases — point to new semantic tokens so existing CSS continues to work */
+  /* Legacy --z-* color aliases — point to semantic tokens */
   --z-bg-base:        var(--background);
   --z-bg-surface:     var(--surface);
   --z-bg-elevated:    var(--surface-elevated);
@@ -172,21 +160,48 @@
   --z-blur-md: blur(8px);
 }
 
-/* User-explicit override beats prefers-color-scheme — light-dark() reads color-scheme */
-[data-theme="light"] { color-scheme: only light; }
-[data-theme="dark"]  { color-scheme: only dark;  }
+/* ── Dark theme ── */
+.dark, [data-theme="dark"] {
+  color-scheme: dark;
+
+  --background:        oklch(0.11 0.012 280);
+  --foreground:        oklch(0.94 0.006 280);
+  --surface:           oklch(0.14 0.012 280);
+  --surface-elevated:  oklch(0.17 0.010 280);
+  --border:            oklch(0.25 0.018 280);
+  --border-subtle:     oklch(0.32 0.015 280);
+  --primary:           oklch(0.62 0.200 264);
+  --primary-fg:        oklch(1.00 0.000   0);
+  --muted:             oklch(0.55 0.015 280);
+  --muted-fg:          oklch(0.68 0.010 280);
+  --dim:               oklch(0.55 0.008 280);
+  --faint:             oklch(0.42 0.005 280);
+  --success:           oklch(0.68 0.16  155);
+  --destructive:       oklch(0.70 0.22   27);
+  --info:              oklch(0.68 0.18  255);
+  --purple:            oklch(0.68 0.20  295);
+  --highlight:         oklch(0.20 0.030  74);
+
+  /* Glass surface tokens — dark mode (smoky navy) */
+  --glass-bg:          rgba(13, 18, 33, 0.70);
+  --glass-bg-elevated: rgba(17, 24, 39, 0.85);
+  --glass-border:      rgba(255, 255, 255, 0.08);
+  --glass-shadow:      0 4px 24px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.05);
+}
 
 /* ─── Accessibility: High contrast boosts ────────────────────────────────── */
 @media (prefers-contrast: more) {
   :root {
-    --muted-fg: #e2e8f0;
-    --muted-fg: light-dark(oklch(0.25 0.010 280), oklch(0.80 0.010 280));
-    --dim:      #94a3b8;
-    --dim:      light-dark(oklch(0.18 0.008 280), oklch(0.70 0.008 280));
-    --faint:    #cbd5e1;
-    --faint:    light-dark(oklch(0.12 0.005 280), oklch(0.62 0.005 280));
-    --border:   #334155;
-    --border:   light-dark(oklch(0.60 0.010 74),  oklch(0.40 0.018 280));
+    --muted-fg: oklch(0.25 0.010 280);
+    --dim:      oklch(0.18 0.008 280);
+    --faint:    oklch(0.12 0.005 280);
+    --border:   oklch(0.60 0.010  74);
+  }
+  .dark, [data-theme="dark"] {
+    --muted-fg: oklch(0.80 0.010 280);
+    --dim:      oklch(0.70 0.008 280);
+    --faint:    oklch(0.62 0.005 280);
+    --border:   oklch(0.40 0.018 280);
   }
 }
 
@@ -249,33 +264,29 @@
 
 /* Tier 1 — base glass: cards, panels */
 .glass-base {
-  background: rgba(13, 18, 33, 0.7);
+  background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4),
-              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 
 /* Tier 2 — elevated glass: modals, hover states */
 .glass-elevated {
-  background: rgba(17, 24, 39, 0.85);
+  background: var(--glass-bg-elevated);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5),
-              inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 
 /* Tier 3 — brand glass: featured CTAs, highlighted cards */
 .glass-brand {
-  background: linear-gradient(135deg, rgba(242, 162, 12, 0.08) 0%, rgba(13, 18, 33, 0.85) 60%);
+  background: linear-gradient(135deg, rgba(242,162,12,0.08) 0%, var(--glass-bg-elevated) 60%);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(242, 162, 12, 0.25);
-  box-shadow: 0 0 30px rgba(242, 162, 12, 0.08),
-              0 8px 40px rgba(0, 0, 0, 0.5),
-              inset 0 1px 0 rgba(242, 162, 12, 0.1);
+  border: 1px solid rgba(242,162,12,0.25);
+  box-shadow: 0 0 30px rgba(242,162,12,0.08), var(--glass-shadow);
 }
 
 /* ─── Gradient Text ───────────────────────────────────────────────────────── */
@@ -420,6 +431,28 @@ body {
 @keyframes zenith-shimmer {
   0%   { background-position: 200% center; }
   100% { background-position: -200% center; }
+}
+
+/* AuroraBackground orb animations — referenced via Tailwind arbitrary animate-[ambient-float-N...] */
+@keyframes ambient-float-0 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  33%       { transform: translate(3%, -4%) scale(1.05); }
+  66%       { transform: translate(-2%, 3%) scale(0.97); }
+}
+@keyframes ambient-float-1 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  40%       { transform: translate(-4%, 3%) scale(1.07); }
+  70%       { transform: translate(2%, -2%) scale(0.95); }
+}
+@keyframes ambient-float-2 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  25%       { transform: translate(4%, 2%) scale(0.96); }
+  60%       { transform: translate(-3%, -3%) scale(1.06); }
+}
+@keyframes ambient-float-3 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  35%       { transform: translate(-2%, 4%) scale(1.04); }
+  75%       { transform: translate(3%, -1%) scale(0.98); }
 }
 
 /* TestInterface breathing ring behind timer */

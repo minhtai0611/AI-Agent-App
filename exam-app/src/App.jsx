@@ -154,7 +154,7 @@ function AppInner() {
       {!isAdminRoute && !showDeactivated && !showLocked && !showSuspension && !showOnboarding && showExtendedOnboarding && (
         <ExtendedOnboarding onDone={() => {}} />
       )}
-      <div className={`min-h-screen bg-background text-gray-900${isAdminRoute ? '' : ' pt-12'}`}>
+      <div className={`min-h-screen bg-background text-foreground${isAdminRoute ? '' : ' pt-12'}`}>
         {showLowCredit && !isAdminRoute && !showOnboarding && !showDeactivated && !showLocked && !showSuspension && (
           <LowCreditBanner balance={user.credits_balance} />
         )}

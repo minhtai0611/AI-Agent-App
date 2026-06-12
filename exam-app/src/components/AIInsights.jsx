@@ -88,6 +88,17 @@ function SchoolSection({ schoolInsight, schools, score }) {
           {schoolInsight}
         </p>
       )}
+      {schools && schools.length > 0 && (
+        <div className="flex flex-col gap-2">
+          {schools.map((s, i) => (
+            <div key={i} className="flex flex-col gap-0.5 px-3 py-2 rounded-lg bg-surface-elevated border border-border">
+              <span className="font-jakarta text-[0.8125rem] font-semibold text-foreground">{s.name}</span>
+              <span className="font-jakarta text-xs text-dim">{s.score_range} · {s.type}</span>
+              {s.note && <span className="font-jakarta text-xs text-muted">{s.note}</span>}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -216,6 +227,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
           </div>
         )}
         <TipList label="Khuyến nghị từ AI" items={analysis.recommendations} />
+        <SchoolSection schoolInsight={analysis.school_insight} schools={analysis.schools} score={score} />
       </div>
     )
   }

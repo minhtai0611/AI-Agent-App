@@ -59,6 +59,8 @@ class Settings(BaseSettings):
             raise RuntimeError("ADMIN_MASTER_SECRET must be at least 32 characters if set")
         if self.cron_secret and len(self.cron_secret) < 32:
             raise RuntimeError("CRON_SECRET must be at least 32 characters if set")
+        if not self.google_client_id:
+            raise RuntimeError("GOOGLE_CLIENT_ID must be set in environment variables")
     embedding_dim: int = 1024
 
     @property

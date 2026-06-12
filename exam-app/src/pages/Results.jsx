@@ -92,7 +92,7 @@ function SchoolCard({ school, studentScore }) {
           {school.name}
         </h4>
         {school.type && (
-          <span className="shrink-0 text-[0.6875rem] px-2 py-0.5 rounded-full bg-blue-900/40 text-blue-300 border border-blue-700/40">
+          <span className="shrink-0 text-[0.6875rem] px-2 py-0.5 rounded-full bg-info/10 text-info border border-info/30">
             {school.type}
           </span>
         )}
@@ -1165,10 +1165,10 @@ export default function Results({ onOpenAuth }) {
                                     const chosen = answers[q.id] ?? null
                                     const isCorrect = i === q.correct
                                     const isChosen = i === chosen
-                                    const bg = isCorrect ? '#0D2A1A' : isChosen ? '#2A0F14' : '#0A0E1A'
-                                    const borderColor = isCorrect ? '#10B981' : isChosen ? '#FB7185' : '#1E2A44'
-                                    const labelColor = isCorrect ? '#10B981' : isChosen ? '#FB7185' : '#475569'
-                                    const textColor = isCorrect ? '#10B981' : isChosen ? '#FB7185' : '#64748B'
+                                    const bg = isCorrect ? 'rgba(16, 185, 129, 0.08)' : isChosen ? 'rgba(251, 113, 133, 0.08)' : 'var(--surface-elevated)'
+                                    const borderColor = isCorrect ? 'var(--success)' : isChosen ? 'var(--destructive)' : 'var(--border)'
+                                    const labelColor = isCorrect ? 'var(--success)' : isChosen ? 'var(--destructive)' : 'var(--faint)'
+                                    const textColor = isCorrect ? 'var(--success)' : isChosen ? 'var(--destructive)' : 'var(--dim)'
                                     return (
                                     <div key={i} className="flex items-start gap-2.5 px-4 py-2.5 rounded-lg"
                                       style={{ background: bg, border: `1px solid ${borderColor}` }}>
