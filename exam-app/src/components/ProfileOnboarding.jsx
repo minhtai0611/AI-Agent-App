@@ -134,7 +134,7 @@ export default function ProfileOnboarding({ onDone }) {
                         : 'border-border bg-surface-elevated hover:border-primary/30'
                     }`}
                   >
-                    <span className={`font-sans text-[0.8125rem] font-semibold ${grade === g.value ? 'text-primary' : 'text-highlight'}`}>{g.label}</span>
+                    <span className={`font-sans text-[0.8125rem] font-semibold ${grade === g.value ? 'text-primary' : 'text-foreground'}`}>{g.label}</span>
                     <span className="font-sans text-[0.6875rem] text-faint">{g.sub}</span>
                   </button>
                 ))}
@@ -147,7 +147,7 @@ export default function ProfileOnboarding({ onDone }) {
               <select
                 value={province}
                 onChange={e => setProvince(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-highlight focus:outline-none focus:border-primary appearance-none"
+                className="w-full px-4 py-3 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground focus:outline-none focus:border-primary appearance-none"
               >
                 <option value="">Chọn tỉnh / thành phố...</option>
                 {PROVINCES.map(p => (

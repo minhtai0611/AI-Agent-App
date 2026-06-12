@@ -173,7 +173,7 @@ function DailyFocusCard({ action, loading, navigate, onDismiss }) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className={`border rounded-xl p-5 ${cfg.accent}`}
+      className="bg-surface border border-border rounded-xl p-5"
     >
       {cfg.eyebrow && (
         <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-muted mb-2">

@@ -77,19 +77,19 @@ const GRADE_LABELS = { '9': 'Lớp 9 trở xuống', '10': 'Lớp 10', '11': 'L�
 
 const PLANS_MONTHLY = [
   { tier: 'basic',    label: 'Cơ bản',    price: 'Miễn phí',       credits: 50,   studyPlan: false, badge: null,
-    features: ['5 lượt Zenith AI/ngày', 'Tất cả chế độ thi', 'Thử thách hằng ngày'] },
+    features: ['5 lượt Zenith AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'] },
   { tier: 'student',  label: 'Học sinh',  price: '29,000đ/tháng',  credits: 500,  studyPlan: true,  badge: 'PHỔ BIẾN',
-    features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
+    features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
   { tier: 'complete', label: 'Toàn diện', price: '59,000đ/tháng',  credits: 2000, studyPlan: true,  badge: null,
-    features: ['Tất cả gói Học sinh', 'Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
+    features: ['Tất cả gói Học sinh', 'Tất cả đề thi thử & luyện tập', '⚗ Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
 ]
 const PLANS_ANNUAL = [
   { tier: 'basic',    label: 'Cơ bản',    price: 'Miễn phí',        credits: 50,   studyPlan: false, badge: null,
-    features: ['5 lượt Zenith AI/ngày', 'Tất cả chế độ thi', 'Thử thách hằng ngày'] },
+    features: ['5 lượt Zenith AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'] },
   { tier: 'student',  label: 'Học sinh',  price: '261,000đ/năm',    credits: 500,  studyPlan: true,  badge: 'PHỔ BIẾN', bonus: '+1,000 credits', effective: '21,750đ/tháng',
-    features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
+    features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
   { tier: 'complete', label: 'Toàn diện', price: '531,000đ/năm',    credits: 2000, studyPlan: true,  badge: null, bonus: '+3,000 credits', effective: '44,250đ/tháng',
-    features: ['Tất cả gói Học sinh', 'Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
+    features: ['Tất cả gói Học sinh', 'Tất cả đề thi thử & luyện tập', '⚗ Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
 ]
 const TOPUP_PACKAGES = [
   { price: '15,000đ', credits: 150, label: 'Starter' },
@@ -806,15 +806,7 @@ export default function Account() {
 
         {/* ── AI Advisor Message — always visible ───────────────────────── */}
         {advisorMsg && (
-          <div className={`flex items-start gap-3 px-5 py-4 rounded-2xl border ${
-            advisorMsg.category === 'urgent'
-              ? 'border-destructive/40 bg-destructive/5'
-              : advisorMsg.category === 'optimization'
-              ? 'border-info/40 bg-info/5'
-              : advisorMsg.category === 'goal'
-              ? 'border-success/40 bg-success/5'
-              : 'border-primary/20 bg-primary/5'
-          }`}>
+          <div className="flex items-start gap-3 px-5 py-4 rounded-2xl border border-border bg-surface">
             <span className="text-[18px] flex-shrink-0 mt-0.5">
               {advisorMsg.category === 'urgent' ? '🚨'
                 : advisorMsg.category === 'optimization' ? '💡'
@@ -823,7 +815,7 @@ export default function Account() {
                 : advisorMsg.category === 'consistency' ? '🔄'
                 : '✨'}
             </span>
-            <p className="font-sans text-[0.8125rem] text-highlight leading-snug">{advisorMsg.message}</p>
+            <p className="font-sans text-[0.8125rem] text-foreground leading-snug">{advisorMsg.message}</p>
           </div>
         )}
 
@@ -896,7 +888,7 @@ export default function Account() {
                   </button>
                 </div>
                 {/* Existing briefing + focus tip */}
-                <p className="font-sans text-[0.8125rem] text-highlight leading-snug">{simulationMode.briefing}</p>
+                <p className="font-sans text-[0.8125rem] text-foreground leading-snug">{simulationMode.briefing}</p>
                 <p className="font-sans text-xs text-muted leading-snug">{simulationMode.focusTip}</p>
                 {/* Score confidence interval */}
                 {scoreCI && (
@@ -917,14 +909,13 @@ export default function Account() {
             ) : (
               /* No exam date set → prompt user to configure one */
               !user?.exam_date ? (
-                <section className="rounded-2xl p-5 flex items-center gap-4"
-                  style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+                <section className="bg-surface border border-border rounded-2xl p-5 flex items-center gap-4">
                   <span className="text-2xl">📅</span>
                   <div>
-                    <p className="text-sm font-semibold" style={{ color: '#CBD5E1' }}>
+                    <p className="font-sans text-sm font-semibold text-foreground">
                       Đặt ngày thi để kích hoạt chế độ ôn thi
                     </p>
-                    <p className="text-xs mt-0.5" style={{ color: '#475569' }}>
+                    <p className="font-sans text-xs mt-0.5 text-muted">
                       Cài đặt → Mục tiêu học tập → Ngày thi
                     </p>
                   </div>
@@ -946,7 +937,7 @@ export default function Account() {
                       {examPhase.label}
                     </span>
                   </div>
-                  <span className="font-sans text-[0.8125rem] text-highlight leading-snug mt-1">{examPhase.headline}</span>
+                  <span className="font-sans text-[0.8125rem] text-foreground leading-snug mt-1">{examPhase.headline}</span>
                 </div>
                 <button
                   onClick={() => navigate('/exam-select')}
@@ -1000,7 +991,7 @@ export default function Account() {
                   {goalStatus.targetSchool && (
                     <div className="flex flex-col gap-0.5 px-3 py-2 rounded-lg bg-background border border-border max-w-[200px]">
                       <span className="font-sans text-[0.625rem] text-faint">Trường mục tiêu</span>
-                      <span className="font-sans text-xs font-semibold text-highlight truncate">{goalStatus.targetSchool}</span>
+                      <span className="font-sans text-xs font-semibold text-foreground truncate">{goalStatus.targetSchool}</span>
                     </div>
                   )}
                   {goalStatus.weeklyHours && (
@@ -1061,7 +1052,7 @@ export default function Account() {
               {editMode ? (
                 <div className="flex flex-col gap-3">
                   <input
-                    className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-highlight focus:outline-none focus:border-[var(--accent-border)]"
+                    className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground focus:outline-none focus:border-[var(--accent-border)]"
                     placeholder="Tỉnh / Thành phố"
                     value={editProvince}
                     onChange={e => setEditProvince(e.target.value)}
@@ -1082,16 +1073,16 @@ export default function Account() {
                 <div className="flex gap-6 flex-wrap">
                   <div className="flex flex-col gap-0.5">
                     <span className="font-sans text-[0.6875rem] text-faint">Lớp</span>
-                    <span className="font-sans text-[0.8125rem] text-highlight">{GRADE_LABELS[user.grade] || '—'}</span>
+                    <span className="font-sans text-[0.8125rem] text-foreground">{GRADE_LABELS[user.grade] || '—'}</span>
                   </div>
                   <div className="flex flex-col gap-0.5">
                     <span className="font-sans text-[0.6875rem] text-faint">Tỉnh / Thành phố</span>
-                    <span className="font-sans text-[0.8125rem] text-highlight">{user.province || '—'}</span>
+                    <span className="font-sans text-[0.8125rem] text-foreground">{user.province || '—'}</span>
                   </div>
                   {user.school_type && (
                     <div className="flex flex-col gap-0.5">
                       <span className="font-sans text-[0.6875rem] text-faint">Loại trường</span>
-                      <span className="font-sans text-[0.8125rem] text-highlight">{user.school_type}</span>
+                      <span className="font-sans text-[0.8125rem] text-foreground">{user.school_type}</span>
                     </div>
                   )}
                 </div>
@@ -1126,7 +1117,7 @@ export default function Account() {
                           ))}
                         </div>
                         <textarea
-                          className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-highlight focus:outline-none focus:border-[var(--accent-border)] resize-none"
+                          className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground focus:outline-none focus:border-[var(--accent-border)] resize-none"
                           placeholder="Lý do đổi lớp (ít nhất 30 ký tự)..."
                           rows={3}
                           value={gradeChangeReason}
@@ -1175,7 +1166,7 @@ export default function Account() {
                   onChange={e => { setUsernameInput(e.target.value); setUsernameError('') }}
                   placeholder={user.custom_display_name || user.display_name || 'Nhập tên mới...'}
                   maxLength={30}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-highlight placeholder-faint focus:outline-none focus:border-[var(--accent-border)]"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground placeholder-faint focus:outline-none focus:border-[var(--accent-border)]"
                 />
                 <button
                   disabled={usernameLoading || !usernameInput.trim()}
@@ -1208,7 +1199,7 @@ export default function Account() {
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between gap-3 flex-wrap">
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-sans text-[0.8125rem] font-semibold text-highlight">Tư vấn chiến lược thi</span>
+                      <span className="font-sans text-[0.8125rem] font-semibold text-foreground">Tư vấn chiến lược thi</span>
                       <span className="font-sans text-[0.6875rem] text-dim">AI phân tích điểm yếu và lên kế hoạch ôn thi cá nhân hoá · 1 lần/tháng</span>
                     </div>
                     <button onClick={handleExamStrategy} disabled={strategyLoading}
@@ -1231,7 +1222,7 @@ export default function Account() {
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between gap-3 flex-wrap">
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-sans text-[0.8125rem] font-semibold text-highlight">So sánh với tỉnh thành</span>
+                      <span className="font-sans text-[0.8125rem] font-semibold text-foreground">So sánh với tỉnh thành</span>
                       <span className="font-sans text-[0.6875rem] text-dim">Xem bạn đứng ở vị trí nào so với học sinh cùng tỉnh · 30 ngày qua</span>
                     </div>
                     <button onClick={handleCompareProvince} disabled={provinceLoading}
@@ -1248,7 +1239,7 @@ export default function Account() {
                         'border-info/40 bg-info/5'
                       }`}>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-sans text-[0.8125rem] font-semibold text-highlight">{provinceNarrative.headline}</span>
+                          <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{provinceNarrative.headline}</span>
                           {provinceNarrative.badge && (
                             <span className={`font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${
                               provinceNarrative.sentiment === 'above' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[var(--accent)]/20 text-[var(--accent)]'
@@ -1317,8 +1308,8 @@ export default function Account() {
                         </button>
                       </div>
                       {upgradeCtxVisible.strategy && ctx && (
-                        <div className="flex flex-col gap-2 px-4 py-3 rounded-xl border border-info/30 bg-info/5">
-                          <span className="font-sans text-xs text-info/80 leading-snug">{ctx.pitch}</span>
+                        <div className="flex flex-col gap-2 px-4 py-3 rounded-xl border border-border bg-surface">
+                          <span className="font-sans text-xs text-muted leading-snug">{ctx.pitch}</span>
                           <button
                             onClick={() => {
                               setActiveTab(TAB_AITIA)
@@ -1452,7 +1443,7 @@ export default function Account() {
                         {b.icon}
                       </motion.span>
                       <div className="flex flex-col gap-0.5 min-w-0">
-                        <span className="font-sans text-xs font-semibold text-highlight">{b.label}</span>
+                        <span className="font-sans text-xs font-semibold text-foreground">{b.label}</span>
                         <span className="font-sans text-[0.6875rem] text-dim">
                           {earned ? b.desc : badgeProgress(b.id)}
                         </span>
@@ -1486,7 +1477,7 @@ export default function Account() {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="flex flex-col items-center gap-0.5 px-3 py-3 rounded-xl bg-background border border-border">
-                    <span className="font-sans text-[20px] font-bold text-highlight">{progressReport.totalExams}</span>
+                    <span className="font-sans text-[20px] font-bold text-foreground">{progressReport.totalExams}</span>
                     <span className="font-sans text-[0.625rem] text-dim">Bài thi</span>
                   </div>
                   <div className="flex flex-col items-center gap-0.5 px-3 py-3 rounded-xl bg-background border border-border">
@@ -1494,13 +1485,13 @@ export default function Account() {
                     <span className="font-sans text-[0.625rem] text-dim">Điểm TB</span>
                   </div>
                   <div className="flex flex-col items-center gap-0.5 px-3 py-3 rounded-xl bg-background border border-border">
-                    <span className={`font-sans text-[20px] font-bold ${progressReport.scoreImprovement > 0 ? 'text-emerald-400' : progressReport.scoreImprovement < 0 ? 'text-red-400' : 'text-highlight'}`}>
+                    <span className={`font-sans text-[20px] font-bold ${progressReport.scoreImprovement > 0 ? 'text-emerald-400' : progressReport.scoreImprovement < 0 ? 'text-red-400' : 'text-foreground'}`}>
                       {progressReport.scoreImprovement > 0 ? '+' : ''}{progressReport.scoreImprovement}
                     </span>
                     <span className="font-sans text-[0.625rem] text-dim">Cải thiện</span>
                   </div>
                   <div className="flex flex-col items-center gap-0.5 px-3 py-3 rounded-xl bg-background border border-border">
-                    <span className="font-sans text-[20px] font-bold text-highlight">{progressReport.streakDays}</span>
+                    <span className="font-sans text-[20px] font-bold text-foreground">{progressReport.streakDays}</span>
                     <span className="font-sans text-[0.625rem] text-dim">Streak ngày</span>
                   </div>
                 </div>
@@ -1535,10 +1526,10 @@ export default function Account() {
           <>
             {/* Adaptive study nudge */}
             {studyNudge && (
-              <div className="flex items-start gap-3 px-5 py-4 rounded-2xl border border-primary/20 bg-primary/5">
+              <div className="flex items-start gap-3 px-5 py-4 rounded-2xl border border-border bg-surface">
                 <span className="text-[20px] flex-shrink-0 mt-px">💪</span>
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="font-sans text-[0.8125rem] text-highlight leading-snug">{studyNudge}</span>
+                  <span className="font-sans text-[0.8125rem] text-foreground leading-snug">{studyNudge}</span>
                   <button
                     onClick={() => navigate('/exam-select')}
                     className="self-start mt-1.5 px-3 py-1 rounded-lg font-sans text-[0.6875rem] font-semibold bg-primary text-primary-fg hover:bg-primary/80 transition-colors"
@@ -1603,7 +1594,7 @@ export default function Account() {
                         style={{ color: 'var(--info)' }}>
                         Nhận xét AI
                       </p>
-                      <p className="text-sm leading-relaxed" style={{ color: '#CBD5E1' }}>
+                      <p className="font-sans text-sm leading-relaxed text-foreground">
                         {advisorMsg.message}
                       </p>
                     </div>
@@ -1638,7 +1629,7 @@ export default function Account() {
                     </div>
                   )}
                   {scoreProjection && (
-                    <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-success/5 border border-success/20">
+                    <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-surface border border-border">
                       <span className="text-[0.8125rem] mt-px">🎯</span>
                       <span className="font-sans text-xs text-success">{scoreProjection.summary}</span>
                     </div>
@@ -1768,13 +1759,13 @@ export default function Account() {
                 {user.credits_reset_at && (
                   <div className="flex flex-col items-center gap-0.5">
                     <span className="font-sans text-[0.6875rem] text-faint">Làm mới vào</span>
-                    <span className="font-sans text-[0.8125rem] text-highlight">{formatDate(user.credits_reset_at)}</span>
+                    <span className="font-sans text-[0.8125rem] text-foreground">{formatDate(user.credits_reset_at)}</span>
                   </div>
                 )}
                 {user.subscription_expires_at && (
                   <div className="flex flex-col items-center gap-0.5">
                     <span className="font-sans text-[0.6875rem] text-faint">Hết hạn</span>
-                    <span className="font-sans text-[0.8125rem] text-highlight">{formatDate(user.subscription_expires_at)}</span>
+                    <span className="font-sans text-[0.8125rem] text-foreground">{formatDate(user.subscription_expires_at)}</span>
                   </div>
                 )}
               </div>
@@ -1816,11 +1807,10 @@ export default function Account() {
 
             {/* Trial urgency banner */}
             {trialUrgency && (
-              <section className="border rounded-2xl p-5 flex flex-col gap-3"
-                style={{ background: 'var(--surface)', borderColor: trialUrgency.daysLeft <= 1 ? 'rgba(220,38,38,0.4)' : 'var(--accent-border)' }}>
+              <section className="bg-surface border border-border rounded-2xl p-5 flex flex-col gap-3">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div className="flex flex-col gap-1">
-                    <span className="font-sans text-sm font-semibold text-highlight">{trialUrgency.message}</span>
+                    <span className="font-sans text-sm font-semibold text-foreground">{trialUrgency.message}</span>
                     <span className="font-sans text-xs text-muted">Sau khi hết hạn bạn sẽ mất quyền truy cập vào:</span>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -1842,7 +1832,7 @@ export default function Account() {
 
             {/* Tier gap — "Bạn đang bỏ lỡ..." card */}
             {tierGap && (
-              <section className="bg-surface border border-info/30 rounded-2xl p-6 flex flex-col gap-4">
+              <section className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-4">
                 <span className="font-sans text-[15px] font-semibold text-foreground">Bạn đang bỏ lỡ...</span>
                 <div className="flex flex-wrap gap-2">
                   {tierGap.missingFeatures.map(f => (
@@ -1882,7 +1872,7 @@ export default function Account() {
                     }`}>
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-sans text-sm font-bold text-highlight">{plan.label}</span>
+                        <span className="font-sans text-sm font-bold text-foreground">{plan.label}</span>
                         {plan.badge && (
                           <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">{plan.badge}</span>
                         )}
@@ -1920,7 +1910,7 @@ export default function Account() {
                       )}
                     </div>
                     <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                      <span className="font-sans text-[15px] font-bold text-highlight">{plan.price}</span>
+                      <span className="font-sans text-[15px] font-bold text-foreground">{plan.price}</span>
                       {tier !== plan.tier && plan.tier !== 'basic' && (
                         <span className="font-sans text-[0.6875rem] text-[var(--accent)]">Liên hệ nâng cấp</span>
                       )}
@@ -1957,7 +1947,7 @@ export default function Account() {
                       <span className="font-sans text-[18px] font-bold text-[var(--accent)]">⚡ {topupRec.pack.credits} credits</span>
                       <span className="font-sans text-[0.6875rem] text-dim">Đủ cho ~{topupRec.coversDays} ngày học tập AI</span>
                     </div>
-                    <span className="font-sans text-[16px] font-bold text-highlight flex-shrink-0">{topupRec.pack.price}</span>
+                    <span className="font-sans text-[16px] font-bold text-foreground flex-shrink-0">{topupRec.pack.price}</span>
                   </button>
                   <button
                     onClick={() => {}}
@@ -1972,7 +1962,7 @@ export default function Account() {
                         className="flex flex-col items-center gap-1.5 px-4 py-4 rounded-xl border border-border bg-surface-elevated hover:border-[var(--accent-border)]/50 hover:bg-[var(--accent)]/5 transition">
                         <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-border text-muted">{pkg.label}</span>
                         <span className="font-sans text-[18px] font-bold text-[var(--accent)]">⚡ {pkg.credits}</span>
-                        <span className="font-sans text-xs text-highlight">{pkg.price}</span>
+                        <span className="font-sans text-xs text-foreground">{pkg.price}</span>
                       </button>
                     ))}
                   </div>
@@ -1987,7 +1977,7 @@ export default function Account() {
                     >
                       <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-border text-muted">{pkg.label}</span>
                       <span className="font-sans text-[18px] font-bold text-[var(--accent)]">⚡ {pkg.credits}</span>
-                      <span className="font-sans text-xs text-highlight">{pkg.price}</span>
+                      <span className="font-sans text-xs text-foreground">{pkg.price}</span>
                     </button>
                   ))}
                 </div>
@@ -2046,7 +2036,7 @@ export default function Account() {
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex flex-col gap-0.5">
                       <span className="font-sans text-xs font-semibold text-muted">Số freeze còn lại</span>
-                      <span className="font-sans text-[22px] font-bold text-highlight">
+                      <span className="font-sans text-[22px] font-bold text-foreground">
                         {freezeInfo.balance}
                         <span className="font-sans text-[0.8125rem] font-normal text-faint ml-1">/ {freezeInfo.weeklyQuota} tuần</span>
                       </span>
@@ -2165,28 +2155,28 @@ export default function Account() {
               {/* language_mix */}
               <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-[0.8125rem] font-semibold text-highlight">Pha tiếng Anh thuật ngữ toán</span>
+                  <span className="font-sans text-[0.8125rem] font-semibold text-foreground">Pha tiếng Anh thuật ngữ toán</span>
                   <span className="font-sans text-[0.6875rem] text-dim">AI có thể dùng thuật ngữ toán tiếng Anh khi cần rõ hơn.</span>
                 </div>
                 <button
                   onClick={() => setAIPrefs({ ...aiPrefs, language_mix: aiPrefs.language_mix === 'mixed' ? 'vietnamese-only' : 'mixed' })}
                   className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${aiPrefs.language_mix === 'mixed' ? 'bg-info' : 'bg-border'}`}
                 >
-                  <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${aiPrefs.language_mix === 'mixed' ? 'translate-x-7' : 'translate-x-1'}`} />
+                  <span className={`absolute left-0 top-1 w-4 h-4 rounded-full bg-white transition-transform ${aiPrefs.language_mix === 'mixed' ? 'translate-x-7' : 'translate-x-1'}`} />
                 </button>
               </div>
 
               {/* weak_topic_focus */}
               <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-[0.8125rem] font-semibold text-highlight">Ưu tiên chủ đề yếu</span>
+                  <span className="font-sans text-[0.8125rem] font-semibold text-foreground">Ưu tiên chủ đề yếu</span>
                   <span className="font-sans text-[0.6875rem] text-dim">AI tự động nhấn mạnh vào khu vực bạn còn yếu nhất.</span>
                 </div>
                 <button
                   onClick={() => setAIPrefs({ ...aiPrefs, weak_topic_focus: !aiPrefs.weak_topic_focus })}
                   className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${aiPrefs.weak_topic_focus ? 'bg-primary' : 'bg-border'}`}
                 >
-                  <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${aiPrefs.weak_topic_focus ? 'translate-x-7' : 'translate-x-1'}`} />
+                  <span className={`absolute left-0 top-1 w-4 h-4 rounded-full bg-white transition-transform ${aiPrefs.weak_topic_focus ? 'translate-x-7' : 'translate-x-1'}`} />
                 </button>
               </div>
 
@@ -2232,7 +2222,7 @@ export default function Account() {
                   value={goalExamDate}
                   onChange={e => { setGoalExamDate(e.target.value); setGoalSaved(false) }}
                   min={new Date().toISOString().slice(0, 10)}
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-sans text-[0.8125rem] text-highlight focus:outline-none focus:border-primary transition [color-scheme:only_dark]"
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-sans text-[0.8125rem] text-foreground focus:outline-none focus:border-primary transition [color-scheme:only_dark]"
                 />
               </div>
 
@@ -2244,7 +2234,7 @@ export default function Account() {
                   onChange={e => { setGoalSchool(e.target.value); setGoalSaved(false) }}
                   placeholder="VD: THPT Chuyên Lê Hồng Phong"
                   maxLength={200}
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-sans text-[0.8125rem] text-highlight placeholder-faint focus:outline-none focus:border-primary transition"
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-sans text-[0.8125rem] text-foreground placeholder-faint focus:outline-none focus:border-primary transition"
                 />
               </div>
 
@@ -2255,7 +2245,7 @@ export default function Account() {
                   value={goalHours}
                   onChange={e => { setGoalHours(e.target.value); setGoalSaved(false) }}
                   min={1} max={168} placeholder="VD: 10"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-sans text-[0.8125rem] text-highlight placeholder-faint focus:outline-none focus:border-primary transition"
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background font-sans text-[0.8125rem] text-foreground placeholder-faint focus:outline-none focus:border-primary transition"
                 />
               </div>
 
@@ -2313,7 +2303,7 @@ export default function Account() {
               <span className="font-sans text-[15px] font-semibold text-foreground">Thông báo</span>
               <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-[0.8125rem] font-semibold text-highlight">Nhắc nhở học tập hàng ngày</span>
+                  <span className="font-sans text-[0.8125rem] font-semibold text-foreground">Nhắc nhở học tập hàng ngày</span>
                   <span className="font-sans text-[0.6875rem] text-dim">Nhận thông báo nhắc ôn luyện mỗi ngày.</span>
                 </div>
                 <button
@@ -2328,7 +2318,7 @@ export default function Account() {
                   }}
                   className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${reminderEnabled ? 'bg-[var(--accent)]' : 'bg-border'}`}
                 >
-                  <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${reminderEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
+                  <span className={`absolute left-0 top-1 w-4 h-4 rounded-full bg-white transition-transform ${reminderEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
                 </button>
               </div>
               {reminderEnabled && (
@@ -2341,7 +2331,7 @@ export default function Account() {
                       setReminderHour(h)
                       localStorage.setItem('study_reminder_hour', String(h))
                     }}
-                    className="px-3 py-1.5 rounded-lg border border-border bg-surface-elevated font-sans text-xs text-highlight focus:outline-none focus:border-[var(--accent-border)]/60"
+                    className="px-3 py-1.5 rounded-lg border border-border bg-surface-elevated font-sans text-xs text-foreground focus:outline-none focus:border-[var(--accent-border)]/60"
                   >
                     {Array.from({ length: 18 }, (_, i) => i + 6).map(h => (
                       <option key={h} value={h}>{h}:00</option>
@@ -2419,7 +2409,7 @@ export default function Account() {
                   >
                     <div className="flex items-start justify-between gap-4 flex-wrap pt-2 border-t border-border">
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-sans text-[0.8125rem] font-semibold text-highlight">Tạm ngưng tài khoản</span>
+                        <span className="font-sans text-[0.8125rem] font-semibold text-foreground">Tạm ngưng tài khoản</span>
                         <span className="font-sans text-xs text-dim">Vô hiệu hóa tài khoản tạm thời. Bạn có thể kích hoạt lại sau.</span>
                       </div>
                       <button
@@ -2432,7 +2422,7 @@ export default function Account() {
                     <div className="border-t border-border" />
                     <div className="flex items-start justify-between gap-4 flex-wrap">
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-sans text-[0.8125rem] font-semibold text-highlight">Xóa tài khoản vĩnh viễn</span>
+                        <span className="font-sans text-[0.8125rem] font-semibold text-foreground">Xóa tài khoản vĩnh viễn</span>
                         <span className="font-sans text-xs text-dim">Tất cả dữ liệu sẽ bị xóa và không thể khôi phục.</span>
                       </div>
                       <button
@@ -2482,7 +2472,7 @@ export default function Account() {
                 ].map(([label, value]) => (
                   <div key={label} className="flex items-center justify-between gap-2">
                     <span className="font-sans text-[0.6875rem] text-faint">{label}</span>
-                    <span className="font-sans text-xs font-semibold text-highlight text-right">{value}</span>
+                    <span className="font-sans text-xs font-semibold text-foreground text-right">{value}</span>
                   </div>
                 ))}
               </div>
@@ -2566,7 +2556,7 @@ export default function Account() {
               <div className="flex flex-col gap-1.5">
                 <span className="font-sans text-xs text-dim">Nhập địa chỉ email của bạn để xác nhận:</span>
                 <input
-                  className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-highlight focus:outline-none focus:border-red-400"
+                  className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground focus:outline-none focus:border-red-400"
                   placeholder={user.email}
                   value={deleteEmail}
                   onChange={e => setDeleteEmail(e.target.value)}

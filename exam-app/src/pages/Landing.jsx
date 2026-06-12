@@ -17,15 +17,15 @@ import ZenithLogo from '../components/ZenithLogo.jsx'
 const PLANS_MONTHLY = [
   {
     tier: 'basic', label: 'Cơ bản', price: 'Miễn phí', credits: 50,
-    features: ['5 lượt Zenith AI/ngày', 'Tất cả chế độ thi', 'Thử thách hằng ngày'],
+    features: ['5 lượt Zenith AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'],
   },
   {
     tier: 'student', label: 'Học sinh', price: '29,000đ / tháng', credits: 500, badge: 'PHỔ BIẾN',
-    features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học'],
+    features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học'],
   },
   {
     tier: 'complete', label: 'Toàn diện', price: '59,000đ / tháng', credits: 2000,
-    features: ['Tất cả gói Học sinh', 'Tạo đề AI riêng', 'Dự đoán điểm số', 'Kế hoạch thích nghi AI', 'Chiến lược thi', 'So sánh tỉnh thành'],
+    features: ['Tất cả gói Học sinh', 'Tất cả đề thi thử & luyện tập', '⚗ Tạo đề AI riêng', 'Dự đoán điểm số', 'Kế hoạch thích nghi AI', 'Chiến lược thi', 'So sánh tỉnh thành'],
   },
 ]
 

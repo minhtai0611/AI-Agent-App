@@ -71,7 +71,6 @@ export function AuthProvider({ children }) {
     if (error || !data) throw new Error(error || 'Đăng nhập thất bại')
 
     localStorage.setItem('auth_token', data.access_token)
-    localStorage.removeItem('guest_trial_used')
 
     // Fetch full profile (includes grade, province, credits, tier, etc.)
     const { data: profile } = await getMe()
@@ -157,7 +156,6 @@ export function AuthProvider({ children }) {
   function logout() {
     const uid = user?.id
     localStorage.removeItem('auth_token')
-    localStorage.removeItem('guest_trial_used')
     localStorage.removeItem('offline_queue_size')
     // Clear user-namespaced keys so next user gets a clean slate
     if (uid) {

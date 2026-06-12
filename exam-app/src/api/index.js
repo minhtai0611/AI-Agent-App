@@ -100,48 +100,35 @@ export async function loadQuestionsByIds(ids, requireAuth = false) {
   return ids.map(id => map[id]).filter(Boolean)
 }
 
-const PASS_THRESHOLD = 5.0
 const GATED_MODES = new Set(['thithu', 'practice'])
 
-/**
- * Returns which exam IDs are accessible based on sequential progression.
- * Within each category, exams sorted by year ascending; first is always open.
- * Each subsequent exam unlocks when: (a) previous year passed ≥ 5.0, OR
- * (b) user already has any result for it (grandfather clause for existing users).
- *
- * @param {Array} results - user's exam history (array of {examId, score})
- * @param {Array} allExams - exams currently in view (mode-filtered)
- * @returns {{ accessible: Set<string>, prerequisites: Object<string,string> }}
- */
-export function getAccessibleExamIds(results, allExams) {
-  const passedIds = new Set(results.filter(r => (r.score ?? 0) >= PASS_THRESHOLD).map(r => r.examId))
-  const submittedIds = new Set(results.map(r => r.examId))
+const ALLOWED_PER_CATEGORY = {
+  complete: Infinity,
+  student: 3,
+  basic: 1,
+}
+
+export function getAccessibleExamIds(allExams, user) {
+  const tier = user?.subscription_tier
+  const limit = ALLOWED_PER_CATEGORY[tier] ?? 0  // guest → 0
   const accessible = new Set()
-  const prerequisites = {}
 
   for (const category of ['grade10', 'thpt']) {
     const ordered = allExams
-      .filter(e => e.category === category && (GATED_MODES.has(e.mode) || !e.mode))
+      .filter(e => e.category === category && GATED_MODES.has(e.mode))
       .sort((a, b) => (a.year ?? 0) - (b.year ?? 0))
-    if (ordered.length === 0) continue
-    accessible.add(ordered[0].id)
-    for (let i = 1; i < ordered.length; i++) {
-      const prev = ordered[i - 1]
-      const curr = ordered[i]
-      prerequisites[curr.id] = prev.id
-      if (passedIds.has(prev.id) || submittedIds.has(curr.id)) {
-        accessible.add(curr.id)
-      } else {
-        break
-      }
-    }
-  }
-  // Non-gated modes (luyentap, etc.) are always accessible regardless of progression
-  for (const exam of allExams) {
-    if (!GATED_MODES.has(exam.mode)) accessible.add(exam.id)
+    ordered.slice(0, limit).forEach(e => accessible.add(e.id))
   }
 
-  return { accessible, prerequisites }
+  // Non-gated modes (luyentap etc.) accessible for any logged-in user
+  if (user) {
+    for (const exam of allExams) {
+      if (!GATED_MODES.has(exam.mode)) accessible.add(exam.id)
+    }
+  }
+
+  const lockReason = !user ? 'auth' : (tier === 'complete' ? null : 'tier')
+  return { accessible, lockReason }
 }
 
 const DIFF_RANK = { hard: 3, medium: 2, easy: 1 }

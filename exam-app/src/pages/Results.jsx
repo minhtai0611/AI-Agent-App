@@ -82,7 +82,7 @@ function SchoolCard({ school, studentScore }) {
     >
       <div className="flex items-start justify-between gap-2">
         <h4
-          className="font-sans font-semibold text-sm text-highlight leading-snug"
+          className="font-sans font-semibold text-sm text-foreground leading-snug"
           style={{ overflowWrap: 'break-word', hyphens: 'none' }}
         >
           {school.name}
@@ -979,7 +979,7 @@ export default function Results({ onOpenAuth }) {
                   return (
                     <motion.div key={topic} variants={_itemVariants}
                       className={`flex flex-col gap-2 px-4 py-3 rounded-xl ${verdict.cls}`}>
-                      <span className="font-sans text-[0.8125rem] font-semibold text-highlight">{getTopicLabel(topic)}</span>
+                      <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{getTopicLabel(topic)}</span>
                       <span className="font-sans text-xs text-dim">{tb.correct}/{tb.total} · {Math.round(tb.accuracy * 100)}%</span>
                       <span className="font-sans text-[0.6875rem] font-bold" style={{ color: verdict.color }}>{verdict.text}</span>
                     </motion.div>
@@ -1154,7 +1154,7 @@ export default function Results({ onOpenAuth }) {
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
                               <div className="px-5 py-4 flex flex-col gap-3 border-t border-border">
-                                <MathText className="font-sans text-[0.8125rem] text-highlight leading-relaxed">{q.question}</MathText>
+                                <MathText className="font-sans text-[0.8125rem] text-foreground leading-relaxed">{q.question}</MathText>
                                 <div className="flex flex-col gap-2">
                                   {q.choices.map((c, i) => {
                                     const chosen = answers[q.id] ?? null
@@ -1330,7 +1330,7 @@ export default function Results({ onOpenAuth }) {
                       <div key={school.id} className="flex flex-col gap-1.5">
                         <div className="flex items-center justify-between">
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-sans text-[0.8125rem] font-semibold text-highlight">{school.name}</span>
+                            <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{school.name}</span>
                             <span className="font-sans text-[0.6875rem] text-faint">{school.district} · Chuẩn Toán: {school.cutoff}</span>
                           </div>
                           <span className="font-sans text-[20px] font-bold flex-shrink-0 ml-4" style={{ color: barColor }}>

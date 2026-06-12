@@ -36,7 +36,6 @@ const GROUPS = {
   ],
 }
 
-const TRIAL_KEY = 'guest_trial_used'
 const FILTER_KEY = 'examselect_filter'
 
 function loadSavedFilters() {
@@ -87,9 +86,9 @@ export default function ExamSelect({ onOpenAuth }) {
     return seen.size
   }, [results])
 
-  const { accessible: accessibleExamIds, prerequisites: examPrerequisites } = useMemo(
-    () => getAccessibleExamIds(results, allExams),
-    [results, allExams]
+  const { accessible: accessibleExamIds, lockReason } = useMemo(
+    () => getAccessibleExamIds(allExams, user),
+    [allExams, user]
   )
 
   const bestScores = useMemo(() => {
@@ -182,15 +181,8 @@ export default function ExamSelect({ onOpenAuth }) {
   }, [results])
 
   async function handleStart(exam) {
-    if (!user) {
-      const trialUsed = localStorage.getItem(TRIAL_KEY)
-      if (trialUsed) {
-        onOpenAuth?.()
-        return
-      }
-      localStorage.setItem(TRIAL_KEY, '1')
-    }
-    const questions = await loadQuestionsByIds(exam.questionIds, !!user)
+    if (!user) { onOpenAuth?.(); return }
+    const questions = await loadQuestionsByIds(exam.questionIds, true)
     dispatch({ type: 'START_EXAM', exam, questions, mode: mode === 'timed' ? 'timed' : 'practice' })
     viewNavigate(navigate, `/test/${exam.id}`)
   }
@@ -231,9 +223,9 @@ export default function ExamSelect({ onOpenAuth }) {
 
       {/* Guest notice */}
       {!user && (
-        <div className="mx-10 mt-6 px-5 py-3 rounded-xl border border-primary/20 bg-surface flex items-center justify-between gap-3">
+        <div className="mx-10 mt-6 px-5 py-3 rounded-xl border border-border bg-surface flex items-center justify-between gap-3">
           <span className="font-sans text-[0.8125rem] text-muted">
-            Bạn có <strong className="text-[var(--accent)]">1 đề thi miễn phí</strong>. Đăng nhập để làm thêm và nhận phân tích AI.
+            Đăng nhập để truy cập đề thi có thời gian và luyện tập.
           </span>
           <button
             onClick={onOpenAuth}
@@ -252,10 +244,10 @@ export default function ExamSelect({ onOpenAuth }) {
           placeholder="Tìm đề thi..."
           value={filterSearch}
           onChange={e => setSearch(e.target.value)}
-          className="h-9 px-4 rounded-full border border-border bg-surface-elevated font-sans text-[0.8125rem] text-highlight placeholder-faint focus:outline-none focus:border-primary w-48"
+          className="h-9 px-4 rounded-full border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground placeholder-faint focus:outline-none focus:border-primary w-48"
         />
-        {/* OCR upload */}
-        {user && (
+        {/* OCR upload — student/complete tier only */}
+        {user && user.subscription_tier !== 'basic' && (
           <>
             <input ref={ocrInputRef} type="file" accept="image/*" className="hidden" onChange={handleOcrUpload} />
             <button
@@ -317,7 +309,19 @@ export default function ExamSelect({ onOpenAuth }) {
         </div>
 
         {/* ── ⚗ Lab mode ──────────────────────────────────────────────────── */}
-        {mode === 'lab' && (
+        {mode === 'lab' && !user && (
+          <div className="flex flex-col items-center gap-4 py-20 text-center">
+            <span className="text-4xl">🔒</span>
+            <p className="font-sans text-sm text-foreground font-semibold">Đăng nhập để dùng Lab</p>
+            <p className="font-sans text-xs text-muted">Lab cung cấp công cụ AI phân tích và luyện tập nâng cao.</p>
+            <button onClick={onOpenAuth}
+              className="px-5 py-2.5 rounded-xl font-sans text-sm font-bold bg-primary text-primary-fg">
+              Đăng nhập →
+            </button>
+          </div>
+        )}
+
+        {mode === 'lab' && user && (
           <motion.div key="lab" variants={listVariants} initial="hidden" animate="show"
             className="flex flex-col gap-6">
 
@@ -367,18 +371,34 @@ export default function ExamSelect({ onOpenAuth }) {
 
               {/* Lab feature cards */}
               {[
-                { label: 'Bản đồ khái niệm', desc: 'Visualize mối liên hệ giữa các chủ đề Toán', path: '/concept-map', accent: '#818CF8' },
-                { label: 'Phân tích lỗi sai', desc: 'AI phân tích pattern lỗi trong toàn bộ lịch sử thi', path: '/error-analysis', accent: '#FB7185' },
-              ].map(({ label, desc, path, accent }) => (
-                <motion.button key={label}
-                  onClick={() => navigate(path)}
-                  className="rounded-2xl p-5 border border-border flex flex-col gap-2 text-left transition hover:border-primary/30 hover:bg-surface-elevated"
-                  whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-                  <p className="font-sans text-sm font-semibold text-foreground">{label}</p>
-                  <p className="font-sans text-xs text-dim">{desc}</p>
-                  <span className="font-sans text-xs font-semibold mt-auto transition" style={{ color: accent }}>Mở →</span>
-                </motion.button>
-              ))}
+                { label: 'Bản đồ khái niệm', desc: 'Visualize mối liên hệ giữa các chủ đề Toán', path: '/concept-map', accent: '#818CF8', minTier: null },
+                { label: 'Phân tích lỗi sai', desc: 'AI phân tích pattern lỗi trong toàn bộ lịch sử thi', path: '/error-analysis', accent: '#FB7185', minTier: 'student' },
+              ].map(({ label, desc, path, accent, minTier }) => {
+                const isLabLocked = minTier === 'student' && user?.subscription_tier === 'basic'
+                if (isLabLocked) {
+                  return (
+                    <div key={label}
+                      className="rounded-2xl p-5 border border-border flex flex-col gap-2 text-left opacity-50">
+                      <p className="font-sans text-sm font-semibold text-dim">🔒 {label}</p>
+                      <p className="font-sans text-xs text-faint">Yêu cầu gói Học sinh hoặc Toàn diện</p>
+                      <button onClick={() => navigate('/account')}
+                        className="font-sans text-xs font-semibold mt-auto text-dim hover:text-foreground transition text-left">
+                        Nâng cấp →
+                      </button>
+                    </div>
+                  )
+                }
+                return (
+                  <motion.button key={label}
+                    onClick={() => navigate(path)}
+                    className="rounded-2xl p-5 border border-border flex flex-col gap-2 text-left transition hover:border-primary/30 hover:bg-surface-elevated"
+                    whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                    <p className="font-sans text-sm font-semibold text-foreground">{label}</p>
+                    <p className="font-sans text-xs text-dim">{desc}</p>
+                    <span className="font-sans text-xs font-semibold mt-auto transition" style={{ color: accent }}>Mở →</span>
+                  </motion.button>
+                )
+              })}
             </div>
           </motion.div>
         )}
@@ -435,63 +455,28 @@ export default function ExamSelect({ onOpenAuth }) {
                     <div className="flex flex-col gap-3">
                       {visibleExams.map(exam => {
                         const isLocked = !accessibleExamIds.has(exam.id)
-                        const prereqId = examPrerequisites[exam.id]
-                        const prereqExam = prereqId ? allExams.find(e => e.id === prereqId) : null
-                        const prereqScore = prereqId != null ? (bestScores[prereqId] ?? null) : null
-                        const scoreGap = prereqScore !== null ? Math.max(0, 5.0 - prereqScore).toFixed(1) : null
-                        const encouragement = prereqScore === null
-                          ? `Hãy bắt đầu với đề ${prereqExam?.year ?? ''} trước nhé!`
-                          : prereqScore < 3
-                            ? `Ôn thêm một chút, bạn sắp mở được đề này rồi!`
-                            : `Gần rồi! Cần thêm ${scoreGap} điểm nữa.`
-
                         if (isLocked) {
+                          const lockMsg = lockReason === 'auth'
+                            ? 'Đăng nhập để truy cập đề thi này'
+                            : user?.subscription_tier === 'basic'
+                              ? 'Yêu cầu gói Học sinh hoặc Toàn diện'
+                              : 'Yêu cầu gói Toàn diện'
+                          const lockCta = lockReason === 'auth' ? 'Đăng nhập' : 'Nâng cấp'
+                          const lockAction = lockReason === 'auth' ? onOpenAuth : () => navigate('/account')
                           return (
-                            <motion.div
-                              key={exam.id}
-                              variants={cardVariants}
-                              className="glass-base rounded-xl px-6 py-5 flex flex-col gap-3 opacity-60"
-                            >
-                              <div className="flex items-start justify-between gap-4">
-                                <div className="flex flex-col gap-1.5">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-dim">🔒</span>
-                                    <span className="font-sans text-[15px] font-semibold text-dim">{exam.title}</span>
-                                  </div>
-                                  <span className="font-sans text-[0.8125rem] text-faint">
-                                    {exam.year} · {exam.totalQuestions} câu · {exam.duration} phút
-                                  </span>
+                            <motion.div key={exam.id} variants={cardVariants}
+                              className="glass-base rounded-xl px-6 py-5 flex items-center justify-between gap-4 opacity-60">
+                              <div className="flex items-center gap-2">
+                                <span className="text-dim">🔒</span>
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="font-sans text-[15px] font-semibold text-dim">{exam.title}</span>
+                                  <span className="font-sans text-xs text-faint">{lockMsg}</span>
                                 </div>
-                                {prereqExam && (
-                                  <button
-                                    onClick={() => openPreview(prereqExam)}
-                                    className="flex-shrink-0 px-4 py-2 rounded-md font-sans text-xs font-semibold transition border border-border text-dim"
-                                    onMouseEnter={e => { e.currentTarget.style.borderColor = group.accent; e.currentTarget.style.color = group.accent }}
-                                    onMouseLeave={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.color = '' }}
-                                    onFocus={e => { e.currentTarget.style.borderColor = group.accent; e.currentTarget.style.color = group.accent }}
-                                    onBlur={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.color = '' }}
-                                  >
-                                    Làm đề {prereqExam.year} →
-                                  </button>
-                                )}
                               </div>
-                              <div className="flex flex-col gap-1.5 pt-1 border-t border-border">
-                                <span className="font-sans text-xs text-faint">
-                                  Yêu cầu: đề {prereqExam?.year ?? ''} đạt ≥ 5.0 điểm
-                                </span>
-                                {prereqScore !== null && (
-                                  <div className="flex items-center gap-2">
-                                    <div className="flex-1 h-1.5 rounded-full bg-border overflow-hidden">
-                                      <div
-                                        className="h-full rounded-full transition-all"
-                                        style={{ width: `${Math.min(100, (prereqScore / 5.0) * 100)}%`, background: prereqScore >= 5.0 ? '#10B981' : group.accent }}
-                                      />
-                                    </div>
-                                    <span className="font-mono text-[0.6875rem] text-dim">{prereqScore.toFixed(1)} / 5.0</span>
-                                  </div>
-                                )}
-                                <span className="font-sans text-[0.6875rem] text-faint italic">{encouragement}</span>
-                              </div>
+                              <button onClick={lockAction}
+                                className="flex-shrink-0 px-4 py-2 rounded-md font-sans text-xs font-semibold border border-border text-dim hover:text-foreground hover:border-foreground/40 transition">
+                                {lockCta} →
+                              </button>
                             </motion.div>
                           )
                         }
