@@ -73,7 +73,9 @@ function AppInner() {
   const dispatch = useExamDispatch()
   const navigate = useNavigate()
   const location = useLocation()
-  const isAdminRoute = location.pathname === '/admin' || location.pathname === '/admin/security-events'
+  const isHiddenNavRoute = location.pathname === '/admin'
+    || location.pathname === '/admin/security-events'
+    || location.pathname.startsWith('/test/')
 
   const [resumeBanner] = useState(() => {
     try {
@@ -137,7 +139,7 @@ function AppInner() {
       <ScrollToTop />
       <OfflineBanner />
       <InstallPrompt />
-      {!isAdminRoute && <Navbar onOpenAuth={() => setAuthOpen(true)} />}
+      {!isHiddenNavRoute && <Navbar onOpenAuth={() => setAuthOpen(true)} />}
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       {showDeactivated && (
         <SuspensionModal reason="Tài khoản đã bị tạm xóa do không hoạt động. Liên hệ hỗ trợ để khôi phục tài khoản." onLogout={logout} />
@@ -148,14 +150,14 @@ function AppInner() {
       {!showDeactivated && !showLocked && showSuspension && (
         <SuspensionModal reason={user.suspension_reason} onLogout={logout} />
       )}
-      {!isAdminRoute && !showDeactivated && !showLocked && !showSuspension && showOnboarding && (
+      {!isHiddenNavRoute && !showDeactivated && !showLocked && !showSuspension && showOnboarding && (
         <ProfileOnboarding onDone={() => {}} />
       )}
-      {!isAdminRoute && !showDeactivated && !showLocked && !showSuspension && !showOnboarding && showExtendedOnboarding && (
+      {!isHiddenNavRoute && !showDeactivated && !showLocked && !showSuspension && !showOnboarding && showExtendedOnboarding && (
         <ExtendedOnboarding onDone={() => {}} />
       )}
-      <div className={`min-h-screen bg-background text-foreground${isAdminRoute ? '' : ' pt-12'}`}>
-        {showLowCredit && !isAdminRoute && !showOnboarding && !showDeactivated && !showLocked && !showSuspension && (
+      <div className={`min-h-screen bg-background text-foreground${isHiddenNavRoute ? '' : ' pt-12'}`}>
+        {showLowCredit && !isHiddenNavRoute && !showOnboarding && !showDeactivated && !showLocked && !showSuspension && (
           <LowCreditBanner balance={user.credits_balance} />
         )}
         <Suspense fallback={<PageFallback />}>

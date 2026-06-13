@@ -100,7 +100,8 @@ export async function loadQuestionsByIds(ids, requireAuth = false) {
   return ids.map(id => map[id]).filter(Boolean)
 }
 
-const GATED_MODES = new Set(['thithu', 'practice'])
+// olympiad/applied are gated intentionally — this removes free access for basic-tier users
+const GATED_MODES = new Set(['thithu', 'practice', 'olympiad', 'applied'])
 
 const ALLOWED_PER_CATEGORY = {
   complete: Infinity,

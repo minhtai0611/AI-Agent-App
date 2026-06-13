@@ -1281,7 +1281,7 @@ async def analyze_stream(
         try:
             stream = await client.chat.completions.create(
                 model=settings.default_model,
-                max_tokens=1200,
+                max_tokens=2500,
                 messages=[
                     {"role": "system", "content": STATIC_EXAM_ANALYSIS_INSTRUCTIONS},
                     {"role": "user", "content": prompt},
@@ -4675,12 +4675,13 @@ async def adaptive_practice(
     settings = get_settings()
     topics_str = ", ".join(req.weak_topics) if req.weak_topics else "mixed"
     prompt = (
-        f"Generate {req.count} multiple-choice math practice questions for a grade {req.grade} Vietnamese student. "
-        f"Focus on these weak topics: <user_topics>{topics_str}</user_topics>. "
-        "Return a JSON array of objects with keys: "
-        '{"id": "ap_<uuid4_short>", "question": "question text (in Vietnamese)", "choices": ["A","B","C","D"], "correct": 0, "topic": "<slug>", "difficulty": "medium", "explanation": "step-by-step solution"}. '
-        "Choices must be 4 strings. correct is the 0-based index of the correct choice. "
-        "Use LaTeX notation for math expressions. Return ONLY the JSON array, no markdown fences."
+        f"Tạo {req.count} câu hỏi trắc nghiệm toán cho học sinh lớp {req.grade} tại Việt Nam. "
+        f"Tập trung vào các chủ đề yếu sau: <user_topics>{topics_str}</user_topics>. "
+        "Trả về JSON array gồm các object với các key: "
+        '{"id": "ap_<uuid4_short>", "question": "câu hỏi bằng tiếng Việt", "choices": ["A","B","C","D"], "correct": 0, "topic": "<slug>", "difficulty": "medium", "explanation": "giải thích từng bước bằng tiếng Việt"}. '
+        "Choices phải là 4 chuỗi. correct là index 0-based của đáp án đúng. "
+        "Toàn bộ nội dung 'question', 'choices', và 'explanation' PHẢI bằng tiếng Việt. "
+        "Dùng ký hiệu LaTeX cho biểu thức toán học. Chỉ trả về JSON array, không có markdown fences."
     )
     try:
         response = await client.chat.completions.create(

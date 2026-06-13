@@ -478,6 +478,65 @@ body {
   animation: 200ms ease-out both vt-fade-in;
 }
 
+/* ─── Aurora / Landing visual effects ────────────────────────────────────── */
+
+@keyframes aurora-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(30px, -20px) scale(1.05); }
+  66%  { transform: translate(-20px, 10px) scale(0.95); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+@keyframes scrollX {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  animation: aurora-drift 22s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.dark .aurora-blob,
+[data-theme="dark"] .aurora-blob {
+  opacity: 0.45;
+}
+
+.cta-gradient-btn {
+  background: linear-gradient(90deg, #6366F1, #8B5CF6, #06B6D4, #6366F1);
+  background-size: 300% 100%;
+  animation: gradient-shift 4s linear infinite;
+  color: #fff;
+}
+
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.dark .glass-card,
+[data-theme="dark"] .glass-card {
+  background: rgba(30, 27, 22, 0.7);
+  border-color: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.testimonials-strip {
+  animation: scrollX 32s linear infinite;
+}
+.testimonials-strip:hover {
+  animation-play-state: paused;
+}
+
 /* ─── Reduced motion baseline ─────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {

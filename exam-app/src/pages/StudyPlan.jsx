@@ -241,7 +241,12 @@ export default function StudyPlan() {
           ← Quay lại
         </button>
         <span className="font-sans text-[14px] font-semibold text-foreground">Kế hoạch phục hồi</span>
-        <div className="w-20" />
+        <button
+          onClick={() => navigate('/exams?mode=study_plan')}
+          className="px-4 py-2 rounded-lg font-sans text-xs font-bold bg-primary text-primary-fg hover:opacity-90 transition"
+        >
+          Luyện ngay →
+        </button>
       </nav>
 
       <div className="flex flex-col gap-5 max-w-2xl mx-auto w-full px-4 py-10">

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
+import { useNavigate, useLocation, useSearchParams, Navigate } from 'react-router-dom'
 import { useHistory } from '../context/HistoryContext'
 import { useExam, useExamDispatch } from '../context/ExamContext'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -89,6 +89,26 @@ export default function AdaptivePractice() {
   const { results } = useHistory()
   const { user } = useAuth()
   const dispatch = useExamDispatch()
+
+  const PRACTICE_TIERS = new Set(['student', 'complete'])
+  if (!user) return <Navigate to="/" replace />
+  if (!PRACTICE_TIERS.has(user.subscription_tier)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="max-w-sm w-full flex flex-col gap-4 items-center text-center">
+          <span className="font-sans text-sm text-muted">
+            Luyện tập thích nghi yêu cầu gói Học sinh hoặc Toàn diện.
+          </span>
+          <button
+            onClick={() => navigate('/account')}
+            className="px-5 py-2.5 rounded-xl font-sans text-sm font-bold bg-primary text-background"
+          >
+            Nâng cấp gói
+          </button>
+        </div>
+      </div>
+    )
+  }
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [mode, setMode] = useState(null) // null = selection, 'static' | 'ai'

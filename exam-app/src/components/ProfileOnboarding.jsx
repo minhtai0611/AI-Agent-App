@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 
 import { useAuth } from '../context/AuthContext.jsx'
 import { acceptTos } from '../api/aiClient.js'
 import { PROVINCES } from '../data/provinces.js'
+import { loadSchools } from '../api/index.js'
 
 const GRADES = [
   { value: '9', label: 'Lớp 9 trở xuống', sub: 'Thi vào lớp 10' },
@@ -76,10 +77,19 @@ export default function ProfileOnboarding({ onDone }) {
   const [grade, setGrade] = useState('')
   const [province, setProvince] = useState('')
   const [schoolType, setSchoolType] = useState('')
+  const [targetSchool, setTargetSchool] = useState('')
   const [tosAccepted, setTosAccepted] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [activeModal, setActiveModal] = useState(null)
+
+  const provinceSuggestions = useMemo(() => {
+    if (!province) return []
+    return loadSchools()
+      .filter(s => s.province === province)
+      .map(s => s.name)
+      .slice(0, 8)
+  }, [province])
 
   const canSubmit = grade && province && tosAccepted && !saving
 
@@ -93,6 +103,7 @@ export default function ProfileOnboarding({ onDone }) {
         grade,
         province,
         school_type: schoolType || undefined,
+        target_school: targetSchool || undefined,
       })
       await acceptTos()
       onDone?.()
@@ -154,6 +165,36 @@ export default function ProfileOnboarding({ onDone }) {
                   <option key={p} value={p}>{p}</option>
                 ))}
               </select>
+            </div>
+
+            {/* Target school (optional, province-filtered suggestions) */}
+            <div className="flex flex-col gap-2">
+              <label className="font-sans text-[0.8125rem] font-semibold text-muted">Trường mục tiêu <span className="text-faint font-normal">(tùy chọn)</span></label>
+              <input
+                type="text"
+                value={targetSchool}
+                onChange={e => setTargetSchool(e.target.value)}
+                placeholder="Ví dụ: THPT Chuyên Lê Hồng Phong"
+                className="w-full px-4 py-3 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground focus:outline-none focus:border-primary placeholder:text-faint"
+              />
+              {provinceSuggestions.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {provinceSuggestions.map(name => (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => setTargetSchool(name)}
+                      className={`px-3 py-1 rounded-full font-sans text-[0.6875rem] border transition ${
+                        targetSchool === name
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border bg-surface text-dim hover:border-primary/40'
+                      }`}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* School type (optional) */}

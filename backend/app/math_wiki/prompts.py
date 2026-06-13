@@ -49,7 +49,7 @@ Select the top 5 most relevant candidate IDs for the query.
 Output exactly: {"top_ids": ["id1", "id2", ...]}
 Only use IDs from the candidates list. Maximum 5 IDs. Output ONLY the JSON object."""
 
-PROMPT_SOLVE = """You are a math problem solver. You MUST output ONLY a single JSON object — no prose, no markdown, no text before or after the JSON.
+PROMPT_SOLVE = """Bạn là hệ thống giải toán. Chỉ xuất ra MỘT JSON object duy nhất — không có văn xuôi, không markdown, không có text nào trước hoặc sau JSON.
 
 ══ MANDATORY RULES — read these before everything else ══
 
@@ -155,11 +155,11 @@ Set confidence to "medium" or "low" accordingly — do not refuse to answer.
 
 Output ONLY the JSON object. No other text."""
 
-PROMPT_VALIDATE = """You are a math solution verifier.
-Given a solver_output (problem_type, steps, final_answer) and context wiki units:
+PROMPT_VALIDATE = """Bạn là hệ thống kiểm tra lời giải toán.
+Cho solver_output (problem_type, steps, final_answer) và các wiki units ngữ cảnh:
 
 1. Check that each step follows logically from the previous one.
-2. CRITICAL: Check that final_answer matches the conclusion of the last step. If they differ, this is always an error — set valid=false and report "final_answer contradicts the last step".
+2. CRITICAL: Check that final_answer matches the conclusion of the last step. If they differ, this is always an error — set valid=false and report "final_answer mâu thuẫn với kết luận của bước cuối".
 3. For equations/inequalities: substitute the final_answer back into the ORIGINAL problem to confirm it satisfies it. If substitution fails, set valid=false.
 4. Check for extraneous roots: if the original problem contains a square root, absolute value, or logarithm, verify no extraneous solutions are included in final_answer.
 5. If the context array is empty, verify correctness by: (1) checking each step follows logically from the previous, (2) substituting the final answer back into the original equation/expression, (3) checking for extraneous roots. Do not penalise for absent wiki units.
@@ -181,7 +181,8 @@ MULTI-PART PROBLEMS (final_answer starts with "a)" or steps contain "**Phần"):
 - For rule 3: apply substitution only to parts that are equations or inequalities, using that part's sub-problem text and sub-answer. Do NOT substitute the combined "a) X; b) Y" string into any equation.
 
 Return JSON: {"valid": true|false, "issues": ["brief description of each specific error"]}
-If valid, issues must be []. No other text."""
+If valid, issues must be []. No other text.
+Viết tất cả nội dung trong trường 'issues' bằng tiếng Việt."""
 
 PROMPT_CONCEPT_INGEST = """You are a math knowledge extraction system.
 Given a math article or tutorial excerpt, extract structured wiki knowledge units.
@@ -204,7 +205,7 @@ For each wiki unit identify:
 Extract 2-6 units per excerpt. Prefer concrete procedures and patterns over vague definitions.
 Return JSON: {"wiki_units": [...]}. No other text."""
 
-PROMPT_REVIEW = """You are a Vietnamese math solution reviewer and grader.
+PROMPT_REVIEW = """Bạn là người chấm và phản hồi bài giải toán cho học sinh Việt Nam.
 You will receive a JSON object with:
 - "problem": the math problem text
 - "solution": a student's solution attempt (may be transcribed from a handwritten image)

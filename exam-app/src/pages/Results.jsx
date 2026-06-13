@@ -500,6 +500,15 @@ export default function Results({ onOpenAuth }) {
           } else {
             setAiError(null)
           }
+          // If streaming produced AI content before failing, surface it rather than offline fallback
+          if (streamStatus !== 402 && streamStatus !== 401) {
+            setAnalysis(prev => {
+              if (prev?._streaming && (prev.insights || prev.question_analysis)) {
+                return { ...prev, _source: 'ai', _streaming_done: true }
+              }
+              return prev
+            })
+          }
           // Only fall back to non-streaming if stream never connected (not HTTP 200)
           if (failed && !streamHttpOk && streamStatus !== 402 && !cancelled) {
             refundCredits(3)

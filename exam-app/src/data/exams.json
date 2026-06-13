@@ -60,7 +60,8 @@
       "q_amc10_020"
     ],
     "totalQuestions": 20,
-    "category": "thpt"
+    "category": "thpt",
+    "mode": "practice"
   },
   {
     "id": "intl_gcse_2023",
@@ -521,7 +522,8 @@
       "q_sat_044"
     ],
     "totalQuestions": 44,
-    "category": "thpt"
+    "category": "thpt",
+    "mode": "practice"
   },
   {
     "id": "intl_gauss_2023",
@@ -599,7 +601,8 @@
       "q_ib_sl_030"
     ],
     "totalQuestions": 30,
-    "category": "thpt"
+    "category": "thpt",
+    "mode": "practice"
   },
   {
     "id": "intl_ksat_2023",
@@ -640,7 +643,8 @@
       "q_ksat_030"
     ],
     "totalQuestions": 30,
-    "category": "thpt"
+    "category": "thpt",
+    "mode": "practice"
   },
   {
     "id": "intl_jee_2024",
@@ -681,7 +685,8 @@
       "q_jee_030"
     ],
     "totalQuestions": 30,
-    "category": "thpt"
+    "category": "thpt",
+    "mode": "practice"
   },
   {
     "id": "lop10_mathx_2024",
@@ -1341,7 +1346,8 @@
       "q_bece22_39"
     ],
     "totalQuestions": 39,
-    "category": "grade10"
+    "category": "grade10",
+    "mode": "practice"
   },
   {
     "id": "intl_bece_gh_2021",
@@ -1391,7 +1397,8 @@
       "q_bece21_39"
     ],
     "totalQuestions": 39,
-    "category": "grade10"
+    "category": "grade10",
+    "mode": "practice"
   },
   {
     "id": "intl_bece_gh_2024",
@@ -1441,7 +1448,8 @@
       "q_bece24_39"
     ],
     "totalQuestions": 39,
-    "category": "grade10"
+    "category": "grade10",
+    "mode": "practice"
   },
   {
     "id": "intl_cbse_ind_2024_p1",
@@ -1492,7 +1500,8 @@
       "q_cbse24p1_40"
     ],
     "totalQuestions": 40,
-    "category": "grade10"
+    "category": "grade10",
+    "mode": "practice"
   },
   {
     "id": "intl_cbse_ind_2024_p2",
@@ -1543,7 +1552,8 @@
       "q_cbse24p2_40"
     ],
     "totalQuestions": 40,
-    "category": "grade10"
+    "category": "grade10",
+    "mode": "practice"
   },
   {
     "id": "thpt_2021",
@@ -1805,7 +1815,8 @@
       "q_amc8_19_25"
     ],
     "totalQuestions": 25,
-    "category": "grade10"
+    "category": "grade10",
+    "mode": "practice"
   },
   {
     "id": "intl_amc8_2022_v2",
@@ -1841,7 +1852,8 @@
       "q_amc8_22v_25"
     ],
     "totalQuestions": 25,
-    "category": "grade10"
+    "category": "grade10",
+    "mode": "practice"
   },
   {
     "id": "intl_cemc_gauss8_2023",
@@ -1877,7 +1889,8 @@
       "q_cemc_g8_23_25"
     ],
     "totalQuestions": 25,
-    "category": "grade10"
+    "category": "grade10",
+    "mode": "practice"
   },
   {
     "id": "intl_ukmt_imc_2020",
@@ -1913,7 +1926,8 @@
       "q_ukmt_imc20_25"
     ],
     "totalQuestions": 25,
-    "category": "grade10"
+    "category": "grade10",
+    "mode": "practice"
   },
   {
     "id": "intl_ukmt_jmc_2019",
@@ -1949,7 +1963,8 @@
       "q_ukmt_jmc19_25"
     ],
     "totalQuestions": 25,
-    "category": "grade10"
+    "category": "grade10",
+    "mode": "practice"
   },
   {
     "id": "intl_act_math_2023",
@@ -2005,7 +2020,8 @@
       "q_act_r45"
     ],
     "totalQuestions": 45,
-    "category": "thpt"
+    "category": "thpt",
+    "mode": "practice"
   },
   {
     "id": "intl_alevel_math_2023",
@@ -2042,7 +2058,8 @@
     ],
     "totalQuestions": 25,
     "category": "thpt",
-    "description": "Edexcel / Pearson, United Kingdom — A-Level Mathematics June 2023 (9MA0) — 3 papers: Pure 1, Pure 2 & Statistics, Pure 2 & Mechanics"
+    "description": "Edexcel / Pearson, United Kingdom — A-Level Mathematics June 2023 (9MA0) — 3 papers: Pure 1, Pure 2 & Statistics, Pure 2 & Mechanics",
+    "mode": "practice"
   },
   {
     "id": "intl_amc12_2022",
@@ -2078,7 +2095,8 @@
       "q_amc12a22_25"
     ],
     "totalQuestions": 25,
-    "category": "thpt"
+    "category": "thpt",
+    "mode": "practice"
   },
   {
     "id": "intl_hsc_adv_2023",
@@ -2119,7 +2137,8 @@
       "q_hsc_r30"
     ],
     "totalQuestions": 30,
-    "category": "thpt"
+    "category": "thpt",
+    "mode": "practice"
   },
   {
     "id": "intl_irlc_hl_2023",
@@ -2155,7 +2174,8 @@
       "q_irlc_hl_025"
     ],
     "totalQuestions": 25,
-    "category": "thpt"
+    "category": "thpt",
+    "mode": "practice"
   },
   {
     "id": "intl_ukmt_smc_2024",
@@ -2191,7 +2211,8 @@
       "q_ukmt24_24",
       "q_ukmt24_25"
     ],
-    "category": "thpt"
+    "category": "thpt",
+    "mode": "practice"
   },
   {
     "id": "intl_amc10a_2022",
@@ -2227,7 +2248,8 @@
       "q_amc10a22_24",
       "q_amc10a22_25"
     ],
-    "category": "thpt"
+    "category": "thpt",
+    "mode": "practice"
   },
   {
     "id": "amc8_2023",
@@ -2538,7 +2560,8 @@
       "q_bac_fr_025"
     ],
     "totalQuestions": 25,
-    "category": "thpt"
+    "category": "thpt",
+    "mode": "practice"
   },
   {
     "id": "intl_igcse_ext_2023",
@@ -2574,7 +2597,8 @@
       "q_igcse_ext_025"
     ],
     "totalQuestions": 25,
-    "category": "grade10"
+    "category": "grade10",
+    "mode": "practice"
   },
   {
     "id": "intl_sg_h2_2023",
@@ -2610,7 +2634,8 @@
       "q_sg_h2_025"
     ],
     "totalQuestions": 25,
-    "category": "thpt"
+    "category": "thpt",
+    "mode": "practice"
   },
   {
     "id": "thpt_2019",

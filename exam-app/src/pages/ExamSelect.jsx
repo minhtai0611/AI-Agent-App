@@ -3,13 +3,14 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useExamDispatch } from '../context/ExamContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
-import { loadExams, loadThiThuExams, loadQuestionsByIds, loadExamById, getAccessibleExamIds } from '../api/index.js'
+import { loadExams, loadThiThuExams, loadQuestionsByIds, loadExamById, getAccessibleExamIds, loadQuestions } from '../api/index.js'
 import { ocrExam } from '../api/aiClient.js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pageVariants, viewNavigate } from '../utils/animations.js'
 
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { buildBriefing } from '../utils/examBriefing.js'
+import { TOPIC_LABELS } from '../utils/topicLabels.js'
 
 const listVariants = {
   hidden: {},
@@ -58,8 +59,10 @@ export default function ExamSelect({ onOpenAuth }) {
   const [searchParams] = useSearchParams()
   const urlMode = searchParams.get('mode')
   const [mode, setMode] = useState(
-    ['practice', 'lab'].includes(urlMode) ? urlMode : 'timed'
+    ['practice', 'lab', 'study_plan'].includes(urlMode) ? urlMode : 'timed'
   )
+  const [studyPlanTopics, setStudyPlanTopics] = useState([])
+  const [studyPlanLoading, setStudyPlanLoading] = useState(false)
   const [previewExam, setPreviewExam] = useState(null)
   const [expandedCategories, setExpandedCategories] = useState({})
 
@@ -73,10 +76,49 @@ export default function ExamSelect({ onOpenAuth }) {
   const ocrInputRef = useRef(null)
 
   useEffect(() => {
-    if (mode === 'lab') { setAllExams([]); return }
+    if (mode === 'lab' || mode === 'study_plan') { setAllExams([]); return }
     const fn = mode === 'timed' ? loadThiThuExams : loadExams
     fn().then(data => setAllExams(data))
   }, [mode])
+
+  // Study plan tab: read focus areas from most recent cached plan
+  useEffect(() => {
+    if (mode !== 'study_plan' || !user) return
+    const uid = user.id
+    // Build reverse map: Vietnamese name → slug
+    const viToSlug = Object.fromEntries(
+      Object.entries(TOPIC_LABELS).map(([slug, vi]) => [vi.toLowerCase(), slug])
+    )
+    // Scan localStorage for latest recovery-path-data for this user
+    const prefix = `recovery-path-data-${uid}-`
+    const topics = new Set()
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (!key?.startsWith(prefix)) continue
+      try {
+        const plan = JSON.parse(localStorage.getItem(key))
+        if (Array.isArray(plan?.focus_areas)) {
+          plan.focus_areas.forEach(fa => {
+            const slug = viToSlug[fa.topic?.toLowerCase()] || fa.topic
+            if (slug) topics.add(slug)
+          })
+        }
+      } catch {}
+    }
+    // Also scan AI analysis cache for weak_topics
+    const analysisPfx = `analysis-cache-`
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (!key?.startsWith(analysisPfx)) continue
+      try {
+        const cached = JSON.parse(localStorage.getItem(key))
+        if (Array.isArray(cached?.data?.weak_topics)) {
+          cached.data.weak_topics.forEach(t => topics.add(t))
+        }
+      } catch {}
+    }
+    setStudyPlanTopics([...topics])
+  }, [mode, user])
 
   const mistakeCount = useMemo(() => {
     const seen = new Set()
@@ -203,9 +245,10 @@ export default function ExamSelect({ onOpenAuth }) {
         </button>
         <div className="flex items-center gap-1 glass-base rounded-full p-1">
           {[
-            { value: 'timed',    label: 'Có thời gian' },
-            { value: 'practice', label: 'Luyện tập' },
-            { value: 'lab',      label: '⚗ Lab' },
+            { value: 'timed',       label: 'Có thời gian' },
+            { value: 'practice',    label: 'Luyện tập' },
+            { value: 'study_plan',  label: '📋 Kế hoạch' },
+            { value: 'lab',         label: '⚗ Lab' },
           ].map(opt => (
             <button key={opt.value} onClick={() => setMode(opt.value)}
               className={`px-3 py-2 rounded-full font-sans text-xs transition ${
@@ -237,8 +280,8 @@ export default function ExamSelect({ onOpenAuth }) {
         </div>
       )}
 
-      {/* Filter bar — hidden in Lab mode */}
-      <div className={`flex flex-wrap items-center gap-3 px-10 pt-6${mode === 'lab' ? ' hidden' : ''}`}>
+      {/* Filter bar — hidden in Lab / Study Plan mode */}
+      <div className={`flex flex-wrap items-center gap-3 px-10 pt-6${(mode === 'lab' || mode === 'study_plan') ? ' hidden' : ''}`}>
         <input
           type="search"
           placeholder="Tìm đề thi..."
@@ -307,6 +350,79 @@ export default function ExamSelect({ onOpenAuth }) {
           <h1 className="font-sans text-[36px] font-bold text-gradient-brand">Chọn đề thi</h1>
           <p className="font-sans text-sm text-dim">{motivationalHeader}</p>
         </div>
+
+        {/* ── 📋 Study Plan mode ───────────────────────────────────────────── */}
+        {mode === 'study_plan' && !user && (
+          <div className="flex flex-col items-center gap-4 py-20 text-center">
+            <span className="text-4xl">📋</span>
+            <p className="font-sans text-sm text-foreground font-semibold">Đăng nhập để dùng Kế hoạch học</p>
+            <p className="font-sans text-xs text-muted">Hoàn thành bài thi và tạo kế hoạch học AI để ôn tập đúng trọng tâm.</p>
+            <button onClick={onOpenAuth}
+              className="px-5 py-2.5 rounded-xl font-sans text-sm font-bold bg-primary text-primary-fg">
+              Đăng nhập →
+            </button>
+          </div>
+        )}
+
+        {mode === 'study_plan' && user && (
+          <motion.div key="study_plan" variants={listVariants} initial="hidden" animate="show"
+            className="flex flex-col gap-6">
+            <div className="flex flex-col gap-1">
+              <span className="font-sans text-[0.6875rem] font-bold tracking-[3px] uppercase text-faint">Ôn tập theo kế hoạch</span>
+              <p className="font-sans text-[0.8125rem] text-faint">Câu hỏi được lọc theo các chủ đề yếu trong kế hoạch học của bạn</p>
+            </div>
+
+            {studyPlanTopics.length === 0 ? (
+              <motion.div variants={cardVariants}
+                className="flex flex-col items-center gap-4 py-20 text-center">
+                <span className="text-5xl">🗺️</span>
+                <p className="font-sans text-sm text-foreground font-semibold">Chưa có kế hoạch học</p>
+                <p className="font-sans text-xs text-muted max-w-xs">
+                  Hoàn thành một bài thi và nhấn "Tạo Kế Hoạch" trên trang Kết quả để kích hoạt tính năng này.
+                </p>
+                <button onClick={() => setMode('timed')}
+                  className="px-5 py-2.5 rounded-xl font-sans text-sm font-bold bg-primary text-primary-fg">
+                  Chọn đề thi →
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div variants={cardVariants} className="flex flex-col gap-6">
+                <div className="flex flex-col gap-3">
+                  <span className="font-sans text-[0.8125rem] font-semibold text-muted">Chủ đề cần ôn tập</span>
+                  <div className="flex flex-wrap gap-2">
+                    {studyPlanTopics.map(slug => (
+                      <span key={slug}
+                        className="px-3 py-1.5 rounded-full font-sans text-xs font-semibold border border-primary/30 bg-primary/5 text-primary">
+                        {TOPIC_LABELS[slug] ?? slug}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={async () => {
+                    const allQs = await loadQuestions()
+                    const filtered = allQs.filter(q => studyPlanTopics.includes(q.topic))
+                    if (!filtered.length) return
+                    const shuffled = [...filtered].sort(() => Math.random() - 0.5).slice(0, 40)
+                    const fakeExam = {
+                      id: `study-plan-session-${Date.now()}`,
+                      title: 'Ôn tập theo kế hoạch',
+                      questionIds: shuffled.map(q => q.id),
+                      duration: Math.ceil(shuffled.length * 1.5),
+                      source: 'study_plan',
+                    }
+                    dispatch({ type: 'START_EXAM', exam: fakeExam, questions: shuffled, mode: 'practice' })
+                    navigate(`/test/${fakeExam.id}`)
+                  }}
+                  className="self-start px-6 py-3 rounded-xl font-sans text-sm font-bold bg-primary text-primary-fg hover:opacity-90 transition"
+                >
+                  Bắt đầu ôn tập →
+                </button>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
 
         {/* ── ⚗ Lab mode ──────────────────────────────────────────────────── */}
         {mode === 'lab' && !user && (
@@ -404,7 +520,7 @@ export default function ExamSelect({ onOpenAuth }) {
         )}
 
         {/* ── Exam list: timed / practice / applied / olympiad ─────────────── */}
-        {mode !== 'lab' && (
+        {mode !== 'lab' && mode !== 'study_plan' && (
           <motion.div
             className="flex flex-col gap-10"
             key={mode}

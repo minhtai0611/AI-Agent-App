@@ -199,7 +199,7 @@ function CreditGauge({ balance, tier }) {
           strokeDashoffset={dashOffset}
           style={{ transition: 'stroke-dashoffset 0.6s ease' }}
         />
-        <text x={cx} y={cy - 4} textAnchor="middle" fill="#F0F4FF" fontSize="16" fontWeight="bold" fontFamily="serif">
+        <text x={cx} y={cy - 4} textAnchor="middle" fill="var(--fg)" fontSize="16" fontWeight="bold" fontFamily="serif">
           {balance}
         </text>
         <text x={cx} y={cy + 12} textAnchor="middle" fill="#64748B" fontSize="9" fontFamily="sans-serif">

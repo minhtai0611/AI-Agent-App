@@ -46,29 +46,35 @@ function layoutGraph(nodes, edges) {
 function ConceptNode({ data }) {
   const size = 8 + data.exam_weight * 2   // font size proportional to weight
   const isMastered = (data.mastery_score ?? 0) >= 0.85
+  const isLocked = data.isLocked
   return (
     <div
       style={{
-        background: masteryColor(data.mastery_score),
-        border: `1.5px solid ${masteryBorder(data.mastery_score)}`,
+        background: isLocked ? '#1A1F2E' : masteryColor(data.mastery_score),
+        border: `1.5px solid ${isLocked ? '#2D3748' : masteryBorder(data.mastery_score)}`,
         borderRadius: 10,
         padding: '6px 10px',
         width: NODE_W,
         minHeight: NODE_H,
         cursor: 'pointer',
+        opacity: isLocked ? 0.6 : 1,
         boxShadow: data.selected
           ? `0 0 0 2px #6366F1`
           : isMastered
           ? `0 0 8px 1px #10B98133`
           : undefined,
         animation: isMastered ? 'masteryPulse 2.5s ease-in-out infinite' : undefined,
+        position: 'relative',
       }}
     >
-      <div style={{ fontSize: Math.max(10, Math.min(13, size)), fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: '#F0F4FF', lineHeight: 1.3 }}>
+      {isLocked && (
+        <span style={{ position: 'absolute', top: 4, right: 6, fontSize: 10, opacity: 0.7 }}>🔒</span>
+      )}
+      <div style={{ fontSize: Math.max(10, Math.min(13, size)), fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: isLocked ? '#64748B' : '#F0F4FF', lineHeight: 1.3 }}>
         {data.name_vi}
       </div>
-      <div style={{ fontSize: 9, color: '#64748B', fontFamily: 'Plus Jakarta Sans, sans-serif', marginTop: 2 }}>
-        Lớp {data.grade} · {Math.round((data.mastery_score || 0) * 100)}%
+      <div style={{ fontSize: 9, color: '#475569', fontFamily: 'Plus Jakarta Sans, sans-serif', marginTop: 2 }}>
+        Lớp {data.grade} · {isLocked ? 'Chưa mở khoá' : `${Math.round((data.mastery_score || 0) * 100)}%`}
       </div>
     </div>
   )
@@ -187,6 +193,7 @@ export default function ConceptMap() {
 
     const filteredIds = new Set(filtered.map(c => c.id))
 
+    const UNLOCK_THRESHOLD = 0.7
     const rawNodes = filtered.map(c => ({
       id: c.id,
       type: 'concept',
@@ -194,6 +201,9 @@ export default function ConceptMap() {
         ...c,
         mastery_score: masteryMap[c.id] ?? 0,
         selected: selected === c.id,
+        isLocked: c.prerequisite_ids.length > 0 && c.prerequisite_ids.some(
+          pid => (masteryMap[pid] ?? 0) < UNLOCK_THRESHOLD
+        ),
       },
       position: { x: 0, y: 0 },
     }))
@@ -236,20 +246,35 @@ export default function ConceptMap() {
     return chain
   }, [selected])
 
-  // ── Highlight edges for gap trace ─────────────────────────────────────────
+  // ── Highlight edges for gap trace / locked prerequisites ──────────────────
+  const selectedIsLocked = useMemo(() => {
+    if (!selected) return false
+    const c = CONCEPTS.find(x => x.id === selected)
+    if (!c || c.prerequisite_ids.length === 0) return false
+    return c.prerequisite_ids.some(pid => (masteryMap[pid] ?? 0) < 0.7)
+  }, [selected, masteryMap])
+
   useEffect(() => {
     if (!selected) return
     setEdges(eds => eds.map(e => {
       const inChain = gapChain.has(e.source) && gapChain.has(e.target)
+      // For locked concepts: highlight blocking prerequisite edges in red
+      const isBlockingEdge = selectedIsLocked && e.target === selected
+        && (masteryMap[e.source] ?? 0) < 0.7
       return {
         ...e,
-        style: inChain
+        style: isBlockingEdge
+          ? { stroke: '#EF4444', strokeWidth: 2.5 }
+          : inChain
           ? { stroke: '#F59E0B', strokeWidth: 2.5 }
           : { stroke: 'var(--border)', strokeWidth: 1 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: inChain ? 'var(--warning)' : 'var(--border)' },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: isBlockingEdge ? '#EF4444' : inChain ? 'var(--warning)' : 'var(--border)',
+        },
       }
     }))
-  }, [gapChain, selected])
+  }, [gapChain, selected, selectedIsLocked, masteryMap])
 
   const selectedConcept = useMemo(
     () => selected ? CONCEPTS.find(c => c.id === selected) : null,
@@ -353,7 +378,10 @@ export default function ConceptMap() {
           <div className="w-72 border-l border-surface glass-base flex flex-col gap-4 p-5 overflow-y-auto">
             <div className="flex items-start justify-between">
               <div>
-                <span className="font-sans text-[16px] font-bold text-foreground">{selectedConcept.name_vi}</span>
+                <span className="font-sans text-[16px] font-bold text-foreground">
+                  {selectedIsLocked && <span className="mr-1 text-[14px]">🔒</span>}
+                  {selectedConcept.name_vi}
+                </span>
                 <div className="font-sans text-[11px] text-dim mt-0.5">
                   Lớp {selectedConcept.grade} · {selectedConcept.topic}
                 </div>
@@ -361,8 +389,41 @@ export default function ConceptMap() {
               <button onClick={() => setSelected(null)} className="text-dim hover:text-foreground text-lg">×</button>
             </div>
 
-            {/* Mastery bar */}
-            <div className="flex flex-col gap-1">
+            {/* Locked state — show blocking prerequisites instead of normal detail */}
+            {selectedIsLocked && (
+              <div className="flex flex-col gap-3">
+                <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20">
+                  <span className="font-sans text-[11px] font-semibold text-red-400">Khái niệm bị khoá</span>
+                  <p className="font-sans text-[12px] text-muted mt-1">
+                    Học xong các khái niệm sau để mở khoá:
+                  </p>
+                </div>
+                {selectedConcept.prerequisite_ids
+                  .filter(pid => (masteryMap[pid] ?? 0) < 0.7)
+                  .map(pid => {
+                    const pc = CONCEPTS.find(c => c.id === pid)
+                    const pm = masteryMap[pid] ?? 0
+                    return pc ? (
+                      <div key={pid} className="flex items-center justify-between px-3 py-2 rounded-lg border border-red-500/20 bg-surface">
+                        <div>
+                          <span className="font-sans text-[12px] text-foreground">{pc.name_vi}</span>
+                          <div className="font-sans text-[10px] text-dim">{Math.round(pm * 100)}% / cần 70%</div>
+                        </div>
+                        <button
+                          onClick={() => navigate(`/practice/adaptive?topic=${pc.topic}`)}
+                          className="font-sans text-[10px] text-primary hover:underline"
+                        >
+                          Luyện tập →
+                        </button>
+                      </div>
+                    ) : null
+                  })
+                }
+              </div>
+            )}
+
+            {/* Normal detail — only show when not locked */}
+            {!selectedIsLocked && <div className="flex flex-col gap-1">
               <div className="flex justify-between font-sans text-[11px] text-dim">
                 <span>Độ thành thạo</span>
                 <span style={{ color: masteryBorder(selectedMastery) }}>{Math.round(selectedMastery * 100)}%</span>
@@ -370,7 +431,6 @@ export default function ConceptMap() {
               <div className="h-2 rounded-full bg-surface overflow-hidden">
                 <div className="h-2 rounded-full transition-all" style={{ width: `${selectedMastery * 100}%`, background: masteryBorder(selectedMastery) }} />
               </div>
-            </div>
 
             {/* Exam weight + review count */}
             <div className="flex items-center justify-between font-sans text-[12px] text-muted">
@@ -444,12 +504,13 @@ export default function ConceptMap() {
                 </button>
               </div>
             )}
+            </div>}
 
-            <button
+            {!selectedIsLocked && <button
               onClick={() => navigate(`/practice/adaptive?topic=${selectedConcept.topic}`)}
               className="mt-auto w-full py-2.5 rounded-xl font-sans text-[13px] font-bold transition bg-primary text-background">
               Luyện tập ngay
-            </button>
+            </button>}
             <button
               onClick={() => navigate('/review')}
               className="w-full py-2 rounded-xl font-sans text-[12px] font-semibold transition border border-info/30 text-info hover:bg-info/10">
