@@ -61,7 +61,7 @@ function ToastContainer({ toasts, dismiss }) {
               }}
             >
               <span className="text-sm flex-shrink-0" style={{ color: s.color }}>{s.icon}</span>
-              <span className="font-jakarta text-[0.8125rem] text-foreground leading-snug">{t.msg}</span>
+              <span className="font-sans text-[0.8125rem] text-foreground leading-snug">{t.msg}</span>
             </motion.div>
           )
         })}

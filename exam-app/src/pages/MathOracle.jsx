@@ -417,10 +417,12 @@ function GeoGebraEmbed({ commands, onError }) {
   const wrapRef = useRef(null)
   const [status, setStatus] = useState('loading') // loading | ready | error
   const [undefinedObjs, setUndefinedObjs] = useState([])
+  const [retryKey, setRetryKey] = useState(0)
 
   useEffect(() => {
     if (!commands || !wrapRef.current) return
     let cancelled = false
+    if (wrapRef.current) wrapRef.current.innerHTML = ''  // clear container before (re)inject
 
     // Stable id required by GeoGebra — set on the wrapper div directly
     const uid = `ggb-${Math.random().toString(36).slice(2, 8)}`
@@ -438,7 +440,7 @@ function GeoGebraEmbed({ commands, onError }) {
         const tid = setInterval(() => {
           if (cancelled) { clearInterval(tid); return }
           // Fix 2: 10s timeout to avoid infinite spinner on load failure
-          if (Date.now() - startTime > 10_000) {
+          if (Date.now() - startTime > 15_000) {
             clearInterval(tid)
             if (!cancelled) { setStatus('error'); onError?.() }
             return
@@ -527,7 +529,7 @@ function GeoGebraEmbed({ commands, onError }) {
       cancelled = true
       if (wrapRef.current) wrapRef.current.innerHTML = ''  // Fix 5: destroy injected iframe
     }
-  }, [commands])
+  }, [commands, retryKey])
 
   return (
     <div className="relative rounded overflow-hidden bg-surface" style={{ height: 360 }}>
@@ -540,7 +542,16 @@ function GeoGebraEmbed({ commands, onError }) {
           <span className="font-sans text-[12px] text-dim">Đang tải GeoGebra…</span>
         </div>
       )}
-      {status === 'error' && null}
+      {status === 'error' && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface">
+          <span className="font-sans text-[12px] text-dim">Không thể tải hình minh họa</span>
+          <button
+            onClick={() => { setRetryKey(k => k + 1); setStatus('loading') }}
+            className="font-sans text-[11px] text-primary hover:underline">
+            Thử lại
+          </button>
+        </div>
+      )}
       {undefinedObjs.length > 0 && (
         <p className="font-sans text-[10px] text-primary mt-1">
           ⚠ {undefinedObjs.length} đối tượng không dựng được: {undefinedObjs.join(', ')}
@@ -551,8 +562,7 @@ function GeoGebraEmbed({ commands, onError }) {
 }
 
 function FigureBlock({ figure }) {
-  const [geoError, setGeoError] = useState(false)
-  if (!figure?.data || geoError) return null
+  if (!figure?.data) return null
 
   return (
     <div className="rounded-xl border border-surface bg-surface p-4 flex flex-col gap-3">
@@ -561,7 +571,7 @@ function FigureBlock({ figure }) {
       </p>
 
       {figure.type === 'geogebra' ? (
-        <GeoGebraEmbed commands={figure.data} onError={() => setGeoError(true)} />
+        <GeoGebraEmbed commands={figure.data} />
       ) : (
         <div
           className="overflow-x-auto flex justify-center"

@@ -5,12 +5,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // Inter is the primary font (replaces Fraunces + Plus Jakarta Sans)
-        sans:      ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
-        // Legacy aliases — point to Inter so existing font-fraunces / font-jakarta classes still work
-        fraunces:  ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
-        jakarta:   ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
-        mono:      ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
+        sans:    ['"Be Vietnam Pro"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
+        mono:    ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
       },
       colors: {
         background:          'var(--background)',

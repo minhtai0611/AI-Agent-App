@@ -38,6 +38,12 @@ _EXPLANATION_DEPTH_INSTRUCTIONS = {
     "step-by-step": "Trình bày giải thích theo các bước đánh số. Mỗi bước trên một dòng riêng.",
 }
 
+_DEPTH_USER_PROMPT = {
+    "brief":        "Giải thích ngắn gọn — 2–3 câu, chỉ nêu ý chính.",
+    "detailed":     "Giải thích đầy đủ, rõ ràng — 4–6 câu hoặc hơn nếu cần.",
+    "step-by-step": "Trình bày từng bước đánh số (Bước 1, Bước 2, ...). Mỗi bước trên một dòng.",
+}
+
 _ENCOURAGEMENT_INSTRUCTIONS = {
     'minimal': 'Be concise and direct. Skip praise.',
     'moderate': 'Brief encouragement is welcome.',
@@ -53,10 +59,14 @@ async def generate_explanation(
 ) -> dict:
     settings = get_settings()
 
-    explanation_depth = (ai_preferences or {}).get("explanation_depth", "detailed")
+    prefs = ai_preferences or {}
+    explanation_depth = prefs.get("explanation_depth", "detailed")
     depth_instruction = _EXPLANATION_DEPTH_INSTRUCTIONS.get(explanation_depth, _EXPLANATION_DEPTH_INSTRUCTIONS["detailed"])
-    encouragement_level = (ai_preferences or {}).get("encouragement_level", "moderate")
+    depth_user_prompt = _DEPTH_USER_PROMPT.get(explanation_depth, _DEPTH_USER_PROMPT["detailed"])
+    encouragement_level = prefs.get("encouragement_level", "moderate")
     encouragement_instruction = _ENCOURAGEMENT_INSTRUCTIONS.get(encouragement_level, _ENCOURAGEMENT_INSTRUCTIONS["moderate"])
+    lang_instruction = "Bạn có thể dùng thuật ngữ toán tiếng Anh khi cần thiết." if prefs.get("language_mix") == "mixed" else ""
+    weak_focus_instruction = "Khi giải thích, hãy nhấn mạnh các khái niệm nền tảng mà học sinh có thể chưa nắm vững." if prefs.get("weak_topic_focus", True) else ""
     choices = question.get("choices", [])
 
     # Ground truth from question data — never let AI guess the correct answer
@@ -71,8 +81,9 @@ async def generate_explanation(
         f"  {LABELS[i]}. {c}" for i, c in enumerate(choices) if i < len(LABELS)
     )
 
-    # If the question already has an explanation, use it directly without an AI call
-    if base_explanation:
+    # If the question already has an explanation, use it directly — except for step-by-step
+    # which requires AI reformatting into numbered steps.
+    if base_explanation and explanation_depth != "step-by-step":
         student_context = (
             f"Bạn đã chọn đúng ({correct_label})! " if chosen_index == correct_index
             else f"Bạn chọn {chosen_label}, đáp án đúng là {correct_label}. "
@@ -94,15 +105,15 @@ Học sinh đã chọn: {chosen_label}
 Đáp án đúng: {correct_label} (index {correct_index}) — đây là sự thật, không được thay đổi.
 
 QUAN TRỌNG: Chỉ trả về JSON, không có bất kỳ văn bản nào khác trước hoặc sau.
-Giải thích ngắn gọn tại sao đáp án {correct_label} đúng:
-{{"correct_index": {correct_index}, "explanation": "<2–3 câu tiếng Việt giải thích, không dùng markdown>"}}"""
+{depth_user_prompt} Giải thích tại sao đáp án {correct_label} đúng:
+{{"correct_index": {correct_index}, "explanation": "<tiếng Việt, không dùng markdown>"}}"""
 
     response = await call_with_retry(
         client,
         model=settings.haiku_model,
         max_tokens=400,
         messages=[
-            {"role": "system", "content": THPT_CONTEXT + STATIC_EXPLAIN_INSTRUCTIONS + "\n" + depth_instruction + "\n" + encouragement_instruction},
+            {"role": "system", "content": THPT_CONTEXT + STATIC_EXPLAIN_INSTRUCTIONS + "\n" + depth_instruction + "\n" + encouragement_instruction + ("\n" + lang_instruction if lang_instruction else "") + ("\n" + weak_focus_instruction if weak_focus_instruction else "")},
             {"role": "user", "content": prompt},
         ],
     )

@@ -8,7 +8,8 @@ import re
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
-from fastapi import FastAPI, Depends, HTTPException, Request, UploadFile, File
+import secrets as _secrets_module
+from fastapi import FastAPI, Depends, HTTPException, Request, Response, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from openai import AsyncOpenAI, APIStatusError, APIConnectionError, RateLimitError
@@ -16,7 +17,12 @@ from app.config import get_settings
 from app.dependencies import get_ai_client, get_current_user, CurrentUser
 from app.middleware import RateLimitMiddleware
 from app.math_wiki.admin_router import router as admin_router
-from app.auth import verify_google_token, create_jwt
+from app.auth import (
+    verify_google_token, create_jwt,
+    hash_password, verify_password, validate_password_strength,
+    create_access_jwt, create_refresh_jwt, hash_token, new_family_id,
+    ACCESS_TTL_SECS, REFRESH_TTL_SECS,
+)
 from app.admin_auth import validate_admin_key, get_window_label, derive_key, get_expiry_date
 
 logger = logging.getLogger(__name__)
@@ -459,6 +465,41 @@ _SCHEMA_DDL = [
         recorded_at TEXT DEFAULT (datetime('now'))
     )""",
     "CREATE INDEX IF NOT EXISTS idx_cmh_user_concept ON concept_mastery_history(user_id, concept_id, recorded_at)",
+    # Email/password auth — additive columns on users, new support tables
+    "ALTER TABLE users ADD COLUMN password_hash TEXT",
+    "ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0",
+    """CREATE TABLE IF NOT EXISTS email_tokens (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token      TEXT    NOT NULL UNIQUE,
+        purpose    TEXT    NOT NULL CHECK(purpose IN ('verify','reset')),
+        expires_at TEXT    NOT NULL,
+        used_at    TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_email_tokens_token ON email_tokens(token)",
+    """CREATE TABLE IF NOT EXISTS login_attempts (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        ip           TEXT NOT NULL,
+        email        TEXT NOT NULL,
+        succeeded    INTEGER NOT NULL DEFAULT 0,
+        attempted_at TEXT DEFAULT (datetime('now'))
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_login_attempts_email ON login_attempts(email, attempted_at)",
+    "CREATE INDEX IF NOT EXISTS idx_login_attempts_ip    ON login_attempts(ip,    attempted_at)",
+    # Refresh token rotation table (Plan 8 — cookie migration)
+    """CREATE TABLE IF NOT EXISTS refresh_tokens (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token_hash   TEXT    NOT NULL UNIQUE,
+        family_id    TEXT    NOT NULL,
+        is_revoked   INTEGER NOT NULL DEFAULT 0,
+        expires_at   TEXT    NOT NULL,
+        created_at   TEXT DEFAULT (datetime('now'))
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_rt_hash   ON refresh_tokens(token_hash)",
+    "CREATE INDEX IF NOT EXISTS idx_rt_family ON refresh_tokens(family_id)",
+    "CREATE INDEX IF NOT EXISTS idx_rt_user   ON refresh_tokens(user_id)",
 ]
 
 
@@ -985,8 +1026,9 @@ app.add_middleware(RateLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins_list,
+    allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*", "X-CSRF-Token"],
 )
 
 # ── Models ───────────────────────────────────────────────────────────────────
@@ -2169,6 +2211,33 @@ class GoogleAuthRequest(BaseModel):
     ref: str | None = Field(default=None, max_length=20)
 
 
+class EmailRegisterRequest(BaseModel):
+    email: str = Field(max_length=254)
+    password: str = Field(min_length=8, max_length=128)
+
+
+class EmailVerifyRequest(BaseModel):
+    token: str
+
+
+class EmailLoginRequest(BaseModel):
+    email: str = Field(max_length=254)
+    password: str = Field(max_length=128)
+
+
+class EmailResendRequest(BaseModel):
+    email: str = Field(max_length=254)
+
+
+class EmailForgotRequest(BaseModel):
+    email: str = Field(max_length=254)
+
+
+class EmailResetRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=8, max_length=128)
+
+
 def _normalize_google_avatar(url: str | None) -> str | None:
     if not url:
         return url
@@ -2178,8 +2247,73 @@ def _normalize_google_avatar(url: str | None) -> str | None:
     return normalized
 
 
+def _set_auth_cookies(response: Response, access_token: str, refresh_token: str) -> None:
+    """Set HttpOnly, Secure, SameSite=None cookies for cross-origin AJAX."""
+    kw = dict(httponly=True, secure=True, samesite="none")
+    response.set_cookie("__Host-auth_token",    access_token,  path="/",            max_age=ACCESS_TTL_SECS,  **kw)
+    response.set_cookie("__Host-refresh_token", refresh_token, path="/api/refresh", max_age=REFRESH_TTL_SECS, **kw)
+
+
+async def _issue_session(pool, response: Response, user_id: int) -> tuple[str, str]:
+    """Create access+refresh tokens, store refresh in DB, set cookies. Returns (access_token, csrf_token)."""
+    access_token  = create_access_jwt(user_id)
+    refresh_token = create_refresh_jwt(user_id)
+    family_id     = new_family_id()
+    token_hash    = hash_token(refresh_token)
+    expires_at    = (datetime.utcnow() + timedelta(seconds=REFRESH_TTL_SECS)).strftime("%Y-%m-%dT%H:%M:%S")
+    await pool.execute(
+        "INSERT INTO refresh_tokens (user_id, token_hash, family_id, expires_at) VALUES ($1,$2,$3,$4)",
+        user_id, token_hash, family_id, expires_at,
+    )
+    _set_auth_cookies(response, access_token, refresh_token)
+    csrf_token = _secrets_module.token_urlsafe(32)
+    return access_token, csrf_token
+
+
+@app.post("/api/refresh")
+async def api_refresh(request: Request, response: Response, pool=Depends(get_pool)):
+    from app.auth import decode_jwt as _decode_jwt
+    raw = request.cookies.get("__Host-refresh_token")
+    if not raw:
+        raise HTTPException(401, detail="missing_refresh_token")
+    try:
+        payload = _decode_jwt(raw)
+    except Exception:
+        raise HTTPException(401, detail="invalid_refresh_token")
+
+    token_hash = hash_token(raw)
+    row = await pool.fetchrow(
+        "SELECT id, user_id, family_id, is_revoked, expires_at FROM refresh_tokens WHERE token_hash=$1",
+        token_hash,
+    )
+    if not row or row["is_revoked"]:
+        # Reuse detected — revoke entire family
+        if row:
+            await pool.execute("UPDATE refresh_tokens SET is_revoked=1 WHERE family_id=$1", row["family_id"])
+        raise HTTPException(401, detail="token_reuse")
+
+    # Rotate: revoke old, issue new
+    await pool.execute("UPDATE refresh_tokens SET is_revoked=1 WHERE id=$1", row["id"])
+    access_token, csrf_token = await _issue_session(pool, response, row["user_id"])
+    return {"csrf_token": csrf_token}
+
+
+@app.post("/api/logout")
+async def api_logout(request: Request, response: Response, pool=Depends(get_pool)):
+    raw = request.cookies.get("__Host-refresh_token")
+    if raw:
+        token_hash = hash_token(raw)
+        rt = await pool.fetchrow("SELECT family_id FROM refresh_tokens WHERE token_hash=$1", token_hash)
+        if rt:
+            await pool.execute("UPDATE refresh_tokens SET is_revoked=1 WHERE family_id=$1", rt["family_id"])
+    kw = dict(secure=True, httponly=True, samesite="none")
+    response.delete_cookie("__Host-auth_token",    path="/",            **kw)
+    response.delete_cookie("__Host-refresh_token", path="/api/refresh", **kw)
+    return {"detail": "logged_out"}
+
+
 @app.post("/auth/google")
-async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
+async def auth_google(body: GoogleAuthRequest, response: Response, pool=Depends(get_pool)):
     import secrets as _secrets
     try:
         google_payload = await verify_google_token(body.id_token)
@@ -2248,9 +2382,9 @@ async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
                 except Exception:
                     pass  # UNIQUE constraint violation = already processed
 
-    token = create_jwt(row["id"])
+    _, csrf_token = await _issue_session(pool, response, row["id"])
     return {
-        "access_token": token,
+        "csrf_token": csrf_token,
         "user": {
             "id": row["id"],
             "email": row["email"],
@@ -2259,6 +2393,242 @@ async def auth_google(body: GoogleAuthRequest, pool=Depends(get_pool)):
             "custom_display_name": row["custom_display_name"],
         },
     }
+
+
+# ── Email auth helpers ────────────────────────────────────────────────────────
+
+async def _check_login_rate(pool, ip: str, email: str) -> bool:
+    """Return True if this IP/email combo is rate-limited (block further attempts)."""
+    import secrets as _secrets_mod
+    # 5 failures for same email in 15 min
+    email_fails = await pool.fetchrow(
+        "SELECT COUNT(*) AS cnt FROM login_attempts WHERE email=$1 AND succeeded=0 AND attempted_at > datetime('now','-15 minutes')",
+        email,
+    )
+    if (email_fails["cnt"] or 0) >= 5:
+        return True
+    # 10 failures from same IP in 10 min
+    ip_fails = await pool.fetchrow(
+        "SELECT COUNT(*) AS cnt FROM login_attempts WHERE ip=$1 AND succeeded=0 AND attempted_at > datetime('now','-10 minutes')",
+        ip,
+    )
+    return (ip_fails["cnt"] or 0) >= 10
+
+
+async def _send_email_token(settings, email: str, token: str, purpose: str) -> None:
+    """Send verification/reset email. No-op when SMTP_HOST is not configured."""
+    if not settings.smtp_host:
+        return  # debug mode — caller returns token in response body
+    import smtplib, ssl
+    from email.mime.text import MIMEText
+    if purpose == "verify":
+        subject = "Xác minh tài khoản Zenith"
+        link = f"{settings.app_url}/verify-email?token={token}"
+        body = f"Nhấn vào đường dẫn để xác minh tài khoản:\n{link}\n\nĐường dẫn có hiệu lực trong 24 giờ."
+    else:
+        subject = "Đặt lại mật khẩu Zenith"
+        link = f"{settings.app_url}/reset-password?token={token}"
+        body = f"Nhấn vào đường dẫn để đặt lại mật khẩu:\n{link}\n\nĐường dẫn có hiệu lực trong 1 giờ."
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["Subject"] = subject
+    msg["From"] = settings.smtp_from
+    msg["To"] = email
+    ctx = ssl.create_default_context()
+    try:
+        with smtplib.SMTP(settings.smtp_host, settings.smtp_port) as server:
+            server.ehlo()
+            server.starttls(context=ctx)
+            server.login(settings.smtp_user, settings.smtp_pass)
+            server.sendmail(msg["From"], [email], msg.as_string())
+    except Exception as exc:
+        logger.warning("Email send failed to %s: %s", email, exc)
+
+
+@app.post("/auth/email/register")
+async def auth_email_register(body: EmailRegisterRequest, request: Request, pool=Depends(get_pool)):
+    import secrets as _sec
+    settings = get_settings()
+    email = body.email.lower().strip()
+
+    if not validate_password_strength(body.password):
+        raise HTTPException(400, detail="password_too_weak")
+
+    # IP-level registration rate limit (3/hour)
+    ip = request.client.host if request.client else "unknown"
+    recent_reg = await pool.fetchrow(
+        "SELECT COUNT(*) AS cnt FROM users WHERE created_at > datetime('now','-1 hour') AND email=$1",
+        email,
+    )
+    ip_recent = await pool.fetchrow(
+        "SELECT COUNT(*) AS cnt FROM login_attempts WHERE ip=$1 AND attempted_at > datetime('now','-1 hour')",
+        ip,
+    )
+    if (ip_recent["cnt"] or 0) >= 20:
+        raise HTTPException(429, detail="too_many_requests")
+
+    existing = await pool.fetchrow("SELECT id, password_hash, google_sub FROM users WHERE email=$1", email)
+    if existing:
+        if existing["google_sub"] and not existing["password_hash"]:
+            raise HTTPException(409, detail="email_google_only")
+        raise HTTPException(409, detail="email_taken")
+
+    pw_hash = hash_password(body.password)
+    row = await pool.fetchrow(
+        "INSERT INTO users (email, password_hash, email_verified, credits_balance, created_at, updated_at) VALUES ($1,$2,0,50,datetime('now'),datetime('now')) RETURNING id",
+        email, pw_hash,
+    )
+    user_id = row["id"]
+
+    token = _sec.token_urlsafe(32)
+    await pool.execute(
+        "INSERT INTO email_tokens (user_id, token, purpose, expires_at) VALUES ($1,$2,'verify',datetime('now','+1 day'))",
+        user_id, token,
+    )
+    await _send_email_token(settings, email, token, "verify")
+
+    resp: dict = {"detail": "verification_sent"}
+    if not settings.smtp_host:
+        resp["debug_token"] = token  # only in dev/no-SMTP mode
+    return resp
+
+
+@app.post("/auth/email/verify")
+async def auth_email_verify(body: EmailVerifyRequest, response: Response, pool=Depends(get_pool)):
+    row = await pool.fetchrow(
+        "SELECT id, user_id, used_at, expires_at FROM email_tokens WHERE token=$1 AND purpose='verify'",
+        body.token,
+    )
+    if not row or row["used_at"] or row["expires_at"] < datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"):
+        raise HTTPException(400, detail="invalid_or_expired_token")
+
+    await pool.execute("UPDATE email_tokens SET used_at=datetime('now') WHERE id=$1", row["id"])
+    await pool.execute("UPDATE users SET email_verified=1 WHERE id=$1", row["user_id"])
+
+    user = await pool.fetchrow(
+        "SELECT id, email, display_name, avatar_url, custom_display_name FROM users WHERE id=$1",
+        row["user_id"],
+    )
+    _, csrf_token = await _issue_session(pool, response, user["id"])
+    return {
+        "csrf_token": csrf_token,
+        "user": {
+            "id": user["id"],
+            "email": user["email"],
+            "display_name": user["display_name"],
+            "avatar_url": user["avatar_url"],
+            "custom_display_name": user["custom_display_name"],
+        },
+    }
+
+
+@app.post("/auth/email/login")
+async def auth_email_login(body: EmailLoginRequest, request: Request, response: Response, pool=Depends(get_pool)):
+    ip = request.client.host if request.client else "unknown"
+    email = body.email.lower().strip()
+
+    if await _check_login_rate(pool, ip, email):
+        raise HTTPException(429, detail="too_many_attempts")
+
+    user = await pool.fetchrow(
+        "SELECT id, password_hash, email_verified, is_suspended, display_name, avatar_url, custom_display_name FROM users WHERE email=$1 AND password_hash IS NOT NULL",
+        email,
+    )
+
+    # Constant-time path for missing user (prevents timing-based enumeration)
+    dummy_hash = "$2b$12$DUMMYHASHFORNONEXISTENTUSERS000000000000000000000000000"
+    pw_to_check = user["password_hash"] if user else dummy_hash
+    password_ok = verify_password(body.password, pw_to_check)
+
+    await pool.execute(
+        "INSERT INTO login_attempts (ip, email, succeeded) VALUES ($1,$2,$3)",
+        ip, email, 1 if (user and password_ok) else 0,
+    )
+
+    if not user or not password_ok:
+        raise HTTPException(401, detail="invalid_credentials")
+    if not user["email_verified"]:
+        raise HTTPException(403, detail="email_not_verified")
+    if user["is_suspended"]:
+        raise HTTPException(403, detail="account_suspended")
+
+    _, csrf_token = await _issue_session(pool, response, user["id"])
+    return {
+        "csrf_token": csrf_token,
+        "user": {
+            "id": user["id"],
+            "email": email,
+            "display_name": user["display_name"],
+            "avatar_url": user["avatar_url"],
+            "custom_display_name": user["custom_display_name"],
+        },
+    }
+
+
+@app.post("/auth/email/resend-verify")
+async def auth_email_resend_verify(body: EmailResendRequest, pool=Depends(get_pool)):
+    import secrets as _sec
+    settings = get_settings()
+    email = body.email.lower().strip()
+    user = await pool.fetchrow("SELECT id, email_verified FROM users WHERE email=$1 AND password_hash IS NOT NULL", email)
+    # Always return 200 — no account enumeration
+    if not user or user["email_verified"]:
+        return {"detail": "verification_sent"}
+    # Rate limit: 1 resend per email per 10 min
+    recent = await pool.fetchrow(
+        "SELECT COUNT(*) AS cnt FROM email_tokens WHERE user_id=$1 AND purpose='verify' AND created_at > datetime('now','-10 minutes')",
+        user["id"],
+    )
+    if (recent["cnt"] or 0) >= 1:
+        return {"detail": "verification_sent"}
+    token = _sec.token_urlsafe(32)
+    await pool.execute(
+        "INSERT INTO email_tokens (user_id, token, purpose, expires_at) VALUES ($1,$2,'verify',datetime('now','+1 day'))",
+        user["id"], token,
+    )
+    await _send_email_token(settings, email, token, "verify")
+    resp: dict = {"detail": "verification_sent"}
+    if not settings.smtp_host:
+        resp["debug_token"] = token
+    return resp
+
+
+@app.post("/auth/email/forgot-password")
+async def auth_email_forgot_password(body: EmailForgotRequest, pool=Depends(get_pool)):
+    import secrets as _sec
+    settings = get_settings()
+    email = body.email.lower().strip()
+    user = await pool.fetchrow("SELECT id FROM users WHERE email=$1 AND password_hash IS NOT NULL", email)
+    # Always return 200 — no enumeration
+    if user:
+        recent = await pool.fetchrow(
+            "SELECT COUNT(*) AS cnt FROM email_tokens WHERE user_id=$1 AND purpose='reset' AND created_at > datetime('now','-1 hour')",
+            user["id"],
+        )
+        if (recent["cnt"] or 0) < 3:
+            token = _sec.token_urlsafe(32)
+            await pool.execute(
+                "INSERT INTO email_tokens (user_id, token, purpose, expires_at) VALUES ($1,$2,'reset',datetime('now','+1 hour'))",
+                user["id"], token,
+            )
+            await _send_email_token(settings, email, token, "reset")
+    return {"detail": "reset_sent"}
+
+
+@app.post("/auth/email/reset-password")
+async def auth_email_reset_password(body: EmailResetRequest, pool=Depends(get_pool)):
+    if not validate_password_strength(body.new_password):
+        raise HTTPException(400, detail="password_too_weak")
+    row = await pool.fetchrow(
+        "SELECT id, user_id, used_at, expires_at FROM email_tokens WHERE token=$1 AND purpose='reset'",
+        body.token,
+    )
+    if not row or row["used_at"] or row["expires_at"] < datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"):
+        raise HTTPException(400, detail="invalid_or_expired_token")
+
+    pw_hash = hash_password(body.new_password)
+    await pool.execute("UPDATE email_tokens SET used_at=datetime('now') WHERE id=$1", row["id"])
+    await pool.execute("UPDATE users SET password_hash=$1 WHERE id=$2", pw_hash, row["user_id"])
+    return {"detail": "password_reset"}
 
 
 # ── User endpoints ────────────────────────────────────────────────────────────
@@ -2301,7 +2671,7 @@ async def _replenish_streak_freeze(pool, user_id: int, tier: str, current_reset_
 
 
 @app.get("/users/me")
-async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Depends(get_pool)):
+async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Depends(get_pool), response: Response = None):
     row = await pool.fetchrow(
         """SELECT id, email, display_name, avatar_url, custom_display_name,
                   grade, school_type, province,
@@ -2362,6 +2732,8 @@ async def get_me(current_user: CurrentUser = Depends(get_current_user), pool=Dep
         current_user.user_id,
     )
     row["hard_correct_30d"] = hard_row["cnt"] if hard_row else 0
+    # Return a fresh CSRF token on every /users/me so page-reload restores it in memory (Amendment I2)
+    row["csrf_token"] = _secrets_module.token_urlsafe(32)
     return row
 
 

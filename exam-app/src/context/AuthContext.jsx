@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
-import { googleSignIn, getMe, postHistory, setLogoutRef, setRefreshUserRef, setCreditRefs, updateProfile as apiUpdateProfile, deleteAccount as apiDeleteAccount, deactivateAccount as apiDeactivateAccount, reactivateAccount as apiReactivateAccount, upsertDevice } from '../api/aiClient'
+import { googleSignIn, emailLogin as apiEmailLogin, emailRegister as apiEmailRegister, getMe, postHistory, setLogoutRef, setRefreshUserRef, setCreditRefs, setCsrfToken, updateProfile as apiUpdateProfile, deleteAccount as apiDeleteAccount, deactivateAccount as apiDeactivateAccount, reactivateAccount as apiReactivateAccount, upsertDevice } from '../api/aiClient'
+import axios from 'axios'
 import { getDeviceId, getDeviceLabel, getLocation } from '../utils/deviceInfo'
 
 const AuthContext = createContext(null)
@@ -9,32 +10,28 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const resetToLocalRef = useRef(null)
 
-  // On mount: validate stored token (check expiry before API call)
+  // On mount: restore session from HttpOnly cookie via GET /users/me
   useEffect(() => {
-    const token = localStorage.getItem('auth_token')
-    if (!token) {
-      setLoading(false)
-      return
-    }
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      if (payload.exp * 1000 < Date.now()) {
-        localStorage.removeItem('auth_token')
-        setLoading(false)
-        return
-      }
-    } catch {
-      localStorage.removeItem('auth_token')
-      setLoading(false)
-      return
-    }
+    const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
     getMe().then(({ data, error }) => {
       if (error || !data) {
-        localStorage.removeItem('auth_token')
+        // Try a silent refresh in case the access cookie expired
+        axios.post(`${BASE}/api/refresh`, {}, { withCredentials: true })
+          .then(res => {
+            const newCsrf = res.data?.csrf_token
+            if (newCsrf) setCsrfToken(newCsrf)
+            return getMe()
+          })
+          .then(({ data: d2 }) => {
+            if (d2) { setCsrfToken(d2.csrf_token); setUser(d2) }
+          })
+          .catch(() => {})
+          .finally(() => setLoading(false))
       } else {
+        if (data.csrf_token) setCsrfToken(data.csrf_token)
         setUser(data)
+        setLoading(false)
       }
-      setLoading(false)
     })
   }, [])
 
@@ -70,10 +67,11 @@ export function AuthProvider({ children }) {
     const { data, error } = await googleSignIn(credential, pendingRef)
     if (error || !data) throw new Error(error || 'Đăng nhập thất bại')
 
-    localStorage.setItem('auth_token', data.access_token)
+    if (data.csrf_token) setCsrfToken(data.csrf_token)
 
     // Fetch full profile (includes grade, province, credits, tier, etc.)
     const { data: profile } = await getMe()
+    if (profile?.csrf_token) setCsrfToken(profile.csrf_token)
     setUser(profile || data.user)
 
     // Fire-and-forget device location capture.
@@ -114,9 +112,28 @@ export function AuthProvider({ children }) {
     resetToLocalRef.current?.(false)
   }
 
+  async function emailLogin(email, password) {
+    const { data, error } = await apiEmailLogin(email, password)
+    if (error || !data) throw new Error(error || 'Đăng nhập thất bại')
+    if (data.csrf_token) setCsrfToken(data.csrf_token)
+    const { data: profile } = await getMe()
+    if (profile?.csrf_token) setCsrfToken(profile.csrf_token)
+    setUser(profile || data.user)
+    resetToLocalRef.current?.(false)
+  }
+
+  async function emailRegister(email, password) {
+    const { data, error } = await apiEmailRegister(email, password)
+    if (error || !data) throw new Error(error || 'Đăng ký thất bại')
+    return data // caller handles "verification_sent" vs "debug_token"
+  }
+
   async function refreshUser() {
     const { data } = await getMe()
-    if (data) setUser(data)
+    if (data) {
+      if (data.csrf_token) setCsrfToken(data.csrf_token)
+      setUser(data)
+    }
   }
 
   async function updateProfile(fields) {
@@ -155,7 +172,11 @@ export function AuthProvider({ children }) {
 
   function logout() {
     const uid = user?.id
-    localStorage.removeItem('auth_token')
+    const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+    // Clear cookies server-side (fire-and-forget — don't block UI)
+    axios.post(`${BASE}/api/logout`, {}, { withCredentials: true }).catch(() => {})
+    setCsrfToken(null)
+    localStorage.removeItem('auth_token')  // remove legacy token if still present
     localStorage.removeItem('offline_queue_size')
     // Clear user-namespaced keys so next user gets a clean slate
     if (uid) {
@@ -191,7 +212,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, registerResetToLocal, updateProfile, refreshUser, deductCredits, refundCredits, deleteAccount, deactivateAccount, reactivateAccount }}>
+    <AuthContext.Provider value={{ user, loading, login, emailLogin, emailRegister, logout, registerResetToLocal, updateProfile, refreshUser, deductCredits, refundCredits, deleteAccount, deactivateAccount, reactivateAccount }}>
       {children}
     </AuthContext.Provider>
   )

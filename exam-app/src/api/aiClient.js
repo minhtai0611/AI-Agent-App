@@ -3,8 +3,13 @@ import { loadPreferences } from '../utils/aiPreferences.js'
 
 const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
-const client = axios.create({ baseURL: BASE, timeout: 30000 })
-const slowClient = axios.create({ baseURL: BASE, timeout: 130000 })
+const client = axios.create({ baseURL: BASE, timeout: 30000, withCredentials: true })
+const slowClient = axios.create({ baseURL: BASE, timeout: 130000, withCredentials: true })
+
+// CSRF token — stored in memory only (never localStorage/cookie)
+let _csrfToken = null
+export function setCsrfToken(t) { _csrfToken = t }
+export function getCsrfToken() { return _csrfToken }
 
 let _logoutRef = null
 export function setLogoutRef(fn) { _logoutRef = fn }
@@ -18,22 +23,62 @@ let _refundRef = null
 export function setCreditRefs(deduct, refund) { _deductRef = deduct; _refundRef = refund }
 
 const _ACCOUNT_STATUS_CODES = new Set(['account_locked', 'account_suspended', 'account_deactivated'])
+const _CSRF_METHODS = new Set(['post', 'put', 'delete', 'patch'])
+
+// Serialize concurrent 401 → refresh requests (Amendment C2)
+let _isRefreshing = false
+let _pendingQueue = []
+
+function _queueRequest() {
+  return new Promise((resolve, reject) => _pendingQueue.push({ resolve, reject }))
+}
+function _drainQueue(csrfToken, error) {
+  _pendingQueue.forEach(p => error ? p.reject(error) : p.resolve(csrfToken))
+  _pendingQueue = []
+}
 
 function _attachInterceptors(instance) {
   instance.interceptors.request.use(config => {
-    const token = localStorage.getItem('auth_token')
-    if (token) config.headers.Authorization = `Bearer ${token}`
+    // Inject CSRF token on mutation requests (not on auth endpoints — they set the token)
+    if (_csrfToken && _CSRF_METHODS.has(config.method?.toLowerCase())) {
+      config.headers['X-CSRF-Token'] = _csrfToken
+    }
     return config
   })
   instance.interceptors.response.use(
     res => res,
-    err => {
+    async err => {
       const status = err.response?.status
       const code = err.response?.data?.detail?.code ?? err.response?.data?.code
-      if (status === 401) {
-        localStorage.removeItem('auth_token')
-        _logoutRef?.()
-      } else if (status === 403 && _ACCOUNT_STATUS_CODES.has(code)) {
+      const config = err.config
+
+      if (status === 401 && !config?._retried) {
+        if (_isRefreshing) {
+          // Wait for the in-flight refresh, then retry
+          return _queueRequest().then(csrf => {
+            setCsrfToken(csrf)
+            config._retried = true
+            return instance(config)
+          }).catch(e => Promise.reject(e))
+        }
+        _isRefreshing = true
+        try {
+          const res = await axios.post(`${BASE}/api/refresh`, {}, { withCredentials: true })
+          const newCsrf = res.data?.csrf_token
+          if (newCsrf) setCsrfToken(newCsrf)
+          _drainQueue(newCsrf)
+          config._retried = true
+          return instance(config)
+        } catch (_refreshErr) {
+          _drainQueue(null, _refreshErr)
+          _logoutRef?.()
+          return Promise.reject(err)
+        } finally {
+          _isRefreshing = false
+        }
+      }
+
+      if (status === 403 && _ACCOUNT_STATUS_CODES.has(code)) {
         // Refresh user so App.jsx picks up the new account status flag and shows the modal
         _refreshUserRef?.()
       }
@@ -97,8 +142,7 @@ export function analyzeResult(payload) {
 // Returns { data: analysisObj, error, status } when the stream ends.
 export async function analyzeResultStream(payload, onUpdate, signal) {
   if (!navigator.onLine) return { data: null, error: 'Bạn đang ngoại tuyến — kết nối mạng để dùng tính năng AI', status: 0 }
-  const token = localStorage.getItem('auth_token')
-  if (!token) return { data: null, error: 'not authenticated', status: 401 }
+  if (!_csrfToken) return { data: null, error: 'not authenticated', status: 401 }
   _deductRef?.(3)
 
   const fieldData = {}   // accumulated field text (raw)
@@ -116,7 +160,8 @@ export async function analyzeResultStream(payload, onUpdate, signal) {
   try {
     const res = await fetch(`${BASE}/analyze/stream`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': _csrfToken ?? '' },
+      credentials: 'include',
       body: JSON.stringify(withAIPrefs(payload)),
       signal,
     })
@@ -233,6 +278,13 @@ export function getWikiStatus() {
 export function googleSignIn(idToken, ref) {
   return wrap(client.post('/auth/google', { id_token: idToken, ...(ref ? { ref } : {}) }))
 }
+
+export const emailRegister    = (email, password)     => wrap(client.post('/auth/email/register',        { email, password }))
+export const emailVerify      = (token)               => wrap(client.post('/auth/email/verify',          { token }))
+export const emailLogin       = (email, password)     => wrap(client.post('/auth/email/login',           { email, password }))
+export const emailForgot      = (email)               => wrap(client.post('/auth/email/forgot-password', { email }))
+export const emailReset       = (token, new_password) => wrap(client.post('/auth/email/reset-password',  { token, new_password }))
+export const emailResendVerify = (email)              => wrap(client.post('/auth/email/resend-verify',   { email }))
 
 export function upsertDevice(payload) {
   return wrap(client.post('/users/me/device', payload))
@@ -416,15 +468,15 @@ export const analyzeErrorPatterns = () =>
 // Returns { questions: [...], exam_id, error, status }
 export async function generateExamStream(topicFocus, difficulty = 'medium', count = 10, onQuestion, signal) {
   if (!navigator.onLine) return { questions: [], error: 'Bạn đang ngoại tuyến', status: 0 }
-  const token = localStorage.getItem('auth_token')
-  if (!token) return { questions: [], error: 'not authenticated', status: 401 }
+  if (!_csrfToken) return { questions: [], error: 'not authenticated', status: 401 }
   _deductRef?.(5)
 
   const questions = []
   try {
     const res = await fetch(`${BASE}/generate-exam/stream`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': _csrfToken ?? '' },
+      credentials: 'include',
       body: JSON.stringify({ topic_focus: topicFocus, difficulty, count }),
       signal,
     })

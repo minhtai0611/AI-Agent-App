@@ -8,7 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { loadQuestions } from '../api/index.js'
-import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getWeeklyInsight, getSimulationBriefing } from '../api/aiClient.js'
+import { getCreditLog, activateTrial, getReferral, updateUsername, examStrategy, compareProvince, updateExtendedProfile, useStreakFreeze, getChartInsights, getPeerStats, getWeeklyInsight, getSimulationBriefing, getCsrfToken } from '../api/aiClient.js'
 import { useReadiness } from '../hooks/useReadiness.js'
 import { pageVariants } from '../utils/animations.js'
 import AchievementCeremony from '../components/AchievementCeremony.jsx'
@@ -290,6 +290,12 @@ export default function Account() {
     }
   )
   const { preferences: aiPrefs, setPreferences: setAIPrefs, isCustomized: aiIsCustomized } = useAIPreferences()
+  const [savedFlash, setSavedFlash] = useState(false)
+  function saveAndFlash(next) {
+    setAIPrefs(next)
+    setSavedFlash(true)
+    setTimeout(() => setSavedFlash(false), 1500)
+  }
 
   // ── Upgrade context inline messages ──
   const [upgradeCtxVisible, setUpgradeCtxVisible] = useState({}) // featureId → bool
@@ -530,10 +536,9 @@ export default function Account() {
 
   // Grade change request — must be before the early return (Rules of Hooks)
   useEffect(() => {
-    const token = localStorage.getItem('auth_token')
-    if (!token || !user?.grade) return
+    if (!user?.grade) return
     const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-    fetch(`${BASE}/users/me/grade-change-request`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${BASE}/users/me/grade-change-request`, { credentials: 'include' })
       .then(r => r.json())
       .then(data => setGradeRequest(data))
       .catch(() => {})
@@ -582,12 +587,12 @@ export default function Account() {
     if (!gradeChangeTarget) { setGradeChangeError('Vui lòng chọn lớp muốn đổi.'); return }
     if (gradeChangeReason.trim().length < 30) { setGradeChangeError('Lý do cần ít nhất 30 ký tự.'); return }
     setGradeChangeSubmitting(true); setGradeChangeError('')
-    const token = localStorage.getItem('auth_token')
     const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
     try {
       const res = await fetch(`${BASE}/users/me/grade-change-request`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() ?? '' },
         body: JSON.stringify({ requested_grade: gradeChangeTarget, justification: gradeChangeReason.trim() }),
       })
       const data = await res.json()
@@ -2095,7 +2100,10 @@ export default function Account() {
             <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center gap-3">
                 <span className="font-sans text-[15px] font-semibold text-foreground">Tùy chỉnh AI học tập</span>
-                {aiIsCustomized && (
+                {savedFlash && (
+                  <span className="font-sans text-[11px] text-success animate-pulse">Đã lưu</span>
+                )}
+                {aiIsCustomized && !savedFlash && (
                   <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-info/10 text-info border border-info/20">
                     Đã tùy chỉnh
                   </span>
@@ -2113,7 +2121,7 @@ export default function Account() {
                   ].map(({ v, label, desc }) => (
                     <button
                       key={v}
-                      onClick={() => setAIPrefs({ ...aiPrefs, hint_style: v })}
+                      onClick={() => saveAndFlash({ ...aiPrefs, hint_style: v })}
                       className={`flex flex-col items-start px-4 py-2.5 rounded-xl border transition text-left ${
                         aiPrefs.hint_style === v
                           ? 'border-info bg-info/10 text-foreground'
@@ -2138,7 +2146,7 @@ export default function Account() {
                   ].map(({ v, label, desc }) => (
                     <button
                       key={v}
-                      onClick={() => setAIPrefs({ ...aiPrefs, explanation_depth: v })}
+                      onClick={() => saveAndFlash({ ...aiPrefs, explanation_depth: v })}
                       className={`flex flex-col items-start px-4 py-2.5 rounded-xl border transition text-left ${
                         aiPrefs.explanation_depth === v
                           ? 'border-success bg-success/10 text-foreground'
@@ -2159,7 +2167,7 @@ export default function Account() {
                   <span className="font-sans text-[0.6875rem] text-dim">AI có thể dùng thuật ngữ toán tiếng Anh khi cần rõ hơn.</span>
                 </div>
                 <button
-                  onClick={() => setAIPrefs({ ...aiPrefs, language_mix: aiPrefs.language_mix === 'mixed' ? 'vietnamese-only' : 'mixed' })}
+                  onClick={() => saveAndFlash({ ...aiPrefs, language_mix: aiPrefs.language_mix === 'mixed' ? 'vietnamese-only' : 'mixed' })}
                   className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${aiPrefs.language_mix === 'mixed' ? 'bg-info' : 'bg-border'}`}
                 >
                   <span className={`absolute left-0 top-1 w-4 h-4 rounded-full bg-white transition-transform ${aiPrefs.language_mix === 'mixed' ? 'translate-x-7' : 'translate-x-1'}`} />
@@ -2173,7 +2181,7 @@ export default function Account() {
                   <span className="font-sans text-[0.6875rem] text-dim">AI tự động nhấn mạnh vào khu vực bạn còn yếu nhất.</span>
                 </div>
                 <button
-                  onClick={() => setAIPrefs({ ...aiPrefs, weak_topic_focus: !aiPrefs.weak_topic_focus })}
+                  onClick={() => saveAndFlash({ ...aiPrefs, weak_topic_focus: !aiPrefs.weak_topic_focus })}
                   className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${aiPrefs.weak_topic_focus ? 'bg-primary' : 'bg-border'}`}
                 >
                   <span className={`absolute left-0 top-1 w-4 h-4 rounded-full bg-white transition-transform ${aiPrefs.weak_topic_focus ? 'translate-x-7' : 'translate-x-1'}`} />
@@ -2192,7 +2200,7 @@ export default function Account() {
                     { value: 'high',     label: 'Nhiều' },
                   ].map(opt => (
                     <button key={opt.value}
-                      onClick={() => setAIPrefs({ ...aiPrefs, encouragement_level: opt.value })}
+                      onClick={() => saveAndFlash({ ...aiPrefs, encouragement_level: opt.value })}
                       className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
                       style={{
                         background: aiPrefs.encouragement_level === opt.value ? 'var(--info)' : 'var(--border)',

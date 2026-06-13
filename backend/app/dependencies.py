@@ -47,10 +47,14 @@ async def get_current_user(
     request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
 ) -> CurrentUser:
-    if not credentials:
+    # Cookie-first extraction; Bearer header kept as fallback during migration
+    raw_token: str | None = request.cookies.get("__Host-auth_token")
+    if not raw_token and credentials:
+        raw_token = credentials.credentials
+    if not raw_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
     try:
-        payload = decode_jwt(credentials.credentials)
+        payload = decode_jwt(raw_token)
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
     except jwt.InvalidTokenError:

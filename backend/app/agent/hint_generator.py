@@ -37,6 +37,12 @@ _HINT_STYLE_INSTRUCTIONS = {
     "visual": "Trình bày gợi ý theo các bước đánh số rõ ràng. Dùng ký hiệu toán học chuẩn và nhãn bước rõ ràng.",
 }
 
+_HINT_USER_STYLE = {
+    "socratic": "Đặt 1–2 câu hỏi gợi mở, KHÔNG tiết lộ đáp án — để học sinh tự khám phá.",
+    "direct":   "Đưa ra 1–2 bước tiếp cận trực tiếp, rõ ràng về cách giải. Không hỏi ngược lại.",
+    "visual":   "Liệt kê các bước tiếp cận theo số thứ tự (1., 2., ...). Mỗi bước ngắn, rõ ràng.",
+}
+
 _ENCOURAGEMENT_INSTRUCTIONS = {
     'minimal': 'Be concise and direct. Skip praise.',
     'moderate': 'Brief encouragement is welcome.',
@@ -54,10 +60,14 @@ async def generate_hint(
     settings = get_settings()
     level = _DETAIL_LEVEL.get(min(attempt_count, 3), _DETAIL_LEVEL[3])
 
-    hint_style = (ai_preferences or {}).get("hint_style", "socratic")
+    prefs = ai_preferences or {}
+    hint_style = prefs.get("hint_style", "socratic")
     style_instruction = _HINT_STYLE_INSTRUCTIONS.get(hint_style, _HINT_STYLE_INSTRUCTIONS["socratic"])
-    encouragement_level = (ai_preferences or {}).get("encouragement_level", "moderate")
+    style_user_hint = _HINT_USER_STYLE.get(hint_style, _HINT_USER_STYLE["socratic"])
+    encouragement_level = prefs.get("encouragement_level", "moderate")
     encouragement_instruction = _ENCOURAGEMENT_INSTRUCTIONS.get(encouragement_level, _ENCOURAGEMENT_INSTRUCTIONS["moderate"])
+    lang_instruction = "Bạn có thể dùng thuật ngữ toán tiếng Anh khi cần thiết." if prefs.get("language_mix") == "mixed" else ""
+    weak_focus_instruction = "Khi gợi ý, hãy nhấn mạnh các khái niệm nền tảng mà học sinh có thể chưa nắm vững." if prefs.get("weak_topic_focus", True) else ""
 
     prev_context = ""
     if previous_hints:
@@ -65,7 +75,7 @@ async def generate_hint(
         prev_context = f"\nCác gợi ý đã cung cấp (KHÔNG lặp lại, phải tiến xa hơn):\n{shown}\n"
 
     prompt = f"""Tôi cần bạn tạo một GỢI Ý ngắn (KHÔNG phải lời giải) cho câu hỏi toán sau.
-Yêu cầu ({level}): Đặt 1–2 câu hỏi gợi mở hoặc nhắc 1 khái niệm liên quan để học sinh tự suy nghĩ.
+Yêu cầu ({level}): {style_user_hint}
 Quy tắc bắt buộc:
 - Tối đa 2 câu, viết liền mạch, không xuống dòng
 - KHÔNG dùng markdown, KHÔNG dùng số thứ tự, KHÔNG dùng gạch đầu dòng
@@ -80,7 +90,7 @@ Trả về đúng định dạng JSON sau, không thêm text nào khác:
         model=settings.hint_model,
         max_tokens=512,
         messages=[
-            {"role": "system", "content": THPT_CONTEXT + STATIC_HINT_INSTRUCTIONS + "\n" + style_instruction + "\n" + encouragement_instruction},
+            {"role": "system", "content": THPT_CONTEXT + STATIC_HINT_INSTRUCTIONS + "\n" + style_instruction + "\n" + encouragement_instruction + ("\n" + lang_instruction if lang_instruction else "") + ("\n" + weak_focus_instruction if weak_focus_instruction else "")},
             {"role": "user", "content": prompt},
         ],
     )

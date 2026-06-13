@@ -8,11 +8,9 @@ _AI_PATHS = {
     "/chat", "/compress", "/math-solve", "/math-review", "/math-ingest", "/math-upload",
     "/study-plan-quiz",
 }
-_AUTH_PATHS = {"/auth/google"}
-_WINDOW = 60        # seconds
-_IP_LIMIT = 20      # requests per window per IP
-_AUTH_LIMIT = 10    # tighter limit for auth endpoints
-_USER_LIMIT = 60    # requests per minute per authenticated user
+_WINDOW = 60        # seconds (AI paths)
+_IP_LIMIT = 20      # requests per window per IP (AI paths)
+_USER_LIMIT = 60    # requests per minute per authenticated user (AI paths)
 _HINT_RAPID_WINDOW = 10   # seconds
 _HINT_RAPID_LIMIT = 5     # max hint requests per user in rapid window
 
@@ -21,13 +19,29 @@ _ADMIN_IP_LIMIT = 10       # 10 requests/min per IP to any /admin/* path
 _ADMIN_FAIL_LIMIT = 5      # block IP after 5 failed key attempts
 _ADMIN_FAIL_WINDOW = 900   # 15-minute lockout window
 
+# Per-path rate limits for auth endpoints (IP-based, independent windows)
+_AUTH_PATH_LIMITS: dict[str, tuple[int, int]] = {
+    "/auth/google":                   (10, 60),
+    "/auth/email/register":           (5,  3600),
+    "/auth/email/login":              (10, 600),
+    "/auth/email/forgot-password":    (5,  3600),
+    "/auth/email/resend-verify":      (5,  3600),
+    "/auth/email/reset-password":     (5,  3600),
+}
+
+_CSRF_EXEMPT_PREFIXES = ("/auth/", "/api/refresh", "/api/logout")
+_CSRF_MUTATION_METHODS = {"POST", "PUT", "DELETE", "PATCH"}
+
 
 def _extract_user_id(request: Request) -> str | None:
-    """Decode JWT from Authorization header to get user_id (no DB lookup)."""
-    auth = request.headers.get("authorization", "")
-    if not auth.lower().startswith("bearer "):
+    """Decode JWT from cookie or Authorization header to get user_id (no DB lookup)."""
+    token = request.cookies.get("__Host-auth_token")
+    if not token:
+        auth = request.headers.get("authorization", "")
+        if auth.lower().startswith("bearer "):
+            token = auth[7:]
+    if not token:
         return None
-    token = auth[7:]
     try:
         from app.auth import decode_jwt
         payload = decode_jwt(token)
@@ -50,6 +64,16 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         ip = request.client.host if request.client else "unknown"
         now = time.monotonic()
 
+        # CSRF check — required on mutation requests authenticated via cookie
+        # (custom header CSRF defense: any cross-origin request with a custom header
+        #  must pass a CORS preflight, so a third-party page cannot forge this)
+        path = request.url.path
+        if (request.method in _CSRF_MUTATION_METHODS
+                and not any(path.startswith(p) for p in _CSRF_EXEMPT_PREFIXES)
+                and request.cookies.get("__Host-auth_token")):
+            if not request.headers.get("X-CSRF-Token"):
+                return Response('{"detail":"csrf_token_missing"}', status_code=403, media_type="application/json")
+
         # Admin endpoints — tight IP rate limit + failed-attempt lockout
         if request.url.path.startswith(_ADMIN_PATHS_PREFIX):
             # IP rate limit
@@ -69,12 +93,14 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 self._admin_fail_counts[ip].append(now)
             return response
 
-        # Auth endpoint — tight IP-based limit
-        if request.url.path in _AUTH_PATHS:
-            bucket = self._auth_buckets[ip]
-            while bucket and bucket[0] < now - _WINDOW:
+        # Auth endpoints — per-path IP rate limits
+        if path in _AUTH_PATH_LIMITS:
+            limit, window = _AUTH_PATH_LIMITS[path]
+            bucket_key = f"{ip}:{path}"
+            bucket = self._auth_buckets[bucket_key]
+            while bucket and bucket[0] < now - window:
                 bucket.popleft()
-            if len(bucket) >= _AUTH_LIMIT:
+            if len(bucket) >= limit:
                 return Response(
                     content='{"detail":"Quá nhiều yêu cầu, vui lòng thử lại sau."}',
                     status_code=429,

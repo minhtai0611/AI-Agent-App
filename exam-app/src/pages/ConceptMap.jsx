@@ -32,7 +32,7 @@ const NODE_H = 52
 function layoutGraph(nodes, edges) {
   const g = new dagre.graphlib.Graph()
   g.setDefaultEdgeLabel(() => ({}))
-  g.setGraph({ rankdir: 'TB', ranksep: 60, nodesep: 24 })
+  g.setGraph({ rankdir: 'LR', ranksep: 90, nodesep: 36 })
   nodes.forEach(n => g.setNode(n.id, { width: NODE_W, height: NODE_H }))
   edges.forEach(e => g.setEdge(e.source, e.target))
   dagre.layout(g)
@@ -67,10 +67,17 @@ function ConceptNode({ data }) {
         position: 'relative',
       }}
     >
+      {/* Topic color stripe */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: 3,
+        borderRadius: '8px 8px 0 0',
+        background: isLocked ? '#2D3748' : (TOPIC_COLORS[data.topic] || '#64748B'),
+        opacity: isLocked ? 0.3 : 0.75,
+      }} />
       {isLocked && (
         <span style={{ position: 'absolute', top: 4, right: 6, fontSize: 10, opacity: 0.7 }}>🔒</span>
       )}
-      <div style={{ fontSize: Math.max(10, Math.min(13, size)), fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: isLocked ? '#64748B' : '#F0F4FF', lineHeight: 1.3 }}>
+      <div style={{ fontSize: Math.max(10, Math.min(13, size)), fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: isLocked ? '#64748B' : '#F0F4FF', lineHeight: 1.3, marginTop: 4 }}>
         {data.name_vi}
       </div>
       <div style={{ fontSize: 9, color: '#475569', fontFamily: 'Plus Jakarta Sans, sans-serif', marginTop: 2 }}>
@@ -212,13 +219,15 @@ export default function ConceptMap() {
     filtered.forEach(c => {
       c.prerequisite_ids.forEach(prereqId => {
         if (filteredIds.has(prereqId)) {
+          const srcTopic = filtered.find(x => x.id === prereqId)?.topic
+          const edgeColor = TOPIC_COLORS[srcTopic] || '#64748B'
           rawEdges.push({
             id: `${prereqId}->${c.id}`,
             source: prereqId,
             target: c.id,
             animated: false,
-            style: { stroke: '#334155', strokeWidth: 1.5 },
-            markerEnd: { type: MarkerType.ArrowClosed, color: '#334155' },
+            style: { stroke: edgeColor, strokeWidth: 1.5, opacity: 0.55 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor },
           })
         }
       })
@@ -261,16 +270,18 @@ export default function ConceptMap() {
       // For locked concepts: highlight blocking prerequisite edges in red
       const isBlockingEdge = selectedIsLocked && e.target === selected
         && (masteryMap[e.source] ?? 0) < 0.7
+      const srcTopic = CONCEPTS.find(x => x.id === e.source)?.topic
+      const topicColor = TOPIC_COLORS[srcTopic] || '#64748B'
       return {
         ...e,
         style: isBlockingEdge
-          ? { stroke: '#EF4444', strokeWidth: 2.5 }
+          ? { stroke: '#EF4444', strokeWidth: 2.5, opacity: 1 }
           : inChain
-          ? { stroke: '#F59E0B', strokeWidth: 2.5 }
-          : { stroke: 'var(--border)', strokeWidth: 1 },
+          ? { stroke: '#F59E0B', strokeWidth: 2.5, opacity: 1 }
+          : { stroke: topicColor, strokeWidth: 1.5, opacity: 0.55 },
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          color: isBlockingEdge ? '#EF4444' : inChain ? 'var(--warning)' : 'var(--border)',
+          color: isBlockingEdge ? '#EF4444' : inChain ? '#F59E0B' : topicColor,
         },
       }
     }))
@@ -333,11 +344,18 @@ export default function ConceptMap() {
         <span className="font-sans text-[11px] text-dim">{stats.total} khái niệm</span>
         <span className="font-sans text-[11px] text-info">{stats.tried} đã học</span>
         <span className="font-sans text-[11px] text-success">{stats.strong} thành thạo ≥70%</span>
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-3 flex-wrap">
           {[['var(--mastery-5-bg)','var(--mastery-5)','≥70%'],['var(--mastery-3-bg)','var(--mastery-3)','40-69%'],['var(--mastery-1-bg)','var(--mastery-1)','<40%'],['var(--surface)','var(--border)','Chưa học']].map(([bg,border,label]) => (
             <span key={label} className="flex items-center gap-1 font-sans text-[10px] text-dim">
               <span style={{ width: 10, height: 10, background: bg, border: `1.5px solid ${border}`, borderRadius: 2, display: 'inline-block' }} />
               {label}
+            </span>
+          ))}
+          <span className="w-px h-3 bg-border mx-1" />
+          {Object.entries(TOPIC_COLORS).map(([topic, color]) => (
+            <span key={topic} className="flex items-center gap-1 font-sans text-[10px] text-dim">
+              <span style={{ width: 10, height: 10, background: color, borderRadius: 2, display: 'inline-block', opacity: 0.75 }} />
+              {topic}
             </span>
           ))}
         </div>

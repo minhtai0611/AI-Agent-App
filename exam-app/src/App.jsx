@@ -1,4 +1,5 @@
 import { useState, lazy, Suspense, useCallback } from 'react'
+import { useGoogleOneTapLogin } from '@react-oauth/google'
 import { MotionConfig, AnimatePresence } from 'framer-motion'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { ExamProvider } from './context/ExamContext.jsx'
@@ -42,6 +43,8 @@ const Placement = lazy(() => import('./pages/Placement.jsx'))
 const ConceptMap = lazy(() => import('./pages/ConceptMap.jsx'))
 const ErrorAnalysis = lazy(() => import('./pages/ErrorAnalysis.jsx'))
 const Home = lazy(() => import('./pages/Home.jsx'))
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail.jsx'))
+const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'))
 
 const PageFallback = () => <div className="min-h-screen bg-background" />
 
@@ -64,6 +67,19 @@ function SuspensionModal({ reason, onLogout }) {
       </div>
     </div>
   )
+}
+
+function GoogleOneTap() {
+  const { user, login } = useAuth()
+  useGoogleOneTapLogin({
+    onSuccess: async ({ credential }) => {
+      try { await login(credential) } catch (_) {}
+    },
+    onError: () => {},
+    disabled: !!user,
+    cancel_on_tap_outside: true,
+  })
+  return null
 }
 
 function AppInner() {
@@ -136,6 +152,7 @@ function AppInner() {
 
   return (
     <>
+      <GoogleOneTap />
       <ScrollToTop />
       <OfflineBanner />
       <InstallPrompt />
@@ -201,6 +218,8 @@ function AppInner() {
             <Route path="/diagnostic" element={<Navigate to="/practice/diagnostic" replace />} />
             <Route path="/concept-map" element={<Navigate to="/mastery" replace />} />
             {/* Other pages */}
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/security-events" element={<AdminSecurityEvents />} />
             <Route path="/share" element={<ShareView />} />

@@ -106,7 +106,7 @@ export default function ExamSelect({ onOpenAuth }) {
       } catch {}
     }
     // Also scan AI analysis cache for weak_topics
-    const analysisPfx = `analysis-cache-`
+    const analysisPfx = `ai-analysis-${uid}-`
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
       if (!key?.startsWith(analysisPfx)) continue
@@ -117,7 +117,7 @@ export default function ExamSelect({ onOpenAuth }) {
         }
       } catch {}
     }
-    setStudyPlanTopics([...topics])
+    setStudyPlanTopics([...topics].filter(slug => slug in TOPIC_LABELS))
   }, [mode, user])
 
   const mistakeCount = useMemo(() => {
@@ -403,7 +403,7 @@ export default function ExamSelect({ onOpenAuth }) {
                   onClick={async () => {
                     const allQs = await loadQuestions()
                     const filtered = allQs.filter(q => studyPlanTopics.includes(q.topic))
-                    if (!filtered.length) return
+                    if (!filtered.length) { navigate('/practice/adaptive'); return }
                     const shuffled = [...filtered].sort(() => Math.random() - 0.5).slice(0, 40)
                     const fakeExam = {
                       id: `study-plan-session-${Date.now()}`,

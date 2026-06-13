@@ -3,10 +3,8 @@ import schoolsData from '../data/schools.json'
 
 const _API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
-async function _apiFetch(path, token) {
-  const res = await fetch(`${_API_BASE}${path}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  })
+async function _apiFetch(path) {
+  const res = await fetch(`${_API_BASE}${path}`, { credentials: 'include' })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json()
 }
@@ -26,16 +24,13 @@ export async function loadQuestions() {
   if (_questionsPromise) return _questionsPromise
   _questionsPromise = (async () => {
     try {
-      const token = localStorage.getItem('auth_token')
-      if (token) {
-        const data = await _apiFetch('/questions', token)
-        if (data?.length) {
-          _questionsCache = Object.fromEntries(data.map(q => [q.id, q]))
-          return data
-        }
+      const data = await _apiFetch('/questions')
+      if (data?.length) {
+        _questionsCache = Object.fromEntries(data.map(q => [q.id, q]))
+        return data
       }
     } catch {}
-    // Offline fallback — JSON bundle
+    // Offline or unauthenticated fallback — JSON bundle
     return _loadQuestionsFromJson()
   })()
   const result = await _questionsPromise
@@ -43,11 +38,19 @@ export async function loadQuestions() {
   return result
 }
 
-// Auth-gated variant — rejects unauthenticated callers
+// Auth-gated variant — rejects unauthenticated callers (401 → auth_required)
 export async function loadQuestionsForExam() {
-  const token = localStorage.getItem('auth_token')
-  if (!token) throw new Error('auth_required')
-  return loadQuestions()
+  try {
+    const data = await _apiFetch('/questions')
+    if (data?.length) {
+      _questionsCache = Object.fromEntries(data.map(q => [q.id, q]))
+      return data
+    }
+    return loadQuestions()
+  } catch (err) {
+    if (err.message.includes('401')) throw new Error('auth_required')
+    throw err
+  }
 }
 
 // Exam list cache — populated from API, falls back to bundled JSON

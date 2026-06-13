@@ -1,11 +1,28 @@
-// Mountain peak icon — simple SVG, no external dependency
-function MountainIcon({ size = 24 }) {
+// Star mark — golden-ratio pentagram, apex pointing up
+// 100×100 viewBox: outer R=42, inner r=17, center (50,50)
+// Points: 5 outer (R=42) + 5 inner (r=17), alternating, -90° start
+function StarMark({ size = 24, ring = false }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M3 20 L9 8 L12 13 L15 9 L21 20 Z"
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 100 100"
+      fill="none"
+      aria-hidden="true"
+    >
+      {ring && (
+        <circle
+          cx="50" cy="56" r="38"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeDasharray="3 4"
+          opacity="0.55"
+        />
+      )}
+      <polygon
+        points="50,8 60,36 90,37 66,55 75,84 50,67 25,84 34,55 10,37 40,36"
         fill="currentColor"
-        stroke="none"
+        opacity="0.92"
       />
     </svg>
   )
@@ -29,7 +46,7 @@ export default function ZenithLogo({ variant = 'nav', onClick }) {
         style={{ flexDirection: isHero ? 'column' : 'row' }}
       >
         <div className="text-primary">
-          <MountainIcon size={isHero ? 40 : 20} />
+          <StarMark size={isHero ? 44 : 20} ring={isHero} />
         </div>
         <span
           className="font-bold text-primary"

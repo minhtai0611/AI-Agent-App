@@ -3,8 +3,10 @@
    JetBrains Mono: math/code rendering (KaTeX). Self-hosted WOFF2.
    ─────────────────────────────────────────────────────────────────────────── */
 
-/* Inter — loaded from Google Fonts (swap for self-hosted WOFF2 in production) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+/* Be Vietnam Pro — Vietnamese-designed, crisp diacritical rendering */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,300;1,400;1,500;1,600;1,700&display=swap');
+/* Playfair Display — display/hero headings accent */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&display=swap');
 
 /* JetBrains Mono (variable: wght axis) */
 @font-face {
@@ -259,6 +261,36 @@
   .ambient-glow, .starfield-canvas, video[autoplay] { display: none !important; }
 }
 
+/* ─── Custom scrollbar — consistent across all pages ────────────────────────
+   Standard (Firefox 64+, Chrome 121+, Safari 18.2+) + WebKit fallback.
+   Uses existing CSS variables — auto-adapts to light/dark theme.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--background);
+}
+
+@supports selector(::-webkit-scrollbar) {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-fg);
+  }
+  ::-webkit-scrollbar-corner {
+    background: var(--background);
+  }
+}
+
 /* ─── Print styles ───────────────────────────────────────────────────────── */
 @media print {
   nav, canvas, video, .low-credit-banner, .toast, .modal-backdrop,
@@ -273,7 +305,7 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   letter-spacing: 0em;
