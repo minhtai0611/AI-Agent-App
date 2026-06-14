@@ -390,6 +390,13 @@ body {
   color: transparent;
 }
 
+.text-gradient-aurora {
+  background: linear-gradient(135deg, var(--info) 0%, var(--primary) 50%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 /* ─── Answer Feedback Animations (name-locked — QuestionCard.jsx lines 150–151) ── */
 
 @keyframes z-correct-flash {

@@ -280,6 +280,16 @@ export default function Account() {
   const [reactivating,        setReactivating]        = useState(false)
 
   // ── Settings ──
+  const [isDarkMode, setIsDarkMode] = useState(
+    () => document.documentElement.classList.contains('dark') || document.documentElement.dataset.theme === 'dark'
+  )
+  function toggleTheme() {
+    const next = isDarkMode ? 'light' : 'dark'
+    document.documentElement.classList.toggle('dark', next === 'dark')
+    document.documentElement.dataset.theme = next
+    localStorage.setItem('zenith-theme', next)
+    setIsDarkMode(next === 'dark')
+  }
   const [reminderEnabled, setReminderEnabled] = useState(
     () => !!localStorage.getItem('study_reminder_enabled')
   )
@@ -677,7 +687,7 @@ export default function Account() {
           {/* Name + mastery rank + email */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <p className="font-sans text-[18px] font-bold text-foreground truncate">{user.custom_display_name || user.display_name}</p>
+              <p className="font-display text-[18px] font-bold text-foreground truncate">{user.custom_display_name || user.display_name}</p>
               {user.mastery_rank && (
                 <AchievementCeremony trigger={Boolean(user.mastery_rank)}>
                   <span
@@ -777,7 +787,6 @@ export default function Account() {
         <div className="max-w-2xl mx-auto px-4 pb-0 hidden lg:flex items-end gap-0">
           {[
             [TAB_PROGRESS,  'Tiến Độ'],
-            [TAB_ANALYTICS, 'Phân Tích'],
             [TAB_AITIA,     'AI & Credits'],
           ].map(([key, label]) => (
             <button
@@ -875,14 +884,14 @@ export default function Account() {
               <section className="border rounded-2xl p-6 flex flex-col gap-3"
                 style={{
                   background: simulationMode.intensity === 'max' ? '#1A0505' : simulationMode.intensity === 'high' ? '#1A0A05' : '#1A1205',
-                  borderColor: simulationMode.intensity === 'max' ? 'rgba(220,38,38,0.5)' : simulationMode.intensity === 'high' ? 'rgba(249,115,22,0.5)' : 'var(--accent-border)',
+                  borderColor: simulationMode.intensity === 'max' ? 'color-mix(in srgb, var(--destructive) 50%, transparent)' : simulationMode.intensity === 'high' ? 'color-mix(in srgb, var(--accent) 50%, transparent)' : 'var(--accent-border)',
                 }}>
                 {/* Header row: intensity badge + CTA button */}
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div className="flex items-center gap-2">
                     <span className="text-[18px]">{simulationMode.intensity === 'max' ? '🚨' : simulationMode.intensity === 'high' ? '🔴' : '🟠'}</span>
                     <span className="font-sans text-[0.6875rem] font-bold px-2.5 py-1 rounded-full"
-                      style={{ background: simulationMode.intensity === 'max' ? 'rgba(220,38,38,0.1)' : simulationMode.intensity === 'high' ? 'rgba(249,115,22,0.1)' : 'var(--accent-subtle)', color: simulationMode.intensity === 'max' ? 'var(--destructive)' : simulationMode.intensity === 'high' ? 'var(--warning)' : 'var(--accent)' }}>
+                      style={{ background: simulationMode.intensity === 'max' ? 'color-mix(in srgb, var(--destructive) 10%, transparent)' : simulationMode.intensity === 'high' ? 'var(--accent-subtle)' : 'var(--accent-subtle)', color: simulationMode.intensity === 'max' ? 'var(--destructive)' : simulationMode.intensity === 'high' ? 'var(--warning)' : 'var(--accent)' }}>
                       CHẾ ĐỘ ÔN THI — {simulationMode.intensity === 'max' ? 'TỐI ĐA' : simulationMode.intensity === 'high' ? 'CAO' : 'TRUNG BÌNH'}
                     </span>
                   </div>
@@ -898,7 +907,7 @@ export default function Account() {
                 {/* Score confidence interval */}
                 {scoreCI && (
                   <p className="font-sans text-xs leading-snug"
-                    style={{ color: scoreCI.onTrack ? '#4ADE80' : '#FBBF24' }}>
+                    style={{ color: scoreCI.onTrack ? 'var(--success)' : 'var(--warning)' }}>
                     Dự đoán điểm thi: <strong>{scoreCI.projectedScore.toFixed(1)}</strong> (khoảng {scoreCI.low.toFixed(1)}–{scoreCI.high.toFixed(1)}) · Độ tin cậy: {scoreCI.confidenceLabel}
                   </p>
                 )}
@@ -958,11 +967,11 @@ export default function Account() {
             {goalStatus && (
               <section className={`border rounded-2xl p-6 flex flex-col gap-3 ${
                 goalStatus.status === 'at_risk'
-                  ? 'bg-destructive/5 border-red-500/40'
+                  ? 'bg-destructive/5 border-destructive/40'
                   : goalStatus.status === 'steady'
                   ? 'bg-surface border-border'
                   : goalStatus.status === 'ahead'
-                  ? 'bg-success/5 border-emerald-500/40'
+                  ? 'bg-success/5 border-success/40'
                   : 'bg-surface border-border'
               }`}>
                 <div className="flex items-start justify-between gap-3">
@@ -990,7 +999,7 @@ export default function Account() {
                   {goalStatus.projectedScore != null && (
                     <div className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg bg-background border border-border">
                       <span className="font-sans text-[0.625rem] text-faint">Dự đoán</span>
-                      <span className="font-sans text-sm font-bold text-emerald-400">{goalStatus.projectedScore.toFixed(1)}</span>
+                      <span className="font-sans text-sm font-bold text-success">{goalStatus.projectedScore.toFixed(1)}</span>
                     </div>
                   )}
                   {goalStatus.targetSchool && (
@@ -1062,7 +1071,7 @@ export default function Account() {
                     value={editProvince}
                     onChange={e => setEditProvince(e.target.value)}
                   />
-                  {saveError && <p className="font-sans text-xs text-red-400">{saveError}</p>}
+                  {saveError && <p className="font-sans text-xs text-destructive">{saveError}</p>}
                   <div className="flex gap-2">
                     <button onClick={handleSaveProfile} disabled={saving}
                       className="px-5 py-2 rounded-lg font-sans text-[0.8125rem] font-bold transition bg-primary text-primary-fg">
@@ -1102,7 +1111,7 @@ export default function Account() {
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-sans text-xs text-dim">Thay đổi lớp học</span>
                       {isPending && <span className="font-sans text-[0.6875rem] px-2 py-0.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)]">Đang chờ duyệt</span>}
-                      {isApproved && <span className="font-sans text-[0.6875rem] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">Đã duyệt</span>}
+                      {isApproved && <span className="font-sans text-[0.6875rem] px-2 py-0.5 rounded-full bg-success/10 text-success">Đã duyệt</span>}
                     </div>
 
                     {isPending ? (
@@ -1132,7 +1141,7 @@ export default function Account() {
                           <span className="text-[var(--accent)] text-[0.8125rem]">⚡</span>
                           <span className="font-sans text-xs text-dim">Chi phí xét duyệt: <strong className="text-[var(--accent)]">5 credits</strong> · Sau khi duyệt cần đợi 90 ngày để đổi tiếp.</span>
                         </div>
-                        {gradeChangeError && <p className="font-sans text-xs text-red-400">{gradeChangeError}</p>}
+                        {gradeChangeError && <p className="font-sans text-xs text-destructive">{gradeChangeError}</p>}
                         <div className="flex gap-2">
                           <button onClick={handleSubmitGradeChange} disabled={gradeChangeSubmitting}
                             className="px-5 py-2 rounded-lg font-sans text-[0.8125rem] font-bold transition"
@@ -1192,7 +1201,7 @@ export default function Account() {
                   {usernameLoading ? '...' : 'Lưu'}
                 </button>
               </div>
-              {usernameError && <p className="font-sans text-xs text-red-400">{usernameError}</p>}
+              {usernameError && <p className="font-sans text-xs text-destructive">{usernameError}</p>}
             </section>
 
             {/* Complete tier features: Strategy + Province Comparison */}
@@ -1239,7 +1248,7 @@ export default function Account() {
                     <div className="flex flex-col gap-3">
                       {/* Narrative card */}
                       <div className={`flex flex-col gap-2 px-4 py-4 rounded-xl border ${
-                        provinceNarrative.sentiment === 'above' ? 'border-emerald-500/40 bg-emerald-500/5' :
+                        provinceNarrative.sentiment === 'above' ? 'border-success/40 bg-success/5' :
                         provinceNarrative.sentiment === 'below' ? 'border-[var(--accent-border)]/40 bg-[var(--accent)]/5' :
                         'border-info/40 bg-info/5'
                       }`}>
@@ -1247,7 +1256,7 @@ export default function Account() {
                           <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{provinceNarrative.headline}</span>
                           {provinceNarrative.badge && (
                             <span className={`font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${
-                              provinceNarrative.sentiment === 'above' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[var(--accent)]/20 text-[var(--accent)]'
+                              provinceNarrative.sentiment === 'above' ? 'bg-success/20 text-success' : 'bg-[var(--accent)]/20 text-[var(--accent)]'
                             }`}>{provinceNarrative.badge}</span>
                           )}
                         </div>
@@ -1490,7 +1499,7 @@ export default function Account() {
                     <span className="font-sans text-[0.625rem] text-dim">Điểm TB</span>
                   </div>
                   <div className="flex flex-col items-center gap-0.5 px-3 py-3 rounded-xl bg-background border border-border">
-                    <span className={`font-sans text-[20px] font-bold ${progressReport.scoreImprovement > 0 ? 'text-emerald-400' : progressReport.scoreImprovement < 0 ? 'text-red-400' : 'text-foreground'}`}>
+                    <span className={`font-sans text-[20px] font-bold ${progressReport.scoreImprovement > 0 ? 'text-success' : progressReport.scoreImprovement < 0 ? 'text-destructive' : 'text-foreground'}`}>
                       {progressReport.scoreImprovement > 0 ? '+' : ''}{progressReport.scoreImprovement}
                     </span>
                     <span className="font-sans text-[0.625rem] text-dim">Cải thiện</span>
@@ -1505,7 +1514,7 @@ export default function Account() {
                     <span className="font-sans text-[0.6875rem] font-semibold text-muted">Điểm mạnh</span>
                     <div className="flex flex-wrap gap-2">
                       {progressReport.topTopics.map(t => (
-                        <span key={t} className="font-sans text-[0.6875rem] px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">{t}</span>
+                        <span key={t} className="font-sans text-[0.6875rem] px-2.5 py-1 rounded-full bg-success/15 border border-success/30 text-success">{t}</span>
                       ))}
                     </div>
                   </div>
@@ -1758,7 +1767,7 @@ export default function Account() {
                 {user.subscription_period === 'annual' && (
                   <div className="flex flex-col items-center gap-0.5">
                     <span className="font-sans text-[0.6875rem] text-faint">Chu kỳ</span>
-                    <span className="font-sans text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">Hàng năm</span>
+                    <span className="font-sans text-xs font-bold px-2.5 py-0.5 rounded-full bg-success/20 text-success">Hàng năm</span>
                   </div>
                 )}
                 {user.credits_reset_at && (
@@ -1882,7 +1891,7 @@ export default function Account() {
                           <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">{plan.badge}</span>
                         )}
                         {tier === plan.tier && (
-                          <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-400">Hiện tại</span>
+                          <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-success/20 text-success">Hiện tại</span>
                         )}
                       </div>
                       <div className="flex items-center gap-3 flex-wrap">
@@ -1893,7 +1902,7 @@ export default function Account() {
                         <div className="flex flex-col gap-1 mt-1">
                           {plan.features.map(f => (
                             <span key={f} className="font-sans text-xs text-muted flex items-center gap-1.5">
-                              <span className="text-emerald-400 text-[0.625rem]">✓</span>{f}
+                              <span className="text-success text-[0.625rem]">✓</span>{f}
                             </span>
                           ))}
                         </div>
@@ -1902,12 +1911,12 @@ export default function Account() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-sans text-[0.6875rem] text-faint">≈ {plan.effective}</span>
                           {billing === 'annual' && plan.tier === 'student' && studentSavingsDays > 0 && (
-                            <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
+                            <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-success/20 text-success">
                               +{studentSavingsDays} ngày học tập AI miễn phí
                             </span>
                           )}
                           {billing === 'annual' && plan.tier === 'complete' && completeSavingsDays > 0 && (
-                            <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
+                            <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-success/20 text-success">
                               +{completeSavingsDays} ngày học tập AI miễn phí
                             </span>
                           )}
@@ -2000,7 +2009,7 @@ export default function Account() {
                         <span className="font-sans text-xs text-muted">{REASON_LABELS[entry.reason] ?? entry.reason}</span>
                         <span className="font-sans text-[0.6875rem] text-faint">{formatDate(entry.created_at)}</span>
                       </div>
-                      <span className={`font-sans text-sm font-bold ${entry.delta > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      <span className={`font-sans text-sm font-bold ${entry.delta > 0 ? 'text-success' : 'text-destructive'}`}>
                         {entry.delta > 0 ? '+' : ''}{entry.delta}
                       </span>
                     </div>
@@ -2085,10 +2094,10 @@ export default function Account() {
                         {freezeLoading ? 'Đang xử lý...' : 'Dùng freeze hôm nay'}
                       </button>
                       {freezeSuccess && (
-                        <span className="font-sans text-[0.6875rem] text-emerald-400">Đã dùng freeze ✓</span>
+                        <span className="font-sans text-[0.6875rem] text-success">Đã dùng freeze ✓</span>
                       )}
                       {freezeError && (
-                        <span className="font-sans text-[0.6875rem] text-red-400">{freezeError}</span>
+                        <span className="font-sans text-[0.6875rem] text-destructive">{freezeError}</span>
                       )}
                     </div>
                   </div>
@@ -2219,7 +2228,7 @@ export default function Account() {
               <div className="flex items-center justify-between">
                 <span className="font-sans text-[15px] font-semibold text-foreground">Mục tiêu học tập</span>
                 {goalSaved && (
-                  <span className="font-sans text-[0.6875rem] text-emerald-400">Đã lưu ✓</span>
+                  <span className="font-sans text-[0.6875rem] text-success">Đã lưu ✓</span>
                 )}
               </div>
 
@@ -2281,11 +2290,11 @@ export default function Account() {
               <span className="font-sans text-[15px] font-semibold text-foreground">Trạng thái tài khoản</span>
               <div className="flex items-center gap-3">
                 {!!user.is_locked ? (
-                  <span className="font-sans text-xs font-bold px-3 py-1 rounded-full bg-red-500/20 text-red-400">Đã khóa</span>
+                  <span className="font-sans text-xs font-bold px-3 py-1 rounded-full bg-destructive/20 text-destructive">Đã khóa</span>
                 ) : !!user.is_deactivated ? (
                   <span className="font-sans text-xs font-bold px-3 py-1 rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">Tạm ngưng</span>
                 ) : (
-                  <span className="font-sans text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400">Hoạt động</span>
+                  <span className="font-sans text-xs font-bold px-3 py-1 rounded-full bg-success/20 text-success">Hoạt động</span>
                 )}
               </div>
               {!!user.is_locked && (
@@ -2304,6 +2313,24 @@ export default function Account() {
                   </button>
                 </div>
               )}
+            </section>
+
+            {/* Appearance */}
+            <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
+              <span className="font-sans text-[15px] font-semibold text-foreground">Giao diện</span>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-sans text-[0.8125rem] font-semibold text-foreground">Chế độ tối</span>
+                  <span className="font-sans text-[0.6875rem] text-dim">Chuyển đổi giữa giao diện sáng và tối.</span>
+                </div>
+                <button
+                  onClick={toggleTheme}
+                  className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${isDarkMode ? 'bg-[var(--accent)]' : 'bg-border'}`}
+                  aria-label="Chuyển chế độ tối"
+                >
+                  <span className={`absolute left-0 top-1 w-4 h-4 rounded-full bg-white transition-transform ${isDarkMode ? 'translate-x-7' : 'translate-x-1'}`} />
+                </button>
+              </div>
             </section>
 
             {/* Notifications */}
@@ -2400,7 +2427,7 @@ export default function Account() {
             <section className="bg-surface border border-red-500/20 rounded-2xl p-7 flex flex-col gap-4">
               <button
                 onClick={() => setDangerOpen(v => !v)}
-                className="flex items-center gap-2 font-sans text-[0.8125rem] text-red-400 hover:text-red-300 transition self-start"
+                className="flex items-center gap-2 font-sans text-[0.8125rem] text-destructive hover:text-red-300 transition self-start"
               >
                 <span>Xóa hoặc tạm ngưng tài khoản</span>
                 <span className="text-[0.625rem]">{dangerOpen ? '▲' : '▼'}</span>
@@ -2435,7 +2462,7 @@ export default function Account() {
                       </div>
                       <button
                         onClick={() => { setShowDeleteModal(true); setDeleteEmail(''); setDangerError('') }}
-                        className="shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold border border-red-500/40 text-red-400 hover:bg-red-500/10 transition"
+                        className="shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold border border-destructive/40 text-destructive hover:bg-red-500/10 transition"
                       >
                         Xóa tài khoản
                       </button>
@@ -2518,7 +2545,7 @@ export default function Account() {
               <p className="font-sans text-[0.8125rem] text-muted">
                 Bạn sẽ không thể sử dụng dịch vụ cho đến khi kích hoạt lại. Dữ liệu của bạn sẽ được giữ nguyên.
               </p>
-              {dangerError && <p className="font-sans text-xs text-red-400">{dangerError}</p>}
+              {dangerError && <p className="font-sans text-xs text-destructive">{dangerError}</p>}
               <div className="flex gap-2">
                 <button
                   disabled={dangerLoading}
@@ -2557,7 +2584,7 @@ export default function Account() {
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
               className="max-w-sm w-full bg-surface border border-red-500/30 rounded-2xl p-7 flex flex-col gap-5"
             >
-              <span className="font-sans text-[16px] font-bold text-red-400">Xóa tài khoản vĩnh viễn</span>
+              <span className="font-sans text-[16px] font-bold text-destructive">Xóa tài khoản vĩnh viễn</span>
               <p className="font-sans text-[0.8125rem] text-muted">
                 Hành động này <strong className="text-foreground">không thể hoàn tác</strong>. Tất cả dữ liệu bao gồm lịch sử thi và credits sẽ bị xóa.
               </p>
@@ -2570,7 +2597,7 @@ export default function Account() {
                   onChange={e => setDeleteEmail(e.target.value)}
                 />
               </div>
-              {dangerError && <p className="font-sans text-xs text-red-400">{dangerError}</p>}
+              {dangerError && <p className="font-sans text-xs text-destructive">{dangerError}</p>}
               <div className="flex gap-2">
                 <button
                   disabled={dangerLoading || deleteEmail !== user.email}
@@ -2603,7 +2630,6 @@ export default function Account() {
         style={{ background: 'var(--bg)', borderTop: '1px solid var(--border)', paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
         {[
           { id: TAB_PROGRESS,  label: 'Tiến Độ',   icon: '📈' },
-          { id: TAB_ANALYTICS, label: 'Phân Tích',  icon: '🧠' },
           { id: TAB_AITIA,     label: 'AI & Credits',   icon: '⚡' },
         ].map(tab => (
           <button

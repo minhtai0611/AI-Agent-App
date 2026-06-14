@@ -100,7 +100,7 @@ function SchoolCard({ school, studentScore }) {
       {matchRatio !== null && (
         <div className="h-1 rounded-full bg-border overflow-hidden">
           <motion.div
-            className="h-full rounded-full bg-blue-500 origin-left"
+            className="h-full rounded-full bg-info origin-left"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: inView ? matchRatio : 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -183,15 +183,15 @@ function HelixDecor({ color }) {
 }
 
 function pctColor(acc) {
-  if (acc >= 0.7) return '#10B981'
-  if (acc >= 0.5) return '#FBBF24'
-  return '#FB7185'
+  if (acc >= 0.7) return 'var(--success)'
+  if (acc >= 0.5) return 'var(--warning)'
+  return 'var(--destructive)'
 }
 
 function arcColor(score) {
-  if (score >= 8) return '#10B981'
-  if (score >= 5) return '#F59E0B'
-  return '#FB7185'
+  if (score >= 8) return 'var(--success)'
+  if (score >= 5) return 'var(--warning)'
+  return 'var(--destructive)'
 }
 
 function scoreLabel(score) {
@@ -209,9 +209,9 @@ function formatTime(seconds) {
 }
 
 function topicVerdict(acc) {
-  if (acc >= 0.7) return { text: '✓ Tốt', color: '#10B981', cls: 'bg-success/5 border border-success/20' }
-  if (acc >= 0.5) return { text: '⚠ Cần ôn', color: '#FBBF24', cls: 'bg-primary/5 border border-primary/20' }
-  return { text: '✗ Yếu', color: '#FB7185', cls: 'bg-destructive/5 border border-destructive/20' }
+  if (acc >= 0.7) return { text: '✓ Tốt', color: 'var(--success)', cls: 'bg-success/5 border border-success/20' }
+  if (acc >= 0.5) return { text: '⚠ Cần ôn', color: 'var(--warning)', cls: 'bg-primary/5 border border-primary/20' }
+  return { text: '✗ Yếu', color: 'var(--destructive)', cls: 'bg-destructive/5 border border-destructive/20' }
 }
 
 function addToReviewQueue(examId, answers, questions, uid) {
@@ -703,7 +703,8 @@ export default function Results({ onOpenAuth }) {
   const color = arcColor(score)
 
   const TABS = [
-    { id: 'overview', label: 'Tổng quan' },
+    { id: 'overview', label: 'Kết quả' },
+    { id: 'ai', label: 'Phân tích AI' },
     { id: 'wrong', label: wrongCount > 0 ? `Câu sai (${wrongCount})` : 'Câu sai' },
     { id: 'schools', label: 'Trường phù hợp' },
     { id: 'plan', label: 'Kế hoạch', loading: studyPlanLoading && !planReady },
@@ -763,9 +764,9 @@ export default function Results({ onOpenAuth }) {
 
       {streakRecovered && (
         <div className="relative z-10 max-w-3xl mx-auto w-full px-4 pt-4">
-          <div className="rounded-xl px-4 py-3 flex items-center gap-3 bg-orange-500/10 border border-orange-500/50">
+          <div className="rounded-xl px-4 py-3 flex items-center gap-3 bg-accent/10 border border-accent/50">
             <span>🔥</span>
-            <p className="text-sm font-semibold text-orange-400">
+            <p className="text-sm font-semibold text-[var(--accent)]">
               Streak khôi phục! Bạn đã làm 2 bài hôm nay — streak của bạn tiếp tục.
             </p>
           </div>
@@ -844,7 +845,7 @@ export default function Results({ onOpenAuth }) {
                   className="flex flex-col gap-0.5"
                 >
                   <span className="font-sans text-[0.6875rem] text-faint">So bài trước</span>
-                  <span className="font-sans text-[15px] font-semibold" style={{ color: overallDelta > 0 ? '#10B981' : overallDelta < 0 ? '#FB7185' : '#64748B' }}>
+                  <span className="font-sans text-[15px] font-semibold" style={{ color: overallDelta > 0 ? 'var(--success)' : overallDelta < 0 ? 'var(--destructive)' : 'var(--muted-fg)' }}>
                     {overallDelta > 0 ? '+' : ''}{overallDelta.toFixed(1)}
                   </span>
                 </motion.div>
@@ -902,7 +903,7 @@ export default function Results({ onOpenAuth }) {
             <div className="flex items-center gap-4 px-5 py-4 rounded-xl glass-base">
               <div className="flex flex-col gap-0.5 min-w-[110px]">
                 <span className="font-sans text-[0.6875rem] text-faint">Xu hướng ({sorted.length} lần thi)</span>
-                <span className="font-sans text-[0.8125rem] font-semibold" style={{ color: diff >= 0 ? '#10B981' : '#FB7185' }}>
+                <span className="font-sans text-[0.8125rem] font-semibold" style={{ color: diff >= 0 ? 'var(--success)' : 'var(--destructive)' }}>
                   {diff >= 0 ? '+' : ''}{diff.toFixed(1)} so với lần trước
                 </span>
               </div>
@@ -911,11 +912,11 @@ export default function Results({ onOpenAuth }) {
                   <LineChart data={chartData}>
                     <XAxis dataKey="n" hide />
                     <Tooltip
-                      contentStyle={{ background: 'rgba(13,18,33,0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }}
+                      contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
                       formatter={v => [v.toFixed(1), 'Điểm']}
                       labelFormatter={n => `Lần ${n}`}
                     />
-                    <Line type="monotone" dataKey="s" stroke="#818CF8" strokeWidth={2} dot={{ r: 3, fill: '#818CF8' }} />
+                    <Line type="monotone" dataKey="s" stroke="var(--info)" strokeWidth={2} dot={{ r: 3, fill: 'var(--info)' }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -929,7 +930,7 @@ export default function Results({ onOpenAuth }) {
             <div className="flex flex-col gap-0.5">
               <span className="font-sans text-xs text-dim">So với {challengerData.name}</span>
               <span className="font-sans text-[0.8125rem] font-semibold" style={{
-                color: (result.score ?? 0) >= challengerData.score ? '#10B981' : '#FB7185'
+                color: (result.score ?? 0) >= challengerData.score ? 'var(--success)' : 'var(--destructive)'
               }}>
                 {(result.score ?? 0) >= challengerData.score ? '🏆 Bạn thắng! ' : '💪 Cố lên! '}
                 Bạn: {(result.score ?? 0).toFixed(1)} · {challengerData.name}: {challengerData.score.toFixed(1)}
@@ -955,12 +956,12 @@ export default function Results({ onOpenAuth }) {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className="relative px-4 py-2.5 font-sans text-[0.8125rem] font-medium transition-colors flex items-center gap-1"
-              style={{ color: activeTab === tab.id ? 'var(--primary)' : '#64748B' }}
+              style={{ color: activeTab === tab.id ? 'var(--primary)' : 'var(--muted-fg)' }}
             >
               {tab.label}
               {tab.loading && (
                 <span className="ml-1 inline-block w-3 h-3 rounded-full border-2 animate-spin flex-shrink-0"
-                  style={{ borderColor: '#818CF8', borderTopColor: 'transparent' }} />
+                  style={{ borderColor: 'var(--info)', borderTopColor: 'transparent' }} />
               )}
               {activeTab === tab.id && (
                 <motion.div
@@ -979,77 +980,58 @@ export default function Results({ onOpenAuth }) {
             {/* Hồ sơ năng lực */}
             <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-6">
               <span className="font-sans text-[16px] font-semibold text-foreground">Hồ sơ năng lực</span>
-              <motion.div
-                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-                variants={_listVariants} initial="hidden" animate="visible"
-              >
-                {topics.map(([topic, tb]) => {
-                  const verdict = topicVerdict(tb.accuracy)
-                  return (
-                    <motion.div key={topic} variants={_itemVariants}
-                      className={`flex flex-col gap-2 px-4 py-3 rounded-xl ${verdict.cls}`}>
-                      <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{getTopicLabel(topic)}</span>
-                      <span className="font-sans text-xs text-dim">{tb.correct}/{tb.total} · {Math.round(tb.accuracy * 100)}%</span>
-                      <span className="font-sans text-[0.6875rem] font-bold" style={{ color: verdict.color }}>{verdict.text}</span>
-                    </motion.div>
-                  )
-                })}
-              </motion.div>
+              {topics.length >= 3 ? (
+                <>
+                  <ResponsiveContainer width="100%" height={240}>
+                    <RadarChart data={radarData} outerRadius={85} margin={{ top: 8, right: 24, bottom: 8, left: 24 }}>
+                      <PolarGrid stroke="var(--border)" strokeOpacity={0.8} />
+                      <PolarAngleAxis
+                        dataKey="topic"
+                        tick={{ fontSize: topics.length > 8 ? 9 : 10, fill: 'var(--muted-fg)', fontFamily: 'Be Vietnam Pro, sans-serif' }}
+                      />
+                      <Radar
+                        dataKey="score"
+                        stroke="var(--primary)"
+                        fill="var(--primary)"
+                        fillOpacity={0.18}
+                        strokeWidth={1.5}
+                        dot={{ fill: 'var(--primary)', r: 3 }}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                    {topics.map(([topic, tb]) => {
+                      const pct = Math.round(tb.accuracy * 100)
+                      const color = pct >= 70 ? 'var(--success)' : pct >= 50 ? 'var(--warning)' : 'var(--destructive)'
+                      return (
+                        <div key={topic} className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
+                          <span className="font-sans text-[0.75rem] text-dim truncate flex-1">{getTopicLabel(topic)}</span>
+                          <span className="font-sans text-[0.75rem] font-semibold tabular-nums" style={{ color }}>{pct}%</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </>
+              ) : topics.length > 0 ? (
+                <motion.div
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                  variants={_listVariants} initial="hidden" animate="visible"
+                >
+                  {topics.map(([topic, tb]) => {
+                    const verdict = topicVerdict(tb.accuracy)
+                    return (
+                      <motion.div key={topic} variants={_itemVariants}
+                        className={`flex flex-col gap-2 px-4 py-3 rounded-xl ${verdict.cls}`}>
+                        <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{getTopicLabel(topic)}</span>
+                        <span className="font-sans text-xs text-dim">{tb.correct}/{tb.total} · {Math.round(tb.accuracy * 100)}%</span>
+                        <span className="font-sans text-[0.6875rem] font-bold" style={{ color: verdict.color }}>{verdict.text}</span>
+                      </motion.div>
+                    )
+                  })}
+                </motion.div>
+              ) : null}
             </div>
-
-            {/* AI Insights */}
-            <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
-              <div className="flex items-center justify-between">
-                <span className="font-sans text-[16px] font-semibold text-gradient-aurora">Phân tích AI</span>
-                {isPaidUser
-                  ? <span className="font-sans text-[0.6875rem] text-emerald-400/80">Miễn phí</span>
-                  : <span className="font-sans text-[0.6875rem] text-[var(--accent)]/70">⚡3 credits</span>
-                }
-              </div>
-              {/* Streaming progress bar */}
-              {analysis?._streaming && !analysis?._streaming_done && (
-                <div className="h-0.5 w-full rounded-full bg-border overflow-hidden -mb-2">
-                  <motion.div
-                    className="h-full rounded-full bg-blue-500/60"
-                    initial={{ width: '5%' }}
-                    animate={{ width: '85%' }}
-                    transition={{ duration: 12, ease: 'easeOut' }}
-                  />
-                </div>
-              )}
-              <AIErrorBoundary>
-                <AIInsights analysis={analysis} loading={aiLoading && !analysis?._streaming} error={aiError} score={score} />
-              </AIErrorBoundary>
-            </div>
-
-            {/* Post-analysis practice nudge — appears when stream completes */}
-            {analysis?._streaming_done && !practiceNudgeDismissed && user && (analysis?.weak_topics ?? []).length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.25, delay: 0.3 }}
-                className="flex items-center justify-between gap-3 px-5 py-3.5 rounded-xl border border-info/30 bg-info/5"
-              >
-                <p className="font-sans text-[13px] text-foreground min-w-0">
-                  Bạn muốn ôn ngay <strong className="text-info">{getTopicLabel(analysis.weak_topics[0])}</strong> không?
-                </p>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => { setPracticeNudgeDismissed(true); navigate(`/practice/adaptive?topic=${analysis.weak_topics[0]}`) }}
-                    className="px-3 py-1.5 rounded-lg font-sans text-xs font-bold bg-info text-background hover:opacity-90 transition"
-                  >
-                    Ôn ngay →
-                  </button>
-                  <button
-                    onClick={() => setPracticeNudgeDismissed(true)}
-                    className="font-sans text-xs text-dim hover:text-muted transition"
-                  >
-                    Để sau
-                  </button>
-                </div>
-              </motion.div>
-            )}
 
             {/* Next exam recommendation */}
             {nextExam && (
@@ -1095,6 +1077,13 @@ export default function Results({ onOpenAuth }) {
 
             {/* Navigation shortcuts — compact chip row */}
             <div className="flex flex-wrap gap-2 pt-1">
+              <button onClick={() => setActiveTab('ai')}
+                className="px-3 py-1.5 rounded-lg border border-primary/30 bg-primary/5 font-sans text-xs text-primary hover:border-primary hover:bg-primary/10 transition flex items-center gap-1.5">
+                {analysis?._streaming && !analysis?._streaming_done
+                  ? <span className="w-2.5 h-2.5 rounded-full border border-primary/40 border-t-primary animate-spin flex-shrink-0" />
+                  : <span>✦</span>}
+                Phân tích AI →
+              </button>
               {wrongCount > 0 && (
                 <button onClick={() => setActiveTab('wrong')}
                   className="px-3 py-1.5 rounded-lg border border-border font-sans text-xs text-muted hover:border-faint hover:text-foreground transition flex items-center gap-1.5">
@@ -1123,6 +1112,65 @@ export default function Results({ onOpenAuth }) {
                 Thi lại
               </button>
             </div>
+          </motion.div>
+        )}
+
+        {/* ── Tab: Phân tích AI ── */}
+        {activeTab === 'ai' && (
+          <motion.div key="ai" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
+            {/* AI Insights */}
+            <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
+              <div className="flex items-center justify-between">
+                <span className="font-sans text-[16px] font-semibold text-gradient-aurora">Phân tích AI</span>
+                {isPaidUser
+                  ? <span className="font-sans text-[0.6875rem] text-success/80">Miễn phí</span>
+                  : <span className="font-sans text-[0.6875rem] text-[var(--accent)]/70">⚡3 credits</span>
+                }
+              </div>
+              {/* Streaming progress bar */}
+              {analysis?._streaming && !analysis?._streaming_done && (
+                <div className="h-0.5 w-full rounded-full bg-border overflow-hidden -mb-2">
+                  <motion.div
+                    className="h-full rounded-full bg-info/60"
+                    initial={{ width: '5%' }}
+                    animate={{ width: '85%' }}
+                    transition={{ duration: 12, ease: 'easeOut' }}
+                  />
+                </div>
+              )}
+              <AIErrorBoundary>
+                <AIInsights analysis={analysis} loading={aiLoading && !analysis?._streaming} error={aiError} score={score} />
+              </AIErrorBoundary>
+            </div>
+
+            {/* Post-analysis practice nudge — appears when stream completes */}
+            {analysis?._streaming_done && !practiceNudgeDismissed && user && (analysis?.weak_topics ?? []).length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.25, delay: 0.3 }}
+                className="flex items-center justify-between gap-3 px-5 py-3.5 rounded-xl border border-info/30 bg-info/5"
+              >
+                <p className="font-sans text-[13px] text-foreground min-w-0">
+                  Bạn muốn ôn ngay <strong className="text-info">{getTopicLabel(analysis.weak_topics[0])}</strong> không?
+                </p>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => { setPracticeNudgeDismissed(true); navigate(`/practice/adaptive?topic=${analysis.weak_topics[0]}`) }}
+                    className="px-3 py-1.5 rounded-lg font-sans text-xs font-bold bg-info text-background hover:opacity-90 transition"
+                  >
+                    Ôn ngay →
+                  </button>
+                  <button
+                    onClick={() => setPracticeNudgeDismissed(true)}
+                    className="font-sans text-xs text-dim hover:text-muted transition"
+                  >
+                    Để sau
+                  </button>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         )}
 
@@ -1169,7 +1217,7 @@ export default function Results({ onOpenAuth }) {
                                     const chosen = answers[q.id] ?? null
                                     const isCorrect = i === q.correct
                                     const isChosen = i === chosen
-                                    const bg = isCorrect ? 'rgba(16, 185, 129, 0.08)' : isChosen ? 'rgba(251, 113, 133, 0.08)' : 'var(--surface-elevated)'
+                                    const bg = isCorrect ? 'color-mix(in srgb, var(--success) 8%, transparent)' : isChosen ? 'color-mix(in srgb, var(--destructive) 8%, transparent)' : 'var(--surface-elevated)'
                                     const borderColor = isCorrect ? 'var(--success)' : isChosen ? 'var(--destructive)' : 'var(--border)'
                                     const labelColor = isCorrect ? 'var(--success)' : isChosen ? 'var(--destructive)' : 'var(--faint)'
                                     const textColor = isCorrect ? 'var(--success)' : isChosen ? 'var(--destructive)' : 'var(--dim)'
@@ -1334,7 +1382,7 @@ export default function Results({ onOpenAuth }) {
                 <div className="flex flex-col gap-4">
                   {schoolFitList.map(school => {
                     const prob = school.prob
-                    const barColor = prob >= 70 ? '#10B981' : prob >= 40 ? '#F59E0B' : '#FB7185'
+                    const barColor = prob >= 70 ? 'var(--success)' : prob >= 40 ? 'var(--warning)' : 'var(--destructive)'
                     return (
                       <div key={school.id} className="flex flex-col gap-1.5">
                         <div className="flex items-center justify-between">
@@ -1437,7 +1485,7 @@ export default function Results({ onOpenAuth }) {
                             <div className="w-full rounded-t"
                               style={{
                                 height: `${Math.max(4, accuracy * 0.6)}px`,
-                                background: accuracy >= 70 ? '#34D399' : accuracy >= 40 ? '#F59E0B' : '#FB7185',
+                                background: accuracy >= 70 ? 'var(--success)' : accuracy >= 40 ? 'var(--warning)' : 'var(--destructive)',
                                 minHeight: 4,
                               }} />
                             <span className="font-sans text-[9px] text-faint text-center leading-tight">{week}</span>

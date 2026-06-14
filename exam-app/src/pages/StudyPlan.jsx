@@ -46,7 +46,7 @@ function CheckpointBar({ target, current }) {
       <div className="h-1.5 bg-surface rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full${shouldAnimate ? ' transition-[width] duration-[250ms] ease-linear' : ''}`}
-          style={{ width: `${pct * 100}%`, background: pct >= 1 ? '#10B981' : 'linear-gradient(90deg, #F2A20C, #10B981)' }}
+          style={{ width: `${pct * 100}%`, background: pct >= 1 ? 'var(--success)' : 'linear-gradient(90deg, var(--accent), var(--success))' }}
         />
       </div>
       {pct >= 1 && (
@@ -268,7 +268,7 @@ export default function StudyPlan() {
                 })
               }}
               className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-semibold text-background"
-              style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
+              style={{ background: 'linear-gradient(180deg, var(--accent) 0%, var(--warning) 100%)' }}
             >
               Thử lại
             </button>
@@ -280,7 +280,7 @@ export default function StudyPlan() {
               <div className="flex items-center gap-2 mb-2">
                 <span className="font-sans text-[11px] font-bold tracking-[2px] uppercase text-primary">Mục tiêu</span>
               </div>
-              <p className="font-sans text-[17px] font-semibold text-foreground leading-snug">
+              <p className="font-display text-[17px] font-semibold text-foreground leading-snug">
                 {plan.score_gap}
               </p>
             </div>

@@ -107,7 +107,7 @@ export default function ExtendedOnboarding({ onDone }) {
             onClick={() => handleSubmit(false)}
             disabled={saving}
             className="flex-1 py-2.5 rounded-xl font-sans text-[13px] font-bold text-background transition disabled:opacity-60"
-            style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
+            style={{ background: 'linear-gradient(180deg, var(--accent) 0%, var(--warning) 100%)' }}
           >
             {saving ? 'Đang lưu...' : 'Bắt đầu →'}
           </button>

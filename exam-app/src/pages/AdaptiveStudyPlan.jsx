@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useHistory } from '../context/HistoryContext.jsx'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext.jsx'
 import { getAdaptiveStudyPlan } from '../api/aiClient.js'
@@ -188,6 +189,8 @@ export default function AdaptiveStudyPlan() {
   usePageMeta('Kế hoạch học thích nghi', { noindex: true })
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { results } = useHistory()
+  const latestResult = results.length > 0 ? results[results.length - 1] : null
   const [plan, setPlan] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -213,12 +216,22 @@ export default function AdaptiveStudyPlan() {
           ← Quay lại
         </button>
         <span className="font-sans text-[15px] font-bold text-foreground">Kế hoạch học thích nghi</span>
-        <button
-          onClick={() => navigate('/progress')}
-          className="font-sans text-[12px] text-dim hover:text-muted transition"
-        >
-          Bản đồ
-        </button>
+        <div className="flex items-center gap-2">
+          {latestResult && (
+            <button
+              onClick={() => navigate(`/study-plan/${latestResult.id}`)}
+              className="font-sans text-[11px] font-semibold text-[var(--accent)] hover:text-[var(--accent)]/80 transition"
+            >
+              Cập nhật từ bài thi mới nhất →
+            </button>
+          )}
+          <button
+            onClick={() => navigate('/progress')}
+            className="font-sans text-[12px] text-dim hover:text-muted transition"
+          >
+            Bản đồ
+          </button>
+        </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 pt-6 flex flex-col gap-6">
@@ -323,7 +336,7 @@ export default function AdaptiveStudyPlan() {
                 <button
                   onClick={() => navigate('/review')}
                   className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-bold text-background"
-                  style={{ background: 'linear-gradient(180deg, #F2A20C 0%, #D97706 100%)' }}
+                  style={{ background: 'linear-gradient(180deg, var(--accent) 0%, var(--warning) 100%)' }}
                 >
                   Bắt đầu ôn tập
                 </button>

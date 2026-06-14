@@ -52,12 +52,12 @@ def _global_rate_limit_bypass():
     import app.middleware as mw
     saved = (
         mw._IP_LIMIT, mw._USER_LIMIT, mw._HINT_RAPID_LIMIT,
-        mw._AUTH_LIMIT, mw._ADMIN_IP_LIMIT, mw._ADMIN_FAIL_LIMIT,
+        mw._ADMIN_IP_LIMIT, mw._ADMIN_FAIL_LIMIT,
     )
     mw._IP_LIMIT = mw._USER_LIMIT = mw._HINT_RAPID_LIMIT = 100_000
-    mw._AUTH_LIMIT = mw._ADMIN_IP_LIMIT = mw._ADMIN_FAIL_LIMIT = 100_000
+    mw._ADMIN_IP_LIMIT = mw._ADMIN_FAIL_LIMIT = 100_000
     yield
     (
         mw._IP_LIMIT, mw._USER_LIMIT, mw._HINT_RAPID_LIMIT,
-        mw._AUTH_LIMIT, mw._ADMIN_IP_LIMIT, mw._ADMIN_FAIL_LIMIT,
+        mw._ADMIN_IP_LIMIT, mw._ADMIN_FAIL_LIMIT,
     ) = saved

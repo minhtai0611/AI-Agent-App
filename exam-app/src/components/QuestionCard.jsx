@@ -259,7 +259,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
 
       {/* Struggle support — shown after 2 consecutive wrong across questions */}
       {practiceMode && !submitted && showFeedback && !isCorrect && wrongStreak >= 2 && (
-        <div className="mt-3 px-4 py-3 rounded-xl glass-base border-[var(--info)]" style={{ borderColor: 'rgba(37,99,235,0.2)' }}>
+        <div className="mt-3 px-4 py-3 rounded-xl glass-base border-info/20">
           <p className="font-sans text-xs text-[var(--info)] leading-relaxed" style={{ opacity: 0.8 }}>
             Bài này khó với nhiều học sinh. Xem giải thích hoặc hỏi Oracle để hiểu rõ hơn.
           </p>
@@ -321,8 +321,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
           {(hintCount >= 2 || wrongStreak >= 2) && (
             <button
               onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
-              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--info)] bg-[var(--surface-elevated)] font-sans text-xs font-semibold text-[var(--info)] hover:bg-[var(--surface)] transition"
-              style={{ borderColor: 'rgba(37,99,235,0.3)', background: 'rgba(37,99,235,0.05)' }}
+              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-info/30 bg-info/5 font-sans text-xs font-semibold text-[var(--info)] hover:bg-[var(--surface)] transition"
             >
               <span className="text-[0.625rem]">✦</span> Vẫn chưa hiểu — Hỏi Zenith AI
             </button>

@@ -1270,6 +1270,8 @@ def _ndjson_find_field(buf: str, field: str, ftype: str):
         return buf[array_start:], False
 
 
+_ANALYZE_MAX_TOKENS = 4000   # raised from 2500; AI typically uses 1200–2000 tokens
+
 _NDJSON_FIELDS = [
     ("insights",          "string"),
     ("question_analysis", "string"),
@@ -1323,7 +1325,7 @@ async def analyze_stream(
         try:
             stream = await client.chat.completions.create(
                 model=settings.default_model,
-                max_tokens=2500,
+                max_tokens=_ANALYZE_MAX_TOKENS,
                 messages=[
                     {"role": "system", "content": STATIC_EXAM_ANALYSIS_INSTRUCTIONS},
                     {"role": "user", "content": prompt},
@@ -1356,7 +1358,7 @@ async def analyze_stream(
             yield json.dumps({"error": str(exc)}) + "\n"
         finally:
             for fname, _ in _NDJSON_FIELDS:
-                if fname in cursors and fname not in done_fields:
+                if fname not in done_fields:
                     yield json.dumps({"field": fname, "chunk": "", "done": True}) + "\n"
 
     return StreamingResponse(ndjson_stream(), media_type="application/x-ndjson",

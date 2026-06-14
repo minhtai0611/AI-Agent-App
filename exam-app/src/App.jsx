@@ -39,6 +39,7 @@ const DiagnosticTest = lazy(() => import('./pages/DiagnosticTest.jsx'))
 const GenerateExam = lazy(() => import('./pages/GenerateExam.jsx'))
 const Progress = lazy(() => import('./pages/Progress.jsx'))
 const AdaptiveStudyPlan = lazy(() => import('./pages/AdaptiveStudyPlan.jsx'))
+const Learn = lazy(() => import('./pages/Learn.jsx'))
 const Placement = lazy(() => import('./pages/Placement.jsx'))
 const ConceptMap = lazy(() => import('./pages/ConceptMap.jsx'))
 const ErrorAnalysis = lazy(() => import('./pages/ErrorAnalysis.jsx'))
@@ -51,8 +52,8 @@ const PageFallback = () => <div className="min-h-screen bg-background" />
 function SuspensionModal({ reason, onLogout }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
-      <div className="max-w-sm w-full bg-surface border border-red-500/40 rounded-2xl p-8 flex flex-col gap-5 text-center">
-        <span className="text-red-400 text-4xl">⚠</span>
+      <div className="max-w-sm w-full bg-surface border border-destructive/40 rounded-2xl p-8 flex flex-col gap-5 text-center">
+        <span className="text-destructive text-4xl">⚠</span>
         <div className="flex flex-col gap-2">
           <span className="font-sans text-[18px] font-bold text-foreground">Tài khoản bị tạm khoá</span>
           {reason && <p className="font-sans text-[0.8125rem] text-muted">{reason}</p>}
@@ -168,7 +169,7 @@ function AppInner() {
         <SuspensionModal reason={user.suspension_reason} onLogout={logout} />
       )}
       {!isHiddenNavRoute && !showDeactivated && !showLocked && !showSuspension && showOnboarding && (
-        <ProfileOnboarding onDone={() => {}} />
+        <ProfileOnboarding onDone={() => { if (results.length === 0) navigate('/practice/diagnostic') }} />
       )}
       {!isHiddenNavRoute && !showDeactivated && !showLocked && !showSuspension && !showOnboarding && showExtendedOnboarding && (
         <ExtendedOnboarding onDone={() => {}} />
@@ -206,6 +207,7 @@ function AppInner() {
             <Route path="/oracle" element={<MathOracle />} />
             <Route path="/account" element={<Account />} />
             <Route path="/review" element={<ReviewSession />} />
+            <Route path="/learn" element={<Learn />} />
             <Route path="/mistakes" element={<Mistakes />} />
             {/* Learning routes — canonical paths */}
             <Route path="/practice" element={<AdaptivePractice />} />
@@ -226,9 +228,10 @@ function AppInner() {
             <Route path="/challenge" element={<ChallengeLanding />} />
             <Route path="/generate-exam" element={<GenerateExam />} />
             <Route path="/progress" element={<Progress />} />
-            <Route path="/study-plan/adaptive" element={<AdaptiveStudyPlan />} />
+            <Route path="/study-plan" element={<AdaptiveStudyPlan />} />
+            <Route path="/study-plan/adaptive" element={<Navigate to="/study-plan" replace />} />
             <Route path="/placement" element={<Placement />} />
-            <Route path="/error-analysis" element={<ErrorAnalysis />} />
+            <Route path="/error-analysis" element={<Navigate to="/mistakes?tab=trends" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           </AnimatePresence>

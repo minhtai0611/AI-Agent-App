@@ -14,7 +14,7 @@ function calcStrength(pw) {
 }
 
 const STRENGTH_LABELS = ['', 'Yếu', 'Trung bình', 'Mạnh', 'Rất mạnh']
-const STRENGTH_COLORS = ['', '#EF4444', '#F59E0B', '#22C55E', '#166534']
+const STRENGTH_COLORS = ['', 'var(--destructive)', 'var(--warning)', 'var(--success)', 'var(--primary)']
 
 function PasswordStrengthBar({ password }) {
   const strength = calcStrength(password)

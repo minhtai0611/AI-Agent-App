@@ -72,7 +72,7 @@ export default function Navbar({ onOpenAuth }) {
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 bg-[var(--bg)] border-b border-[var(--border)]"
+        className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 bg-[var(--background)] border-b border-[var(--border)]"
         style={{ height: 48 }}
       >
         {/* Left: Logo + authenticated nav links */}
@@ -87,8 +87,8 @@ export default function Navbar({ onOpenAuth }) {
                   onClick={() => go(link.path)}
                   className={`px-2.5 py-1.5 rounded-md font-sans text-[12px] transition-colors ${
                     isActive(link.path)
-                      ? 'text-[var(--fg)] font-semibold bg-[var(--surface)]'
-                      : 'text-[var(--fg-secondary)] hover:text-[var(--fg)] hover:bg-[var(--surface)]'
+                      ? 'text-[var(--foreground)] font-semibold bg-[var(--surface)]'
+                      : 'text-[var(--fg-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]'
                   }`}
                 >
                   {link.label}
@@ -191,7 +191,7 @@ export default function Navbar({ onOpenAuth }) {
 
       {/* Mobile sidebar drawer */}
       {menuOpen && (
-        <div className="sm:hidden fixed top-12 left-0 right-0 bottom-0 z-40 flex flex-col overflow-y-auto bg-[var(--bg)] border-t border-[var(--border)]">
+        <div className="sm:hidden fixed top-12 left-0 right-0 bottom-0 z-40 flex flex-col overflow-y-auto bg-[var(--background)] border-t border-[var(--border)]">
           {user ? (
             <>
               {/* User identity row */}
@@ -205,7 +205,7 @@ export default function Navbar({ onOpenAuth }) {
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="font-sans text-[13px] font-semibold text-[var(--fg)] truncate">
+                  <p className="font-sans text-[13px] font-semibold text-[var(--foreground)] truncate">
                     {user.custom_display_name || user.display_name}
                   </p>
                   {user.credits_balance != null && (
@@ -220,8 +220,8 @@ export default function Navbar({ onOpenAuth }) {
                   <button key={link.path} onClick={() => go(link.path)}
                     className={`flex items-center gap-3 px-3 py-3 rounded-xl text-left font-sans text-[14px] transition-colors ${
                       isActive(link.path)
-                        ? 'bg-[var(--surface)] text-[var(--fg)] font-semibold'
-                        : 'text-[var(--fg-secondary)] hover:text-[var(--fg)] hover:bg-[var(--surface)]'
+                        ? 'bg-[var(--surface)] text-[var(--foreground)] font-semibold'
+                        : 'text-[var(--fg-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]'
                     }`}>
                     <span className="w-5 text-center text-[15px] flex-shrink-0 opacity-70">{link.icon}</span>
                     {link.label}
@@ -247,7 +247,7 @@ export default function Navbar({ onOpenAuth }) {
               <div className="mt-auto px-3 pb-6">
                 <div className="border-t border-[var(--border)] my-1" />
                 <button onClick={() => go('/account')}
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl text-left font-sans text-[14px] text-[var(--fg-secondary)] hover:text-[var(--fg)] hover:bg-[var(--surface)] transition-colors w-full">
+                  className="flex items-center gap-3 px-3 py-3 rounded-xl text-left font-sans text-[14px] text-[var(--fg-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors w-full">
                   <span className="w-5 text-center opacity-70">⚙</span>
                   Tài khoản
                 </button>
@@ -260,7 +260,7 @@ export default function Navbar({ onOpenAuth }) {
             </>
           ) : (
             <div className="flex flex-col px-3 py-4 gap-1">
-              <button onClick={() => go('/exams')} className="flex items-center gap-3 px-3 py-3 rounded-xl text-left font-sans text-[14px] text-[var(--fg)] hover:bg-[var(--surface)] transition">
+              <button onClick={() => go('/exams')} className="flex items-center gap-3 px-3 py-3 rounded-xl text-left font-sans text-[14px] text-[var(--foreground)] hover:bg-[var(--surface)] transition">
                 <span className="w-5 text-center opacity-70">📋</span>
                 Bài thi
               </button>

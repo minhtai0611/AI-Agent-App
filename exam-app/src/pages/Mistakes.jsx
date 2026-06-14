@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts'
 import { useHistory } from '../context/HistoryContext'
 import { useAuth } from '../context/AuthContext'
 import { loadQuestions } from '../api/index.js'
-import { getExplanation, classifyError } from '../api/aiClient'
+import { getExplanation, classifyError, analyzeErrorPatterns } from '../api/aiClient'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import Markdown from 'react-markdown'
 import remarkMath from 'remark-math'
@@ -31,6 +32,42 @@ const AI_CATEGORY_META = {
   procedural_slip:   { label: 'Sai quy trình',     color: '#818CF8' },
   conceptual_gap:    { label: 'Lỗ hổng khái niệm', color: '#60A5FA' },
   calculation:       { label: 'Tính toán sai',     color: '#34D399' },
+}
+
+// ── Error trend helpers ────────────────────────────────────────────────────
+const ERROR_TYPES_TREND = [
+  { id: 'sign_error',        label: 'Sai dấu',           color: '#FB7185' },
+  { id: 'formula_confusion', label: 'Nhầm công thức',    color: '#F2A20C' },
+  { id: 'procedural_slip',   label: 'Sai quy trình',     color: '#818CF8' },
+  { id: 'conceptual_gap',    label: 'Lỗ hổng khái niệm', color: '#60A5FA' },
+  { id: 'calculation',       label: 'Tính toán sai',     color: '#34D399' },
+]
+const TOPIC_VI_TREND = {
+  algebra: 'Đại số', geometry: 'Hình học', calculus: 'Giải tích',
+  trigonometry: 'Lượng giác', statistics: 'Thống kê', probability: 'Xác suất',
+  combinatorics: 'Tổ hợp', number_theory: 'Số học', functions_and_graphs: 'Hàm số',
+}
+function aggregateLocalErrors(results) {
+  const now = Date.now(); const WEEK_MS = 7 * 86400_000; const λ = 0.15; const agg = {}
+  for (const r of results) {
+    const w = Math.exp(-λ * Math.max(0, (now - new Date(r.timestamp || r.created_at || 0).getTime()) / WEEK_MS))
+    for (const [topic, data] of Object.entries(r.topicBreakdown || {})) {
+      const wrong = (data.total || 0) - (data.correct || 0); if (wrong <= 0) continue
+      if (!agg[topic]) agg[topic] = {}
+      agg[topic]['procedural_slip'] = (agg[topic]['procedural_slip'] || 0) + wrong * w * 0.4
+      agg[topic]['conceptual_gap']  = (agg[topic]['conceptual_gap']  || 0) + wrong * w * 0.3
+      agg[topic]['calculation']     = (agg[topic]['calculation']     || 0) + wrong * w * 0.3
+    }
+  }
+  return Object.entries(agg)
+    .map(([topic, byType]) => ({ topic, total: Object.values(byType).reduce((s, v) => s + v, 0), ...byType }))
+    .filter(d => d.total > 0.1).sort((a, b) => b.total - a.total).slice(0, 12)
+}
+function buildTrendRadarData(aggregates) {
+  const totals = {}
+  for (const d of aggregates) for (const et of ERROR_TYPES_TREND) totals[et.id] = (totals[et.id] || 0) + (d[et.id] || 0)
+  const max = Math.max(...Object.values(totals), 1)
+  return ERROR_TYPES_TREND.map(et => ({ type: et.label, value: Math.round((totals[et.id] || 0) / max * 100) }))
 }
 
 function loadTags() {
@@ -204,12 +241,37 @@ const PATTERN_THRESHOLD = 3  // repeated same wrong choice this many times = a p
 export default function Mistakes() {
   usePageMeta('Sổ tay sai lầm', { noindex: true })
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const { user } = useAuth()
   const { results } = useHistory()
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') === 'trends' ? 'trends' : 'recent')
   const [questions, setQuestions] = useState([])
   const [filterTopic, setFilterTopic] = useState(null)
   const [filterCategory, setFilterCategory] = useState(null)
   const [expandedTopics, setExpandedTopics] = useState({})
   const [aiCategories, setAiCategories] = useState(() => loadAiCategories())
+  const [trendAiData, setTrendAiData] = useState(null)
+  const [trendAiLoading, setTrendAiLoading] = useState(false)
+  const [trendAiError, setTrendAiError] = useState('')
+
+  const trendLocalAgg = useMemo(() => aggregateLocalErrors(results || []), [results])
+  const trendRadarData = useMemo(() => buildTrendRadarData(trendLocalAgg), [trendLocalAgg])
+  const trendBarData = trendAiData?.aggregates?.length
+    ? trendAiData.aggregates.map(a => ({ topic: a.concept_id, total: a.total, ...a.by_type }))
+    : trendLocalAgg
+
+  async function fetchTrendAI() {
+    if (!user?.id) return
+    setTrendAiLoading(true); setTrendAiError('')
+    const { data, error } = await analyzeErrorPatterns()
+    setTrendAiLoading(false)
+    if (error) { setTrendAiError(typeof error === 'string' ? error : 'Không thể phân tích lúc này.'); return }
+    if (data) setTrendAiData(data)
+  }
+
+  useEffect(() => {
+    if (activeTab === 'trends' && user?.id && results?.length >= 3 && !trendAiData) fetchTrendAI()
+  }, [activeTab, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     loadQuestions().then(setQuestions)
@@ -347,6 +409,22 @@ export default function Mistakes() {
           )}
         </div>
 
+        {/* Tab bar */}
+        <div className="flex border-b border-border mb-6">
+          {[
+            { id: 'recent', label: 'Câu sai gần đây' },
+            { id: 'trends', label: 'Xu hướng lỗi sai' },
+          ].map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-3 font-sans text-[0.8125rem] font-medium border-b-2 -mb-px transition ${
+                activeTab === tab.id ? 'border-primary text-primary' : 'border-transparent text-dim hover:text-muted'
+              }`}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {activeTab === 'recent' && (<>
         {/* Weekly AI category summary */}
         {weeklyCategorySummary.length > 0 && (
           <div className="mb-4 px-4 py-3 rounded-xl glass-base border border-surface flex flex-wrap items-center gap-2">
@@ -494,6 +572,105 @@ export default function Mistakes() {
           </div>
           )
         })}
+        </>)}
+
+        {/* ── Xu hướng lỗi sai ── */}
+        {activeTab === 'trends' && (
+          <div className="flex flex-col gap-6 pt-2">
+            {results.length < 3 ? (
+              <div className="flex flex-col items-center gap-3 py-16 text-center">
+                <span className="text-4xl">📊</span>
+                <span className="font-sans text-[18px] font-bold text-foreground">Cần thêm dữ liệu</span>
+                <p className="font-sans text-[13px] text-dim max-w-xs">Hoàn thành ít nhất 3 bài thi để xem xu hướng lỗi sai.</p>
+                <button onClick={() => navigate('/exams')}
+                  className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-bold bg-primary text-background">
+                  Vào thi ngay
+                </button>
+              </div>
+            ) : (<>
+              {/* Error DNA Radar */}
+              <div className="glass-base border border-surface rounded-2xl p-6">
+                <h2 className="font-sans text-[16px] font-bold text-foreground mb-1">DNA lỗi sai</h2>
+                <p className="font-sans text-[12px] text-dim mb-5">Hồ sơ loại lỗi từ toàn bộ lịch sử thi</p>
+                <ResponsiveContainer width="100%" height={260}>
+                  <RadarChart data={trendRadarData}>
+                    <PolarGrid stroke="var(--border)" />
+                    <PolarAngleAxis dataKey="type" tick={{ fontSize: 11, fill: 'var(--muted-fg)', fontFamily: 'Be Vietnam Pro, sans-serif' }} />
+                    <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+                    <Radar name="Bạn" dataKey="value" stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.25} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Bar chart */}
+              <div className="glass-base border border-surface rounded-2xl p-6">
+                <h2 className="font-sans text-[16px] font-bold text-foreground mb-1">Lỗi theo chủ đề</h2>
+                <p className="font-sans text-[12px] text-dim mb-5">Trọng số theo độ gần đây</p>
+                {trendBarData.length === 0 ? (
+                  <p className="font-sans text-[13px] text-dim text-center py-8">Chưa có dữ liệu.</p>
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={trendBarData} margin={{ left: -10 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                      <XAxis dataKey="topic" tickFormatter={t => TOPIC_VI_TREND[t] || t}
+                        tick={{ fontSize: 10, fill: 'var(--muted-fg)', fontFamily: 'Be Vietnam Pro, sans-serif' }}
+                        interval={0} angle={-35} textAnchor="end" height={55} />
+                      <YAxis tick={{ fontSize: 10, fill: 'var(--muted-fg)' }} />
+                      <Tooltip contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
+                        labelFormatter={t => TOPIC_VI_TREND[t] || t} />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      {ERROR_TYPES_TREND.map(et => (
+                        <Bar key={et.id} dataKey={et.id} name={et.label} stackId="a" fill={et.color}
+                          radius={et.id === 'calculation' ? [4, 4, 0, 0] : undefined} />
+                      ))}
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+
+              {/* AI Misconception report */}
+              <div className="glass-base border border-surface rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="font-sans text-[16px] font-bold text-foreground">Chẩn đoán AI</h2>
+                    <p className="font-sans text-[12px] text-dim mt-0.5">Top 3 hiểu lầm cốt lõi · ⚡2 credits</p>
+                  </div>
+                  {!trendAiData?.misconceptions?.length && !trendAiLoading && (
+                    <button onClick={fetchTrendAI}
+                      className="px-4 py-2 rounded-lg font-sans text-[12px] font-bold bg-primary text-background">
+                      Phân tích ngay
+                    </button>
+                  )}
+                </div>
+                {trendAiLoading && (
+                  <div className="flex items-center gap-2 py-6">
+                    <div className="w-4 h-4 border-2 border-primary/40 border-t-primary rounded-full animate-spin" />
+                    <span className="font-sans text-[13px] text-dim">AI đang phân tích lỗi sai của bạn...</span>
+                  </div>
+                )}
+                {trendAiError && <p className="font-sans text-[12px] text-destructive py-3">{trendAiError}</p>}
+                {trendAiData?.misconceptions?.length > 0 ? (
+                  <div className="flex flex-col gap-4">
+                    {trendAiData.misconceptions.map((m, i) => (
+                      <div key={i} className="flex gap-4 p-4 rounded-xl bg-surface border border-surface">
+                        <span className="text-2xl mt-0.5">{'🔍🧩🎯'[i]}</span>
+                        <div className="flex flex-col gap-1">
+                          <span className="font-sans text-[11px] font-bold text-[var(--accent)] uppercase tracking-wide">{m.concept || `Hiểu lầm ${i + 1}`}</span>
+                          <p className="font-sans text-[13px] text-foreground">{m.misconception}</p>
+                          <p className="font-sans text-[12px] text-dim">💡 {m.suggestion}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (!trendAiLoading && !trendAiError && (
+                  <p className="font-sans text-[13px] text-dim py-4 text-center">
+                    Nhấn "Phân tích ngay" để AI xác định hiểu lầm cốt lõi của bạn.
+                  </p>
+                ))}
+              </div>
+            </>)}
+          </div>
+        )}
       </div>
     </motion.div>
   )

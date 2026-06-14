@@ -145,6 +145,7 @@ export async function analyzeResultStream(payload, onUpdate, signal) {
   if (!_csrfToken) return { data: null, error: 'not authenticated', status: 401 }
   _deductRef?.(3)
 
+  const ARRAY_FIELDS = new Set(['weak_topics', 'recommendations', 'schools'])
   const fieldData = {}   // accumulated field text (raw)
   const pending = {}     // batched updates waiting for next RAF
   let rafId = null
@@ -193,14 +194,25 @@ export async function analyzeResultStream(payload, onUpdate, signal) {
           if (!field) continue
 
           if (isDone) {
-            // Field complete — try to JSON-decode string escape sequences
+            // Field complete — decode escape sequences for strings, parse JSON for arrays
             const raw = fieldData[field] ?? ''
             let final = raw
-            try { final = JSON.parse('"' + raw + '"') } catch { /* keep raw */ }
+            if (ARRAY_FIELDS.has(field)) {
+              try { final = JSON.parse(raw) } catch { /* keep as string */ }
+            } else {
+              try { final = JSON.parse('"' + raw + '"') } catch { /* keep raw */ }
+            }
             fieldData[field] = final
+            pending[field] = final
+            if (!rafId) rafId = requestAnimationFrame(flush)
           } else if (chunk) {
             fieldData[field] = (fieldData[field] ?? '') + chunk
-            pending[field] = fieldData[field]
+            const raw = fieldData[field]
+            let pendingValue = raw
+            if (ARRAY_FIELDS.has(field)) {
+              try { pendingValue = JSON.parse(raw) } catch { /* keep as string until complete */ }
+            }
+            pending[field] = pendingValue
             if (!rafId) rafId = requestAnimationFrame(flush)
           }
         } catch { /* ignore malformed line */ }
@@ -450,6 +462,9 @@ export const adminUnsuspendUser = (key, userId) =>
 
 export const adminGrantCredits = (key, userId, amount) =>
   wrap(adminClient.post(`/admin/users/${userId}/credits`, { amount }, { headers: { 'x-admin-key': key } }))
+
+export const adminSetSubscription = (key, userId, body) =>
+  wrap(adminClient.post(`/admin/users/${userId}/subscription`, body, { headers: { 'x-admin-key': key } }))
 
 export const adminGetSecurityEvents = (key) =>
   wrap(adminClient.get('/admin/security-events', { headers: { 'x-admin-key': key } }))

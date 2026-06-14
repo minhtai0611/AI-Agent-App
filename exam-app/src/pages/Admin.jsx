@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   adminListUsers, adminDeleteUser, adminUnlockUser, adminResetUser,
-  adminSuspendUser, adminUnsuspendUser, adminGrantCredits, adminGetSecurityEvents,
+  adminSuspendUser, adminUnsuspendUser, adminGrantCredits, adminSetSubscription, adminGetSecurityEvents,
   adminGetUserDevices, adminUpdateProfile,
 } from '../api/aiClient.js'
 import { PROVINCES } from '../data/provinces.js'
@@ -90,6 +90,106 @@ function StatusBadge({ user }) {
   if (user.is_suspended) return <span className="px-2 py-0.5 rounded-full font-sans text-[11px] font-bold bg-amber-500/20 text-[var(--accent)]">Tạm khoá</span>
   if (user.is_deactivated) return <span className="px-2 py-0.5 rounded-full font-sans text-[11px] font-bold bg-slate-500/20 text-slate-400">Tạm ngưng</span>
   return <span className="px-2 py-0.5 rounded-full font-sans text-[11px] font-bold bg-emerald-500/20 text-emerald-400">Hoạt động</span>
+}
+
+function SubscriptionModal({ user, adminKey, onClose, onDone }) {
+  const [tier, setTier] = useState(user.subscription_tier ?? 'basic')
+  const [period, setPeriod] = useState(user.subscription_period ?? 'monthly')
+  const [expiresAt, setExpiresAt] = useState('')
+  const [bonusCredits, setBonusCredits] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function submit() {
+    setLoading(true)
+    setError('')
+    const body = { tier, period, bonus_credits: Number(bonusCredits) }
+    if (expiresAt) body.expires_at = new Date(expiresAt).toISOString()
+    const { error: err } = await adminSetSubscription(adminKey, user.id, body)
+    setLoading(false)
+    if (err) { setError(typeof err === 'string' ? err : 'Cập nhật thất bại'); return }
+    onDone()
+    onClose()
+  }
+
+  const TIERS = [
+    { value: 'basic',    label: 'Basic' },
+    { value: 'student',  label: 'Student' },
+    { value: 'complete', label: 'Complete' },
+  ]
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+      <div className="max-w-sm w-full glass-base border border-surface rounded-2xl p-6 flex flex-col gap-4">
+        <span className="font-sans text-[15px] font-bold text-foreground">Thay đổi gói — {user.display_name || user.email}</span>
+        <p className="font-sans text-[11px] text-dim">Hiện tại: <span className="text-foreground font-semibold">{user.subscription_tier} / {user.subscription_period ?? 'monthly'}</span></p>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="font-sans text-[11px] font-semibold text-muted">Gói</span>
+          <div className="flex gap-2">
+            {TIERS.map(t => (
+              <button
+                key={t.value}
+                onClick={() => setTier(t.value)}
+                className={`flex-1 py-2 rounded-lg font-sans text-[12px] font-semibold border transition ${
+                  tier === t.value
+                    ? 'bg-primary text-background border-primary'
+                    : 'bg-surface border-surface text-muted hover:border-border'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="font-sans text-[11px] font-semibold text-muted">Chu kỳ</span>
+          <div className="flex gap-2">
+            {[['monthly', 'Tháng'], ['annual', 'Năm']].map(([v, l]) => (
+              <button
+                key={v}
+                onClick={() => setPeriod(v)}
+                className={`flex-1 py-2 rounded-lg font-sans text-[12px] font-semibold border transition ${
+                  period === v
+                    ? 'bg-primary text-background border-primary'
+                    : 'bg-surface border-surface text-muted hover:border-border'
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="font-sans text-[11px] font-semibold text-muted">Ngày hết hạn (tuỳ chọn)</span>
+          <input
+            type="date" value={expiresAt} onChange={e => setExpiresAt(e.target.value)}
+            min={new Date().toISOString().slice(0, 10)}
+            className="px-4 py-2.5 rounded-xl border border-surface bg-surface font-sans text-[13px] text-foreground focus:outline-none focus:border-[var(--accent-border)] [color-scheme:only_dark]"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="font-sans text-[11px] font-semibold text-muted">Credits thưởng (tuỳ chọn)</span>
+          <input
+            type="number" min="0" value={bonusCredits} onChange={e => setBonusCredits(e.target.value)}
+            className="px-4 py-2.5 rounded-xl border border-surface bg-surface font-sans text-[13px] text-foreground focus:outline-none focus:border-[var(--accent-border)]"
+            placeholder="0"
+          />
+        </div>
+
+        {error && <p className="font-sans text-[12px] text-destructive">{error}</p>}
+        <div className="flex gap-2">
+          <button onClick={submit} disabled={loading} className="flex-1 py-2 rounded-lg font-sans text-[13px] font-bold bg-primary text-background disabled:opacity-40">
+            {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
+          </button>
+          <button onClick={onClose} className="px-4 py-2 rounded-lg font-sans text-[13px] text-dim hover:text-foreground transition">Huỷ</button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function GrantCreditsModal({ user, adminKey, onClose, onDone }) {
@@ -383,6 +483,7 @@ function UserRow({ user, adminKey, onRefresh }) {
                 <button onClick={handleUnlock} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-emerald-400 hover:bg-surface transition">Mở khóa</button>
               )}
               <button onClick={() => { setModal('grant'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-muted hover:bg-surface transition">Tặng Credits</button>
+              <button onClick={() => { setModal('subscription'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-muted hover:bg-surface transition">Thay đổi gói</button>
               <button onClick={() => { setModal('editProfile'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-muted hover:bg-surface transition">Sửa hồ sơ</button>
               <button onClick={() => { setModal('devices'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-muted hover:bg-surface transition">Thiết bị</button>
               <div className="border-t border-surface" />
@@ -394,6 +495,7 @@ function UserRow({ user, adminKey, onRefresh }) {
       </div>
 
       {modal === 'grant' && <GrantCreditsModal user={user} adminKey={adminKey} onClose={() => setModal(null)} onDone={onRefresh} />}
+      {modal === 'subscription' && <SubscriptionModal user={user} adminKey={adminKey} onClose={() => setModal(null)} onDone={onRefresh} />}
       {modal === 'suspend' && <SuspendModal user={user} adminKey={adminKey} onClose={() => setModal(null)} onDone={onRefresh} />}
       {modal === 'reset' && <ResetModal user={user} adminKey={adminKey} onClose={() => setModal(null)} onDone={onRefresh} />}
       {modal === 'delete' && <DeleteUserModal user={user} adminKey={adminKey} onClose={() => setModal(null)} onDone={onRefresh} />}

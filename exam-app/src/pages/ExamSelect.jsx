@@ -59,7 +59,7 @@ export default function ExamSelect({ onOpenAuth }) {
   const [searchParams] = useSearchParams()
   const urlMode = searchParams.get('mode')
   const [mode, setMode] = useState(
-    ['practice', 'lab', 'study_plan'].includes(urlMode) ? urlMode : 'timed'
+    ['lab', 'study_plan'].includes(urlMode) ? urlMode : 'exams'
   )
   const [studyPlanTopics, setStudyPlanTopics] = useState([])
   const [studyPlanLoading, setStudyPlanLoading] = useState(false)
@@ -77,8 +77,12 @@ export default function ExamSelect({ onOpenAuth }) {
 
   useEffect(() => {
     if (mode === 'lab' || mode === 'study_plan') { setAllExams([]); return }
-    const fn = mode === 'timed' ? loadThiThuExams : loadExams
-    fn().then(data => setAllExams(data))
+    Promise.all([loadThiThuExams(), loadExams()]).then(([timedData, practiceData]) => {
+      setAllExams([
+        ...timedData.map(e => ({ ...e, _examType: 'timed' })),
+        ...practiceData.map(e => ({ ...e, _examType: 'practice' })),
+      ])
+    })
   }, [mode])
 
   // Study plan tab: read focus areas from most recent cached plan
@@ -222,18 +226,21 @@ export default function ExamSelect({ onOpenAuth }) {
     return lastTitle ? `Chào mừng trở lại! Tiếp tục từ ${lastTitle} →` : 'Chào mừng trở lại! Chọn một đề thi để tiếp tục.'
   }, [results])
 
-  async function handleStart(exam) {
+  async function handleStart(exam, startMode = 'timed') {
     if (!user) { onOpenAuth?.(); return }
     const questions = await loadQuestionsByIds(exam.questionIds, true)
-    dispatch({ type: 'START_EXAM', exam, questions, mode: mode === 'timed' ? 'timed' : 'practice' })
+    dispatch({ type: 'START_EXAM', exam, questions, mode: startMode })
     viewNavigate(navigate, `/test/${exam.id}`)
   }
 
-  const groups = GROUPS[mode] ?? []
+  const groups = [
+    ...GROUPS.timed.map(g => ({ ...g, source: 'timed' })),
+    ...GROUPS.practice.map(g => ({ ...g, source: 'practice' })),
+  ]
 
   function openPreview(exam) { setPreviewExam(exam) }
   function closePreview() { setPreviewExam(null) }
-  function confirmStart(exam) { closePreview(); handleStart(exam) }
+  function confirmStart(exam, startMode) { closePreview(); handleStart(exam, startMode) }
 
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
@@ -245,10 +252,9 @@ export default function ExamSelect({ onOpenAuth }) {
         </button>
         <div className="flex items-center gap-1 glass-base rounded-full p-1">
           {[
-            { value: 'timed',       label: 'Có thời gian' },
-            { value: 'practice',    label: 'Luyện tập' },
+            { value: 'exams',       label: 'Đề thi' },
             { value: 'study_plan',  label: '📋 Kế hoạch' },
-            { value: 'lab',         label: '⚗ Lab' },
+            { value: 'lab',         label: '⚗ Công cụ AI' },
           ].map(opt => (
             <button key={opt.value} onClick={() => setMode(opt.value)}
               className={`px-3 py-2 rounded-full font-sans text-xs transition ${
@@ -325,10 +331,10 @@ export default function ExamSelect({ onOpenAuth }) {
       {(ocrError || ocrQuestions) && (
         <div className={`mx-10 mt-4 px-5 py-4 rounded-xl flex items-center justify-between gap-4 ${ocrError ? 'bg-destructive/5 border border-destructive/25' : 'bg-success/5 border border-success/25'}`}>
           {ocrError ? (
-            <span className="font-sans text-[0.8125rem] text-red-400">{ocrError}</span>
+            <span className="font-sans text-[0.8125rem] text-destructive">{ocrError}</span>
           ) : (
             <>
-              <span className="font-sans text-[0.8125rem] text-emerald-400">
+              <span className="font-sans text-[0.8125rem] text-success">
                 ✓ Đọc được <strong>{ocrQuestions.length}</strong> câu hỏi từ ảnh
               </span>
               <button
@@ -347,7 +353,7 @@ export default function ExamSelect({ onOpenAuth }) {
       {/* Content */}
       <div className="flex flex-col gap-10 p-10">
         <div className="flex flex-col gap-2">
-          <h1 className="font-sans text-[36px] font-bold text-gradient-brand">Chọn đề thi</h1>
+          <h1 className="font-display text-[36px] font-bold text-gradient-brand">Chọn đề thi</h1>
           <p className="font-sans text-sm text-dim">{motivationalHeader}</p>
         </div>
 
@@ -380,7 +386,7 @@ export default function ExamSelect({ onOpenAuth }) {
                 <p className="font-sans text-xs text-muted max-w-xs">
                   Hoàn thành một bài thi và nhấn "Tạo Kế Hoạch" trên trang Kết quả để kích hoạt tính năng này.
                 </p>
-                <button onClick={() => setMode('timed')}
+                <button onClick={() => setMode('exams')}
                   className="px-5 py-2.5 rounded-xl font-sans text-sm font-bold bg-primary text-primary-fg">
                   Chọn đề thi →
                 </button>
@@ -442,8 +448,8 @@ export default function ExamSelect({ onOpenAuth }) {
             className="flex flex-col gap-6">
 
             <div className="flex flex-col gap-1">
-              <span className="font-sans text-[0.6875rem] font-bold tracking-[3px] uppercase text-faint">Công cụ thực nghiệm</span>
-              <p className="font-sans text-[0.8125rem] text-faint">AI-powered tools — khác với đề thi thật, dùng để khám phá và thực nghiệm</p>
+              <span className="font-sans text-[0.6875rem] font-bold tracking-[3px] uppercase text-faint">Công cụ AI</span>
+              <p className="font-sans text-[0.8125rem] text-faint">Toán Oracle · Tạo đề · Tải ảnh đề · Bản đồ khái niệm · Phân tích lỗi sai</p>
             </div>
 
             {/* Hero: Oracle */}
@@ -465,6 +471,24 @@ export default function ExamSelect({ onOpenAuth }) {
               </div>
               <span className="font-sans text-[0.8125rem] font-semibold flex-shrink-0 text-info">Mở Oracle →</span>
             </motion.button>
+
+            {/* OCR upload in lab */}
+            {user && user.subscription_tier !== 'basic' && (
+              <motion.button variants={cardVariants}
+                onClick={() => ocrInputRef.current?.click()}
+                disabled={ocrLoading}
+                className="w-full text-left rounded-2xl p-5 flex items-center gap-4 border border-info/20 bg-info/5 hover:border-info/40 transition disabled:opacity-50"
+              >
+                <span className="text-2xl">📷</span>
+                <div className="flex flex-col gap-0.5 flex-1">
+                  <span className="font-sans text-sm font-semibold text-foreground">
+                    {ocrLoading ? 'Đang đọc đề thi...' : 'Tải ảnh đề thi'}
+                  </span>
+                  <span className="font-sans text-xs text-dim">Chụp đề thi — AI nhận dạng và tạo bài ngay</span>
+                </div>
+                {ocrLoading && <span className="animate-spin text-info">⟳</span>}
+              </motion.button>
+            )}
 
             {/* Grid: secondary tools */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -530,8 +554,8 @@ export default function ExamSelect({ onOpenAuth }) {
           >
           {groups.map(group => {
             const categoryAllowed = !allowedCategories || allowedCategories.includes(group.category)
-            const groupExams = exams.filter(e => e.category === group.category)
-            const groupKey = group.category
+            const groupExams = exams.filter(e => e.category === group.category && e._examType === group.source)
+            const groupKey = group.category + (group.source ?? '')
             if (groupExams.length === 0) return null
             return (
               <motion.section key={groupKey + mode} variants={cardVariants}>
@@ -704,18 +728,26 @@ export default function ExamSelect({ onOpenAuth }) {
                   </div>
                 )
               })()}
-              <div className="flex gap-3 mt-1">
+              <div className="flex flex-col gap-2 mt-1">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => confirmStart(previewExam, 'timed')}
+                    className="flex-1 py-3 rounded-xl font-sans text-[0.8125rem] font-bold bg-primary text-primary-fg hover:opacity-90 transition"
+                  >
+                    ⏱ Thi thử
+                  </button>
+                  <button
+                    onClick={() => confirmStart(previewExam, 'practice')}
+                    className="flex-1 py-3 rounded-xl font-sans text-[0.8125rem] font-semibold border border-border text-foreground hover:border-primary/40 transition"
+                  >
+                    ✎ Ôn luyện
+                  </button>
+                </div>
                 <button
                   onClick={closePreview}
-                  className="flex-1 py-3 rounded-xl font-sans text-[0.8125rem] font-semibold border border-border text-muted hover:text-foreground transition"
+                  className="w-full py-2 rounded-xl font-sans text-[0.8125rem] text-faint hover:text-muted transition"
                 >
                   Huỷ
-                </button>
-                <button
-                  onClick={() => confirmStart(previewExam)}
-                  className="btn-primary flex-1 text-[0.8125rem] font-bold"
-                >
-                  Bắt đầu thi
                 </button>
               </div>
             </motion.div>

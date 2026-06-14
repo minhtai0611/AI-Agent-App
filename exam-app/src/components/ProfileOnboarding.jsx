@@ -132,7 +132,7 @@ export default function ProfileOnboarding({ onDone }) {
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             {/* Grade */}
             <div className="flex flex-col gap-2">
-              <label className="font-sans text-[0.8125rem] font-semibold text-muted">Lớp học <span className="text-red-400">*</span></label>
+              <label className="font-sans text-[0.8125rem] font-semibold text-muted">Lớp học <span className="text-destructive">*</span></label>
               <div className="grid grid-cols-2 gap-2">
                 {GRADES.map(g => (
                   <button
@@ -154,7 +154,7 @@ export default function ProfileOnboarding({ onDone }) {
 
             {/* Province */}
             <div className="flex flex-col gap-2">
-              <label className="font-sans text-[0.8125rem] font-semibold text-muted">Tỉnh / Thành phố <span className="text-red-400">*</span></label>
+              <label className="font-sans text-[0.8125rem] font-semibold text-muted">Tỉnh / Thành phố <span className="text-destructive">*</span></label>
               <select
                 value={province}
                 onChange={e => setProvince(e.target.value)}
@@ -248,7 +248,7 @@ export default function ProfileOnboarding({ onDone }) {
             </label>
 
             {error && (
-              <p className="font-sans text-xs text-red-400">{error}</p>
+              <p className="font-sans text-xs text-destructive">{error}</p>
             )}
 
             <button
