@@ -296,13 +296,19 @@ git checkout master
 git checkout --orphan hf-deploy-new
 git add -A
 git commit -m "deploy: $(git log master --oneline -1 | cut -c1-7)"
+git rm --cached tools/pdfs/amc8_2019.pdf tools/pdfs/cemc_gauss8_2023.pdf tools/pdfs/ukmt_imc_2020.pdf tools/pdfs/ukmt_jmc_2019.pdf
+git commit --amend --no-edit
 git branch -D hf-deploy
 git branch -m hf-deploy-new hf-deploy
 git push --force space hf-deploy:main
-git checkout master
+git checkout -f master
 ```
 
 **Never** use `git merge master` on hf-deploy — the repo history contains old binary files that HF rejects. The orphan commit has no parents, so none of that history is included.
+
+**PDF files must be stripped after the initial commit via `git rm --cached` + `git commit --amend`.** HF Spaces rejects any push containing binary files in `tools/pdfs/`. `git rm --cached` before `git add -A` does not work because `git add -A` re-adds the files. The correct order is: commit everything first, then remove the PDFs from the index with `--cached`, then amend.
+
+**Use `git checkout -f master`** (force) when returning to master after the orphan branch. The PDF files remain as untracked working-tree files after `git rm --cached`, which causes a plain `git checkout master` to abort with "would be overwritten by checkout".
 
 ### Cloudflare Pages (frontend) — must use `--branch=main`
 
