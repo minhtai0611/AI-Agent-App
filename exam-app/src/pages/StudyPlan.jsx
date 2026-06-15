@@ -358,6 +358,59 @@ export default function StudyPlan() {
               </div>
             )}
 
+            {/* Concept prerequisite chain */}
+            {Array.isArray(plan.concept_chain) && plan.concept_chain.length > 0 && (
+              <div className="flex flex-col gap-3">
+                <span className="font-sans text-[11px] font-bold tracking-[2px] uppercase text-dim">
+                  Lộ trình kiến thức cần nắm
+                </span>
+                <div className="glass-base border border-surface rounded-2xl px-5 py-4 flex flex-col gap-0">
+                  {plan.concept_chain.map((c, i) => {
+                    const isLast = i === plan.concept_chain.length - 1
+                    const TOPIC_COLORS_MAP = {
+                      algebra: '#6366F1', geometry: '#10B981', calculus: '#F59E0B',
+                      probability: '#EC4899', statistics: '#3B82F6', trigonometry: '#8B5CF6',
+                    }
+                    const color = TOPIC_COLORS_MAP[c.topic] || '#64748B'
+                    return (
+                      <div key={c.id} className="flex items-stretch gap-3">
+                        {/* Connector line */}
+                        <div className="flex flex-col items-center" style={{ minWidth: 20 }}>
+                          <div
+                            className="w-3 h-3 rounded-full flex-shrink-0 mt-1"
+                            style={{ background: c.is_target ? color : '#334155', border: `2px solid ${color}` }}
+                          />
+                          {!isLast && <div className="w-px flex-1 bg-surface mt-0.5" style={{ minHeight: 16 }} />}
+                        </div>
+                        {/* Label */}
+                        <div className={`pb-3 flex-1 min-w-0 ${isLast ? 'pb-0' : ''}`}>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-sans text-[13px] font-semibold" style={{ color: c.is_target ? '#F0F4FF' : '#94A3B8' }}>
+                              {c.name_vi}
+                            </span>
+                            <span
+                              className="font-sans text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide"
+                              style={{ background: `${color}22`, color }}
+                            >
+                              Lớp {c.grade}
+                            </span>
+                            {c.is_target && (
+                              <span className="font-sans text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide bg-primary/20 text-primary">
+                                Mục tiêu
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <p className="font-sans text-[11px] text-dim">
+                  Nắm vững từng bước trước khi tiến lên khái niệm tiếp theo.
+                </p>
+              </div>
+            )}
+
             {/* Retake CTA */}
             <div className="glass-base border border-success/20 rounded-2xl px-6 py-5 flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">

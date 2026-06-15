@@ -1,7 +1,48 @@
 import json
+import logging
 from openai import AsyncOpenAI
 from app.config import get_settings
 from app.agent.core import call_with_retry
+
+logger = logging.getLogger(__name__)
+
+
+async def _get_wiki_context(pool, question: dict, max_snippets: int = 2) -> str:
+    """Fetch brief wiki unit snippets relevant to the question using the BM25 index.
+
+    Uses the in-memory BM25 index — no vector embeddings or PyTorch required.
+    Returns a compact context string for the hint prompt, or empty string when
+    the index is empty or retrieval fails.
+    """
+    if pool is None:
+        return ""
+    try:
+        from app.math_wiki.pipeline import _bm25_index, _bm25_id_map
+        from app.math_wiki.storage.bm25 import query_bm25
+        if _bm25_index is None or not _bm25_id_map:
+            return ""
+        query_text = question.get("question", "")[:300]
+        if not query_text:
+            return ""
+        unit_ids = query_bm25(_bm25_index, _bm25_id_map, query_text, top_k=5)
+        if not unit_ids:
+            return ""
+        placeholders = ", ".join("?" for _ in unit_ids[:3])
+        rows = await pool.fetch(
+            f"SELECT content FROM wiki_units WHERE id IN ({placeholders}) AND deleted = 0 LIMIT 3",
+            *unit_ids[:3],
+        )
+        snippets = []
+        for r in rows:
+            content = (r["content"] or "").strip()
+            if content and len(content) > 20:
+                snippets.append(content[:300])
+        if not snippets:
+            return ""
+        return "\nKiến thức liên quan từ thư viện Zenith:\n" + "\n---\n".join(snippets[:max_snippets])
+    except Exception as exc:
+        logger.debug("wiki context fetch failed (non-fatal): %s", exc)
+        return ""
 
 THPT_CONTEXT = """
 Bối cảnh: Đây là kỳ thi THPT Quốc gia Việt Nam. Các câu hỏi thường có bẫy sau:
@@ -56,6 +97,7 @@ async def generate_hint(
     attempt_count: int = 1,
     previous_hints: list[str] | None = None,
     ai_preferences: dict | None = None,
+    pool=None,
 ) -> dict:
     settings = get_settings()
     level = _DETAIL_LEVEL.get(min(attempt_count, 3), _DETAIL_LEVEL[3])
@@ -74,6 +116,8 @@ async def generate_hint(
         shown = "\n".join(f"  Lần {i+1}: {h}" for i, h in enumerate(previous_hints))
         prev_context = f"\nCác gợi ý đã cung cấp (KHÔNG lặp lại, phải tiến xa hơn):\n{shown}\n"
 
+    wiki_context = await _get_wiki_context(pool, question)
+
     prompt = f"""Tôi cần bạn tạo một GỢI Ý ngắn (KHÔNG phải lời giải) cho câu hỏi toán sau.
 Yêu cầu ({level}): {style_user_hint}
 Quy tắc bắt buộc:
@@ -81,7 +125,7 @@ Quy tắc bắt buộc:
 - KHÔNG dùng markdown, KHÔNG dùng số thứ tự, KHÔNG dùng gạch đầu dòng
 - KHÔNG tiết lộ đáp án hay ký hiệu A/B/C/D
 Chủ đề: {question.get('topic', '')} | Mức độ: {question.get('difficulty', '')} | Lần {attempt_count}/3
-Câu hỏi: {question.get('question', '')}{prev_context}
+Câu hỏi: {question.get('question', '')}{prev_context}{wiki_context}
 Trả về đúng định dạng JSON sau, không thêm text nào khác:
 {{"hint": "<1–2 câu gợi ý tiếng Việt, không markdown>", "difficulty_note": ""}}"""
 

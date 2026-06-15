@@ -171,7 +171,10 @@ function _matchSchools(studentScore, province) {
     })
     .slice(0, 6)
     .map(s => ({
-      school: { name: s.name },
+      name: s.name,
+      district: s.district ?? '',
+      province: s.province ?? '',
+      type: s.type ?? 'công lập',
       matchStrength: studentScore >= _latestCutoff(s) ? 'Rất phù hợp' : 'Khá phù hợp',
       cutoff: _latestCutoff(s),
     }))

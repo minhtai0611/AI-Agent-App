@@ -1069,6 +1069,8 @@ class ExamAnalyzeResponse(BaseModel):
     recommendations: list[str]
     question_analysis: str = ""
     school_insight: str = ""
+    schools: list[dict] = []
+    concept_gaps: list[dict] = []   # KST prerequisite gap chain per weak topic
 
 
 class HintRequest(BaseModel):
@@ -1113,6 +1115,7 @@ class StudyPlanResponse(BaseModel):
     score_gap: str = ""
     focus_areas: list[dict] = []
     retake_note: str = ""
+    concept_chain: list[dict] = []   # ordered prerequisite path from KST gap analysis
 
 
 class MathIngestRequest(BaseModel):
@@ -1208,12 +1211,38 @@ async def analyze(
             learner_archetype=req.learner_archetype,
             device_province=device_province,
         )
+        # Compute KST concept gap chain for each weak topic
+        concept_gaps: list[dict] = []
+        try:
+            from app.agent.kst import (
+                build_concept_graph, knowledge_state_from_mastery,
+                learning_path, topic_to_concept_ids,
+            )
+            from app.data.concepts import CONCEPTS
+            mastery_rows = await pool.fetch(
+                "SELECT concept_id, mastery_score FROM concept_mastery WHERE user_id = ?",
+                current_user.user_id,
+            )
+            concepts_by_id = {c["id"]: c for c in CONCEPTS}
+            concept_graph = build_concept_graph(CONCEPTS)
+            knowledge_st = knowledge_state_from_mastery(list(mastery_rows))
+            weak_topics = data.get("weak_topics", [])
+            target_ids: list[str] = []
+            for topic in weak_topics[:4]:
+                target_ids.extend(topic_to_concept_ids(topic, CONCEPTS))
+            if target_ids:
+                concept_gaps = learning_path(knowledge_st, target_ids, concept_graph, concepts_by_id)
+        except Exception:
+            pass  # enrichment only — never break analyze
+
         return ExamAnalyzeResponse(
             insights=data.get("insights", ""),
             weak_topics=data.get("weak_topics", []),
             recommendations=data.get("recommendations", []),
             question_analysis=data.get("question_analysis", ""),
             school_insight=data.get("school_insight", ""),
+            schools=data.get("schools", []),
+            concept_gaps=concept_gaps,
         )
     except (ValueError, KeyError, Exception):
         raise HTTPException(status_code=502, detail="AI response parse error")
@@ -1376,7 +1405,7 @@ async def hint(
     from app.agent.hint_generator import generate_hint
     try:
         merged_prefs = {"hint_style": req.hint_style, "encouragement_level": req.encouragement_level, **req.ai_preferences}
-        data = await generate_hint(client, req.question, req.attempt_count, req.previous_hints, merged_prefs)
+        data = await generate_hint(client, req.question, req.attempt_count, req.previous_hints, merged_prefs, pool=pool)
         return HintResponse(
             hint=data.get("hint", ""),
             difficulty_note=data.get("difficulty_note", ""),
@@ -1699,11 +1728,52 @@ async def study_plan(
         )
     await _spend_credits(pool, current_user.user_id, 5, "study-plan")
     from app.agent.study_planner import generate_study_plan
+    from app.agent.kst import (
+        build_concept_graph, outer_fringe as kst_fringe,
+        knowledge_state_from_mastery, learning_path, topic_to_concept_ids,
+    )
+    from app.data.concepts import CONCEPTS
+
     data = await generate_study_plan(client, req.result, req.history, req.wrong_questions, req.topic_miss_counts, req.student_name, learner_archetype=req.learner_archetype, province=req.province)
+
+    # Build KST concept chain from the student's weak topics
+    concept_chain: list[dict] = []
+    try:
+        mastery_rows = await pool.fetch(
+            "SELECT concept_id, mastery_score FROM concept_mastery WHERE user_id = ?",
+            current_user.user_id,
+        )
+        concepts_by_id = {c["id"]: c for c in CONCEPTS}
+        concept_graph = build_concept_graph(CONCEPTS)
+        knowledge_st = knowledge_state_from_mastery(list(mastery_rows))
+
+        # Map weak topics from topic_miss_counts → target concept_ids
+        weak_topics = list((req.topic_miss_counts or {}).keys())
+        # Also extract from wrong_questions if topic_miss_counts is sparse
+        if not weak_topics and req.wrong_questions:
+            seen: set[str] = set()
+            for wq in req.wrong_questions:
+                t = wq.get("topic", "")
+                if t and t not in seen:
+                    weak_topics.append(t)
+                    seen.add(t)
+
+        target_ids: list[str] = []
+        for topic in weak_topics[:5]:
+            target_ids.extend(topic_to_concept_ids(topic, CONCEPTS))
+
+        if target_ids:
+            concept_chain = learning_path(
+                knowledge_st, target_ids, concept_graph, concepts_by_id
+            )
+    except Exception:
+        pass  # KST is enrichment — never break the core study plan response
+
     return StudyPlanResponse(
         score_gap=data.get("score_gap", ""),
         focus_areas=data.get("focus_areas", []),
         retake_note=data.get("retake_note", ""),
+        concept_chain=concept_chain,
     )
 
 
@@ -3367,6 +3437,30 @@ async def get_concept_mastery(
                 c["source"] = "bkt_estimate"  # flag: not from review items
 
     return {"concepts": concepts}
+
+
+@app.get("/concepts/graph")
+async def get_concepts_graph(pool=Depends(get_pool)):
+    """Return the full concept graph (nodes + prerequisite edges) for the ConceptMap.
+
+    Public endpoint — no auth required. Data is static curriculum content.
+    """
+    from app.data.concepts import CONCEPTS
+    nodes = [
+        {
+            "id": c["id"],
+            "name_vi": c["name_vi"],
+            "grade": c["grade"],
+            "topic": c["topic"],
+            "exam_weight": c["exam_weight"],
+        }
+        for c in CONCEPTS
+    ]
+    edges = []
+    for c in CONCEPTS:
+        for prereq in (c.get("prerequisite_ids") or []):
+            edges.append({"from": prereq, "to": c["id"]})
+    return {"nodes": nodes, "edges": edges}
 
 
 @app.get("/users/me/concept-mastery/{concept_id}/history")

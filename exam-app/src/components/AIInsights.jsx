@@ -263,6 +263,39 @@ export default function AIInsights({ analysis, loading, error, score }) {
             </div>
           </div>
         )}
+        {/* Concept prerequisite gap chain */}
+        {Array.isArray(analysis.concept_gaps) && analysis.concept_gaps.length > 0 && (
+          <div className="flex flex-col gap-2.5">
+            <span className="font-sans text-[0.8125rem] font-semibold text-muted">Lộ trình kiến thức cần bổ sung</span>
+            <div className="flex flex-col gap-0 rounded-xl border border-surface overflow-hidden">
+              {analysis.concept_gaps.map((c, i) => {
+                const TOPIC_COLORS_MAP = {
+                  algebra: '#6366F1', geometry: '#10B981', calculus: '#F59E0B',
+                  probability: '#EC4899', statistics: '#3B82F6', trigonometry: '#8B5CF6',
+                }
+                const color = TOPIC_COLORS_MAP[c.topic] || '#64748B'
+                return (
+                  <div
+                    key={c.id}
+                    className="flex items-center gap-3 px-3 py-2.5"
+                    style={{ borderBottom: i < analysis.concept_gaps.length - 1 ? '1px solid var(--border)' : 'none', background: c.is_target ? 'color-mix(in srgb, var(--surface) 85%, transparent)' : 'transparent' }}
+                  >
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: c.is_target ? color : '#334155', border: `1.5px solid ${color}` }} />
+                    <span className="font-sans text-[12px] flex-1" style={{ color: c.is_target ? '#F0F4FF' : '#64748B' }}>
+                      {c.name_vi}
+                    </span>
+                    <span className="font-sans text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ background: `${color}22`, color }}>
+                      Lớp {c.grade}
+                    </span>
+                    {c.is_target && (
+                      <span className="font-sans text-[10px] font-bold px-1.5 py-0.5 rounded bg-destructive/15 text-destructive">Yếu</span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
         <TipList label="Khuyến nghị từ AI" items={analysis.recommendations} />
         <SchoolSection schoolInsight={analysis.school_insight} schools={analysis.schools} score={score} />
         {showNudge && (

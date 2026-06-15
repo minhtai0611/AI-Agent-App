@@ -333,7 +333,9 @@ def build_analyze_prompt(
 
     if school_recommendations:
         school_list = [
-            f"{s['school']['name']} ({s['matchStrength']}, điểm chuẩn Toán: {s['cutoff']})"
+            f"- {s.get('name', s.get('school', {}).get('name', '?'))} "
+            f"(loại: {s.get('type', 'công lập')}, {s.get('district', '')} · {s.get('province', '')}) "
+            f"— điểm chuẩn Toán: {s['cutoff']}, phù hợp: {s['matchStrength']}"
             for s in school_recommendations[:6]
         ]
         # Derive school type from grade: ≤9 → high school (lớp 10), 10-12 → university
@@ -345,7 +347,7 @@ def build_analyze_prompt(
             school_type_note = "trường đại học/cao đẳng"
         loc_note = f" tại {province}" if province else ""
         dynamic_parts.append(
-            f"Trường gợi ý{loc_note} ({school_type_note}, kỳ thi {exam_type}): {'; '.join(school_list)}"
+            f"Trường gợi ý{loc_note} ({school_type_note}, kỳ thi {exam_type}):\n" + "\n".join(school_list)
         )
 
     # Add grade + province context for personalized school recommendation prompt

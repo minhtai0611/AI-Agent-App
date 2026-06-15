@@ -115,6 +115,19 @@ Trả về JSON (không có text ngoài JSON):
     except Exception:
         return {
             "score_gap": "Phân tích cho thấy còn một số lỗ hổng cần bù. Tiếp tục ôn tập và thử lại đề thi.",
-            "focus_areas": [],
+            "focus_areas": [
+                {
+                    "topic": "Ôn tập tổng quát",
+                    "error_pattern": "Xem lại tất cả câu sai và tìm điểm chung.",
+                    "tasks": [
+                        "Xem lại bài giải từng câu sai trong đề",
+                        "Luyện thêm 10 câu cùng dạng trên mỗi chủ đề yếu",
+                    ],
+                    "checkpoint": {
+                        "target": 3,
+                        "description": "Trả lời đúng 3 câu liên tiếp trước khi sang chủ đề tiếp theo",
+                    },
+                }
+            ],
             "retake_note": "Sau khi luyện xong → Thử lại đề thi để so sánh điểm",
         }

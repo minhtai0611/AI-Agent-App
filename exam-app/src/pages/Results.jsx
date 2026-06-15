@@ -584,24 +584,33 @@ export default function Results({ onOpenAuth }) {
     if (!result) return []
     const userProvince = user?.province ?? null
     const score = result.score
+    // Normalize province string for fuzzy matching (handles "TP.HCM" vs "Hồ Chí Minh" etc.)
+    const _normProv = (p = '') => p.toLowerCase()
+      .replace(/thành phố|tp\.|tỉnh\s*/gi, '')
+      .replace(/\bhcm\b|ho chi minh|hồ chí minh/gi, 'hcm')
+      .trim()
+    const normUserProv = userProvince ? _normProv(userProvince) : ''
     const scored = schoolsData
       .map(s => {
         const cutoff = latestCutoff(s)
         if (cutoff === null) return null
         const prob = schoolFitProbability(score, cutoff)
-        return { ...s, prob, cutoff }
+        const sameProvince = normUserProv ? _normProv(s.province ?? '').includes(normUserProv) || normUserProv.includes(_normProv(s.province ?? '')) : false
+        return { ...s, prob, cutoff, sameProvince }
       })
       .filter(Boolean)
+    // Sort: same province first; within each province group, prefer schools closest to 50% prob
     scored.sort((a, b) => {
-      const aMatch = userProvince && a.province === userProvince
-      const bMatch = userProvince && b.province === userProvince
-      if (aMatch && !bMatch) return -1
-      if (!aMatch && bMatch) return 1
+      if (a.sameProvince !== b.sameProvince) return a.sameProvince ? -1 : 1
       const da = Math.abs(a.prob - 50)
       const db = Math.abs(b.prob - 50)
       return da - db
     })
-    return scored.slice(0, 6)
+    // Prefer showing same-province schools; only fill remaining slots with other provinces
+    const sameProvSchools = scored.filter(s => s.sameProvince).slice(0, 6)
+    if (sameProvSchools.length >= 4) return sameProvSchools.slice(0, 6)
+    const others = scored.filter(s => !s.sameProvince)
+    return [...sameProvSchools, ...others].slice(0, 6)
   }, [result?.score, user?.province]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -815,9 +824,7 @@ export default function Results({ onOpenAuth }) {
               <foreignObject x="20" y="38" width="80" height="40">
                 <div xmlns="http://www.w3.org/1999/xhtml"
                   style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 26, fontWeight: 700, color, textAlign: 'center', lineHeight: '40px' }}>
-                  {scoreInView
-                    ? <NumberTicker value={score} startValue={0} decimalPlaces={1} duration={1500} />
-                    : '0.0'}
+                  <NumberTicker value={score} startValue={0} decimalPlaces={1} duration={scoreInView ? 1500 : 0} />
                 </div>
               </foreignObject>
             </svg>
