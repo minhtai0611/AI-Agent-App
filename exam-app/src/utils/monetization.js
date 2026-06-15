@@ -19,7 +19,7 @@ export function getTopupRecommendation(creditLog, balance, packages) {
   const pack = sorted.find(p => p.credits / dailyRate >= 14) ?? sorted[sorted.length - 1]
   const coversDays = Math.round(pack.credits / dailyRate)
 
-  const reasoning = `Bạn dùng trung bình ${dailyRate.toFixed(1)} credits/ngày. Gói ${pack.label} đủ cho ~${coversDays} ngày.`
+  const reasoning = `Bạn dùng trung bình ${dailyRate.toFixed(1)} lượt hỏi AI/ngày. Gói ${pack.label} đủ cho ~${coversDays} ngày.`
 
   return { pack, coversDays, reasoning }
 }
@@ -41,7 +41,7 @@ export function getTrialUrgency(user) {
   const lossItems = [
     'Kế hoạch học tập 4 tuần',
     'Phân tích điểm yếu bằng AI',
-    '500 credits/tháng để hỏi bài',
+    '500 lượt hỏi AI/tháng',
     'Gợi ý đề thi theo tỉnh thành',
   ]
 

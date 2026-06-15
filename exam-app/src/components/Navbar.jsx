@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ZenithLogo from './ZenithLogo'
+import CreditsTooltip from './CreditsTooltip'
 
 function vNavigate(navigate, path) {
   if (document.startViewTransition) {
@@ -13,17 +14,17 @@ function vNavigate(navigate, path) {
 
 const AUTH_NAV = [
   { label: 'Trang chủ', path: '/home' },
-  { label: 'Bài thi', path: '/exams' },
-  { label: 'Ôn tập', path: '/review' },
-  { label: 'Luyện tập', path: '/practice' },
-  { label: 'Bản đồ', path: '/mastery' },
+  { label: 'Thi thử', path: '/exams' },
+  { label: 'Ôn sai', path: '/review' },
+  { label: 'Luyện yếu', path: '/practice' },
+  { label: 'Tiến độ', path: '/mastery' },
 ]
 
 const MOBILE_NAV_PRIMARY = [
   { label: 'Trang chủ', path: '/home', icon: '⌂' },
-  { label: 'Bài thi', path: '/exams', icon: '📋' },
-  { label: 'Ôn tập', path: '/review', icon: '🔁' },
-  { label: 'Luyện tập', path: '/practice', icon: '⚡' },
+  { label: 'Thi thử', path: '/exams', icon: '📋' },
+  { label: 'Ôn sai', path: '/review', icon: '🔁' },
+  { label: 'Luyện yếu', path: '/practice', icon: '⚡' },
   { label: 'Bản đồ khái niệm', path: '/mastery', icon: '🗺' },
   { label: 'Lỗi sai', path: '/mistakes', icon: '✗' },
   { label: 'Tiến độ', path: '/progress', icon: '📊' },
@@ -108,16 +109,22 @@ export default function Navbar({ onOpenAuth }) {
                 </span>
               )}
               {user.credits_balance != null && (
-                <button
-                  onClick={() => go('/account')}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary-border)] transition"
-                  title="Credits"
-                >
-                  <span className="text-[var(--primary)] text-[11px]">⚡</span>
-                  <span className="font-sans text-[12px] font-semibold text-[var(--primary)]">
-                    {user.credits_balance}
-                  </span>
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={() => go('/account')}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary-border)] transition"
+                    title="Credits"
+                  >
+                    <span className="text-[var(--primary)] text-[11px]">⚡</span>
+                    <span className="font-sans text-[12px] font-semibold text-[var(--primary)]">
+                      {user.credits_balance}
+                    </span>
+                  </button>
+                  <CreditsTooltip
+                    userId={user?.id}
+                    creditsBalance={user?.credits_balance ?? 0}
+                  />
+                </div>
               )}
               {user.avatar_url && !avatarError ? (
                 <img

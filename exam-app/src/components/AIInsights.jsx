@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { ResultsInsightsSkeleton } from './Skeleton.jsx'
 import MarkdownProse from './MarkdownProse.jsx'
+import { useAuth } from '../context/AuthContext'
 
 // Renders streaming plain text with a CSS fade-in on each newly arrived chunk.
 // key={prevLen} on the new-text span forces a fresh DOM node each chunk, retriggering the animation.
@@ -107,21 +108,9 @@ function AIErrorMessage({ error }) {
   const navigate = useNavigate()
   if (!error) return null
 
-  // Structured 402 insufficient_credits
-  if (typeof error === 'object' && error.code === 'insufficient_credits') {
-    return (
-      <div className="flex flex-col gap-3 py-4 items-center text-center">
-        <span className="font-sans text-[0.8125rem] text-muted">
-          Hết credits — còn <strong className="text-[var(--accent)]">{error.balance}</strong> credits, cần <strong>{error.required}</strong>.
-        </span>
-        <button
-          onClick={() => navigate('/account#topup')}
-          className="px-5 py-2 rounded-lg font-sans text-xs font-bold bg-primary text-background"
-        >
-          Mua top-up
-        </button>
-      </div>
-    )
+  // 402 insufficient_credits is handled inline in AIInsights — skip here
+  if (typeof error === 'object' && (error.code === 'insufficient_credits' || error.status === 402)) {
+    return null
   }
 
   // 403 tier_required
@@ -147,7 +136,55 @@ function AIErrorMessage({ error }) {
 }
 
 export default function AIInsights({ analysis, loading, error, score }) {
+  const { user } = useAuth()
+  const [dismissed402, setDismissed402] = useState(false)
+  const [showNudge, setShowNudge] = useState(false)
+
+  const insights = analysis?.insights
+
+  useEffect(() => {
+    if (insights && !error && user?.subscription_tier === 'basic' && user?.id) {
+      const seen = localStorage.getItem(`upgrade_nudge_seen_${user.id}`)
+      if (!seen) setShowNudge(true)
+    }
+  }, [insights, error, user])
+
+  function dismissNudge() {
+    if (user?.id) localStorage.setItem(`upgrade_nudge_seen_${user.id}`, 'true')
+    setShowNudge(false)
+  }
+
   if (loading && !analysis?._streaming) return <ResultsInsightsSkeleton />
+
+  // Inline 402 — soft block (no modal), dismissible
+  if ((error?.status === 402 || (typeof error === 'object' && error?.code === 'insufficient_credits')) && !dismissed402) {
+    return (
+      <div data-testid="credits-exhausted-inline" className="flex flex-col gap-3 p-4 bg-surface border border-border rounded-xl">
+        <p className="font-sans text-[13px] text-foreground">
+          Bạn đã dùng hết lượt hỏi AI.
+        </p>
+        <p className="font-sans text-[12px] text-dim">
+          Nạp thêm lượt để tiếp tục xem phân tích bài thi của bạn.
+        </p>
+        <div className="flex gap-2">
+          <button
+            onClick={() => window.location.href = '/account'}
+            className="font-sans text-[12px] font-semibold px-3 py-1.5 rounded-lg bg-primary text-background"
+            data-testid="top-up-cta"
+          >
+            Nạp ngay
+          </button>
+          <button
+            onClick={() => setDismissed402(true)}
+            className="font-sans text-[12px] text-dim px-3 py-1.5"
+            data-testid="dismiss-402"
+          >
+            Để sau
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   // Streaming in-progress — field-level skeleton → crossfade to content
   if (analysis?._streaming && !analysis?._streaming_done && !error) {
@@ -228,6 +265,25 @@ export default function AIInsights({ analysis, loading, error, score }) {
         )}
         <TipList label="Khuyến nghị từ AI" items={analysis.recommendations} />
         <SchoolSection schoolInsight={analysis.school_insight} schools={analysis.schools} score={score} />
+        {showNudge && (
+          <div data-testid="upgrade-nudge" className="mt-3 p-3 bg-surface border border-border rounded-xl flex flex-col gap-2">
+            <p className="font-sans text-[12px] text-foreground">
+              Bạn vừa dùng 3 lượt hỏi AI. Gói Học sinh (29k/tháng) = lượt không giới hạn cả tháng.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => { dismissNudge(); window.location.href = '/account' }}
+                className="font-sans text-[11px] font-semibold text-primary"
+                data-testid="nudge-upgrade-cta"
+              >
+                Xem gói Học sinh →
+              </button>
+              <button onClick={dismissNudge} className="font-sans text-[11px] text-dim">
+                Đóng
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     )
   }

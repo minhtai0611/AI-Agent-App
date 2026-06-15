@@ -115,6 +115,10 @@ export default function AdaptivePractice() {
   const [weakTopics, setWeakTopics] = useState([])
   const [interleaved, setInterleaved] = useState(true)
 
+  const hasDiagnosticWeights = user?.id
+    ? !!localStorage.getItem(`diagnostic_weights_${user.id}`)
+    : false
+
   // Pre-compute weak topics for display
   useEffect(() => {
     loadQuestions().then(qs => {
@@ -239,9 +243,16 @@ export default function AdaptivePractice() {
       <div className="flex flex-col items-center gap-2 text-center">
         <span className="font-sans text-[24px] font-bold text-foreground">Luyện tập thích nghi</span>
         {weakTopics.length > 0 && (
-          <p className="font-sans text-[13px] text-dim">
-            Điểm yếu: {weakTopics.slice(0, 3).map(t => TOPIC_LABELS[t] ?? t).join(' · ')}
-          </p>
+          <div className="flex flex-col gap-0.5 items-center">
+            <p className="font-sans text-[13px] text-dim">
+              Điểm yếu: {weakTopics.slice(0, 3).map(t => TOPIC_LABELS[t] ?? t).join(' · ')}
+            </p>
+            <p className="font-sans text-[11px] text-dim/70" data-testid="topic-source-label">
+              {hasDiagnosticWeights
+                ? 'Dựa trên kết quả kiểm tra năng lực của bạn'
+                : 'Dựa trên lịch sử bài thi của bạn'}
+            </p>
+          </div>
         )}
       </div>
 
@@ -260,7 +271,7 @@ export default function AdaptivePractice() {
         >
           <span className="font-sans text-[14px] font-semibold text-foreground">Từ kho đề có sẵn</span>
           <span className="font-sans text-[12px] text-dim">
-            {SESSION_SIZE} câu từ ngân hàng đề — nhanh, không tốn credits
+            {SESSION_SIZE} câu từ ngân hàng đề — nhanh, không tốn lượt hỏi AI
           </span>
         </button>
 
@@ -271,7 +282,7 @@ export default function AdaptivePractice() {
           >
             <div className="flex items-center justify-between">
               <span className="font-sans text-[14px] font-semibold text-foreground">AI tạo câu hỏi riêng</span>
-              <span className="font-sans text-[11px] text-[var(--accent)]">⚡ 5 credits</span>
+              <span className="font-sans text-[11px] text-[var(--accent)]">⚡ 5 lượt hỏi AI</span>
             </div>
             <span className="font-sans text-[12px] text-dim">
               5 câu hỏi mới hoàn toàn, nhắm đúng điểm yếu của bạn

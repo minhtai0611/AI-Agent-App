@@ -3,6 +3,13 @@ import { usePageMeta } from '../hooks/usePageMeta.js'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { computeBadges } from '../utils/badges.js'
 
+function parseReportData(raw) {
+  if (!raw) return null
+  try {
+    return JSON.parse(decodeURIComponent(atob(raw)))
+  } catch { return null }
+}
+
 function parseShareData(raw) {
   try {
     const d = JSON.parse(decodeURIComponent(raw))
@@ -24,6 +31,33 @@ export default function ShareView() {
   const { results } = useHistory()
   const data = parseShareData(params.get('d') || '')
   const topBadge = computeBadges(results)[0] ?? null
+
+  // Parent report view (?report= param — base64+URI encoded JSON)
+  const reportData = parseReportData(params.get('report'))
+  if (reportData) {
+    return (
+      <div data-testid="parent-report-view" className="max-w-md mx-auto p-6 flex flex-col gap-4 min-h-screen">
+        <h1 className="font-sans text-[20px] font-bold text-foreground">
+          Báo cáo tiến độ học tập
+        </h1>
+        <p className="font-sans text-[13px] text-dim">
+          Học sinh: <strong className="text-foreground">{reportData.name}</strong>
+        </p>
+        {reportData.grade && (
+          <p className="font-sans text-[13px] text-dim">Lớp: <strong className="text-foreground">{reportData.grade}</strong></p>
+        )}
+        {reportData.province && (
+          <p className="font-sans text-[13px] text-dim">Tỉnh: <strong className="text-foreground">{reportData.province}</strong></p>
+        )}
+        <p className="font-sans text-[13px] text-dim">
+          Gói hiện tại: <strong className="text-foreground">{reportData.subscription_tier}</strong>
+        </p>
+        <p className="font-sans text-[11px] text-dim mt-2">
+          Báo cáo tạo lúc: {reportData.generated_at ? new Date(reportData.generated_at).toLocaleString('vi-VN') : 'N/A'}
+        </p>
+      </div>
+    )
+  }
 
   if (!data) {
     return (

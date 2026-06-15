@@ -9,7 +9,7 @@ import { MathText } from '../components/MathText.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
 
-const DIAGNOSTIC_TOPICS = ['algebra', 'geometry', 'statistics', 'combinatorics', 'trigonometry', 'functions']
+const DIAGNOSTIC_TOPICS = ['algebra', 'geometry', 'functions', 'statistics']
 const QUESTIONS_PER_TOPIC = 2
 const DIAGNOSTIC_KEY = uid => `diagnostic_weights-${uid ?? 'guest'}`
 
@@ -59,8 +59,8 @@ export function loadDiagnosticWeights(uid) {
   } catch { return null }
 }
 
-export default function DiagnosticTest() {
-  usePageMeta('Kiểm tra đầu vào', { description: 'Làm bài kiểm tra 12 câu để AI Zenith đánh giá năng lực và đề xuất lộ trình ôn tập phù hợp.' })
+export default function DiagnosticTest({ onOpenAuth = null }) {
+  usePageMeta('Kiểm tra năng lực nhanh', { description: 'Làm bài kiểm tra 8 câu để AI Zenith đánh giá năng lực và đề xuất lộ trình ôn tập phù hợp.' })
   const navigate = useNavigate()
   const { user } = useAuth()
 
@@ -128,12 +128,12 @@ export default function DiagnosticTest() {
           className="max-w-md w-full glass-base border border-surface rounded-2xl p-8 flex flex-col gap-5 text-center">
           <span className="text-4xl">🧪</span>
           <div>
-            <h1 className="font-sans text-[24px] font-bold text-foreground mb-2">Kiểm tra đầu vào</h1>
+            <h1 className="font-sans text-[24px] font-bold text-foreground mb-2">Kiểm tra năng lực nhanh</h1>
             <p className="font-sans text-[14px] text-muted leading-relaxed">
-              {DIAGNOSTIC_TOPICS.length * QUESTIONS_PER_TOPIC} câu hỏi · 2 câu mỗi chủ đề
+              8 câu · 5 phút · Không cần tài khoản
             </p>
             <p className="font-sans text-[13px] text-dim mt-2 leading-relaxed">
-              Kết quả sẽ giúp AI chọn đúng dạng bài bạn cần luyện nhất.
+              Sau 8 câu, Zenith biết mình đang yếu chỗ nào.
             </p>
           </div>
           <div className="flex flex-col gap-2 text-left">
@@ -147,7 +147,7 @@ export default function DiagnosticTest() {
           <div className="flex flex-col gap-2 mt-2">
             <button onClick={startTest}
               className="w-full py-3 rounded-xl font-sans text-[14px] font-bold bg-primary text-background">
-              Bắt đầu kiểm tra
+              Bắt đầu →
             </button>
             <button onClick={() => navigate(-1)}
               className="font-sans text-[13px] text-dim hover:text-muted transition py-1">
@@ -223,6 +223,8 @@ export default function DiagnosticTest() {
   const totalCorrect = resultsData.reduce((s, d) => s + d.correct, 0)
   const totalQ = resultsData.reduce((s, d) => s + d.total, 0)
   const overallPct = totalQ ? Math.round((totalCorrect / totalQ) * 100) : 0
+  // topicScores: topic → pct correct (lower = weaker, used for path preview)
+  const topicScores = Object.fromEntries(resultsData.map(({ topic, pct }) => [topic, pct]))
 
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
@@ -231,8 +233,8 @@ export default function DiagnosticTest() {
         className="w-full max-w-xl flex flex-col gap-6">
         <div className="text-center">
           <span className="text-4xl">{overallPct >= 70 ? '🎉' : overallPct >= 40 ? '📊' : '💪'}</span>
-          <h1 className="font-sans text-[24px] font-bold text-foreground mt-3">Kết quả chẩn đoán</h1>
-          <p className="font-sans text-[14px] text-muted mt-1">{totalCorrect}/{totalQ} câu đúng · {overallPct}% tổng thể</p>
+          <h1 className="font-sans text-[24px] font-bold text-foreground mt-3">Zenith đã phân tích xong</h1>
+          <p className="font-sans text-[14px] text-muted mt-1">{totalCorrect}/{totalQ} câu đúng · Đây là bản đồ điểm yếu của bạn:</p>
         </div>
 
         {/* Topic breakdown bars */}
@@ -255,17 +257,50 @@ export default function DiagnosticTest() {
         </div>
 
         <p className="font-sans text-[13px] text-dim text-center">
-          AI sẽ ưu tiên luyện những chủ đề bạn còn yếu khi bạn dùng chế độ Luyện thích nghi.
+          Dựa trên kết quả này, Zenith sẽ luyện đúng chỗ bạn đang thiếu — không tốn thời gian ôn lại cái bạn đã biết rồi.
         </p>
 
+        {/* Personalized path preview */}
+        {Object.keys(topicScores || {}).length > 0 && (
+          <div data-testid="path-preview" className="bg-surface border border-border rounded-xl p-4 mt-4">
+            <p className="font-sans text-[12px] text-dim mb-2">Dựa trên kết quả này, Zenith sẽ luyện:</p>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(topicScores)
+                .sort(([, a], [, b]) => a - b)
+                .slice(0, 2)
+                .map(([topic]) => (
+                  <span key={topic} className="font-sans text-[12px] font-semibold px-2.5 py-1 rounded-lg border border-primary/20 bg-primary/5 text-primary">
+                    {TOPIC_LABELS[topic] ?? topic}
+                  </span>
+                ))}
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col gap-2">
-          <button onClick={() => navigate('/practice/adaptive')}
-            className="w-full py-3 rounded-xl font-sans text-[14px] font-bold bg-primary text-background">
-            Bắt đầu luyện tập thích nghi →
-          </button>
+          {user ? (
+            <button
+              onClick={() => navigate('/practice')}
+              className="w-full py-3 rounded-xl font-sans text-[14px] font-bold bg-primary text-background">
+              Bắt đầu lộ trình của mình →
+            </button>
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <button
+                data-testid="save-results-cta"
+                onClick={() => {
+                  localStorage.setItem('post_login_redirect', '/practice')
+                  if (onOpenAuth) onOpenAuth()
+                }}
+                className="w-full py-3 rounded-xl font-sans text-[14px] font-bold bg-primary text-background">
+                Lưu lộ trình và bắt đầu học →
+              </button>
+              <p className="font-sans text-[11px] text-dim">Đăng ký miễn phí · Không cần thẻ ngân hàng</p>
+            </div>
+          )}
           <button onClick={() => navigate('/exams?mode=timed')}
             className="font-sans text-[13px] text-dim hover:text-muted transition text-center py-1">
-            Quay lại
+            Làm lại từ đầu
           </button>
         </div>
       </motion.div>

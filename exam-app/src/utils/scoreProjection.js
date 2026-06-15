@@ -35,3 +35,22 @@ export function getScoreProjection(sparkData, daysUntil) {
     summary,
   }
 }
+
+/**
+ * Simple 2-exam fallback estimate for basic/student tier users.
+ * Returns a wide-band prediction after 2+ exams when Kalman is unavailable.
+ * @param {number[]} scores - array of exam scores (0-10 scale)
+ * @returns {{ predicted: number, low: number, high: number, confidence: string, label: string } | null}
+ */
+export function getTwoExamEstimate(scores) {
+  if (!scores || scores.length < 2) return null
+  const avg = scores.reduce((a, b) => a + b, 0) / scores.length
+  const predicted = Math.round(avg * 10) / 10
+  return {
+    predicted,
+    low: Math.max(0, Math.round((avg - 1.5) * 10) / 10),
+    high: Math.min(10, Math.round((avg + 1.5) * 10) / 10),
+    confidence: 'low',
+    label: 'Dự đoán sơ bộ (cần thêm đề để chính xác hơn)',
+  }
+}

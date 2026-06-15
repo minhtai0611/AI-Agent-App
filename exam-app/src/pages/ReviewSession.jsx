@@ -366,6 +366,50 @@ export default function ReviewSession() {
                   style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                 >
                   <MathText className="font-sans text-[15px] text-foreground leading-relaxed">{question.question}</MathText>
+                  {(() => {
+                    const serverItem = isLoggedIn
+                      ? serverItems.find(it => it.question_id === question.id)
+                      : getQueue(uid)[question.id]
+                    if (serverItem?.next_review_date || serverItem?.dueDate) {
+                      const lastReviewDate = serverItem.last_review_date || serverItem.dueDate
+                        ? new Date(serverItem.last_review_date || serverItem.dueDate)
+                        : null
+                      const lastCorrectDays = lastReviewDate
+                        ? Math.floor((Date.now() - lastReviewDate.getTime()) / 86400000)
+                        : null
+                      const interval = serverItem.interval ?? null
+                      const stability = serverItem.stability ?? null
+                      const nextInterval = interval && stability
+                        ? Math.round(stability * 1.5)
+                        : interval ? Math.round(interval * 2.5) : null
+                      const parts = [
+                        lastCorrectDays !== null && lastCorrectDays >= 0 && `Bạn trả lời đúng lần cuối ${lastCorrectDays} ngày trước.`,
+                        interval !== null && `Zenith nhắc ôn sau ${interval} ngày để bạn không quên.`,
+                        nextInterval !== null && `Lần ôn tiếp theo: ~${nextInterval} ngày nữa.`,
+                      ].filter(Boolean)
+                      if (parts.length === 0) return null
+                      return (
+                        <details className="mt-2">
+                          <summary className="font-sans text-[11px] text-dim cursor-pointer select-none">
+                            Tại sao ôn câu này hôm nay?
+                          </summary>
+                          <p className="font-sans text-[11px] text-dim mt-1 leading-relaxed">
+                            {parts.join(' ')}
+                          </p>
+                        </details>
+                      )
+                    }
+                    return (
+                      <details className="mt-2">
+                        <summary className="font-sans text-[11px] text-dim cursor-pointer select-none">
+                          Tại sao ôn câu này hôm nay?
+                        </summary>
+                        <p className="font-sans text-[11px] text-dim mt-1">
+                          Zenith sử dụng thuật toán FSRS để nhắc bạn ôn đúng lúc bạn sắp quên.
+                        </p>
+                      </details>
+                    )
+                  })()}
                 </div>
                 {/* Back */}
                 <div

@@ -50,10 +50,10 @@ const REASON_LABELS = {
   'study-plan':                 'Kế hoạch học tập',
   'subscription_bonus_student': 'Nâng cấp gói Học sinh',
   'subscription_bonus_complete':'Nâng cấp gói Toàn diện',
-  'admin_grant':                   'Nạp Credits',
+  'admin_grant':                   'Nạp lượt hỏi AI',
   'trial_activation':              'Kích hoạt dùng thử',
   'grade_change_request':          'Yêu cầu đổi lớp',
-  'grade_change_rejection_refund': 'Hoàn Credits (từ chối đổi lớp)',
+  'grade_change_rejection_refund': 'Hoàn lượt hỏi AI (từ chối đổi lớp)',
 }
 
 const TIER_LABELS  = { basic: 'Cơ bản', student: 'Học sinh', complete: 'Toàn diện' }
@@ -76,19 +76,19 @@ const TIER_ALLOC   = { basic: 50, student: 500, complete: 2000 }
 const GRADE_LABELS = { '9': 'Lớp 9 trở xuống', '10': 'Lớp 10', '11': 'Lớp 11', '12': 'Lớp 12' }
 
 const PLANS_MONTHLY = [
-  { tier: 'basic',    label: 'Cơ bản',    price: 'Miễn phí',       credits: 50,   studyPlan: false, badge: null,
+  { tier: 'basic',    label: 'Thử miễn phí',    price: 'Miễn phí',       credits: 50,   studyPlan: false, badge: null,
     features: ['5 lượt Zenith AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'] },
-  { tier: 'student',  label: 'Học sinh',  price: '29,000đ/tháng',  credits: 500,  studyPlan: true,  badge: 'PHỔ BIẾN',
+  { tier: 'student',  label: 'Học sinh',  price: '29,000đ/tháng',  credits: 500,  studyPlan: true,  badge: '⭐ 95% học sinh chọn',
     features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
-  { tier: 'complete', label: 'Toàn diện', price: '59,000đ/tháng',  credits: 2000, studyPlan: true,  badge: null,
+  { tier: 'complete', label: '8.5+ Nâng cao', price: '59,000đ/tháng',  credits: 2000, studyPlan: true,  badge: null,
     features: ['Tất cả gói Học sinh', 'Tất cả đề thi thử & luyện tập', '⚗ Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
 ]
 const PLANS_ANNUAL = [
-  { tier: 'basic',    label: 'Cơ bản',    price: 'Miễn phí',        credits: 50,   studyPlan: false, badge: null,
+  { tier: 'basic',    label: 'Thử miễn phí',    price: 'Miễn phí',        credits: 50,   studyPlan: false, badge: null,
     features: ['5 lượt Zenith AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'] },
-  { tier: 'student',  label: 'Học sinh',  price: '261,000đ/năm',    credits: 500,  studyPlan: true,  badge: 'PHỔ BIẾN', bonus: '+1,000 credits', effective: '21,750đ/tháng',
+  { tier: 'student',  label: 'Học sinh',  price: '261,000đ/năm',    credits: 500,  studyPlan: true,  badge: '⭐ 95% học sinh chọn', bonus: '+1,000 lượt hỏi AI', effective: '21,750đ/tháng',
     features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
-  { tier: 'complete', label: 'Toàn diện', price: '531,000đ/năm',    credits: 2000, studyPlan: true,  badge: null, bonus: '+3,000 credits', effective: '44,250đ/tháng',
+  { tier: 'complete', label: '8.5+ Nâng cao', price: '531,000đ/năm',    credits: 2000, studyPlan: true,  badge: null, bonus: '+3,000 lượt hỏi AI', effective: '44,250đ/tháng',
     features: ['Tất cả gói Học sinh', 'Tất cả đề thi thử & luyện tập', '⚗ Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
 ]
 const TOPUP_PACKAGES = [
@@ -278,6 +278,9 @@ export default function Account() {
   const [dangerLoading,       setDangerLoading]       = useState(false)
   const [dangerError,         setDangerError]         = useState('')
   const [reactivating,        setReactivating]        = useState(false)
+
+  // ── Parent report ──
+  const [parentReportUrl, setParentReportUrl] = useState(null)
 
   // ── Settings ──
   const [isDarkMode, setIsDarkMode] = useState(
@@ -646,6 +649,19 @@ export default function Account() {
     }
   }
 
+  function handleGenerateParentReport() {
+    const reportData = {
+      name: user?.name || user?.email,
+      grade: user?.grade,
+      province: user?.province,
+      subscription_tier: user?.subscription_tier,
+      generated_at: new Date().toISOString(),
+    }
+    const encoded = btoa(encodeURIComponent(JSON.stringify(reportData)))
+    const url = `${window.location.origin}/share?report=${encoded}`
+    setParentReportUrl(url)
+  }
+
   // ── Badge progress hints ──
   function badgeProgress(id) {
     if (id === 'perfect') {
@@ -767,7 +783,7 @@ export default function Account() {
             <div className="text-[24px] font-bold text-foreground leading-none">
               <NumberTicker value={user.credits_balance ?? 0} duration={700} />
             </div>
-            <span className="font-sans text-[0.5rem] text-dim leading-tight">AI còn lại</span>
+            <span className="font-sans text-[0.5rem] text-dim leading-tight">lượt hỏi AI</span>
           </div>
 
           {(user.solid_concept_count ?? 0) > 0 && (
@@ -787,7 +803,7 @@ export default function Account() {
         <div className="max-w-2xl mx-auto px-4 pb-0 hidden lg:flex items-end gap-0">
           {[
             [TAB_PROGRESS,  'Tiến Độ'],
-            [TAB_AITIA,     'AI & Credits'],
+            [TAB_AITIA,     'AI & Lượt hỏi'],
           ].map(([key, label]) => (
             <button
               key={key}
@@ -1139,7 +1155,7 @@ export default function Account() {
                         />
                         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-background border border-border">
                           <span className="text-[var(--accent)] text-[0.8125rem]">⚡</span>
-                          <span className="font-sans text-xs text-dim">Chi phí xét duyệt: <strong className="text-[var(--accent)]">5 credits</strong> · Sau khi duyệt cần đợi 90 ngày để đổi tiếp.</span>
+                          <span className="font-sans text-xs text-dim">Chi phí xét duyệt: <strong className="text-[var(--accent)]">5 lượt hỏi AI</strong> · Sau khi duyệt cần đợi 90 ngày để đổi tiếp.</span>
                         </div>
                         {gradeChangeError && <p className="font-sans text-xs text-destructive">{gradeChangeError}</p>}
                         <div className="flex gap-2">
@@ -1868,7 +1884,10 @@ export default function Account() {
             {/* Plan cards */}
             <section id="upgrade-plans" className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center justify-between flex-wrap gap-3">
+                <div className="flex flex-col gap-0.5">
                 <span className="font-sans text-[16px] font-semibold text-foreground">Nâng cấp gói</span>
+                <span className="font-sans text-[0.6875rem] text-dim">Không cần thẻ ngân hàng · Hủy bất cứ lúc nào · Hoàn tiền 7 ngày</span>
+              </div>
                 <div className="flex items-center gap-1 bg-surface-elevated rounded-full p-1">
                   {['monthly', 'annual'].map(b => (
                     <button key={b} onClick={() => setBilling(b)}
@@ -1895,7 +1914,7 @@ export default function Account() {
                         )}
                       </div>
                       <div className="flex items-center gap-3 flex-wrap">
-                        <span className="font-sans text-xs text-dim">⚡ {plan.credits.toLocaleString()} credits/tháng</span>
+                        <span className="font-sans text-xs text-dim">⚡ {plan.credits.toLocaleString()} lượt hỏi AI/tháng</span>
                         {plan.bonus && <span className="font-sans text-xs text-[var(--accent)]">🎁 {plan.bonus}</span>}
                       </div>
                       {plan.features && (
@@ -1926,7 +1945,10 @@ export default function Account() {
                     <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
                       <span className="font-sans text-[15px] font-bold text-foreground">{plan.price}</span>
                       {tier !== plan.tier && plan.tier !== 'basic' && (
-                        <span className="font-sans text-[0.6875rem] text-[var(--accent)]">Liên hệ nâng cấp</span>
+                        <>
+                          <span className="font-sans text-[0.6875rem] text-[var(--accent)]">Liên hệ nâng cấp</span>
+                          <span className="font-sans text-[0.625rem] text-dim">✓ Hoàn tiền 7 ngày · Không hỏi lý do</span>
+                        </>
                       )}
                     </div>
                   </div>
@@ -1943,7 +1965,7 @@ export default function Account() {
 
             {/* Top-up packages */}
             <section id="topup" className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
-              <span className="font-sans text-[15px] font-semibold text-foreground">Nạp thêm Credits</span>
+              <span className="font-sans text-[15px] font-semibold text-foreground">Nạp thêm lượt hỏi AI</span>
 
               {/* Personalized recommendation */}
               {topupRec ? (
@@ -1958,7 +1980,7 @@ export default function Account() {
                         <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">{topupRec.pack.label}</span>
                         <span className="font-sans text-[0.6875rem] text-dim">Gợi ý cho bạn</span>
                       </div>
-                      <span className="font-sans text-[18px] font-bold text-[var(--accent)]">⚡ {topupRec.pack.credits} credits</span>
+                      <span className="font-sans text-[18px] font-bold text-[var(--accent)]">⚡ {topupRec.pack.credits} lượt hỏi AI</span>
                       <span className="font-sans text-[0.6875rem] text-dim">Đủ cho ~{topupRec.coversDays} ngày học tập AI</span>
                     </div>
                     <span className="font-sans text-[16px] font-bold text-foreground flex-shrink-0">{topupRec.pack.price}</span>
@@ -1975,7 +1997,7 @@ export default function Account() {
                       <button key={pkg.price} onClick={() => setTopupPkg(pkg)}
                         className="flex flex-col items-center gap-1.5 px-4 py-4 rounded-xl border border-border bg-surface-elevated hover:border-[var(--accent-border)]/50 hover:bg-[var(--accent)]/5 transition">
                         <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-border text-muted">{pkg.label}</span>
-                        <span className="font-sans text-[18px] font-bold text-[var(--accent)]">⚡ {pkg.credits}</span>
+                        <span className="font-sans text-[18px] font-bold text-[var(--accent)]">⚡ {pkg.credits} lượt</span>
                         <span className="font-sans text-xs text-foreground">{pkg.price}</span>
                       </button>
                     ))}
@@ -2001,7 +2023,7 @@ export default function Account() {
             {/* Credit log */}
             {creditLog.length > 0 && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
-                <span className="font-sans text-[15px] font-semibold text-foreground">Lịch sử Credits</span>
+                <span className="font-sans text-[15px] font-semibold text-foreground">Lịch sử lượt hỏi AI</span>
                 <div className="flex flex-col gap-1">
                   {(showAllCredits ? creditLog : creditLog.slice(0, 8)).map((entry, i) => (
                     <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0">
@@ -2381,9 +2403,9 @@ export default function Account() {
             {referral?.referral_code && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-[15px] font-semibold text-foreground">Chia sẻ & Kiếm Credits</span>
+                  <span className="font-sans text-[15px] font-semibold text-foreground">Chia sẻ & Kiếm lượt hỏi AI</span>
                   <span className="font-sans text-xs text-dim">
-                    Bạn và người được mời đều nhận <span className="text-[var(--accent)]">⚡ 50 credits</span> khi họ đăng ký.
+                    Bạn và người được mời đều nhận <span className="text-[var(--accent)]">⚡ 50 lượt hỏi AI</span> khi họ đăng ký.
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -2404,7 +2426,7 @@ export default function Account() {
                   </button>
                 </div>
                 <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Zenith nhé! Dùng link này để nhận 50 credits miễn phí: ${referralUrl}`)}`}
+                  href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Zenith nhé! Dùng link này để nhận 50 lượt hỏi AI miễn phí: ${referralUrl}`)}`}
                   target="_blank" rel="noopener noreferrer"
                   className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-sans text-xs font-semibold bg-whatsapp text-white hover:opacity-90 transition"
                 >
@@ -2416,12 +2438,47 @@ export default function Account() {
                       <span className="text-[var(--accent)] font-bold">{referral.successful_referrals}</span> người đã tham gia qua link
                     </span>
                     <span className="font-sans text-xs text-[var(--accent)]">
-                      ⚡ {(referral.successful_referrals ?? 0) * 50} credits đã kiếm
+                      ⚡ {(referral.successful_referrals ?? 0) * 50} lượt hỏi AI đã kiếm
                     </span>
                   </div>
                 )}
               </section>
             )}
+
+            {/* Parent progress sharing */}
+            <div data-testid="parent-report-section" className="mt-6 pt-6 border-t border-border">
+              <h3 className="font-sans text-[15px] font-semibold text-foreground mb-1">
+                Chia sẻ tiến độ với bố/mẹ
+              </h3>
+              <p className="font-sans text-[12px] text-dim mb-4">
+                Tạo link báo cáo tuần để bố/mẹ xem tiến độ học tập của bạn — không cần đăng nhập.
+              </p>
+              <button
+                onClick={handleGenerateParentReport}
+                data-testid="generate-parent-report-btn"
+                className="font-sans text-[13px] font-semibold px-4 py-2 rounded-xl bg-surface border border-border text-foreground hover:border-primary/50 transition-colors"
+              >
+                Tạo báo cáo tuần →
+              </button>
+              {parentReportUrl && (
+                <div data-testid="parent-report-url" className="mt-3 p-3 bg-surface border border-border rounded-xl">
+                  <p className="font-sans text-[11px] text-dim mb-1">Link báo cáo (chia sẻ cho bố/mẹ):</p>
+                  <div className="flex items-center gap-2">
+                    <input
+                      readOnly
+                      value={parentReportUrl}
+                      className="flex-1 font-sans text-[11px] bg-transparent border-none outline-none text-foreground truncate"
+                    />
+                    <button
+                      onClick={() => navigator.clipboard.writeText(parentReportUrl)}
+                      className="font-sans text-[11px] font-semibold text-primary flex-shrink-0"
+                    >
+                      Sao chép
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Danger Zone — collapsed by default */}
             <section className="bg-surface border border-red-500/20 rounded-2xl p-7 flex flex-col gap-4">
@@ -2491,7 +2548,7 @@ export default function Account() {
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-sans text-[16px] font-bold text-foreground">Nạp ⚡ {topupPkg.credits} credits</p>
+                  <p className="font-sans text-[16px] font-bold text-foreground">Nạp ⚡ {topupPkg.credits} lượt hỏi AI</p>
                   <p className="font-sans text-[0.8125rem] text-dim mt-0.5">{topupPkg.price} · Chuyển khoản ngân hàng</p>
                 </div>
                 <button onClick={() => { setTopupPkg(null); setCopyBankDone(false) }} className="text-faint hover:text-foreground text-xl leading-none">×</button>
@@ -2523,7 +2580,7 @@ export default function Account() {
                 {copyBankDone ? '✓ Đã sao chép' : 'Sao chép thông tin'}
               </button>
               <p className="font-sans text-[0.6875rem] text-faint text-center">
-                Sau khi chuyển khoản, credits sẽ được cộng trong 1–2 giờ làm việc.
+                Sau khi chuyển khoản, lượt hỏi AI sẽ được cộng trong 1–2 giờ làm việc.
               </p>
             </motion.div>
           </motion.div>
@@ -2586,7 +2643,7 @@ export default function Account() {
             >
               <span className="font-sans text-[16px] font-bold text-destructive">Xóa tài khoản vĩnh viễn</span>
               <p className="font-sans text-[0.8125rem] text-muted">
-                Hành động này <strong className="text-foreground">không thể hoàn tác</strong>. Tất cả dữ liệu bao gồm lịch sử thi và credits sẽ bị xóa.
+                Hành động này <strong className="text-foreground">không thể hoàn tác</strong>. Tất cả dữ liệu bao gồm lịch sử thi và lượt hỏi AI sẽ bị xóa.
               </p>
               <div className="flex flex-col gap-1.5">
                 <span className="font-sans text-xs text-dim">Nhập địa chỉ email của bạn để xác nhận:</span>
@@ -2630,7 +2687,7 @@ export default function Account() {
         style={{ background: 'var(--bg)', borderTop: '1px solid var(--border)', paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
         {[
           { id: TAB_PROGRESS,  label: 'Tiến Độ',   icon: '📈' },
-          { id: TAB_AITIA,     label: 'AI & Credits',   icon: '⚡' },
+          { id: TAB_AITIA,     label: 'AI & Lượt hỏi',   icon: '⚡' },
         ].map(tab => (
           <button
             key={tab.id}

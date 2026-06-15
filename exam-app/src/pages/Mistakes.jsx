@@ -633,7 +633,7 @@ export default function Mistakes() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h2 className="font-sans text-[16px] font-bold text-foreground">Chẩn đoán AI</h2>
-                    <p className="font-sans text-[12px] text-dim mt-0.5">Top 3 hiểu lầm cốt lõi · ⚡2 credits</p>
+                    <p className="font-sans text-[12px] text-dim mt-0.5">Top 3 hiểu lầm cốt lõi · ⚡2 lượt hỏi AI</p>
                   </div>
                   {!trendAiData?.misconceptions?.length && !trendAiLoading && (
                     <button onClick={fetchTrendAI}

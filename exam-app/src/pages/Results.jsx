@@ -28,6 +28,7 @@ import { classifyLearner } from '../utils/learnerArchetype.js'
 import { TOPIC_ID_MAP } from '../utils/learningGraph.js'
 import { safeSetItem } from '../utils/storageManager.js'
 import { requestStudyReminder, checkAndShowStudyReminder } from '../utils/studyReminder.js'
+import MilestoneCard from '../components/MilestoneCard'
 import ResultShareCard from '../components/ResultShareCard.jsx'
 import { useToast } from '../context/ToastContext.jsx'
 import MarkdownProse from '../components/MarkdownProse.jsx'
@@ -419,7 +420,7 @@ export default function Results({ onOpenAuth }) {
         setPlanReady(true)
       } else if (!window[prefetchFlag]) {
         if ((user?.credits_balance ?? 0) < 5) {
-          setStudyPlanError('Không đủ credits. Cần ít nhất 5 Tia để tạo kế hoạch.')
+          setStudyPlanError('Không đủ lượt hỏi AI. Cần ít nhất 5 lượt hỏi AI để tạo kế hoạch.')
         } else {
           window[prefetchFlag] = true
           if (!cancelled) setStudyPlanLoading(true)
@@ -492,7 +493,7 @@ export default function Results({ onOpenAuth }) {
         } else {
           const failed = !!error
           if (streamStatus === 402) {
-            setAiError('Không đủ credits để phân tích. Nạp thêm credits trong trang Tài khoản.')
+            setAiError('Không đủ lượt hỏi AI để phân tích. Nạp thêm lượt hỏi AI trong trang Tài khoản.')
           } else if (streamStatus === 401) {
             setAiError('Vui lòng đăng nhập để dùng tính năng AI.')
           } else if (failed) {
@@ -514,7 +515,7 @@ export default function Results({ onOpenAuth }) {
             refundCredits(3)
             aiAnalyzeResult(payload).then(({ data, status: fbStatus }) => {
               if (cancelled || !data) {
-                if (fbStatus === 402) setAiError('Không đủ credits để phân tích. Nạp thêm credits trong trang Tài khoản.')
+                if (fbStatus === 402) setAiError('Không đủ lượt hỏi AI để phân tích. Nạp thêm lượt hỏi AI trong trang Tài khoản.')
                 return
               }
               const aiAnalysis = { ...data, _source: 'ai' }
@@ -774,6 +775,14 @@ export default function Results({ onOpenAuth }) {
       )}
 
       <div className="relative z-10 flex flex-col gap-5 max-w-3xl mx-auto w-full px-4 py-8">
+
+        {/* ── Milestone card ── */}
+        <MilestoneCard
+          examCount={results?.length ?? 1}
+          currentResult={result}
+          previousResult={results?.length >= 2 ? results[results.length - 2] : null}
+          subscriptionTier={user?.subscription_tier}
+        />
 
         {/* ── Score hero ── */}
         <motion.div
@@ -1121,10 +1130,15 @@ export default function Results({ onOpenAuth }) {
             {/* AI Insights */}
             <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center justify-between">
-                <span className="font-sans text-[16px] font-semibold text-gradient-aurora">Phân tích AI</span>
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-sans text-[16px] font-semibold text-gradient-aurora">Phân tích AI</span>
+                  {!isPaidUser && !analysis?._source && (
+                    <span className="font-sans text-[11px] text-dim">⚡ 3 lượt hỏi AI</span>
+                  )}
+                </div>
                 {isPaidUser
                   ? <span className="font-sans text-[0.6875rem] text-success/80">Miễn phí</span>
-                  : <span className="font-sans text-[0.6875rem] text-[var(--accent)]/70">⚡3 credits</span>
+                  : <span className="font-sans text-[0.6875rem] text-[var(--accent)]/70">⚡3 lượt hỏi AI</span>
                 }
               </div>
               {/* Streaming progress bar */}
@@ -1440,22 +1454,27 @@ export default function Results({ onOpenAuth }) {
               )}
               {planReady ? (
                 <button
-                  onClick={() => navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })}
+                  onClick={() => {
+                    if (user?.id && result?.id) {
+                      localStorage.setItem(`latest_study_plan_result_${user.id}`, result.id)
+                    }
+                    navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })
+                  }}
                   className="btn-primary w-full text-sm font-bold"
                 >
-                  Xem kế hoạch học tập ⚡5
+                  Xem kế hoạch học tập ⚡5 lượt hỏi AI
                 </button>
               ) : (
                 <button
                   onClick={() => {
                     if ((user?.credits_balance ?? 0) < 5) {
-                      setStudyPlanError('Không đủ credits. Cần ít nhất 5 Tia để tạo kế hoạch.')
+                      setStudyPlanError('Không đủ lượt hỏi AI. Cần ít nhất 5 lượt hỏi AI để tạo kế hoạch.')
                     }
                   }}
                   className="w-full py-3.5 rounded-xl font-sans text-sm font-bold flex items-center justify-center gap-2 text-faint border border-border transition"
                 >
                   {!studyPlanError && <span className="w-3.5 h-3.5 rounded-full border border-border border-t-primary animate-spin" />}
-                  {studyPlanError ? 'Không đủ credits' : 'Đang chuẩn bị…'}
+                  {studyPlanError ? 'Không đủ lượt hỏi AI' : 'Đang chuẩn bị…'}
                 </button>
               )}
             </div>

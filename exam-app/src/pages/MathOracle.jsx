@@ -895,6 +895,16 @@ export default function MathOracle() {
   const [history, setHistory] = useState(() => loadHistory())
   const [historyOpen, setHistoryOpen] = useState(false) // mobile dropdown
 
+  // ── First-use intro card ──────────────────────────────────────────────────
+  const [showIntro, setShowIntro] = useState(
+    () => !localStorage.getItem(`oracle_intro_seen_${user?.id}`)
+  )
+
+  function dismissIntro() {
+    if (user?.id) localStorage.setItem(`oracle_intro_seen_${user.id}`, 'true')
+    setShowIntro(false)
+  }
+
   const deleteHistory = id => {
     const updated = history.filter(h => h.id !== id)
     saveHistory(updated)
@@ -1286,6 +1296,28 @@ export default function MathOracle() {
             </button>
           )}
         </div>
+
+        {/* First-use intro card */}
+        {showIntro && (
+          <div data-testid="oracle-intro-card" className="mb-4 p-4 bg-surface border border-border rounded-xl flex flex-col gap-3">
+            <p className="font-sans text-[14px] font-semibold text-foreground">Hỏi AI — Gia sư Toán 24/7</p>
+            <ul className="flex flex-col gap-1">
+              {[
+                '✓ Giải từng bước — không chỉ đáp án',
+                '✓ Giải thích tại sao từng bước đúng',
+                '✓ Chỉ Toán THPT và Lớp 10 — không giải môn khác',
+              ].map(item => (
+                <li key={item} className="font-sans text-[12px] text-dim">{item}</li>
+              ))}
+            </ul>
+            <button
+              onClick={dismissIntro}
+              className="font-sans text-[12px] font-semibold text-primary text-left"
+            >
+              Đã hiểu, bắt đầu hỏi →
+            </button>
+          </div>
+        )}
 
         {/* Input */}
         <style>{`

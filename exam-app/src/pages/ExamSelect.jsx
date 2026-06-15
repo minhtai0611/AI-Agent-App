@@ -552,6 +552,37 @@ export default function ExamSelect({ onOpenAuth }) {
             initial="hidden"
             animate="show"
           >
+          {/* Pinned recommendation row */}
+          {user?.grade && (() => {
+            const gradeCategory = parseInt(user.grade) <= 9 ? 'grade10' : 'thpt'
+            const recommended = allExams
+              .filter(e => e.category === gradeCategory)
+              .sort((a, b) => (b.year ?? 0) - (a.year ?? 0))
+              .slice(0, 2)
+            if (!recommended.length) return null
+            return (
+              <motion.div data-testid="recommended-exams" variants={cardVariants} className="mb-2">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="font-sans text-[12px] font-semibold text-foreground">Đề phù hợp với bạn</span>
+                  <span className="font-sans text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+                    Mới nhất 2025
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {recommended.map(exam => (
+                    <div
+                      key={exam.id}
+                      onClick={() => openPreview(exam)}
+                      className="flex items-center justify-between p-3 rounded-xl border border-primary/20 bg-surface cursor-pointer hover:border-primary/40 transition-colors"
+                    >
+                      <span className="font-sans text-[13px] font-semibold text-foreground">{exam.title}</span>
+                      <span className="font-sans text-[11px] text-primary font-semibold">→</span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )
+          })()}
           {groups.map(group => {
             const categoryAllowed = !allowedCategories || allowedCategories.includes(group.category)
             const groupExams = exams.filter(e => e.category === group.category && e._examType === group.source)

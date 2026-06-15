@@ -169,6 +169,7 @@ export default function StudyPlan() {
   const [error, setError]     = useState(false)
   const [streaks, setStreaks] = useState({})   // { areaIndex: correctInARow }
   const [adaptivePlan, setAdaptivePlan] = useState(null)
+  const [hasSavedPlan, setHasSavedPlan] = useState(false)
 
   const result  = location.state?.result  || results.find(r => r.id === resultId)
   const history = location.state?.history || results.filter(r => r.id !== resultId)
@@ -179,6 +180,15 @@ export default function StudyPlan() {
       try { setStreaks(JSON.parse(saved)) } catch {}
     }
   }, [uid, resultId])
+
+  useEffect(() => {
+    if (!result && uid) {
+      const savedId = localStorage.getItem(`latest_study_plan_result_${uid}`)
+      if (savedId) {
+        setHasSavedPlan(true)
+      }
+    }
+  }, [uid, result])
 
   useEffect(() => {
     if (!result) return
@@ -215,6 +225,20 @@ export default function StudyPlan() {
     const questions = await loadQuestionsByIds(exam.questionIds)
     dispatch({ type: 'START_EXAM', exam, questions, mode: 'timed' })
     navigate(`/test/${examId}`)
+  }
+
+  if (!result && hasSavedPlan) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-12" data-testid="load-saved-plan">
+        <p className="font-sans text-[14px] text-foreground">Bạn có lộ trình học đã lưu.</p>
+        <button
+          onClick={() => navigate(-1)}
+          className="font-sans text-[13px] font-semibold text-primary"
+        >
+          Quay lại kết quả để xem lộ trình →
+        </button>
+      </div>
+    )
   }
 
   if (!result) {

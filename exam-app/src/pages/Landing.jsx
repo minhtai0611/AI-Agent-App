@@ -14,17 +14,19 @@ import { getSessionToday } from '../api/aiClient.js'
 import { checkAndShowWeeklyReport } from '../utils/studyReminder.js'
 import ZenithLogo from '../components/ZenithLogo.jsx'
 
+const VN_PROVINCES = ['An Giang','Bà Rịa - Vũng Tàu','Bắc Giang','Bắc Kạn','Bạc Liêu','Bắc Ninh','Bến Tre','Bình Định','Bình Dương','Bình Phước','Bình Thuận','Cà Mau','Cần Thơ','Cao Bằng','Đà Nẵng','Đắk Lắk','Đắk Nông','Điện Biên','Đồng Nai','Đồng Tháp','Gia Lai','Hà Giang','Hà Nam','Hà Nội','Hà Tĩnh','Hải Dương','Hải Phòng','Hậu Giang','Hòa Bình','Hưng Yên','Khánh Hòa','Kiên Giang','Kon Tum','Lai Châu','Lâm Đồng','Lạng Sơn','Lào Cai','Long An','Nam Định','Nghệ An','Ninh Bình','Ninh Thuận','Phú Thọ','Phú Yên','Quảng Bình','Quảng Nam','Quảng Ngãi','Quảng Ninh','Quảng Trị','Sóc Trăng','Sơn La','Tây Ninh','Thái Bình','Thái Nguyên','Thanh Hóa','Thừa Thiên Huế','Tiền Giang','TP. Hồ Chí Minh','Trà Vinh','Tuyên Quang','Vĩnh Long','Vĩnh Phúc','Yên Bái']
+
 const PLANS_MONTHLY = [
   {
-    tier: 'basic', label: 'Cơ bản', price: 'Miễn phí', credits: 50,
+    tier: 'basic', label: 'Thử miễn phí', price: 'Miễn phí', credits: 50,
     features: ['5 lượt Zenith AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'],
   },
   {
-    tier: 'student', label: 'Học sinh', price: '29,000đ / tháng', credits: 500, badge: 'PHỔ BIẾN',
+    tier: 'student', label: 'Học sinh', price: '29,000đ / tháng', credits: 500, badge: '⭐ 95% học sinh chọn',
     features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học'],
   },
   {
-    tier: 'complete', label: 'Toàn diện', price: '59,000đ / tháng', credits: 2000,
+    tier: 'complete', label: '8.5+ Nâng cao', price: '59,000đ / tháng', credits: 2000,
     features: ['Tất cả gói Học sinh', 'Tất cả đề thi thử & luyện tập', '⚗ Tạo đề AI riêng', 'Dự đoán điểm số', 'Kế hoạch thích nghi AI', 'Chiến lược thi', 'So sánh tỉnh thành'],
   },
 ]
@@ -45,10 +47,34 @@ const TESTIMONIALS = [
 ]
 
 const FAQ_ITEMS = [
-  { q: 'Zenith có khác gì so với ôn thi thông thường?', a: 'AI tìm ra lỗi sai cụ thể trong bài làm và đề xuất bài luyện phù hợp — không chỉ chấm điểm như các nền tảng thông thường.' },
-  { q: 'Tôi có phải trả tiền không?', a: 'Miễn phí hoàn toàn để bắt đầu với 50 credits và 1 đề thi thử. Nâng cấp khi bạn muốn dùng thêm tính năng AI.' },
-  { q: 'Đề thi trên Zenith có thật không?', a: '1,104 câu hỏi từ đề thi chính thức của Bộ GD&ĐT và 63 tỉnh thành. Tất cả câu hỏi từ nguồn thật — không có câu do AI tạo ra.' },
-  { q: 'Zenith dùng được cho học sinh lớp 9 thi vào lớp 10 không?', a: 'Có — Zenith bao gồm đề tuyển sinh lớp 10 từ các tỉnh thành trên toàn quốc.' },
+  {
+    q: 'Khác gì app khác?',
+    a: 'Không cho đề tràn lan. Zenith tìm đúng chỗ bạn đang sai rồi luyện đúng chỗ đó — không phải ôn lại từ đầu.',
+  },
+  {
+    q: 'Có mất phí không?',
+    a: 'Thử miễn phí. Không cần thẻ ngân hàng. Nếu thấy ổn thì 29k/tháng — bằng 1 cốc trà sữa. Hoàn tiền 7 ngày.',
+  },
+  {
+    q: 'Đề có thật không hay do AI tạo?',
+    a: 'Tất cả 1,104 câu lấy từ đề thi chính thức — Bộ GD&ĐT và 63 tỉnh, cập nhật 2025. Không có câu nào do AI tạo ra.',
+  },
+  {
+    q: 'Lớp 9 thi vào 10 dùng được không?',
+    a: 'Được. Chọn chế độ "Thi vào 10" — đề và lộ trình sẽ khớp đúng với kỳ thi của bạn.',
+  },
+  {
+    q: 'Mất bao lâu mỗi ngày?',
+    a: '20–25 phút. 1 đề mini + ôn lại những câu AI nhắc. Có ngày bận chỉ cần 10 phút ôn nhanh cũng được.',
+  },
+  {
+    q: 'Không hợp có hoàn tiền không?',
+    a: 'Có. Hoàn tiền 7 ngày, không hỏi lý do. Liên hệ Zalo CSKH hoặc email — xử lý trong 24h.',
+  },
+  {
+    q: 'Bố mẹ mình có xem tiến độ được không?',
+    a: 'Được. Vào Tài khoản → Chia sẻ tiến độ để tạo link báo cáo tuần cho bố mẹ xem.',
+  },
 ]
 
 const BENTO_FEATURES = [
@@ -184,6 +210,14 @@ export default function Landing({ onOpenAuth }) {
   const [session, setSession] = useState(null)
   const [questionMap, setQuestionMap] = useState({})
   const [showStickyCta, setShowStickyCta] = useState(false)
+  const [guestProvince, setGuestProvince] = useState(
+    () => localStorage.getItem('guest_province') || ''
+  )
+  function handleProvinceChange(e) {
+    const v = e.target.value
+    setGuestProvince(v)
+    if (v) localStorage.setItem('guest_province', v)
+  }
   const streak = useMemo(() => computeStreak(results), [results])
   const daysUntil = user ? getDaysUntilExam(user.province) : null
   const province = user?.province ?? 'Hà Nội'
@@ -281,30 +315,10 @@ export default function Landing({ onOpenAuth }) {
             </span>
             <h1 className="font-sans font-bold text-foreground leading-[1.05] text-center"
               style={{ fontSize: 'clamp(2.5rem,6vw,4.5rem)', letterSpacing: '-0.02em' }}>
-              <motion.span className="block"
-                initial="hidden" animate="show"
-                variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}>
-                {['Học', 'để', 'hiểu,'].map((word, i) => (
-                  <motion.span key={i} className="inline-block mr-[0.25em]"
-                    variants={{ hidden: { opacity: 0, y: 60 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } } }}>
-                    {word}
-                  </motion.span>
-                ))}
-              </motion.span>
-              <motion.span className="block text-primary"
-                initial="hidden" animate="show"
-                variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06, delayChildren: 0.24 } } }}>
-                {['không', 'học', 'để', 'quên.'].map((word, i) => (
-                  <motion.span key={i} className="inline-block mr-[0.25em]"
-                    variants={{ hidden: { opacity: 0, y: 60 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } } }}>
-                    {word}
-                  </motion.span>
-                ))}
-              </motion.span>
+              Học thật, đỗ thật.
             </h1>
             <p className="font-sans text-[17px] text-muted leading-relaxed max-w-[600px] text-center">
-              Zenith phân tích từng bài thi, tìm đúng điểm yếu của bạn, và tạo lộ trình ôn tập cá nhân.<br />
-              <span className="text-dim text-[15px]">Dữ liệu thực từ đề thi {province} · AI phát hiện lỗi sai và chỉ cách sửa.</span>
+              Zenith xem bạn sai câu nào, tìm đúng chỗ mất điểm nhiều nhất, rồi luyện đúng chỗ đó thôi. Không tốn thời gian ôn những gì bạn đã biết rồi.
             </p>
           </motion.div>
 
@@ -328,12 +342,24 @@ export default function Landing({ onOpenAuth }) {
               </button>
             </form>
             <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-2 mb-3" data-testid="province-selector-wrap">
+                <span className="font-sans text-[12px] text-dim">Tôi thi ở:</span>
+                <select
+                  value={guestProvince}
+                  onChange={handleProvinceChange}
+                  data-testid="province-selector"
+                  className="font-sans text-[12px] border border-border rounded-lg px-2 py-1 bg-surface text-foreground"
+                >
+                  <option value="">Chọn tỉnh...</option>
+                  {VN_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
               <div className="flex items-center gap-3">
-                <motion.button onClick={() => navigate('/exams')}
+                <motion.button onClick={() => navigate('/practice/diagnostic')}
                   className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-bold cta-gradient-btn"
                   whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
-                  Thi thử ngay →
+                  Thi thử ngay — không cần đăng ký →
                 </motion.button>
                 <motion.button onClick={() => navigate('/diagnostic')}
                   className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-semibold text-muted border border-surface bg-surface/60 hover:border-primary/30 hover:text-foreground transition"
@@ -343,7 +369,20 @@ export default function Landing({ onOpenAuth }) {
                   Kiểm tra năng lực
                 </motion.button>
               </div>
-              {!user && <p className="font-sans text-[11px] text-dim">Không cần tạo tài khoản · Xem ngay kết quả</p>}
+              {!user && <p className="font-sans text-[11px] text-dim">Không cần đăng ký · Kết quả sau 5 phút</p>}
+              {/* Objection strip */}
+              <div className="flex flex-wrap gap-3 justify-center mt-4">
+                {[
+                  { q: 'Đề thi thật 63 tỉnh?', a: 'Có. 1,104 câu, cập nhật 2025' },
+                  { q: 'Mất bao lâu?', a: '25 phút/ngày' },
+                  { q: 'Có mất phí không?', a: 'Thử miễn phí. 29k/tháng khi sẵn sàng' },
+                ].map(item => (
+                  <div key={item.q} className="flex flex-col items-center px-4 py-2 rounded-xl border border-border bg-surface text-center min-w-[140px]">
+                    <span className="font-sans text-[11px] text-dim">{item.q}</span>
+                    <span className="font-sans text-[12px] font-semibold text-foreground mt-0.5">{item.a}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -445,7 +484,7 @@ export default function Landing({ onOpenAuth }) {
         <div className="text-center mb-10">
           <span className="font-sans text-[11px] font-semibold tracking-[3px] uppercase text-dim">Tính năng</span>
           <h2 className="font-sans font-bold text-foreground mt-2" style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)' }}>
-            Mọi thứ bạn cần để ôn thi hiệu quả
+            Những thứ app khác không có
           </h2>
         </div>
         <div className="grid grid-cols-12 gap-3">
@@ -510,14 +549,14 @@ export default function Landing({ onOpenAuth }) {
         <div className="text-center mb-10">
           <span className="font-sans text-[11px] font-semibold tracking-[3px] uppercase text-dim">Cách hoạt động</span>
           <h2 className="font-sans font-bold text-foreground mt-2" style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)' }}>
-            3 bước từ đề thi đến làm chủ kiến thức
+            Dùng thế nào?
           </h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { step: '01', title: 'Làm đề thật', desc: `Chọn đề từ ${province} — Zenith theo dõi từng câu đúng sai theo trọng số đề thật`, color: '#6366F1' },
-            { step: '02', title: 'AI phân tích điểm yếu', desc: 'Tìm ra lỗi sai cụ thể và khái niệm cần củng cố — không đoán chung chung theo chủ đề', color: '#8B5CF6' },
-            { step: '03', title: 'Luyện đúng chỗ', desc: 'Thuật toán FSRS lên lịch ôn tập cá nhân — học ít hơn, nhớ lâu hơn', color: '#06B6D4' },
+            { step: '01', title: 'Làm đề thật của tỉnh mình', desc: 'Đề từ tỉnh bạn, cập nhật 2025. Zenith ghi lại bạn sai câu nào — không chỉ tổng điểm.', color: '#6366F1' },
+            { step: '02', title: 'Biết mình đang yếu chỗ nào', desc: 'Không phải \'sai 15/50 câu\'. Là: Hình học — bạn sai 7/8 câu phần đường tròn.', color: '#8B5CF6' },
+            { step: '03', title: 'AI nhắc ôn đúng lúc bạn sắp quên', desc: 'Zenith nhắc bạn ôn lại câu đó đúng lúc bạn sắp quên. Không cần tự nhớ ôn — app tự nhắc.', color: '#06B6D4' },
           ].map(({ step, title, desc, color }, i) => (
             <motion.div key={step}
               initial={{ opacity: 0, y: 16 }}
@@ -532,6 +571,42 @@ export default function Landing({ onOpenAuth }) {
           ))}
         </div>
       </div>
+
+      {/* ── Comparison table ─────────────────────────────────────────────────── */}
+      <section className="py-16 px-4 max-w-3xl mx-auto" data-testid="comparison-table">
+        <h2 className="font-sans text-[22px] font-bold text-foreground text-center mb-2">
+          "Sách cho bạn đề. Zenith cho bạn chẩn đoán."
+        </h2>
+        <p className="font-sans text-[13px] text-dim text-center mb-8">Tại sao chẩn đoán quan trọng hơn làm đề tràn lan?</p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-[13px]">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left py-2 text-dim font-normal"></th>
+                <th className="py-2 text-center text-dim font-normal">Sách luyện đề</th>
+                <th className="py-2 text-center text-dim font-normal">YouTube</th>
+                <th className="py-2 text-center font-bold text-primary">Zenith</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { feature: 'Đề thi thật',             sach: true,  yt: false, zenith: true  },
+                { feature: 'Chẩn đoán điểm yếu',      sach: false, yt: false, zenith: true  },
+                { feature: 'AI giải Socratic',         sach: false, yt: false, zenith: true  },
+                { feature: 'Lộ trình cá nhân',        sach: false, yt: false, zenith: true  },
+                { feature: 'Ôn lại đúng lúc (FSRS)', sach: false, yt: false, zenith: true  },
+              ].map(row => (
+                <tr key={row.feature} className="border-b border-border/50">
+                  <td className="py-2.5 text-foreground">{row.feature}</td>
+                  <td className="py-2.5 text-center text-dim">{row.sach ? '✓' : '✗'}</td>
+                  <td className="py-2.5 text-center text-dim">{row.yt ? '✓' : '✗'}</td>
+                  <td className="py-2.5 text-center font-bold text-primary" data-testid="zenith-cell">{row.zenith ? '✓' : '✗'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       {/* ── Score prediction ─────────────────────────────────────────────────── */}
       <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-8">
@@ -609,7 +684,7 @@ export default function Landing({ onOpenAuth }) {
         <div className="h-px w-full mb-12" style={{ background: 'linear-gradient(90deg, transparent, var(--border), transparent)' }} />
         <div className="flex flex-col items-center gap-2 text-center mb-8">
           <span className="font-sans text-[28px] font-bold text-foreground">Bắt đầu miễn phí</span>
-          <p className="font-sans text-[14px] text-dim">Không cần thẻ ngân hàng · Nâng cấp khi bạn sẵn sàng</p>
+          <p className="font-sans text-[14px] text-dim">Không cần thẻ ngân hàng · Hủy bất cứ lúc nào · Hoàn tiền 7 ngày</p>
         </div>
         <div className="flex flex-col gap-3">
           {PLANS_MONTHLY.map((plan, i) => (
@@ -644,7 +719,7 @@ export default function Landing({ onOpenAuth }) {
                       transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
                       {user ? (plan.tier === 'student' ? 'Bắt đầu học ngay' : 'Mở khóa toàn bộ') : 'Đăng nhập'}
                     </motion.button>
-                    <span className="font-sans text-[10px] text-dim">✓ Hoàn tiền trong 7 ngày</span>
+                    <span className="font-sans text-[10px] text-dim">✓ Hoàn tiền 7 ngày · Không hỏi lý do · = 1 cốc trà sữa/tuần</span>
                   </>
                 )}
               </div>
@@ -684,13 +759,13 @@ export default function Landing({ onOpenAuth }) {
         <div className="flex flex-col items-center gap-6 text-center py-24 px-6 relative">
           <h2 className="font-sans font-bold text-foreground max-w-xl"
             style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.02em' }}>
-            Bắt đầu ôn thi hiệu quả hôm nay
+            Thử ngay — chỉ mất 5 phút
           </h2>
           <p className="font-sans text-[15px] text-muted max-w-sm">
-            Miễn phí · Không cần tài khoản để làm thử · Nâng cấp khi bạn sẵn sàng
+            Miễn phí · Không cần đăng ký · Kết quả sau 8 câu
           </p>
           <div className="flex items-center gap-3 flex-wrap justify-center">
-            <motion.button onClick={() => navigate('/exams')}
+            <motion.button onClick={() => navigate('/practice/diagnostic')}
               className="px-7 py-3.5 rounded-xl font-sans text-[15px] font-bold cta-gradient-btn"
               whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}>

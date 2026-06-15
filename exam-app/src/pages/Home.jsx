@@ -9,6 +9,8 @@ import { CONCEPTS } from '../data/concepts.js'
 import { loadExamById } from '../api/index.js'
 import { getTopicLabel } from '../utils/topicLabels.js'
 import { PROVINCE_THRESHOLDS } from './Progress.jsx'
+import WelcomePanel from '../components/WelcomePanel'
+import { getTwoExamEstimate } from '../utils/scoreProjection'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -89,6 +91,7 @@ const FOCUS_CONFIGS = {
   first_exam: {
     eyebrow: 'Bắt đầu hành trình',
     title: 'Làm bài thi đầu tiên của bạn',
+    context: 'Zenith cần ít nhất 1 kết quả để xây dựng lộ trình riêng cho bạn.',
     description: 'Zenith sẽ phân tích kết quả và xác định đúng điểm yếu của bạn.',
     cta: 'Chọn bài thi',
     path: '/exams',
@@ -97,6 +100,7 @@ const FOCUS_CONFIGS = {
   done: {
     eyebrow: null, // set dynamically
     title: 'Hoàn thành mục tiêu hôm nay!',
+    context: 'Hoàn thành hôm nay! Quay lại ngày mai để tiếp tục chuỗi học.',
     description: 'Bạn đã ôn tập xong. Muốn luyện thêm không?',
     cta: 'Luyện tập thêm',
     path: '/practice',
@@ -105,6 +109,7 @@ const FOCUS_CONFIGS = {
   review: {
     eyebrow: 'Ôn tập hằng ngày',
     title: null, // set dynamically
+    context: 'Những câu này xuất hiện nhiều trong đề thi gần đây — đúng lúc ôn lại.',
     description: 'Lặp lại đúng lúc giúp bạn ghi nhớ lâu hơn gấp 3 lần.',
     cta: 'Bắt đầu ôn tập',
     path: '/review',
@@ -113,6 +118,7 @@ const FOCUS_CONFIGS = {
   analysis: {
     eyebrow: 'Kết quả vừa thi',
     title: null, // set dynamically
+    context: null,
     description: null, // set dynamically
     cta: 'Xem phân tích AI',
     path: null, // set dynamically
@@ -121,6 +127,7 @@ const FOCUS_CONFIGS = {
   practice: {
     eyebrow: 'Khái niệm cần luyện',
     title: null, // set dynamically
+    context: 'Đây là dạng bài bạn sai nhiều nhất — 15 phút mỗi ngày tạo ra sự khác biệt rõ rệt.',
     description: 'Luyện tập có mục tiêu cải thiện nhanh hơn ôn tập ngẫu nhiên.',
     cta: 'Luyện tập ngay',
     path: '/practice',
@@ -129,6 +136,7 @@ const FOCUS_CONFIGS = {
   exam: {
     eyebrow: 'Tạo tín hiệu học tập',
     title: 'Làm bài thi tiếp theo',
+    context: null,
     description: 'Mỗi bài thi giúp Zenith hiểu hơn về điểm yếu của bạn.',
     cta: 'Chọn bài thi',
     path: '/exams',
@@ -183,6 +191,9 @@ function DailyFocusCard({ action, loading, navigate, onDismiss }) {
       <h2 className="font-sans text-[20px] font-bold text-foreground leading-tight mb-1">
         {cfg.title}
       </h2>
+      {cfg.context && (
+        <p className="font-sans text-[12px] text-dim mb-1">{cfg.context}</p>
+      )}
       <p className="font-sans text-[13px] text-muted mb-4">
         {cfg.description}
       </p>
@@ -567,6 +578,14 @@ export default function Home() {
           </h1>
         </div>
 
+        {/* ── Welcome Panel (new users) ── */}
+        <WelcomePanel
+          userId={user?.id}
+          diagnosticDone={!!localStorage.getItem(`diagnostic_weights_${user?.id}`)}
+          hasExams={results && results.length > 0}
+          aiInsightViewed={!!localStorage.getItem(`ai_tooltip_seen_${user?.id}`)}
+        />
+
         {/* ── Daily Focus ── */}
         {!focusDismissed && (
           <DailyFocusCard action={primaryAction} loading={loading} navigate={navigate} onDismiss={dismissFocus} />
@@ -606,8 +625,32 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ── Score Prediction (≥4 exams) ── */}
+        {/* ── Score Prediction (≥4 exams, complete tier via backend Kalman) ── */}
         {scorePrediction && <ScorePredictionCard data={scorePrediction} navigate={navigate} />}
+
+        {/* ── 2-exam estimate (basic/student tier, ≥2 exams) ── */}
+        {results?.length >= 2 && user?.subscription_tier !== 'complete' && (() => {
+          const scores = results.map(r => r.score ?? r.total_score ?? 0)
+          const est = getTwoExamEstimate(scores)
+          return est ? (
+            <div data-testid="two-exam-estimate" className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-1">
+              <span className="font-sans text-[11px] text-dim font-semibold uppercase tracking-wide">Dự đoán điểm</span>
+              <span className="font-sans text-[22px] font-bold text-foreground">{est.predicted}</span>
+              <span className="font-sans text-[11px] text-dim">Khoảng {est.low}–{est.high} · {est.label}</span>
+            </div>
+          ) : null
+        })()}
+
+        {/* ── Study plan quick link ── */}
+        {user?.id && localStorage.getItem(`latest_study_plan_result_${user.id}`) && (
+          <button
+            data-testid="study-plan-link"
+            onClick={() => navigate('/study-plan')}
+            className="font-sans text-[12px] font-semibold text-primary text-left"
+          >
+            Xem lộ trình học của mình →
+          </button>
+        )}
 
         {/* ── Province Benchmark (≥2 exams + province set) ── */}
         {!loading && <ProvinceBenchmarkCard user={user} results={results} navigate={navigate} />}
@@ -705,6 +748,29 @@ export default function Home() {
             <QuickLinks navigate={navigate} />
           </div>
         )}
+
+        {/* ── 7-day progress report card ── */}
+        {(() => {
+          const createdAt = user?.created_at ? new Date(user.created_at) : null
+          const daysSince = createdAt ? Math.floor((Date.now() - createdAt.getTime()) / 86400000) : 0
+          if (daysSince < 7 || !results || results.length < 2) return null
+          const totalReviews = results.reduce((acc, r) => acc + (r.questions_reviewed ?? 0), 0)
+          return (
+            <div data-testid="week-report-card" className="bg-surface border border-border rounded-2xl p-5 flex flex-col gap-2">
+              <span className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Tuần đầu tiên với Zenith</span>
+              <div className="grid grid-cols-2 gap-3 mt-1">
+                <div>
+                  <p className="font-sans text-[20px] font-bold text-foreground">{results.length}</p>
+                  <p className="font-sans text-[11px] text-dim">bài thi đã làm</p>
+                </div>
+                <div>
+                  <p className="font-sans text-[20px] font-bold text-foreground">{totalReviews}</p>
+                  <p className="font-sans text-[11px] text-dim">câu đã ôn tập</p>
+                </div>
+              </div>
+            </div>
+          )
+        })()}
       </div>
     </motion.div>
   )

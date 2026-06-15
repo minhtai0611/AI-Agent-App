@@ -149,7 +149,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
     } else if (status === 401) {
       setHintError('Đăng nhập để sử dụng gợi ý AI')
     } else if (status === 402 && typeof error === 'object' && error.code === 'insufficient_credits') {
-      setHintError(`Hết credits (còn ${error.balance}, cần ${error.required})`)
+      setHintError('Hết lượt hỏi AI. Nạp thêm trong Tài khoản.')
     } else if (status === 429) {
       setHintError('Vui lòng chờ trước khi yêu cầu gợi ý tiếp theo')
     } else {
@@ -301,7 +301,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
                 <span className="text-[var(--primary)]">💡</span>
               )}
               Gợi ý ({hintCount}/{MAX_HINTS})
-              <span className="text-[var(--faint)] text-[0.625rem]">⚡1</span>
+              <span className="text-[var(--faint)] text-[0.625rem]">⚡ 1 lượt</span>
             </button>
           )}
           {hintError && (
@@ -344,7 +344,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
                 <span className="text-[var(--primary)]">💡</span>
               )}
               Gợi ý ({hintCount}/{MAX_HINTS})
-              <span className="text-[var(--faint)] text-[0.625rem]">⚡1</span>
+              <span className="text-[var(--faint)] text-[0.625rem]">⚡ 1 lượt</span>
             </button>
           ) : null}
           {hintError && (

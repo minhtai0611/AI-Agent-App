@@ -120,6 +120,20 @@ export default function DailyChallenge() {
 
   const [streak, setStreak] = useState(() => computeStreak(loadStreak(user?.id)))
 
+  const [showFreezeToast, setShowFreezeToast] = useState(false)
+  const [freezeCount, setFreezeCount] = useState(0)
+
+  useEffect(() => {
+    // Show toast if streak was frozen (streak_freeze_count present and streak is intact despite a gap)
+    const raw = loadStreak(user?.id)
+    if (raw.freeze_used_recently) {
+      setFreezeCount(raw.streak_freeze_count ?? 0)
+      setShowFreezeToast(true)
+      const t = setTimeout(() => setShowFreezeToast(false), 5000)
+      return () => clearTimeout(t)
+    }
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Load question
   useEffect(() => {
     async function load() {
@@ -201,6 +215,51 @@ export default function DailyChallenge() {
       <div className="min-h-screen bg-surface flex items-center justify-center px-4">
         <p className="font-sans text-[14px] text-dim text-center">Không tìm thấy câu hỏi hôm nay.</p>
       </div>
+    )
+  }
+
+  // Completed today in a previous session (chosen === null means this session hasn't answered yet)
+  if (streak.completedToday && chosen === null) {
+    return (
+      <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
+        className="min-h-screen bg-surface pb-16">
+        <div className="max-w-xl mx-auto px-4 pt-20">
+          <div className="flex items-center justify-between mb-6">
+            <button onClick={() => navigate(-1)} className="font-sans text-[13px] text-dim hover:text-muted transition">
+              ← Quay lại
+            </button>
+          </div>
+          {/* Completed today state */}
+          <div data-testid="completed-today-state" className="flex flex-col items-center gap-4 py-12">
+            <div className="text-4xl">✓</div>
+            <h2 className="font-sans text-[20px] font-semibold text-foreground">Bạn đã hoàn thành hôm nay!</h2>
+            <p className="font-sans text-[14px] text-dim">
+              🔥 {streak?.current ?? 0} ngày liên tiếp
+            </p>
+            <p className="font-sans text-[13px] text-dim text-center max-w-xs">
+              Quay lại ngày mai để tiếp tục chuỗi học.
+            </p>
+            <button
+              onClick={() => navigate('/practice')}
+              className="font-sans text-[13px] font-semibold px-4 py-2 rounded-xl border border-border bg-surface text-foreground mt-2"
+            >
+              Luyện thêm →
+            </button>
+          </div>
+        </div>
+        {showFreezeToast && (
+          <div
+            data-testid="freeze-toast"
+            className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-surface border border-border rounded-xl px-4 py-3 shadow-lg flex items-center gap-2 max-w-xs"
+          >
+            <span className="text-lg">🧊</span>
+            <div>
+              <p className="font-sans text-[13px] font-semibold text-foreground">Chuỗi học của bạn được bảo vệ</p>
+              <p className="font-sans text-[11px] text-dim">Còn {freezeCount} lần đóng băng tuần này</p>
+            </div>
+          </div>
+        )}
+      </motion.div>
     )
   }
 
@@ -309,6 +368,19 @@ export default function DailyChallenge() {
           </div>
         )}
       </div>
+
+      {showFreezeToast && (
+        <div
+          data-testid="freeze-toast"
+          className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-surface border border-border rounded-xl px-4 py-3 shadow-lg flex items-center gap-2 max-w-xs"
+        >
+          <span className="text-lg">🧊</span>
+          <div>
+            <p className="font-sans text-[13px] font-semibold text-foreground">Chuỗi học của bạn được bảo vệ</p>
+            <p className="font-sans text-[11px] text-dim">Còn {freezeCount} lần đóng băng tuần này</p>
+          </div>
+        </div>
+      )}
     </motion.div>
   )
 }

@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense, useCallback } from 'react'
+import { useState, lazy, Suspense, useCallback, useEffect, useRef } from 'react'
 import { useGoogleOneTapLogin } from '@react-oauth/google'
 import { MotionConfig, AnimatePresence } from 'framer-motion'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
@@ -94,6 +94,20 @@ function AppInner() {
     || location.pathname === '/admin/security-events'
     || location.pathname.startsWith('/test/')
 
+  // Post-login redirect: if user just logged in and a redirect path was saved, navigate there
+  const prevUserRef = useRef(user)
+  useEffect(() => {
+    const wasLoggedOut = !prevUserRef.current
+    prevUserRef.current = user
+    if (wasLoggedOut && user) {
+      const redirectPath = localStorage.getItem('post_login_redirect')
+      if (redirectPath) {
+        localStorage.removeItem('post_login_redirect')
+        navigate(redirectPath)
+      }
+    }
+  }, [user, navigate])
+
   const [resumeBanner] = useState(() => {
     try {
       for (let i = 0; i < sessionStorage.length; i++) {
@@ -146,7 +160,7 @@ function AppInner() {
 
   const showOnboarding = !loading && user && !user.grade
   const showExtendedOnboarding = !loading && user && user.grade && !user.extended_onboarding_done && results.length >= 1
-  const showLowCredit = !loading && user && (user.credits_balance ?? 0) < 10
+  const showLowCredit = !loading && user && (user.credits_balance ?? 0) < 15
   const showSuspension = !loading && Boolean(user?.is_suspended)
   const showLocked = !loading && Boolean(user?.is_locked)
   const showDeactivated = !loading && Boolean(user?.is_deactivated)
@@ -212,7 +226,7 @@ function AppInner() {
             {/* Learning routes — canonical paths */}
             <Route path="/practice" element={<AdaptivePractice />} />
             <Route path="/practice/daily" element={<DailyChallenge />} />
-            <Route path="/practice/diagnostic" element={<DiagnosticTest />} />
+            <Route path="/practice/diagnostic" element={<DiagnosticTest onOpenAuth={() => setAuthOpen(true)} />} />
             <Route path="/mastery" element={<ConceptMap />} />
             {/* Legacy redirects — keep old URLs alive */}
             <Route path="/practice/adaptive" element={<Navigate to="/practice" replace />} />

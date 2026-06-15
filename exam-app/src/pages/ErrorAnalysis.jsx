@@ -113,7 +113,7 @@ export default function ErrorAnalysis() {
 
   // Auto-fetch if user is logged in and has exam history
   useEffect(() => {
-    if (user?.id && results?.length >= 3) fetchAI()
+    if (user?.id && results?.length >= 2) fetchAI()
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const hasMisconceptions = aiData?.misconceptions?.length > 0
@@ -133,11 +133,11 @@ export default function ErrorAnalysis() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 pt-8 flex flex-col gap-8">
-        {(!results || results.length < 3) ? (
+        {(!results || results.length < 2) ? (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <span className="text-4xl">📊</span>
             <span className="font-sans text-[18px] font-bold text-foreground">Cần thêm dữ liệu</span>
-            <p className="font-sans text-[13px] text-dim max-w-xs">Hoàn thành ít nhất 3 bài thi để xem phân tích lỗi sai.</p>
+            <p className="font-sans text-[13px] text-dim max-w-xs">Hoàn thành ít nhất 2 bài thi để xem phân tích lỗi sai.</p>
             <button onClick={() => navigate('/exams')}
               className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-bold bg-primary text-background">
               Vào thi ngay
@@ -199,15 +199,35 @@ export default function ErrorAnalysis() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="font-sans text-[16px] font-bold text-foreground">Chẩn đoán AI</h2>
-                  <p className="font-sans text-[12px] text-dim mt-0.5">Top 3 hiểu lầm cốt lõi · ⚡2 credits</p>
+                  <p className="font-sans text-[12px] text-dim mt-0.5">Top 3 hiểu lầm cốt lõi · ⚡2 lượt hỏi AI</p>
                 </div>
                 {!hasMisconceptions && !aiLoading && (
-                  <button onClick={fetchAI}
+                  <button
+                    data-testid="analyze-more-btn"
+                    onClick={fetchAI}
                     className="px-4 py-2 rounded-lg font-sans text-[12px] font-bold transition bg-primary text-background">
-                    Phân tích ngay
+                    Xem thêm 2 hiểu lầm khác → <span className="text-primary font-semibold">⚡ 2 lượt</span>
                   </button>
                 )}
               </div>
+
+              {/* Top-1 misconception free — derived from highest error weight */}
+              {!hasMisconceptions && !aiLoading && localAgg.length > 0 && (() => {
+                const topEntry = localAgg[0]
+                if (!topEntry) return null
+                const { topic, total } = topEntry
+                return (
+                  <div data-testid="top-misconception-free" className="p-4 bg-surface border border-border rounded-xl flex flex-col gap-1 mb-3">
+                    <span className="font-sans text-[10px] font-semibold uppercase tracking-wide text-dim">Hiểu lầm phổ biến nhất</span>
+                    <p className="font-sans text-[14px] font-semibold text-foreground">
+                      {topicLabel(topic)}
+                    </p>
+                    <p className="font-sans text-[12px] text-dim">
+                      {`${Math.round(total)} lỗi — dạng bài thường gặp nhất trong đề thi`}
+                    </p>
+                  </div>
+                )
+              })()}
               {aiLoading && (
                 <div className="flex items-center gap-2 py-6">
                   <div className="w-4 h-4 border-2 border-[var(--accent-border)] border-t-transparent rounded-full animate-spin" />
