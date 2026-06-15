@@ -185,10 +185,12 @@ export default function StudyPlan() {
     if (!result && uid) {
       const savedId = localStorage.getItem(`latest_study_plan_result_${uid}`)
       if (savedId) {
-        setHasSavedPlan(true)
+        navigate(`/study-plan/${savedId}`, { replace: true })
+      } else {
+        setHasSavedPlan(false)
       }
     }
-  }, [uid, result])
+  }, [uid, result, navigate])
 
   useEffect(() => {
     if (!result) return

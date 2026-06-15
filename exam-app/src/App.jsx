@@ -245,7 +245,7 @@ function AppInner() {
             <Route path="/study-plan" element={<AdaptiveStudyPlan />} />
             <Route path="/study-plan/adaptive" element={<Navigate to="/study-plan" replace />} />
             <Route path="/placement" element={<Placement />} />
-            <Route path="/error-analysis" element={<Navigate to="/mistakes?tab=trends" replace />} />
+            <Route path="/error-analysis" element={<ErrorAnalysis />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           </AnimatePresence>

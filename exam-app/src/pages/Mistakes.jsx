@@ -577,11 +577,11 @@ export default function Mistakes() {
         {/* ── Xu hướng lỗi sai ── */}
         {activeTab === 'trends' && (
           <div className="flex flex-col gap-6 pt-2">
-            {results.length < 3 ? (
+            {results.length < 2 ? (
               <div className="flex flex-col items-center gap-3 py-16 text-center">
                 <span className="text-4xl">📊</span>
                 <span className="font-sans text-[18px] font-bold text-foreground">Cần thêm dữ liệu</span>
-                <p className="font-sans text-[13px] text-dim max-w-xs">Hoàn thành ít nhất 3 bài thi để xem xu hướng lỗi sai.</p>
+                <p className="font-sans text-[13px] text-dim max-w-xs">Hoàn thành ít nhất 2 bài thi để xem xu hướng lỗi sai.</p>
                 <button onClick={() => navigate('/exams')}
                   className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-bold bg-primary text-background">
                   Vào thi ngay

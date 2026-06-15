@@ -17,6 +17,7 @@ const AUTH_NAV = [
   { label: 'Thi thử', path: '/exams' },
   { label: 'Ôn sai', path: '/review' },
   { label: 'Luyện yếu', path: '/practice' },
+  { label: 'Hỏi AI', path: '/oracle' },
   { label: 'Tiến độ', path: '/mastery' },
 ]
 
@@ -246,7 +247,7 @@ export default function Navbar({ onOpenAuth }) {
                       : 'text-[var(--fg-tertiary)] hover:text-[var(--fg-secondary)] hover:bg-[var(--surface)]'
                   }`}>
                   <span className="w-5 text-center text-[15px] flex-shrink-0 text-[var(--primary)]">✦</span>
-                  Zenith AI
+                  Hỏi AI
                 </button>
               </div>
 
