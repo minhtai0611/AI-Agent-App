@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   ReactFlow, Background, Controls, MiniMap,
   useNodesState, useEdgesState, MarkerType,
+  Handle, Position,
 } from '@xyflow/react'
 import dagre from '@dagrejs/dagre'
 import '@xyflow/react/dist/style.css'
@@ -67,6 +68,8 @@ function ConceptNode({ data }) {
         position: 'relative',
       }}
     >
+      <Handle type="target" position={Position.Left} style={{ background: 'transparent', border: 'none' }} />
+      <Handle type="source" position={Position.Right} style={{ background: 'transparent', border: 'none' }} />
       {/* Topic color stripe */}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0, height: 3,
