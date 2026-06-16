@@ -531,6 +531,7 @@ async def _auto_seed_wiki(pool, client) -> None:
     settings = get_settings()
     force = settings.crawl_force_reseed
     gap_fill = settings.crawl_gap_fill_enabled
+    topic_target = settings.crawl_topic_target.strip()
 
     try:
         from crawl.runner import crawl_and_ingest
@@ -540,7 +541,15 @@ async def _auto_seed_wiki(pool, client) -> None:
         logger.warning("auto-seed: crawl module not available (%s), skipping", exc)
         return
 
-    if force:
+    if topic_target:
+        from app.math_wiki.taxonomy import CANONICAL_TOPICS
+        if topic_target not in CANONICAL_TOPICS:
+            logger.warning("auto-seed: CRAWL_TOPIC_TARGET=%r is not a canonical topic, skipping", topic_target)
+            await _hf_set_space_variable("CRAWL_TOPIC_TARGET", "")
+            return
+        logger.info("auto-seed: CRAWL_TOPIC_TARGET=%s — force-crawling one topic", topic_target)
+        topics = [topic_target]
+    elif force:
         logger.info("auto-seed: CRAWL_FORCE_RESEED=true — wiping wiki_units for fresh crawl")
         try:
             async with pool.acquire() as conn:
@@ -597,6 +606,8 @@ async def _auto_seed_wiki(pool, client) -> None:
     except Exception:
         pass
 
+    if topic_target and crawl_ok:
+        await _hf_set_space_variable("CRAWL_TOPIC_TARGET", "")
     if force and crawl_ok:
         await _hf_set_space_variable("CRAWL_FORCE_RESEED", "false")
     if gap_fill and crawl_ok:

@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     # Set to "true" to crawl only topics that have zero wiki units (gap-fill).
     # Idempotent: re-runs are safe — the zero-unit check is the gate.
     crawl_gap_fill_enabled: bool = False
+    # Set to a topic name (e.g. "geometry") to force-crawl that one topic regardless of unit count.
+    # Self-disables via HF Spaces API after one run. Leave blank to disable.
+    crawl_topic_target: str = ""
     # Set to "true" to fix non-canonical topic/type labels and remove content duplicates on startup.
     # Self-disables via HF Spaces API after one successful run.
     wiki_sanitize_enabled: bool = False
