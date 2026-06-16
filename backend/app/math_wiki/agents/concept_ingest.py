@@ -1,6 +1,9 @@
 import hashlib
 import json
+import logging
 from openai import AsyncOpenAI
+
+logger = logging.getLogger(__name__)
 from app.config import get_settings
 from app.agent.core import call_with_retry
 from app.math_wiki.prompts import MODE_PROMPTS

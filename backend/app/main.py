@@ -559,6 +559,7 @@ async def _auto_seed_wiki(pool, client) -> None:
         topics = [t for t in AOPS_QUERIES.keys() if topic_counts.get(t, 0) == 0]
         if not topics:
             logger.info("auto-seed: gap-fill — no zero-unit topics found, skipping")
+            await _hf_set_space_variable("CRAWL_GAP_FILL_ENABLED", "false")
             return
         logger.info("auto-seed: gap-fill — crawling %d zero-unit topics: %s", len(topics), topics)
     else:
