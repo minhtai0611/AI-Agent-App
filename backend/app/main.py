@@ -598,6 +598,8 @@ async def _auto_seed_wiki(pool, client) -> None:
 
     if force and crawl_ok:
         await _hf_set_space_variable("CRAWL_FORCE_RESEED", "false")
+    if gap_fill and crawl_ok:
+        await _hf_set_space_variable("CRAWL_GAP_FILL_ENABLED", "false")
 
 
 async def _sanitize_wiki(pool) -> None:
