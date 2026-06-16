@@ -175,6 +175,24 @@ AOPS_CATEGORIES: dict[str, str] = {
 # Each entry is a list of dicts: {index_url, link_pattern, source_tag, max_pages (optional)}.
 # generic_html.py fetches the index, discovers links matching link_pattern, and ingests each page.
 GENERIC_HTML_SOURCES: dict[str, list[dict]] = {
+    "geometry": [
+        {
+            # cut-the-knot geometry — circle theorems, triangle geometry, olympiad proofs
+            "index_url": "https://www.cut-the-knot.org/geometry.shtml",
+            "link_pattern": r"cut-the-knot\.org/(?:do_you_know|pythagoras|triangle|geometry|Generalization|geogebra)/",
+            "source_tag": "ctk",
+            "crawl_delay_seconds": 120,
+            "max_pages": 40,
+        },
+        {
+            # cut-the-knot Pythagorean theorem section
+            "index_url": "https://www.cut-the-knot.org/pythagoras/index.shtml",
+            "link_pattern": r"cut-the-knot\.org/pythagoras/",
+            "source_tag": "ctk",
+            "crawl_delay_seconds": 120,
+            "max_pages": 20,
+        },
+    ],
     "radical_expressions": [
         {
             "index_url": "https://tutorial.math.lamar.edu/Classes/Alg/Alg.aspx",
