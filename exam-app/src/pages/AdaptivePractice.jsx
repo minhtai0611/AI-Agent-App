@@ -6,7 +6,7 @@ import { useHistory } from '../context/HistoryContext'
 import { useExam, useExamDispatch } from '../context/ExamContext'
 import { useAuth } from '../context/AuthContext.jsx'
 import { loadQuestions } from '../api/index.js'
-import { generateAdaptivePractice } from '../api/aiClient.js'
+import { generateAdaptivePractice, adaptiveNextQuestion, getConceptMastery } from '../api/aiClient.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { loadDiagnosticWeights } from './DiagnosticTest.jsx'
@@ -70,6 +70,23 @@ function interleaveQuestions(questions) {
   return result
 }
 
+// KST outer fringe: unmastered concepts whose all prerequisites are mastered (≥70 score)
+function computeOuterFringe(concepts) {
+  const mastered = new Set(concepts.filter(c => c.mastery_score >= 70).map(c => c.id))
+  return concepts.filter(c => {
+    if (mastered.has(c.id)) return false
+    const prereqs = c.prerequisite_ids || []
+    return prereqs.every(p => mastered.has(p))
+  })
+}
+
+// Count how many unmastered concepts this concept unlocks directly
+function countUnlocks(conceptId, allConcepts) {
+  return allConcepts.filter(c =>
+    c.mastery_score < 70 && (c.prerequisite_ids || []).includes(conceptId)
+  ).length
+}
+
 function weightedSample(pool, weights, n, excludeTopic = null) {
   const uniqueTopics = [...new Set(pool.map(q => q.topic))]
   const eligible = uniqueTopics.length > 1 && excludeTopic
@@ -111,9 +128,10 @@ export default function AdaptivePractice() {
   }
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [mode, setMode] = useState(null) // null = selection, 'static' | 'ai'
+  const [mode, setMode] = useState(null) // null = selection, 'static' | 'ai' | 'kst'
   const [weakTopics, setWeakTopics] = useState([])
   const [interleaved, setInterleaved] = useState(true)
+  const [kstConcept, setKstConcept] = useState(null) // {name_vi, topic, unlocks}
 
   const hasDiagnosticWeights = user?.id
     ? !!localStorage.getItem(`diagnostic_weights_${user.id}`)
@@ -130,6 +148,7 @@ export default function AdaptivePractice() {
   useEffect(() => {
     if (mode === 'static') buildStatic()
     else if (mode === 'ai') buildAI()
+    else if (mode === 'kst') buildKST()
   }, [mode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function buildStatic() {
@@ -203,13 +222,69 @@ export default function AdaptivePractice() {
     }
   }
 
+  async function buildKST() {
+    setLoading(true)
+    setError(null)
+    try {
+      const { data: masteryData, error: mErr } = await getConceptMastery()
+      if (mErr) throw new Error('Không thể tải dữ liệu kiến thức')
+      const concepts = masteryData?.concepts ?? []
+      const fringe = computeOuterFringe(concepts)
+      if (!fringe.length) {
+        // All concepts mastered or no mastery data — fall back to static
+        return buildStatic()
+      }
+      // Pick highest exam_weight fringe concept; if tied, prefer the one unlocking most
+      const best = fringe.sort((a, b) => {
+        const wDiff = (b.exam_weight ?? 0) - (a.exam_weight ?? 0)
+        if (wDiff !== 0) return wDiff
+        return countUnlocks(b.id, concepts) - countUnlocks(a.id, concepts)
+      })[0]
+      const unlocks = countUnlocks(best.id, concepts)
+      setKstConcept({ name_vi: best.name_vi, topic: best.topic, unlocks })
+
+      const { data, error: err } = await adaptiveNextQuestion({
+        topic: best.topic,
+        count: SESSION_SIZE,
+        seen_ids: [],
+        answer_history: [],
+      })
+      if (err) throw new Error(typeof err === 'string' ? err : 'Không thể tải câu hỏi')
+      const questions = (data?.questions ?? []).map(q => ({
+        ...q,
+        choices: typeof q.choices === 'string' ? JSON.parse(q.choices) : (q.choices ?? []),
+        source: 'kst',
+      }))
+      if (!questions.length) throw new Error('Không tìm thấy câu hỏi cho khái niệm này')
+      const adaptiveExam = {
+        id: `kst-${Date.now()}`,
+        title: `Lộ trình KST — ${best.name_vi}`,
+        totalQuestions: questions.length,
+        duration: questions.length * 2,
+        category: 'adaptive',
+        mode: 'practice',
+        questionIds: questions.map(q => q.id),
+      }
+      dispatch({ type: 'START_EXAM', exam: adaptiveExam, questions, mode: 'practice' })
+      navigate(`/test/${adaptiveExam.id}`)
+    } catch (err) {
+      setError(err.message || 'Không thể tải lộ trình KST')
+      setLoading(false)
+      setMode(null)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center px-4">
           <div className="w-8 h-8 border-2 border-[var(--accent-border)] border-t-transparent rounded-full animate-spin" />
           <p className="font-sans text-[14px] text-muted">
-            {mode === 'ai' ? 'AI đang tạo câu hỏi riêng cho bạn...' : 'Đang chọn câu hỏi phù hợp...'}
+            {mode === 'ai'
+              ? 'AI đang tạo câu hỏi riêng cho bạn...'
+              : mode === 'kst'
+              ? 'Đang phân tích lộ trình kiến thức...'
+              : 'Đang chọn câu hỏi phù hợp...'}
           </p>
         </div>
       </div>
@@ -286,6 +361,21 @@ export default function AdaptivePractice() {
             </div>
             <span className="font-sans text-[12px] text-dim">
               5 câu hỏi mới hoàn toàn, nhắm đúng điểm yếu của bạn
+            </span>
+          </button>
+        )}
+
+        {user && (
+          <button
+            onClick={() => setMode('kst')}
+            className="flex flex-col gap-2 px-6 py-5 rounded-2xl border border-primary/30 bg-surface text-left hover:border-primary/60 transition"
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-sans text-[14px] font-semibold text-foreground">Lộ trình kiến thức (KST)</span>
+              <span className="font-sans text-[11px] text-primary/70">Tự động</span>
+            </div>
+            <span className="font-sans text-[12px] text-dim">
+              Chọn đúng khái niệm bạn sẵn sàng học — mở khóa kiến thức tiếp theo
             </span>
           </button>
         )}

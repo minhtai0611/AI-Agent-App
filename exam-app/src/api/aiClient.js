@@ -399,6 +399,10 @@ export function generateAdaptivePractice(payload) {
   return wrapOptimistic(payload.count ?? 5, () => client.post('/adaptive-practice', payload))
 }
 
+export function adaptiveNextQuestion(payload) {
+  return wrap(client.post('/questions/adaptive-next', payload))
+}
+
 export function getReferral() {
   return wrap(client.get('/users/me/referral'))
 }

@@ -5769,6 +5769,63 @@ async def admin_update_profile(
     invalidate_account_cache(user_id)
 
 
+# ─── Admin wiki operations ───────────────────────────────────────────────────
+
+class AdminCrawlRequest(BaseModel):
+    topics: list[str] | None = None   # None = auto-detect zero-unit topics
+    sources: list[str] = ["aops", "pauls", "generic"]
+    dry_run: bool = False
+
+
+@app.post("/admin/crawl")
+async def admin_crawl(req: AdminCrawlRequest, request: Request, pool=Depends(get_pool)):
+    """Trigger a targeted wiki crawl. Without topics, auto-detects zero-unit topics (gap-fill)."""
+    _require_admin(request)
+    try:
+        from crawl.runner import crawl_and_ingest
+        from crawl.topic_map import AOPS_QUERIES
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail=f"Crawl module not available: {exc}")
+
+    topics = list(req.topics) if req.topics else None
+    if not topics:
+        from app.math_wiki.storage import pg_db
+        counts = await pg_db.count_wiki_units_by_topic(pool)
+        all_topics = list(AOPS_QUERIES.keys())
+        topics = [t for t in all_topics if counts.get(t, 0) == 0]
+        if not topics:
+            return {"message": "No zero-unit topics found, nothing to crawl", "topics": []}
+
+    if req.dry_run:
+        return {"message": "dry_run=true, crawl not triggered", "topics": topics}
+
+    ai_client = get_ai_client()
+
+    async def _do_crawl():
+        for topic in topics:
+            try:
+                stats = await crawl_and_ingest(
+                    ai_client, topics=[topic], sources=req.sources, pool=pool
+                )
+                logger.info(
+                    "admin-crawl [%s]: pages=%d units=%d errors=%d",
+                    topic, stats["pages_fetched"], stats["wiki_units_added"], stats["errors"],
+                )
+            except Exception as exc:
+                logger.error("admin-crawl [%s] failed: %s", topic, exc)
+
+    asyncio.ensure_future(_do_crawl())
+    return {"message": "Crawl started in background", "topics": topics}
+
+
+@app.post("/admin/wiki-sanitize")
+async def admin_wiki_sanitize(request: Request, pool=Depends(get_pool)):
+    """Trigger wiki sanitization (label normalization + deduplication) as a background task."""
+    _require_admin(request)
+    asyncio.ensure_future(_sanitize_wiki(pool))
+    return {"message": "Sanitize started in background"}
+
+
 # ─── Exam-day simulation brief ───────────────────────────────────────────────
 
 # Static prefix-cache-friendly system prompt
