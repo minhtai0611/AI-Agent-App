@@ -1011,10 +1011,10 @@ async def lifespan(app: FastAPI):
     asyncio.ensure_future(_ensure_bm25(app.state.pool))
     from app.abuse_detector import _run_abuse_detector
     asyncio.ensure_future(_run_abuse_detector(app.state.pool))
-    if app.state.pool and (settings.crawl_auto_seed_enabled or settings.crawl_force_reseed or settings.crawl_gap_fill_enabled):
+    if app.state.pool and (settings.crawl_auto_seed_enabled or settings.crawl_force_reseed or settings.crawl_gap_fill_enabled or bool(settings.crawl_topic_target)):
         asyncio.ensure_future(_auto_seed_wiki(app.state.pool, get_ai_client()))
     elif app.state.pool:
-        logger.info("auto-seed disabled (set CRAWL_AUTO_SEED_ENABLED, CRAWL_FORCE_RESEED, or CRAWL_GAP_FILL_ENABLED to enable)")
+        logger.info("auto-seed disabled (set CRAWL_AUTO_SEED_ENABLED, CRAWL_FORCE_RESEED, CRAWL_GAP_FILL_ENABLED, or CRAWL_TOPIC_TARGET to enable)")
     if app.state.pool and settings.wiki_sanitize_enabled:
         asyncio.ensure_future(_sanitize_wiki(app.state.pool))
     print(f"[startup] wiki_fix_english_enabled={settings.wiki_fix_english_enabled}", flush=True)
