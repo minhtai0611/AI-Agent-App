@@ -1674,8 +1674,11 @@ export default function Account() {
 
                 {/* Before/After Progress Snapshot */}
                 {results.length >= 2 && (() => {
-                  const first = results[results.length - 1]
-                  const latest = results[0]
+                  // Use oldest/newest that actually have topicBreakdown data
+                  const withTB = results.filter(r => r.topicBreakdown && Object.keys(r.topicBreakdown).length > 0)
+                  if (withTB.length < 2) return null
+                  const first = withTB[withTB.length - 1]
+                  const latest = withTB[0]
                   const firstTB = first.topicBreakdown ?? {}
                   const latestTB = latest.topicBreakdown ?? {}
                   const topics = Object.keys({ ...firstTB, ...latestTB })

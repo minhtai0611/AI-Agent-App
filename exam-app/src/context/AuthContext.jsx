@@ -47,6 +47,19 @@ export function AuthProvider({ children }) {
     setCreditRefs(deductCredits, refundCredits)
   })
 
+  // Proactively refresh the access token every 45 min so it never silently expires
+  // while the user is idle on a page (access TTL is 1 hour; 45 min gives a safety margin).
+  useEffect(() => {
+    if (!user) return
+    const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+    const id = setInterval(() => {
+      axios.post(`${BASE}/api/refresh`, {}, { withCredentials: true })
+        .then(res => { if (res.data?.csrf_token) setCsrfToken(res.data.csrf_token) })
+        .catch(() => {})
+    }, 45 * 60 * 1000)
+    return () => clearInterval(id)
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Refresh user data when tab regains focus (catches server-side credit/tier changes)
   useEffect(() => {
     if (!user) return

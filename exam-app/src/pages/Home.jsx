@@ -773,7 +773,7 @@ export default function Home() {
         {hasLearningData && (
           <button
             onClick={() => setShowMore(s => !s)}
-            className="font-sans text-[12px] text-dim hover:text-muted transition-colors text-left self-start"
+            className="w-full font-sans text-[12px] text-dim hover:text-muted transition-colors text-center py-2"
           >
             {showMore ? '↑ Thu gọn' : '↓ Xem thêm'}
           </button>

@@ -65,7 +65,7 @@ def decode_jwt(token: str) -> dict:
 import hashlib
 import uuid
 
-ACCESS_TTL_SECS  = 900      # 15 min
+ACCESS_TTL_SECS  = 3600     # 1 hour
 REFRESH_TTL_SECS = 604_800  # 7 days
 
 
