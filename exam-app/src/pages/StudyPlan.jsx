@@ -164,12 +164,13 @@ export default function StudyPlan() {
   const dispatch = useExamDispatch()
   const uid = user?.id ?? null
 
-  const [plan, setPlan]       = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError]     = useState(false)
-  const [streaks, setStreaks] = useState({})   // { areaIndex: correctInARow }
+  const [plan, setPlan]           = useState(null)
+  const [loading, setLoading]     = useState(true)
+  const [error, setError]         = useState(false)
+  const [streaks, setStreaks]     = useState({})   // { areaIndex: correctInARow }
   const [adaptivePlan, setAdaptivePlan] = useState(null)
   const [hasSavedPlan, setHasSavedPlan] = useState(false)
+  const [consentGiven, setConsentGiven] = useState(false)
 
   const result  = location.state?.result  || results.find(r => r.id === resultId)
   const history = location.state?.history || results.filter(r => r.id !== resultId)
@@ -199,6 +200,8 @@ export default function StudyPlan() {
     if (cached) {
       try { setPlan(JSON.parse(cached)); setLoading(false); return } catch {}
     }
+    // No cache — show consent screen until user confirms
+    if (!consentGiven) { setLoading(false); return }
     setLoading(true)
     buildStudyPlanPayload(result, history).then(payload => {
       if (user?.province) payload.province = user.province
@@ -208,7 +211,7 @@ export default function StudyPlan() {
         else setError(true)
       })
     })
-  }, [resultId, result, uid]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [resultId, result, uid, consentGiven]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!resultId || !user) return
@@ -276,7 +279,26 @@ export default function StudyPlan() {
       </nav>
 
       <div className="flex flex-col gap-5 max-w-2xl mx-auto w-full px-4 py-10">
-        {loading ? (
+        {!loading && !plan && !error && !consentGiven ? (
+          <div className="flex flex-col items-center gap-5 py-16 text-center">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <span className="text-xl">📋</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <p className="font-sans text-[15px] font-semibold text-foreground">Tạo kế hoạch phục hồi cá nhân</p>
+              <p className="font-sans text-[13px] text-muted max-w-xs">
+                Phân tích bài thi của bạn và tạo kế hoạch 4 tuần tập trung vào những chủ đề yếu nhất. Mất khoảng 10 giây.
+              </p>
+            </div>
+            <button
+              onClick={() => setConsentGiven(true)}
+              className="px-6 py-3 rounded-xl font-sans text-[13px] font-bold bg-primary text-primary-fg hover:opacity-90 transition"
+            >
+              Tạo kế hoạch →
+            </button>
+            <p className="font-sans text-[11px] text-faint">Miễn phí cho gói Học sinh và Hoàn chỉnh</p>
+          </div>
+        ) : loading ? (
           <Skeleton />
         ) : error ? (
           <div className="flex flex-col items-center gap-4 py-16">

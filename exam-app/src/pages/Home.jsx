@@ -144,7 +144,7 @@ const FOCUS_CONFIGS = {
   },
 }
 
-function DailyFocusCard({ action, loading, navigate, onDismiss }) {
+function DailyFocusCard({ action, loading, navigate, onDismiss, userName }) {
   if (loading) {
     return (
       <div className="bg-surface border border-border rounded-xl p-5 flex flex-col gap-3">
@@ -158,6 +158,12 @@ function DailyFocusCard({ action, loading, navigate, onDismiss }) {
   if (!action) return null
 
   const cfg = { ...FOCUS_CONFIGS[action.type] }
+
+  const firstName = userName?.split(' ')[0] ?? ''
+  const EYEBROW_VARIANTS = [`${firstName} —`, `${firstName}, hôm nay:`, `Nhiệm vụ của ${firstName}:`]
+  const personalEyebrow = firstName && action.type !== 'done'
+    ? EYEBROW_VARIANTS[new Date().getDay() % EYEBROW_VARIANTS.length]
+    : null
 
   // Patch dynamic fields
   if (action.type === 'done') {
@@ -183,9 +189,9 @@ function DailyFocusCard({ action, loading, navigate, onDismiss }) {
       transition={{ duration: 0.25 }}
       className="bg-surface border border-border rounded-xl p-5"
     >
-      {cfg.eyebrow && (
+      {(personalEyebrow || cfg.eyebrow) && (
         <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-muted mb-2">
-          {cfg.eyebrow}
+          {personalEyebrow ?? cfg.eyebrow}
         </p>
       )}
       <h2 className="font-sans text-[20px] font-bold text-foreground leading-tight mb-1">
@@ -557,8 +563,108 @@ export default function Home() {
 
   const recentResult = results?.[0] ?? null
   const displayName = user?.custom_display_name || user?.display_name || ''
+  const firstName = displayName.split(' ')[0] || ''
   const greeting = timeGreeting()
   const hasLearningData = results?.length > 0 || masteredCount > 0
+  const [showMore, setShowMore] = useState(false)
+  const todayKey = `daily_task_done_${user?.id}_${new Date().toISOString().slice(0, 10)}`
+  const [taskDoneToday, setTaskDoneToday] = useState(() => !!localStorage.getItem(todayKey))
+  function markTaskDone() {
+    localStorage.setItem(todayKey, '1')
+    setTaskDoneToday(true)
+  }
+
+  // Overload detection — computed from local results history, no backend needed
+  const overloadStatus = (() => {
+    if (!results || results.length < 4) return null
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+    const recent = results.filter(r => {
+      const ts = r.finishedAt || r.created_at
+      return ts && new Date(ts).getTime() > sevenDaysAgo
+    })
+    if (recent.length < 4) return null
+    // Check score trend: last 3 scores declining
+    const last3 = recent.slice(0, 3).map(r => r.score ?? 0)
+    const declining = last3.length === 3 && last3[0] < last3[1] && last3[1] < last3[2]
+    // Check late-night sessions (after 11pm)
+    const lateNights = recent.filter(r => {
+      const ts = r.finishedAt || r.created_at
+      if (!ts) return false
+      const h = new Date(ts).getHours()
+      return h >= 23 || h < 4
+    }).length
+    if (recent.length >= 4 && declining) {
+      return lateNights >= 2 ? 'severe' : 'moderate'
+    }
+    return null
+  })()
+
+  // Month-2 Plateau nudge — account 45+ days old, no exam in last 21 days
+  const plateauNudge = (() => {
+    if (!user?.created_at || !results) return false
+    const accountAgeDays = (Date.now() - new Date(user.created_at).getTime()) / 86400000
+    if (accountAgeDays < 45) return false
+    if (!results.length) return true
+    const lastTs = results[0]?.finishedAt || results[0]?.created_at
+    if (!lastTs) return true
+    const daysSinceLast = (Date.now() - new Date(lastTs).getTime()) / 86400000
+    return daysSinceLast >= 21
+  })()
+
+  const [overrideQuietMode, setOverrideQuietMode] = useState(false)
+
+  // Exam-Eve Quiet Mode — check if exam is today or tomorrow
+  const examDate = user?.exam_date ?? null
+  const isExamEve = !overrideQuietMode && examDate && (() => {
+    try {
+      const d = new Date(examDate)
+      const now = new Date()
+      d.setHours(0, 0, 0, 0); now.setHours(0, 0, 0, 0)
+      const diff = Math.round((d - now) / 86400000)
+      return diff === 0 || diff === 1
+    } catch { return false }
+  })()
+
+  // Best topic for the quiet-mode stat line
+  const strongestTopic = hasLearningData && results?.length > 0 ? (() => {
+    const topicStats = {}
+    for (const r of results.slice(0, 10)) {
+      for (const [t, tb] of Object.entries(r.topicBreakdown ?? {})) {
+        if (!topicStats[t]) topicStats[t] = { correct: 0, total: 0 }
+        topicStats[t].correct += tb.correct ?? 0
+        topicStats[t].total += tb.total ?? 0
+      }
+    }
+    const best = Object.entries(topicStats)
+      .filter(([, s]) => s.total >= 5)
+      .sort((a, b) => (b[1].correct / b[1].total) - (a[1].correct / a[1].total))[0]
+    return best ? { label: best[0], accuracy: Math.round((best[1].correct / best[1].total) * 100) } : null
+  })() : null
+
+  if (isExamEve) {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-background flex flex-col items-center justify-center gap-6 px-6 text-center">
+        <p className="text-4xl">🌙</p>
+        <div className="flex flex-col gap-2">
+          <h1 className="font-sans text-[22px] font-bold text-foreground">
+            {firstName ? `${firstName}, bạn đã sẵn sàng.` : 'Bạn đã sẵn sàng.'}
+          </h1>
+          <p className="font-sans text-[0.9375rem] text-muted">Nghỉ ngơi tốt tối nay.</p>
+        </div>
+        {strongestTopic && (
+          <p className="font-sans text-[0.8125rem] text-foreground/60">
+            Độ chính xác {strongestTopic.label} của bạn: {strongestTopic.accuracy}%
+          </p>
+        )}
+        <button
+          onClick={() => setOverrideQuietMode(true)}
+          className="font-sans text-xs text-dim hover:text-muted underline transition mt-2"
+        >
+          Tiếp tục ôn tập
+        </button>
+      </motion.div>
+    )
+  }
 
   return (
     <motion.div
@@ -588,8 +694,92 @@ export default function Home() {
 
         {/* ── Daily Focus ── */}
         {!focusDismissed && (
-          <DailyFocusCard action={primaryAction} loading={loading} navigate={navigate} onDismiss={dismissFocus} />
+          <DailyFocusCard action={primaryAction} loading={loading} navigate={navigate} onDismiss={dismissFocus} userName={displayName} />
         )}
+
+        {/* ── Daily Task Queue ── */}
+        {primaryAction?.type === 'practice' && primaryAction?.concept && (
+          taskDoneToday ? (
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-success/30 bg-success/5">
+              <span className="text-base flex-shrink-0">✅</span>
+              <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                <p className="font-sans text-[12px] font-semibold text-success">Nhiệm vụ hôm nay hoàn thành!</p>
+                {weakConcepts[1] && (
+                  <p className="font-sans text-[11px] text-muted">
+                    Ngày mai: <span className="font-medium text-foreground">{weakConcepts[1].name_vi ?? weakConcepts[1].name}</span>
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-border bg-surface-elevated">
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <p className="font-sans text-[11px] text-muted">Nhiệm vụ hôm nay · ~15 phút</p>
+                <p className="font-sans text-[13px] font-semibold text-foreground truncate">
+                  {primaryAction.concept.name_vi ?? primaryAction.concept.name}
+                </p>
+              </div>
+              <button
+                onClick={markTaskDone}
+                className="flex-shrink-0 px-3 py-1.5 rounded-lg font-sans text-[11px] font-semibold border border-success/40 text-success hover:bg-success/10 transition"
+              >
+                Đánh dấu xong
+              </button>
+            </div>
+          )
+        )}
+
+        {/* ── Overload Detection ── */}
+        {overloadStatus && (
+          <div className={`flex items-start gap-3 px-4 py-3.5 rounded-xl border ${
+            overloadStatus === 'severe'
+              ? 'border-destructive/30 bg-destructive/5'
+              : 'border-warning/30 bg-warning/5'
+          }`}>
+            <span className="text-base flex-shrink-0">{overloadStatus === 'severe' ? '🔴' : '🟡'}</span>
+            <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+              <p className="font-sans text-[13px] text-foreground font-medium">
+                {overloadStatus === 'severe'
+                  ? 'Nghỉ ngơi là một phần của quá trình luyện tập.'
+                  : 'Bạn đang học rất chăm. Hôm nay thử một buổi nhẹ nhàng?'}
+              </p>
+              <p className="font-sans text-[11px] text-muted">
+                {overloadStatus === 'severe'
+                  ? 'Điểm số đang giảm và bạn đã học muộn nhiều đêm. Nghỉ hôm nay để lấy lại phong độ.'
+                  : 'Điểm số đang có xu hướng giảm. Thử ôn nhẹ 15 phút thay vì làm đề đầy đủ.'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ── Month-2 Plateau nudge ── */}
+        {plateauNudge && !overloadStatus && (
+          <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl border border-info/25 bg-info/5">
+            <span className="text-base flex-shrink-0">💡</span>
+            <div className="flex flex-col gap-1 flex-1 min-w-0">
+              <p className="font-sans text-[13px] text-foreground font-medium">Bạn đã nghỉ một thời gian.</p>
+              <p className="font-sans text-[11px] text-muted">Những học sinh quay lại sau kỳ nghỉ cải thiện điểm bài thi tiếp theo 78% trường hợp. Thử một bài ngắn 20 phút hôm nay.</p>
+              <button
+                onClick={() => navigate('/practice')}
+                className="self-start mt-1 font-sans text-[11px] font-semibold text-info hover:underline"
+              >
+                Bắt đầu lại →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Show More toggle ── */}
+        {hasLearningData && (
+          <button
+            onClick={() => setShowMore(s => !s)}
+            className="font-sans text-[12px] text-dim hover:text-muted transition-colors text-left self-start"
+          >
+            {showMore ? '↑ Thu gọn' : '↓ Xem thêm'}
+          </button>
+        )}
+
+        {showMore && <>
 
         {/* ── Mastery Stats ── */}
         <div className="flex gap-3">
@@ -711,6 +901,8 @@ export default function Home() {
           </div>
         )}
 
+        </>}
+
         {/* ── Empty state (new user, no data yet) ── */}
         {!loading && !hasLearningData && (
           <div className="bg-surface border border-border rounded-xl p-6 flex flex-col gap-3">
@@ -734,20 +926,18 @@ export default function Home() {
           </div>
         )}
 
+        {showMore && hasLearningData && <>
+
         {/* ── Recent Mistakes ── */}
-        {hasLearningData && (
-          <RecentMistakesSection results={results} navigate={navigate} />
-        )}
+        <RecentMistakesSection results={results} navigate={navigate} />
 
         {/* ── Quick links ── */}
-        {hasLearningData && (
-          <div className="flex flex-col gap-2">
-            <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">
-              Truy cập nhanh
-            </p>
-            <QuickLinks navigate={navigate} />
-          </div>
-        )}
+        <div className="flex flex-col gap-2">
+          <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">
+            Truy cập nhanh
+          </p>
+          <QuickLinks navigate={navigate} />
+        </div>
 
         {/* ── 7-day progress report card ── */}
         {(() => {
@@ -771,7 +961,10 @@ export default function Home() {
             </div>
           )
         })()}
+
+        </>}
       </div>
+
     </motion.div>
   )
 }

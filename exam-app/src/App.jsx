@@ -17,6 +17,8 @@ import OfflineBanner from './components/OfflineBanner.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import InstallPrompt from './components/InstallPrompt.jsx'
 import { OracleProvider } from './context/OracleContext.jsx'
+import { useToast } from './context/ToastContext.jsx'
+import OracleDrawer from './components/OracleDrawer.jsx'
 
 
 const Landing = lazy(() => import('./pages/Landing.jsx'))
@@ -46,6 +48,8 @@ const ErrorAnalysis = lazy(() => import('./pages/ErrorAnalysis.jsx'))
 const Home = lazy(() => import('./pages/Home.jsx'))
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail.jsx'))
 const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'))
+const ForSchools = lazy(() => import('./pages/ForSchools.jsx'))
+const Gift = lazy(() => import('./pages/Gift.jsx'))
 
 const PageFallback = () => <div className="min-h-screen bg-background" />
 
@@ -107,6 +111,18 @@ function AppInner() {
       }
     }
   }, [user, navigate])
+
+  // Credit receipt toast — only for basic-tier users who actually spend credits
+  const toast = useToast()
+  useEffect(() => {
+    const handler = (e) => {
+      if (!user || user.subscription_tier === 'student' || user.subscription_tier === 'complete') return
+      const { cost, feature } = e.detail
+      toast.info(`⚡ ${cost} lượt hỏi AI · ${feature}`)
+    }
+    window.addEventListener('credit_spent', handler)
+    return () => window.removeEventListener('credit_spent', handler)
+  }, [toast, user])
 
   const [resumeBanner] = useState(() => {
     try {
@@ -246,6 +262,8 @@ function AppInner() {
             <Route path="/study-plan/adaptive" element={<Navigate to="/study-plan" replace />} />
             <Route path="/placement" element={<Placement />} />
             <Route path="/error-analysis" element={<ErrorAnalysis />} />
+            <Route path="/for-schools" element={<ForSchools />} />
+            <Route path="/gift" element={<Gift />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           </AnimatePresence>
@@ -274,6 +292,7 @@ export default function App() {
         <ExamProvider>
           <OracleProvider>
             <AppInner />
+            <OracleDrawer />
           </OracleProvider>
         </ExamProvider>
       </HistoryProvider>

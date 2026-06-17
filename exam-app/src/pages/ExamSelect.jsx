@@ -74,6 +74,8 @@ export default function ExamSelect({ onOpenAuth }) {
   const [ocrError, setOcrError] = useState('')
   const [ocrQuestions, setOcrQuestions] = useState(null)
   const ocrInputRef = useRef(null)
+  const [briefingChecked, setBriefingChecked] = useState({ quiet: false, water: false, phone: false })
+  const [metacogAnswer, setMetacogAnswer] = useState(null)
 
   useEffect(() => {
     if (mode === 'lab' || mode === 'study_plan') { setAllExams([]); return }
@@ -238,7 +240,7 @@ export default function ExamSelect({ onOpenAuth }) {
     ...GROUPS.practice.map(g => ({ ...g, source: 'practice' })),
   ]
 
-  function openPreview(exam) { setPreviewExam(exam) }
+  function openPreview(exam) { setPreviewExam(exam); setBriefingChecked({ quiet: false, water: false, phone: false }); setMetacogAnswer(null) }
   function closePreview() { setPreviewExam(null) }
   function confirmStart(exam, startMode) { closePreview(); handleStart(exam, startMode) }
 
@@ -740,22 +742,78 @@ export default function ExamSelect({ onOpenAuth }) {
                   </div>
                 )}
               </div>
-              {/* Pre-exam briefing — only shown when user has history */}
+              {/* Pre-exam briefing — checklist + weak topic warning */}
+              <div className="rounded-xl glass-base px-4 py-3.5 flex flex-col gap-2.5">
+                <span className="font-sans text-[0.6875rem] font-bold text-info uppercase tracking-wider">Chuẩn bị trước khi thi</span>
+                <div className="flex flex-col gap-1.5">
+                  {[
+                    { key: 'quiet', label: 'Không gian yên tĩnh' },
+                    { key: 'water', label: 'Nước uống sẵn sàng' },
+                    { key: 'phone', label: 'Điện thoại đã tắt tiếng' },
+                  ].map(({ key, label }) => (
+                    <button key={key}
+                      onClick={() => setBriefingChecked(p => ({ ...p, [key]: !p[key] }))}
+                      className="flex items-center gap-2 text-left group"
+                    >
+                      <span className={`w-4 h-4 rounded flex-shrink-0 border flex items-center justify-center text-[0.625rem] transition ${briefingChecked[key] ? 'bg-success border-success text-white' : 'border-border'}`}>
+                        {briefingChecked[key] ? '✓' : ''}
+                      </span>
+                      <span className={`font-sans text-[0.8125rem] transition ${briefingChecked[key] ? 'text-success line-through' : 'text-muted'}`}>{label}</span>
+                    </button>
+                  ))}
+                </div>
+                {(() => {
+                  if (!results || results.length === 0) return null
+                  const briefing = buildBriefing(results, previewExam)
+                  if (!briefing) return null
+                  return (
+                    <>
+                      <p className="font-sans text-[0.8125rem] text-muted leading-relaxed">{briefing.message}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {briefing.weakTopics.map(w => (
+                          <span key={w.topic} className="px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 font-sans text-[0.6875rem] text-destructive">
+                            {w.label} · {w.accuracy}%
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  )
+                })()}
+              </div>
+              {/* Metacognitive check — topic worry question */}
               {(() => {
                 if (!results || results.length === 0) return null
                 const briefing = buildBriefing(results, previewExam)
-                if (!briefing) return null
+                if (!briefing || briefing.weakTopics.length < 2) return null
                 return (
-                  <div className="rounded-xl glass-base px-4 py-3.5 flex flex-col gap-2">
-                    <span className="font-sans text-[0.6875rem] font-bold text-info uppercase tracking-wider">Chuẩn bị trước khi thi</span>
-                    <p className="font-sans text-[0.8125rem] text-muted leading-relaxed">{briefing.message}</p>
-                    <div className="flex flex-wrap gap-1.5 mt-0.5">
+                  <div className="flex flex-col gap-2">
+                    <span className="font-sans text-[0.6875rem] font-semibold text-dim">Chủ đề nào khiến bạn lo lắng nhất?</span>
+                    <div className="flex flex-wrap gap-1.5">
                       {briefing.weakTopics.map(w => (
-                        <span key={w.topic} className="px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 font-sans text-[0.6875rem] text-destructive">
-                          {w.label} · {w.accuracy}%
-                        </span>
+                        <button
+                          key={w.topic}
+                          onClick={() => {
+                            const next = metacogAnswer === w.topic ? null : w.topic
+                            setMetacogAnswer(next)
+                            if (next) {
+                              try { localStorage.setItem('metacog_worry', JSON.stringify({ topic: next, label: w.label, ts: Date.now() })) } catch {}
+                            }
+                          }}
+                          className={`px-2.5 py-1 rounded-full font-sans text-[0.6875rem] border transition ${
+                            metacogAnswer === w.topic
+                              ? 'bg-primary/15 border-primary/40 text-primary font-semibold'
+                              : 'bg-surface border-border text-muted'
+                          }`}
+                        >
+                          {w.label}
+                        </button>
                       ))}
                     </div>
+                    {metacogAnswer && (
+                      <p className="font-sans text-[0.6875rem] text-info">
+                        Chú ý kỹ câu {metacogAnswer ? briefing.weakTopics.find(w => w.topic === metacogAnswer)?.label : ''} trong bài thi này.
+                      </p>
+                    )}
                   </div>
                 )
               })()}

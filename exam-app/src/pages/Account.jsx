@@ -234,7 +234,7 @@ export default function Account() {
   const [referral,   setReferral]   = useState(null)
 
   // ── Billing tab ──
-  const [billing,      setBilling]      = useState('monthly')
+  const [billing,      setBilling]      = useState('annual')
   const [showAllCredits, setShowAllCredits] = useState(false)
   const [topupPkg,     setTopupPkg]     = useState(null)   // selected package for modal
   const [copyBankDone, setCopyBankDone] = useState(false)
@@ -1672,6 +1672,60 @@ export default function Account() {
                 </section>
 
 
+                {/* Before/After Progress Snapshot */}
+                {results.length >= 2 && (() => {
+                  const first = results[results.length - 1]
+                  const latest = results[0]
+                  const firstTB = first.topicBreakdown ?? {}
+                  const latestTB = latest.topicBreakdown ?? {}
+                  const topics = Object.keys({ ...firstTB, ...latestTB })
+                  if (!topics.length) return null
+                  const improved = topics.filter(t =>
+                    (latestTB[t]?.accuracy ?? 0) > (firstTB[t]?.accuracy ?? 0)
+                  )
+                  return (
+                    <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-sans text-[15px] font-semibold text-foreground">Tiến độ của bạn</span>
+                          <span className="font-sans text-[0.6875rem] text-faint">Bài đầu → Bài gần nhất</span>
+                        </div>
+                        <span className="font-sans text-[0.6875rem] font-semibold px-2.5 py-1 rounded-full bg-success/10 text-success">
+                          +{improved.length} chủ đề
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        {topics.slice(0, 6).map(t => {
+                          const before = Math.round((firstTB[t]?.accuracy ?? 0) * 100)
+                          const after = Math.round((latestTB[t]?.accuracy ?? 0) * 100)
+                          const gain = after - before
+                          return (
+                            <div key={t} className="flex items-center gap-3">
+                              <span className="font-sans text-[11px] text-muted w-28 flex-shrink-0 truncate">{TOPIC_LABELS[t] ?? t}</span>
+                              <div className="flex-1 flex flex-col gap-1">
+                                <div className="flex items-center gap-1 h-1.5">
+                                  <div className="h-full rounded-full bg-border/60" style={{ width: `${before}%`, minWidth: 2 }} />
+                                </div>
+                                <div className="flex items-center gap-1 h-1.5">
+                                  <div className={`h-full rounded-full ${gain >= 0 ? 'bg-success' : 'bg-destructive/60'}`} style={{ width: `${after}%`, minWidth: 2 }} />
+                                </div>
+                              </div>
+                              <span className={`font-sans text-[11px] font-semibold w-10 text-right flex-shrink-0 ${gain > 0 ? 'text-success' : gain < 0 ? 'text-destructive' : 'text-faint'}`}>
+                                {gain > 0 ? `+${gain}` : gain === 0 ? '—' : gain}%
+                              </span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      {improved.length > 0 && (
+                        <p className="font-sans text-[11px] text-muted">
+                          {improved.length} chủ đề đã cải thiện kể từ bài thi đầu tiên của bạn.
+                        </p>
+                      )}
+                    </section>
+                  )
+                })()}
+
                 {/* Today's focus */}
                 {todayFocus && (
                   <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-3">
@@ -1887,6 +1941,7 @@ export default function Account() {
                 <div className="flex flex-col gap-0.5">
                 <span className="font-sans text-[16px] font-semibold text-foreground">Nâng cấp gói</span>
                 <span className="font-sans text-[0.6875rem] text-dim">Không cần thẻ ngân hàng · Hủy bất cứ lúc nào · Hoàn tiền 7 ngày</span>
+                <span className="font-sans text-[0.6875rem] text-dim/70">Ít hơn 2 buổi học thêm mỗi tháng · Sẵn sàng lúc 2 giờ sáng</span>
               </div>
                 <div className="flex items-center gap-1 bg-surface-elevated rounded-full p-1">
                   {['monthly', 'annual'].map(b => (
@@ -2051,6 +2106,49 @@ export default function Account() {
         {/* ════════════════ CÀI ĐẶT (via gear icon) ════════════════ */}
         {activeTab === TAB_SETTINGS && (
           <>
+            {/* Day-25 Win Reveal */}
+            {(() => {
+              if (!user?.subscription_tier || user.subscription_tier === 'basic') return null
+              const accountAgeMs = user.created_at ? Date.now() - new Date(user.created_at).getTime() : 0
+              const accountAgeDays = accountAgeMs / 86400000
+              if (accountAgeDays < 20 || accountAgeDays > 35) return null
+              if (results.length < 2) return null
+              const first = results[results.length - 1]
+              const latest = results[0]
+              const firstTB = first.topicBreakdown ?? {}
+              const latestTB = latest.topicBreakdown ?? {}
+              let bestTopic = null, bestGain = 0
+              for (const [t, tb] of Object.entries(latestTB)) {
+                const gain = (tb.accuracy ?? 0) - (firstTB[t]?.accuracy ?? 0)
+                if (gain > bestGain) { bestGain = gain; bestTopic = t }
+              }
+              const gainPct = Math.round(bestGain * 100)
+              return (
+                <section className="bg-gradient-to-br from-success/10 to-surface border border-success/30 rounded-2xl p-6 flex flex-col gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🏆</span>
+                    <span className="font-sans text-[15px] font-semibold text-foreground">25 ngày — bạn đã tiến bộ!</span>
+                  </div>
+                  {bestTopic && gainPct > 0 ? (
+                    <p className="font-sans text-[0.8125rem] text-foreground leading-relaxed">
+                      Chủ đề <span className="font-semibold text-success">{TOPIC_LABELS[bestTopic] ?? bestTopic}</span> của bạn tăng{' '}
+                      <span className="font-semibold text-success">+{gainPct}%</span> — tương đương ~{Math.round(gainPct / 10 * 0.5 * 10) / 10} điểm trong kỳ thi thật.
+                    </p>
+                  ) : (
+                    <p className="font-sans text-[0.8125rem] text-foreground leading-relaxed">
+                      Bạn đã hoàn thành {results.length} bài thi. Những học sinh vượt qua giai đoạn này thường đạt kết quả tốt nhất ở tuần 5–6.
+                    </p>
+                  )}
+                  <button
+                    onClick={() => setBilling('annual')}
+                    className="self-start px-4 py-2 rounded-xl font-sans text-[0.8125rem] font-bold bg-success text-white hover:opacity-90 transition"
+                  >
+                    Tiếp tục đà này →
+                  </button>
+                </section>
+              )
+            })()}
+
             {/* Streak Freeze */}
             {(() => {
               const freezeInfo = getStreakFreezeInfo(user)
@@ -2403,9 +2501,9 @@ export default function Account() {
             {referral?.referral_code && (
               <section className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-[15px] font-semibold text-foreground">Chia sẻ & Kiếm lượt hỏi AI</span>
+                  <span className="font-sans text-[15px] font-semibold text-foreground">Giới thiệu bạn bè — cùng học miễn phí</span>
                   <span className="font-sans text-xs text-dim">
-                    Bạn và người được mời đều nhận <span className="text-[var(--accent)]">⚡ 50 lượt hỏi AI</span> khi họ đăng ký.
+                    Bạn nhận <span className="font-semibold text-foreground">1 tháng Student miễn phí</span> · Bạn được mời nhận <span className="font-semibold text-foreground">30 ngày dùng thử</span> (thay vì 7 ngày).
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -2426,7 +2524,7 @@ export default function Account() {
                   </button>
                 </div>
                 <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Zenith nhé! Dùng link này để nhận 50 lượt hỏi AI miễn phí: ${referralUrl}`)}`}
+                  href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Zenith nhé! Dùng link này để nhận 30 ngày dùng thử miễn phí (thay vì 7 ngày): ${referralUrl}`)}`}
                   target="_blank" rel="noopener noreferrer"
                   className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-sans text-xs font-semibold bg-whatsapp text-white hover:opacity-90 transition"
                 >
@@ -2435,15 +2533,59 @@ export default function Account() {
                 {(referral.successful_referrals ?? 0) > 0 && (
                   <div className="flex items-center gap-3 pt-1 border-t border-border">
                     <span className="font-sans text-xs text-dim">
-                      <span className="text-[var(--accent)] font-bold">{referral.successful_referrals}</span> người đã tham gia qua link
+                      <span className="text-[var(--accent)] font-bold">{referral.successful_referrals}</span> bạn bè đã tham gia
                     </span>
-                    <span className="font-sans text-xs text-[var(--accent)]">
-                      ⚡ {(referral.successful_referrals ?? 0) * 50} lượt hỏi AI đã kiếm
+                    <span className="font-sans text-xs text-success font-semibold">
+                      +{referral.successful_referrals} tháng Student miễn phí đã nhận
                     </span>
                   </div>
                 )}
               </section>
             )}
+
+            {/* Monthly Value Report preview */}
+            {results.length >= 2 && (() => {
+              const now = new Date()
+              const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+              const thisMonth = results.filter(r => {
+                const ts = r.finishedAt || r.created_at
+                return ts && new Date(ts) >= monthStart
+              })
+              const prevMonth = results.filter(r => {
+                const ts = r.finishedAt || r.created_at
+                if (!ts) return false
+                const d = new Date(ts)
+                return d >= new Date(now.getFullYear(), now.getMonth() - 1, 1) && d < monthStart
+              })
+              const avgThis = thisMonth.length ? (thisMonth.reduce((s, r) => s + (r.score ?? 0), 0) / thisMonth.length).toFixed(1) : null
+              const avgPrev = prevMonth.length ? (prevMonth.reduce((s, r) => s + (r.score ?? 0), 0) / prevMonth.length).toFixed(1) : null
+              const delta = avgThis && avgPrev ? (parseFloat(avgThis) - parseFloat(avgPrev)).toFixed(1) : null
+              return (
+                <section className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-sans text-[14px] font-semibold text-foreground">Báo cáo tháng này</span>
+                    <span className="font-sans text-[0.6875rem] text-faint">{now.toLocaleString('vi-VN', { month: 'long', year: 'numeric' })}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="flex flex-col gap-0.5 px-3 py-2.5 rounded-xl bg-background border border-border">
+                      <span className="font-sans text-[18px] font-bold text-foreground">{thisMonth.length}</span>
+                      <span className="font-sans text-[10px] text-dim">bài thi</span>
+                    </div>
+                    <div className="flex flex-col gap-0.5 px-3 py-2.5 rounded-xl bg-background border border-border">
+                      <span className="font-sans text-[18px] font-bold text-foreground">{avgThis ?? '—'}</span>
+                      <span className="font-sans text-[10px] text-dim">điểm TB</span>
+                    </div>
+                    <div className="flex flex-col gap-0.5 px-3 py-2.5 rounded-xl bg-background border border-border">
+                      <span className={`font-sans text-[18px] font-bold ${delta == null ? 'text-faint' : parseFloat(delta) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {delta == null ? '—' : (parseFloat(delta) >= 0 ? `+${delta}` : delta)}
+                      </span>
+                      <span className="font-sans text-[10px] text-dim">vs tháng trước</span>
+                    </div>
+                  </div>
+                  <p className="font-sans text-[11px] text-muted">Gửi báo cáo tháng qua email sẽ khả dụng sớm.</p>
+                </section>
+              )
+            })()}
 
             {/* Parent progress sharing */}
             <div data-testid="parent-report-section" className="mt-6 pt-6 border-t border-border">

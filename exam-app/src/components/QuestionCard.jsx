@@ -6,6 +6,7 @@ import ReportButton from './ReportButton.jsx'
 import { loadPreferences } from '../utils/aiPreferences.js'
 import { sanitizeSvg } from '../utils/sanitizeSvg.js'
 import { MathText } from './MathText.jsx'
+import { useOracle } from '../context/OracleContext.jsx'
 
 const LABELS = ['A', 'B', 'C', 'D']
 const MAX_HINTS = 3
@@ -115,6 +116,7 @@ function choiceStyle(index, chosen, aiCorrect, showFeedback) {
 
 function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hintState, onHint, wrongStreak = 0 }) {
   const navigate = useNavigate()
+  const { open: openOracle, setPageContext: setOracleContext } = useOracle()
   const showFeedback = practiceMode && chosen !== null && chosen !== undefined
   const [hintLoading, setHintLoading] = useState(false)
   const [hintError, setHintError] = useState(null)
@@ -257,6 +259,19 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
 
       <ReportButton questionId={question.id} topic={question.topic} />
 
+      {/* Post-wrong routing — try a similar question right now */}
+      {practiceMode && !submitted && showFeedback && !isCorrect && question.topic && (
+        <div className="mt-3 flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-border bg-surface-elevated">
+          <p className="font-sans text-[0.75rem] text-muted">Thử một câu tương tự để luyện thêm?</p>
+          <button
+            onClick={() => navigate(`/practice?topic=${encodeURIComponent(question.topic)}`)}
+            className="font-sans text-[0.75rem] font-semibold text-primary hover:underline whitespace-nowrap flex-shrink-0"
+          >
+            Luyện ngay →
+          </button>
+        </div>
+      )}
+
       {/* Struggle support — shown after 2 consecutive wrong across questions */}
       {practiceMode && !submitted && showFeedback && !isCorrect && wrongStreak >= 2 && (
         <div className="mt-3 px-4 py-3 rounded-xl glass-base border-info/20">
@@ -317,10 +332,10 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
             </div>
           ))}
 
-          {/* Level 3 — Oracle escalation (after 2+ hints, or immediately when wrongStreak ≥ 2) */}
+          {/* Level 3 — Oracle in-context (after 2+ hints, or immediately when wrongStreak ≥ 2) */}
           {(hintCount >= 2 || wrongStreak >= 2) && (
             <button
-              onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
+              onClick={() => { setOracleContext({ currentQuestion: question, inExam: true }); openOracle() }}
               className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-info/30 bg-info/5 font-sans text-xs font-semibold text-[var(--info)] hover:bg-[var(--surface)] transition"
             >
               <span className="text-[0.625rem]">✦</span> Vẫn chưa hiểu — Hỏi Zenith AI

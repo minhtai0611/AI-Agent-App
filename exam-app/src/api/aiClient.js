@@ -121,11 +121,15 @@ function wrapRetry(fn) {
 }
 
 // Deducts `cost` Tia immediately, refunds if the server returns 402.
-async function wrapOptimistic(cost, fn) {
+async function wrapOptimistic(cost, fn, featureName = '') {
   if (!navigator.onLine) return { data: null, error: 'Bạn đang ngoại tuyến — kết nối mạng để dùng tính năng AI', status: 0 }
   _deductRef?.(cost)
   const result = await wrap(withRetry(fn).catch(err => Promise.reject(err)))
-  if (result.status === 402) _refundRef?.(cost)
+  if (result.status === 402) {
+    _refundRef?.(cost)
+  } else if (result.data && featureName) {
+    window.dispatchEvent(new CustomEvent('credit_spent', { detail: { cost, feature: featureName } }))
+  }
   return result
 }
 
@@ -134,7 +138,7 @@ function withAIPrefs(payload) {
 }
 
 export function analyzeResult(payload) {
-  return wrapOptimistic(3, () => client.post('/analyze', withAIPrefs(payload)))
+  return wrapOptimistic(3, () => client.post('/analyze', withAIPrefs(payload)), 'Phân tích bài thi')
 }
 
 // Streams AI analysis as NDJSON field-by-field.
@@ -240,11 +244,11 @@ export async function analyzeResultStream(payload, onUpdate, signal) {
 }
 
 export function getHint(payload) {
-  return wrapOptimistic(1, () => client.post('/hint', withAIPrefs(payload)))
+  return wrapOptimistic(1, () => client.post('/hint', withAIPrefs(payload)), 'Gợi ý AI')
 }
 
 export function getExplanation(payload) {
-  return wrapOptimistic(1, () => client.post('/explain', withAIPrefs(payload)))
+  return wrapOptimistic(1, () => client.post('/explain', withAIPrefs(payload)), 'Giải thích AI')
 }
 
 export function generateStudyPlan(payload) {
@@ -555,6 +559,9 @@ export const generateExam = (topicFocus, difficulty = 'medium', count = 10) =>
 
 export const predictScore = () =>
   wrap(client.get('/predict-score'))
+
+export const getExamDistribution = (examId) =>
+  wrap(client.get(`/exams/${encodeURIComponent(examId)}/distribution`))
 
 export const examStrategy = () =>
   wrap(client.post('/strategy', {}))

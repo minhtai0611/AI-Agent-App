@@ -16,7 +16,7 @@ import {
   LineChart, Line, XAxis, Tooltip,
 } from 'recharts'
 import { loadExamById, loadQuestionsByIds, buildStudyPlanPayload, buildAnalyzePayload, recommendNextExam } from '../api/index.js'
-import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPlan, getPercentile, predictScore, postHistory } from '../api/aiClient.js'
+import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPlan, getPercentile, predictScore, getExamDistribution, postHistory } from '../api/aiClient.js'
 import { loadPreferences } from '../utils/aiPreferences.js'
 import AIInsights from '../components/AIInsights.jsx'
 import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
@@ -322,6 +322,7 @@ export default function Results({ onOpenAuth }) {
   const [showShareCard, setShowShareCard] = useState(false)
   const [percentile, setPercentile] = useState(null)
   const [predictedScoreData, setPredictedScoreData] = useState(null)
+  const [distributionData, setDistributionData] = useState(null)
   const [streakRecovered, setStreakRecovered] = useState(false)
   const [studyPlanError, setStudyPlanError] = useState(null)
   const [studyPlanLoading, setStudyPlanLoading] = useState(false)
@@ -489,6 +490,7 @@ export default function Results({ onOpenAuth }) {
           const aiAnalysis = { ...analysisObj, _source: 'ai', _streaming_done: true }
           safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
           setAnalysis(aiAnalysis)
+          window.dispatchEvent(new CustomEvent('credit_spent', { detail: { cost: 3, feature: 'Phân tích bài thi' } }))
           refreshUser()
         } else {
           const failed = !!error
@@ -619,6 +621,13 @@ export default function Results({ onOpenAuth }) {
       if (data?.predicted != null) setPredictedScoreData(data)
     })
   }, [result?.id, isComplete]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!result?.examId) return
+    getExamDistribution(result.examId).then(({ data }) => {
+      if (data?.total >= 5) setDistributionData(data)
+    })
+  }, [result?.examId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const topicTrends = useMemo(() => {
     if (!isPaidUser || !results.length) return null
@@ -1085,11 +1094,66 @@ export default function Results({ onOpenAuth }) {
               </div>
             )}
 
+            {/* Score prediction reconciliation */}
+            {predictedScoreData && Math.abs(predictedScoreData.predicted - score) > 0.8 && (() => {
+              const overshot = score < predictedScoreData.predicted
+              const weakestTopic = topicBreakdown
+                ? Object.entries(topicBreakdown).sort(([, a], [, b]) => a.accuracy - b.accuracy)[0]
+                : null
+              const driver = weakestTopic ? getTopicLabel(weakestTopic[0]) : null
+              return (
+                <div className="flex items-start gap-3 px-4 py-3 rounded-xl border border-border bg-surface-elevated">
+                  <span className="text-base flex-shrink-0">🔄</span>
+                  <div className="flex flex-col gap-0.5">
+                    <p className="font-sans text-[12px] text-foreground">
+                      Dự đoán {predictedScoreData.predicted}/10 · Thực tế {score}/10
+                      {driver && ` · ${overshot ? 'Nguyên nhân chính: ' : 'Vượt kỳ vọng nhờ '}${driver}`}
+                    </p>
+                    <p className="font-sans text-[11px] text-muted">Mô hình đã điều chỉnh cho lần tới.</p>
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* Province exam pattern tip */}
             <ProvincePatternTip province={user?.province} />
 
             {/* Score correlation */}
             <ScoreCorrelation examId={examId} score={score} province={user?.province} />
+
+            {/* Peer score distribution */}
+            {distributionData && (() => {
+              const max = Math.max(...distributionData.buckets.map(b => b.count), 1)
+              const userBucket = Math.min(Math.floor(score), 9)
+              const below = distributionData.buckets.slice(0, userBucket).reduce((s, b) => s + b.count, 0)
+              const pct = Math.round((below / distributionData.total) * 100)
+              return (
+                <div className="flex flex-col gap-3 px-4 py-4 rounded-xl border border-border bg-surface-elevated">
+                  <div className="flex items-center justify-between">
+                    <span className="font-sans text-[0.6875rem] font-semibold text-foreground uppercase tracking-wider">Phân phối điểm</span>
+                    <span className="font-sans text-[0.6875rem] text-muted">Top {100 - pct}% · {distributionData.total} người thi</span>
+                  </div>
+                  <div className="flex items-end gap-0.5 h-10">
+                    {distributionData.buckets.map((b, i) => {
+                      const height = Math.round((b.count / max) * 100)
+                      const isUser = i === userBucket
+                      return (
+                        <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
+                          <div
+                            className={`w-full rounded-sm transition-all ${isUser ? 'bg-primary' : 'bg-border'}`}
+                            style={{ height: `${Math.max(height, 4)}%` }}
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="flex justify-between font-sans text-[10px] text-faint">
+                    <span>0</span><span>5</span><span>10</span>
+                  </div>
+                  <p className="font-sans text-[11px] text-muted">Cột xanh = điểm của bạn ({score}/10)</p>
+                </div>
+              )
+            })()}
 
             {/* Navigation shortcuts — compact chip row */}
             <div className="flex flex-wrap gap-2 pt-1">
@@ -1134,6 +1198,23 @@ export default function Results({ onOpenAuth }) {
         {/* ── Tab: Phân tích AI ── */}
         {activeTab === 'ai' && (
           <motion.div key="ai" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
+            {/* ── Failure-First: What you defended ── */}
+            {analysis && (() => {
+              const defended = Object.entries(topicBreakdown ?? {}).filter(([, tb]) => tb.accuracy >= 0.6)
+              if (!defended.length) return null
+              return (
+                <div className="bg-surface border border-border rounded-xl p-4">
+                  <p className="font-sans text-[13px] font-semibold text-foreground mb-2">✓ Bạn đã giữ vững</p>
+                  <div className="flex flex-wrap gap-2">
+                    {defended.map(([topic, tb]) => (
+                      <span key={topic} className="px-2 py-1 rounded-lg bg-success/10 text-success text-xs font-medium">
+                        {getTopicLabel(topic)} · {Math.round(tb.accuracy * 100)}%
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
             {/* AI Insights */}
             <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
               <div className="flex items-center justify-between">
@@ -1202,10 +1283,26 @@ export default function Results({ onOpenAuth }) {
               <div className="py-16 text-center font-sans text-faint">Không có câu sai — xuất sắc!</div>
             ) : (
               <>
+                {/* Film Review header */}
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-surface-elevated">
+                  <span className="text-base flex-shrink-0">🎬</span>
+                  <div>
+                    <p className="font-sans text-[12px] font-semibold text-foreground">Xem lại phim — {wrongCount} câu</p>
+                    <p className="font-sans text-[11px] text-muted">Mỗi câu sai đều có manh mối. Tìm quy luật trong phim của bạn.</p>
+                  </div>
+                </div>
                 <div className="flex flex-col gap-3">
                   {wrongQuestions.map((q, idx) => {
                     const open = wrongAccordion[q.id]
                     const timing = (result.timePerQuestion ?? result.questionTimings)?.[q.id]
+                    const chosenIdx = answers[q.id] ?? null
+                    const chosenLetter = chosenIdx != null ? String.fromCharCode(65 + chosenIdx) : null
+                    const filmHint = (() => {
+                      if (timing != null && timing < 15 && chosenLetter) return `Chọn ${chosenLetter} chỉ trong ${timing}s — có thể đọc chưa kỹ đề bài.`
+                      if (timing != null && timing > 180 && chosenLetter) return `Bạn dành ${Math.round(timing / 60)}m — câu này cần xem lại lý thuyết nền.`
+                      if (chosenLetter) return `Bạn chọn ${chosenLetter}. Đọc lại từng bước để tìm chỗ phân kỳ.`
+                      return 'Bỏ trống — ưu tiên xem lời giải trước tiên.'
+                    })()
                     return (
                       <div key={q.id} className="rounded-xl border border-border overflow-hidden">
                         <button
@@ -1232,6 +1329,7 @@ export default function Results({ onOpenAuth }) {
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
                               <div className="px-5 py-4 flex flex-col gap-3 border-t border-border">
+                                <p className="font-sans text-[11px] text-info italic">{filmHint}</p>
                                 <MathText className="font-sans text-[0.8125rem] text-foreground leading-relaxed">{q.question}</MathText>
                                 <div className="flex flex-col gap-2">
                                   {q.choices.map((c, i) => {

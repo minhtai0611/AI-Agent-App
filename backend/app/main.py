@@ -1415,7 +1415,9 @@ async def hint(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
-    await _spend_credits(pool, current_user.user_id, 1, "hint")
+    tier_row_h = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
+    if not tier_row_h or tier_row_h["subscription_tier"] not in _PAID_TIERS:
+        await _spend_credits(pool, current_user.user_id, 1, "hint")
     from app.agent.hint_generator import generate_hint
     try:
         merged_prefs = {"hint_style": req.hint_style, "encouragement_level": req.encouragement_level, **req.ai_preferences}
@@ -1597,6 +1599,31 @@ async def predict_score(
     return kalman_predict(scores)
 
 
+@app.get("/exams/{exam_id}/distribution")
+async def exam_score_distribution(
+    exam_id: str,
+    pool=Depends(get_pool),
+):
+    rows = await pool.fetch(
+        "SELECT score FROM exam_results WHERE exam_id = ? AND score IS NOT NULL",
+        exam_id,
+    )
+    scores = [r["score"] for r in rows if r["score"] is not None and 0 <= r["score"] <= 10]
+    if len(scores) < 5:
+        return {"buckets": [], "total": len(scores)}
+    buckets = [0] * 10
+    for s in scores:
+        idx = min(int(s), 9)
+        buckets[idx] += 1
+    return {
+        "buckets": [
+            {"range": f"{i}–{i+1}", "low": i, "high": i + 1, "count": buckets[i]}
+            for i in range(10)
+        ],
+        "total": len(scores),
+    }
+
+
 class StrategyRequest(BaseModel):
     pass
 
@@ -1709,7 +1736,9 @@ async def explain(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
-    await _spend_credits(pool, current_user.user_id, 1, "explain")
+    tier_row_ex = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
+    if not tier_row_ex or tier_row_ex["subscription_tier"] not in _PAID_TIERS:
+        await _spend_credits(pool, current_user.user_id, 1, "explain")
     from app.agent.exam_explainer import generate_explanation
     try:
         merged_prefs = {"explanation_depth": req.explanation_depth, "encouragement_level": req.encouragement_level, **req.ai_preferences}
@@ -5915,3 +5944,111 @@ async def simulation_brief(
     except Exception as exc:
         logger.warning("simulation_brief failed: %s", exc)
         return _fallback()
+
+
+@app.get("/users/me/retention-status")
+async def retention_status(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Returns plateau/win signals for retention nudges (Month-2 plateau, Day-25 win)."""
+    rows = await pool.fetch(
+        "SELECT score, created_at FROM exam_results WHERE user_id = ? AND score IS NOT NULL ORDER BY created_at DESC LIMIT 30",
+        current_user.user_id,
+    )
+    user_row = await pool.fetchrow(
+        "SELECT created_at, subscription_tier FROM users WHERE id = ?", current_user.user_id
+    )
+    account_age_days = 0
+    if user_row and user_row["created_at"]:
+        from datetime import datetime, timezone
+        created = datetime.fromisoformat(user_row["created_at"].replace("Z", "+00:00"))
+        account_age_days = (datetime.now(timezone.utc) - created).days
+
+    last_exam_days_ago = None
+    if rows:
+        from datetime import datetime, timezone
+        last_ts = rows[0]["created_at"]
+        last_dt = datetime.fromisoformat(last_ts.replace("Z", "+00:00"))
+        last_exam_days_ago = (datetime.now(timezone.utc) - last_dt).days
+
+    scores = [r["score"] for r in rows]
+    score_trend = "stable"
+    if len(scores) >= 3:
+        if scores[0] < scores[1] < scores[2]:
+            score_trend = "declining"
+        elif scores[0] > scores[1] > scores[2]:
+            score_trend = "improving"
+
+    plateau_nudge = (
+        account_age_days >= 45
+        and last_exam_days_ago is not None
+        and last_exam_days_ago >= 21
+    )
+
+    return {
+        "account_age_days": account_age_days,
+        "last_exam_days_ago": last_exam_days_ago,
+        "exam_count": len(rows),
+        "score_trend": score_trend,
+        "plateau_nudge": plateau_nudge,
+        "subscription_tier": user_row["subscription_tier"] if user_row else None,
+    }
+
+
+@app.get("/users/me/weekly-summary")
+async def weekly_summary(
+    current_user: CurrentUser = Depends(get_current_user),
+    pool=Depends(get_pool),
+):
+    """Structured weekly stats for parent summary sharing."""
+    from datetime import datetime, timezone, timedelta
+    now = datetime.now(timezone.utc)
+    week_start = now - timedelta(days=7)
+    prev_week_start = week_start - timedelta(days=7)
+
+    user_row = await pool.fetchrow(
+        "SELECT display_name, grade, province, subscription_tier FROM users WHERE id = ?",
+        current_user.user_id,
+    )
+    rows = await pool.fetch(
+        "SELECT score, exam_id, created_at FROM exam_results WHERE user_id = ? AND score IS NOT NULL ORDER BY created_at DESC LIMIT 50",
+        current_user.user_id,
+    )
+
+    def in_window(ts_str, start, end):
+        try:
+            dt = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+            return start <= dt <= end
+        except Exception:
+            return False
+
+    this_week = [r for r in rows if in_window(r["created_at"], week_start, now)]
+    prev_week = [r for r in rows if in_window(r["created_at"], prev_week_start, week_start)]
+
+    avg_this = round(sum(r["score"] for r in this_week) / len(this_week), 1) if this_week else None
+    avg_prev = round(sum(r["score"] for r in prev_week) / len(prev_week), 1) if prev_week else None
+    delta = round(avg_this - avg_prev, 1) if avg_this is not None and avg_prev is not None else None
+
+    all_scores = [r["score"] for r in rows]
+    predicted = None
+    if len(all_scores) >= 3:
+        try:
+            from app.agent.score_predictor import kalman_predict
+            pred = kalman_predict(all_scores)
+            predicted = pred.get("predicted")
+        except Exception:
+            pass
+
+    return {
+        "student_name": (user_row["display_name"] if user_row else None),
+        "grade": user_row["grade"] if user_row else None,
+        "province": user_row["province"] if user_row else None,
+        "week_exam_count": len(this_week),
+        "week_avg_score": avg_this,
+        "prev_week_avg_score": avg_prev,
+        "score_delta": delta,
+        "predicted_score": predicted,
+        "total_exams": len(rows),
+    }
+

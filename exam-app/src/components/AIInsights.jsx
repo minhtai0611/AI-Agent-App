@@ -139,6 +139,7 @@ export default function AIInsights({ analysis, loading, error, score }) {
   const { user } = useAuth()
   const [dismissed402, setDismissed402] = useState(false)
   const [showNudge, setShowNudge] = useState(false)
+  const [showFullAnalysis, setShowFullAnalysis] = useState(false)
 
   const insights = analysis?.insights
 
@@ -240,12 +241,30 @@ export default function AIInsights({ analysis, loading, error, score }) {
 
   // ── AI-powered view ──────────────────────────────────────────────────────
   if (isAI) {
+    // Show only first sentence of insights until expanded
+    const insightsFull = analysis.insights ?? ''
+    const firstSentenceEnd = insightsFull.search(/[.!?]\s/) + 1
+    const insightsPreview = firstSentenceEnd > 0 ? insightsFull.slice(0, firstSentenceEnd) : insightsFull
+    const hasMore = insightsFull.length > insightsPreview.length || !!analysis.question_analysis
+
     return (
       <div key="ai" className="flex flex-col gap-5">
-        {analysis.insights && (
-          <p className="font-sans text-[0.8125rem] text-muted leading-relaxed">{analysis.insights}</p>
+        {insightsFull && (
+          <div className="flex flex-col gap-1.5">
+            <p className="font-sans text-[0.8125rem] text-muted leading-relaxed">
+              {showFullAnalysis ? insightsFull : insightsPreview}
+            </p>
+            {hasMore && (
+              <button
+                onClick={() => setShowFullAnalysis(s => !s)}
+                className="font-sans text-[0.75rem] text-dim hover:text-muted transition self-start"
+              >
+                {showFullAnalysis ? '↑ Thu gọn' : '↓ Xem phân tích đầy đủ'}
+              </button>
+            )}
+          </div>
         )}
-        {analysis.question_analysis && (
+        {showFullAnalysis && analysis.question_analysis && (
           <div className="flex flex-col gap-2">
             <span className="font-sans text-[0.8125rem] font-semibold text-muted">Phân tích câu trả lời</span>
             <p className="font-sans text-[0.8125rem] text-muted leading-relaxed">{analysis.question_analysis}</p>

@@ -280,9 +280,9 @@ export default function Landing({ onOpenAuth }) {
       >
         <span className="font-sans text-[15px] font-bold text-foreground">Zenith</span>
         <div className="flex items-center gap-2">
-          <button onClick={() => navigate('/exams')}
+          <button onClick={() => navigate('/practice/diagnostic')}
             className="px-4 py-2 rounded-lg font-sans text-[12px] font-semibold cta-gradient-btn">
-            Bắt đầu miễn phí →
+            Thử ngay →
           </button>
           {!user && (
             <button onClick={onOpenAuth}
@@ -683,8 +683,8 @@ export default function Landing({ onOpenAuth }) {
       <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-16">
         <div className="h-px w-full mb-12" style={{ background: 'linear-gradient(90deg, transparent, var(--border), transparent)' }} />
         <div className="flex flex-col items-center gap-2 text-center mb-8">
-          <span className="font-sans text-[28px] font-bold text-foreground">Bắt đầu miễn phí</span>
-          <p className="font-sans text-[14px] text-dim">Không cần thẻ ngân hàng · Hủy bất cứ lúc nào · Hoàn tiền 7 ngày</p>
+          <span className="font-sans text-[28px] font-bold text-foreground">7 ngày — biết ngay 3 điểm yếu cần sửa</span>
+          <p className="font-sans text-[14px] text-dim">Không cần thẻ ngân hàng · Hủy bất cứ lúc nào · Hoàn tiền 7 ngày nếu không hài lòng</p>
         </div>
         <div className="flex flex-col gap-3">
           {PLANS_MONTHLY.map((plan, i) => (
