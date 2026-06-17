@@ -9,6 +9,7 @@ import { loadQuestions } from '../api/index.js'
 import { generateAdaptivePractice, adaptiveNextQuestion, getConceptMastery } from '../api/aiClient.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
+import { hasImageDependency } from '../utils/questionUtils.js'
 import { loadDiagnosticWeights } from './DiagnosticTest.jsx'
 
 const TOPICS = Object.keys(TOPIC_LABELS)
@@ -158,9 +159,11 @@ export default function AdaptivePractice() {
       const allQuestions = await loadQuestions()
       const questionMap = Object.fromEntries(allQuestions.map(q => [q.id, q]))
       const weights = computeTopicWeights(results, questionMap, user?.id)
-      const pool = allQuestions.filter(q =>
-        pinnedTopic ? q.topic === pinnedTopic : TOPICS.includes(q.topic)
-      )
+      const pool = allQuestions.filter(q => {
+        if (pinnedTopic ? q.topic !== pinnedTopic : !TOPICS.includes(q.topic)) return false
+        if (hasImageDependency(q.question) && !q.image) return false
+        return true
+      })
       const sampled = weightedSample(pool, weights, SESSION_SIZE)
       const selected = interleaved ? interleaveQuestions(sampled) : sampled
       const topicLabel = pinnedTopic ? (TOPIC_LABELS[pinnedTopic] ?? pinnedTopic) : null

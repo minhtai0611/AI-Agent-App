@@ -608,11 +608,11 @@ export default function Results({ onOpenAuth }) {
       const db = Math.abs(b.prob - 50)
       return da - db
     })
-    // Prefer showing same-province schools; only fill remaining slots with other provinces
     const sameProvSchools = scored.filter(s => s.sameProvince).slice(0, 6)
-    if (sameProvSchools.length >= 4) return sameProvSchools.slice(0, 6)
-    const others = scored.filter(s => !s.sameProvince)
-    return [...sameProvSchools, ...others].slice(0, 6)
+    // Show same-province schools exclusively when we have any matches
+    if (normUserProv && sameProvSchools.length > 0) return sameProvSchools
+    // Fallback: no province set, or province set but 0 matching schools in data
+    return scored.slice(0, 6)
   }, [result?.score, user?.province]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

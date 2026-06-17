@@ -5173,18 +5173,21 @@ async def adaptive_practice(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
-    from app.math_wiki.taxonomy import CANONICAL_TOPICS
-    # Allowlist weak_topics — reject any unknown topic slug
-    invalid = [t for t in req.weak_topics if t not in CANONICAL_TOPICS]
-    if invalid:
-        raise HTTPException(status_code=422, detail=f"Unknown topic(s): {invalid!r}. Must be one of the canonical topic slugs.")
+    from app.math_wiki.taxonomy import CANONICAL_TOPICS, TOPIC_MAP
+    # Normalize non-canonical slugs via TOPIC_MAP, then keep only canonical ones
+    normalized = list(dict.fromkeys(
+        TOPIC_MAP.get(t, t) for t in req.weak_topics
+    ))
+    valid_topics = [t for t in normalized if t in CANONICAL_TOPICS]
+    if not valid_topics:
+        valid_topics = ["algebra"]  # safe fallback
 
     cost = req.count
     await _spend_credits(pool, current_user.user_id, cost, "adaptive_practice")
 
     client = get_ai_client()
     settings = get_settings()
-    topics_str = ", ".join(req.weak_topics) if req.weak_topics else "mixed"
+    topics_str = ", ".join(valid_topics) if valid_topics else "mixed"
     prompt = (
         f"Tạo {req.count} câu hỏi trắc nghiệm toán cho học sinh lớp {req.grade} tại Việt Nam. "
         f"Tập trung vào các chủ đề yếu sau: <user_topics>{topics_str}</user_topics>. "
@@ -5239,9 +5242,15 @@ async def adaptive_next_question(
 
     # Fetch candidate questions (topic-filtered if specified)
     if req.topic:
+        from app.math_wiki.taxonomy import TOPIC_MAP
+        # Expand to all non-canonical slugs that map to the same canonical topic
+        canonical = TOPIC_MAP.get(req.topic, req.topic)
+        all_slugs = [slug for slug, canon in TOPIC_MAP.items() if canon == canonical]
+        all_slugs.append(canonical)
+        placeholders = ", ".join("?" * len(all_slugs))
         rows = await pool.fetch(
-            "SELECT id, difficulty FROM questions WHERE topic = ? ORDER BY id",
-            req.topic,
+            f"SELECT id, difficulty FROM questions WHERE topic IN ({placeholders}) ORDER BY id",
+            *all_slugs,
         )
     else:
         rows = await pool.fetch("SELECT id, difficulty FROM questions ORDER BY id")
