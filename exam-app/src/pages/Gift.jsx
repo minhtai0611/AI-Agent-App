@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
-import { wrap } from '../api/aiClient.js'
 
 const TIERS = [
   { id: 'student', label: 'Student', price: 79000, desc: 'Không giới hạn câu hỏi · AI hints & phân tích' },
@@ -48,7 +47,7 @@ export default function Gift() {
 
   if (submitted) {
     return (
-      <motion.div {...pageVariants} className="min-h-screen bg-background flex flex-col items-center justify-center px-4 gap-6 text-center">
+      <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit" className="min-h-screen bg-background flex flex-col items-center justify-center px-4 gap-6 text-center">
         <span className="text-5xl">🎁</span>
         <h1 className="font-sans text-[22px] font-bold text-foreground">Đã gửi quà!</h1>
         <p className="font-sans text-[0.8125rem] text-muted max-w-xs">
@@ -63,7 +62,7 @@ export default function Gift() {
   }
 
   return (
-    <motion.div {...pageVariants} className="min-h-screen bg-background pb-16">
+    <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit" className="min-h-screen bg-background pb-16">
       <div className="max-w-lg mx-auto px-4 pt-8 flex flex-col gap-6">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="font-sans text-xs text-dim hover:text-muted transition">← Quay lại</button>
