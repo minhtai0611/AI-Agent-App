@@ -1001,7 +1001,8 @@ async def lifespan(app: FastAPI):
     await _apply_schema(app.state.pool)
     logger.info("SQLite pool ready at %s", settings.sqlite_path)
     exam_count = (await app.state.pool.fetchrow("SELECT COUNT(*) AS cnt FROM exams"))
-    if exam_count and exam_count["cnt"] == 0:
+    q_count = (await app.state.pool.fetchrow("SELECT COUNT(*) AS cnt FROM questions"))
+    if (exam_count and exam_count["cnt"] == 0) or (q_count and q_count["cnt"] == 0):
         await _seed_from_json(app.state.pool)
     await _seed_concepts(app.state.pool)
     await _tag_question_concepts(app.state.pool)
