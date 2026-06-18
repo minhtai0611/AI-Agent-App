@@ -810,11 +810,6 @@ async def _seed_from_json(pool) -> None:
                     e["id"], e.get("year"), e["title"], e.get("duration"), e.get("source"),
                     e["category"], e.get("mode"), e.get("totalQuestions"),
                 )
-                for i, qid in enumerate(e.get("questionIds", [])):
-                    await conn.execute(
-                        "INSERT OR IGNORE INTO exam_questions (exam_id, question_id, position) VALUES (?,?,?)",
-                        e["id"], qid, i,
-                    )
             for q in questions:
                 await conn.execute(
                     "INSERT OR IGNORE INTO questions (id, source, year, topic, difficulty, question, choices, correct, explanation) VALUES (?,?,?,?,?,?,?,?,?)",
@@ -822,6 +817,12 @@ async def _seed_from_json(pool) -> None:
                     q["question"], json.dumps(q.get("choices", []), ensure_ascii=False),
                     q["correct"], q.get("explanation"),
                 )
+            for e in exams:
+                for i, qid in enumerate(e.get("questionIds", [])):
+                    await conn.execute(
+                        "INSERT OR IGNORE INTO exam_questions (exam_id, question_id, position) VALUES (?,?,?)",
+                        e["id"], qid, i,
+                    )
         logger.info("_seed_from_json: seeded %d exams, %d questions", len(exams), len(questions))
     except Exception as exc:
         logger.warning("_seed_from_json failed: %s", exc)
