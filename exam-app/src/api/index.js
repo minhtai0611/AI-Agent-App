@@ -49,7 +49,7 @@ export async function loadQuestionsForExam() {
     return loadQuestions()
   } catch (err) {
     if (err.message.includes('401')) throw new Error('auth_required')
-    throw err
+    return loadQuestions()
   }
 }
 
@@ -158,26 +158,38 @@ function _latestCutoff(school) {
 // Build matched school recommendations for the analyze payload
 function _matchSchools(studentScore, province) {
   const userProv = _normProvince(province)
-  return schoolsData
+
+  const inProvince = userProv
+    ? schoolsData
+        .filter(s => {
+          const cutoff = _latestCutoff(s)
+          return cutoff !== null && _normProvince(s.province).includes(userProv) && Math.abs(studentScore - cutoff) <= 3.0
+        })
+        .sort((a, b) => Math.abs(studentScore - _latestCutoff(a)) - Math.abs(studentScore - _latestCutoff(b)))
+    : []
+
+  const outsideInRange = schoolsData
     .filter(s => {
       const cutoff = _latestCutoff(s)
-      return cutoff !== null && Math.abs(studentScore - cutoff) <= 2.0
+      const notProv = !userProv || !_normProvince(s.province).includes(userProv)
+      return cutoff !== null && notProv && Math.abs(studentScore - cutoff) <= 2.0
     })
-    .sort((a, b) => {
-      const aMatch = userProv && _normProvince(a.province).includes(userProv) ? 0 : 1
-      const bMatch = userProv && _normProvince(b.province).includes(userProv) ? 0 : 1
-      if (aMatch !== bMatch) return aMatch - bMatch
-      return Math.abs(studentScore - _latestCutoff(a)) - Math.abs(studentScore - _latestCutoff(b))
-    })
-    .slice(0, 6)
-    .map(s => ({
-      name: s.name,
-      district: s.district ?? '',
-      province: s.province ?? '',
-      type: s.type ?? 'công lập',
-      matchStrength: studentScore >= _latestCutoff(s) ? 'Rất phù hợp' : 'Khá phù hợp',
-      cutoff: _latestCutoff(s),
-    }))
+    .sort((a, b) => Math.abs(studentScore - _latestCutoff(a)) - Math.abs(studentScore - _latestCutoff(b)))
+
+  const provinceSlots = Math.min(inProvince.length, 4)
+  const combined = [
+    ...inProvince.slice(0, provinceSlots),
+    ...outsideInRange.slice(0, 6 - provinceSlots),
+  ]
+
+  return combined.slice(0, 6).map(s => ({
+    name: s.name,
+    district: s.district ?? '',
+    province: s.province ?? '',
+    type: s.type ?? 'công lập',
+    matchStrength: studentScore >= _latestCutoff(s) ? 'Rất phù hợp' : 'Khá phù hợp',
+    cutoff: _latestCutoff(s),
+  }))
 }
 
 // Province-only school lookup for admin panel (no score filter)

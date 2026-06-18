@@ -393,7 +393,7 @@ def build_analyze_prompt(
             f'\n      "region_note": "Tỉnh/thành của trường — quan hệ với tỉnh học sinh (cùng tỉnh/tỉnh lân cận/...)",'
             f'\n      "note": "1 câu nhận xét tại sao phù hợp với điểm số này"'
             f'\n    }}'
-            f'\n  ]  // Liệt kê 3-5 trường phù hợp nhất theo thứ tự ưu tiên'
+            f'\n  ]  // BẮT BUỘC: Điền đủ 3-5 trường từ danh sách trường gợi ý đã cung cấp; không được để mảng rỗng'
         )
 
     prompt = "\n".join(dynamic_parts) + f"""

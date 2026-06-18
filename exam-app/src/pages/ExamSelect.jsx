@@ -230,7 +230,13 @@ export default function ExamSelect({ onOpenAuth }) {
 
   async function handleStart(exam, startMode = 'timed') {
     if (!user) { onOpenAuth?.(); return }
-    const questions = await loadQuestionsByIds(exam.questionIds, true)
+    let questions
+    try {
+      questions = await loadQuestionsByIds(exam.questionIds, true)
+    } catch (err) {
+      if (err.message === 'auth_required') { onOpenAuth?.(); return }
+      questions = await loadQuestionsByIds(exam.questionIds, false)
+    }
     dispatch({ type: 'START_EXAM', exam, questions, mode: startMode })
     viewNavigate(navigate, `/test/${exam.id}`)
   }

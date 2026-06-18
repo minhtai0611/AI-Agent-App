@@ -1463,7 +1463,14 @@ export default function Results({ onOpenAuth }) {
                     <p className="font-sans text-[0.8125rem] text-muted leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
                       {analysis.school_insight}
                     </p>
-                    <SchoolList schools={analysis.schools?.length ? analysis.schools : parseSchoolsFromText(analysis.school_insight)} studentScore={score} />
+                    {(() => {
+                      const schoolList = analysis.schools?.length
+                        ? analysis.schools
+                        : parseSchoolsFromText(analysis.school_insight)
+                      return schoolList.length > 0
+                        ? <SchoolList schools={schoolList} studentScore={score} />
+                        : <p className="font-sans text-xs text-faint italic">Xem nhận xét ở trên để biết thêm chi tiết.</p>
+                    })()}
                   </>
                 ) : !aiLoading && (
                   <div className="flex flex-col gap-3">
@@ -1539,7 +1546,14 @@ export default function Results({ onOpenAuth }) {
                 <p className="font-sans text-[0.8125rem] text-muted leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
                   {analysis.school_insight}
                 </p>
-                <SchoolList schools={analysis.schools?.length ? analysis.schools : parseSchoolsFromText(analysis.school_insight)} studentScore={score} />
+                {(() => {
+                  const schoolList = analysis.schools?.length
+                    ? analysis.schools
+                    : parseSchoolsFromText(analysis.school_insight)
+                  return schoolList.length > 0
+                    ? <SchoolList schools={schoolList} studentScore={score} />
+                    : <p className="font-sans text-xs text-faint italic">Xem nhận xét ở trên để biết thêm chi tiết.</p>
+                })()}
               </div>
             )}
           </motion.div>

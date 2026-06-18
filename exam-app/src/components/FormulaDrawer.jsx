@@ -39,6 +39,38 @@ const SHEETS = [
       { label: 'Nghiệm bậc 2', text: 'x = (−b ± √(b²−4ac)) / 2a' },
     ],
   },
+  {
+    label: 'Giải tích',
+    formulas: [
+      { label: "(xⁿ)'",    text: "(xⁿ)' = n·xⁿ⁻¹" },
+      { label: "(√x)'",    text: "(√x)' = 1 / (2√x)" },
+      { label: "(eˣ)'",    text: "(eˣ)' = eˣ" },
+      { label: "(ln x)'",  text: "(ln x)' = 1/x" },
+      { label: "(sin x)'", text: "(sin x)' = cos x" },
+      { label: "(cos x)'", text: "(cos x)' = −sin x" },
+      { label: "∫xⁿ dx",  text: "∫xⁿ dx = xⁿ⁺¹/(n+1) + C" },
+    ],
+  },
+  {
+    label: 'Tổ hợp',
+    formulas: [
+      { label: 'Hoán vị',    text: 'Pₙ = n!' },
+      { label: 'Chỉnh hợp', text: 'Aₙᵏ = n! / (n−k)!' },
+      { label: 'Tổ hợp',    text: 'Cₙᵏ = n! / (k!·(n−k)!)' },
+      { label: 'Xác suất',  text: 'P(A) = m / n' },
+      { label: 'Nhị thức',  text: '(a+b)ⁿ = Σ Cₙᵏ·aⁿ⁻ᵏ·bᵏ' },
+    ],
+  },
+  {
+    label: 'Dãy số',
+    formulas: [
+      { label: 'CSC — uₙ',   text: 'uₙ = u₁ + (n−1)·d' },
+      { label: 'CSC — Sₙ',   text: 'Sₙ = n·(u₁ + uₙ) / 2' },
+      { label: 'CSN — uₙ',   text: 'uₙ = u₁·qⁿ⁻¹' },
+      { label: 'CSN — Sₙ',   text: 'Sₙ = u₁·(qⁿ − 1) / (q − 1)' },
+      { label: 'Tổng ∞ CSN', text: 'S∞ = u₁ / (1 − q),  |q| < 1' },
+    ],
+  },
 ]
 
 export function FormulaDrawer() {
