@@ -11451,7 +11451,8 @@
     "topic": "căn thức",
     "difficulty": "easy",
     "explanation": "Đáp án D",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_173478_12.png"
   },
   {
     "id": "q_lgh_173753_01",
@@ -12156,7 +12157,8 @@
     "topic": "hình học",
     "difficulty": "medium",
     "explanation": "Đáp án C",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_180840_05.png"
   },
   {
     "id": "q_lgh_180840_06",
@@ -12606,7 +12608,8 @@
     "topic": "căn thức",
     "difficulty": "easy",
     "explanation": "Đáp án D",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_177656_11.png"
   },
   {
     "id": "q_lgh_177656_12",
@@ -12771,7 +12774,8 @@
     "topic": "hệ phương trình",
     "difficulty": "medium",
     "explanation": "Đáp án D",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_177657_10.png"
   },
   {
     "id": "q_lgh_177657_11",
@@ -13116,7 +13120,8 @@
     "topic": "hệ phương trình",
     "difficulty": "easy",
     "explanation": "Đáp án C",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_177714_10.png"
   },
   {
     "id": "q_lgh_177714_11",
@@ -13521,7 +13526,8 @@
     "topic": "hệ phương trình",
     "difficulty": "easy",
     "explanation": "Đáp án B",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_182313_01.png"
   },
   {
     "id": "q_lgh_182313_02",
@@ -13626,7 +13632,8 @@
     "topic": "đại số",
     "difficulty": "easy",
     "explanation": "Đáp án B",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_182313_08.png"
   },
   {
     "id": "q_lgh_182313_09",
@@ -13686,7 +13693,8 @@
     "topic": "căn thức",
     "difficulty": "easy",
     "explanation": "Đáp án B",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_182313_12.png"
   },
   {
     "id": "q_lgh_182339_01",
@@ -13821,7 +13829,8 @@
     "topic": "đại số",
     "difficulty": "easy",
     "explanation": "Đáp án D",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_182339_09.png"
   },
   {
     "id": "q_lgh_182339_10",
@@ -13866,7 +13875,8 @@
     "topic": "hệ phương trình",
     "difficulty": "easy",
     "explanation": "Đáp án C",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_182339_12.png"
   },
   {
     "id": "q_lgh_182635_01",
@@ -13971,7 +13981,8 @@
     "topic": "hệ phương trình",
     "difficulty": "medium",
     "explanation": "Đáp án B",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_182635_07.png"
   },
   {
     "id": "q_lgh_182635_09",
@@ -13986,7 +13997,8 @@
     "topic": "đại số",
     "difficulty": "easy",
     "explanation": "Đáp án C",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_182635_09.png"
   },
   {
     "id": "q_lgh_182635_10",
@@ -14001,7 +14013,8 @@
     "topic": "hình học",
     "difficulty": "medium",
     "explanation": "Đáp án D",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_182635_10.png"
   },
   {
     "id": "q_lgh_182635_11",
@@ -14031,7 +14044,8 @@
     "topic": "hình học không gian",
     "difficulty": "easy",
     "explanation": "Đáp án C",
-    "source": "loigiaihay.com"
+    "source": "loigiaihay.com",
+    "image": "/images/questions/q_lgh_182635_12.png"
   },
   {
     "id": "q_lgh_182707_01",
@@ -26061,7 +26075,8 @@
     "difficulty": "medium",
     "explanation": "Sau khi gấp và cắt theo đường chéo qua góc, mở ra sẽ tạo thành hình có 4 khe đối xứng. Đáp án E.",
     "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_2"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_2",
+    "image": "/images/questions/q_amc8_2023_02.png"
   },
   {
     "id": "q_amc8_2023_04",
@@ -26078,7 +26093,8 @@
     "difficulty": "hard",
     "explanation": "Xoắn ốc: số 7 tại (5,3). Đường chéo qua 7 theo hướng tăng: 43, 21, 7, 3 (hoặc theo chiều kia). Trong đó: 43 nguyên tố ✓, 7 nguyên tố ✓, 3 nguyên tố ✓. Đáp án: 3.",
     "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_4"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_4",
+    "image": "/images/questions/q_amc8_2023_04.png"
   },
   {
     "id": "q_amc8_2023_09",
@@ -26095,7 +26111,8 @@
     "difficulty": "medium",
     "explanation": "Đọc từ đồ thị: cô ở độ cao 4–7m trong hai khoảng thời gian, tổng khoảng 8 giây. Đáp án B.",
     "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_9"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_9",
+    "image": "/images/questions/q_amc8_2023_09.png"
   },
   {
     "id": "q_amc8_2023_12",
@@ -26112,7 +26129,8 @@
     "difficulty": "medium",
     "explanation": "Từ hình minh họa: hình tròn lớn bán kính 3, chứa các hình tròn nhỏ theo cấu hình cụ thể. Tỉ lệ tô màu = 11/36. Đáp án B.",
     "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_12"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_12",
+    "image": "/images/questions/q_amc8_2023_12.png"
   },
   {
     "id": "q_amc8_2023_16",
@@ -26129,7 +26147,8 @@
     "difficulty": "medium",
     "explanation": "20×20=400 ô. Mỗi chu kỳ 3 cột: 400=133×3+1. Hàng 1: P xuất hiện 7 lần/hàng hoặc 6 lần tùy. Đếm chính xác: 133 P, 134 Q, 133 R. Đáp án C.",
     "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_16"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_16",
+    "image": "/images/questions/q_amc8_2023_16.png"
   },
   {
     "id": "q_amc8_2023_17",
@@ -26146,7 +26165,8 @@
     "difficulty": "hard",
     "explanation": "Từ sơ đồ gấp (net), theo dõi vị trí tương đối của các mặt: mặt 1 sẽ nằm bên phải Q. Đáp án A.",
     "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_17"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_17",
+    "image": "/images/questions/q_amc8_2023_17.png"
   },
   {
     "id": "q_amc8_2023_23",
@@ -26163,7 +26183,8 @@
     "difficulty": "hard",
     "explanation": "Mỗi ô chọn 1/4. Để có hình thoi trong lưới 2×2: cần 4 ô cụ thể đúng thứ tự. Có 4 lưới 2×2; sự kiện không độc lập. Đáp án C = 1/64.",
     "source": "AMC 8 2023 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_23"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2023_AMC_8_Problems/Problem_23",
+    "image": "/images/questions/q_amc8_2023_23.png"
   },
   {
     "id": "q_amc8_2022_01",
@@ -26180,7 +26201,8 @@
     "difficulty": "easy",
     "explanation": "Hình × gồm hai hình chữ nhật 1×5 cắt nhau tại ô giữa 1×1. Diện tích = 5+5-1+1 = 10 (tùy cấu hình). Đáp án A=10.",
     "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_1"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_1",
+    "image": "/images/questions/q_amc8_2022_01.png"
   },
   {
     "id": "q_amc8_2022_04",
@@ -26197,7 +26219,8 @@
     "difficulty": "easy",
     "explanation": "Phản chiếu kép = phép quay. Theo hướng của hai đường thẳng, kết quả là hình D.",
     "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_4"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_4",
+    "image": "/images/questions/q_amc8_2022_04.png"
   },
   {
     "id": "q_amc8_2022_10",
@@ -26214,7 +26237,8 @@
     "difficulty": "medium",
     "explanation": "Đoạn đi: tuyến tính tăng (lái xe) → phẳng ngang (đi bộ) → tuyến tính giảm nhanh hơn (lái xe về). Đáp án E.",
     "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_10"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_10",
+    "image": "/images/questions/q_amc8_2022_10.png"
   },
   {
     "id": "q_amc8_2022_15",
@@ -26231,7 +26255,8 @@
     "difficulty": "medium",
     "explanation": "Từ biểu đồ, điểm có tỉ lệ giá/khối lượng thấp nhất ứng với cột 3 oz. Đáp án C.",
     "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_15"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_15",
+    "image": "/images/questions/q_amc8_2022_15.png"
   },
   {
     "id": "q_amc8_2022_19",
@@ -26248,7 +26273,8 @@
     "difficulty": "medium",
     "explanation": "Cần chuyển ít nhất 4 học sinh từ dưới 85 lên ≥85 để trung vị đạt 85. Đáp án C=4.",
     "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_19"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_19",
+    "image": "/images/questions/q_amc8_2022_19.png"
   },
   {
     "id": "q_amc8_2022_20",
@@ -26265,7 +26291,8 @@
     "difficulty": "hard",
     "explanation": "Từ ràng buộc tổng hàng/cột = 12 và $x$ lớn nhất, giá trị nhỏ nhất của $x$ là 8. Đáp án D.",
     "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_20"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_20",
+    "image": "/images/questions/q_amc8_2022_20.png"
   },
   {
     "id": "q_amc8_2022_24",
@@ -26282,7 +26309,8 @@
     "difficulty": "hard",
     "explanation": "Lăng trụ tam giác: đáy = tam giác đều. Từ kích thước $AH=8, GH=14$: đáy = tam giác cạnh 8, chiều cao lăng trụ = 6. $V=\\frac{\\sqrt{3}}{4}\\times64\\times6$... Đáp án chính thức C=192.",
     "source": "AMC 8 2022 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_24"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_8_Problems/Problem_24",
+    "image": "/images/questions/q_amc8_2022_24.png"
   },
   {
     "id": "q_amc10a_22_05",
@@ -26299,7 +26327,8 @@
     "difficulty": "medium",
     "explanation": "Xét hình vuông cạnh 1. Lục giác đều lồi với $P$ trên $AB$: $AP=s$, $PQ=s$. Bằng hệ phương trình hình học: $s=2-\\sqrt{2}$.",
     "source": "AMC 10A 2022 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_10A_Problems/Problem_5"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_10A_Problems/Problem_5",
+    "image": "/images/questions/q_amc10a_22_05.png"
   },
   {
     "id": "q_amc10a_22_09",
@@ -26316,7 +26345,8 @@
     "difficulty": "hard",
     "explanation": "Từ cấu hình 5 vùng trong hình minh họa, áp dụng công thức tô màu: 540 cách. Đáp án D.",
     "source": "AMC 10A 2022 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_10A_Problems/Problem_9"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_10A_Problems/Problem_9",
+    "image": "/images/questions/q_amc10a_22_09.png"
   },
   {
     "id": "q_amc10a_22_21",
@@ -26333,7 +26363,8 @@
     "difficulty": "hard",
     "explanation": "Bát giác từ đỉnh 4 lục giác: diện tích = 7. Đáp án B.",
     "source": "AMC 10A 2022 — Mathematical Association of America (MAA)",
-    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_10A_Problems/Problem_21"
+    "imageLink": "https://artofproblemsolving.com/wiki/index.php/2022_AMC_10A_Problems/Problem_21",
+    "image": "/images/questions/q_amc10a_22_21.png"
   },
   {
     "id": "q_kg_2023_ab_02",
@@ -26350,7 +26381,8 @@
     "difficulty": "easy",
     "explanation": "Tốc độ: chạy cao → ngồi tàu (thấp) → đi bộ (trung bình). Đồ thị D phù hợp.",
     "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
-    "imageLink": "https://mathkangaroo.ca/competitions/"
+    "imageLink": "https://mathkangaroo.ca/competitions/",
+    "image": "/images/questions/q_kg_2023_ab_02.png"
   },
   {
     "id": "q_kg_2023_ab_06",
@@ -26367,7 +26399,8 @@
     "difficulty": "easy",
     "explanation": "Chu vi vùng tô 240cm cho thấy cạnh nhỏ của mỗi ô. Từ cấu trúc 30 ô: diện tích tổng = 1920 cm². Đáp án D.",
     "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
-    "imageLink": "https://mathkangaroo.ca/competitions/"
+    "imageLink": "https://mathkangaroo.ca/competitions/",
+    "image": "/images/questions/q_kg_2023_ab_06.png"
   },
   {
     "id": "q_kg_2023_ab_09",
@@ -26384,7 +26417,8 @@
     "difficulty": "medium",
     "explanation": "Với 4 đỉnh và 6 cạnh, biết 3 giá trị cạnh nhưng không biết giá trị các đỉnh — không đủ thông tin để xác định cạnh còn lại. Đáp án E.",
     "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
-    "imageLink": "https://mathkangaroo.ca/competitions/"
+    "imageLink": "https://mathkangaroo.ca/competitions/",
+    "image": "/images/questions/q_kg_2023_ab_09.png"
   },
   {
     "id": "q_kg_2023_ab_12",
@@ -26401,7 +26435,8 @@
     "difficulty": "medium",
     "explanation": "Từ vị trí 3 hình vuông và hình thang được tạo thành: $S=55/4$ cm². Đáp án B.",
     "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
-    "imageLink": "https://mathkangaroo.ca/competitions/"
+    "imageLink": "https://mathkangaroo.ca/competitions/",
+    "image": "/images/questions/q_kg_2023_ab_12.png"
   },
   {
     "id": "q_kg_2023_ab_15",
@@ -26418,7 +26453,8 @@
     "difficulty": "medium",
     "explanation": "Từ điều kiện 4 tam giác chu vi bằng nhau và cấu hình hình học: tỉ lệ = 5/3. Đáp án D.",
     "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
-    "imageLink": "https://mathkangaroo.ca/competitions/"
+    "imageLink": "https://mathkangaroo.ca/competitions/",
+    "image": "/images/questions/q_kg_2023_ab_15.png"
   },
   {
     "id": "q_kg_2023_ab_16",
@@ -26435,7 +26471,8 @@
     "difficulty": "medium",
     "explanation": "Theo quy luật gấp 3: các khối 39 và 40 ban đầu cách nhau, sau khi xây lại cách nhau 4 khối. Đáp án E=4.",
     "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
-    "imageLink": "https://mathkangaroo.ca/competitions/"
+    "imageLink": "https://mathkangaroo.ca/competitions/",
+    "image": "/images/questions/q_kg_2023_ab_16.png"
   },
   {
     "id": "q_kg_2023_ab_19",
@@ -26452,7 +26489,8 @@
     "difficulty": "medium",
     "explanation": "Diện tích 9 ô = 900 cm². Trừ 3 hình tròn: $900-\\pi(25+16+9)=900-50\\pi$. Phần tô màu theo hình: 500 cm². Đáp án B.",
     "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
-    "imageLink": "https://mathkangaroo.ca/competitions/"
+    "imageLink": "https://mathkangaroo.ca/competitions/",
+    "image": "/images/questions/q_kg_2023_ab_19.png"
   },
   {
     "id": "q_kg_2023_c_25",
@@ -26469,7 +26507,8 @@
     "difficulty": "hard",
     "explanation": "7 số khác nhau, 3 đường × 3 số có cùng tích. Phân tích tích chung, số tại giao điểm = 2. Đáp án A=2.",
     "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
-    "imageLink": "https://mathkangaroo.ca/competitions/"
+    "imageLink": "https://mathkangaroo.ca/competitions/",
+    "image": "/images/questions/q_kg_2023_c_25.png"
   },
   {
     "id": "q_kg_2023_c_26",
@@ -26486,7 +26525,8 @@
     "difficulty": "hard",
     "explanation": "Sơ đồ C vi phạm điều kiện đường kín liên tục khi gập lại. Đáp án C.",
     "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
-    "imageLink": "https://mathkangaroo.ca/competitions/"
+    "imageLink": "https://mathkangaroo.ca/competitions/",
+    "image": "/images/questions/q_kg_2023_c_26.png"
   },
   {
     "id": "q_kg_2023_c_29",
@@ -26503,7 +26543,8 @@
     "difficulty": "hard",
     "explanation": "Tổng chu vi ngoài tính từ các chu vi vùng và các cạnh chung. Đáp án B=26 km.",
     "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
-    "imageLink": "https://mathkangaroo.ca/competitions/"
+    "imageLink": "https://mathkangaroo.ca/competitions/",
+    "image": "/images/questions/q_kg_2023_c_29.png"
   },
   {
     "id": "q_amc10a_22_15",
@@ -26552,7 +26593,8 @@
     "difficulty": "easy",
     "explanation": "Từ hình minh họa, vùng tô màu là phần giữa hai hình vuông trừ hai tam giác góc. Diện tích tô = 42 cm². Tỉ lệ = 42/100 = 42%. Đáp án D.",
     "source": "Math Kangaroo 2023 (Grade 9-10) — Association Kangourou sans Frontières",
-    "imageLink": "https://mathkangaroo.ca/competitions/"
+    "imageLink": "https://mathkangaroo.ca/competitions/",
+    "image": "/images/questions/q_kg_2023_ab_04.png"
   },
   {
     "id": "q_vmo_2022_03b",

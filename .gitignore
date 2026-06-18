@@ -54,6 +54,10 @@ backend/math_wiki.db
 # Crawl runtime state
 scripts/crawl_progress.json
 
+# Question image audit / crawl artifacts
+exam-app/src/data/questions.json.bak*
+tools/.kangaroo_pdfs/
+
 # Test results
 test-results/
 
