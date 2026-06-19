@@ -224,10 +224,17 @@ export default function Account() {
   }, [])
   const readiness = useReadiness(results, questionMap)
 
-  // ── Tab state ──
-  const [activeTab, setActiveTab] = useState(() =>
-    typeof window !== 'undefined' ? getInitialTab(window.location.hash) : TAB_PROGRESS
-  )
+  // ── Tab state — persisted to sessionStorage so back navigation restores position ──
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window === 'undefined') return TAB_PROGRESS
+    const fromHash = getInitialTab(window.location.hash)
+    if (fromHash !== TAB_PROGRESS) return fromHash  // #topup deep-link takes priority
+    return sessionStorage.getItem('account_active_tab') || TAB_PROGRESS
+  })
+
+  useEffect(() => {
+    sessionStorage.setItem('account_active_tab', activeTab)
+  }, [activeTab])
 
   // ── API data ──
   const [creditLog,  setCreditLog]  = useState([])

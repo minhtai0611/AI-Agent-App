@@ -19,6 +19,11 @@ import InstallPrompt from './components/InstallPrompt.jsx'
 import { OracleProvider } from './context/OracleContext.jsx'
 import { useToast } from './context/ToastContext.jsx'
 import OracleDrawer from './components/OracleDrawer.jsx'
+import {
+  HomePageSkeleton, ExamSelectSkeleton, ResultsPageSkeleton,
+  AccountPageSkeleton, ProgressPageSkeleton, StudyPlanPageSkeleton,
+  HistoryPageSkeleton, PracticeSkeleton, QuestionCardSkeleton, SimplePageSkeleton,
+} from './components/Skeleton.jsx'
 
 
 const Landing = lazy(() => import('./pages/Landing.jsx'))
@@ -51,7 +56,23 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'))
 const ForSchools = lazy(() => import('./pages/ForSchools.jsx'))
 const Gift = lazy(() => import('./pages/Gift.jsx'))
 
-const PageFallback = () => <div className="min-h-screen bg-background" />
+function PageFallback() {
+  const { pathname } = useLocation()
+  if (pathname === '/home') return <HomePageSkeleton />
+  if (pathname === '/exams') return <ExamSelectSkeleton />
+  if (pathname.startsWith('/results')) return <ResultsPageSkeleton />
+  if (pathname === '/account') return <AccountPageSkeleton />
+  if (pathname === '/progress' || pathname === '/mastery') return <ProgressPageSkeleton />
+  if (pathname.startsWith('/study-plan')) return <StudyPlanPageSkeleton />
+  if (pathname === '/history') return <HistoryPageSkeleton />
+  if (pathname === '/practice') return <PracticeSkeleton />
+  if (pathname.startsWith('/test/')) return (
+    <div className="min-h-screen bg-background pt-12 px-4 flex flex-col gap-4 max-w-2xl mx-auto pt-8">
+      <QuestionCardSkeleton />
+    </div>
+  )
+  return <div className="min-h-screen bg-background" />
+}
 
 function SuspensionModal({ reason, onLogout }) {
   return (

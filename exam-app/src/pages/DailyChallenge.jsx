@@ -112,13 +112,18 @@ export default function DailyChallenge() {
   const [daysSinceWrong, setDaysSinceWrong] = useState(null)
   const [pendingCount, setPendingCount] = useState(0)
   const [provinceContext, setProvinceContext] = useState(null)
-  const [loading, setLoading] = useState(true)
 
   const [chosen, setChosen] = useState(null)
   const [submitted, setSubmitted] = useState(false)
   const [completionData, setCompletionData] = useState(null)
 
   const [streak, setStreak] = useState(() => computeStreak(loadStreak(user?.id)))
+  // If already completed today, skip the loading state — show completion view immediately
+  // from localStorage without waiting for the network question fetch.
+  const [loading, setLoading] = useState(() => {
+    const s = computeStreak(loadStreak(user?.id))
+    return !s.completedToday
+  })
 
   const [showFreezeToast, setShowFreezeToast] = useState(false)
   const [freezeCount, setFreezeCount] = useState(0)
@@ -202,23 +207,8 @@ export default function DailyChallenge() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-surface flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[var(--accent-border)] border-t-transparent rounded-full animate-spin" />
-      </div>
-    )
-  }
-
-  if (!question) {
-    return (
-      <div className="min-h-screen bg-surface flex items-center justify-center px-4">
-        <p className="font-sans text-[14px] text-dim text-center">Không tìm thấy câu hỏi hôm nay.</p>
-      </div>
-    )
-  }
-
-  // Completed today in a previous session (chosen === null means this session hasn't answered yet)
+  // Completed today in a previous session — render immediately from localStorage,
+  // no need to wait for the question fetch.
   if (streak.completedToday && chosen === null) {
     return (
       <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
@@ -260,6 +250,22 @@ export default function DailyChallenge() {
           </div>
         )}
       </motion.div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-surface flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[var(--accent-border)] border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  if (!question) {
+    return (
+      <div className="min-h-screen bg-surface flex items-center justify-center px-4">
+        <p className="font-sans text-[14px] text-dim text-center">Không tìm thấy câu hỏi hôm nay.</p>
+      </div>
     )
   }
 

@@ -475,10 +475,14 @@ export default function Results({ onOpenAuth }) {
       if (cancelled) return
       const _prevTitle = document.title
       document.title = '⏳ Đang phân tích...'
+      let streamAccum = {}
       analyzeResultStream(payload, (updates) => {
         // Called via RAF with accumulated field values as they stream in
         if (cancelled) return
+        streamAccum = { ...streamAccum, ...updates }
         setAnalysis(prev => ({ ...(prev || {}), ...updates, _streaming: true }))
+        // Save partial result incrementally so back-navigation mid-stream recovers content
+        safeSetItem(cacheKey, JSON.stringify({ data: { ...streamAccum, _source: 'ai' }, ts: Date.now() }))
       }, abortCtrl.signal).then(({ data: analysisObj, error, status: streamStatus }) => {
         if (cancelled) return
         document.title = _prevTitle

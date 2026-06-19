@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ZenithLogo from './ZenithLogo'
 import CreditsTooltip from './CreditsTooltip'
+import { NavbarSkeleton } from './Skeleton.jsx'
 
 function vNavigate(navigate, path) {
   if (document.startViewTransition) {
@@ -32,7 +33,7 @@ const MOBILE_NAV_PRIMARY = [
 ]
 
 export default function Navbar({ onOpenAuth }) {
-  const { user, logout } = useAuth()
+  const { user, logout, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const go = useCallback((path) => { vNavigate(navigate, path); setMenuOpen(false) }, [navigate])
@@ -102,7 +103,9 @@ export default function Navbar({ onOpenAuth }) {
 
         {/* Right: user controls (desktop) */}
         <div className="hidden sm:flex items-center gap-3">
-          {user ? (
+          {authLoading ? (
+            <NavbarSkeleton />
+          ) : user ? (
             <>
               {pendingSync > 0 && (
                 <span className="font-sans text-[10px] text-[var(--warning)] border border-[var(--accent-border)] rounded px-1.5 py-0.5">
@@ -176,7 +179,8 @@ export default function Navbar({ onOpenAuth }) {
 
         {/* Mobile: credits badge + hamburger */}
         <div className="flex sm:hidden items-center gap-2">
-          {user?.credits_balance != null && (
+          {authLoading && <div className="skeleton w-16 h-7 rounded-full" />}
+          {!authLoading && user?.credits_balance != null && (
             <button
               onClick={() => go('/account')}
               className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)]"

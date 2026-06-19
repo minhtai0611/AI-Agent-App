@@ -35,6 +35,7 @@ export default function TestInterface() {
   const [showKbHint, setShowKbHint] = useState(() => !sessionStorage.getItem(KB_HINT_KEY))
   const [tabSwitchCount, setTabSwitchCount] = useState(0)
   const [diffAura, setDiffAura] = useState(false)
+  const [showBackModal, setShowBackModal] = useState(false)
   const prevDiffRef = useRef(null)
   const [showTabWarning, setShowTabWarning] = useState(false)
   const [devToolsOpen, setDevToolsOpen] = useState(false)
@@ -212,6 +213,21 @@ export default function TestInterface() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [session.status, submitModal, pauseOverlay, handleAnswerCallback, currentIndex]) // eslint-disable-line
+
+  // Practice mode back guard — intercept browser Back so answers aren't silently lost.
+  // Timed mode already blocks back via anti-cheat; this only activates for practice.
+  useEffect(() => {
+    if (mode !== 'practice' || session.status !== 'active') return
+    // Push a synthetic entry so the first Back press fires popstate instead of navigating.
+    window.history.pushState(null, '', window.location.href)
+    function onPop() {
+      // Re-push so repeated Back presses keep triggering the modal.
+      window.history.pushState(null, '', window.location.href)
+      setShowBackModal(true)
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [mode, session.status])
 
   const { hints, setHint } = useHints()
   const { flags, toggleFlag } = useFlags()
@@ -656,6 +672,42 @@ export default function TestInterface() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Practice mode back guard modal */}
+      {showBackModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="w-full max-w-sm bg-surface-elevated rounded-2xl p-6 flex flex-col gap-4 mb-4 sm:mb-0"
+          >
+            <div className="flex flex-col gap-1">
+              <p className="font-sans text-[15px] font-semibold text-foreground">Thoát bài luyện tập?</p>
+              <p className="font-sans text-[13px] text-muted">Câu trả lời đã chọn vẫn được lưu. Bạn có thể tiếp tục sau.</p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowBackModal(false)}
+                className="flex-1 py-2.5 rounded-xl font-sans text-[13px] font-semibold text-foreground bg-surface border border-border hover:bg-border/50 transition"
+              >
+                Làm tiếp
+              </button>
+              <button
+                onClick={() => {
+                  setShowBackModal(false)
+                  sessionStorage.removeItem(`exam-draft-${examId}`)
+                  dispatch({ type: 'RESET' })
+                  navigate('/exams', { replace: true })
+                }}
+                className="flex-1 py-2.5 rounded-xl font-sans text-[13px] font-semibold text-muted bg-surface border border-border hover:text-foreground transition"
+              >
+                Lưu nháp và thoát
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
     </motion.div>

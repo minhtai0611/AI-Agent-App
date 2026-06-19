@@ -311,7 +311,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
               className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] font-sans text-xs text-[var(--muted-fg)] hover:text-[var(--foreground)] hover:border-[var(--primary-border)] transition disabled:opacity-50"
             >
               {hintLoading ? (
-                <span className="inline-block w-3 h-3 border border-[var(--muted)] border-t-transparent rounded-full animate-spin" />
+                <span className="inline-block w-3 h-3 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
               ) : (
                 <span className="text-[var(--primary)]">💡</span>
               )}
@@ -323,13 +323,13 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
             <p className="font-sans text-xs text-[var(--destructive)]">{hintError}</p>
           )}
           {hintTexts.map((text, i) => (
-            <div key={i} className="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] flex flex-col gap-2">
+            <motion.div key={i} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] flex flex-col gap-2">
               <MathText className="font-sans text-[0.8125rem] text-[var(--muted-fg)] leading-relaxed">{text}</MathText>
               <div className="flex items-center justify-between">
                 <span className="font-sans text-[0.6875rem] text-[var(--faint)]">Gợi ý {i + 1}/{MAX_HINTS}</span>
                 <AIRating questionId={question.id} hintIndex={i} />
               </div>
-            </div>
+            </motion.div>
           ))}
 
           {/* Level 3 — Oracle in-context (after 2+ hints, or immediately when wrongStreak ≥ 2) */}
@@ -354,7 +354,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
               className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] font-sans text-xs text-[var(--muted-fg)] hover:text-[var(--foreground)] hover:border-[var(--primary-border)] transition disabled:opacity-50"
             >
               {hintLoading ? (
-                <span className="inline-block w-3 h-3 border border-[var(--muted)] border-t-transparent rounded-full animate-spin" />
+                <span className="inline-block w-3 h-3 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
               ) : (
                 <span className="text-[var(--primary)]">💡</span>
               )}
@@ -366,13 +366,13 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
             <p className="font-sans text-xs text-[var(--destructive)]">{hintError}</p>
           )}
           {hintTexts.map((text, i) => (
-            <div key={i} className="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] flex flex-col gap-2">
+            <motion.div key={i} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] flex flex-col gap-2">
               <MathText className="font-sans text-[0.8125rem] text-[var(--muted-fg)] leading-relaxed">{text}</MathText>
               <div className="flex items-center justify-between">
                 <span className="font-sans text-[0.6875rem] text-[var(--faint)]">Gợi ý {i + 1}/{MAX_HINTS}</span>
                 <AIRating questionId={question.id} hintIndex={i} />
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       )}
