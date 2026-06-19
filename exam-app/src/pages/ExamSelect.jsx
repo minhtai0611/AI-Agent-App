@@ -230,12 +230,14 @@ export default function ExamSelect({ onOpenAuth }) {
 
   async function handleStart(exam, startMode = 'timed') {
     if (!user) { onOpenAuth?.(); return }
+    // API-loaded exams omit questionIds; fall back to bundled exam data which always has them
+    const ids = exam.questionIds?.length ? exam.questionIds : (loadExamById(exam.id)?.questionIds ?? [])
     let questions
     try {
-      questions = await loadQuestionsByIds(exam.questionIds, true)
+      questions = await loadQuestionsByIds(ids, true)
     } catch (err) {
       if (err.message === 'auth_required') { onOpenAuth?.(); return }
-      questions = await loadQuestionsByIds(exam.questionIds, false)
+      questions = await loadQuestionsByIds(ids, false)
     }
     dispatch({ type: 'START_EXAM', exam, questions, mode: startMode })
     viewNavigate(navigate, `/test/${exam.id}`)
