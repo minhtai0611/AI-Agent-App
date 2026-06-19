@@ -66,12 +66,17 @@ function PageFallback() {
   if (pathname.startsWith('/study-plan')) return <StudyPlanPageSkeleton />
   if (pathname === '/history') return <HistoryPageSkeleton />
   if (pathname === '/practice') return <PracticeSkeleton />
+  if (pathname === '/practice/daily' || pathname === '/practice/diagnostic') return (
+    <div className="min-h-screen bg-background pt-12 px-4 flex flex-col gap-4 max-w-2xl mx-auto pt-8">
+      <QuestionCardSkeleton />
+    </div>
+  )
   if (pathname.startsWith('/test/')) return (
     <div className="min-h-screen bg-background pt-12 px-4 flex flex-col gap-4 max-w-2xl mx-auto pt-8">
       <QuestionCardSkeleton />
     </div>
   )
-  return <div className="min-h-screen bg-background" />
+  return <SimplePageSkeleton />
 }
 
 function SuspensionModal({ reason, onLogout }) {
