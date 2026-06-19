@@ -86,6 +86,13 @@ export default function DiagnosticTest({ onOpenAuth = null }) {
     setPhase('testing')
   }
 
+  function handleRetake() {
+    try { localStorage.removeItem(DIAGNOSTIC_KEY(user?.id)) } catch {}
+    setAnswers({})
+    setCurrentIdx(0)
+    setPhase('intro')
+  }
+
   function handleAnswer(choiceIdx) {
     const q = questions[currentIdx]
     const newAnswers = { ...answers, [q.id]: choiceIdx }
@@ -298,9 +305,13 @@ export default function DiagnosticTest({ onOpenAuth = null }) {
               <p className="font-sans text-[11px] text-dim">Đăng ký miễn phí · Không cần thẻ ngân hàng</p>
             </div>
           )}
-          <button onClick={() => navigate('/exams?mode=timed')}
+          <button onClick={handleRetake}
             className="font-sans text-[13px] text-dim hover:text-muted transition text-center py-1">
-            Làm lại từ đầu
+            Làm lại bài kiểm tra năng lực
+          </button>
+          <button onClick={() => navigate('/exams?mode=timed')}
+            className="font-sans text-[12px] text-dim/60 hover:text-dim transition text-center py-1">
+            Chọn đề thi
           </button>
         </div>
       </motion.div>

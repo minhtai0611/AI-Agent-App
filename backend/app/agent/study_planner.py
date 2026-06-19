@@ -120,8 +120,8 @@ Trả về JSON (không có text ngoài JSON):
                     "topic": "Ôn tập tổng quát",
                     "error_pattern": "Xem lại tất cả câu sai và tìm điểm chung.",
                     "tasks": [
-                        "Xem lại bài giải từng câu sai trong đề",
-                        "Luyện thêm 10 câu cùng dạng trên mỗi chủ đề yếu",
+                        "Lập danh sách từng câu sai: ghi rõ dạng bài, bước sai, công thức cần nắm — tra lại định nghĩa/định lý liên quan.",
+                        "Làm lại 5–8 câu cùng dạng (từ đề thi năm trước), viết đầy đủ các bước trung gian không bỏ qua.",
                     ],
                     "checkpoint": {
                         "target": 3,

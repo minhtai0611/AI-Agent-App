@@ -170,6 +170,48 @@ def _fix_unsupported_commands(commands: str) -> str:
     return "\n".join(out)
 
 
+_FUNC_DEF_RE = _re.compile(r'^[a-zA-Z]\(x\)\s*=', _re.MULTILINE)
+_INTEGRAL_RANGE_RE = _re.compile(r'Integral\s*\([^,]+,\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\)', _re.IGNORECASE)
+_TRIG_FUNC_RE = _re.compile(r'\b(?:sin|cos|tan|cot)\s*\(', _re.IGNORECASE)
+
+_LABEL_CAPTION: dict[str, str] = {
+    "calculus": "Đồ thị hàm số",
+    "functions": "Đồ thị hàm số",
+    "algebra": "Hình minh họa đại số",
+    "geometry": "Hình minh họa hình học",
+    "hình học": "Hình minh họa hình học",
+    "hinh_hoc": "Hình minh họa hình học",
+    "plane_geometry": "Hình minh họa hình học",
+    "coordinate_geometry": "Hình tọa độ",
+    "vector": "Hình vectơ",
+    "trigonometry": "Đồ thị lượng giác",
+    "3d": "Hình không gian",
+    "solid_geometry": "Hình không gian",
+    "statistics": "Biểu đồ thống kê",
+}
+
+
+def _infer_viewport(label: str, commands: str) -> "dict | None":
+    """Return {xmin, xmax, ymin, ymax} viewport hint for function graphs; None for geometry."""
+    if not _FUNC_DEF_RE.search(commands):
+        return None
+    m = _INTEGRAL_RANGE_RE.search(commands)
+    if m:
+        try:
+            lo, hi = float(m.group(1)), float(m.group(2))
+            pad = max(0.5, abs(hi - lo) * 0.1)
+            return {"xmin": round(lo - pad, 2), "xmax": round(hi + pad, 2), "ymin": -1, "ymax": None}
+        except ValueError:
+            pass
+    if _TRIG_FUNC_RE.search(commands):
+        return {"xmin": -7, "xmax": 7, "ymin": -3, "ymax": 3}
+    return {"xmin": -5, "xmax": 5, "ymin": -5, "ymax": 10}
+
+
+def _infer_caption(label: str) -> str:
+    return _LABEL_CAPTION.get(label, "Hình minh họa")
+
+
 _PT3D_RE = _re.compile(
     r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)',
 )
@@ -234,6 +276,100 @@ def _check_3d_constraints(problem: str, commands: str) -> str | None:
     return " | ".join(issues)
 
 
+_PT2D_RE = _re.compile(
+    r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)',
+)
+_RIGHT_ANGLE_RE = _re.compile(
+    r'vuông\s*(?:tại|góc\s*(?:tại|ở))\s*([A-Z])',
+    _re.IGNORECASE,
+)
+_PARALLELOGRAM_RE = _re.compile(r'hình\s*bình\s*hành', _re.IGNORECASE)
+_SQUARE_RE = _re.compile(r'hình\s*vuông', _re.IGNORECASE)
+
+
+def _parse_2d_points(commands: str) -> "dict[str, tuple[float, float]]":
+    pts: "dict[str, tuple[float, float]]" = {}
+    for line in commands.splitlines():
+        m = _PT2D_RE.match(line.strip())
+        if m:
+            try:
+                pts[m.group(1)] = (float(m.group(2)), float(m.group(3)))
+            except ValueError:
+                pass
+    return pts
+
+
+def _dot2(u, v):
+    return u[0] * v[0] + u[1] * v[1]
+
+
+def _dist2(a, b):
+    return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+
+
+def _check_2d_constraints(problem: str, commands: str) -> "str | None":
+    """Return an error hint string if 2D geometric constraints are violated, else None."""
+    pts = _parse_2d_points(commands)
+    if not pts:
+        return None
+
+    issues: list[str] = []
+
+    # Check right angle at a labeled vertex
+    for m in _RIGHT_ANGLE_RE.finditer(problem):
+        vertex = m.group(1).upper()
+        if vertex not in pts:
+            continue
+        # Need two other named points to form the angle
+        others = [k for k in pts if k != vertex and not k.startswith('_')]
+        if len(others) < 2:
+            continue
+        # Use first two named points that are not the vertex
+        p1, p2 = pts[others[0]], pts[others[1]]
+        v = pts[vertex]
+        u1 = (p1[0] - v[0], p1[1] - v[1])
+        u2 = (p2[0] - v[0], p2[1] - v[1])
+        dp = _dot2(u1, u2)
+        if abs(dp) > 0.1 * (_dist2(v, p1) * _dist2(v, p2) + 1e-9):
+            issues.append(
+                f"Right angle at {vertex} violated: dot product of arms = {dp:.3f} (expected ≈0). "
+                f"Adjust coordinates so vectors {vertex}{others[0]} and {vertex}{others[1]} are perpendicular."
+            )
+
+    # Check parallelogram: diagonals must bisect each other
+    if _PARALLELOGRAM_RE.search(problem):
+        named_pts = [k for k in pts if not k.startswith('_')]
+        if len(named_pts) >= 4:
+            a, b, c, d = named_pts[:4]
+            pa, pb, pc, pd = pts[a], pts[b], pts[c], pts[d]
+            mid_ac = ((pa[0] + pc[0]) / 2, (pa[1] + pc[1]) / 2)
+            mid_bd = ((pb[0] + pd[0]) / 2, (pb[1] + pd[1]) / 2)
+            gap = _dist2(mid_ac, mid_bd)
+            if gap > 0.1:
+                issues.append(
+                    f"Parallelogram midpoint check failed: midpoint of {a}{c} = ({mid_ac[0]:.2f},{mid_ac[1]:.2f}), "
+                    f"midpoint of {b}{d} = ({mid_bd[0]:.2f},{mid_bd[1]:.2f}), gap = {gap:.3f}. "
+                    f"Diagonals must bisect each other for a parallelogram."
+                )
+
+    # Check square: all four sides equal length
+    if _SQUARE_RE.search(problem):
+        named_pts = [k for k in pts if not k.startswith('_')]
+        if len(named_pts) >= 4:
+            a, b, c, d = named_pts[:4]
+            pa, pb, pc, pd = pts[a], pts[b], pts[c], pts[d]
+            sides = [_dist2(pa, pb), _dist2(pb, pc), _dist2(pc, pd), _dist2(pd, pa)]
+            if max(sides) - min(sides) > 0.1 * max(sides):
+                issues.append(
+                    f"Square side lengths unequal: {[f'{s:.2f}' for s in sides]}. "
+                    f"All four sides must be equal for a square."
+                )
+
+    if not issues:
+        return None
+    return " | ".join(issues)
+
+
 async def generate_figure(
     client,
     question: str,
@@ -290,17 +426,22 @@ async def generate_figure(
 
             commands = _fix_unsupported_commands(commands)
 
-            constraint_err = _check_3d_constraints(question, commands)
+            constraint_err = _check_3d_constraints(question, commands) or _check_2d_constraints(question, commands)
             if constraint_err and attempt < MAX_RETRIES:
                 extra_hint = constraint_err
-                logger.debug("3D constraint violation on attempt %d: %s", attempt + 1, constraint_err)
+                logger.debug("Constraint violation on attempt %d: %s", attempt + 1, constraint_err)
                 continue
 
-            return FigureOutput(type="geogebra", data=commands)
+            return FigureOutput(
+                type="geogebra",
+                data=commands,
+                viewport=_infer_viewport(label, commands),
+                caption=_infer_caption(label),
+            )
 
         except Exception as exc:
             if attempt == MAX_RETRIES:
                 logger.warning("Figure generation failed after %d attempts: %s", MAX_RETRIES + 1, exc)
-                return None
+                return FigureOutput(type="error", error="generation_failed")
             extra_hint = str(exc)
             logger.debug("Figure generation attempt %d failed: %s", attempt + 1, exc)

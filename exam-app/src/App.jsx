@@ -55,6 +55,8 @@ const VerifyEmail = lazy(() => import('./pages/VerifyEmail.jsx'))
 const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'))
 const ForSchools = lazy(() => import('./pages/ForSchools.jsx'))
 const Gift = lazy(() => import('./pages/Gift.jsx'))
+const SchoolExplorer = lazy(() => import('./pages/SchoolExplorer.jsx'))
+const Privacy = lazy(() => import('./pages/Privacy.jsx'))
 
 function PageFallback() {
   const { pathname } = useLocation()
@@ -144,7 +146,7 @@ function AppInner() {
     const handler = (e) => {
       if (!user || user.subscription_tier === 'student' || user.subscription_tier === 'complete') return
       const { cost, feature } = e.detail
-      toast.info(`⚡ ${cost} lượt hỏi AI · ${feature}`)
+      toast.info(`${feature} · còn ${(user?.credits_balance ?? 0) - cost} lượt`)
     }
     window.addEventListener('credit_spent', handler)
     return () => window.removeEventListener('credit_spent', handler)
@@ -202,7 +204,7 @@ function AppInner() {
 
   const showOnboarding = !loading && user && !user.grade
   const showExtendedOnboarding = !loading && user && user.grade && !user.extended_onboarding_done && results.length >= 1
-  const showLowCredit = !loading && user && (user.credits_balance ?? 0) < 15
+  const showLowCredit = !loading && user && (user.credits_balance ?? 0) < 20
   const showSuspension = !loading && Boolean(user?.is_suspended)
   const showLocked = !loading && Boolean(user?.is_locked)
   const showDeactivated = !loading && Boolean(user?.is_deactivated)
@@ -290,6 +292,8 @@ function AppInner() {
             <Route path="/error-analysis" element={<ErrorAnalysis />} />
             <Route path="/for-schools" element={<ForSchools />} />
             <Route path="/gift" element={<Gift />} />
+            <Route path="/schools" element={<SchoolExplorer />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           </AnimatePresence>

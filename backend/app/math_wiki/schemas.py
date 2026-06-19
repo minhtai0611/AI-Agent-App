@@ -38,6 +38,8 @@ class FigureOutput(BaseModel):
     type: str
     data: str | None = None
     error: str | None = None
+    viewport: dict | None = None   # {xmin, xmax, ymin, ymax} — frontend calls setCoordSystem()
+    caption: str | None = None     # human-readable one-line label rendered as <figcaption>
 
 
 class SolverOutput(BaseModel):

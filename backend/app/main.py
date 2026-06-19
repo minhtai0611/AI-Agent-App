@@ -2074,7 +2074,7 @@ async def ocr_exam(
 
     # Magic bytes validation — never trust client MIME type
     detected_mime = _validate_image_magic(content)
-    await _spend_credits(pool, current_user.user_id, 3, "ocr_exam")
+    await _spend_credits(pool, current_user.user_id, 1, "ocr_exam")
 
     client = get_ai_client()
     settings = get_settings()

@@ -6,6 +6,53 @@ import { usePageMeta } from '../hooks/usePageMeta.js'
 import { listClasses, createClass, joinClass, getClassResults } from '../api/aiClient.js'
 import { useToast } from '../context/ToastContext.jsx'
 
+const DIST_BUCKETS = [
+  { label: '0–4', min: 0, max: 4, color: '#FB7185' },
+  { label: '4–6', min: 4, max: 6, color: '#F2A20C' },
+  { label: '6–8', min: 6, max: 8, color: '#60A5FA' },
+  { label: '8–10', min: 8, max: 10.01, color: '#10B981' },
+]
+
+function ClassAnalytics({ results }) {
+  const scores = results.map(r => r.score).filter(s => typeof s === 'number')
+  if (scores.length === 0) return null
+
+  const avg = scores.reduce((a, b) => a + b, 0) / scores.length
+  const buckets = DIST_BUCKETS.map(b => ({
+    ...b,
+    count: scores.filter(s => s >= b.min && s < b.max).length,
+  }))
+  const maxCount = Math.max(...buckets.map(b => b.count), 1)
+
+  return (
+    <div className="rounded-xl border border-surface bg-surface p-4 flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <span className="font-sans text-[11px] font-semibold text-dim uppercase tracking-widest">Thống kê lớp</span>
+        <span className="font-sans text-[13px] text-dim">{scores.length} bài nộp</span>
+      </div>
+      <div className="flex items-baseline gap-2">
+        <span className="font-sans text-[28px] font-bold text-foreground">{avg.toFixed(2)}</span>
+        <span className="font-sans text-[13px] text-dim">/ 10 trung bình</span>
+      </div>
+      {/* Score distribution bar chart */}
+      <div className="flex gap-3 items-end h-16">
+        {buckets.map(b => (
+          <div key={b.label} className="flex flex-col items-center gap-1 flex-1">
+            <div
+              className="w-full rounded-t-sm transition-all"
+              style={{ height: `${Math.max(4, (b.count / maxCount) * 48)}px`, background: b.count > 0 ? b.color : 'var(--surface)' }}
+            />
+            <span className="font-sans text-[10px] text-dim">{b.label}</span>
+            <span className="font-sans text-[11px] font-semibold" style={{ color: b.count > 0 ? b.color : 'var(--dim)' }}>
+              {b.count}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function ClassDashboard() {
   usePageMeta('Lớp học', { noindex: true })
   const { user } = useAuth()
@@ -162,6 +209,9 @@ export default function ClassDashboard() {
             <p className="font-sans text-[13px] text-dim text-center py-6">Chưa có học sinh nào nộp bài</p>
           ) : (
             <>
+            {/* Aggregated analytics */}
+            <ClassAnalytics results={classResults} />
+
             {/* Mobile card view */}
             <div className="sm:hidden flex flex-col gap-2">
               {classResults.map((r, i) => (

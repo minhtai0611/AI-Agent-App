@@ -89,8 +89,9 @@ _OUT_OF_SCOPE_KEYWORDS: frozenset[str] = frozenset([
     "thiên hà", "vũ trụ", "hành tinh", "thiên thể",
     # Geography / demography
     "thủ đô", "quốc gia", "dân số", "lục địa", "đại dương", "biển cả",
-    # Physics / chemistry that are not math problems
-    "nguyên tử", "phân tử", "electron", "proton", "nhiệt độ", "áp suất",
+    # Physics / chemistry — pure science, not math word problems
+    # Note: "nhiệt độ" and "áp suất" removed — they appear in valid math word problems
+    "nguyên tử", "phân tử", "electron", "proton",
 ])
 
 _OUT_OF_SCOPE_RESPONSE = (
@@ -98,8 +99,19 @@ _OUT_OF_SCOPE_RESPONSE = (
     "Mình chỉ hỗ trợ các bài toán thuộc chương trình lớp 9–12 nhé!"
 )
 
+# Questions containing LaTeX or math operators are always in-scope regardless of vocabulary
+_MATH_MARKER_RE = re.compile(r'\$|\\[a-zA-Z]+|[=≤≥÷×√∫∑∏]|\d+\s*/\s*\d+')
+
+# Geometry labels — SymPy cannot verify geometric answers so confidence is capped at medium
+_GEOMETRY_LABELS: frozenset[str] = frozenset([
+    "geometry", "hình học", "hinh_hoc", "coordinate_geometry",
+    "vector", "3d", "solid_geometry", "plane_geometry",
+])
+
 
 def _is_out_of_scope(question: str) -> bool:
+    if _MATH_MARKER_RE.search(question):
+        return False  # LaTeX / math operators present → treat as math problem
     q = question.lower()
     return any(kw in q for kw in _OUT_OF_SCOPE_KEYWORDS)
 
@@ -197,6 +209,11 @@ async def run_pipeline(
         except Exception as exc:
             logger.warning("Retry solve after SymPy rejection failed: %s — keeping original", exc)
 
+    # Geometry answers cannot be verified by SymPy; cap confidence to prevent false "high" on wrong answers
+    if label in _GEOMETRY_LABELS and solver_output.confidence == "high":
+        solver_output.confidence = "medium"
+        logger.debug("Capped geometry confidence high→medium (no SymPy verification for geometry)")
+
     figure: FigureOutput | None = None
     prob_hash = _problem_hash(question)
 
@@ -272,6 +289,7 @@ async def run_pipeline(
                 await pg_db.upsert_problem(pool, stub, figure_svg=figure.data, problem_hash=prob_hash, figure_type=figure.type)
         except Exception as exc:
             logger.warning("Figure generation failed (non-fatal): %s", exc)
+            figure = FigureOutput(type="error", error="generation_failed")
 
     results = await asyncio.gather(
         validate(client, solver_output, context, problem_text=question),

@@ -100,9 +100,9 @@ export default function TestInterface() {
     return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [session.mode, session.status, dispatch])
 
-  // Tier 1 — copy/cut/contextmenu/keyboard blockers during active exam
+  // Tier 1 — copy/cut/contextmenu/keyboard blockers (timed mode only; learning/practice stays unrestricted)
   useEffect(() => {
-    if (session.status !== 'active') return
+    if (session.status !== 'active' || session.mode !== 'timed') return
     const blockCopy = (e) => { e.preventDefault(); e.stopPropagation() }
     const blockKey = (e) => {
       if (e.key === 'PrintScreen') { e.preventDefault(); navigator.clipboard?.writeText('').catch(() => {}) }
@@ -118,11 +118,11 @@ export default function TestInterface() {
       document.removeEventListener('contextmenu', blockCopy)
       window.removeEventListener('keydown', blockKey)
     }
-  }, [session.status])
+  }, [session.status, session.mode])
 
-  // Tier 2 — DevTools detection via window size delta
+  // Tier 2 — DevTools detection via window size delta (timed mode only)
   useEffect(() => {
-    if (session.status !== 'active') return
+    if (session.status !== 'active' || session.mode !== 'timed') return
     const id = setInterval(() => {
       const threshold = 160
       const open = window.outerWidth - window.innerWidth > threshold ||
@@ -130,7 +130,7 @@ export default function TestInterface() {
       setDevToolsOpen(open)
     }, 1000)
     return () => clearInterval(id)
-  }, [session.status])
+  }, [session.status, session.mode])
 
   // Tier 3 — Canvas watermark overlay (user identity)
   useEffect(() => {

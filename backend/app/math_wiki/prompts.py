@@ -215,6 +215,7 @@ Evaluate the solution systematically:
 1. Identify the correct approach and expected answer for the problem.
 2. Trace the student's steps one by one; flag the first error and all subsequent errors.
 3. Assess how much of the reasoning is correct.
+4. Evaluate the METHOD, not just the final number. If the student used a wrong method but coincidentally obtained the correct final answer (e.g., through compensating errors), the verdict must be 'partial' or 'incorrect'. Note this in 'errors' and provide the correct method in 'correct_approach'. Never mark 'correct' when the reasoning path contains a fundamental method error, even if the final answer matches.
 
 EXACT output schema — respond with ONLY this JSON object, no prose:
 {
@@ -227,9 +228,9 @@ EXACT output schema — respond with ONLY this JSON object, no prose:
 }
 
 Scoring guide:
-- "correct" (8–10): all steps and final answer are right; minor arithmetic slips get 9
-- "partial" (4–7): right approach, wrong calculation or incomplete; shows understanding
-- "incorrect" (0–3): fundamental error in method, or no meaningful mathematical work shown
+- "correct" (8–10): correct method AND correct final answer; minor arithmetic slips that do not change the answer may get 9
+- "partial" (4–7): right approach with wrong calculation or incomplete reasoning, OR correct answer reached via wrong method
+- "incorrect" (0–3): fundamental method error, wrong approach, or no meaningful mathematical work shown
 
 Rules:
 - Write ALL text fields (correct_steps, errors, feedback, correct_approach) entirely in Vietnamese. English is forbidden in any field.

@@ -52,35 +52,47 @@ function Skel({ className = '' }) {
 
 // ── Score Prediction Card (shown after ≥4 exams) ──────────────────────────────
 
-function ScorePredictionCard({ data, navigate }) {
+function ScorePredictionCard({ data, prevData, navigate }) {
   if (!data) return null
   const { predicted, confidence_interval, on_track } = data
   const [lo, hi] = confidence_interval ?? [null, null]
+  const delta = prevData?.predicted != null ? predicted - prevData.predicted : null
+  const trendLabel = delta != null
+    ? (delta > 0.05 ? `↑ +${delta.toFixed(1)} so hôm qua` : delta < -0.05 ? `↓ ${delta.toFixed(1)} so hôm qua` : '→ Không đổi so hôm qua')
+    : null
+  const actionHint = on_track
+    ? 'Giữ nhịp luyện tập để duy trì đà tiến bộ'
+    : `Luyện thêm 1 chủ đề yếu để cải thiện điểm số`
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className={`border rounded-xl p-4 flex items-center justify-between gap-4 ${on_track ? 'border-success/30 bg-success/5' : 'border-amber-500/30 bg-amber-500/5'}`}
+      className={`border rounded-xl p-4 flex flex-col gap-2 ${on_track ? 'border-success/30 bg-success/5' : 'border-amber-500/30 bg-amber-500/5'}`}
     >
-      <div className="flex flex-col gap-0.5 min-w-0">
-        <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Dự đoán điểm</p>
-        <div className="flex items-baseline gap-2">
-          <span className="font-sans text-[22px] font-bold text-foreground">{predicted?.toFixed(1)}</span>
-          {lo != null && hi != null && (
-            <span className="font-sans text-[11px] text-dim">({lo.toFixed(1)} – {hi.toFixed(1)})</span>
-          )}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Dự đoán điểm</p>
+          <div className="flex items-baseline gap-2">
+            <span className="font-sans text-[22px] font-bold text-foreground">{predicted?.toFixed(1)}</span>
+            {lo != null && hi != null && (
+              <span className="font-sans text-[11px] text-dim">({lo.toFixed(1)} – {hi.toFixed(1)})</span>
+            )}
+            {trendLabel && (
+              <span className={`font-sans text-[11px] font-semibold ${delta > 0.05 ? 'text-success' : delta < -0.05 ? 'text-destructive' : 'text-dim'}`}>
+                {trendLabel}
+              </span>
+            )}
+          </div>
         </div>
-        <p className="font-sans text-[11px] text-dim">
-          {on_track ? '↗ Đang tiến đúng hướng' : '⚠ Cần tăng tốc luyện tập'}
-        </p>
+        <button
+          onClick={() => navigate('/progress')}
+          className="font-sans text-[12px] text-info hover:text-foreground transition-colors shrink-0 mt-0.5"
+        >
+          Xem tiến độ →
+        </button>
       </div>
-      <button
-        onClick={() => navigate('/progress')}
-        className="font-sans text-[12px] text-info hover:text-foreground transition-colors shrink-0"
-      >
-        Xem tiến độ →
-      </button>
+      <p className="font-sans text-[11px] text-dim">{on_track ? '↗ Đang tiến đúng hướng · ' : '⚠ Cần tăng tốc · '}{actionHint}</p>
     </motion.div>
   )
 }
@@ -472,6 +484,7 @@ export default function Home() {
   const [masteryData, setMasteryData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [scorePrediction, setScorePrediction] = useState(null)
+  const [prevScorePrediction, setPrevScorePrediction] = useState(null)
   const [focusDismissed, setFocusDismissed] = useState(() => {
     const t = localStorage.getItem('home_focus_dismissed_until')
     return !!t && Date.now() < Number(t)
@@ -495,8 +508,17 @@ export default function Home() {
 
   useEffect(() => {
     if (!user?.id || results.length < 4) return
+    const todayKey = 'zenith_pred_' + new Date().toISOString().slice(0, 10)
+    const yesterdayKey = 'zenith_pred_' + new Date(Date.now() - 86400000).toISOString().slice(0, 10)
+    try {
+      const prev = localStorage.getItem(yesterdayKey)
+      if (prev) setPrevScorePrediction(JSON.parse(prev))
+    } catch (_) {}
     predictScore().then(({ data }) => {
-      if (data?.predicted != null) setScorePrediction(data)
+      if (data?.predicted != null) {
+        setScorePrediction(data)
+        try { localStorage.setItem(todayKey, JSON.stringify({ predicted: data.predicted, on_track: data.on_track })) } catch (_) {}
+      }
     }).catch(() => {})
   }, [user?.id, results.length])
 
@@ -816,7 +838,7 @@ export default function Home() {
         </div>
 
         {/* ── Score Prediction (≥4 exams, complete tier via backend Kalman) ── */}
-        {scorePrediction && <ScorePredictionCard data={scorePrediction} navigate={navigate} />}
+        {scorePrediction && <ScorePredictionCard data={scorePrediction} prevData={prevScorePrediction} navigate={navigate} />}
 
         {/* ── 2-exam estimate (basic/student tier, ≥2 exams) ── */}
         {results?.length >= 2 && user?.subscription_tier !== 'complete' && (() => {

@@ -59,6 +59,26 @@ const DIFFICULTIES = [
   { value: 'hard',   label: 'Khó',    color: '#FB7185' },
 ]
 
+// Terms that appear in university curricula but not in THPT Grade 10–12
+const OFF_CURRICULUM_TERMS = [
+  'chuỗi số', 'chuỗi hội tụ', 'chuỗi phân kỳ',
+  'phương trình vi phân', 'phương trình đạo hàm riêng',
+  'đại số tuyến tính', 'không gian vectơ', 'không gian con',
+  'ánh xạ tuyến tính', 'biến đổi tuyến tính',
+  'tích phân bội', 'tích phân đường', 'tích phân mặt',
+  'hàm nhiều biến', 'vi phân toàn phần', 'đạo hàm riêng',
+  'chuỗi taylor', 'chuỗi maclaurin', 'chuỗi fourier',
+]
+
+function checkCurriculum(questions) {
+  const found = []
+  const combined = questions.map(q => (q.text || q.stem || q.question || q.content || '')).join(' ').toLowerCase()
+  for (const term of OFF_CURRICULUM_TERMS) {
+    if (combined.includes(term)) found.push(term)
+  }
+  return found
+}
+
 export default function GenerateExam() {
   usePageMeta('Tạo đề riêng', { noindex: true })
   const navigate = useNavigate()
@@ -71,6 +91,8 @@ export default function GenerateExam() {
   const [loading, setLoading] = useState(false)
   const [arrived, setArrived] = useState(0)
   const [error, setError] = useState('')
+  const [curriculumWarning, setCurriculumWarning] = useState([])
+  const [pendingExam, setPendingExam] = useState(null)
   const abortRef = useRef(null)
 
   useEffect(() => () => abortRef.current?.abort(), [])
@@ -100,8 +122,13 @@ export default function GenerateExam() {
     )
   }
 
+  function launchExam(exam, questions) {
+    dispatch({ type: 'START_EXAM', exam, questions })
+    navigate(`/test/${exam.id}`)
+  }
+
   async function handleGenerate() {
-    setLoading(true); setError(''); setArrived(0)
+    setLoading(true); setError(''); setArrived(0); setCurriculumWarning([]); setPendingExam(null)
     const topics = selectedTopics.length > 0 ? selectedTopics : null
     const ctrl = new AbortController()
     abortRef.current = ctrl
@@ -124,8 +151,13 @@ export default function GenerateExam() {
       category: 'grade10',
       mode: 'practice',
     }
-    dispatch({ type: 'START_EXAM', exam, questions })
-    navigate(`/test/${finalId}`)
+    const offTerms = checkCurriculum(questions)
+    if (offTerms.length > 0) {
+      setCurriculumWarning(offTerms)
+      setPendingExam({ exam, questions })
+      return
+    }
+    launchExam(exam, questions)
   }
 
   return (
@@ -196,7 +228,32 @@ export default function GenerateExam() {
 
         {error && <p className="font-sans text-[12px] text-red-400">{error}</p>}
 
-        <button onClick={handleGenerate} disabled={loading}
+        {/* Curriculum validator warning — non-blocking; user can still proceed */}
+        {curriculumWarning.length > 0 && pendingExam && (
+          <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-4 flex flex-col gap-3">
+            <p className="font-sans text-[13px] font-semibold text-amber-400">⚠ Có thể ngoài chương trình THPT</p>
+            <p className="font-sans text-[12px] text-muted">
+              AI tạo câu hỏi chứa nội dung có thể vượt chương trình phổ thông:{' '}
+              <span className="font-semibold text-foreground">{curriculumWarning.join(', ')}</span>.
+              Đây có thể là câu hỏi rất khó hoặc ngoài đề thi THPT.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => launchExam(pendingExam.exam, pendingExam.questions)}
+                className="flex-1 py-2.5 rounded-xl font-sans text-[13px] font-bold transition"
+                style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}>
+                Vẫn bắt đầu
+              </button>
+              <button
+                onClick={() => { setCurriculumWarning([]); setPendingExam(null) }}
+                className="flex-1 py-2.5 rounded-xl font-sans text-[13px] font-semibold border border-border text-muted hover:text-foreground transition">
+                Tạo lại
+              </button>
+            </div>
+          </div>
+        )}
+
+        <button onClick={handleGenerate} disabled={loading || curriculumWarning.length > 0}
           className="w-full py-3.5 rounded-xl font-sans text-[14px] font-bold disabled:opacity-60 transition"
           style={{ background: loading ? 'var(--border)' : 'var(--accent)', color: loading ? 'var(--fg-tertiary)' : 'var(--accent-fg)' }}>
           {loading ? 'Đang tạo đề...' : `Tạo đề · ⚡5 lượt hỏi AI`}

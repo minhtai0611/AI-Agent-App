@@ -317,7 +317,7 @@ function MathPreview({ text }) {
 }
 
 const CONFIDENCE_COLOR = { high: '#10B981', medium: '#F2A20C', low: '#EF4444' }
-const CONFIDENCE_LABEL = { high: 'Chắc chắn', medium: 'Khả năng cao', low: 'Không chắc' }
+const CONFIDENCE_LABEL = { high: 'Có thể đúng', medium: 'Cần kiểm tra lại', low: 'Oracle không chắc' }
 
 const PART_HEADER_RE = /^\*\*Phần\s+[a-dA-D]\w*\)\*\*$/
 
@@ -359,6 +359,19 @@ function StepReveal({ steps, figures = {} }) {
   const [revealed, setRevealed] = useState(1)
   const total = steps.length
   const showing = Math.min(revealed, total)
+
+  useEffect(() => {
+    if (showing >= total) return
+    const handler = (e) => {
+      if (e.code === 'Space' && e.target === document.body) {
+        e.preventDefault()
+        setRevealed(r => Math.min(r + 1, total))
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [showing, total])
+
   return (
     <div className="flex flex-col gap-4">
       <StepList steps={steps.slice(0, showing)} figures={figures} />
@@ -367,6 +380,7 @@ function StepReveal({ steps, figures = {} }) {
           <button onClick={() => setRevealed(r => r + 1)}
             className="px-4 py-1.5 rounded-lg font-sans text-[12px] font-semibold border border-primary/40 text-primary hover:bg-primary/10 transition">
             Tiếp theo →
+            <span className="ml-1.5 font-sans text-[10px] text-dim font-normal">(Space)</span>
           </button>
           <button onClick={() => setRevealed(total)}
             className="font-sans text-[11px] text-dim hover:text-muted transition">
@@ -398,26 +412,55 @@ function StatsBadge({ stats }) {
 }
 
 // Loads deployggb.js once and resolves when GGBApplet is available.
+// Tries in order: local copy → cdn.geogebra.org → www.geogebra.org
+// Local copy (public/deployggb.js) is the preferred path for reliability in
+// regions where geogebra.org has intermittent connectivity issues.
 let _ggbScriptPromise = null
 function loadGeoGebraScript() {
   if (!_ggbScriptPromise) {
     _ggbScriptPromise = new Promise((resolve, reject) => {
       if (window.GGBApplet) { resolve(); return }
-      const s = document.createElement('script')
-      s.src = 'https://www.geogebra.org/apps/deployggb.js'
-      s.onload = resolve
-      s.onerror = reject
-      document.head.appendChild(s)
+      const SRCS = [
+        '/deployggb.js',
+        'https://cdn.geogebra.org/apps/deployggb.js',
+        'https://www.geogebra.org/apps/deployggb.js',
+      ]
+      function tryNext(idx) {
+        if (idx >= SRCS.length) { reject(new Error('GeoGebra CDN unreachable')); return }
+        const s = document.createElement('script')
+        s.src = SRCS[idx]
+        s.onload = resolve
+        s.onerror = () => tryNext(idx + 1)
+        document.head.appendChild(s)
+      }
+      tryNext(0)
     })
   }
   return _ggbScriptPromise
 }
 
-function GeoGebraEmbed({ commands, onError }) {
+function is3DCommands(commands) {
+  // Heuristic: 3D figures use Point3D syntax or three-coordinate tuples
+  return /Point3D|Vector3D|\(\s*[\d.\-]+\s*,\s*[\d.\-]+\s*,\s*[\d.\-]+\s*\)/.test(commands)
+}
+
+// Suppress internal/auxiliary GeoGebra object names from user-visible warnings.
+// PerpendicularFoot rewrite produces names like "perpfoot_1"; Circumcircle rewrite
+// produces names like "circum_O"; and auto-named scratch objects follow /^[A-Z]{2,}\d+$/.
+function _isInternalGgbObj(n) {
+  return n.startsWith('_aux_')
+    || n.toLowerCase().includes('perpfoot')
+    || n.toLowerCase().includes('circum')
+    || /^[A-Z]{2,}\d+$/.test(n)
+}
+
+function GeoGebraEmbed({ commands, viewport, onError }) {
   const wrapRef = useRef(null)
+  const apiRef = useRef(null)
   const [status, setStatus] = useState('loading') // loading | ready | error
   const [undefinedObjs, setUndefinedObjs] = useState([])
   const [retryKey, setRetryKey] = useState(0)
+  const [show3DHint, setShow3DHint] = useState(() => is3DCommands(commands ?? ''))
 
   useEffect(() => {
     if (!commands || !wrapRef.current) return
@@ -479,7 +522,7 @@ function GeoGebraEmbed({ commands, onError }) {
             const names = api.getAllObjectNames?.('point') ?? []
             let xMin = Infinity, xMax = -Infinity, yMin = Infinity, yMax = -Infinity
             for (const n of names) {
-              if (n.startsWith('_aux_')) continue
+              if (_isInternalGgbObj(n)) continue
               const x = api.getXcoord(n), y = api.getYcoord(n)
               if (isFinite(x) && isFinite(y)) {
                 xMin = Math.min(xMin, x); xMax = Math.max(xMax, x)
@@ -489,6 +532,10 @@ function GeoGebraEmbed({ commands, onError }) {
             if (isFinite(xMin)) {
               const pad = Math.max((xMax - xMin) * 0.25, (yMax - yMin) * 0.25, 1.5)
               api.setCoordSystem(xMin - pad, xMax + pad, yMin - pad, yMax + pad)
+            } else if (viewport) {
+              // Backend-provided viewport hint (calculus/function graphs)
+              const { xmin = -5, xmax = 5, ymin = -5, ymax = 10 } = viewport
+              api.setCoordSystem(xmin, xmax, ymin, ymax ?? 10)
             } else {
               // No discrete points — function-only figure; use a default teaching range
               api.setCoordSystem(-5, 10, -3, 15)
@@ -497,17 +544,19 @@ function GeoGebraEmbed({ commands, onError }) {
           // Fix 6: post-render check for undefined objects
           try {
             const named = [...commands.matchAll(/^([A-Za-z_]\w*)\s*=/gm)].map(m => m[1])
-            const failed = named.filter(n => !n.startsWith('_aux_') && api.isDefined && !api.isDefined(n))
+            const failed = named.filter(n => !_isInternalGgbObj(n) && api.isDefined && !api.isDefined(n))
             if (failed.length > 0) setUndefinedObjs(failed)
           } catch (_) { /* ignore */ }
+          apiRef.current = api
           setStatus('ready')
         }, 300)
 
+        const containerH = wrapRef.current.parentElement?.offsetHeight || 340
         const width = wrapRef.current.offsetWidth || 560
         const params = {
           appName: 'classic',
           width,
-          height: 360,
+          height: containerH,
           showToolBar: false,
           showAlgebraInput: false,
           showMenuBar: false,
@@ -532,7 +581,8 @@ function GeoGebraEmbed({ commands, onError }) {
   }, [commands, retryKey])
 
   return (
-    <div className="relative rounded overflow-hidden bg-surface" style={{ height: 360 }}>
+    <div className="relative rounded overflow-hidden bg-surface"
+      style={{ height: 'min(360px, 56vw)', minHeight: 220 }}>
       {/* GeoGebra injects its iframe directly into this div */}
       <div ref={wrapRef} style={{ width: '100%', height: '100%' }} />
 
@@ -543,18 +593,47 @@ function GeoGebraEmbed({ commands, onError }) {
         </div>
       )}
       {status === 'error' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface">
-          <span className="font-sans text-[12px] text-dim">Không thể tải hình minh họa</span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface px-4 text-center">
+          <span className="font-sans text-[12px] text-dim">Không thể tải GeoGebra</span>
+          <span className="font-sans text-[11px] text-faint leading-snug max-w-[220px]">
+            Máy chủ GeoGebra không phản hồi. Thử dùng mạng khác hoặc VPN.
+          </span>
           <button
-            onClick={() => { setRetryKey(k => k + 1); setStatus('loading') }}
-            className="font-sans text-[11px] text-primary hover:underline">
+            onClick={() => { _ggbScriptPromise = null; setRetryKey(k => k + 1); setStatus('loading') }}
+            className="font-sans text-[11px] text-primary hover:underline mt-1">
             Thử lại
           </button>
         </div>
       )}
+      {/* Export PNG button */}
+      {status === 'ready' && (
+        <button
+          onClick={() => {
+            const b64 = apiRef.current?.getBase64?.(false)
+            if (!b64) return
+            const a = document.createElement('a')
+            a.href = 'data:image/png;base64,' + b64
+            a.download = 'hinh-minh-hoa.png'
+            a.click()
+          }}
+          className="absolute top-2 right-2 px-2 py-1 rounded-md font-sans text-[10px] font-semibold transition"
+          style={{ background: 'rgba(0,0,0,0.45)', color: 'rgba(255,255,255,0.85)' }}>
+          Lưu hình
+        </button>
+      )}
+
+      {/* 3D rotation hint — shown once for 3D figures, dismissed on first drag */}
+      {status === 'ready' && show3DHint && (
+        <div
+          className="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/60 pointer-events-none"
+          onMouseDown={() => setShow3DHint(false)}
+          onTouchStart={() => setShow3DHint(false)}>
+          <span className="font-sans text-[11px] text-white/90">Kéo để xoay hình 3D</span>
+        </div>
+      )}
       {undefinedObjs.length > 0 && (
         <p className="font-sans text-[10px] text-primary mt-1">
-          ⚠ {undefinedObjs.length} đối tượng không dựng được: {undefinedObjs.join(', ')}
+          ⚠ Một số đối tượng không dựng được — hình có thể không chính xác
         </p>
       )}
     </div>
@@ -562,16 +641,22 @@ function GeoGebraEmbed({ commands, onError }) {
 }
 
 function FigureBlock({ figure }) {
-  if (!figure?.data) return null
+  if (!figure) return null  // no figure needed for this problem type
+  if (figure.error || figure.type === 'error') {
+    return (
+      <p className="font-sans text-[11px] text-dim italic">Hình minh họa không khả dụng cho bài toán này</p>
+    )
+  }
+  if (!figure.data) return null
 
   return (
     <div className="rounded-xl border border-surface bg-surface p-4 flex flex-col gap-3">
       <p className="font-sans text-[10px] font-semibold text-dim tracking-widest uppercase">
-        Hình minh họa
+        {figure.caption || 'Hình minh họa'}
       </p>
 
       {figure.type === 'geogebra' ? (
-        <GeoGebraEmbed commands={figure.data} />
+        <GeoGebraEmbed commands={figure.data} viewport={figure.viewport} />
       ) : (
         <div
           className="overflow-x-auto flex justify-center"
@@ -664,14 +749,11 @@ function AnswerCard({ result, problem }) {
         </div>
       )}
 
-      {/* Knowledge used */}
+      {/* Knowledge used — show count only; raw IDs are internal and meaningless to users */}
       {result.retrieved_ids?.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {result.retrieved_ids.map(id => (
-            <span key={id} className="font-sans text-[11px] bg-surface border border-surface text-dim rounded-full px-3 py-1">
-              {id}
-            </span>
-          ))}
+        <div className="flex items-center gap-1.5 font-sans text-[11px] text-dim">
+          <span className="w-1.5 h-1.5 rounded-full bg-success shrink-0" />
+          Dựa trên {result.retrieved_ids.length} đơn vị kiến thức
         </div>
       )}
     </div>
@@ -735,6 +817,9 @@ function ReviewCard({ result, problem, solution }) {
           <span className="font-sans text-[15px] font-semibold" style={{ color: verdictColor }}>{verdictLabel}</span>
           <span className="font-sans text-[22px] font-bold" style={{ color: verdictColor }}>{result.score}</span>
         </div>
+        <span className="font-sans text-[10px] text-dim text-right leading-tight max-w-[120px]">
+          Ước tính của Oracle · không phải điểm THPT chính thức
+        </span>
       </div>
 
       {/* Feedback */}
@@ -846,6 +931,21 @@ const HISTORY_KEY = 'oracle_history'
 const HISTORY_MAX = 20
 const VALID_TOPICS = ['algebra', 'geometry', 'statistics', 'combinatorics', 'calculus', 'number_theory']
 
+const DAILY_SOLVES_KEY = () => `oracle_solves_${new Date().toISOString().slice(0, 10)}`
+function getDailySolves() {
+  try { return parseInt(localStorage.getItem(DAILY_SOLVES_KEY()) || '0', 10) } catch { return 0 }
+}
+function incrementDailySolves() {
+  try { localStorage.setItem(DAILY_SOLVES_KEY(), String(getDailySolves() + 1)) } catch {}
+}
+
+const SOLVE_PHASES = [
+  { key: 'classifying', label: 'Phân loại bài toán…' },
+  { key: 'retrieving',  label: 'Tra cứu kiến thức…' },
+  { key: 'solving',     label: 'Đang giải…' },
+  { key: 'validating',  label: 'Xác minh kết quả…' },
+]
+
 function loadHistory() {
   try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]') } catch { return [] }
 }
@@ -889,7 +989,12 @@ export default function MathOracle() {
   const [lastSolveQuestion, setLastSolveQuestion] = useState('')
   const [ocring, setOcring] = useState(false)
   const [ocringS, setOcringS] = useState(false)
+  const [ocrSolutionWarning, setOcrSolutionWarning] = useState(false)
   const [cameraMenu, setCameraMenu] = useState(null) // null | 'question' | 'solution'
+  const [ocrPreviewUrl, setOcrPreviewUrl] = useState(null)
+  const [solvePhase, setSolvePhase] = useState(null)
+  const [dailySolves, setDailySolves] = useState(() => getDailySolves())
+  const solvePhaseTimersRef = useRef([])
 
   // ── C3: History sidebar ───────────────────────────────────────────────────
   const [history, setHistory] = useState(() => loadHistory())
@@ -964,6 +1069,21 @@ export default function MathOracle() {
     prevReadyRef.current = wikiReady
   }, [wikiReady])
 
+  // Revoke OCR preview URL on unmount to avoid memory leaks
+  useEffect(() => () => { if (ocrPreviewUrl) URL.revokeObjectURL(ocrPreviewUrl) }, [ocrPreviewUrl])
+
+  function startSolvePhaseTimer() {
+    solvePhaseTimersRef.current.forEach(clearTimeout)
+    setSolvePhase('classifying')
+    const delays = [[4000, 'retrieving'], [13000, 'solving'], [36000, 'validating']]
+    solvePhaseTimersRef.current = delays.map(([ms, phase]) => setTimeout(() => setSolvePhase(phase), ms))
+  }
+  function clearSolvePhaseTimer() {
+    solvePhaseTimersRef.current.forEach(clearTimeout)
+    solvePhaseTimersRef.current = []
+    setSolvePhase(null)
+  }
+
   // Scroll to bottom when messages change
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -1028,9 +1148,12 @@ export default function MathOracle() {
     setOracleStatus(ORACLE_STATUS.THINKING)
     setRetryAttempt(attempt)
     setLastSolveQuestion(text)
+    if (attempt === 0) startSolvePhaseTimer()
     const imgFile = ocrFileRef.current
     ocrFileRef.current = null  // consume once
+    if (ocrPreviewUrl) { URL.revokeObjectURL(ocrPreviewUrl); setOcrPreviewUrl(null) }
     const { data, error: err } = await solveMath(text, imgFile)
+    clearSolvePhaseTimer()
     if (err) {
       const isTimeout = /timed out|504|timeout|không kết nối|network error/i.test(err)
       if (isTimeout && attempt < MAX_RETRIES) {
@@ -1048,6 +1171,8 @@ export default function MathOracle() {
     }
     setLoading(false)
     setRetryAttempt(0)
+    incrementDailySolves()
+    setDailySolves(getDailySolves())
     const answer = data?.answer || {}
     const isHighConf = answer.confidence === 'high' && data?.validation?.valid
     setOracleStatus(isHighConf ? ORACLE_STATUS.CELEBRATING : ORACLE_STATUS.IDLE)
@@ -1114,6 +1239,9 @@ export default function MathOracle() {
     if (err) { setError(err); return }
     const text = data?.text || ''
     ocrFileRef.current = file  // store for multimodal figure generation
+    // Show the source image beside the textarea while user edits extracted text
+    if (ocrPreviewUrl) URL.revokeObjectURL(ocrPreviewUrl)
+    setOcrPreviewUrl(URL.createObjectURL(file))
     const ta = textareaRef.current
     if (ta) { ta.value = text; autoResize(ta); ta.focus() }
     setQuestion(text)
@@ -1124,11 +1252,18 @@ export default function MathOracle() {
     if (!file) return
     e.target.value = ''
     setOcringS(true)
+    setOcrSolutionWarning(false)
     setError(null)
     const { data, error: err } = await ocrImage(file)
     setOcringS(false)
     if (err) { setError(err); return }
     const text = data?.text || ''
+    // Heuristic: flag OCR results that look noisy (likely handwriting artifacts).
+    // Count chars outside the expected math+Vietnamese set; warn if >18% are noise.
+    if (text.length > 3) {
+      const noiseCount = (text.match(/[^\w\s$\\{}^_=+\-*/.,()\[\]%'"|:!?àáảãạăắặẳẵâấậẩẫèéẹẻẽêếềệểễìíịỉĩòóọỏõôốồộổỗơớờợởỡùúụủũưứừựửữỳýỵỷỹđÀÁẢÃẠĂẮẶẲẴÂẤẬẨẪÈÉẸẺẼÊẾỀỆỂỄÌÍỊỈĨÒÓỌỎÕÔỐỒỘỔỖƠỚỜỢỞỠÙÚỤỦŨƯỨỪỰỬỮỲÝỴỶỸĐ]/g) || []).length
+      if (noiseCount / text.length > 0.18) setOcrSolutionWarning(true)
+    }
     const ta = solutionRef.current
     if (ta) { ta.value = text; autoResize(ta); ta.focus() }
     setSolution(text)
@@ -1286,6 +1421,13 @@ export default function MathOracle() {
             </div>
           )}
 
+          {/* Daily solve counter */}
+          {dailySolves > 0 && (
+            <span className="font-sans text-[11px] text-dim ml-auto lg:ml-0">
+              {dailySolves} lần hôm nay
+            </span>
+          )}
+
           {/* ── C1: New conversation button (only when thread has messages) ── */}
           {messages.length > 0 && (
             <button
@@ -1410,6 +1552,28 @@ export default function MathOracle() {
               </button>
             </div>
           </div>
+          {/* OCR source image preview — shown beside textarea while user corrects extracted text */}
+          {ocrPreviewUrl && (
+            <div className="flex items-start gap-3 px-1">
+              <div className="relative shrink-0">
+                <img
+                  src={ocrPreviewUrl}
+                  alt="Ảnh gốc"
+                  className="w-20 h-20 object-cover rounded-lg border border-surface"
+                />
+                <button
+                  type="button"
+                  title="Xoá ảnh"
+                  onClick={() => { URL.revokeObjectURL(ocrPreviewUrl); setOcrPreviewUrl(null); ocrFileRef.current = null }}
+                  className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-surface border border-surface flex items-center justify-center font-sans text-[10px] text-dim hover:text-destructive transition">
+                  ✕
+                </button>
+              </div>
+              <p className="font-sans text-[11px] text-dim pt-1 leading-relaxed">
+                Ảnh gốc · Kiểm tra văn bản ở trên và sửa nếu nhận diện sai
+              </p>
+            </div>
+          )}
           <MathPreview text={question} />
 
           {/* Solution textarea — only in review mode */}
@@ -1467,6 +1631,13 @@ export default function MathOracle() {
                 <span className="font-sans text-[11px] text-dim">Lời giải</span>
               </div>
             </div>
+          )}
+
+          {/* OCR solution low-confidence warning */}
+          {ocrSolutionWarning && chatMode === 'review' && (
+            <p className="font-sans text-[11px] text-amber-400 flex items-center gap-1.5">
+              ⚠ Nhận diện ảnh có thể không chính xác — kiểm tra lại lời giải trước khi chấm
+            </p>
           )}
 
           {question.trim() === '' && messages.length === 0 && (
@@ -1543,14 +1714,35 @@ export default function MathOracle() {
           </div>
         )}
 
-        {/* Loading */}
+        {/* Loading / solve progress indicator */}
         {loading && (
-          <div className="font-sans text-[14px] text-dim">
-            {retryAttempt > 0
-              ? `Đang thử lại sau timeout (lần ${retryAttempt + 1}/${MAX_RETRIES + 1})…`
-              : chatMode === 'review' ? 'Oracle đang chấm bài…'
-              : 'Oracle đang truy vấn tri thức…'
-            }
+          <div className="flex flex-col gap-2">
+            {retryAttempt > 0 ? (
+              <span className="font-sans text-[14px] text-dim">
+                Đang thử lại sau timeout (lần {retryAttempt + 1}/{MAX_RETRIES + 1})…
+              </span>
+            ) : chatMode === 'review' ? (
+              <span className="font-sans text-[14px] text-dim">Oracle đang chấm bài…</span>
+            ) : solvePhase ? (
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-3">
+                  <span style={{ display:'inline-block', width:12, height:12, border:'2px solid #334155', borderTopColor:'#64748B', borderRadius:'50%', animation:'spin 0.6s linear infinite', flexShrink:0 }} />
+                  <span className="font-sans text-[14px] text-dim">
+                    {SOLVE_PHASES.find(p => p.key === solvePhase)?.label ?? 'Đang xử lý…'}
+                  </span>
+                </div>
+                <div className="flex gap-1">
+                  {SOLVE_PHASES.map(p => (
+                    <div key={p.key}
+                      className="h-0.5 rounded-full flex-1 transition-colors duration-500"
+                      style={{ background: SOLVE_PHASES.findIndex(x => x.key === solvePhase) >= SOLVE_PHASES.findIndex(x => x.key === p.key) ? 'var(--info)' : 'var(--surface)' }}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <span className="font-sans text-[14px] text-dim">Oracle đang truy vấn tri thức…</span>
+            )}
           </div>
         )}
 
