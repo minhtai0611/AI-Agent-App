@@ -1,0 +1,7 @@
+{
+  "pkg": "@zenith/ui",
+  "globalName": "ZenithUI",
+  "projectId": "0ec9eeac-7e63-41aa-a395-7ec36d59b131",
+  "shape": "package",
+  "buildCmd": "npm run build"
+}
