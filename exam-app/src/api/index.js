@@ -192,13 +192,19 @@ function _matchSchools(studentScore, province) {
   }))
 }
 
-// Province-only school lookup for admin panel (no score filter)
+// Province-only school lookup — used by SchoolExplorer and admin panel
 export function getSchoolsByProvince(province) {
   if (!province) return []
   const norm = _normProvince(province)
   return schoolsData
     .filter(s => _normProvince(s.province).includes(norm) || norm.includes(_normProvince(s.province)))
-    .slice(0, 3)
+    .map(s => ({
+      name: s.name,
+      district: s.district ?? '',
+      province: s.province ?? '',
+      type: s.type ?? 'công lập',
+      cutoff: _latestCutoff(s),
+    }))
 }
 
 // Builds the payload for /analyze including wrong questions.

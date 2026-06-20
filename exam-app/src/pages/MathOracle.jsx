@@ -931,6 +931,7 @@ const HISTORY_KEY = 'oracle_history'
 const HISTORY_MAX = 20
 const VALID_TOPICS = ['algebra', 'geometry', 'statistics', 'combinatorics', 'calculus', 'number_theory']
 
+const DAILY_FREE_SOLVES = 8  // must match backend /math-solve cap
 const DAILY_SOLVES_KEY = () => `oracle_solves_${new Date().toISOString().slice(0, 10)}`
 function getDailySolves() {
   try { return parseInt(localStorage.getItem(DAILY_SOLVES_KEY()) || '0', 10) } catch { return 0 }
@@ -1421,12 +1422,17 @@ export default function MathOracle() {
             </div>
           )}
 
-          {/* Daily solve counter */}
-          {dailySolves > 0 && (
+          {/* Daily solve counter — shows remaining for basic tier, count-only for paid */}
+          {!isPaidTier && user ? (
+            <span className="font-sans text-[11px] ml-auto lg:ml-0"
+              style={{ color: dailySolves >= DAILY_FREE_SOLVES - 2 ? 'var(--warning)' : 'var(--dim)' }}>
+              {Math.max(0, DAILY_FREE_SOLVES - dailySolves)}/{DAILY_FREE_SOLVES} lượt còn lại
+            </span>
+          ) : dailySolves > 0 ? (
             <span className="font-sans text-[11px] text-dim ml-auto lg:ml-0">
               {dailySolves} lần hôm nay
             </span>
-          )}
+          ) : null}
 
           {/* ── C1: New conversation button (only when thread has messages) ── */}
           {messages.length > 0 && (

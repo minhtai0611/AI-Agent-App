@@ -1434,6 +1434,34 @@ async def hint(
         raise HTTPException(status_code=502, detail=f"Không thể tạo gợi ý: {exc}")
 
 
+# Topics that belong to university-level math — not THPT / grade 10 curriculum.
+# Checked post-generation; warnings are advisory only (never block exam delivery).
+_UNIVERSITY_MATH_KEYWORDS: frozenset[str] = frozenset([
+    "chuỗi số", "chuỗi hội tụ", "chuỗi phân kỳ",    # infinite series
+    "ma trận", "định thức", "đại số tuyến tính",      # linear algebra
+    "tích phân bội", "tích phân đường", "tích phân mặt",  # higher integrals
+    "phương trình vi phân",                            # differential equations
+    "hàm nhiều biến", "giải tích nhiều chiều",         # multivariable calculus
+    "không gian metric", "không gian banach",          # functional analysis
+    "topology", "tôpô",
+])
+
+
+def _flag_curriculum_issues(questions: list[dict]) -> list[dict]:
+    warnings: list[dict] = []
+    for i, q in enumerate(questions):
+        topic = (q.get("topic") or "").lower()
+        for kw in _UNIVERSITY_MATH_KEYWORDS:
+            if kw in topic:
+                warnings.append({
+                    "index": i,
+                    "topic": q.get("topic", ""),
+                    "reason": f"Chủ đề '{q.get('topic', '')}' có thể nằm ngoài chương trình THPT/lớp 10 (từ khóa: {kw})",
+                })
+                break
+    return warnings
+
+
 class GenerateExamRequest(BaseModel):
     topic_focus: list[str] | None = None
     difficulty: str = "medium"
@@ -1477,9 +1505,13 @@ async def generate_exam(
         if raw.startswith("```"):
             raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
         parsed = json.loads(raw)
-        questions = parsed if isinstance(parsed, list) else parsed.get("questions", [])
+        questions = (parsed if isinstance(parsed, list) else parsed.get("questions", []))[:count]
         exam_id = f"generated-{current_user.user_id}-{int(datetime.utcnow().timestamp())}"
-        return {"exam_id": exam_id, "questions": questions[:count]}
+        result: dict = {"exam_id": exam_id, "questions": questions}
+        curriculum_warnings = _flag_curriculum_issues(questions)
+        if curriculum_warnings:
+            result["curriculum_warnings"] = curriculum_warnings
+        return result
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Không thể tạo đề: {exc}")
 
@@ -1522,6 +1554,7 @@ async def generate_exam_stream(
     async def question_stream():
         buf = ''
         idx = 0
+        collected: list[dict] = []
         exam_id = f"generated-{current_user.user_id}-{int(datetime.utcnow().timestamp())}"
         try:
             stream = await client.chat.completions.create(
@@ -1546,6 +1579,7 @@ async def generate_exam_stream(
                     try:
                         q = json.loads(line)
                         if isinstance(q, dict) and 'question' in q:
+                            collected.append(q)
                             yield json.dumps({"index": idx, "question": q}, ensure_ascii=False) + '\n'
                             idx += 1
                             if idx >= count:
@@ -1563,11 +1597,16 @@ async def generate_exam_stream(
                     try:
                         q = json.loads(line)
                         if isinstance(q, dict) and 'question' in q:
+                            collected.append(q)
                             yield json.dumps({"index": idx, "question": q}, ensure_ascii=False) + '\n'
                             idx += 1
                     except json.JSONDecodeError:
                         pass
-            yield json.dumps({"done": True, "exam_id": exam_id, "total": idx}, ensure_ascii=False) + '\n'
+            done_payload: dict = {"done": True, "exam_id": exam_id, "total": idx}
+            curriculum_warnings = _flag_curriculum_issues(collected)
+            if curriculum_warnings:
+                done_payload["curriculum_warnings"] = curriculum_warnings
+            yield json.dumps(done_payload, ensure_ascii=False) + '\n'
         except Exception as exc:
             yield json.dumps({"error": str(exc)}) + '\n'
 
@@ -2123,11 +2162,11 @@ async def math_solve(
         raise HTTPException(status_code=403, detail={"code": "tos_not_accepted"})
     if tier_row_ms["subscription_tier"] == "basic":
         today_uses = await pool.fetchrow(
-            "SELECT COUNT(*) AS cnt FROM ai_credits_log WHERE user_id = ? AND reason = 'math_solve' AND created_at >= date('now')",
+            "SELECT COUNT(*) AS cnt FROM ai_credits_log WHERE user_id = ? AND reason = 'math_solve' AND created_at >= datetime('now', '-24 hours')",
             current_user.user_id,
         )
-        if (today_uses["cnt"] or 0) >= 5:
-            raise HTTPException(403, detail={"code": "tier_required", "message": "Đã dùng hết 5 lượt Oracle hôm nay — nâng cấp để dùng không giới hạn"})
+        if (today_uses["cnt"] or 0) >= 8:
+            raise HTTPException(403, detail={"code": "tier_required", "message": "Đã dùng hết 8 lượt Oracle trong 24 giờ qua — nâng cấp để dùng không giới hạn"})
     await pool.execute("INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, 0, 'math_solve')", current_user.user_id)
     image_bytes: bytes | None = None
     if req.image_base64:
