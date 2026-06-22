@@ -325,16 +325,14 @@ def build_analyze_prompt(
     else:
         dynamic_parts.append(f"Chủ đề yếu (< 60%): {', '.join(weak_topics) or 'Không có'}")
 
-    # Score trend from history
-    if len(history) >= 2:
-        recent = [r.get("score", 0) for r in history[-5:]]
-        prev_score = history[-2].get("score", 0) if len(history) >= 2 else None
+    # Score trend from history (history is newest-first from frontend)
+    if len(history) >= 1:
+        recent = [r.get("score", 0) for r in history[:5]]  # 5 most recent (newest-first)
+        prev_score = history[0].get("score", 0)
         current_score = result.get("score", 0)
-        delta = round(current_score - prev_score, 1) if prev_score is not None else None
-        trend = ""
-        if delta is not None:
-            direction = f"tăng +{delta}" if delta > 0 else f"giảm {delta}" if delta < 0 else "giữ nguyên"
-            trend = f" → so với lần trước: {direction} điểm"
+        delta = round(current_score - prev_score, 1)
+        direction = f"tăng +{delta}" if delta > 0 else f"giảm {delta}" if delta < 0 else "giữ nguyên"
+        trend = f" → so với lần trước: {direction} điểm"
         dynamic_parts.append(f"Lịch sử điểm (5 lần gần nhất): {recent}{trend}")
 
     if wrong_questions:
