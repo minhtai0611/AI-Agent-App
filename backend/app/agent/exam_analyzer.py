@@ -3,17 +3,14 @@ from openai import AsyncOpenAI
 from app.config import get_settings
 from app.agent.core import call_with_retry
 
-THPT_ANALYSIS_CONTEXT = """
-Khi phân tích kết quả thi THPT:
-- Đề cập đến phân phối điểm chuẩn vào đại học theo tỉnh thành
-- Nhấn mạnh rằng 8.0+ thường cần thiết cho trường top
-- Chỉ ra xu hướng đề thi theo năm (khó hơn ở phần hình học không gian và tích phân)
-- Ưu tiên gợi ý trường phù hợp với điểm thực tế, không chỉ trường mơ ước
-"""
+STATIC_EXAM_ANALYSIS_INSTRUCTIONS = """Bạn là chuyên gia phân tích kết quả thi Toán cho học sinh Việt Nam. Nhiệm vụ: phân tích CỤ THỂ, CHI TIẾT dựa trên số liệu thực tế được cung cấp.
 
-STATIC_EXAM_ANALYSIS_INSTRUCTIONS = THPT_ANALYSIS_CONTEXT + """Bạn là chuyên gia phân tích kết quả học tập cho học sinh ôn thi Toán.
-Phân tích kết quả thi, các câu trả lời đúng/sai cụ thể, và gợi ý trường phù hợp dựa trên điểm số.
-Trả lời bằng tiếng Việt. Luôn trả về JSON hợp lệ theo đúng định dạng yêu cầu, không có text ngoài JSON."""
+QUY TẮC BẮT BUỘC — vi phạm = phân tích vô dụng:
+1. KHÔNG BAO GIỜ viết câu chung chung như "Em cần cố gắng hơn", "Kết quả tốt", "Tiếp tục ôn luyện", "Cần chú ý hơn". Mọi nhận xét PHẢI đi kèm số liệu cụ thể (% chính xác, số câu đúng/sai, tên chủ đề thực tế).
+2. `insights`: (a) nêu điểm X/10 và tỉ lệ Y% chính xác; (b) so sánh với ngưỡng tỉnh/khu vực; (c) gọi tên 1-2 chủ đề mạnh nhất VÀ yếu nhất theo số liệu từ bảng chủ đề; (d) nếu có lịch sử → nhận xét xu hướng cụ thể (tăng/giảm bao nhiêu điểm).
+3. `question_analysis`: phân tích TỪNG chủ đề có câu sai — gọi tên chủ đề, số câu sai/tổng, nhận diện dạng bài hoặc lỗi phổ biến từ nội dung câu hỏi thực tế. Nếu không có câu sai → ghi nhận điều đó.
+4. `recommendations`: mỗi mục PHẢI gắn với 1 chủ đề/dạng bài cụ thể và 1 hành động rõ ràng. Không khuyến nghị chung chung.
+5. Trả lời bằng tiếng Việt. Trả về JSON hợp lệ, không có text ngoài JSON."""
 
 # Per-province difficulty data (mirrors provincialData.js)
 # topic_weights: approximate % share of each topic in recent provincial grade-9 math exams.
@@ -313,20 +310,42 @@ def build_analyze_prompt(
     dynamic_parts = []
     if student_name:
         dynamic_parts.append(f"Học sinh: {student_name}")
-    dynamic_parts.append(f"Điểm: {result.get('score', 0)}/10")
-    dynamic_parts.append(f"Độ chính xác: {round(result.get('accuracy', 0) * 100)}%")
-    dynamic_parts.append(f"Chủ đề yếu (< 60%): {', '.join(weak_topics) or 'Không có'}")
-    dynamic_parts.append(f"Chi tiết theo chủ đề: {json.dumps(topic_breakdown, ensure_ascii=False)}")
+    dynamic_parts.append(f"Điểm: {result.get('score', 0)}/10 | Độ chính xác tổng: {round(result.get('accuracy', 0) * 100)}%")
+
+    # Pre-format topic breakdown as readable table (sorted weakest → strongest)
+    if topic_breakdown:
+        topic_lines = []
+        for t, tb in sorted(topic_breakdown.items(), key=lambda x: x[1].get("accuracy", 1)):
+            correct = tb.get("correct", round(tb.get("accuracy", 0) * tb.get("total", 1)))
+            total = tb.get("total", 1)
+            pct = round(tb.get("accuracy", 0) * 100)
+            flag = " ❌ RẤT YẾU" if pct < 40 else " ⚠️ YẾU" if pct < 60 else " ✅ TỐT" if pct >= 80 else ""
+            topic_lines.append(f"  {t}: {correct}/{total} câu đúng ({pct}%){flag}")
+        dynamic_parts.append("Kết quả theo chủ đề (yếu → mạnh):\n" + "\n".join(topic_lines))
+    else:
+        dynamic_parts.append(f"Chủ đề yếu (< 60%): {', '.join(weak_topics) or 'Không có'}")
+
+    # Score trend from history
     if len(history) >= 2:
-        recent_scores = [r.get("score", 0) for r in history[-5:]]
-        dynamic_parts.append(f"Điểm gần đây: {recent_scores}")
+        recent = [r.get("score", 0) for r in history[-5:]]
+        prev_score = history[-2].get("score", 0) if len(history) >= 2 else None
+        current_score = result.get("score", 0)
+        delta = round(current_score - prev_score, 1) if prev_score is not None else None
+        trend = ""
+        if delta is not None:
+            direction = f"tăng +{delta}" if delta > 0 else f"giảm {delta}" if delta < 0 else "giữ nguyên"
+            trend = f" → so với lần trước: {direction} điểm"
+        dynamic_parts.append(f"Lịch sử điểm (5 lần gần nhất): {recent}{trend}")
 
     if wrong_questions:
-        wrong_summary = [
-            {"topic": q.get("topic"), "difficulty": q.get("difficulty"), "question": q.get("question", "")[:80]}
-            for q in wrong_questions[:5]
+        wrong_lines = [
+            f"  {i+1}. [{q.get('topic','?')} / {q.get('difficulty','?')}] {q.get('question','')[:150]}"
+            + (f" → Đáp án đúng: {q.get('correct_answer','')}" if q.get('correct_answer') else "")
+            for i, q in enumerate(wrong_questions[:10])
         ]
-        dynamic_parts.append(f"Câu sai ({len(wrong_questions)} câu, ví dụ): {json.dumps(wrong_summary, ensure_ascii=False)}")
+        dynamic_parts.append(
+            f"CÂU SAI ({len(wrong_questions)} câu):\n" + "\n".join(wrong_lines)
+        )
 
     grade = str((user_profile or {}).get("grade", ""))
     province = (user_profile or {}).get("province", "") or (user_profile or {}).get("location", "")
@@ -400,10 +419,14 @@ def build_analyze_prompt(
 
 Trả về JSON (không có text ngoài JSON):
 {{
-  "insights": "Nhận xét tổng quan 2-3 câu về kết quả thi",
-  "question_analysis": "Phân tích cụ thể các câu trả lời sai nếu có, chỉ ra điểm cần cải thiện (2-3 câu)",
+  "insights": "3-4 câu CỤ THỂ: (1) Điểm X/10 — Y% chính xác, [cao hơn/thấp hơn/bằng] ngưỡng tỉnh Z. (2) Chủ đề mạnh nhất: [tên thực tế] A/B câu đúng (C%); yếu nhất: [tên thực tế] D/E câu đúng (F%). (3) Xu hướng: [tăng/giảm/ổn định X điểm so lần trước nếu có]. Không dùng câu chung chung.",
+  "question_analysis": "Phân tích CHI TIẾT từng chủ đề có câu sai: 'Chủ đề [tên]: sai X/Y câu — dạng bài [mô tả cụ thể từ nội dung câu hỏi]. Lỗi phổ biến: [tính toán/khái niệm/áp dụng công thức/đọc hiểu]. ' Lặp lại cho mỗi chủ đề có câu sai. Nếu không sai câu nào thì ghi nhận điều đó.",
   "weak_topics": ["topic_key1", "topic_key2"],
-  "recommendations": ["khuyến nghị 1", "khuyến nghị 2", "khuyến nghị 3"]{school_json_field}
+  "recommendations": [
+    "Chủ đề [tên cụ thể]: [hành động cụ thể, ví dụ: ôn lại dạng bài X, luyện Y bài tập dạng Z]",
+    "Chủ đề [tên cụ thể]: ...",
+    "Kỹ năng [cụ thể]: ..."
+  ]{school_json_field}
 }}"""
     return prompt
 
@@ -435,7 +458,7 @@ async def analyze_exam_result(
     response = await call_with_retry(
         client,
         model=settings.default_model,
-        max_tokens=1200,
+        max_tokens=2000,
         messages=[
             {"role": "system", "content": STATIC_EXAM_ANALYSIS_INSTRUCTIONS},
             {"role": "user", "content": prompt},
