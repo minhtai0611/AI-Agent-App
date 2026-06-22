@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { useAuth } from '../context/AuthContext.jsx'
+import { Button } from '../components/ui/button.jsx'
+import { Badge } from '../components/ui/badge.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { getSessionToday, getConceptMastery, predictScore } from '../api/aiClient.js'
 import { CONCEPTS } from '../data/concepts.js'
@@ -74,7 +76,7 @@ function ScorePredictionCard({ data, prevData, navigate }) {
         <div className="flex flex-col gap-0.5 min-w-0">
           <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Dự đoán điểm</p>
           <div className="flex items-baseline gap-2">
-            <span className="font-sans text-[22px] font-bold text-foreground">{predicted?.toFixed(1)}</span>
+            <span className="font-mono text-[26px] font-bold text-foreground">{predicted?.toFixed(1)}</span>
             {lo != null && hi != null && (
               <span className="font-sans text-[11px] text-dim">({lo.toFixed(1)} – {hi.toFixed(1)})</span>
             )}
@@ -199,7 +201,8 @@ function DailyFocusCard({ action, loading, navigate, onDismiss, userName }) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="bg-surface border border-border rounded-xl p-5"
+      className="bg-surface border border-border border-t-[var(--primary-border)] rounded-xl p-5"
+      style={{ borderTopWidth: '2px', borderTopColor: 'var(--primary-border)' }}
     >
       {(personalEyebrow || cfg.eyebrow) && (
         <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-muted mb-2">
@@ -216,19 +219,22 @@ function DailyFocusCard({ action, loading, navigate, onDismiss, userName }) {
         {cfg.description}
       </p>
       <div className="flex items-center gap-3">
-        <button
+        <Button
           onClick={() => cfg.path && navigate(cfg.path)}
-          className="px-5 py-2.5 rounded-lg font-sans text-[13px] font-semibold bg-primary text-primary-fg hover:opacity-90 active:opacity-80 transition"
+          size="lg"
+          className="text-[13px] font-semibold"
         >
           {cfg.cta} →
-        </button>
+        </Button>
         {onDismiss && action.type !== 'done' && (
-          <button
+          <Button
             onClick={onDismiss}
-            className="font-sans text-[12px] text-dim hover:text-muted transition"
+            variant="ghost"
+            size="sm"
+            className="text-[12px] text-dim"
           >
             Không phải bây giờ
-          </button>
+          </Button>
         )}
       </div>
     </motion.div>
@@ -247,7 +253,7 @@ function StatBox({ label, value, sub, loading }) {
         </>
       ) : (
         <>
-          <span className="font-sans text-[22px] font-bold text-foreground leading-none">{value}</span>
+          <span className="font-mono text-[22px] font-bold text-foreground leading-none">{value}</span>
           <span className="font-sans text-[11px] text-muted leading-tight">{label}</span>
           {sub && <span className="font-sans text-[10px] text-dim mt-0.5">{sub}</span>}
         </>
@@ -266,15 +272,18 @@ function WeakConceptCard({ concept, score, onClick }) {
       onClick={onClick}
       className="w-full text-left bg-surface border border-border rounded-lg px-3 py-2.5 hover:border-border-subtle transition-colors flex items-center justify-between gap-3 group"
     >
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="font-sans text-[12px] font-semibold text-foreground truncate group-hover:text-[var(--primary)] transition-colors">
           {concept.name_vi}
         </p>
-        <p className="font-sans text-[10px] text-dim">
-          Lớp {concept.grade} · {STAGE_LABELS[stage]}
-        </p>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <span className="font-sans text-[10px] text-dim">Lớp {concept.grade}</span>
+          <Badge variant={stage <= 1 ? 'destructive' : stage <= 2 ? 'warning' : 'secondary'} className="text-[9px] px-1.5 py-0 h-4">
+            {STAGE_LABELS[stage]}
+          </Badge>
+        </div>
       </div>
-      <span className={`font-sans text-[12px] font-bold shrink-0 tabular-nums ${masteryColorClass(score)}`}>
+      <span className={`font-mono text-[12px] font-bold shrink-0 tabular-nums ${masteryColorClass(score)}`}>
         {pct}%
       </span>
     </button>
@@ -461,13 +470,15 @@ function QuickLinks({ navigate }) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
       {QUICK_LINKS.map(l => (
-        <button
+        <Button
           key={l.path}
           onClick={() => navigate(l.path)}
-          className="px-3 py-1.5 rounded-lg bg-surface border border-border font-sans text-[12px] text-muted hover:text-foreground hover:border-border-subtle transition-colors"
+          variant="outline"
+          size="sm"
+          className="text-[12px]"
         >
           {l.label}
-        </button>
+        </Button>
       ))}
     </div>
   )
@@ -536,7 +547,7 @@ export default function Home() {
         particleCount: streak >= 14 ? 200 : 100,
         spread: 60,
         origin: { x: 0.5, y: 0.3 },
-        colors: ['#6366F1', '#818CF8', '#10B981', '#F59E0B'],
+        colors: ['#3B6FE8', '#7C5CE8', '#059669', '#5B8FF0'],
         ticks: 300,
       })
     }, 800)
@@ -825,7 +836,7 @@ export default function Home() {
             ) : (
               <>
                 <div className="flex items-end justify-between gap-2">
-                  <span className="font-sans text-[22px] font-bold text-foreground leading-none">{results?.length ?? 0}</span>
+                  <span className="font-mono text-[22px] font-bold text-foreground leading-none">{results?.length ?? 0}</span>
                   {results?.length >= 2 && <ExamSparkline results={results} />}
                 </div>
                 <span className="font-sans text-[11px] text-muted leading-tight">Bài thi đã làm</span>
