@@ -6,6 +6,7 @@
 
 /* Sora + DM Mono — Vietnamese Unicode confirmed (U+0102-0103, U+1EA0-1EF9) */
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap');
+@import "tw-animate-css";
 
 /* JetBrains Mono (variable: wght axis) */
 @font-face {
@@ -592,4 +593,41 @@ body {
     scroll-behavior: auto !important;
   }
   ::view-transition-new(root), ::view-transition-old(root) { animation: none; }
+}
+
+/* ─── shadcn/ui v3-compatible variable aliases ────────────────────────────────
+   Maps Radix-based component expectations to Lumina tokens.
+   These use HSL channel format so Tailwind v3 opacity modifiers work.
+   ─────────────────────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --card:              var(--surface);
+    --card-foreground:   var(--foreground);
+    --popover:           var(--surface-elevated);
+    --popover-foreground:var(--foreground);
+    --primary-foreground:var(--primary-fg);
+    --secondary:         var(--surface);
+    --secondary-foreground:var(--foreground);
+    --muted-foreground:  var(--muted-fg);
+    --accent-foreground: var(--accent-fg);
+    --destructive-foreground: #FFFFFF;
+    --input:             var(--border);
+    --ring:              var(--primary);
+    --radius:            var(--radius-md);
+  }
+  .dark, [data-theme="dark"] {
+    --card:              var(--surface);
+    --card-foreground:   var(--foreground);
+    --popover:           var(--surface-elevated);
+    --popover-foreground:var(--foreground);
+    --primary-foreground:var(--primary-fg);
+    --secondary:         var(--surface);
+    --secondary-foreground:var(--foreground);
+    --muted-foreground:  var(--muted-fg);
+    --accent-foreground: var(--accent-fg);
+    --destructive-foreground: #FFFFFF;
+    --input:             var(--border);
+    --ring:              var(--primary);
+    --radius:            var(--radius-md);
+  }
 }
