@@ -138,7 +138,15 @@ function withAIPrefs(payload) {
 }
 
 export function analyzeResult(payload) {
-  return wrapOptimistic(3, () => client.post('/analyze', withAIPrefs(payload)), 'Phân tích bài thi')
+  // No HTTP retry — backend deducts credits per call, so withRetry would cause
+  // N×(deduct+refund) DB writes on AI failure. Backend call_with_retry handles retries internally.
+  if (!navigator.onLine) return Promise.resolve({ data: null, error: 'Bạn đang ngoại tuyến — kết nối mạng để dùng tính năng AI', status: 0 })
+  _deductRef?.(3)
+  return wrap(client.post('/analyze', withAIPrefs(payload))).then(result => {
+    if (result.status === 402) _refundRef?.(3)
+    else if (result.data) window.dispatchEvent(new CustomEvent('credit_spent', { detail: { cost: 3, feature: 'Phân tích bài thi' } }))
+    return result
+  })
 }
 
 // Streams AI analysis as NDJSON field-by-field.
