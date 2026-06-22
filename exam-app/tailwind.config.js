@@ -5,9 +5,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans:    ['"Be Vietnam Pro"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
-        display: ['"Be Vietnam Pro"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
-        mono:    ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
+        sans:    ['Sora', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
+        display: ['Sora', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
+        mono:    ['"DM Mono"', '"JetBrains Mono"', '"Fira Code"', 'monospace'],
       },
       colors: {
         background:          'var(--background)',
@@ -48,11 +48,15 @@ export default {
         'mastery-5-bg':      'var(--mastery-5-bg)',
       },
       boxShadow: {
-        xs: 'var(--shadow-xs)',
-        sm: 'var(--shadow-sm)',
-        md: 'var(--shadow-md)',
-        lg: 'var(--shadow-lg)',
-        xl: 'var(--shadow-xl)',
+        xs:   'var(--shadow-xs)',
+        sm:   'var(--shadow-sm)',
+        md:   'var(--shadow-md)',
+        lg:   'var(--shadow-lg)',
+        xl:   'var(--shadow-xl)',
+        glow: 'var(--shadow-glow)',
+      },
+      borderRadius: {
+        '2xl': 'var(--radius-2xl)',
       },
     },
   },
