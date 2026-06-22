@@ -316,7 +316,7 @@ function MathPreview({ text }) {
   )
 }
 
-const CONFIDENCE_COLOR = { high: '#10B981', medium: '#F2A20C', low: '#EF4444' }
+const CONFIDENCE_COLOR = { high: 'var(--mastery-4)', medium: 'var(--mastery-3)', low: 'var(--mastery-1)' }
 const CONFIDENCE_LABEL = { high: 'Có thể đúng', medium: 'Cần kiểm tra lại', low: 'Oracle không chắc' }
 
 const PART_HEADER_RE = /^\*\*Phần\s+[a-dA-D]\w*\)\*\*$/
@@ -723,7 +723,7 @@ function AnswerCard({ result, problem }) {
               )}
               {!result.wiki_assisted && (
                 <span className="font-sans text-[11px] font-semibold tracking-widest uppercase"
-                  style={{ color: '#6366F1', opacity: 0.7 }}>
+                  style={{ color: 'var(--accent)', opacity: 0.8 }}>
                   AI trực tiếp
                 </span>
               )}
@@ -760,7 +760,7 @@ function AnswerCard({ result, problem }) {
   )
 }
 
-const VERDICT_COLOR  = { correct: '#10B981', partial: '#F2A20C', incorrect: '#EF4444' }
+const VERDICT_COLOR  = { correct: 'var(--mastery-4)', partial: 'var(--mastery-3)', incorrect: 'var(--mastery-1)' }
 const VERDICT_LABEL  = { correct: 'Đúng',   partial: 'Một phần', incorrect: 'Sai' }
 
 function ReviewCard({ result, problem, solution }) {
@@ -1290,7 +1290,7 @@ export default function MathOracle() {
       {/* Ambient glow */}
       <div className="absolute pointer-events-none rounded-full opacity-40"
         style={{ width: 600, height: 400, left: '50%', top: 0, transform: 'translateX(-50%)',
-          background: 'radial-gradient(circle, #6366F118 0%, transparent 70%)' }} />
+          background: 'radial-gradient(circle, rgba(91,143,240,0.09) 0%, transparent 70%)' }} />
 
       {/* ── C3: Desktop history sidebar (lg+) ────────────────────────────── */}
       {history.length > 0 && (
@@ -1474,7 +1474,7 @@ export default function MathOracle() {
           @keyframes spin { to { transform: rotate(360deg); } }
         `}</style>
         <form onSubmit={handleSolveForm} className="flex flex-col gap-3">
-          <div className="rounded-xl border border-surface bg-surface focus-within:border-info transition-colors overflow-hidden">
+          <div className="rounded-xl border border-surface bg-surface focus-within:border-[var(--primary-border)] transition-colors overflow-hidden">
             <textarea
               ref={textareaRef}
               value={question}
@@ -1491,10 +1491,10 @@ export default function MathOracle() {
               className={`oracle-textarea${ocring ? ' opacity-60 cursor-not-allowed' : ''}`}
               style={{
                 display: 'block', width: '100%', resize: 'none', overflow: 'hidden',
-                background: 'transparent', fontSize: 15,
+                background: 'transparent', fontSize: 15, minHeight: 52,
                 padding: '16px 20px 12px', boxSizing: 'border-box',
                 outline: 'none', border: 'none', lineHeight: 1.6,
-                fontFamily: "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif",
+                fontFamily: "'Sora', ui-sans-serif, system-ui, sans-serif",
               }}
             />
             <SymbolPalette onInsert={handleInsert} />
@@ -1584,7 +1584,7 @@ export default function MathOracle() {
 
           {/* Solution textarea — only in review mode */}
           {chatMode === 'review' && (
-            <div className="rounded-xl border border-surface bg-surface focus-within:border-info transition-colors overflow-hidden">
+            <div className="rounded-xl border border-surface bg-surface focus-within:border-[var(--primary-border)] transition-colors overflow-hidden">
               <textarea
                 ref={solutionRef}
                 value={solution}
