@@ -557,7 +557,7 @@ body {
 .aurora-blob:nth-child(3) { background: #059669; }
 
 .cta-gradient-btn {
-  background: linear-gradient(90deg, #6366F1, #8B5CF6, #06B6D4, #6366F1);
+  background: linear-gradient(90deg, #3B6FE8, #7C5CE8, #059669, #3B6FE8);
   background-size: 300% 100%;
   animation: gradient-shift 4s linear infinite;
   color: #fff;

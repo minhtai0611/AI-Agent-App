@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import { Button } from '../components/ui/button.jsx'
 
 import { useHistory } from '../context/HistoryContext.jsx'
 import { computeStreak } from '../utils/streak.js'
@@ -166,10 +167,9 @@ function Demo4ScoreSlider({ onOpenAuth }) {
           {onTrack ? '↗ Đang tiến đúng hướng để đạt mục tiêu' : '⚠ Cần tăng tốc luyện tập để bứt phá'}
         </p>
       </div>
-      <button onClick={onOpenAuth}
-        className="w-full py-3 rounded-xl font-sans text-[13px] font-bold cta-gradient-btn">
+      <Button onClick={onOpenAuth} className="w-full cta-gradient-btn h-11 text-[13px] font-bold rounded-xl">
         Nhận dự đoán chính xác của bạn →
-      </button>
+      </Button>
       <p className="font-sans text-[11px] text-dim text-center">Dự đoán thực dùng thuật toán Kalman dựa trên lịch sử làm bài của bạn</p>
     </div>
   )
@@ -280,15 +280,13 @@ export default function Landing({ onOpenAuth }) {
       >
         <span className="font-sans text-[15px] font-bold text-foreground">Zenith</span>
         <div className="flex items-center gap-2">
-          <button onClick={() => navigate('/practice/diagnostic')}
-            className="px-4 py-2 rounded-lg font-sans text-[12px] font-semibold cta-gradient-btn">
+          <Button onClick={() => navigate('/practice/diagnostic')} size="sm" className="cta-gradient-btn text-[12px]">
             Thử ngay →
-          </button>
+          </Button>
           {!user && (
-            <button onClick={onOpenAuth}
-              className="px-4 py-2 rounded-lg font-sans text-[12px] font-semibold text-muted border border-surface hover:text-foreground transition">
+            <Button onClick={onOpenAuth} variant="ghost" size="sm" className="text-[12px] border border-border">
               Đăng nhập
-            </button>
+            </Button>
           )}
         </div>
       </motion.div>
@@ -297,10 +295,9 @@ export default function Landing({ onOpenAuth }) {
       <div className="relative z-10 w-full overflow-hidden">
         {/* Aurora background blobs */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="aurora-blob" style={{ width: 600, height: 600, top: '-10%', left: '-5%', background: 'radial-gradient(circle, #6366F1 0%, transparent 70%)', animationDuration: '22s' }} />
-          <div className="aurora-blob" style={{ width: 500, height: 500, top: '10%', right: '-8%', background: 'radial-gradient(circle, #8B5CF6 0%, transparent 70%)', animationDuration: '18s', animationDelay: '-7s' }} />
-          <div className="aurora-blob" style={{ width: 400, height: 400, bottom: '5%', left: '20%', background: 'radial-gradient(circle, #06B6D4 0%, transparent 70%)', animationDuration: '26s', animationDelay: '-13s' }} />
-          <div className="aurora-blob" style={{ width: 350, height: 350, bottom: '-5%', right: '15%', background: 'radial-gradient(circle, #F472B6 0%, transparent 70%)', animationDuration: '20s', animationDelay: '-4s' }} />
+          <div className="aurora-blob" style={{ width: 600, height: 600, top: '-10%', left: '-5%', background: 'radial-gradient(circle, #3B6FE8 0%, transparent 70%)', animationDuration: '22s' }} />
+          <div className="aurora-blob" style={{ width: 500, height: 500, top: '10%', right: '-8%', background: 'radial-gradient(circle, #7C5CE8 0%, transparent 70%)', animationDuration: '18s', animationDelay: '-7s' }} />
+          <div className="aurora-blob" style={{ width: 400, height: 400, bottom: '5%', left: '20%', background: 'radial-gradient(circle, #059669 0%, transparent 70%)', animationDuration: '26s', animationDelay: '-13s' }} />
         </div>
         {/* Grain texture */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" aria-hidden="true"
@@ -313,8 +310,8 @@ export default function Landing({ onOpenAuth }) {
             <span className="font-sans text-[11px] font-semibold text-primary tracking-[3px] uppercase">
               Kỳ thi tuyển sinh {getExamYear()} · Toán Lớp 10
             </span>
-            <h1 className="font-sans font-bold text-foreground leading-[1.05] text-center"
-              style={{ fontSize: 'clamp(2.5rem,6vw,4.5rem)', letterSpacing: '-0.02em' }}>
+            <h1 className="font-sans text-foreground leading-[1.05] text-center"
+              style={{ fontSize: 'clamp(3.2rem,7vw,5.5rem)', letterSpacing: '-0.025em', fontWeight: 800 }}>
               Học thật, đỗ thật.
             </h1>
             <p className="font-sans text-[17px] text-muted leading-relaxed max-w-[600px] text-center">
@@ -470,7 +467,7 @@ export default function Landing({ onOpenAuth }) {
               { value: 'FSRS', label: 'ghi nhớ thông minh', color: '#34D399' },
             ].map(({ value, label, color }, i, arr) => (
               <span key={label} className="flex items-center gap-1.5">
-                <span className="font-sans font-bold text-[15px]" style={{ color }}>{value}</span>
+                <span className="font-mono font-bold text-[15px]" style={{ color }}>{value}</span>
                 <span>{label}</span>
                 {i < arr.length - 1 && <span className="text-border mx-2">·</span>}
               </span>
@@ -495,9 +492,9 @@ export default function Landing({ onOpenAuth }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-60px' }}
               transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className={`${feat.col} glass-card rounded-2xl p-5 flex flex-col gap-3 overflow-hidden`}
-              style={{ borderLeft: `3px solid ${feat.accent}55` }}
+              className={`${feat.col} glass-card rounded-2xl p-5 flex flex-col gap-3 overflow-hidden relative`}
             >
+              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl" style={{ background: `linear-gradient(90deg, ${feat.accent}99, var(--primary-subtle))` }} />
               <div className="flex items-start gap-2">
                 <span className="text-2xl flex-shrink-0">{feat.icon}</span>
                 <div>
@@ -585,7 +582,7 @@ export default function Landing({ onOpenAuth }) {
                 <th className="text-left py-2 text-dim font-normal"></th>
                 <th className="py-2 text-center text-dim font-normal">Sách luyện đề</th>
                 <th className="py-2 text-center text-dim font-normal">YouTube</th>
-                <th className="py-2 text-center font-bold text-primary">Zenith</th>
+                <th className="py-2 text-center font-bold text-primary border-b-2 border-primary bg-primary-subtle/30 rounded-t-lg px-2">Zenith</th>
               </tr>
             </thead>
             <tbody>
@@ -600,7 +597,7 @@ export default function Landing({ onOpenAuth }) {
                   <td className="py-2.5 text-foreground">{row.feature}</td>
                   <td className="py-2.5 text-center text-dim">{row.sach ? '✓' : '✗'}</td>
                   <td className="py-2.5 text-center text-dim">{row.yt ? '✓' : '✗'}</td>
-                  <td className="py-2.5 text-center font-bold text-primary" data-testid="zenith-cell">{row.zenith ? '✓' : '✗'}</td>
+                  <td className="py-2.5 text-center font-bold text-primary bg-[var(--primary-subtle)]/20 px-2" data-testid="zenith-cell">{row.zenith ? '✓' : '✗'}</td>
                 </tr>
               ))}
             </tbody>
@@ -714,7 +711,7 @@ export default function Landing({ onOpenAuth }) {
                   <>
                     <motion.button
                       onClick={user ? () => navigate('/account') : onOpenAuth}
-                      className="ripple-btn px-4 py-1.5 rounded-lg font-sans text-[12px] font-bold text-primary-fg bg-primary hover:opacity-90 transition"
+                      className="inline-flex items-center justify-center px-4 py-1.5 rounded-[var(--radius-md)] font-sans text-[12px] font-bold bg-[var(--primary)] text-[var(--primary-fg)] hover:bg-[var(--primary)]/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
                       whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
                       {user ? (plan.tier === 'student' ? 'Bắt đầu học ngay' : 'Mở khóa toàn bộ') : 'Đăng nhập'}
@@ -753,8 +750,8 @@ export default function Landing({ onOpenAuth }) {
       <div className="relative z-10 w-full overflow-hidden">
         {/* Aurora blobs for CTA */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="aurora-blob" style={{ width: 500, height: 500, top: '-30%', left: '10%', background: 'radial-gradient(circle, #6366F1 0%, transparent 70%)', animationDuration: '20s', opacity: undefined }} />
-          <div className="aurora-blob" style={{ width: 400, height: 400, bottom: '-20%', right: '5%', background: 'radial-gradient(circle, #8B5CF6 0%, transparent 70%)', animationDuration: '24s', animationDelay: '-8s' }} />
+          <div className="aurora-blob" style={{ width: 500, height: 500, top: '-30%', left: '10%', background: 'radial-gradient(circle, #3B6FE8 0%, transparent 70%)', animationDuration: '20s' }} />
+          <div className="aurora-blob" style={{ width: 400, height: 400, bottom: '-20%', right: '5%', background: 'radial-gradient(circle, #7C5CE8 0%, transparent 70%)', animationDuration: '24s', animationDelay: '-8s' }} />
         </div>
         <div className="flex flex-col items-center gap-6 text-center py-24 px-6 relative">
           <h2 className="font-sans font-bold text-foreground max-w-xl"
