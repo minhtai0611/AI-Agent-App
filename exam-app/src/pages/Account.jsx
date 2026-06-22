@@ -873,7 +873,7 @@ export default function Account() {
                     transform="rotate(-90 44 44)"
                     style={{ transition: 'stroke-dashoffset 0.8s ease' }}
                   />
-                  <text x="44" y="49" textAnchor="middle" fill={readinessColor} fontSize="18" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="700">{readinessPct}%</text>
+                  <text x="44" y="49" textAnchor="middle" fill={readinessColor} fontSize="18" fontFamily="DM Mono, monospace" fontWeight="700">{readinessPct}%</text>
                 </svg>
                 <div className="flex flex-col items-center gap-0.5">
                   <span className="font-sans text-[18px] font-bold" style={{ color: readinessColor }}>{readinessLabel}</span>

@@ -56,7 +56,7 @@ function ToastContainer({ toasts, dismiss }) {
               className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg cursor-pointer"
               style={{
                 background: s.bg, borderColor: s.border,
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontFamily: "'Sora', sans-serif",
                 maxWidth: 320, minWidth: 200,
               }}
             >

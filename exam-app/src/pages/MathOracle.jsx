@@ -1598,7 +1598,7 @@ export default function MathOracle() {
                   background: 'transparent', fontSize: 15,
                   padding: '16px 20px 12px', boxSizing: 'border-box',
                   outline: 'none', border: 'none', lineHeight: 1.6,
-                  fontFamily: "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif",
+                  fontFamily: "'Sora', ui-sans-serif, system-ui, sans-serif",
                 }}
               />
               <div className="flex justify-end items-center gap-2 px-3 py-2 border-t border-surface">

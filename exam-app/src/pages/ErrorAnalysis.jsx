@@ -152,9 +152,9 @@ export default function ErrorAnalysis() {
               <ResponsiveContainer width="100%" height={260}>
                 <RadarChart data={radarData}>
                   <PolarGrid stroke="var(--border)" />
-                  <PolarAngleAxis dataKey="type" tick={{ fontSize: 11, fill: '#94A3B8', fontFamily: 'Plus Jakarta Sans, sans-serif' }} />
+                  <PolarAngleAxis dataKey="type" tick={{ fontSize: 11, fill: 'var(--muted-fg)', fontFamily: 'Sora, sans-serif' }} />
                   <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-                  <Radar name="Bạn" dataKey="value" stroke="#F2A20C" fill="#F2A20C" fillOpacity={0.25} />
+                  <Radar name="Bạn" dataKey="value" stroke="var(--warning)" fill="var(--warning)" fillOpacity={0.25} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
@@ -174,18 +174,18 @@ export default function ErrorAnalysis() {
                     <XAxis
                       dataKey="topic"
                       tickFormatter={topicLabel}
-                      tick={{ fontSize: 10, fill: '#64748B', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+                      tick={{ fontSize: 10, fill: 'var(--muted-fg)', fontFamily: 'Sora, sans-serif' }}
                       interval={0}
                       angle={-35}
                       textAnchor="end"
                       height={55}
                     />
-                    <YAxis tick={{ fontSize: 10, fill: '#475569' }} />
+                    <YAxis tick={{ fontSize: 10, fill: 'var(--dim)' }} />
                     <Tooltip
                       contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontFamily: 'Inter, sans-serif', fontSize: 12 }}
                       labelFormatter={topicLabel}
                     />
-                    <Legend wrapperStyle={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 11 }} />
+                    <Legend wrapperStyle={{ fontFamily: 'Sora, sans-serif', fontSize: 11 }} />
                     {ERROR_TYPES.map(et => (
                       <Bar key={et.id} dataKey={et.id} name={et.label} stackId="a" fill={et.color} radius={et.id === 'calculation' ? [4, 4, 0, 0] : undefined} />
                     ))}

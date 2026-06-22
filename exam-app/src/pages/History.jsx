@@ -88,12 +88,12 @@ export default function History() {
                 <div style={{ height: 120 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
-                      <XAxis dataKey="date" tick={{ fill: '#475569', fontSize: 10, fontFamily: 'Plus Jakarta Sans, sans-serif' }} axisLine={false} tickLine={false} />
-                      <YAxis domain={[0, 10]} tick={{ fill: '#475569', fontSize: 10 }} axisLine={false} tickLine={false} width={24} />
+                      <XAxis dataKey="date" tick={{ fill: 'var(--dim)', fontSize: 10, fontFamily: 'Sora, sans-serif' }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 10]} tick={{ fill: 'var(--dim)', fontSize: 10 }} axisLine={false} tickLine={false} width={24} />
                       <Tooltip
                         contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontFamily: 'Inter, sans-serif', fontSize: 12 }}
-                        labelStyle={{ color: '#94A3B8' }}
-                        itemStyle={{ color: '#F2A20C' }}
+                        labelStyle={{ color: 'var(--muted-fg)' }}
+                        itemStyle={{ color: 'var(--warning)' }}
                       />
                       <Line type="monotone" dataKey="score" stroke="var(--accent)" strokeWidth={2} dot={{ r: 4, fill: 'var(--accent)', stroke: 'var(--bg)', strokeWidth: 2 }} activeDot={{ r: 6 }} />
                     </LineChart>

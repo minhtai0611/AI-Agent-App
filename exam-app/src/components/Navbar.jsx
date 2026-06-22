@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { Button } from './ui/button.jsx'
 import { useAuth } from '../context/AuthContext'
 import ZenithLogo from './ZenithLogo'
 import CreditsTooltip from './CreditsTooltip'
@@ -168,12 +169,9 @@ export default function Navbar({ onOpenAuth }) {
               </button>
             </>
           ) : (
-            <button
-              onClick={onOpenAuth}
-              className="btn-primary text-sm px-3 py-2"
-            >
+            <Button onClick={onOpenAuth} size="sm">
               Đăng nhập
-            </button>
+            </Button>
           )}
         </div>
 

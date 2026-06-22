@@ -595,7 +595,7 @@ export default function Mistakes() {
                 <ResponsiveContainer width="100%" height={260}>
                   <RadarChart data={trendRadarData}>
                     <PolarGrid stroke="var(--border)" />
-                    <PolarAngleAxis dataKey="type" tick={{ fontSize: 11, fill: 'var(--muted-fg)', fontFamily: 'Be Vietnam Pro, sans-serif' }} />
+                    <PolarAngleAxis dataKey="type" tick={{ fontSize: 11, fill: 'var(--muted-fg)', fontFamily: 'Sora, sans-serif' }} />
                     <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
                     <Radar name="Bạn" dataKey="value" stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.25} />
                   </RadarChart>
@@ -613,7 +613,7 @@ export default function Mistakes() {
                     <BarChart data={trendBarData} margin={{ left: -10 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                       <XAxis dataKey="topic" tickFormatter={t => TOPIC_VI_TREND[t] || t}
-                        tick={{ fontSize: 10, fill: 'var(--muted-fg)', fontFamily: 'Be Vietnam Pro, sans-serif' }}
+                        tick={{ fontSize: 10, fill: 'var(--muted-fg)', fontFamily: 'Sora, sans-serif' }}
                         interval={0} angle={-35} textAnchor="end" height={55} />
                       <YAxis tick={{ fontSize: 10, fill: 'var(--muted-fg)' }} />
                       <Tooltip contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
