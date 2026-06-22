@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
-import CountUp from 'react-countup'
 import confetti from 'canvas-confetti'
+import { Button } from '../components/ui/button.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { NumberTicker } from '../components/ui/number-ticker.jsx'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
@@ -101,7 +101,7 @@ function SchoolCard({ school, studentScore }) {
       {matchRatio !== null && (
         <div className="h-1 rounded-full bg-border overflow-hidden">
           <motion.div
-            className="h-full rounded-full bg-info origin-left"
+            className="h-full rounded-full bg-primary origin-left"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: inView ? matchRatio : 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -190,9 +190,10 @@ function pctColor(acc) {
 }
 
 function arcColor(score) {
-  if (score >= 8) return 'var(--success)'
-  if (score >= 5) return 'var(--warning)'
-  return 'var(--destructive)'
+  if (score >= 9) return 'var(--mastery-5)'
+  if (score >= 7.5) return 'var(--mastery-4)'
+  if (score >= 5) return 'var(--mastery-3)'
+  return 'var(--mastery-1)'
 }
 
 function scoreLabel(score) {
@@ -830,7 +831,7 @@ export default function Results({ onOpenAuth }) {
                       particleCount: score >= 9 ? 300 : 150,
                       spread: 70,
                       origin: { x: 0.5, y: 0.25 },
-                      colors: ['#22c55e', '#3b82f6', '#f59e0b', '#a855f7'],
+                      colors: ['#3B6FE8', '#7C5CE8', '#059669', '#5B8FF0'],
                       ticks: 300, scalar: 1.2,
                     })
                   }
@@ -838,7 +839,7 @@ export default function Results({ onOpenAuth }) {
               />
               <foreignObject x="20" y="38" width="80" height="40">
                 <div xmlns="http://www.w3.org/1999/xhtml"
-                  style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 26, fontWeight: 700, color, textAlign: 'center', lineHeight: '40px' }}>
+                  style={{ fontFamily: '"DM Mono", monospace', fontSize: 26, fontWeight: 700, color, textAlign: 'center', lineHeight: '40px' }}>
                   <NumberTicker value={score} startValue={0} decimalPlaces={1} duration={scoreInView ? 1500 : 0} />
                 </div>
               </foreignObject>
@@ -1018,13 +1019,12 @@ export default function Results({ onOpenAuth }) {
                       <PolarGrid stroke="var(--border)" strokeOpacity={0.8} />
                       <PolarAngleAxis
                         dataKey="topic"
-                        tick={{ fontSize: topics.length > 8 ? 9 : 10, fill: 'var(--muted-fg)', fontFamily: 'Be Vietnam Pro, sans-serif' }}
+                        tick={{ fontSize: topics.length > 8 ? 9 : 10, fill: 'var(--muted-fg)', fontFamily: 'Sora, sans-serif' }}
                       />
                       <Radar
                         dataKey="score"
-                        stroke="var(--primary)"
-                        fill="var(--primary)"
-                        fillOpacity={0.18}
+                        stroke="rgba(91,143,240,0.6)"
+                        fill="rgba(91,143,240,0.15)"
                         strokeWidth={1.5}
                         dot={{ fill: 'var(--primary)', r: 3 }}
                       />
@@ -1071,12 +1071,13 @@ export default function Results({ onOpenAuth }) {
                   <span className="font-sans text-[0.6875rem] text-dim">Đề tiếp theo cho bạn</span>
                   <span className="font-sans text-sm font-semibold text-foreground truncate">{nextExam.title}</span>
                 </div>
-                <button
+                <Button
+                  size="sm"
+                  className="flex-shrink-0 text-xs font-bold"
                   onClick={() => navigate(`/test/${nextExam.id}`)}
-                  className="flex-shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold bg-primary text-primary-fg"
                 >
                   Bắt đầu →
-                </button>
+                </Button>
               </div>
             )}
 
@@ -1589,17 +1590,17 @@ export default function Results({ onOpenAuth }) {
                 <p className="font-sans text-[0.8125rem] text-destructive px-1">{studyPlanError}</p>
               )}
               {planReady ? (
-                <button
+                <Button
+                  className="w-full text-sm font-bold"
                   onClick={() => {
                     if (user?.id && result?.id) {
                       localStorage.setItem(`latest_study_plan_result_${user.id}`, result.id)
                     }
                     navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })
                   }}
-                  className="btn-primary w-full text-sm font-bold"
                 >
                   Xem kế hoạch học tập ⚡5 lượt hỏi AI
-                </button>
+                </Button>
               ) : (
                 <button
                   onClick={() => {
