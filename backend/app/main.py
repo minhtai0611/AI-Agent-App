@@ -1208,7 +1208,8 @@ async def analyze(
     pool=Depends(get_pool),
 ):
     tier_row = await pool.fetchrow("SELECT subscription_tier, province FROM users WHERE id = ?", current_user.user_id)
-    if not tier_row or tier_row["subscription_tier"] not in _PAID_TIERS:
+    credits_deducted = not tier_row or tier_row["subscription_tier"] not in _PAID_TIERS
+    if credits_deducted:
         await _spend_credits(pool, current_user.user_id, 3, "analyze")
     dev_row = await pool.fetchrow(
         "SELECT province FROM user_devices WHERE user_id = ? AND province IS NOT NULL "
@@ -1260,8 +1261,10 @@ async def analyze(
             schools=data.get("schools", []),
             concept_gaps=concept_gaps,
         )
-    except (ValueError, KeyError, Exception):
-        raise HTTPException(status_code=502, detail="AI response parse error")
+    except Exception:
+        if credits_deducted:
+            await _add_credits(pool, current_user.user_id, 3)
+        raise HTTPException(status_code=502, detail="AI service error")
 
 
 def _ndjson_find_field(buf: str, field: str, ftype: str):
@@ -1342,7 +1345,8 @@ async def analyze_stream(
     from fastapi.responses import StreamingResponse
     from app.agent.exam_analyzer import build_analyze_prompt, STATIC_EXAM_ANALYSIS_INSTRUCTIONS
     tier_row_s = await pool.fetchrow("SELECT subscription_tier, province FROM users WHERE id = ?", current_user.user_id)
-    if not tier_row_s or tier_row_s["subscription_tier"] not in _PAID_TIERS:
+    credits_deducted_s = not tier_row_s or tier_row_s["subscription_tier"] not in _PAID_TIERS
+    if credits_deducted_s:
         await _spend_credits(pool, current_user.user_id, 3, "analyze")
 
     dev_row_s = await pool.fetchrow(
@@ -1400,6 +1404,8 @@ async def analyze_stream(
                         done_fields.add(fname)
                         yield json.dumps({"field": fname, "chunk": "", "done": True}, ensure_ascii=False) + "\n"
         except Exception as exc:
+            if credits_deducted_s:
+                await _add_credits(pool, current_user.user_id, 3)
             yield json.dumps({"error": str(exc)}) + "\n"
         finally:
             for fname, _ in _NDJSON_FIELDS:
@@ -4102,6 +4108,17 @@ async def _spend_credits(pool, user_id: int, amount: int, reason: str) -> None:
         "INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, ?, ?)",
         user_id, -amount, reason,
     )
+
+
+async def _add_credits(pool, user_id: int, amount: int) -> None:
+    """Refund credits — symmetric to _spend_credits. Best-effort: never raises."""
+    try:
+        await pool.execute(
+            "UPDATE users SET credits_balance = credits_balance + ? WHERE id = ?",
+            amount, user_id,
+        )
+    except Exception:
+        pass
 
 
 @app.get("/payment/config")

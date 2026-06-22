@@ -503,7 +503,9 @@ export default function Results({ onOpenAuth }) {
           } else if (streamStatus === 401) {
             setAiError('Vui lòng đăng nhập để dùng tính năng AI.')
           } else if (failed) {
-            setAiError(typeof error === 'string' ? error : 'Phân tích AI tạm thời không khả dụng.')
+            const rawError = typeof error === 'string' ? error : ''
+            const isRawException = rawError.startsWith('Error code:') || rawError.startsWith('Error ') || rawError.includes('authentication')
+            setAiError(isRawException ? 'Phân tích AI tạm thời không khả dụng. Vui lòng thử lại.' : (rawError || 'Phân tích AI tạm thời không khả dụng.'))
           } else {
             setAiError(null)
           }
@@ -1245,7 +1247,18 @@ export default function Results({ onOpenAuth }) {
                 </div>
               )}
               <AIErrorBoundary>
-                <AIInsights analysis={analysis} loading={aiLoading && !analysis?._streaming} error={aiError} score={score} />
+                <AIInsights
+                  analysis={analysis}
+                  loading={aiLoading && !analysis?._streaming}
+                  error={aiError}
+                  score={score}
+                  onRetry={() => {
+                    if (user?.id && result?.id) {
+                      localStorage.removeItem(`ai-analysis-${user.id}-${result.id}`)
+                    }
+                    setRetryKey(k => k + 1)
+                  }}
+                />
               </AIErrorBoundary>
             </div>
 

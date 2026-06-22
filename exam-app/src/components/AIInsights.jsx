@@ -135,7 +135,7 @@ function AIErrorMessage({ error }) {
   )
 }
 
-export default function AIInsights({ analysis, loading, error, score }) {
+export default function AIInsights({ analysis, loading, error, score, onRetry }) {
   const { user } = useAuth()
   const [dismissed402, setDismissed402] = useState(false)
   const [showNudge, setShowNudge] = useState(false)
@@ -346,9 +346,19 @@ export default function AIInsights({ analysis, loading, error, score }) {
   return (
     <div className="flex flex-col gap-5">
       {error && (
-        <span className="self-start px-2 py-0.5 rounded-full bg-primary/10 border border-primary/30 font-sans text-[0.6875rem] text-primary/80">
-          Ngoại tuyến
-        </span>
+        <div className="flex flex-col gap-1.5">
+          <span className="self-start px-2 py-0.5 rounded-full bg-primary/10 border border-primary/30 font-sans text-[0.6875rem] text-primary/80">
+            Ngoại tuyến
+          </span>
+          {typeof error === 'string' && (
+            <p className="font-sans text-[0.75rem] text-muted leading-snug">{error}</p>
+          )}
+          {onRetry && (
+            <button onClick={onRetry} className="self-start font-sans text-[0.75rem] text-primary hover:underline">
+              Thử lại
+            </button>
+          )}
+        </div>
       )}
 
       {predictedScoreRange && (
