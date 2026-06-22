@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Button } from '../components/ui/button.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   RadarChart, PolarGrid, PolarAngleAxis, Radar,
@@ -1205,7 +1206,7 @@ export default function Account() {
                   maxLength={30}
                   className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground placeholder-faint focus:outline-none focus:border-[var(--accent-border)]"
                 />
-                <button
+                <Button
                   disabled={usernameLoading || !usernameInput.trim()}
                   onClick={async () => {
                     setUsernameLoading(true)
@@ -1219,10 +1220,10 @@ export default function Account() {
                       setUsernameInput('')
                     }
                   }}
-                  className="ripple-btn px-5 py-2.5 rounded-xl font-sans text-[0.8125rem] font-bold disabled:opacity-40 transition"
-                  style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}>
+                  variant="accent"
+                  className="text-[0.8125rem] font-bold disabled:opacity-40">
                   {usernameLoading ? '...' : 'Lưu'}
-                </button>
+                </Button>
               </div>
               {usernameError && <p className="font-sans text-xs text-destructive">{usernameError}</p>}
             </section>
@@ -1875,7 +1876,7 @@ export default function Account() {
                   </p>
                 </div>
                 {trialError && <p className="font-sans text-xs text-destructive">{trialError}</p>}
-                <button
+                <Button
                   disabled={trialActivating}
                   onClick={async () => {
                     setTrialActivating(true); setTrialError('')
@@ -1887,10 +1888,10 @@ export default function Account() {
                       setTrialDone(true); refundCredits(500); await refreshUser()
                     }
                   }}
-                  className="btn-primary self-start text-[0.8125rem] disabled:opacity-50"
+                  className="self-start text-[0.8125rem] disabled:opacity-50"
                 >
                   {trialActivating ? 'Đang kích hoạt...' : 'Kích hoạt dùng thử'}
-                </button>
+                </Button>
               </section>
             )}
             {trialDone && (
