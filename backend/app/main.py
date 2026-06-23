@@ -1043,8 +1043,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins_list,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*", "X-CSRF-Token"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-CSRF-Token", "X-Admin-Key", "X-Cron-Secret"],
 )
 
 # ── Models ───────────────────────────────────────────────────────────────────
