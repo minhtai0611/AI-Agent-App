@@ -3,13 +3,26 @@ import { loadPreferences } from '../utils/aiPreferences.js'
 
 const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
-const client = axios.create({ baseURL: BASE, timeout: 30000, withCredentials: true })
-const slowClient = axios.create({ baseURL: BASE, timeout: 130000, withCredentials: true })
+const client = axios.create({ baseURL: BASE, timeout: 30000 })
+const slowClient = axios.create({ baseURL: BASE, timeout: 130000 })
 
 // CSRF token — stored in memory only (never localStorage/cookie)
 let _csrfToken = null
 export function setCsrfToken(t) { _csrfToken = t }
 export function getCsrfToken() { return _csrfToken }
+
+// Bearer auth token — stored in memory + localStorage for page-refresh persistence
+let _authToken = null
+export function setAuthToken(t) {
+  _authToken = t
+  if (t) localStorage.setItem('auth_token', t)
+  else localStorage.removeItem('auth_token')
+}
+export function initAuthToken() {
+  const t = localStorage.getItem('auth_token')
+  if (t) _authToken = t
+  return t
+}
 
 let _logoutRef = null
 export function setLogoutRef(fn) { _logoutRef = fn }
@@ -43,6 +56,10 @@ function _attachInterceptors(instance) {
     if (_csrfToken && _CSRF_METHODS.has(config.method?.toLowerCase())) {
       config.headers['X-CSRF-Token'] = _csrfToken
     }
+    // Inject Bearer token for all requests (replaces cookie-based auth for cross-origin HF Space)
+    if (_authToken) {
+      config.headers['Authorization'] = `Bearer ${_authToken}`
+    }
     return config
   })
   instance.interceptors.response.use(
@@ -63,8 +80,12 @@ function _attachInterceptors(instance) {
         }
         _isRefreshing = true
         try {
-          const res = await axios.post(`${BASE}/api/refresh`, {}, { withCredentials: true })
+          const res = await axios.post(`${BASE}/api/refresh`, {}, {
+            headers: _authToken ? { Authorization: `Bearer ${_authToken}` } : {},
+          })
+          const newToken = res.data?.access_token
           const newCsrf = res.data?.csrf_token
+          if (newToken) setAuthToken(newToken)
           if (newCsrf) setCsrfToken(newCsrf)
           _drainQueue(newCsrf)
           config._retried = true
@@ -173,8 +194,11 @@ export async function analyzeResultStream(payload, onUpdate, signal) {
   try {
     const res = await fetch(`${BASE}/analyze/stream`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': _csrfToken ?? '' },
-      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': _csrfToken ?? '',
+        ...(_authToken ? { 'Authorization': `Bearer ${_authToken}` } : {}),
+      },
       body: JSON.stringify(withAIPrefs(payload)),
       signal,
     })
@@ -506,8 +530,11 @@ export async function generateExamStream(topicFocus, difficulty = 'medium', coun
   try {
     const res = await fetch(`${BASE}/generate-exam/stream`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': _csrfToken ?? '' },
-      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': _csrfToken ?? '',
+        ...(_authToken ? { 'Authorization': `Bearer ${_authToken}` } : {}),
+      },
       body: JSON.stringify({ topic_focus: topicFocus, difficulty, count }),
       signal,
     })

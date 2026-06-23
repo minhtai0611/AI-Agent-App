@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
-import { googleSignIn, emailLogin as apiEmailLogin, emailRegister as apiEmailRegister, getMe, postHistory, setLogoutRef, setRefreshUserRef, setCreditRefs, setCsrfToken, updateProfile as apiUpdateProfile, deleteAccount as apiDeleteAccount, deactivateAccount as apiDeactivateAccount, reactivateAccount as apiReactivateAccount, upsertDevice } from '../api/aiClient'
+import { googleSignIn, emailLogin as apiEmailLogin, emailRegister as apiEmailRegister, getMe, postHistory, setLogoutRef, setRefreshUserRef, setCreditRefs, setCsrfToken, setAuthToken, initAuthToken, updateProfile as apiUpdateProfile, deleteAccount as apiDeleteAccount, deactivateAccount as apiDeactivateAccount, reactivateAccount as apiReactivateAccount, upsertDevice } from '../api/aiClient'
 import axios from 'axios'
 import { getDeviceId, getDeviceLabel, getLocation } from '../utils/deviceInfo'
 
@@ -10,20 +10,23 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const resetToLocalRef = useRef(null)
 
-  // On mount: restore session from HttpOnly cookie via GET /users/me
+  // On mount: restore Bearer token from localStorage, then fetch session
   useEffect(() => {
+    initAuthToken()
     const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
     getMe().then(({ data, error }) => {
       if (error || !data) {
-        // Try a silent refresh in case the access cookie expired
+        // Try a silent refresh in case the access token expired
         axios.post(`${BASE}/api/refresh`, {}, { withCredentials: true })
           .then(res => {
+            const newToken = res.data?.access_token
             const newCsrf = res.data?.csrf_token
+            if (newToken) setAuthToken(newToken)
             if (newCsrf) setCsrfToken(newCsrf)
             return getMe()
           })
           .then(({ data: d2 }) => {
-            if (d2) { setCsrfToken(d2.csrf_token); setUser(d2) }
+            if (d2) { if (d2.csrf_token) setCsrfToken(d2.csrf_token); setUser(d2) }
           })
           .catch(() => {})
           .finally(() => setLoading(false))
@@ -54,7 +57,10 @@ export function AuthProvider({ children }) {
     const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
     const id = setInterval(() => {
       axios.post(`${BASE}/api/refresh`, {}, { withCredentials: true })
-        .then(res => { if (res.data?.csrf_token) setCsrfToken(res.data.csrf_token) })
+        .then(res => {
+          if (res.data?.access_token) setAuthToken(res.data.access_token)
+          if (res.data?.csrf_token) setCsrfToken(res.data.csrf_token)
+        })
         .catch(() => {})
     }, 45 * 60 * 1000)
     return () => clearInterval(id)
@@ -80,6 +86,7 @@ export function AuthProvider({ children }) {
     const { data, error } = await googleSignIn(credential, pendingRef)
     if (error || !data) throw new Error(error || 'Đăng nhập thất bại')
 
+    if (data.access_token) setAuthToken(data.access_token)
     if (data.csrf_token) setCsrfToken(data.csrf_token)
 
     // Fetch full profile (includes grade, province, credits, tier, etc.)
@@ -128,6 +135,7 @@ export function AuthProvider({ children }) {
   async function emailLogin(email, password) {
     const { data, error } = await apiEmailLogin(email, password)
     if (error || !data) throw new Error(error || 'Đăng nhập thất bại')
+    if (data.access_token) setAuthToken(data.access_token)
     if (data.csrf_token) setCsrfToken(data.csrf_token)
     const { data: profile } = await getMe()
     if (profile?.csrf_token) setCsrfToken(profile.csrf_token)
@@ -187,9 +195,9 @@ export function AuthProvider({ children }) {
     const uid = user?.id
     const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
     // Clear cookies server-side (fire-and-forget — don't block UI)
-    axios.post(`${BASE}/api/logout`, {}, { withCredentials: true }).catch(() => {})
+    axios.post(`${BASE}/api/logout`, {}).catch(() => {})
     setCsrfToken(null)
-    localStorage.removeItem('auth_token')  // remove legacy token if still present
+    setAuthToken(null)
     localStorage.removeItem('offline_queue_size')
     // Clear user-namespaced keys so next user gets a clean slate
     if (uid) {

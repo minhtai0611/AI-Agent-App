@@ -2457,7 +2457,7 @@ async def api_refresh(request: Request, response: Response, pool=Depends(get_poo
     # Rotate: revoke old, issue new
     await pool.execute("UPDATE refresh_tokens SET is_revoked=1 WHERE id=$1", row["id"])
     access_token, csrf_token = await _issue_session(pool, response, row["user_id"])
-    return {"csrf_token": csrf_token}
+    return {"csrf_token": csrf_token, "access_token": access_token}
 
 
 @app.post("/api/logout")
@@ -2544,9 +2544,10 @@ async def auth_google(body: GoogleAuthRequest, response: Response, pool=Depends(
                 except Exception:
                     pass  # UNIQUE constraint violation = already processed
 
-    _, csrf_token = await _issue_session(pool, response, row["id"])
+    access_token, csrf_token = await _issue_session(pool, response, row["id"])
     return {
         "csrf_token": csrf_token,
+        "access_token": access_token,
         "user": {
             "id": row["id"],
             "email": row["email"],
@@ -2670,9 +2671,10 @@ async def auth_email_verify(body: EmailVerifyRequest, response: Response, pool=D
         "SELECT id, email, display_name, avatar_url, custom_display_name FROM users WHERE id=$1",
         row["user_id"],
     )
-    _, csrf_token = await _issue_session(pool, response, user["id"])
+    access_token, csrf_token = await _issue_session(pool, response, user["id"])
     return {
         "csrf_token": csrf_token,
+        "access_token": access_token,
         "user": {
             "id": user["id"],
             "email": user["email"],
@@ -2713,9 +2715,10 @@ async def auth_email_login(body: EmailLoginRequest, request: Request, response: 
     if user["is_suspended"]:
         raise HTTPException(403, detail="account_suspended")
 
-    _, csrf_token = await _issue_session(pool, response, user["id"])
+    access_token, csrf_token = await _issue_session(pool, response, user["id"])
     return {
         "csrf_token": csrf_token,
+        "access_token": access_token,
         "user": {
             "id": user["id"],
             "email": email,
