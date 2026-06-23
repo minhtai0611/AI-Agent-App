@@ -585,7 +585,7 @@ function SecurityEventsTab({ adminKey }) {
               </div>
             </div>
           ))}
-        </div>
+        </Card>
       )}
     </div>
   )
