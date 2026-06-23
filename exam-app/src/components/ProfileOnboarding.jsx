@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 
 import { useAuth } from '../context/AuthContext.jsx'
+import { Button } from './ui/button.jsx'
 
 const GRADES = [
   { value: '9', label: 'Lớp 9 trở xuống', sub: 'Thi vào lớp 10' },
@@ -81,18 +82,13 @@ export default function ProfileOnboarding({ onDone }) {
             <p className="font-sans text-xs text-destructive">{error}</p>
           )}
 
-          <button
+          <Button
             type="submit"
             disabled={!canSubmit}
-            className="w-full py-3 rounded-xl font-sans text-sm font-bold transition"
-            style={{
-              background: canSubmit ? 'var(--primary)' : 'var(--border)',
-              color: canSubmit ? 'var(--primary-fg)' : 'var(--fg-tertiary)',
-              cursor: canSubmit ? 'pointer' : 'not-allowed',
-            }}
+            className="w-full py-3 font-bold text-sm"
           >
             {saving ? 'Đang lưu...' : 'Bắt đầu →'}
-          </button>
+          </Button>
         </form>
       </motion.div>
     </div>

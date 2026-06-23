@@ -182,7 +182,7 @@ export default function ErrorAnalysis() {
                     />
                     <YAxis tick={{ fontSize: 10, fill: 'var(--dim)' }} />
                     <Tooltip
-                      contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontFamily: 'Inter, sans-serif', fontSize: 12 }}
+                      contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontFamily: 'Sora, sans-serif', fontSize: 12 }}
                       labelFormatter={topicLabel}
                     />
                     <Legend wrapperStyle={{ fontFamily: 'Sora, sans-serif', fontSize: 11 }} />

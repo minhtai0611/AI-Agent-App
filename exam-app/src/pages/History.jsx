@@ -91,7 +91,7 @@ export default function History() {
                       <XAxis dataKey="date" tick={{ fill: 'var(--dim)', fontSize: 10, fontFamily: 'Sora, sans-serif' }} axisLine={false} tickLine={false} />
                       <YAxis domain={[0, 10]} tick={{ fill: 'var(--dim)', fontSize: 10 }} axisLine={false} tickLine={false} width={24} />
                       <Tooltip
-                        contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontFamily: 'Inter, sans-serif', fontSize: 12 }}
+                        contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontFamily: 'Sora, sans-serif', fontSize: 12 }}
                         labelStyle={{ color: 'var(--muted-fg)' }}
                         itemStyle={{ color: 'var(--warning)' }}
                       />

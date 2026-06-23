@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import { Button } from './ui/button.jsx'
 
 const COST_TABLE = [
   { action: '1 gợi ý AI',    cost: '1 lượt' },
@@ -42,12 +43,13 @@ export default function CreditsTooltip({ userId, creditsBalance, onDismiss }) {
           ))}
         </tbody>
       </table>
-      <button
+      <Button
+        variant="link"
         onClick={dismiss}
-        className="font-sans text-[12px] font-semibold text-primary text-left"
+        className="h-auto p-0 font-sans text-[12px] font-semibold justify-start"
       >
         Đã hiểu →
-      </button>
+      </Button>
     </div>
   )
 }

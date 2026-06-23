@@ -29,6 +29,7 @@ export default {
         dim:                 'var(--dim)',
         faint:               'var(--faint)',
         success:             'var(--success)',
+        warning:             'var(--warning)',
         destructive:         'var(--destructive)',
         info:                'var(--info)',
         purple:              'var(--purple)',

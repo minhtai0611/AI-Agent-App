@@ -1240,7 +1240,7 @@ export default function Results({ onOpenAuth }) {
               {analysis?._streaming && !analysis?._streaming_done && (
                 <div className="h-0.5 w-full rounded-full bg-border overflow-hidden -mb-2">
                   <motion.div
-                    className="h-full rounded-full bg-info/60"
+                    className="h-full rounded-full bg-primary/60"
                     initial={{ width: '5%' }}
                     animate={{ width: '85%' }}
                     transition={{ duration: 12, ease: 'easeOut' }}

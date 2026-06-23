@@ -5,6 +5,7 @@ import { pageVariants } from '../utils/animations.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { Button } from '../components/ui/button.jsx'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select.jsx'
 
 import { useHistory } from '../context/HistoryContext.jsx'
 import { computeStreak } from '../utils/streak.js'
@@ -341,15 +342,20 @@ export default function Landing({ onOpenAuth }) {
             <div className="flex flex-col items-center gap-2">
               <div className="flex items-center gap-2 mb-3" data-testid="province-selector-wrap">
                 <span className="font-sans text-[12px] text-dim">Tôi thi ở:</span>
-                <select
-                  value={guestProvince}
-                  onChange={handleProvinceChange}
-                  data-testid="province-selector"
-                  className="font-sans text-[12px] border border-border rounded-lg px-2 py-1 bg-surface text-foreground"
+                <Select
+                  value={guestProvince || undefined}
+                  onValueChange={v => handleProvinceChange({ target: { value: v } })}
                 >
-                  <option value="">Chọn tỉnh...</option>
-                  {VN_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
+                  <SelectTrigger
+                    data-testid="province-selector"
+                    className="h-auto py-1 px-2 font-sans text-[12px] w-auto min-w-[120px]"
+                  >
+                    <SelectValue placeholder="Chọn tỉnh..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {VN_PROVINCES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex items-center gap-3">
                 <motion.button onClick={() => navigate('/practice/diagnostic')}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getPendingCount } from '../utils/offlineSync'
+import { Button } from './ui/button.jsx'
 
 export default function OfflineBanner() {
   const [online, setOnline] = useState(navigator.onLine)
@@ -41,11 +42,12 @@ export default function OfflineBanner() {
       <span className="font-sans text-[12px] text-primary/80">
         Không có mạng — tính năng AI không khả dụng · Đề thi vẫn hoạt động bình thường
       </span>
-      <button
+      <Button
+        variant="ghost"
         onClick={() => setDismissed(true)}
-        className="text-dim hover:text-muted text-lg leading-none ml-3 flex-shrink-0"
+        className="text-dim hover:text-muted ml-3 flex-shrink-0 h-auto p-0 text-lg leading-none"
         aria-label="Đóng"
-      >×</button>
+      >×</Button>
     </div>
   )
 }

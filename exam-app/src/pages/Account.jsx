@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button.jsx'
+import { Input } from '../components/ui/input.jsx'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   RadarChart, PolarGrid, PolarAngleAxis, Radar,
@@ -1067,7 +1069,7 @@ export default function Account() {
                     </div>
                     <div className="w-full h-2 bg-border rounded-full overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-info transition-all duration-700"
+                        className="h-full rounded-full bg-primary transition-all duration-700"
                         style={{ width: `${Math.round(masteryProgress.pct * 100)}%` }}
                       />
                     </div>
@@ -1089,22 +1091,20 @@ export default function Account() {
               {/* Edit form (province only — grade has its own section below) */}
               {editMode ? (
                 <div className="flex flex-col gap-3">
-                  <input
-                    className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground focus:outline-none focus:border-[var(--accent-border)]"
+                  <Input
+                    className="h-auto py-2.5 px-4 rounded-xl bg-surface-elevated font-sans text-[0.8125rem]"
                     placeholder="Tỉnh / Thành phố"
                     value={editProvince}
                     onChange={e => setEditProvince(e.target.value)}
                   />
                   {saveError && <p className="font-sans text-xs text-destructive">{saveError}</p>}
                   <div className="flex gap-2">
-                    <button onClick={handleSaveProfile} disabled={saving}
-                      className="px-5 py-2 rounded-lg font-sans text-[0.8125rem] font-bold transition bg-primary text-primary-fg">
+                    <Button onClick={handleSaveProfile} disabled={saving} className="font-bold text-[0.8125rem]">
                       {saving ? 'Đang lưu...' : 'Lưu'}
-                    </button>
-                    <button onClick={() => { setEditMode(false); setSaveError('') }}
-                      className="px-5 py-2 rounded-lg font-sans text-[0.8125rem] text-dim hover:text-foreground transition">
+                    </Button>
+                    <Button variant="ghost" onClick={() => { setEditMode(false); setSaveError('') }} className="text-[0.8125rem]">
                       Huỷ
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ) : (
@@ -1430,7 +1430,7 @@ export default function Account() {
                     <span className="font-sans text-xs text-muted">{nextMilestone.progress}</span>
                     <div className="w-full h-1.5 bg-border rounded-full overflow-hidden mt-0.5">
                       <div
-                        className="h-full rounded-full bg-info transition-all duration-700"
+                        className="h-full rounded-full bg-primary transition-all duration-700"
                         style={{ width: `${Math.round(nextMilestone.pct * 100)}%` }}
                       />
                     </div>
@@ -1793,7 +1793,7 @@ export default function Account() {
                               <div className="flex-1 h-1.5 bg-border rounded-full overflow-hidden">
                                 <div
                                   className="h-full rounded-full transition-all duration-500"
-                                  style={{ width: `${Math.round((node.mastery ?? 0) * 100)}%`, background: '#EF4444' }}
+                                  style={{ width: `${Math.round((node.mastery ?? 0) * 100)}%`, background: 'var(--mastery-1)' }}
                                 />
                               </div>
                               <span className="font-sans text-[0.625rem] text-destructive font-semibold flex-shrink-0">
@@ -2490,19 +2490,23 @@ export default function Account() {
               {reminderEnabled && (
                 <div className="flex items-center gap-3 pt-1">
                   <span className="font-sans text-xs text-muted">Giờ nhắc nhở:</span>
-                  <select
-                    value={reminderHour}
-                    onChange={e => {
-                      const h = parseInt(e.target.value, 10)
+                  <Select
+                    value={String(reminderHour)}
+                    onValueChange={v => {
+                      const h = parseInt(v, 10)
                       setReminderHour(h)
-                      localStorage.setItem('study_reminder_hour', String(h))
+                      localStorage.setItem('study_reminder_hour', v)
                     }}
-                    className="px-3 py-1.5 rounded-lg border border-border bg-surface-elevated font-sans text-xs text-foreground focus:outline-none focus:border-[var(--accent-border)]/60"
                   >
-                    {Array.from({ length: 18 }, (_, i) => i + 6).map(h => (
-                      <option key={h} value={h}>{h}:00</option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="h-auto py-1.5 px-3 font-sans text-xs w-auto min-w-[80px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 18 }, (_, i) => i + 6).map(h => (
+                        <SelectItem key={h} value={String(h)}>{h}:00</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
             </section>

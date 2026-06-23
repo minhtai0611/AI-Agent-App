@@ -292,15 +292,15 @@ export default function AIInsights({ analysis, loading, error, score, onRetry })
                   algebra: '#6366F1', geometry: '#10B981', calculus: '#F59E0B',
                   probability: '#EC4899', statistics: '#3B82F6', trigonometry: '#8B5CF6',
                 }
-                const color = TOPIC_COLORS_MAP[c.topic] || '#64748B'
+                const color = TOPIC_COLORS_MAP[c.topic] || 'var(--muted-fg)'
                 return (
                   <div
                     key={c.id}
                     className="flex items-center gap-3 px-3 py-2.5"
                     style={{ borderBottom: i < analysis.concept_gaps.length - 1 ? '1px solid var(--border)' : 'none', background: c.is_target ? 'color-mix(in srgb, var(--surface) 85%, transparent)' : 'transparent' }}
                   >
-                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: c.is_target ? color : '#334155', border: `1.5px solid ${color}` }} />
-                    <span className="font-sans text-[12px] flex-1" style={{ color: c.is_target ? '#F0F4FF' : '#64748B' }}>
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: c.is_target ? color : 'var(--border)', border: `1.5px solid ${color}` }} />
+                    <span className="font-sans text-[12px] flex-1" style={{ color: c.is_target ? 'var(--foreground)' : 'var(--muted-fg)' }}>
                       {c.name_vi}
                     </span>
                     <span className="font-sans text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ background: `${color}22`, color }}>

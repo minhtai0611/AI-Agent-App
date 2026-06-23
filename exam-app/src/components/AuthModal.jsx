@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../context/AuthContext'
 import { emailForgot, emailResendVerify } from '../api/aiClient'
+import { Input } from './ui/input.jsx'
+import { Button } from './ui/button.jsx'
 
 // Password strength: returns 0–4
 function calcStrength(pw) {
@@ -166,31 +168,30 @@ export default function AuthModal({ open, onClose }) {
               </div>
             ) : (
               <form onSubmit={handleEmailSubmit} className="flex flex-col gap-3">
-                <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
+                <Input type="email" required value={email} onChange={e => setEmail(e.target.value)}
                   placeholder="Email" autoComplete="email"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background font-sans text-[13px] text-foreground placeholder:text-dim focus:outline-none focus:border-primary transition" />
+                  className="h-auto py-2.5 px-3.5 rounded-xl bg-background font-sans text-[13px] placeholder:text-dim" />
 
                 {emailMode !== 'forgot' && (
-                  <input type="password" required value={password} onChange={e => setPassword(e.target.value)}
+                  <Input type="password" required value={password} onChange={e => setPassword(e.target.value)}
                     placeholder="Mật khẩu" autoComplete={emailMode === 'register' ? 'new-password' : 'current-password'}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background font-sans text-[13px] text-foreground placeholder:text-dim focus:outline-none focus:border-primary transition" />
+                    className="h-auto py-2.5 px-3.5 rounded-xl bg-background font-sans text-[13px] placeholder:text-dim" />
                 )}
 
                 {emailMode === 'register' && (
                   <>
                     <PasswordStrengthBar password={password} />
-                    <input type="password" required value={confirmPw} onChange={e => setConfirmPw(e.target.value)}
+                    <Input type="password" required value={confirmPw} onChange={e => setConfirmPw(e.target.value)}
                       placeholder="Xác nhận mật khẩu" autoComplete="new-password"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background font-sans text-[13px] text-foreground placeholder:text-dim focus:outline-none focus:border-primary transition" />
+                      className="h-auto py-2.5 px-3.5 rounded-xl bg-background font-sans text-[13px] placeholder:text-dim" />
                   </>
                 )}
 
                 {error && <p className="font-sans text-destructive text-[12px]">{error}</p>}
 
-                <button type="submit" disabled={loading}
-                  className="w-full py-2.5 rounded-xl font-sans text-[13px] font-bold bg-primary text-primary-fg hover:opacity-90 disabled:opacity-50 transition">
+                <Button type="submit" disabled={loading} className="w-full font-bold text-[13px]">
                   {loading ? 'Đang xử lý…' : emailMode === 'register' ? 'Tạo tài khoản' : emailMode === 'forgot' ? 'Gửi link đặt lại' : 'Đăng nhập'}
-                </button>
+                </Button>
 
                 {/* Mode toggle links */}
                 <div className="flex items-center justify-between pt-1">
