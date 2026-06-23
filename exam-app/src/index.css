@@ -153,13 +153,13 @@
   --border:            #1E2740;
   --border-subtle:     #252E47;
 
-  --muted:             #3D4F6E;
-  --muted-fg:          #8194B3;
+  --muted:             #8194B3;  /* WCAG fix: readable secondary text (6.65:1 on bg) */
+  --muted-fg:          #3D4F6E;  /* very dim/inactive — non-critical tertiary UI only */
   --dim:               #A0B3CF;
   --faint:             #B8C8DC;
 
-  --fg-secondary:      var(--muted-fg);
-  --fg-tertiary:       var(--muted);
+  --fg-secondary:      var(--muted);     /* #8194B3 — readable secondary text */
+  --fg-tertiary:       var(--muted-fg);  /* #3D4F6E — truly dim/inactive states */
   --fg-disabled:       #1E2740;
   --surface-raised:    var(--surface-elevated);
 

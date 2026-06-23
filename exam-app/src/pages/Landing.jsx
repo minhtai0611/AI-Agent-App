@@ -334,10 +334,7 @@ export default function Landing({ onOpenAuth }) {
               <span className="text-info text-base select-none flex-shrink-0">✦</span>
               <input name="query" placeholder="Nhập bài toán cần giải..."
                 className="flex-1 bg-transparent font-sans text-[15px] text-foreground placeholder-dim outline-none min-w-0" />
-              <button type="submit"
-                className="flex-shrink-0 px-4 py-1.5 rounded-lg bg-info text-white font-sans text-[13px] font-semibold hover:bg-info/80 transition">
-                Hỏi →
-              </button>
+              <Button type="submit" size="sm" className="flex-shrink-0 font-semibold text-[13px]">Hỏi →</Button>
             </form>
             <div className="flex flex-col items-center gap-2">
               <div className="flex items-center gap-2 mb-3" data-testid="province-selector-wrap">

@@ -1260,10 +1260,9 @@ export default function Account() {
                       <span className="font-sans text-[0.8125rem] font-semibold text-foreground">So sánh với tỉnh thành</span>
                       <span className="font-sans text-[0.6875rem] text-dim">Xem bạn đứng ở vị trí nào so với học sinh cùng tỉnh · 30 ngày qua</span>
                     </div>
-                    <button onClick={handleCompareProvince} disabled={provinceLoading}
-                      className="flex-shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold disabled:opacity-60 transition bg-info text-white">
+                    <Button onClick={handleCompareProvince} disabled={provinceLoading} size="sm" className="flex-shrink-0 font-bold text-xs">
                       {provinceLoading ? 'Đang tải...' : 'So sánh'}
-                    </button>
+                    </Button>
                   </div>
                   {provinceData && provinceNarrative && (
                     <div className="flex flex-col gap-3">
@@ -1923,12 +1922,10 @@ export default function Account() {
                     </span>
                   ))}
                 </div>
-                <button
-                  onClick={() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="self-start px-5 py-2.5 rounded-xl font-sans text-[0.8125rem] font-bold transition bg-info text-white"
-                >
+                <Button onClick={() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="self-start font-bold text-[0.8125rem]">
                   {tierGap.ctaLabel} →
-                </button>
+                </Button>
               </section>
             )}
 

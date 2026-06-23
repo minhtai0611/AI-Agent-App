@@ -10,14 +10,6 @@ import { pruneStorage } from './utils/storageManager.js'
 
 pruneStorage()
 
-// Touch ripple: set --ripple-x/y CSS vars on click for .ripple-btn
-document.addEventListener('click', e => {
-  const btn = e.target.closest('.ripple-btn')
-  if (!btn) return
-  const rect = btn.getBoundingClientRect()
-  btn.style.setProperty('--ripple-x', `${e.clientX - rect.left}px`)
-  btn.style.setProperty('--ripple-y', `${e.clientY - rect.top}px`)
-}, { passive: true })
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

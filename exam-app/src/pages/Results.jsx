@@ -1276,12 +1276,10 @@ export default function Results({ onOpenAuth }) {
                   Bạn muốn ôn ngay <strong className="text-info">{getTopicLabel(analysis.weak_topics[0])}</strong> không?
                 </p>
                 <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => { setPracticeNudgeDismissed(true); navigate(`/practice/adaptive?topic=${analysis.weak_topics[0]}`) }}
-                    className="px-3 py-1.5 rounded-lg font-sans text-xs font-bold bg-info text-background hover:opacity-90 transition"
-                  >
+                  <Button size="sm" onClick={() => { setPracticeNudgeDismissed(true); navigate(`/practice/adaptive?topic=${analysis.weak_topics[0]}`) }}
+                    className="font-bold text-xs">
                     Ôn ngay →
-                  </button>
+                  </Button>
                   <button
                     onClick={() => setPracticeNudgeDismissed(true)}
                     className="font-sans text-xs text-dim hover:text-muted transition"
