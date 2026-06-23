@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { listVariants, itemVariants } from '../utils/animations.js'
 import confetti from 'canvas-confetti'
 import { useAuth } from '../context/AuthContext.jsx'
 import { Button } from '../components/ui/button.jsx'
@@ -891,21 +892,27 @@ export default function Home() {
                   </p>
                   <button
                     onClick={() => navigate('/mastery')}
-                    className="font-sans text-[11px] text-info hover:text-foreground transition-colors"
+                    className="font-sans text-[11px] text-primary hover:text-foreground transition-colors"
                   >
                     Xem bản đồ →
                   </button>
                 </div>
-                <div className="flex flex-col gap-1.5">
+                <motion.div
+                  className="flex flex-col gap-1.5"
+                  variants={listVariants}
+                  initial="hidden"
+                  animate="show"
+                >
                   {weakConcepts.map(c => (
-                    <WeakConceptCard
-                      key={c.id}
-                      concept={c}
-                      score={masteryMap[c.id]}
-                      onClick={() => navigate(`/practice/adaptive?topic=${c.topic}`)}
-                    />
+                    <motion.div key={c.id} variants={itemVariants}>
+                      <WeakConceptCard
+                        concept={c}
+                        score={masteryMap[c.id]}
+                        onClick={() => navigate(`/practice/adaptive?topic=${c.topic}`)}
+                      />
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
                 {!loading && weakConcepts.length === 0 && (
                   <p className="font-sans text-[12px] text-dim italic">Không có khái niệm yếu — tiếp tục luyện tập!</p>
                 )}

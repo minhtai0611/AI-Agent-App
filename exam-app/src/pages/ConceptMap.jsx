@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   ReactFlow, Background, Controls, MiniMap,
   useNodesState, useEdgesState, MarkerType,
@@ -61,8 +62,8 @@ function ConceptNode({ data }) {
         opacity: isLocked ? 0.6 : 1,
         boxShadow: data.selected
           ? `0 0 0 2px var(--accent)`
-          : isMastered
-          ? `0 0 8px 1px rgba(52,211,153,0.2)`
+          : (data.mastery_score ?? 0) >= 0.7
+          ? 'var(--shadow-glow)'
           : undefined,
         animation: isMastered ? 'masteryPulse 2.5s ease-in-out infinite' : undefined,
         position: 'relative',
@@ -314,8 +315,8 @@ export default function ConceptMap() {
     <div className="min-h-screen bg-surface flex flex-col">
       <style>{`
         @keyframes masteryPulse {
-          0%, 100% { box-shadow: 0 0 8px 1px rgba(52,211,153,0.2); }
-          50%       { box-shadow: 0 0 16px 4px rgba(52,211,153,0.4); }
+          0%, 100% { box-shadow: 0 0 0 1px rgba(91,143,240,0.25), 0 4px 16px rgba(91,143,240,0.15); }
+          50%       { box-shadow: 0 0 0 2px rgba(91,143,240,0.5), 0 4px 24px rgba(91,143,240,0.35); }
         }
       `}</style>
       {/* Header */}
@@ -395,8 +396,14 @@ export default function ConceptMap() {
         </div>
 
         {/* Detail panel */}
+        <AnimatePresence>
         {selectedConcept && (
-          <div className="w-72 border-l border-surface glass-base flex flex-col gap-4 p-5 overflow-y-auto">
+          <motion.div
+            className="w-72 border-l border-surface glass-base flex flex-col gap-4 p-5 overflow-y-auto"
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0, transition: { type: 'spring', stiffness: 280, damping: 24 } }}
+            exit={{ opacity: 0, x: 24, transition: { duration: 0.18 } }}
+          >
             <div className="flex items-start justify-between">
               <div>
                 <span className="font-sans text-[16px] font-bold text-foreground">
@@ -537,8 +544,9 @@ export default function ConceptMap() {
               className="w-full py-2 rounded-xl font-sans text-[12px] font-semibold transition border border-info/30 text-info hover:bg-info/10">
               Ôn tập câu hôm nay
             </button>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
     </div>
   )

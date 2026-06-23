@@ -506,7 +506,7 @@ export default function Landing({ onOpenAuth }) {
                 </div>
               </div>
               {feat.stat && (
-                <p className="font-sans font-bold" style={{ fontSize: 'clamp(1.75rem,4vw,2.5rem)', color: feat.accent }}>{feat.stat}</p>
+                <p className="font-mono font-bold" style={{ fontSize: 'clamp(1.75rem,4vw,2.5rem)', color: feat.accent }}>{feat.stat}</p>
               )}
               {feat.id === 'analysis' && feat.preview && (
                 <div className="flex flex-col gap-1.5 mt-1">

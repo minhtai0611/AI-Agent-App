@@ -450,30 +450,6 @@ body {
   background-size: 800px 100%;
 }
 
-/* ─── Touch Ripple (name-locked — main.jsx lines 18–19 set --ripple-x/y) ── */
-
-.ripple-btn {
-  position: relative;
-  overflow: hidden;
-}
-.ripple-btn::after {
-  content: '';
-  position: absolute;
-  width: 200%;
-  height: 200%;
-  top: calc(var(--ripple-y, 50%) - 100%);
-  left: calc(var(--ripple-x, 50%) - 100%);
-  background: rgba(59, 111, 232, 0.12);
-  border-radius: 50%;
-  transform: scale(0);
-  mix-blend-mode: multiply;
-  pointer-events: none;
-}
-.ripple-btn:active::after {
-  transform: scale(1);
-  opacity: 0;
-  transition: transform 0.4s ease, opacity 0.4s ease;
-}
 
 /* ─── Utility: Exam content protection ───────────────────────────────────── */
 
