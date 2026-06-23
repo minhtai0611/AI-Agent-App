@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
-import CountUp from 'react-countup'
 import confetti from 'canvas-confetti'
+import { Button } from '../components/ui/button.jsx'
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { NumberTicker } from '../components/ui/number-ticker.jsx'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
-import { pageVariants, viewNavigate } from '../utils/animations.js'
+import { pageVariants, viewNavigate, cardHover } from '../utils/animations.js'
 import AchievementCeremony from '../components/AchievementCeremony.jsx'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
@@ -44,6 +45,7 @@ const _listVariants = {
 const _itemVariants = {
   hidden:  { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.28, ease: 'easeOut' } },
+  hover:   cardHover.hover,
 }
 
 function parseSchoolsFromText(text) {
@@ -79,6 +81,7 @@ function SchoolCard({ school, studentScore }) {
     <motion.div
       ref={ref}
       variants={_itemVariants}
+      whileHover="hover"
       className="rounded-xl glass-base p-4 flex flex-col gap-2"
     >
       <div className="flex items-start justify-between gap-2">
@@ -101,7 +104,7 @@ function SchoolCard({ school, studentScore }) {
       {matchRatio !== null && (
         <div className="h-1 rounded-full bg-border overflow-hidden">
           <motion.div
-            className="h-full rounded-full bg-info origin-left"
+            className="h-full rounded-full bg-primary origin-left"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: inView ? matchRatio : 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -190,9 +193,10 @@ function pctColor(acc) {
 }
 
 function arcColor(score) {
-  if (score >= 8) return 'var(--success)'
-  if (score >= 5) return 'var(--warning)'
-  return 'var(--destructive)'
+  if (score >= 9) return 'var(--mastery-5)'
+  if (score >= 7.5) return 'var(--mastery-4)'
+  if (score >= 5) return 'var(--mastery-3)'
+  return 'var(--mastery-1)'
 }
 
 function scoreLabel(score) {
@@ -830,7 +834,7 @@ export default function Results({ onOpenAuth }) {
                       particleCount: score >= 9 ? 300 : 150,
                       spread: 70,
                       origin: { x: 0.5, y: 0.25 },
-                      colors: ['#22c55e', '#3b82f6', '#f59e0b', '#a855f7'],
+                      colors: ['#3B6FE8', '#7C5CE8', '#059669', '#5B8FF0'],
                       ticks: 300, scalar: 1.2,
                     })
                   }
@@ -838,7 +842,7 @@ export default function Results({ onOpenAuth }) {
               />
               <foreignObject x="20" y="38" width="80" height="40">
                 <div xmlns="http://www.w3.org/1999/xhtml"
-                  style={{ fontFamily: 'Fraunces, Georgia, serif', fontSize: 26, fontWeight: 700, color, textAlign: 'center', lineHeight: '40px' }}>
+                  style={{ fontFamily: '"DM Mono", monospace', fontSize: 26, fontWeight: 700, color, textAlign: 'center', lineHeight: '40px' }}>
                   <NumberTicker value={score} startValue={0} decimalPlaces={1} duration={scoreInView ? 1500 : 0} />
                 </div>
               </foreignObject>
@@ -981,29 +985,30 @@ export default function Results({ onOpenAuth }) {
         )}
 
         {/* ── Tab bar ── */}
-        <div className="flex border-b border-border">
-          {TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className="relative px-4 py-2.5 font-sans text-[0.8125rem] font-medium transition-colors flex items-center gap-1"
-              style={{ color: activeTab === tab.id ? 'var(--primary)' : 'var(--muted-fg)' }}
-            >
-              {tab.label}
-              {tab.loading && (
-                <span className="ml-1 inline-block w-3 h-3 rounded-full border-2 animate-spin flex-shrink-0"
-                  style={{ borderColor: 'var(--info)', borderTopColor: 'transparent' }} />
-              )}
-              {activeTab === tab.id && (
-                <motion.div
-                  layoutId="results-tab-indicator"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
-                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                />
-              )}
-            </button>
-          ))}
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="w-full justify-start h-auto rounded-none bg-transparent border-b border-border p-0">
+            {TABS.map(tab => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className="relative px-4 py-2.5 font-sans text-[0.8125rem] font-medium rounded-none bg-transparent h-auto flex items-center gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary data-[state=inactive]:text-muted-fg hover:text-foreground"
+              >
+                {tab.label}
+                {tab.loading && (
+                  <span className="ml-1 inline-block w-3 h-3 rounded-full border-2 animate-spin flex-shrink-0"
+                    style={{ borderColor: 'var(--info)', borderTopColor: 'transparent' }} />
+                )}
+                {activeTab === tab.id && (
+                  <motion.div
+                    layoutId="results-tab-indicator"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  />
+                )}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
         {/* ── Tab: Tổng quan ── */}
         {activeTab === 'overview' && (
@@ -1018,13 +1023,12 @@ export default function Results({ onOpenAuth }) {
                       <PolarGrid stroke="var(--border)" strokeOpacity={0.8} />
                       <PolarAngleAxis
                         dataKey="topic"
-                        tick={{ fontSize: topics.length > 8 ? 9 : 10, fill: 'var(--muted-fg)', fontFamily: 'Be Vietnam Pro, sans-serif' }}
+                        tick={{ fontSize: topics.length > 8 ? 9 : 10, fill: 'var(--muted-fg)', fontFamily: 'Sora, sans-serif' }}
                       />
                       <Radar
                         dataKey="score"
-                        stroke="var(--primary)"
-                        fill="var(--primary)"
-                        fillOpacity={0.18}
+                        stroke="rgba(91,143,240,0.6)"
+                        fill="rgba(91,143,240,0.15)"
                         strokeWidth={1.5}
                         dot={{ fill: 'var(--primary)', r: 3 }}
                       />
@@ -1071,12 +1075,13 @@ export default function Results({ onOpenAuth }) {
                   <span className="font-sans text-[0.6875rem] text-dim">Đề tiếp theo cho bạn</span>
                   <span className="font-sans text-sm font-semibold text-foreground truncate">{nextExam.title}</span>
                 </div>
-                <button
+                <Button
+                  size="sm"
+                  className="flex-shrink-0 text-xs font-bold"
                   onClick={() => navigate(`/test/${nextExam.id}`)}
-                  className="flex-shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold bg-primary text-primary-fg"
                 >
                   Bắt đầu →
-                </button>
+                </Button>
               </div>
             )}
 
@@ -1239,7 +1244,7 @@ export default function Results({ onOpenAuth }) {
               {analysis?._streaming && !analysis?._streaming_done && (
                 <div className="h-0.5 w-full rounded-full bg-border overflow-hidden -mb-2">
                   <motion.div
-                    className="h-full rounded-full bg-info/60"
+                    className="h-full rounded-full bg-primary/60"
                     initial={{ width: '5%' }}
                     animate={{ width: '85%' }}
                     transition={{ duration: 12, ease: 'easeOut' }}
@@ -1275,12 +1280,10 @@ export default function Results({ onOpenAuth }) {
                   Bạn muốn ôn ngay <strong className="text-info">{getTopicLabel(analysis.weak_topics[0])}</strong> không?
                 </p>
                 <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => { setPracticeNudgeDismissed(true); navigate(`/practice/adaptive?topic=${analysis.weak_topics[0]}`) }}
-                    className="px-3 py-1.5 rounded-lg font-sans text-xs font-bold bg-info text-background hover:opacity-90 transition"
-                  >
+                  <Button size="sm" onClick={() => { setPracticeNudgeDismissed(true); navigate(`/practice/adaptive?topic=${analysis.weak_topics[0]}`) }}
+                    className="font-bold text-xs">
                     Ôn ngay →
-                  </button>
+                  </Button>
                   <button
                     onClick={() => setPracticeNudgeDismissed(true)}
                     className="font-sans text-xs text-dim hover:text-muted transition"
@@ -1589,17 +1592,17 @@ export default function Results({ onOpenAuth }) {
                 <p className="font-sans text-[0.8125rem] text-destructive px-1">{studyPlanError}</p>
               )}
               {planReady ? (
-                <button
+                <Button
+                  className="w-full text-sm font-bold"
                   onClick={() => {
                     if (user?.id && result?.id) {
                       localStorage.setItem(`latest_study_plan_result_${user.id}`, result.id)
                     }
                     navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })
                   }}
-                  className="btn-primary w-full text-sm font-bold"
                 >
                   Xem kế hoạch học tập ⚡5 lượt hỏi AI
-                </button>
+                </Button>
               ) : (
                 <button
                   onClick={() => {

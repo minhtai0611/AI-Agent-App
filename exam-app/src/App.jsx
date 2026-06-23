@@ -18,6 +18,7 @@ import ScrollToTop from './components/ScrollToTop.jsx'
 import InstallPrompt from './components/InstallPrompt.jsx'
 import { OracleProvider } from './context/OracleContext.jsx'
 import { useToast } from './context/ToastContext.jsx'
+import { Toaster } from './components/ui/sonner.jsx'
 import OracleDrawer from './components/OracleDrawer.jsx'
 import {
   HomePageSkeleton, ExamSelectSkeleton, ResultsPageSkeleton,
@@ -323,6 +324,7 @@ export default function App() {
           <OracleProvider>
             <AppInner />
             <OracleDrawer />
+            <Toaster />
           </OracleProvider>
         </ExamProvider>
       </HistoryProvider>

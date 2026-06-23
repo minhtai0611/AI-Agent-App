@@ -316,7 +316,7 @@ function MathPreview({ text }) {
   )
 }
 
-const CONFIDENCE_COLOR = { high: '#10B981', medium: '#F2A20C', low: '#EF4444' }
+const CONFIDENCE_COLOR = { high: 'var(--mastery-4)', medium: 'var(--mastery-3)', low: 'var(--mastery-1)' }
 const CONFIDENCE_LABEL = { high: 'Có thể đúng', medium: 'Cần kiểm tra lại', low: 'Oracle không chắc' }
 
 const PART_HEADER_RE = /^\*\*Phần\s+[a-dA-D]\w*\)\*\*$/
@@ -723,7 +723,7 @@ function AnswerCard({ result, problem }) {
               )}
               {!result.wiki_assisted && (
                 <span className="font-sans text-[11px] font-semibold tracking-widest uppercase"
-                  style={{ color: '#6366F1', opacity: 0.7 }}>
+                  style={{ color: 'var(--accent)', opacity: 0.8 }}>
                   AI trực tiếp
                 </span>
               )}
@@ -760,7 +760,7 @@ function AnswerCard({ result, problem }) {
   )
 }
 
-const VERDICT_COLOR  = { correct: '#10B981', partial: '#F2A20C', incorrect: '#EF4444' }
+const VERDICT_COLOR  = { correct: 'var(--mastery-4)', partial: 'var(--mastery-3)', incorrect: 'var(--mastery-1)' }
 const VERDICT_LABEL  = { correct: 'Đúng',   partial: 'Một phần', incorrect: 'Sai' }
 
 function ReviewCard({ result, problem, solution }) {
@@ -1290,7 +1290,7 @@ export default function MathOracle() {
       {/* Ambient glow */}
       <div className="absolute pointer-events-none rounded-full opacity-40"
         style={{ width: 600, height: 400, left: '50%', top: 0, transform: 'translateX(-50%)',
-          background: 'radial-gradient(circle, #6366F118 0%, transparent 70%)' }} />
+          background: 'radial-gradient(circle, rgba(91,143,240,0.09) 0%, transparent 70%)' }} />
 
       {/* ── C3: Desktop history sidebar (lg+) ────────────────────────────── */}
       {history.length > 0 && (
@@ -1348,7 +1348,8 @@ export default function MathOracle() {
                 : <div className="w-1.5 h-1.5 rounded-full bg-faint" title="" />
             }
           </div>
-          <h1 className="font-sans text-[52px] font-bold text-foreground leading-none tracking-tight">
+          <h1 className="font-sans text-[52px] font-bold text-foreground leading-none tracking-tight flex items-center gap-3">
+            <span style={{ color: 'var(--accent)' }} className={loading ? 'animate-pulse' : ''}>✦</span>
             Toán Oracle
           </h1>
           <p className="font-sans text-[15px] text-dim leading-relaxed max-w-[480px]">
@@ -1474,7 +1475,7 @@ export default function MathOracle() {
           @keyframes spin { to { transform: rotate(360deg); } }
         `}</style>
         <form onSubmit={handleSolveForm} className="flex flex-col gap-3">
-          <div className="rounded-xl border border-surface bg-surface focus-within:border-info transition-colors overflow-hidden">
+          <div className="rounded-xl border border-surface bg-surface focus-within:border-[var(--primary-border)] focus-within:shadow-glow transition-all overflow-hidden">
             <textarea
               ref={textareaRef}
               value={question}
@@ -1491,10 +1492,10 @@ export default function MathOracle() {
               className={`oracle-textarea${ocring ? ' opacity-60 cursor-not-allowed' : ''}`}
               style={{
                 display: 'block', width: '100%', resize: 'none', overflow: 'hidden',
-                background: 'transparent', fontSize: 15,
+                background: 'transparent', fontSize: 15, minHeight: 52,
                 padding: '16px 20px 12px', boxSizing: 'border-box',
                 outline: 'none', border: 'none', lineHeight: 1.6,
-                fontFamily: "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif",
+                fontFamily: "'Sora', ui-sans-serif, system-ui, sans-serif",
               }}
             />
             <SymbolPalette onInsert={handleInsert} />
@@ -1506,7 +1507,7 @@ export default function MathOracle() {
                   title={listening ? 'Đang nghe...' : 'Nhập bằng giọng nói'}
                   onClick={startListening}
                   disabled={listening || ocring || loading}
-                  className={`p-1.5 transition disabled:opacity-40 ${listening ? 'text-red-400' : 'text-dim hover:text-muted'}`}
+                  className={`p-1.5 transition disabled:opacity-40 ${listening ? 'text-[var(--destructive)]' : 'text-dim hover:text-muted'}`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
@@ -1523,7 +1524,7 @@ export default function MathOracle() {
                   className="p-1.5 text-dim hover:text-muted disabled:opacity-40 transition"
                 >
                   {ocring
-                    ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid #475569', borderTopColor:'#94A3B8', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
+                    ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid var(--border)', borderTopColor:'var(--accent)', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
                     : <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                   }
                 </button>
@@ -1584,7 +1585,7 @@ export default function MathOracle() {
 
           {/* Solution textarea — only in review mode */}
           {chatMode === 'review' && (
-            <div className="rounded-xl border border-surface bg-surface focus-within:border-info transition-colors overflow-hidden">
+            <div className="rounded-xl border border-surface bg-surface focus-within:border-[var(--primary-border)] focus-within:shadow-glow transition-all overflow-hidden">
               <textarea
                 ref={solutionRef}
                 value={solution}
@@ -1598,7 +1599,7 @@ export default function MathOracle() {
                   background: 'transparent', fontSize: 15,
                   padding: '16px 20px 12px', boxSizing: 'border-box',
                   outline: 'none', border: 'none', lineHeight: 1.6,
-                  fontFamily: "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif",
+                  fontFamily: "'Sora', ui-sans-serif, system-ui, sans-serif",
                 }}
               />
               <div className="flex justify-end items-center gap-2 px-3 py-2 border-t border-surface">
@@ -1608,7 +1609,7 @@ export default function MathOracle() {
                     disabled={ocringS || loading}
                     className="p-1.5 text-dim hover:text-muted disabled:opacity-40 transition">
                     {ocringS
-                      ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid #475569', borderTopColor:'#94A3B8', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
+                      ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid var(--border)', borderTopColor:'var(--accent)', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
                       : <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                     }
                   </button>
@@ -1641,7 +1642,7 @@ export default function MathOracle() {
 
           {/* OCR solution low-confidence warning */}
           {ocrSolutionWarning && chatMode === 'review' && (
-            <p className="font-sans text-[11px] text-amber-400 flex items-center gap-1.5">
+            <p className="font-sans text-[11px] text-[var(--warning)] flex items-center gap-1.5">
               ⚠ Nhận diện ảnh có thể không chính xác — kiểm tra lại lời giải trước khi chấm
             </p>
           )}
@@ -1732,7 +1733,7 @@ export default function MathOracle() {
             ) : solvePhase ? (
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-3">
-                  <span style={{ display:'inline-block', width:12, height:12, border:'2px solid #334155', borderTopColor:'#64748B', borderRadius:'50%', animation:'spin 0.6s linear infinite', flexShrink:0 }} />
+                  <span style={{ display:'inline-block', width:12, height:12, border:'2px solid var(--border)', borderTopColor:'var(--accent)', borderRadius:'50%', animation:'spin 0.6s linear infinite', flexShrink:0 }} />
                   <span className="font-sans text-[14px] text-dim">
                     {SOLVE_PHASES.find(p => p.key === solvePhase)?.label ?? 'Đang xử lý…'}
                   </span>

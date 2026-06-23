@@ -1,7 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../context/AuthContext'
 import { emailForgot, emailResendVerify } from '../api/aiClient'
+import { Input } from './ui/input.jsx'
+import { Button } from './ui/button.jsx'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog.jsx'
+import { Tabs, TabsList, TabsTrigger } from './ui/tabs.jsx'
+import { Label } from './ui/label.jsx'
 
 // Password strength: returns 0–4
 function calcStrength(pw) {
@@ -43,9 +48,8 @@ export default function AuthModal({ open, onClose }) {
   const [confirmPw, setConfirmPw] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [registered, setRegistered] = useState(false)   // post-register success state
+  const [registered, setRegistered] = useState(false)
   const [forgotSent, setForgotSent] = useState(false)
-  const backdropRef = useRef(null)
 
   // Reset state on open/close
   useEffect(() => {
@@ -54,15 +58,6 @@ export default function AuthModal({ open, onClose }) {
       setConfirmPw(''); setError(null); setLoading(false); setRegistered(false); setForgotSent(false)
     }
   }, [open])
-
-  useEffect(() => {
-    if (!open) return
-    function onKey(e) { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [open, onClose])
-
-  if (!open) return null
 
   async function handleGoogleSuccess(credentialResponse) {
     setError(null); setLoading(true)
@@ -101,36 +96,39 @@ export default function AuthModal({ open, onClose }) {
 
   function switchMode(mode) { setEmailMode(mode); setError(null); setRegistered(false); setForgotSent(false) }
 
-  return (
-    <div
-      ref={backdropRef}
-      onClick={e => { if (e.target === backdropRef.current) onClose() }}
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}
-      role="dialog" aria-modal="true" aria-label="Đăng nhập"
-    >
-      <div className="bg-surface border border-border relative rounded-2xl p-8 flex flex-col gap-5 w-full max-w-sm shadow-xl">
-        {/* Close */}
-        <button onClick={onClose} aria-label="Đóng"
-          className="absolute top-3 right-4 text-dim hover:text-muted text-xl leading-none transition-colors">×</button>
+  const title = tab === 'google'
+    ? 'Đăng nhập'
+    : emailMode === 'register' ? 'Tạo tài khoản'
+    : emailMode === 'forgot' ? 'Quên mật khẩu'
+    : 'Đăng nhập'
 
-        {/* Header */}
-        <div className="flex flex-col gap-1">
-          <h2 className="font-sans font-semibold text-foreground text-[17px]">
-            {tab === 'google' ? 'Đăng nhập' : emailMode === 'register' ? 'Tạo tài khoản' : emailMode === 'forgot' ? 'Quên mật khẩu' : 'Đăng nhập'}
-          </h2>
-          <p className="font-sans text-dim text-[12px]">Lưu tiến trình và nhận phân tích AI cá nhân hóa.</p>
-        </div>
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="max-w-sm bg-surface p-8 flex flex-col gap-5">
+        <DialogHeader className="gap-1">
+          <DialogTitle className="font-sans font-semibold text-foreground text-[17px]">{title}</DialogTitle>
+          <DialogDescription className="font-sans text-dim text-[12px]">
+            Lưu tiến trình và nhận phân tích AI cá nhân hóa.
+          </DialogDescription>
+        </DialogHeader>
 
         {/* Tab switcher */}
-        <div className="flex gap-1 p-1 bg-background rounded-xl border border-border">
-          {['google', 'email'].map(t => (
-            <button key={t} onClick={() => { setTab(t); setError(null) }}
-              className={`flex-1 py-1.5 rounded-lg font-sans text-[12px] font-semibold transition ${tab === t ? 'bg-surface text-foreground shadow-xs' : 'text-dim hover:text-muted'}`}>
-              {t === 'google' ? 'Google' : 'Email'}
-            </button>
-          ))}
-        </div>
+        <Tabs value={tab} onValueChange={v => { setTab(v); setError(null) }}>
+          <TabsList className="w-full p-1 bg-background rounded-xl border border-border h-auto">
+            <TabsTrigger
+              value="google"
+              className="flex-1 py-1.5 rounded-lg font-sans text-[12px] font-semibold data-[state=active]:bg-surface data-[state=active]:text-foreground data-[state=active]:shadow-xs data-[state=inactive]:text-dim hover:text-muted"
+            >
+              Google
+            </TabsTrigger>
+            <TabsTrigger
+              value="email"
+              className="flex-1 py-1.5 rounded-lg font-sans text-[12px] font-semibold data-[state=active]:bg-surface data-[state=active]:text-foreground data-[state=active]:shadow-xs data-[state=inactive]:text-dim hover:text-muted"
+            >
+              Email
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {/* Google tab */}
         {tab === 'google' && (
@@ -166,31 +164,39 @@ export default function AuthModal({ open, onClose }) {
               </div>
             ) : (
               <form onSubmit={handleEmailSubmit} className="flex flex-col gap-3">
-                <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
-                  placeholder="Email" autoComplete="email"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background font-sans text-[13px] text-foreground placeholder:text-dim focus:outline-none focus:border-primary transition" />
+                <div>
+                  <Label htmlFor="auth-email" className="sr-only">Email</Label>
+                  <Input id="auth-email" type="email" required value={email} onChange={e => setEmail(e.target.value)}
+                    placeholder="Email" autoComplete="email"
+                    className="h-auto py-2.5 px-3.5 rounded-xl bg-background font-sans text-[13px] placeholder:text-dim" />
+                </div>
 
                 {emailMode !== 'forgot' && (
-                  <input type="password" required value={password} onChange={e => setPassword(e.target.value)}
-                    placeholder="Mật khẩu" autoComplete={emailMode === 'register' ? 'new-password' : 'current-password'}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background font-sans text-[13px] text-foreground placeholder:text-dim focus:outline-none focus:border-primary transition" />
+                  <div>
+                    <Label htmlFor="auth-password" className="sr-only">Mật khẩu</Label>
+                    <Input id="auth-password" type="password" required value={password} onChange={e => setPassword(e.target.value)}
+                      placeholder="Mật khẩu" autoComplete={emailMode === 'register' ? 'new-password' : 'current-password'}
+                      className="h-auto py-2.5 px-3.5 rounded-xl bg-background font-sans text-[13px] placeholder:text-dim" />
+                  </div>
                 )}
 
                 {emailMode === 'register' && (
                   <>
                     <PasswordStrengthBar password={password} />
-                    <input type="password" required value={confirmPw} onChange={e => setConfirmPw(e.target.value)}
-                      placeholder="Xác nhận mật khẩu" autoComplete="new-password"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background font-sans text-[13px] text-foreground placeholder:text-dim focus:outline-none focus:border-primary transition" />
+                    <div>
+                      <Label htmlFor="auth-confirm-password" className="sr-only">Xác nhận mật khẩu</Label>
+                      <Input id="auth-confirm-password" type="password" required value={confirmPw} onChange={e => setConfirmPw(e.target.value)}
+                        placeholder="Xác nhận mật khẩu" autoComplete="new-password"
+                        className="h-auto py-2.5 px-3.5 rounded-xl bg-background font-sans text-[13px] placeholder:text-dim" />
+                    </div>
                   </>
                 )}
 
                 {error && <p className="font-sans text-destructive text-[12px]">{error}</p>}
 
-                <button type="submit" disabled={loading}
-                  className="w-full py-2.5 rounded-xl font-sans text-[13px] font-bold bg-primary text-primary-fg hover:opacity-90 disabled:opacity-50 transition">
+                <Button type="submit" disabled={loading} className="w-full font-bold text-[13px]">
                   {loading ? 'Đang xử lý…' : emailMode === 'register' ? 'Tạo tài khoản' : emailMode === 'forgot' ? 'Gửi link đặt lại' : 'Đăng nhập'}
-                </button>
+                </Button>
 
                 {/* Mode toggle links */}
                 <div className="flex items-center justify-between pt-1">
@@ -210,7 +216,7 @@ export default function AuthModal({ open, onClose }) {
             )}
           </>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

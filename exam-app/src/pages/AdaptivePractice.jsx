@@ -298,7 +298,7 @@ export default function AdaptivePractice() {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center px-4">
         <div className="flex flex-col items-center gap-4 text-center max-w-sm">
-          <p className="font-sans text-[14px] text-red-400">{error}</p>
+          <p className="font-sans text-[14px] text-[var(--destructive)]">{error}</p>
           <div className="flex flex-wrap gap-3">
             <button onClick={() => setMode('static')}
               className="px-5 py-2 rounded-xl font-sans text-[13px] font-bold bg-primary text-background">

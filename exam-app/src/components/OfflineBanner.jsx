@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getPendingCount } from '../utils/offlineSync'
+import { Button } from './ui/button.jsx'
+import { Alert } from './ui/alert.jsx'
 
 export default function OfflineBanner() {
   const [online, setOnline] = useState(navigator.onLine)
@@ -27,25 +29,26 @@ export default function OfflineBanner() {
 
   if (syncing) {
     return (
-      <div className="fixed top-12 left-0 right-0 z-30 flex items-center gap-3 px-4 py-2 glass-base border-b border-success/20">
+      <Alert className="fixed top-12 left-0 right-0 z-30 flex items-center gap-3 px-4 py-2 rounded-none border-x-0 border-t-0 border-b border-success/20 glass-base">
         <span className="w-3 h-3 rounded-full border border-success border-t-transparent animate-spin flex-shrink-0" />
         <span className="font-sans text-[12px] text-success">Đã có mạng — đang đồng bộ kết quả...</span>
-      </div>
+      </Alert>
     )
   }
 
   if (online || dismissed) return null
 
   return (
-    <div className="fixed top-12 left-0 right-0 z-30 flex items-center justify-between px-4 py-2 glass-base border-b border-primary/20">
+    <Alert className="fixed top-12 left-0 right-0 z-30 flex items-center justify-between px-4 py-2 rounded-none border-x-0 border-t-0 border-b border-primary/20 glass-base">
       <span className="font-sans text-[12px] text-primary/80">
         Không có mạng — tính năng AI không khả dụng · Đề thi vẫn hoạt động bình thường
       </span>
-      <button
+      <Button
+        variant="ghost"
         onClick={() => setDismissed(true)}
-        className="text-dim hover:text-muted text-lg leading-none ml-3 flex-shrink-0"
+        className="text-dim hover:text-muted ml-3 flex-shrink-0 h-auto p-0 text-lg leading-none"
         aria-label="Đóng"
-      >×</button>
-    </div>
+      >×</Button>
+    </Alert>
   )
 }

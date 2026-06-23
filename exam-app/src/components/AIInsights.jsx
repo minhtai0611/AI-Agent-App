@@ -5,6 +5,7 @@ import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { ResultsInsightsSkeleton } from './Skeleton.jsx'
 import MarkdownProse from './MarkdownProse.jsx'
 import { useAuth } from '../context/AuthContext'
+import { Button } from './ui/button.jsx'
 
 // Renders streaming plain text with a CSS fade-in on each newly arrived chunk.
 // key={prevLen} on the new-text span forces a fresh DOM node each chunk, retriggering the animation.
@@ -292,15 +293,15 @@ export default function AIInsights({ analysis, loading, error, score, onRetry })
                   algebra: '#6366F1', geometry: '#10B981', calculus: '#F59E0B',
                   probability: '#EC4899', statistics: '#3B82F6', trigonometry: '#8B5CF6',
                 }
-                const color = TOPIC_COLORS_MAP[c.topic] || '#64748B'
+                const color = TOPIC_COLORS_MAP[c.topic] || 'var(--muted-fg)'
                 return (
                   <div
                     key={c.id}
                     className="flex items-center gap-3 px-3 py-2.5"
                     style={{ borderBottom: i < analysis.concept_gaps.length - 1 ? '1px solid var(--border)' : 'none', background: c.is_target ? 'color-mix(in srgb, var(--surface) 85%, transparent)' : 'transparent' }}
                   >
-                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: c.is_target ? color : '#334155', border: `1.5px solid ${color}` }} />
-                    <span className="font-sans text-[12px] flex-1" style={{ color: c.is_target ? '#F0F4FF' : '#64748B' }}>
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: c.is_target ? color : 'var(--border)', border: `1.5px solid ${color}` }} />
+                    <span className="font-sans text-[12px] flex-1" style={{ color: c.is_target ? 'var(--foreground)' : 'var(--muted-fg)' }}>
                       {c.name_vi}
                     </span>
                     <span className="font-sans text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ background: `${color}22`, color }}>
@@ -354,9 +355,9 @@ export default function AIInsights({ analysis, loading, error, score, onRetry })
             <p className="font-sans text-[0.75rem] text-muted leading-snug">{error}</p>
           )}
           {onRetry && (
-            <button onClick={onRetry} className="self-start font-sans text-[0.75rem] text-primary hover:underline">
+            <Button variant="ghost" size="sm" onClick={onRetry} className="self-start h-auto px-0 font-sans text-[0.75rem] text-primary hover:text-primary hover:bg-transparent underline-offset-2 hover:underline">
               Thử lại
-            </button>
+            </Button>
           )}
         </div>
       )}

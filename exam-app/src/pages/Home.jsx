@@ -1,8 +1,11 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { listVariants, itemVariants, cardHover } from '../utils/animations.js'
 import confetti from 'canvas-confetti'
 import { useAuth } from '../context/AuthContext.jsx'
+import { Button } from '../components/ui/button.jsx'
+import { Badge } from '../components/ui/badge.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { getSessionToday, getConceptMastery, predictScore } from '../api/aiClient.js'
 import { CONCEPTS } from '../data/concepts.js'
@@ -26,10 +29,10 @@ function scoreToStage(score) {
 }
 
 function masteryColorClass(score) {
-  if (!score || score === 0) return 'text-dim'
-  if (score < 0.4) return 'text-red-400'
-  if (score < 0.7) return 'text-[var(--accent)]'
-  return 'text-success'
+  if (!score || score === 0) return 'text-[var(--mastery-0)]'
+  if (score < 0.4) return 'text-[var(--mastery-1)]'
+  if (score < 0.7) return 'text-[var(--mastery-3)]'
+  return 'text-[var(--mastery-4)]'
 }
 
 function fmtScore(score) {
@@ -65,16 +68,17 @@ function ScorePredictionCard({ data, prevData, navigate }) {
     : `Luyện thêm 1 chủ đề yếu để cải thiện điểm số`
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-      className={`border rounded-xl p-4 flex flex-col gap-2 ${on_track ? 'border-success/30 bg-success/5' : 'border-amber-500/30 bg-amber-500/5'}`}
+      initial="hidden"
+      animate="rest"
+      variants={cardHover}
+      whileHover="hover"
+      className={`border rounded-xl p-4 flex flex-col gap-2 ${on_track ? 'border-success/30 bg-success/5' : 'border-[var(--warning)]/30 bg-[var(--warning)]/5'}`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-0.5 min-w-0">
           <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Dự đoán điểm</p>
           <div className="flex items-baseline gap-2">
-            <span className="font-sans text-[22px] font-bold text-foreground">{predicted?.toFixed(1)}</span>
+            <span className="font-mono text-[26px] font-bold text-foreground">{predicted?.toFixed(1)}</span>
             {lo != null && hi != null && (
               <span className="font-sans text-[11px] text-dim">({lo.toFixed(1)} – {hi.toFixed(1)})</span>
             )}
@@ -134,7 +138,7 @@ const FOCUS_CONFIGS = {
     description: null, // set dynamically
     cta: 'Xem phân tích AI',
     path: null, // set dynamically
-    accent: 'border-amber-500/30 bg-amber-500/5',
+    accent: 'border-[var(--warning)]/30 bg-[var(--warning)]/5',
   },
   practice: {
     eyebrow: 'Khái niệm cần luyện',
@@ -196,10 +200,12 @@ function DailyFocusCard({ action, loading, navigate, onDismiss, userName }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-      className="bg-surface border border-border rounded-xl p-5"
+      initial="hidden"
+      animate="rest"
+      variants={cardHover}
+      whileHover="hover"
+      className="bg-surface border border-border border-t-[var(--primary-border)] rounded-xl p-5"
+      style={{ borderTopWidth: '2px', borderTopColor: 'var(--primary-border)' }}
     >
       {(personalEyebrow || cfg.eyebrow) && (
         <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-muted mb-2">
@@ -216,19 +222,22 @@ function DailyFocusCard({ action, loading, navigate, onDismiss, userName }) {
         {cfg.description}
       </p>
       <div className="flex items-center gap-3">
-        <button
+        <Button
           onClick={() => cfg.path && navigate(cfg.path)}
-          className="px-5 py-2.5 rounded-lg font-sans text-[13px] font-semibold bg-primary text-primary-fg hover:opacity-90 active:opacity-80 transition"
+          size="lg"
+          className="text-[13px] font-semibold"
         >
           {cfg.cta} →
-        </button>
+        </Button>
         {onDismiss && action.type !== 'done' && (
-          <button
+          <Button
             onClick={onDismiss}
-            className="font-sans text-[12px] text-dim hover:text-muted transition"
+            variant="ghost"
+            size="sm"
+            className="text-[12px] text-dim"
           >
             Không phải bây giờ
-          </button>
+          </Button>
         )}
       </div>
     </motion.div>
@@ -247,7 +256,7 @@ function StatBox({ label, value, sub, loading }) {
         </>
       ) : (
         <>
-          <span className="font-sans text-[22px] font-bold text-foreground leading-none">{value}</span>
+          <span className="font-mono text-[22px] font-bold text-foreground leading-none">{value}</span>
           <span className="font-sans text-[11px] text-muted leading-tight">{label}</span>
           {sub && <span className="font-sans text-[10px] text-dim mt-0.5">{sub}</span>}
         </>
@@ -266,15 +275,18 @@ function WeakConceptCard({ concept, score, onClick }) {
       onClick={onClick}
       className="w-full text-left bg-surface border border-border rounded-lg px-3 py-2.5 hover:border-border-subtle transition-colors flex items-center justify-between gap-3 group"
     >
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="font-sans text-[12px] font-semibold text-foreground truncate group-hover:text-[var(--primary)] transition-colors">
           {concept.name_vi}
         </p>
-        <p className="font-sans text-[10px] text-dim">
-          Lớp {concept.grade} · {STAGE_LABELS[stage]}
-        </p>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <span className="font-sans text-[10px] text-dim">Lớp {concept.grade}</span>
+          <Badge variant={`mastery${stage}`} className="text-[9px] px-1.5 py-0 h-4">
+            {STAGE_LABELS[stage]}
+          </Badge>
+        </div>
       </div>
-      <span className={`font-sans text-[12px] font-bold shrink-0 tabular-nums ${masteryColorClass(score)}`}>
+      <span className={`font-mono text-[12px] font-bold shrink-0 tabular-nums ${masteryColorClass(score)}`}>
         {pct}%
       </span>
     </button>
@@ -287,13 +299,13 @@ function RecentExamCard({ result, navigate }) {
   if (!result) return null
   const exam = result.examId ? loadExamById(result.examId) : null
   const score = result.score ?? 0
-  const scoreColor = score >= 7 ? 'text-success' : score >= 5 ? 'text-[var(--accent)]' : 'text-red-400'
+  const scoreColor = score >= 7 ? 'text-[var(--mastery-4)]' : score >= 5 ? 'text-[var(--mastery-3)]' : 'text-[var(--mastery-1)]'
   const date = result.createdAt
     ? new Date(result.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
     : ''
 
   return (
-    <div className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3 h-full">
+    <motion.div variants={cardHover} initial="rest" whileHover="hover" className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3 h-full">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <p className="font-sans text-[10px] uppercase tracking-wider text-dim mb-0.5">
@@ -314,7 +326,7 @@ function RecentExamCard({ result, navigate }) {
       >
         Xem phân tích AI →
       </button>
-    </div>
+    </motion.div>
   )
 }
 
@@ -333,7 +345,7 @@ function ExamSparkline({ results }) {
   }).join(' ')
   const last = pts[pts.length - 1]?.score ?? 0
   const prev = pts[pts.length - 2]?.score ?? last
-  const trend = last > prev ? '#10B981' : last < prev ? '#FB7185' : '#818CF8'
+  const trend = last > prev ? 'var(--success)' : last < prev ? 'var(--destructive)' : 'var(--accent)'
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="shrink-0">
       <polyline points={points} fill="none" stroke={trend} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -406,9 +418,10 @@ function ProvinceBenchmarkCard({ user, results, navigate }) {
   const pctOfTop = Math.min(100, Math.round((avgScore / threshold.top) * 100))
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
+      initial="hidden"
+      animate="rest"
+      variants={cardHover}
+      whileHover="hover"
       className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3"
     >
       <div className="flex items-center justify-between">
@@ -461,13 +474,15 @@ function QuickLinks({ navigate }) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
       {QUICK_LINKS.map(l => (
-        <button
+        <Button
           key={l.path}
           onClick={() => navigate(l.path)}
-          className="px-3 py-1.5 rounded-lg bg-surface border border-border font-sans text-[12px] text-muted hover:text-foreground hover:border-border-subtle transition-colors"
+          variant="outline"
+          size="sm"
+          className="text-[12px]"
         >
           {l.label}
-        </button>
+        </Button>
       ))}
     </div>
   )
@@ -536,7 +551,7 @@ export default function Home() {
         particleCount: streak >= 14 ? 200 : 100,
         spread: 60,
         origin: { x: 0.5, y: 0.3 },
-        colors: ['#6366F1', '#818CF8', '#10B981', '#F59E0B'],
+        colors: ['#3B6FE8', '#7C5CE8', '#059669', '#5B8FF0'],
         ticks: 300,
       })
     }, 800)
@@ -696,7 +711,7 @@ export default function Home() {
       transition={{ duration: 0.2 }}
       className="min-h-screen bg-background"
     >
-      <div className="max-w-2xl mx-auto px-4 pt-8 pb-20 flex flex-col gap-5">
+      <div className="max-w-2xl mx-auto px-4 pt-8 pb-20 flex flex-col gap-8">
 
         {/* ── Header ── */}
         <div>
@@ -825,7 +840,7 @@ export default function Home() {
             ) : (
               <>
                 <div className="flex items-end justify-between gap-2">
-                  <span className="font-sans text-[22px] font-bold text-foreground leading-none">{results?.length ?? 0}</span>
+                  <span className="font-mono text-[22px] font-bold text-foreground leading-none">{results?.length ?? 0}</span>
                   {results?.length >= 2 && <ExamSparkline results={results} />}
                 </div>
                 <span className="font-sans text-[11px] text-muted leading-tight">Bài thi đã làm</span>
@@ -880,21 +895,27 @@ export default function Home() {
                   </p>
                   <button
                     onClick={() => navigate('/mastery')}
-                    className="font-sans text-[11px] text-info hover:text-foreground transition-colors"
+                    className="font-sans text-[11px] text-primary hover:text-foreground transition-colors"
                   >
                     Xem bản đồ →
                   </button>
                 </div>
-                <div className="flex flex-col gap-1.5">
+                <motion.div
+                  className="flex flex-col gap-1.5"
+                  variants={listVariants}
+                  initial="hidden"
+                  animate="show"
+                >
                   {weakConcepts.map(c => (
-                    <WeakConceptCard
-                      key={c.id}
-                      concept={c}
-                      score={masteryMap[c.id]}
-                      onClick={() => navigate(`/practice/adaptive?topic=${c.topic}`)}
-                    />
+                    <motion.div key={c.id} variants={itemVariants}>
+                      <WeakConceptCard
+                        concept={c}
+                        score={masteryMap[c.id]}
+                        onClick={() => navigate(`/practice/adaptive?topic=${c.topic}`)}
+                      />
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
                 {!loading && weakConcepts.length === 0 && (
                   <p className="font-sans text-[12px] text-dim italic">Không có khái niệm yếu — tiếp tục luyện tập!</p>
                 )}

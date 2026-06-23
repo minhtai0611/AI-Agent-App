@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   ReactFlow, Background, Controls, MiniMap,
   useNodesState, useEdgesState, MarkerType,
@@ -14,16 +15,16 @@ import { usePageMeta } from '../hooks/usePageMeta.js'
 
 // ── Mastery colour ────────────────────────────────────────────────────────────
 function masteryColor(score) {
-  if (score === 0 || score === undefined) return 'var(--border)'   // grey — never tried
-  if (score < 0.4) return '#7F1D1D'   // red
-  if (score < 0.7) return '#78350F'   // amber
-  return '#14532D'                     // green
+  if (score === 0 || score === undefined) return 'var(--border)'
+  if (score < 0.4) return 'var(--mastery-1-bg)'
+  if (score < 0.7) return 'var(--mastery-3-bg)'
+  return 'var(--mastery-4-bg)'
 }
 function masteryBorder(score) {
-  if (score === 0 || score === undefined) return '#334155'
-  if (score < 0.4) return '#EF4444'
-  if (score < 0.7) return '#F59E0B'
-  return '#22C55E'
+  if (score === 0 || score === undefined) return 'var(--border)'
+  if (score < 0.4) return 'var(--mastery-1)'
+  if (score < 0.7) return 'var(--mastery-3)'
+  return 'var(--mastery-4)'
 }
 
 // ── Dagre layout ──────────────────────────────────────────────────────────────
@@ -51,8 +52,8 @@ function ConceptNode({ data }) {
   return (
     <div
       style={{
-        background: isLocked ? '#1A1F2E' : masteryColor(data.mastery_score),
-        border: `1.5px solid ${isLocked ? '#2D3748' : masteryBorder(data.mastery_score)}`,
+        background: isLocked ? 'var(--surface)' : masteryColor(data.mastery_score),
+        border: `1.5px solid ${isLocked ? 'var(--border)' : masteryBorder(data.mastery_score)}`,
         borderRadius: 10,
         padding: '6px 10px',
         width: NODE_W,
@@ -60,9 +61,9 @@ function ConceptNode({ data }) {
         cursor: 'pointer',
         opacity: isLocked ? 0.6 : 1,
         boxShadow: data.selected
-          ? `0 0 0 2px #6366F1`
-          : isMastered
-          ? `0 0 8px 1px #10B98133`
+          ? `0 0 0 2px var(--accent)`
+          : (data.mastery_score ?? 0) >= 0.7
+          ? 'var(--shadow-glow)'
           : undefined,
         animation: isMastered ? 'masteryPulse 2.5s ease-in-out infinite' : undefined,
         position: 'relative',
@@ -74,16 +75,16 @@ function ConceptNode({ data }) {
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0, height: 3,
         borderRadius: '8px 8px 0 0',
-        background: isLocked ? '#2D3748' : (TOPIC_COLORS[data.topic] || '#64748B'),
+        background: isLocked ? 'var(--surface-elevated)' : (TOPIC_COLORS[data.topic] || 'var(--muted-fg)'),
         opacity: isLocked ? 0.3 : 0.75,
       }} />
       {isLocked && (
         <span style={{ position: 'absolute', top: 4, right: 6, fontSize: 10, opacity: 0.7 }}>🔒</span>
       )}
-      <div style={{ fontSize: Math.max(10, Math.min(13, size)), fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, color: isLocked ? '#64748B' : '#F0F4FF', lineHeight: 1.3, marginTop: 4 }}>
+      <div style={{ fontSize: Math.max(10, Math.min(13, size)), fontFamily: 'Sora, sans-serif', fontWeight: 600, color: isLocked ? 'var(--muted-fg)' : 'var(--foreground)', lineHeight: 1.3, marginTop: 4 }}>
         {data.name_vi}
       </div>
-      <div style={{ fontSize: 9, color: '#475569', fontFamily: 'Plus Jakarta Sans, sans-serif', marginTop: 2 }}>
+      <div style={{ fontSize: 9, color: 'var(--dim)', fontFamily: 'Sora, sans-serif', marginTop: 2 }}>
         Lớp {data.grade} · {isLocked ? 'Chưa mở khoá' : `${Math.round((data.mastery_score || 0) * 100)}%`}
       </div>
     </div>
@@ -223,7 +224,7 @@ export default function ConceptMap() {
       c.prerequisite_ids.forEach(prereqId => {
         if (filteredIds.has(prereqId)) {
           const srcTopic = filtered.find(x => x.id === prereqId)?.topic
-          const edgeColor = TOPIC_COLORS[srcTopic] || '#64748B'
+          const edgeColor = TOPIC_COLORS[srcTopic] || 'var(--muted-fg)'
           rawEdges.push({
             id: `${prereqId}->${c.id}`,
             source: prereqId,
@@ -274,17 +275,17 @@ export default function ConceptMap() {
       const isBlockingEdge = selectedIsLocked && e.target === selected
         && (masteryMap[e.source] ?? 0) < 0.7
       const srcTopic = CONCEPTS.find(x => x.id === e.source)?.topic
-      const topicColor = TOPIC_COLORS[srcTopic] || '#64748B'
+      const topicColor = TOPIC_COLORS[srcTopic] || 'var(--muted-fg)'
       return {
         ...e,
         style: isBlockingEdge
-          ? { stroke: '#EF4444', strokeWidth: 2.5, opacity: 1 }
+          ? { stroke: 'var(--mastery-1)', strokeWidth: 2.5, opacity: 1 }
           : inChain
-          ? { stroke: '#F59E0B', strokeWidth: 2.5, opacity: 1 }
+          ? { stroke: 'var(--mastery-3)', strokeWidth: 2.5, opacity: 1 }
           : { stroke: topicColor, strokeWidth: 1.5, opacity: 0.55 },
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          color: isBlockingEdge ? '#EF4444' : inChain ? '#F59E0B' : topicColor,
+          color: isBlockingEdge ? 'var(--mastery-1)' : inChain ? 'var(--mastery-3)' : topicColor,
         },
       }
     }))
@@ -314,8 +315,8 @@ export default function ConceptMap() {
     <div className="min-h-screen bg-surface flex flex-col">
       <style>{`
         @keyframes masteryPulse {
-          0%, 100% { box-shadow: 0 0 8px 1px #10B98133; }
-          50%       { box-shadow: 0 0 16px 4px #10B98166; }
+          0%, 100% { box-shadow: 0 0 0 1px rgba(91,143,240,0.25), 0 4px 16px rgba(91,143,240,0.15); }
+          50%       { box-shadow: 0 0 0 2px rgba(91,143,240,0.5), 0 4px 24px rgba(91,143,240,0.35); }
         }
       `}</style>
       {/* Header */}
@@ -384,7 +385,7 @@ export default function ConceptMap() {
               style={{ background: 'var(--surface)' }}
               proOptions={{ hideAttribution: true }}
             >
-              <Background color="var(--border)" gap={24} />
+              <Background variant="dots" color="var(--border-subtle)" gap={24} />
               <Controls style={{ background: 'var(--surface)', borderColor: 'var(--border)' }} />
               <MiniMap
                 nodeColor={n => masteryColor(n.data?.mastery_score)}
@@ -395,8 +396,16 @@ export default function ConceptMap() {
         </div>
 
         {/* Detail panel */}
+        <AnimatePresence>
         {selectedConcept && (
-          <div className="w-72 border-l border-surface glass-base flex flex-col gap-4 p-5 overflow-y-auto">
+          <motion.div
+            layoutId="concept-detail"
+            layout
+            className="w-72 border-l border-surface glass-base flex flex-col gap-4 p-5 overflow-y-auto"
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0, transition: { type: 'spring', stiffness: 280, damping: 24 } }}
+            exit={{ opacity: 0, x: 24, transition: { duration: 0.18 } }}
+          >
             <div className="flex items-start justify-between">
               <div>
                 <span className="font-sans text-[16px] font-bold text-foreground">
@@ -413,8 +422,8 @@ export default function ConceptMap() {
             {/* Locked state — show blocking prerequisites instead of normal detail */}
             {selectedIsLocked && (
               <div className="flex flex-col gap-3">
-                <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20">
-                  <span className="font-sans text-[11px] font-semibold text-red-400">Khái niệm bị khoá</span>
+                <div className="px-4 py-3 rounded-xl bg-[var(--destructive)]/10 border border-[var(--destructive)]/20">
+                  <span className="font-sans text-[11px] font-semibold text-[var(--destructive)]">Khái niệm bị khoá</span>
                   <p className="font-sans text-[12px] text-muted mt-1">
                     Học xong các khái niệm sau để mở khoá:
                   </p>
@@ -425,7 +434,7 @@ export default function ConceptMap() {
                     const pc = CONCEPTS.find(c => c.id === pid)
                     const pm = masteryMap[pid] ?? 0
                     return pc ? (
-                      <div key={pid} className="flex items-center justify-between px-3 py-2 rounded-lg border border-red-500/20 bg-surface">
+                      <div key={pid} className="flex items-center justify-between px-3 py-2 rounded-lg border border-[var(--destructive)]/20 bg-surface">
                         <div>
                           <span className="font-sans text-[12px] text-foreground">{pc.name_vi}</span>
                           <div className="font-sans text-[10px] text-dim">{Math.round(pm * 100)}% / cần 70%</div>
@@ -462,7 +471,7 @@ export default function ConceptMap() {
               <div className="flex items-center gap-2">
                 <span className="font-sans text-[11px] text-dim">Câu ôn tập</span>
                 <span className="font-sans text-[11px] px-2 py-0.5 rounded-full bg-surface border border-surface"
-                  style={{ color: reviewCounts[selected].due > 0 ? '#F59E0B' : '#475569' }}>
+                  style={{ color: reviewCounts[selected].due > 0 ? 'var(--mastery-3)' : 'var(--muted-fg)' }}>
                   {reviewCounts[selected].due > 0
                     ? `${reviewCounts[selected].due} đến hạn`
                     : `${reviewCounts[selected].total} câu`}
@@ -503,7 +512,7 @@ export default function ConceptMap() {
                   return pc ? (
                     <div key={pid} onClick={() => setSelected(pid)}
                       className="flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer hover:bg-surface transition"
-                      style={{ border: `1px solid ${masteryBorder(pm)}22` }}>
+                      style={{ border: `1px solid var(--border-subtle)` }}>
                       <span className="font-sans text-[12px] text-foreground">{pc.name_vi}</span>
                       <span className="font-sans text-[10px]" style={{ color: masteryBorder(pm) }}>{Math.round(pm * 100)}%</span>
                     </div>
@@ -537,8 +546,9 @@ export default function ConceptMap() {
               className="w-full py-2 rounded-xl font-sans text-[12px] font-semibold transition border border-info/30 text-info hover:bg-info/10">
               Ôn tập câu hôm nay
             </button>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
     </div>
   )

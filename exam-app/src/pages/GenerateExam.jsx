@@ -33,7 +33,7 @@ function GeneratingSkeleton({ count, arrived }) {
               <motion.div key={i}
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                 className="glass-base border border-success/20 rounded-2xl p-4 flex items-center gap-3">
-                <span className="text-emerald-400 text-lg">✓</span>
+                <span className="text-success text-lg">✓</span>
                 <span className="font-sans text-[12px] text-dim">Câu {i + 1} đã tạo xong</span>
               </motion.div>
             ) : (
@@ -226,12 +226,12 @@ export default function GenerateExam() {
           </div>
         </div>
 
-        {error && <p className="font-sans text-[12px] text-red-400">{error}</p>}
+        {error && <p className="font-sans text-[12px] text-[var(--destructive)]">{error}</p>}
 
         {/* Curriculum validator warning — non-blocking; user can still proceed */}
         {curriculumWarning.length > 0 && pendingExam && (
-          <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-4 flex flex-col gap-3">
-            <p className="font-sans text-[13px] font-semibold text-amber-400">⚠ Có thể ngoài chương trình THPT</p>
+          <div className="rounded-xl border border-[var(--warning)]/40 bg-[var(--warning)]/5 p-4 flex flex-col gap-3">
+            <p className="font-sans text-[13px] font-semibold text-[var(--warning)]">⚠ Có thể ngoài chương trình THPT</p>
             <p className="font-sans text-[12px] text-muted">
               AI tạo câu hỏi chứa nội dung có thể vượt chương trình phổ thông:{' '}
               <span className="font-semibold text-foreground">{curriculumWarning.join(', ')}</span>.

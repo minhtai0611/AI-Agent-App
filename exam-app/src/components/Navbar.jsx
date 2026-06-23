@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { Button } from './ui/button.jsx'
+import { Badge } from './ui/badge.jsx'
 import { useAuth } from '../context/AuthContext'
 import ZenithLogo from './ZenithLogo'
 import CreditsTooltip from './CreditsTooltip'
@@ -113,7 +115,7 @@ export default function Navbar({ onOpenAuth }) {
                 </span>
               )}
               {user.credits_balance != null && (
-                <div className="relative">
+                <CreditsTooltip userId={user?.id} creditsBalance={user?.credits_balance ?? 0}>
                   <button
                     onClick={() => go('/account')}
                     className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary-border)] transition"
@@ -124,11 +126,7 @@ export default function Navbar({ onOpenAuth }) {
                       {user.credits_balance}
                     </span>
                   </button>
-                  <CreditsTooltip
-                    userId={user?.id}
-                    creditsBalance={user?.credits_balance ?? 0}
-                  />
-                </div>
+                </CreditsTooltip>
               )}
               {user.avatar_url && !avatarError ? (
                 <img
@@ -155,9 +153,9 @@ export default function Navbar({ onOpenAuth }) {
                   {user.custom_display_name || user.display_name}
                 </span>
                 {user.mastery_rank && user.mastery_rank !== 'Pemula' && (
-                  <span className="font-sans text-[10px] font-semibold px-1.5 py-0.5 rounded-md border border-[var(--primary-border)] bg-[var(--primary-subtle)] text-[var(--primary)]">
+                  <Badge className="text-[10px] font-sans border-[var(--primary-border)] bg-[var(--primary-subtle)] text-[var(--primary)] px-1.5 py-0.5 rounded-md">
                     {user.mastery_rank}
-                  </span>
+                  </Badge>
                 )}
               </button>
               <button
@@ -168,12 +166,9 @@ export default function Navbar({ onOpenAuth }) {
               </button>
             </>
           ) : (
-            <button
-              onClick={onOpenAuth}
-              className="btn-primary text-sm px-3 py-2"
-            >
+            <Button onClick={onOpenAuth} size="sm">
               Đăng nhập
-            </button>
+            </Button>
           )}
         </div>
 

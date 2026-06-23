@@ -1,5 +1,10 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Badge } from '../components/ui/badge.jsx'
+import { Button } from '../components/ui/button.jsx'
+import { Input } from '../components/ui/input.jsx'
+import { Progress } from '../components/ui/progress.jsx'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   RadarChart, PolarGrid, PolarAngleAxis, Radar,
@@ -690,8 +695,8 @@ export default function Account() {
       {/* ── Persistent header ──────────────────────────────────────────── */}
       <div className="bg-surface border-b border-border relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="absolute bg-amber-500 w-[450px] h-[450px] -top-24 -right-16 opacity-[0.12] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-0_20s_ease-in-out_0s_infinite]" />
-          <div className="absolute bg-indigo-600 w-[350px] h-[350px] -bottom-24 -left-16 opacity-[0.08] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-1_24s_ease-in-out_3s_infinite]" />
+          <div className="absolute w-[450px] h-[450px] -top-24 -right-16 opacity-[0.12] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-0_20s_ease-in-out_0s_infinite]" style={{ background: '#5B8FF0' }} />
+          <div className="absolute w-[350px] h-[350px] -bottom-24 -left-16 opacity-[0.08] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-1_24s_ease-in-out_3s_infinite]" style={{ background: '#A78BFA' }} />
         </div>
         {/* Top row: avatar + name + actions */}
         <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex items-center gap-4 relative">
@@ -872,7 +877,7 @@ export default function Account() {
                     transform="rotate(-90 44 44)"
                     style={{ transition: 'stroke-dashoffset 0.8s ease' }}
                   />
-                  <text x="44" y="49" textAnchor="middle" fill={readinessColor} fontSize="18" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="700">{readinessPct}%</text>
+                  <text x="44" y="49" textAnchor="middle" fill={readinessColor} fontSize="18" fontFamily="DM Mono, monospace" fontWeight="700">{readinessPct}%</text>
                 </svg>
                 <div className="flex flex-col items-center gap-0.5">
                   <span className="font-sans text-[18px] font-bold" style={{ color: readinessColor }}>{readinessLabel}</span>
@@ -1064,12 +1069,7 @@ export default function Account() {
                         <span className="font-sans text-xs text-dim">{masteryProgress.next.icon} {masteryProgress.next.label}</span>
                       )}
                     </div>
-                    <div className="w-full h-2 bg-border rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-info transition-all duration-700"
-                        style={{ width: `${Math.round(masteryProgress.pct * 100)}%` }}
-                      />
-                    </div>
+                    <Progress value={Math.round(masteryProgress.pct * 100)} className="bg-border" />
                     <span className="font-sans text-[0.6875rem] text-dim">
                       {user.solid_concept_count ?? 0} khái niệm vững chắc
                       {masteryProgress.next ? ` · mục tiêu ${masteryProgress.next.minSolid}` : ' · cấp cao nhất'}
@@ -1088,22 +1088,20 @@ export default function Account() {
               {/* Edit form (province only — grade has its own section below) */}
               {editMode ? (
                 <div className="flex flex-col gap-3">
-                  <input
-                    className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground focus:outline-none focus:border-[var(--accent-border)]"
+                  <Input
+                    className="h-auto py-2.5 px-4 rounded-xl bg-surface-elevated font-sans text-[0.8125rem]"
                     placeholder="Tỉnh / Thành phố"
                     value={editProvince}
                     onChange={e => setEditProvince(e.target.value)}
                   />
                   {saveError && <p className="font-sans text-xs text-destructive">{saveError}</p>}
                   <div className="flex gap-2">
-                    <button onClick={handleSaveProfile} disabled={saving}
-                      className="px-5 py-2 rounded-lg font-sans text-[0.8125rem] font-bold transition bg-primary text-primary-fg">
+                    <Button onClick={handleSaveProfile} disabled={saving} className="font-bold text-[0.8125rem]">
                       {saving ? 'Đang lưu...' : 'Lưu'}
-                    </button>
-                    <button onClick={() => { setEditMode(false); setSaveError('') }}
-                      className="px-5 py-2 rounded-lg font-sans text-[0.8125rem] text-dim hover:text-foreground transition">
+                    </Button>
+                    <Button variant="ghost" onClick={() => { setEditMode(false); setSaveError('') }} className="text-[0.8125rem]">
                       Huỷ
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ) : (
@@ -1205,7 +1203,7 @@ export default function Account() {
                   maxLength={30}
                   className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground placeholder-faint focus:outline-none focus:border-[var(--accent-border)]"
                 />
-                <button
+                <Button
                   disabled={usernameLoading || !usernameInput.trim()}
                   onClick={async () => {
                     setUsernameLoading(true)
@@ -1219,10 +1217,10 @@ export default function Account() {
                       setUsernameInput('')
                     }
                   }}
-                  className="ripple-btn px-5 py-2.5 rounded-xl font-sans text-[0.8125rem] font-bold disabled:opacity-40 transition"
-                  style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}>
+                  variant="accent"
+                  className="text-[0.8125rem] font-bold disabled:opacity-40">
                   {usernameLoading ? '...' : 'Lưu'}
-                </button>
+                </Button>
               </div>
               {usernameError && <p className="font-sans text-xs text-destructive">{usernameError}</p>}
             </section>
@@ -1262,10 +1260,9 @@ export default function Account() {
                       <span className="font-sans text-[0.8125rem] font-semibold text-foreground">So sánh với tỉnh thành</span>
                       <span className="font-sans text-[0.6875rem] text-dim">Xem bạn đứng ở vị trí nào so với học sinh cùng tỉnh · 30 ngày qua</span>
                     </div>
-                    <button onClick={handleCompareProvince} disabled={provinceLoading}
-                      className="flex-shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold disabled:opacity-60 transition bg-info text-white">
+                    <Button onClick={handleCompareProvince} disabled={provinceLoading} size="sm" className="flex-shrink-0 font-bold text-xs">
                       {provinceLoading ? 'Đang tải...' : 'So sánh'}
-                    </button>
+                    </Button>
                   </div>
                   {provinceData && provinceNarrative && (
                     <div className="flex flex-col gap-3">
@@ -1278,9 +1275,9 @@ export default function Account() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{provinceNarrative.headline}</span>
                           {provinceNarrative.badge && (
-                            <span className={`font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${
-                              provinceNarrative.sentiment === 'above' ? 'bg-success/20 text-success' : 'bg-[var(--accent)]/20 text-[var(--accent)]'
-                            }`}>{provinceNarrative.badge}</span>
+                            <Badge variant={provinceNarrative.sentiment === 'above' ? 'successSubtle' : 'accent'}>
+                              {provinceNarrative.badge}
+                            </Badge>
                           )}
                         </div>
                         <span className="font-sans text-xs text-muted leading-snug">{provinceNarrative.detail}</span>
@@ -1427,12 +1424,7 @@ export default function Account() {
                   <div className="flex flex-col gap-1 flex-1 min-w-0">
                     <span className="font-sans text-sm font-bold text-foreground">{nextMilestone.label}</span>
                     <span className="font-sans text-xs text-muted">{nextMilestone.progress}</span>
-                    <div className="w-full h-1.5 bg-border rounded-full overflow-hidden mt-0.5">
-                      <div
-                        className="h-full rounded-full bg-info transition-all duration-700"
-                        style={{ width: `${Math.round(nextMilestone.pct * 100)}%` }}
-                      />
-                    </div>
+                    <Progress value={Math.round(nextMilestone.pct * 100)} className="h-1.5 mt-0.5 bg-border" />
                   </div>
                   {nextMilestone.remaining != null && (
                     <span className="font-sans text-[0.6875rem] text-info font-semibold flex-shrink-0">
@@ -1780,19 +1772,14 @@ export default function Account() {
                           <div key={node.id} className="flex flex-col gap-2 px-4 py-3 rounded-xl bg-background border border-border">
                             <div className="flex items-center justify-between gap-3">
                               <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{node.label}</span>
-                              <span
-                                className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-                                style={{ background: '#EF444420', color: '#EF4444', border: '1px solid #EF444440' }}
-                              >
-                                Yếu
-                              </span>
+                              <Badge variant="destructiveSubtle" className="flex-shrink-0">Yếu</Badge>
                             </div>
                             {/* Mastery bar */}
                             <div className="flex items-center gap-2">
                               <div className="flex-1 h-1.5 bg-border rounded-full overflow-hidden">
                                 <div
                                   className="h-full rounded-full transition-all duration-500"
-                                  style={{ width: `${Math.round((node.mastery ?? 0) * 100)}%`, background: '#EF4444' }}
+                                  style={{ width: `${Math.round((node.mastery ?? 0) * 100)}%`, background: 'var(--mastery-1)' }}
                                 />
                               </div>
                               <span className="font-sans text-[0.625rem] text-destructive font-semibold flex-shrink-0">
@@ -1847,7 +1834,7 @@ export default function Account() {
                 {user.subscription_period === 'annual' && (
                   <div className="flex flex-col items-center gap-0.5">
                     <span className="font-sans text-[0.6875rem] text-faint">Chu kỳ</span>
-                    <span className="font-sans text-xs font-bold px-2.5 py-0.5 rounded-full bg-success/20 text-success">Hàng năm</span>
+                    <Badge variant="successSubtle">Hàng năm</Badge>
                   </div>
                 )}
                 {user.credits_reset_at && (
@@ -1875,7 +1862,7 @@ export default function Account() {
                   </p>
                 </div>
                 {trialError && <p className="font-sans text-xs text-destructive">{trialError}</p>}
-                <button
+                <Button
                   disabled={trialActivating}
                   onClick={async () => {
                     setTrialActivating(true); setTrialError('')
@@ -1887,10 +1874,10 @@ export default function Account() {
                       setTrialDone(true); refundCredits(500); await refreshUser()
                     }
                   }}
-                  className="btn-primary self-start text-[0.8125rem] disabled:opacity-50"
+                  className="self-start text-[0.8125rem] disabled:opacity-50"
                 >
                   {trialActivating ? 'Đang kích hoạt...' : 'Kích hoạt dùng thử'}
-                </button>
+                </Button>
               </section>
             )}
             {trialDone && (
@@ -1935,12 +1922,10 @@ export default function Account() {
                     </span>
                   ))}
                 </div>
-                <button
-                  onClick={() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="self-start px-5 py-2.5 rounded-xl font-sans text-[0.8125rem] font-bold transition bg-info text-white"
-                >
+                <Button onClick={() => document.querySelector('#upgrade-plans')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="self-start font-bold text-[0.8125rem]">
                   {tierGap.ctaLabel} →
-                </button>
+                </Button>
               </section>
             )}
 
@@ -1972,10 +1957,10 @@ export default function Account() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-sans text-sm font-bold text-foreground">{plan.label}</span>
                         {plan.badge && (
-                          <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">{plan.badge}</span>
+                          <Badge variant="accent">{plan.badge}</Badge>
                         )}
                         {tier === plan.tier && (
-                          <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-success/20 text-success">Hiện tại</span>
+                          <Badge variant="successSubtle">Hiện tại</Badge>
                         )}
                       </div>
                       <div className="flex items-center gap-3 flex-wrap">
@@ -1995,14 +1980,10 @@ export default function Account() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-sans text-[0.6875rem] text-faint">≈ {plan.effective}</span>
                           {billing === 'annual' && plan.tier === 'student' && studentSavingsDays > 0 && (
-                            <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-success/20 text-success">
-                              +{studentSavingsDays} ngày học tập AI miễn phí
-                            </span>
+                            <Badge variant="successSubtle">+{studentSavingsDays} ngày học tập AI miễn phí</Badge>
                           )}
                           {billing === 'annual' && plan.tier === 'complete' && completeSavingsDays > 0 && (
-                            <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-success/20 text-success">
-                              +{completeSavingsDays} ngày học tập AI miễn phí
-                            </span>
+                            <Badge variant="successSubtle">+{completeSavingsDays} ngày học tập AI miễn phí</Badge>
                           )}
                         </div>
                       )}
@@ -2489,19 +2470,23 @@ export default function Account() {
               {reminderEnabled && (
                 <div className="flex items-center gap-3 pt-1">
                   <span className="font-sans text-xs text-muted">Giờ nhắc nhở:</span>
-                  <select
-                    value={reminderHour}
-                    onChange={e => {
-                      const h = parseInt(e.target.value, 10)
+                  <Select
+                    value={String(reminderHour)}
+                    onValueChange={v => {
+                      const h = parseInt(v, 10)
                       setReminderHour(h)
-                      localStorage.setItem('study_reminder_hour', String(h))
+                      localStorage.setItem('study_reminder_hour', v)
                     }}
-                    className="px-3 py-1.5 rounded-lg border border-border bg-surface-elevated font-sans text-xs text-foreground focus:outline-none focus:border-[var(--accent-border)]/60"
                   >
-                    {Array.from({ length: 18 }, (_, i) => i + 6).map(h => (
-                      <option key={h} value={h}>{h}:00</option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="h-auto py-1.5 px-3 font-sans text-xs w-auto min-w-[80px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 18 }, (_, i) => i + 6).map(h => (
+                        <SelectItem key={h} value={String(h)}>{h}:00</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
             </section>
@@ -2633,10 +2618,10 @@ export default function Account() {
             </div>
 
             {/* Danger Zone — collapsed by default */}
-            <section className="bg-surface border border-red-500/20 rounded-2xl p-7 flex flex-col gap-4">
+            <section className="bg-surface border border-[var(--destructive)]/20 rounded-2xl p-7 flex flex-col gap-4">
               <button
                 onClick={() => setDangerOpen(v => !v)}
-                className="flex items-center gap-2 font-sans text-[0.8125rem] text-destructive hover:text-red-300 transition self-start"
+                className="flex items-center gap-2 font-sans text-[0.8125rem] text-destructive hover:text-[var(--destructive)]/70 transition self-start"
               >
                 <span>Xóa hoặc tạm ngưng tài khoản</span>
                 <span className="text-[0.625rem]">{dangerOpen ? '▲' : '▼'}</span>
@@ -2671,7 +2656,7 @@ export default function Account() {
                       </div>
                       <button
                         onClick={() => { setShowDeleteModal(true); setDeleteEmail(''); setDangerError('') }}
-                        className="shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold border border-destructive/40 text-destructive hover:bg-red-500/10 transition"
+                        className="shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold border border-destructive/40 text-destructive hover:bg-[var(--destructive)]/10 transition"
                       >
                         Xóa tài khoản
                       </button>
@@ -2791,7 +2776,7 @@ export default function Account() {
           >
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-              className="max-w-sm w-full bg-surface border border-red-500/30 rounded-2xl p-7 flex flex-col gap-5"
+              className="max-w-sm w-full bg-surface border border-[var(--destructive)]/30 rounded-2xl p-7 flex flex-col gap-5"
             >
               <span className="font-sans text-[16px] font-bold text-destructive">Xóa tài khoản vĩnh viễn</span>
               <p className="font-sans text-[0.8125rem] text-muted">
@@ -2800,7 +2785,7 @@ export default function Account() {
               <div className="flex flex-col gap-1.5">
                 <span className="font-sans text-xs text-dim">Nhập địa chỉ email của bạn để xác nhận:</span>
                 <input
-                  className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground focus:outline-none focus:border-red-400"
+                  className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground focus:outline-none focus:border-[var(--destructive)]/60"
                   placeholder={user.email}
                   value={deleteEmail}
                   onChange={e => setDeleteEmail(e.target.value)}
