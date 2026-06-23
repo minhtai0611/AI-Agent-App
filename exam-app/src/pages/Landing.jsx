@@ -331,7 +331,7 @@ export default function Landing({ onOpenAuth }) {
                 navigate(q ? `/oracle?q=${encodeURIComponent(q)}` : '/oracle')
               }}
             >
-              <span className="text-info text-base select-none flex-shrink-0">✦</span>
+              <span className="text-accent text-base select-none flex-shrink-0">✦</span>
               <input name="query" placeholder="Nhập bài toán cần giải..."
                 className="flex-1 bg-transparent font-sans text-[15px] text-foreground placeholder-dim outline-none min-w-0" />
               <Button type="submit" size="sm" className="flex-shrink-0 font-semibold text-[13px]">Hỏi →</Button>

@@ -1474,7 +1474,7 @@ export default function MathOracle() {
           @keyframes spin { to { transform: rotate(360deg); } }
         `}</style>
         <form onSubmit={handleSolveForm} className="flex flex-col gap-3">
-          <div className="rounded-xl border border-surface bg-surface focus-within:border-[var(--primary-border)] transition-colors overflow-hidden">
+          <div className="rounded-xl border border-surface bg-surface focus-within:border-[var(--primary-border)] focus-within:shadow-glow transition-all overflow-hidden">
             <textarea
               ref={textareaRef}
               value={question}
@@ -1523,7 +1523,7 @@ export default function MathOracle() {
                   className="p-1.5 text-dim hover:text-muted disabled:opacity-40 transition"
                 >
                   {ocring
-                    ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid #475569', borderTopColor:'#94A3B8', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
+                    ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid var(--border)', borderTopColor:'var(--accent)', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
                     : <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                   }
                 </button>
@@ -1584,7 +1584,7 @@ export default function MathOracle() {
 
           {/* Solution textarea — only in review mode */}
           {chatMode === 'review' && (
-            <div className="rounded-xl border border-surface bg-surface focus-within:border-[var(--primary-border)] transition-colors overflow-hidden">
+            <div className="rounded-xl border border-surface bg-surface focus-within:border-[var(--primary-border)] focus-within:shadow-glow transition-all overflow-hidden">
               <textarea
                 ref={solutionRef}
                 value={solution}
@@ -1608,7 +1608,7 @@ export default function MathOracle() {
                     disabled={ocringS || loading}
                     className="p-1.5 text-dim hover:text-muted disabled:opacity-40 transition">
                     {ocringS
-                      ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid #475569', borderTopColor:'#94A3B8', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
+                      ? <span style={{ display:'inline-block', width:14, height:14, border:'2px solid var(--border)', borderTopColor:'var(--accent)', borderRadius:'50%', animation:'spin 0.6s linear infinite' }} />
                       : <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                     }
                   </button>
@@ -1732,7 +1732,7 @@ export default function MathOracle() {
             ) : solvePhase ? (
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-3">
-                  <span style={{ display:'inline-block', width:12, height:12, border:'2px solid #334155', borderTopColor:'#64748B', borderRadius:'50%', animation:'spin 0.6s linear infinite', flexShrink:0 }} />
+                  <span style={{ display:'inline-block', width:12, height:12, border:'2px solid var(--border)', borderTopColor:'var(--accent)', borderRadius:'50%', animation:'spin 0.6s linear infinite', flexShrink:0 }} />
                   <span className="font-sans text-[14px] text-dim">
                     {SOLVE_PHASES.find(p => p.key === solvePhase)?.label ?? 'Đang xử lý…'}
                   </span>
