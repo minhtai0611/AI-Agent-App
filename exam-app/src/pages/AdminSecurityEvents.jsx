@@ -46,7 +46,7 @@ function UserStatusChip({ isSuspended }) {
     )
   }
   return (
-    <span className="px-2 py-0.5 rounded-full font-sans text-[11px] font-bold bg-emerald-500/20 text-emerald-400">
+    <span className="px-2 py-0.5 rounded-full font-sans text-[11px] font-bold bg-success/20 text-success">
       active
     </span>
   )

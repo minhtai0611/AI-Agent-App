@@ -343,7 +343,7 @@ function ExamSparkline({ results }) {
   }).join(' ')
   const last = pts[pts.length - 1]?.score ?? 0
   const prev = pts[pts.length - 2]?.score ?? last
-  const trend = last > prev ? '#10B981' : last < prev ? '#FB7185' : '#818CF8'
+  const trend = last > prev ? 'var(--success)' : last < prev ? 'var(--destructive)' : 'var(--accent)'
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="shrink-0">
       <polyline points={points} fill="none" stroke={trend} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

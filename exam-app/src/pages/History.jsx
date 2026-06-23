@@ -110,8 +110,8 @@ export default function History() {
                 <>
                   <motion.div className="flex flex-col gap-4" variants={listVariants} initial="hidden" animate="show">
                     {pageItems.map(result => {
-                      const scoreColor = result.score >= 8 ? '#10B981' : result.score >= 6 ? '#F2A20C' : '#FB7185'
-                      const borderColor = result.score < 5 ? '#FB718540' : '#1E2D45'
+                      const scoreColor = result.score >= 8 ? 'var(--success)' : result.score >= 6 ? 'var(--warning)' : 'var(--destructive)'
+                      const borderColor = result.score < 5 ? 'color-mix(in srgb, var(--destructive) 25%, transparent)' : 'var(--border)'
                       const examTitle = loadExamById(result.examId)?.title ?? result.examId
                       const isPersonalBest = result.score === bestByExam[result.examId] && results.filter(r => r.examId === result.examId).length > 1
                       return (

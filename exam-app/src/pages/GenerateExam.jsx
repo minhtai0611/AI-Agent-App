@@ -33,7 +33,7 @@ function GeneratingSkeleton({ count, arrived }) {
               <motion.div key={i}
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                 className="glass-base border border-success/20 rounded-2xl p-4 flex items-center gap-3">
-                <span className="text-emerald-400 text-lg">✓</span>
+                <span className="text-success text-lg">✓</span>
                 <span className="font-sans text-[12px] text-dim">Câu {i + 1} đã tạo xong</span>
               </motion.div>
             ) : (
