@@ -24,6 +24,18 @@ const badgeVariants = cva(
           "bg-success/20 text-success",
         destructiveSubtle:
           "bg-destructive/20 text-destructive",
+        mastery0:
+          "bg-[var(--mastery-0-bg)] text-[var(--mastery-0)] border border-[var(--mastery-0)]/30",
+        mastery1:
+          "bg-[var(--mastery-1-bg)] text-[var(--mastery-1)] border border-[var(--mastery-1)]/30",
+        mastery2:
+          "bg-[var(--mastery-2-bg)] text-[var(--mastery-2)] border border-[var(--mastery-2)]/30",
+        mastery3:
+          "bg-[var(--mastery-3-bg)] text-[var(--mastery-3)] border border-[var(--mastery-3)]/30",
+        mastery4:
+          "bg-[var(--mastery-4-bg)] text-[var(--mastery-4)] border border-[var(--mastery-4)]/30",
+        mastery5:
+          "bg-[var(--mastery-5-bg)] text-[var(--mastery-5)] border border-[var(--mastery-5)]/30",
       },
     },
     defaultVariants: {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Button } from '../components/ui/button.jsx'
+import { Card } from '../components/ui/card.jsx'
 import {
   adminListUsers, adminDeleteUser, adminUnlockUser, adminResetUser,
   adminSuspendUser, adminUnsuspendUser, adminGrantCredits, adminSetSubscription, adminGetSecurityEvents,
@@ -526,11 +527,11 @@ function UsersTab({ adminKey }) {
       ) : users.length === 0 ? (
         <div className="flex justify-center py-10 font-sans text-dim text-[13px]">Không tìm thấy người dùng</div>
       ) : (
-        <div className="glass-base border border-surface rounded-2xl px-5 py-2">
+        <Card className="px-5 py-2 rounded-2xl">
           {users.map(u => (
             <UserRow key={u.id} user={u} adminKey={adminKey} onRefresh={() => fetchUsers(search, page)} />
           ))}
-        </div>
+        </Card>
       )}
 
       {total > LIMIT && (
@@ -562,7 +563,7 @@ function SecurityEventsTab({ adminKey }) {
       ) : events.length === 0 ? (
         <div className="flex justify-center py-10 font-sans text-dim text-[13px]">Không có sự kiện gần đây</div>
       ) : (
-        <div className="glass-base border border-surface rounded-2xl overflow-hidden">
+        <Card className="rounded-2xl overflow-hidden">
           {events.map((ev, i) => (
             <div key={i} className="flex items-start gap-3 px-5 py-3 border-b border-surface last:border-0">
               <div className="mt-0.5 shrink-0">

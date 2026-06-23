@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { listVariants, itemVariants } from '../utils/animations.js'
+import { listVariants, itemVariants, cardHover } from '../utils/animations.js'
 import confetti from 'canvas-confetti'
 import { useAuth } from '../context/AuthContext.jsx'
 import { Button } from '../components/ui/button.jsx'
@@ -29,10 +29,10 @@ function scoreToStage(score) {
 }
 
 function masteryColorClass(score) {
-  if (!score || score === 0) return 'text-dim'
-  if (score < 0.4) return 'text-red-400'
-  if (score < 0.7) return 'text-[var(--accent)]'
-  return 'text-success'
+  if (!score || score === 0) return 'text-[var(--mastery-0)]'
+  if (score < 0.4) return 'text-[var(--mastery-1)]'
+  if (score < 0.7) return 'text-[var(--mastery-3)]'
+  return 'text-[var(--mastery-4)]'
 }
 
 function fmtScore(score) {
@@ -68,10 +68,11 @@ function ScorePredictionCard({ data, prevData, navigate }) {
     : `Luyện thêm 1 chủ đề yếu để cải thiện điểm số`
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-      className={`border rounded-xl p-4 flex flex-col gap-2 ${on_track ? 'border-success/30 bg-success/5' : 'border-amber-500/30 bg-amber-500/5'}`}
+      initial="hidden"
+      animate="rest"
+      variants={cardHover}
+      whileHover="hover"
+      className={`border rounded-xl p-4 flex flex-col gap-2 ${on_track ? 'border-success/30 bg-success/5' : 'border-[var(--warning)]/30 bg-[var(--warning)]/5'}`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-0.5 min-w-0">
@@ -137,7 +138,7 @@ const FOCUS_CONFIGS = {
     description: null, // set dynamically
     cta: 'Xem phân tích AI',
     path: null, // set dynamically
-    accent: 'border-amber-500/30 bg-amber-500/5',
+    accent: 'border-[var(--warning)]/30 bg-[var(--warning)]/5',
   },
   practice: {
     eyebrow: 'Khái niệm cần luyện',
@@ -199,9 +200,10 @@ function DailyFocusCard({ action, loading, navigate, onDismiss, userName }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
+      initial="hidden"
+      animate="rest"
+      variants={cardHover}
+      whileHover="hover"
       className="bg-surface border border-border border-t-[var(--primary-border)] rounded-xl p-5"
       style={{ borderTopWidth: '2px', borderTopColor: 'var(--primary-border)' }}
     >
@@ -279,7 +281,7 @@ function WeakConceptCard({ concept, score, onClick }) {
         </p>
         <div className="flex items-center gap-1.5 mt-0.5">
           <span className="font-sans text-[10px] text-dim">Lớp {concept.grade}</span>
-          <Badge variant={stage <= 1 ? 'destructive' : stage <= 2 ? 'warning' : 'secondary'} className="text-[9px] px-1.5 py-0 h-4">
+          <Badge variant={`mastery${stage}`} className="text-[9px] px-1.5 py-0 h-4">
             {STAGE_LABELS[stage]}
           </Badge>
         </div>
@@ -297,13 +299,13 @@ function RecentExamCard({ result, navigate }) {
   if (!result) return null
   const exam = result.examId ? loadExamById(result.examId) : null
   const score = result.score ?? 0
-  const scoreColor = score >= 7 ? 'text-success' : score >= 5 ? 'text-[var(--accent)]' : 'text-red-400'
+  const scoreColor = score >= 7 ? 'text-[var(--mastery-4)]' : score >= 5 ? 'text-[var(--mastery-3)]' : 'text-[var(--mastery-1)]'
   const date = result.createdAt
     ? new Date(result.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
     : ''
 
   return (
-    <div className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3 h-full">
+    <motion.div variants={cardHover} initial="rest" whileHover="hover" className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3 h-full">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <p className="font-sans text-[10px] uppercase tracking-wider text-dim mb-0.5">
@@ -324,7 +326,7 @@ function RecentExamCard({ result, navigate }) {
       >
         Xem phân tích AI →
       </button>
-    </div>
+    </motion.div>
   )
 }
 
@@ -416,9 +418,10 @@ function ProvinceBenchmarkCard({ user, results, navigate }) {
   const pctOfTop = Math.min(100, Math.round((avgScore / threshold.top) * 100))
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
+      initial="hidden"
+      animate="rest"
+      variants={cardHover}
+      whileHover="hover"
       className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3"
     >
       <div className="flex items-center justify-between">
@@ -708,7 +711,7 @@ export default function Home() {
       transition={{ duration: 0.2 }}
       className="min-h-screen bg-background"
     >
-      <div className="max-w-2xl mx-auto px-4 pt-8 pb-20 flex flex-col gap-5">
+      <div className="max-w-2xl mx-auto px-4 pt-8 pb-20 flex flex-col gap-8">
 
         {/* ── Header ── */}
         <div>

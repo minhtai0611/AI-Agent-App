@@ -234,7 +234,7 @@ export default function ErrorAnalysis() {
                   <span className="font-sans text-[13px] text-dim">AI đang phân tích lỗi sai của bạn...</span>
                 </div>
               )}
-              {aiError && <p className="font-sans text-[12px] text-red-400 py-3">{aiError}</p>}
+              {aiError && <p className="font-sans text-[12px] text-[var(--destructive)] py-3">{aiError}</p>}
               {hasMisconceptions && (
                 <div className="flex flex-col gap-4">
                   {aiData.misconceptions.map((m, i) => (

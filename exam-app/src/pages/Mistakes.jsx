@@ -192,7 +192,7 @@ function MistakeRow({ question, userAnswer, examTitle }) {
             </div>
           )}
           {explError && (
-            <p className="font-sans text-[12px] text-red-400">{explError}</p>
+            <p className="font-sans text-[12px] text-[var(--destructive)]">{explError}</p>
           )}
           {displayExpl && (
             <div className="flex flex-col gap-2">

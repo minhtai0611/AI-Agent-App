@@ -5,6 +5,7 @@ import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { ResultsInsightsSkeleton } from './Skeleton.jsx'
 import MarkdownProse from './MarkdownProse.jsx'
 import { useAuth } from '../context/AuthContext'
+import { Button } from './ui/button.jsx'
 
 // Renders streaming plain text with a CSS fade-in on each newly arrived chunk.
 // key={prevLen} on the new-text span forces a fresh DOM node each chunk, retriggering the animation.
@@ -354,9 +355,9 @@ export default function AIInsights({ analysis, loading, error, score, onRetry })
             <p className="font-sans text-[0.75rem] text-muted leading-snug">{error}</p>
           )}
           {onRetry && (
-            <button onClick={onRetry} className="self-start font-sans text-[0.75rem] text-primary hover:underline">
+            <Button variant="ghost" size="sm" onClick={onRetry} className="self-start h-auto px-0 font-sans text-[0.75rem] text-primary hover:text-primary hover:bg-transparent underline-offset-2 hover:underline">
               Thử lại
-            </button>
+            </Button>
           )}
         </div>
       )}

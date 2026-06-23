@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
-
 import { useAuth } from '../context/AuthContext.jsx'
 import { Button } from './ui/button.jsx'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog.jsx'
+import { Progress } from './ui/progress.jsx'
 
 const GRADES = [
   { value: '9', label: 'Lớp 9 trở xuống', sub: 'Thi vào lớp 10' },
@@ -39,24 +39,20 @@ export default function ProfileOnboarding({ onDone }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-sm px-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.94, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.94, y: 16 }}
-        transition={{ type: 'spring', stiffness: 340, damping: 28 }}
-        className="w-full max-w-md bg-surface border border-border rounded-2xl p-8 flex flex-col gap-6"
-      >
-        <div className="flex flex-col gap-1">
-          <span className="font-sans font-bold text-[22px] text-foreground">Hoàn thiện hồ sơ</span>
-          <span className="font-sans text-[0.8125rem] text-dim">Để cá nhân hóa đề thi và phân tích AI phù hợp với bạn</span>
-        </div>
+    <Dialog open>
+      <DialogContent className="max-w-md [&>button:last-child]:hidden">
+        <DialogHeader className="gap-2">
+          <DialogTitle className="font-sans font-bold text-[22px]">Hoàn thiện hồ sơ</DialogTitle>
+          <DialogDescription className="font-sans text-[0.8125rem] text-dim">
+            Để cá nhân hóa đề thi và phân tích AI phù hợp với bạn
+          </DialogDescription>
+          <Progress value={grade ? 100 : 0} className="h-1 mt-1" />
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          {/* Grade */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-2">
           <div className="flex flex-col gap-2">
             <label className="font-sans text-[0.8125rem] font-semibold text-muted">Lớp học <span className="text-destructive">*</span></label>
-            <p className="font-sans text-[13px] text-dim text-center mb-4">
+            <p className="font-sans text-[13px] text-dim text-center mb-2">
               Để Zenith hiển thị đúng đề thi cho cấp độ của bạn
             </p>
             <div className="grid grid-cols-2 gap-2">
@@ -90,7 +86,7 @@ export default function ProfileOnboarding({ onDone }) {
             {saving ? 'Đang lưu...' : 'Bắt đầu →'}
           </Button>
         </form>
-      </motion.div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

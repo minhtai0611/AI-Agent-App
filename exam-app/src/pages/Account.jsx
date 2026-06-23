@@ -695,8 +695,8 @@ export default function Account() {
       {/* ── Persistent header ──────────────────────────────────────────── */}
       <div className="bg-surface border-b border-border relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="absolute bg-amber-500 w-[450px] h-[450px] -top-24 -right-16 opacity-[0.12] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-0_20s_ease-in-out_0s_infinite]" />
-          <div className="absolute bg-indigo-600 w-[350px] h-[350px] -bottom-24 -left-16 opacity-[0.08] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-1_24s_ease-in-out_3s_infinite]" />
+          <div className="absolute w-[450px] h-[450px] -top-24 -right-16 opacity-[0.12] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-0_20s_ease-in-out_0s_infinite]" style={{ background: '#5B8FF0' }} />
+          <div className="absolute w-[350px] h-[350px] -bottom-24 -left-16 opacity-[0.08] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-1_24s_ease-in-out_3s_infinite]" style={{ background: '#A78BFA' }} />
         </div>
         {/* Top row: avatar + name + actions */}
         <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex items-center gap-4 relative">
@@ -2618,10 +2618,10 @@ export default function Account() {
             </div>
 
             {/* Danger Zone — collapsed by default */}
-            <section className="bg-surface border border-red-500/20 rounded-2xl p-7 flex flex-col gap-4">
+            <section className="bg-surface border border-[var(--destructive)]/20 rounded-2xl p-7 flex flex-col gap-4">
               <button
                 onClick={() => setDangerOpen(v => !v)}
-                className="flex items-center gap-2 font-sans text-[0.8125rem] text-destructive hover:text-red-300 transition self-start"
+                className="flex items-center gap-2 font-sans text-[0.8125rem] text-destructive hover:text-[var(--destructive)]/70 transition self-start"
               >
                 <span>Xóa hoặc tạm ngưng tài khoản</span>
                 <span className="text-[0.625rem]">{dangerOpen ? '▲' : '▼'}</span>
@@ -2656,7 +2656,7 @@ export default function Account() {
                       </div>
                       <button
                         onClick={() => { setShowDeleteModal(true); setDeleteEmail(''); setDangerError('') }}
-                        className="shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold border border-destructive/40 text-destructive hover:bg-red-500/10 transition"
+                        className="shrink-0 px-4 py-2 rounded-lg font-sans text-xs font-bold border border-destructive/40 text-destructive hover:bg-[var(--destructive)]/10 transition"
                       >
                         Xóa tài khoản
                       </button>
@@ -2776,7 +2776,7 @@ export default function Account() {
           >
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-              className="max-w-sm w-full bg-surface border border-red-500/30 rounded-2xl p-7 flex flex-col gap-5"
+              className="max-w-sm w-full bg-surface border border-[var(--destructive)]/30 rounded-2xl p-7 flex flex-col gap-5"
             >
               <span className="font-sans text-[16px] font-bold text-destructive">Xóa tài khoản vĩnh viễn</span>
               <p className="font-sans text-[0.8125rem] text-muted">
@@ -2785,7 +2785,7 @@ export default function Account() {
               <div className="flex flex-col gap-1.5">
                 <span className="font-sans text-xs text-dim">Nhập địa chỉ email của bạn để xác nhận:</span>
                 <input
-                  className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground focus:outline-none focus:border-red-400"
+                  className="px-4 py-2.5 rounded-xl border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground focus:outline-none focus:border-[var(--destructive)]/60"
                   placeholder={user.email}
                   value={deleteEmail}
                   onChange={e => setDeleteEmail(e.target.value)}

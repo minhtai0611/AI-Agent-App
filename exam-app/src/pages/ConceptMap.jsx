@@ -385,7 +385,7 @@ export default function ConceptMap() {
               style={{ background: 'var(--surface)' }}
               proOptions={{ hideAttribution: true }}
             >
-              <Background color="var(--border)" gap={24} />
+              <Background variant="dots" color="var(--border-subtle)" gap={24} />
               <Controls style={{ background: 'var(--surface)', borderColor: 'var(--border)' }} />
               <MiniMap
                 nodeColor={n => masteryColor(n.data?.mastery_score)}
@@ -399,6 +399,8 @@ export default function ConceptMap() {
         <AnimatePresence>
         {selectedConcept && (
           <motion.div
+            layoutId="concept-detail"
+            layout
             className="w-72 border-l border-surface glass-base flex flex-col gap-4 p-5 overflow-y-auto"
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0, transition: { type: 'spring', stiffness: 280, damping: 24 } }}
@@ -420,8 +422,8 @@ export default function ConceptMap() {
             {/* Locked state — show blocking prerequisites instead of normal detail */}
             {selectedIsLocked && (
               <div className="flex flex-col gap-3">
-                <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20">
-                  <span className="font-sans text-[11px] font-semibold text-red-400">Khái niệm bị khoá</span>
+                <div className="px-4 py-3 rounded-xl bg-[var(--destructive)]/10 border border-[var(--destructive)]/20">
+                  <span className="font-sans text-[11px] font-semibold text-[var(--destructive)]">Khái niệm bị khoá</span>
                   <p className="font-sans text-[12px] text-muted mt-1">
                     Học xong các khái niệm sau để mở khoá:
                   </p>
@@ -432,7 +434,7 @@ export default function ConceptMap() {
                     const pc = CONCEPTS.find(c => c.id === pid)
                     const pm = masteryMap[pid] ?? 0
                     return pc ? (
-                      <div key={pid} className="flex items-center justify-between px-3 py-2 rounded-lg border border-red-500/20 bg-surface">
+                      <div key={pid} className="flex items-center justify-between px-3 py-2 rounded-lg border border-[var(--destructive)]/20 bg-surface">
                         <div>
                           <span className="font-sans text-[12px] text-foreground">{pc.name_vi}</span>
                           <div className="font-sans text-[10px] text-dim">{Math.round(pm * 100)}% / cần 70%</div>

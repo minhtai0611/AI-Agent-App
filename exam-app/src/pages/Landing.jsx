@@ -1,11 +1,12 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
-import { pageVariants } from '../utils/animations.js'
+import { pageVariants, heroItem, cardHover } from '../utils/animations.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { Button } from '../components/ui/button.jsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select.jsx'
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../components/ui/accordion.jsx'
 
 import { useHistory } from '../context/HistoryContext.jsx'
 import { computeStreak } from '../utils/streak.js'
@@ -84,33 +85,33 @@ const BENTO_FEATURES = [
     id: 'analysis',
     col: 'col-span-12 sm:col-span-7',
     icon: '🎯',
-    accent: '#F2A20C',
+    accent: 'var(--warning)',
     title: 'AI phát hiện đúng điểm yếu',
     desc: 'Không đoán mò — phân tích từng câu sai và chỉ cách sửa',
     preview: [
-      { topic: 'Hàm số', pct: 42, color: '#EF4444' },
-      { topic: 'Hình học không gian', pct: 65, color: '#F59E0B' },
-      { topic: 'Tích phân', pct: 83, color: '#34D399' },
+      { topic: 'Hàm số', pct: 42, color: 'var(--destructive)' },
+      { topic: 'Hình học không gian', pct: 65, color: 'var(--warning)' },
+      { topic: 'Tích phân', pct: 83, color: 'var(--mastery-4)' },
     ],
   },
   {
     id: 'map',
     col: 'col-span-12 sm:col-span-5',
     icon: '🗺',
-    accent: '#34D399',
+    accent: 'var(--mastery-4)',
     title: 'Bản đồ kiến thức cá nhân',
     desc: 'Nhìn thấy toàn bộ lộ trình học của bạn',
     preview: [
-      { concept: 'Đại số', mastery: 90, color: '#22C55E' },
-      { concept: 'Hàm logarithm', mastery: 51, color: '#F59E0B' },
-      { concept: 'Giải tích', mastery: 20, color: '#EF4444' },
+      { concept: 'Đại số', mastery: 90, color: 'var(--success)' },
+      { concept: 'Hàm logarithm', mastery: 51, color: 'var(--warning)' },
+      { concept: 'Giải tích', mastery: 20, color: 'var(--destructive)' },
     ],
   },
   {
     id: 'questions',
     col: 'col-span-12 sm:col-span-4',
     icon: '📋',
-    accent: '#6366F1',
+    accent: 'var(--primary)',
     title: '1,104 câu từ đề thật',
     desc: '63 tỉnh thành · Cập nhật hàng năm',
     stat: '1,104',
@@ -119,7 +120,7 @@ const BENTO_FEATURES = [
     id: 'streak',
     col: 'col-span-12 sm:col-span-4',
     icon: '🔥',
-    accent: '#F97316',
+    accent: 'var(--mastery-2)',
     title: 'Chuỗi học hàng ngày',
     desc: 'Học đều — nhớ lâu hơn nhiều',
     stat: '30+',
@@ -128,7 +129,7 @@ const BENTO_FEATURES = [
     id: 'oracle',
     col: 'col-span-12 sm:col-span-4',
     icon: '✦',
-    accent: '#818CF8',
+    accent: 'var(--accent)',
     title: 'Zenith Oracle AI',
     desc: 'Giải toán từng bước theo kiểu Socratic',
     stat: '∞',
@@ -158,7 +159,7 @@ function Demo4ScoreSlider({ onOpenAuth }) {
           <span>4.0</span><span>6.0</span><span>8.0</span><span>9.5</span>
         </div>
       </div>
-      <div className={`rounded-xl px-5 py-4 border ${onTrack ? 'border-success/30 bg-success/5' : 'border-amber-500/30 bg-amber-500/5'}`}>
+      <div className={`rounded-xl px-5 py-4 border ${onTrack ? 'border-success/30 bg-success/5' : 'border-[var(--warning)]/30 bg-[var(--warning)]/5'}`}>
         <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Dự đoán sau {Math.max(2, weeks)} tuần</p>
         <div className="flex items-baseline gap-2 mt-1">
           <span className="font-sans text-[28px] font-bold" style={{ color: onTrack ? 'var(--success)' : 'var(--warning)' }}>{predicted.toFixed(1)}</span>
@@ -176,31 +177,6 @@ function Demo4ScoreSlider({ onOpenAuth }) {
   )
 }
 
-function FaqItem({ q, a }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <div className="glass-card rounded-xl overflow-hidden">
-      <button onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left">
-        <span className="font-sans text-[14px] font-semibold text-foreground">{q}</span>
-        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}
-          className="text-dim flex-shrink-0">▾</motion.span>
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <p className="font-sans text-[13px] text-muted leading-relaxed px-5 pb-4">{a}</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
 
 export default function Landing({ onOpenAuth }) {
   usePageMeta('', { description: 'Ôn tập Toán với 40+ đề thi thật từ 63 tỉnh thành — AI phát hiện lỗi sai, tạo kế hoạch học tập cá nhân hóa cho học sinh THPT & lớp 10.' })
@@ -295,11 +271,11 @@ export default function Landing({ onOpenAuth }) {
       {/* ── Hero section ─────────────────────────────────────────────────────── */}
       <div className="relative z-10 w-full overflow-hidden">
         {/* Aurora background blobs */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <motion.div variants={heroItem('heroGlow')} initial="hidden" animate="show" className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
           <div className="aurora-blob" style={{ width: 600, height: 600, top: '-10%', left: '-5%', background: 'radial-gradient(circle, #3B6FE8 0%, transparent 70%)', animationDuration: '22s' }} />
           <div className="aurora-blob" style={{ width: 500, height: 500, top: '10%', right: '-8%', background: 'radial-gradient(circle, #7C5CE8 0%, transparent 70%)', animationDuration: '18s', animationDelay: '-7s' }} />
           <div className="aurora-blob" style={{ width: 400, height: 400, bottom: '5%', left: '20%', background: 'radial-gradient(circle, #059669 0%, transparent 70%)', animationDuration: '26s', animationDelay: '-13s' }} />
-        </div>
+        </motion.div>
         {/* Grain texture */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" aria-hidden="true"
           style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundSize: '200px' }}
@@ -308,20 +284,20 @@ export default function Landing({ onOpenAuth }) {
         <div className="flex flex-col items-center gap-10 text-center px-6 sm:px-8 pt-20 pb-16 w-full">
           <motion.div style={{ y: heroY }} className="flex flex-col items-center gap-5">
             <ZenithLogo variant="hero" />
-            <span className="font-sans text-[11px] font-semibold text-primary tracking-[3px] uppercase">
+            <motion.span variants={heroItem('eyebrow')} initial="hidden" animate="show" className="font-sans text-[11px] font-semibold text-primary tracking-[3px] uppercase">
               Kỳ thi tuyển sinh {getExamYear()} · Toán Lớp 10
-            </span>
-            <h1 className="font-sans text-foreground leading-[1.05] text-center"
+            </motion.span>
+            <motion.h1 variants={heroItem('headline')} initial="hidden" animate="show" className="font-sans text-foreground leading-[1.05] text-center"
               style={{ fontSize: 'clamp(3.2rem,7vw,5.5rem)', letterSpacing: '-0.025em', fontWeight: 800 }}>
               Học thật, đỗ thật.
-            </h1>
-            <p className="font-sans text-[17px] text-muted leading-relaxed max-w-[600px] text-center">
+            </motion.h1>
+            <motion.p variants={heroItem('sub')} initial="hidden" animate="show" className="font-sans text-[17px] text-muted leading-relaxed max-w-[600px] text-center">
               Zenith xem bạn sai câu nào, tìm đúng chỗ mất điểm nhiều nhất, rồi luyện đúng chỗ đó thôi. Không tốn thời gian ôn những gì bạn đã biết rồi.
-            </p>
+            </motion.p>
           </motion.div>
 
           {/* Oracle input */}
-          <div className="w-full max-w-xl flex flex-col items-center gap-4">
+          <motion.div variants={heroItem('cta')} initial="hidden" animate="show" className="w-full max-w-xl flex flex-col items-center gap-4">
             <form
               className="w-full flex items-center gap-2 bg-surface/80 border border-info/30 rounded-xl px-4 py-3 focus-within:border-info/50 transition"
               style={{ backdropFilter: 'blur(8px)' }}
@@ -384,11 +360,11 @@ export default function Landing({ onOpenAuth }) {
                 ))}
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Today card — logged in */}
           {user && (
-            <div className="w-full max-w-xl glass-card rounded-2xl px-5 py-4 flex items-center gap-5 flex-wrap">
+            <motion.div variants={heroItem('heroCard')} initial="hidden" animate="show" className="w-full max-w-xl glass-card rounded-2xl px-5 py-4 flex items-center gap-5 flex-wrap">
               {session?.placement_needed && (
                 <button onClick={() => navigate('/placement')}
                   className="flex items-center gap-1.5 font-sans text-[13px] font-semibold text-info hover:opacity-80 transition">
@@ -440,12 +416,12 @@ export default function Landing({ onOpenAuth }) {
               )}
               <button onClick={() => navigate('/progress')} className="font-sans text-[12px] text-dim hover:text-muted transition">Bản đồ</button>
               <button onClick={() => navigate('/history')} className="ml-auto font-sans text-[12px] text-dim hover:text-muted transition">Lịch sử →</button>
-            </div>
+            </motion.div>
           )}
 
           {/* Ghost today card — guest only */}
           {!user && (
-            <div className="w-full max-w-xl relative rounded-2xl border border-surface overflow-hidden">
+            <motion.div variants={heroItem('heroCard')} initial="hidden" animate="show" className="w-full max-w-xl relative rounded-2xl border border-surface overflow-hidden">
               <div className="px-5 py-4 flex items-center gap-5 flex-wrap blur-[3px] pointer-events-none select-none opacity-60">
                 <span className="font-sans text-[13px] font-semibold text-primary">🔥 12 ngày</span>
                 <span className="font-sans text-[13px] font-semibold text-info">📅 Còn 47 ngày</span>
@@ -458,16 +434,16 @@ export default function Landing({ onOpenAuth }) {
                   Đăng nhập để xem lộ trình của bạn →
                 </button>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Proof strip */}
-          <div className="flex items-center gap-2 flex-wrap justify-center font-sans text-[13px] text-dim">
+          <motion.div variants={heroItem('proof')} initial="hidden" animate="show" className="flex items-center gap-2 flex-wrap justify-center font-sans text-[13px] text-dim">
             {[
-              { value: '1,104', label: 'câu từ đề thi thật', color: '#6366F1' },
-              { value: '63', label: 'tỉnh thành', color: '#6366F1' },
-              { value: '6', label: 'dạng toán có Zenith AI', color: '#818CF8' },
-              { value: 'FSRS', label: 'ghi nhớ thông minh', color: '#34D399' },
+              { value: '1,104', label: 'câu từ đề thi thật', color: 'var(--primary)' },
+              { value: '63', label: 'tỉnh thành', color: 'var(--primary)' },
+              { value: '6', label: 'dạng toán có Zenith AI', color: 'var(--accent)' },
+              { value: 'FSRS', label: 'ghi nhớ thông minh', color: 'var(--mastery-4)' },
             ].map(({ value, label, color }, i, arr) => (
               <span key={label} className="flex items-center gap-1.5">
                 <span className="font-mono font-bold text-[15px]" style={{ color }}>{value}</span>
@@ -475,7 +451,7 @@ export default function Landing({ onOpenAuth }) {
                 {i < arr.length - 1 && <span className="text-border mx-2">·</span>}
               </span>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
 
@@ -491,13 +467,14 @@ export default function Landing({ onOpenAuth }) {
           {BENTO_FEATURES.map(feat => (
             <motion.div
               key={feat.id}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial="hidden"
+              whileInView="rest"
+              variants={cardHover}
+              whileHover="hover"
               viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
               className={`${feat.col} glass-card rounded-2xl p-5 flex flex-col gap-3 overflow-hidden relative`}
             >
-              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl" style={{ background: `linear-gradient(90deg, ${feat.accent}99, var(--primary-subtle))` }} />
+              <div className="absolute top-0 right-0 w-28 h-28 pointer-events-none rounded-tr-2xl" style={{ background: 'radial-gradient(circle at 100% 0%, var(--primary-subtle), transparent 70%)' }} />
               <div className="flex items-start gap-2">
                 <span className="text-2xl flex-shrink-0">{feat.icon}</span>
                 <div>
@@ -554,9 +531,9 @@ export default function Landing({ onOpenAuth }) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { step: '01', title: 'Làm đề thật của tỉnh mình', desc: 'Đề từ tỉnh bạn, cập nhật 2025. Zenith ghi lại bạn sai câu nào — không chỉ tổng điểm.', color: '#6366F1' },
-            { step: '02', title: 'Biết mình đang yếu chỗ nào', desc: 'Không phải \'sai 15/50 câu\'. Là: Hình học — bạn sai 7/8 câu phần đường tròn.', color: '#8B5CF6' },
-            { step: '03', title: 'AI nhắc ôn đúng lúc bạn sắp quên', desc: 'Zenith nhắc bạn ôn lại câu đó đúng lúc bạn sắp quên. Không cần tự nhớ ôn — app tự nhắc.', color: '#06B6D4' },
+            { step: '01', title: 'Làm đề thật của tỉnh mình', desc: 'Đề từ tỉnh bạn, cập nhật 2025. Zenith ghi lại bạn sai câu nào — không chỉ tổng điểm.', color: 'var(--primary)' },
+            { step: '02', title: 'Biết mình đang yếu chỗ nào', desc: 'Không phải \'sai 15/50 câu\'. Là: Hình học — bạn sai 7/8 câu phần đường tròn.', color: 'var(--accent)' },
+            { step: '03', title: 'AI nhắc ôn đúng lúc bạn sắp quên', desc: 'Zenith nhắc bạn ôn lại câu đó đúng lúc bạn sắp quên. Không cần tự nhớ ôn — app tự nhắc.', color: 'var(--info)' },
           ].map(({ step, title, desc, color }, i) => (
             <motion.div key={step}
               initial={{ opacity: 0, y: 16 }}
@@ -564,7 +541,7 @@ export default function Landing({ onOpenAuth }) {
               viewport={{ once: true, margin: '-60px' }}
               transition={{ duration: 0.4, delay: i * 0.1 }}
               className="glass-card rounded-2xl p-5 flex flex-col gap-3">
-              <span className="font-sans font-bold leading-none" style={{ fontSize: 'clamp(2rem,4vw,3rem)', color: color + '44' }}>{step}</span>
+              <span className="font-sans font-bold leading-none opacity-30" style={{ fontSize: 'clamp(2rem,4vw,3rem)', color: color }}>{step}</span>
               <p className="font-sans text-[14px] font-semibold text-foreground">{title}</p>
               <p className="font-sans text-[12px] text-dim leading-relaxed">{desc}</p>
             </motion.div>
@@ -585,7 +562,7 @@ export default function Landing({ onOpenAuth }) {
                 <th className="text-left py-2 text-dim font-normal"></th>
                 <th className="py-2 text-center text-dim font-normal">Sách luyện đề</th>
                 <th className="py-2 text-center text-dim font-normal">YouTube</th>
-                <th className="py-2 text-center font-bold text-primary border-b-2 border-primary bg-primary-subtle/30 rounded-t-lg px-2">Zenith</th>
+                <th className="py-2 text-center font-bold text-primary border-b-2 border-t border-l border-r border-primary/40 bg-primary-subtle/30 rounded-t-lg px-2">Zenith</th>
               </tr>
             </thead>
             <tbody>
@@ -600,7 +577,7 @@ export default function Landing({ onOpenAuth }) {
                   <td className="py-2.5 text-foreground">{row.feature}</td>
                   <td className="py-2.5 text-center text-dim">{row.sach ? '✓' : '✗'}</td>
                   <td className="py-2.5 text-center text-dim">{row.yt ? '✓' : '✗'}</td>
-                  <td className="py-2.5 text-center font-bold text-primary bg-[var(--primary-subtle)]/20 px-2" data-testid="zenith-cell">{row.zenith ? '✓' : '✗'}</td>
+                  <td className="py-2.5 text-center font-bold text-primary bg-[var(--primary-subtle)]/20 border-l border-r border-primary/20 px-2" data-testid="zenith-cell">{row.zenith ? '✓' : '✗'}</td>
                 </tr>
               ))}
             </tbody>
@@ -662,10 +639,10 @@ export default function Landing({ onOpenAuth }) {
         const d = getDaysUntilExam(user?.province ?? null)
         if (d == null) return null
         const phase = d > 60
-          ? { bg: '#0D1A1F', border: '#134E4A', color: '#34D399', msg: `Giai đoạn nền tảng · Còn ${d} ngày — xây vững kiến thức cơ bản` }
+          ? { bg: 'var(--mastery-4-bg)', border: 'var(--mastery-4)', color: 'var(--success)', msg: `Giai đoạn nền tảng · Còn ${d} ngày — xây vững kiến thức cơ bản` }
           : d > 14
-          ? { bg: '#1A130A', border: '#78350F', color: '#F2A20C', msg: `Giai đoạn luyện đề · Còn ${d} ngày — tập trung làm thật nhiều đề` }
-          : { bg: '#1A0808', border: '#7F1D1D', color: '#EF4444', msg: `Giai đoạn nước rút · Còn ${d} ngày — tập trung tối đa, không học dàn trải` }
+          ? { bg: 'var(--mastery-3-bg)', border: 'var(--mastery-3)', color: 'var(--warning)', msg: `Giai đoạn luyện đề · Còn ${d} ngày — tập trung làm thật nhiều đề` }
+          : { bg: 'var(--mastery-1-bg)', border: 'var(--mastery-1)', color: 'var(--destructive)', msg: `Giai đoạn nước rút · Còn ${d} ngày — tập trung tối đa, không học dàn trải` }
         return (
           <div className="relative z-10 w-full px-4 sm:px-8 py-3 flex items-center justify-center gap-3"
             style={{ background: phase.bg, borderTop: `1px solid ${phase.border}`, borderBottom: `1px solid ${phase.border}` }}>
@@ -694,7 +671,7 @@ export default function Landing({ onOpenAuth }) {
               viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 0.35, delay: i * 0.07 }}
               className="glass-card flex items-start justify-between gap-4 px-6 py-5 rounded-2xl"
-              style={{ border: `1px solid ${plan.tier === 'student' ? '#6366F144' : 'var(--border)'}`, background: plan.tier === 'student' ? 'var(--primary-subtle)' : undefined }}
+              style={{ border: `1px solid ${plan.tier === 'student' ? 'var(--primary-border)' : 'var(--border)'}`, background: plan.tier === 'student' ? 'var(--primary-subtle)' : undefined }}
             >
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
@@ -744,9 +721,18 @@ export default function Landing({ onOpenAuth }) {
         <h2 className="font-sans font-bold text-foreground text-center mb-6" style={{ fontSize: 'clamp(1.25rem,2.5vw,1.75rem)' }}>
           Câu hỏi thường gặp
         </h2>
-        <div className="flex flex-col gap-2">
-          {FAQ_ITEMS.map(item => <FaqItem key={item.q} q={item.q} a={item.a} />)}
-        </div>
+        <Accordion type="single" collapsible className="glass-base border border-surface rounded-2xl overflow-hidden">
+          {FAQ_ITEMS.map((item, i) => (
+            <AccordionItem key={item.q} value={String(i)} className="[&:last-child]:border-b-0">
+              <AccordionTrigger className="px-5 font-sans text-[14px] font-semibold hover:no-underline">
+                {item.q}
+              </AccordionTrigger>
+              <AccordionContent className="px-5">
+                <p className="font-sans text-[13px] text-muted leading-relaxed">{item.a}</p>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
 
       {/* ── CTA banner ───────────────────────────────────────────────────────── */}

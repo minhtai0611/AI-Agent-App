@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from './ui/button.jsx'
+import { Alert } from './ui/alert.jsx'
 
 export default function LowCreditBanner({ balance }) {
   const [dismissed, setDismissed] = useState(false)
@@ -9,9 +10,7 @@ export default function LowCreditBanner({ balance }) {
   if (dismissed) return null
 
   return (
-    <div
-      className="w-full flex items-center justify-between gap-3 px-5 py-2.5 font-sans text-xs bg-[var(--accent-subtle)] border-b border-[var(--accent-border)]"
-    >
+    <Alert className="w-full flex items-center justify-between gap-3 px-5 py-2.5 rounded-none border-x-0 border-t-0 border-b border-[var(--accent-border)] bg-[var(--accent-subtle)] font-sans text-xs">
       <span className="text-[var(--accent)]">
         ⚡ Còn <strong>{balance}</strong> lượt hỏi AI — nạp thêm để tiếp tục sử dụng tính năng AI.
       </span>
@@ -31,6 +30,6 @@ export default function LowCreditBanner({ balance }) {
           ×
         </button>
       </div>
-    </div>
+    </Alert>
   )
 }

@@ -110,7 +110,7 @@
   --shadow-md: 0 4px 6px rgba(15,22,41,0.07), 0 2px 4px rgba(15,22,41,0.06);
   --shadow-lg: 0 10px 15px rgba(15,22,41,0.08), 0 4px 6px rgba(15,22,41,0.05);
   --shadow-xl: 0 20px 25px rgba(15,22,41,0.10), 0 10px 10px rgba(15,22,41,0.04);
-  --shadow-glow: 0 0 0 1px rgba(59,111,232,0.25), 0 4px 16px rgba(59,111,232,0.15);
+  --shadow-glow: 0 0 0 1px rgba(91,143,240,0.25), 0 4px 16px rgba(91,143,240,0.15);
 
   /* ── Border radius ── */
   --radius-xs:   4px;

@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import confetti from 'canvas-confetti'
 import { Button } from '../components/ui/button.jsx'
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { NumberTicker } from '../components/ui/number-ticker.jsx'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
-import { pageVariants, viewNavigate } from '../utils/animations.js'
+import { pageVariants, viewNavigate, cardHover } from '../utils/animations.js'
 import AchievementCeremony from '../components/AchievementCeremony.jsx'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
@@ -44,6 +45,7 @@ const _listVariants = {
 const _itemVariants = {
   hidden:  { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.28, ease: 'easeOut' } },
+  hover:   cardHover.hover,
 }
 
 function parseSchoolsFromText(text) {
@@ -79,6 +81,7 @@ function SchoolCard({ school, studentScore }) {
     <motion.div
       ref={ref}
       variants={_itemVariants}
+      whileHover="hover"
       className="rounded-xl glass-base p-4 flex flex-col gap-2"
     >
       <div className="flex items-start justify-between gap-2">
@@ -982,29 +985,30 @@ export default function Results({ onOpenAuth }) {
         )}
 
         {/* ── Tab bar ── */}
-        <div className="flex border-b border-border">
-          {TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className="relative px-4 py-2.5 font-sans text-[0.8125rem] font-medium transition-colors flex items-center gap-1"
-              style={{ color: activeTab === tab.id ? 'var(--primary)' : 'var(--muted-fg)' }}
-            >
-              {tab.label}
-              {tab.loading && (
-                <span className="ml-1 inline-block w-3 h-3 rounded-full border-2 animate-spin flex-shrink-0"
-                  style={{ borderColor: 'var(--info)', borderTopColor: 'transparent' }} />
-              )}
-              {activeTab === tab.id && (
-                <motion.div
-                  layoutId="results-tab-indicator"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
-                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                />
-              )}
-            </button>
-          ))}
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="w-full justify-start h-auto rounded-none bg-transparent border-b border-border p-0">
+            {TABS.map(tab => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className="relative px-4 py-2.5 font-sans text-[0.8125rem] font-medium rounded-none bg-transparent h-auto flex items-center gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary data-[state=inactive]:text-muted-fg hover:text-foreground"
+              >
+                {tab.label}
+                {tab.loading && (
+                  <span className="ml-1 inline-block w-3 h-3 rounded-full border-2 animate-spin flex-shrink-0"
+                    style={{ borderColor: 'var(--info)', borderTopColor: 'transparent' }} />
+                )}
+                {activeTab === tab.id && (
+                  <motion.div
+                    layoutId="results-tab-indicator"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  />
+                )}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
         {/* ── Tab: Tổng quan ── */}
         {activeTab === 'overview' && (

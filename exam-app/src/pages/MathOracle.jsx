@@ -1348,7 +1348,8 @@ export default function MathOracle() {
                 : <div className="w-1.5 h-1.5 rounded-full bg-faint" title="" />
             }
           </div>
-          <h1 className="font-sans text-[52px] font-bold text-foreground leading-none tracking-tight">
+          <h1 className="font-sans text-[52px] font-bold text-foreground leading-none tracking-tight flex items-center gap-3">
+            <span style={{ color: 'var(--accent)' }} className={loading ? 'animate-pulse' : ''}>✦</span>
             Toán Oracle
           </h1>
           <p className="font-sans text-[15px] text-dim leading-relaxed max-w-[480px]">
@@ -1506,7 +1507,7 @@ export default function MathOracle() {
                   title={listening ? 'Đang nghe...' : 'Nhập bằng giọng nói'}
                   onClick={startListening}
                   disabled={listening || ocring || loading}
-                  className={`p-1.5 transition disabled:opacity-40 ${listening ? 'text-red-400' : 'text-dim hover:text-muted'}`}
+                  className={`p-1.5 transition disabled:opacity-40 ${listening ? 'text-[var(--destructive)]' : 'text-dim hover:text-muted'}`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
@@ -1641,7 +1642,7 @@ export default function MathOracle() {
 
           {/* OCR solution low-confidence warning */}
           {ocrSolutionWarning && chatMode === 'review' && (
-            <p className="font-sans text-[11px] text-amber-400 flex items-center gap-1.5">
+            <p className="font-sans text-[11px] text-[var(--warning)] flex items-center gap-1.5">
               ⚠ Nhận diện ảnh có thể không chính xác — kiểm tra lại lời giải trước khi chấm
             </p>
           )}

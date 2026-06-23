@@ -25,13 +25,13 @@ function SeverityBadge({ severity }) {
   const upper = severity.toUpperCase()
   if (upper === 'HIGH') {
     return (
-      <span className="px-2 py-0.5 rounded-full font-sans text-[11px] font-bold bg-red-500/20 text-red-400">
+      <span className="px-2 py-0.5 rounded-full font-sans text-[11px] font-bold bg-[var(--destructive)]/20 text-[var(--destructive)]">
         HIGH
       </span>
     )
   }
   return (
-    <span className="px-2 py-0.5 rounded-full font-sans text-[11px] font-bold bg-amber-500/20 text-[var(--accent)]">
+    <span className="px-2 py-0.5 rounded-full font-sans text-[11px] font-bold bg-[var(--warning)]/20 text-[var(--warning)]">
       MEDIUM
     </span>
   )
@@ -40,7 +40,7 @@ function SeverityBadge({ severity }) {
 function UserStatusChip({ isSuspended }) {
   if (isSuspended) {
     return (
-      <span className="px-2 py-0.5 rounded-full font-sans text-[11px] font-bold bg-red-500/20 text-red-400">
+      <span className="px-2 py-0.5 rounded-full font-sans text-[11px] font-bold bg-[var(--destructive)]/20 text-[var(--destructive)]">
         suspended
       </span>
     )
@@ -141,7 +141,7 @@ export default function AdminSecurityEvents() {
               autoFocus
             />
             {error && (
-              <p className="font-sans text-[12px] text-red-400">{error}</p>
+              <p className="font-sans text-[12px] text-[var(--destructive)]">{error}</p>
             )}
             <button
               type="submit"
@@ -157,7 +157,7 @@ export default function AdminSecurityEvents() {
             </span>
             <button
               onClick={handleClearKey}
-              className="px-3 py-1.5 rounded-lg font-sans text-[12px] border border-red-500/30 text-red-400 hover:border-red-500/60 transition"
+              className="px-3 py-1.5 rounded-lg font-sans text-[12px] border border-[var(--destructive)]/30 text-[var(--destructive)] hover:border-[var(--destructive)]/60 transition"
             >
               Xoá key
             </button>
@@ -166,7 +166,7 @@ export default function AdminSecurityEvents() {
 
         {/* Error state (when key is set but fetch failed) */}
         {adminKey && error && (
-          <p className="font-sans text-[13px] text-red-400">{error}</p>
+          <p className="font-sans text-[13px] text-[var(--destructive)]">{error}</p>
         )}
 
         {/* Events table */}

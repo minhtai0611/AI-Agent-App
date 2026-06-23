@@ -24,8 +24,9 @@ export const itemVariants = {
 // Apply with whileHover="hover" initial="rest" on motion.div glass-base cards
 
 export const cardHover = {
-  rest:  { y: 0,  transition: { duration: 0.2, ease: 'easeOut' } },
-  hover: { y: -3, transition: { duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] } },
+  hidden: { opacity: 0, y: 10 },
+  rest:   { opacity: 1, y: 0,  transition: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] } },
+  hover:  { y: -3,             transition: { duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] } },
 }
 
 // ── Landing hero sequence — 7-element orchestrated entry ─────────────────────

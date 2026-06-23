@@ -158,3 +158,117 @@ Remove any 4th blob (pink) if present.
 - `prefers-reduced-transparency` — swap glass to opaque surface.
 - Touch targets minimum 44×44px on coarse pointer devices.
 - Focus ring: 2px `--primary` outline, 2px offset.
+
+---
+
+## shadcn/ui Component Usage
+
+All primitives from `exam-app/src/components/ui/`. Use shadcn over custom HTML for all patterns below.
+
+### Button
+```jsx
+<Button variant="default|ghost|outline|destructive|link" size="default|sm|lg|icon">
+```
+Never use `.btn-primary`, `.btn-accent`, `.ripple-btn`, or `bg-info` directly.
+
+### Badge
+```jsx
+<Badge variant="default|success|destructive|accent|successSubtle|destructiveSubtle">
+```
+Use `successSubtle` / `destructiveSubtle` for soft pill tags. `success` / `destructive` for solid fills.
+
+### Accordion
+Wrap all items in one glass container. Override `hover:no-underline` on trigger. Remove last item's bottom border:
+```jsx
+<Accordion type="single" collapsible className="glass-base border border-surface rounded-2xl overflow-hidden">
+  <AccordionItem value="0" className="[&:last-child]:border-b-0">
+    <AccordionTrigger className="px-5 font-sans text-[14px] font-semibold hover:no-underline">
+      Question
+    </AccordionTrigger>
+    <AccordionContent className="px-5">
+      <p className="font-sans text-[13px] text-muted leading-relaxed">Answer</p>
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+Tailwind keyframes required: `accordion-down` / `accordion-up` in `tailwind.config.js`.
+
+### Tabs (underline style)
+Override default pill styling to match the underline tab bar pattern:
+```jsx
+<Tabs value={activeTab} onValueChange={setActiveTab}>
+  <TabsList className="w-full justify-start h-auto rounded-none bg-transparent border-b border-border p-0">
+    <TabsTrigger
+      value="tab-id"
+      className="relative px-4 py-2.5 rounded-none bg-transparent h-auto data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary data-[state=inactive]:text-muted-fg hover:text-foreground"
+    >
+      Label
+    </TabsTrigger>
+  </TabsList>
+</Tabs>
+```
+Tab content uses conditional rendering (`{activeTab === 'id' && ...}`) — not `TabsContent` — to avoid rendering inactive panels.
+
+### Dialog / Modal
+Radix handles focus trap + ARIA automatically. For non-closeable dialogs (onboarding), hide the X button:
+```jsx
+<Dialog open={isOpen} onOpenChange={setIsOpen}>
+  <DialogContent className="max-w-md [&>button:last-child]:hidden">
+    <DialogHeader>
+      <DialogTitle>Title</DialogTitle>
+      <DialogDescription>Description</DialogDescription>
+    </DialogHeader>
+    {/* content */}
+  </DialogContent>
+</Dialog>
+```
+
+### Progress
+```jsx
+<Progress value={75} className="h-1" />   {/* thin progress bar */}
+<Progress value={percent} />              {/* default h-2 */}
+```
+Default indicator: `--primary`. Use inside dialogs/forms to show completion state.
+
+### Tooltip
+Always wrap in `TooltipProvider`. For controlled (programmatic) tooltips, pass `open` without `onOpenChange`:
+```jsx
+<TooltipProvider delayDuration={0}>
+  <Tooltip open={isVisible}>
+    <TooltipTrigger asChild><button>Trigger</button></TooltipTrigger>
+    <TooltipContent side="bottom" align="end" className="...override styles...">
+      Content
+    </TooltipContent>
+  </Tooltip>
+</TooltipProvider>
+```
+For card-style tooltips override `TooltipContent` className: `bg-surface border border-border text-foreground rounded-xl shadow-lg`.
+
+### Alert / Banner
+For full-width top strip banners, override rounded/border:
+```jsx
+<Alert className="rounded-none border-x-0 border-t-0 border-b border-accent-border bg-accent-subtle">
+  content
+</Alert>
+```
+Variants: `"default"` (surface) | `"destructive"` (red) | `"warning"` (amber) | `"info"` (primary).
+
+### Toasts (sonner)
+```js
+import { toast } from 'sonner'
+toast.success('Saved')
+toast.error('Failed')
+toast.info('Info')
+```
+`Toaster` is mounted in `App.jsx`. Styled to Lumina surface via `sonner.jsx` in `components/ui/`.
+
+---
+
+## Do Not
+
+- Use raw hex in JSX — always CSS variables
+- Use `font-family: 'Be Vietnam Pro'` or `'Plus Jakarta Sans'` — Sora only
+- Use `var(--info)` for action buttons — use `var(--primary)` or `var(--accent)`
+- Rename or restructure protected credit hooks in `aiClient.js` or `AuthContext.jsx`
+- Add HTTP retry to `analyzeResult()` — it was deliberately removed (double-charge risk)
+- Create new AI clients per request in backend — use the `get_ai_client()` singleton
