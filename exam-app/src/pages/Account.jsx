@@ -1,7 +1,9 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Badge } from '../components/ui/badge.jsx'
 import { Button } from '../components/ui/button.jsx'
 import { Input } from '../components/ui/input.jsx'
+import { Progress } from '../components/ui/progress.jsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -1067,12 +1069,7 @@ export default function Account() {
                         <span className="font-sans text-xs text-dim">{masteryProgress.next.icon} {masteryProgress.next.label}</span>
                       )}
                     </div>
-                    <div className="w-full h-2 bg-border rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-primary transition-all duration-700"
-                        style={{ width: `${Math.round(masteryProgress.pct * 100)}%` }}
-                      />
-                    </div>
+                    <Progress value={Math.round(masteryProgress.pct * 100)} className="bg-border" />
                     <span className="font-sans text-[0.6875rem] text-dim">
                       {user.solid_concept_count ?? 0} khái niệm vững chắc
                       {masteryProgress.next ? ` · mục tiêu ${masteryProgress.next.minSolid}` : ' · cấp cao nhất'}
@@ -1279,9 +1276,9 @@ export default function Account() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{provinceNarrative.headline}</span>
                           {provinceNarrative.badge && (
-                            <span className={`font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${
-                              provinceNarrative.sentiment === 'above' ? 'bg-success/20 text-success' : 'bg-[var(--accent)]/20 text-[var(--accent)]'
-                            }`}>{provinceNarrative.badge}</span>
+                            <Badge variant={provinceNarrative.sentiment === 'above' ? 'successSubtle' : 'accent'}>
+                              {provinceNarrative.badge}
+                            </Badge>
                           )}
                         </div>
                         <span className="font-sans text-xs text-muted leading-snug">{provinceNarrative.detail}</span>
@@ -1428,12 +1425,7 @@ export default function Account() {
                   <div className="flex flex-col gap-1 flex-1 min-w-0">
                     <span className="font-sans text-sm font-bold text-foreground">{nextMilestone.label}</span>
                     <span className="font-sans text-xs text-muted">{nextMilestone.progress}</span>
-                    <div className="w-full h-1.5 bg-border rounded-full overflow-hidden mt-0.5">
-                      <div
-                        className="h-full rounded-full bg-primary transition-all duration-700"
-                        style={{ width: `${Math.round(nextMilestone.pct * 100)}%` }}
-                      />
-                    </div>
+                    <Progress value={Math.round(nextMilestone.pct * 100)} className="h-1.5 mt-0.5 bg-border" />
                   </div>
                   {nextMilestone.remaining != null && (
                     <span className="font-sans text-[0.6875rem] text-info font-semibold flex-shrink-0">
@@ -1781,12 +1773,7 @@ export default function Account() {
                           <div key={node.id} className="flex flex-col gap-2 px-4 py-3 rounded-xl bg-background border border-border">
                             <div className="flex items-center justify-between gap-3">
                               <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{node.label}</span>
-                              <span
-                                className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-                                style={{ background: '#EF444420', color: '#EF4444', border: '1px solid #EF444440' }}
-                              >
-                                Yếu
-                              </span>
+                              <Badge variant="destructiveSubtle" className="flex-shrink-0">Yếu</Badge>
                             </div>
                             {/* Mastery bar */}
                             <div className="flex items-center gap-2">
@@ -1848,7 +1835,7 @@ export default function Account() {
                 {user.subscription_period === 'annual' && (
                   <div className="flex flex-col items-center gap-0.5">
                     <span className="font-sans text-[0.6875rem] text-faint">Chu kỳ</span>
-                    <span className="font-sans text-xs font-bold px-2.5 py-0.5 rounded-full bg-success/20 text-success">Hàng năm</span>
+                    <Badge variant="successSubtle">Hàng năm</Badge>
                   </div>
                 )}
                 {user.credits_reset_at && (
@@ -1973,10 +1960,10 @@ export default function Account() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-sans text-sm font-bold text-foreground">{plan.label}</span>
                         {plan.badge && (
-                          <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">{plan.badge}</span>
+                          <Badge variant="accent">{plan.badge}</Badge>
                         )}
                         {tier === plan.tier && (
-                          <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-success/20 text-success">Hiện tại</span>
+                          <Badge variant="successSubtle">Hiện tại</Badge>
                         )}
                       </div>
                       <div className="flex items-center gap-3 flex-wrap">
@@ -1996,14 +1983,10 @@ export default function Account() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-sans text-[0.6875rem] text-faint">≈ {plan.effective}</span>
                           {billing === 'annual' && plan.tier === 'student' && studentSavingsDays > 0 && (
-                            <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-success/20 text-success">
-                              +{studentSavingsDays} ngày học tập AI miễn phí
-                            </span>
+                            <Badge variant="successSubtle">+{studentSavingsDays} ngày học tập AI miễn phí</Badge>
                           )}
                           {billing === 'annual' && plan.tier === 'complete' && completeSavingsDays > 0 && (
-                            <span className="font-sans text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-success/20 text-success">
-                              +{completeSavingsDays} ngày học tập AI miễn phí
-                            </span>
+                            <Badge variant="successSubtle">+{completeSavingsDays} ngày học tập AI miễn phí</Badge>
                           )}
                         </div>
                       )}

@@ -18,6 +18,12 @@ const badgeVariants = cva(
           "bg-[var(--success)] text-[var(--success-foreground)]",
         warning:
           "bg-[var(--warning)] text-[var(--warning-foreground)]",
+        accent:
+          "bg-accent/20 text-accent",
+        successSubtle:
+          "bg-success/20 text-success",
+        destructiveSubtle:
+          "bg-destructive/20 text-destructive",
       },
     },
     defaultVariants: {

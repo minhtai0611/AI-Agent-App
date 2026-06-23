@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { Button } from '../components/ui/button.jsx'
 import {
   adminListUsers, adminDeleteUser, adminUnlockUser, adminResetUser,
   adminSuspendUser, adminUnsuspendUser, adminGrantCredits, adminSetSubscription, adminGetSecurityEvents,
@@ -71,10 +72,7 @@ function DevicesModal({ user, adminKey, onClose }) {
             ))}
           </>
         )}
-        <button onClick={onClose}
-          className="mt-2 w-full py-2 rounded-lg font-sans text-[13px] text-dim border border-surface hover:text-foreground transition">
-          Đóng
-        </button>
+        <Button variant="outline" onClick={onClose} className="mt-2 w-full text-[13px]">Đóng</Button>
       </div>
     </div>
   )
@@ -128,17 +126,11 @@ function SubscriptionModal({ user, adminKey, onClose, onDone }) {
           <span className="font-sans text-[11px] font-semibold text-muted">Gói</span>
           <div className="flex gap-2">
             {TIERS.map(t => (
-              <button
-                key={t.value}
-                onClick={() => setTier(t.value)}
-                className={`flex-1 py-2 rounded-lg font-sans text-[12px] font-semibold border transition ${
-                  tier === t.value
-                    ? 'bg-primary text-background border-primary'
-                    : 'bg-surface border-surface text-muted hover:border-border'
-                }`}
-              >
+              <Button key={t.value} onClick={() => setTier(t.value)}
+                variant={tier === t.value ? 'default' : 'outline'}
+                className="flex-1 text-[12px] font-semibold">
                 {t.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -147,17 +139,11 @@ function SubscriptionModal({ user, adminKey, onClose, onDone }) {
           <span className="font-sans text-[11px] font-semibold text-muted">Chu kỳ</span>
           <div className="flex gap-2">
             {[['monthly', 'Tháng'], ['annual', 'Năm']].map(([v, l]) => (
-              <button
-                key={v}
-                onClick={() => setPeriod(v)}
-                className={`flex-1 py-2 rounded-lg font-sans text-[12px] font-semibold border transition ${
-                  period === v
-                    ? 'bg-primary text-background border-primary'
-                    : 'bg-surface border-surface text-muted hover:border-border'
-                }`}
-              >
+              <Button key={v} onClick={() => setPeriod(v)}
+                variant={period === v ? 'default' : 'outline'}
+                className="flex-1 text-[12px] font-semibold">
                 {l}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -182,10 +168,10 @@ function SubscriptionModal({ user, adminKey, onClose, onDone }) {
 
         {error && <p className="font-sans text-[12px] text-destructive">{error}</p>}
         <div className="flex gap-2">
-          <button onClick={submit} disabled={loading} className="flex-1 py-2 rounded-lg font-sans text-[13px] font-bold bg-primary text-background disabled:opacity-40">
+          <Button onClick={submit} disabled={loading} className="flex-1 font-bold text-[13px]">
             {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
-          </button>
-          <button onClick={onClose} className="px-4 py-2 rounded-lg font-sans text-[13px] text-dim hover:text-foreground transition">Huỷ</button>
+          </Button>
+          <Button variant="ghost" onClick={onClose} className="text-[13px] text-dim">Huỷ</Button>
         </div>
       </div>
     </div>
@@ -219,10 +205,10 @@ function GrantCreditsModal({ user, adminKey, onClose, onDone }) {
         />
         {error && <p className="font-sans text-[12px] text-[var(--destructive)]">{error}</p>}
         <div className="flex gap-2">
-          <button onClick={submit} disabled={loading} className="flex-1 py-2 rounded-lg font-sans text-[13px] font-bold bg-primary text-background disabled:opacity-40">
+          <Button onClick={submit} disabled={loading} className="flex-1 font-bold text-[13px]">
             {loading ? 'Đang gửi...' : 'Xác nhận'}
-          </button>
-          <button onClick={onClose} className="px-4 py-2 rounded-lg font-sans text-[13px] text-dim hover:text-foreground transition">Huỷ</button>
+          </Button>
+          <Button variant="ghost" onClick={onClose} className="text-[13px] text-dim">Huỷ</Button>
         </div>
       </div>
     </div>
@@ -254,10 +240,10 @@ function SuspendModal({ user, adminKey, onClose, onDone }) {
         />
         {error && <p className="font-sans text-[12px] text-[var(--destructive)]">{error}</p>}
         <div className="flex gap-2">
-          <button onClick={submit} disabled={loading} className="flex-1 py-2 rounded-lg font-sans text-[13px] font-bold border border-[var(--accent-border)]/40 text-[var(--accent)] hover:bg-[var(--accent)]/10 transition">
+          <Button variant="outline" onClick={submit} disabled={loading} className="flex-1 font-bold text-[13px] text-accent border-accent/40 hover:bg-accent/10">
             {loading ? 'Đang xử lý...' : 'Tạm khoá'}
-          </button>
-          <button onClick={onClose} className="px-4 py-2 rounded-lg font-sans text-[13px] text-dim hover:text-foreground transition">Huỷ</button>
+          </Button>
+          <Button variant="ghost" onClick={onClose} className="text-[13px] text-dim">Huỷ</Button>
         </div>
       </div>
     </div>
@@ -290,10 +276,10 @@ function ResetModal({ user, adminKey, onClose, onDone }) {
         />
         {error && <p className="font-sans text-[12px] text-[var(--destructive)]">{error}</p>}
         <div className="flex gap-2">
-          <button onClick={submit} disabled={loading || confirm !== 'RESET'} className="flex-1 py-2 rounded-lg font-sans text-[13px] font-bold disabled:opacity-40 transition bg-destructive text-white focus:outline-none">
+          <Button variant="destructive" onClick={submit} disabled={loading || confirm !== 'RESET'} className="flex-1 font-bold text-[13px]">
             {loading ? 'Đang reset...' : 'Xác nhận Reset'}
-          </button>
-          <button onClick={onClose} className="px-4 py-2 rounded-lg font-sans text-[13px] text-dim hover:text-foreground transition">Huỷ</button>
+          </Button>
+          <Button variant="ghost" onClick={onClose} className="text-[13px] text-dim">Huỷ</Button>
         </div>
       </div>
     </div>
@@ -320,10 +306,10 @@ function DeleteUserModal({ user, adminKey, onClose, onDone }) {
         <p className="font-sans text-[12px] text-muted">Tài khoản <strong className="text-foreground">{user.email}</strong> và toàn bộ dữ liệu sẽ bị xóa vĩnh viễn.</p>
         {error && <p className="font-sans text-[12px] text-[var(--destructive)]">{error}</p>}
         <div className="flex gap-2">
-          <button onClick={submit} disabled={loading} className="flex-1 py-2 rounded-lg font-sans text-[13px] font-bold transition bg-destructive text-white disabled:opacity-40">
+          <Button variant="destructive" onClick={submit} disabled={loading} className="flex-1 font-bold text-[13px]">
             {loading ? 'Đang xóa...' : 'Xóa vĩnh viễn'}
-          </button>
-          <button onClick={onClose} className="px-4 py-2 rounded-lg font-sans text-[13px] text-dim hover:text-foreground transition">Huỷ</button>
+          </Button>
+          <Button variant="ghost" onClick={onClose} className="text-[13px] text-dim">Huỷ</Button>
         </div>
       </div>
     </div>
@@ -374,10 +360,10 @@ function EditProfileModal({ user, adminKey, onClose, onDone }) {
         </div>
         {error && <p className="font-sans text-[12px] text-[var(--destructive)]">{error}</p>}
         <div className="flex gap-2">
-          <button onClick={submit} disabled={loading} className="flex-1 py-2 rounded-lg font-sans text-[13px] font-bold bg-primary text-background disabled:opacity-40">
+          <Button onClick={submit} disabled={loading} className="flex-1 font-bold text-[13px]">
             {loading ? 'Đang lưu...' : 'Lưu'}
-          </button>
-          <button onClick={onClose} className="px-4 py-2 rounded-lg font-sans text-[13px] text-dim hover:text-foreground transition">Huỷ</button>
+          </Button>
+          <Button variant="ghost" onClick={onClose} className="text-[13px] text-dim">Huỷ</Button>
         </div>
       </div>
     </div>
@@ -465,30 +451,26 @@ function UserRow({ user, adminKey, onRefresh }) {
           )}
         </div>
         <div className="relative" ref={menuRef}>
-          <button
-            onClick={() => setMenuOpen(v => !v)}
-            disabled={actionLoading}
-            className="px-3 py-1.5 rounded-lg font-sans text-[11px] text-muted border border-surface hover:text-foreground hover:border-border transition"
-          >
+          <Button variant="outline" size="sm" onClick={() => setMenuOpen(v => !v)} disabled={actionLoading} className="text-[11px] text-muted">
             {actionLoading ? '...' : 'Thao tác ▾'}
-          </button>
+          </Button>
           {menuOpen && (
             <div className="absolute right-0 top-8 z-20 w-44 bg-surface border border-surface rounded-xl shadow-xl overflow-hidden">
               {user.is_suspended ? (
-                <button onClick={handleUnsuspend} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-emerald-400 hover:bg-surface transition">Bỏ tạm khoá</button>
+                <Button variant="ghost" onClick={handleUnsuspend} className="w-full justify-start px-4 py-2.5 text-[12px] text-success rounded-none">Bỏ tạm khoá</Button>
               ) : (
-                <button onClick={() => { setModal('suspend'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-[var(--accent)] hover:bg-surface transition">Tạm khoá</button>
+                <Button variant="ghost" onClick={() => { setModal('suspend'); setMenuOpen(false) }} className="w-full justify-start px-4 py-2.5 text-[12px] text-accent rounded-none">Tạm khoá</Button>
               )}
               {!!user.is_locked && (
-                <button onClick={handleUnlock} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-emerald-400 hover:bg-surface transition">Mở khóa</button>
+                <Button variant="ghost" onClick={handleUnlock} className="w-full justify-start px-4 py-2.5 text-[12px] text-success rounded-none">Mở khóa</Button>
               )}
-              <button onClick={() => { setModal('grant'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-muted hover:bg-surface transition">Tặng Credits</button>
-              <button onClick={() => { setModal('subscription'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-muted hover:bg-surface transition">Thay đổi gói</button>
-              <button onClick={() => { setModal('editProfile'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-muted hover:bg-surface transition">Sửa hồ sơ</button>
-              <button onClick={() => { setModal('devices'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-muted hover:bg-surface transition">Thiết bị</button>
+              <Button variant="ghost" onClick={() => { setModal('grant'); setMenuOpen(false) }} className="w-full justify-start px-4 py-2.5 text-[12px] text-muted rounded-none">Tặng Credits</Button>
+              <Button variant="ghost" onClick={() => { setModal('subscription'); setMenuOpen(false) }} className="w-full justify-start px-4 py-2.5 text-[12px] text-muted rounded-none">Thay đổi gói</Button>
+              <Button variant="ghost" onClick={() => { setModal('editProfile'); setMenuOpen(false) }} className="w-full justify-start px-4 py-2.5 text-[12px] text-muted rounded-none">Sửa hồ sơ</Button>
+              <Button variant="ghost" onClick={() => { setModal('devices'); setMenuOpen(false) }} className="w-full justify-start px-4 py-2.5 text-[12px] text-muted rounded-none">Thiết bị</Button>
               <div className="border-t border-surface" />
-              <button onClick={() => { setModal('reset'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-[var(--accent)] hover:bg-surface transition">Reset tài khoản</button>
-              <button onClick={() => { setModal('delete'); setMenuOpen(false) }} className="w-full px-4 py-2.5 font-sans text-[12px] text-left text-[var(--destructive)] hover:bg-surface transition">Xóa tài khoản</button>
+              <Button variant="ghost" onClick={() => { setModal('reset'); setMenuOpen(false) }} className="w-full justify-start px-4 py-2.5 text-[12px] text-accent rounded-none">Reset tài khoản</Button>
+              <Button variant="ghost" onClick={() => { setModal('delete'); setMenuOpen(false) }} className="w-full justify-start px-4 py-2.5 text-[12px] text-destructive rounded-none">Xóa tài khoản</Button>
             </div>
           )}
         </div>
@@ -553,9 +535,9 @@ function UsersTab({ adminKey }) {
 
       {total > LIMIT && (
         <div className="flex items-center justify-center gap-3">
-          <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1.5 rounded-lg font-sans text-[12px] border border-surface text-muted disabled:opacity-40 hover:text-foreground transition">← Trước</button>
+          <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(p => p - 1)} className="text-[12px]">← Trước</Button>
           <span className="font-sans text-[12px] text-dim">Trang {page} / {Math.ceil(total / LIMIT)}</span>
-          <button disabled={page >= Math.ceil(total / LIMIT)} onClick={() => setPage(p => p + 1)} className="px-3 py-1.5 rounded-lg font-sans text-[12px] border border-surface text-muted disabled:opacity-40 hover:text-foreground transition">Sau →</button>
+          <Button variant="outline" size="sm" disabled={page >= Math.ceil(total / LIMIT)} onClick={() => setPage(p => p + 1)} className="text-[12px]">Sau →</Button>
         </div>
       )}
     </div>
@@ -666,12 +648,9 @@ export default function Admin() {
             autoComplete="current-password"
           />
           {authError && <p className="font-sans text-[12px] text-[var(--destructive)]">{authError}</p>}
-          <button
-            type="submit" disabled={authLoading || !keyInput}
-            className="py-2.5 rounded-xl font-sans text-[13px] font-bold disabled:opacity-40 transition bg-primary text-background"
-          >
+          <Button type="submit" disabled={authLoading || !keyInput} className="w-full font-bold text-[13px]">
             {authLoading ? 'Đang xác thực...' : 'Đăng nhập'}
-          </button>
+          </Button>
         </form>
       </div>
     )
@@ -681,21 +660,16 @@ export default function Admin() {
     <div className="min-h-screen bg-surface flex flex-col">
       <nav className="flex items-center justify-between px-6 glass-base border-b border-surface" style={{ height: 56 }}>
         <span className="font-sans text-[15px] font-bold text-[var(--accent)]">Zenith Admin</span>
-        <button
-          onClick={() => setAdminKey('')}
-          className="font-sans text-[12px] text-dim hover:text-foreground transition"
-        >
-          Đăng xuất
-        </button>
+        <Button variant="ghost" onClick={() => setAdminKey('')} className="text-[12px] text-dim">Đăng xuất</Button>
       </nav>
 
       <div className="max-w-3xl mx-auto w-full px-4 py-8 flex flex-col gap-6">
         <div className="flex gap-1 glass-base border border-surface rounded-xl p-1">
           {[['users', 'Người dùng'], ['events', 'Sự kiện bảo mật']].map(([key, label]) => (
-            <button key={key} onClick={() => setTab(key)}
-              className={`flex-1 py-2 rounded-lg font-sans text-[13px] font-medium transition ${tab === key ? 'bg-primary text-background font-semibold' : 'text-dim hover:text-muted'}`}>
+            <Button key={key} onClick={() => setTab(key)} variant={tab === key ? 'default' : 'ghost'}
+              className="flex-1 text-[13px] font-medium">
               {label}
-            </button>
+            </Button>
           ))}
         </div>
 
