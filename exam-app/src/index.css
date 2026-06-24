@@ -607,3 +607,228 @@ body {
     --radius:            var(--radius-md);
   }
 }
+
+/* ─── Celestial effects — Luminary ───────────────────────────────────────────
+   New effects for Landing/Navbar rebuild. Old aurora-drift/scrollX/cta-gradient-btn
+   remain unchanged above for other pages that reference them.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Nebula wisp breathing (transform only — opacity set by mode selectors) */
+@keyframes nebula-breathe-a {
+  0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+  25%  { transform: translate(45px, -30px) scale(1.18) rotate(4deg); }
+  65%  { transform: translate(-22px, 18px) scale(0.85) rotate(-3deg); }
+  100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+}
+@keyframes nebula-breathe-b {
+  0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+  35%  { transform: translate(-35px, 25px) scale(1.22) rotate(-5deg); }
+  70%  { transform: translate(18px, -12px) scale(0.88) rotate(2deg); }
+  100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+}
+@keyframes nebula-breathe-c {
+  0%   { transform: translate(0, 0) scale(1); }
+  40%  { transform: translate(20px, -18px) scale(1.12); }
+  80%  { transform: translate(-10px, 22px) scale(0.92); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+.nebula-wisp {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(120px);
+  opacity: 0.05;
+}
+.nebula-wisp:nth-child(1) {
+  background: #3B6FE8;
+  animation: nebula-breathe-a 28s ease-in-out infinite;
+}
+.nebula-wisp:nth-child(2) {
+  background: #7C5CE8;
+  animation: nebula-breathe-b 34s ease-in-out infinite;
+}
+.nebula-wisp:nth-child(3) {
+  background: #059669;
+  animation: nebula-breathe-c 42s ease-in-out infinite;
+}
+.dark .nebula-wisp,
+[data-theme="dark"] .nebula-wisp {
+  opacity: 0.16;
+}
+
+/* Star field wrapper — opacity multiplier for mode */
+.star-field-wrapper {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.07;
+}
+.dark .star-field-wrapper,
+[data-theme="dark"] .star-field-wrapper {
+  opacity: 1;
+}
+
+/* Star layers inside the wrapper */
+.star-layer,
+.star-twinkle-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  background: transparent;
+}
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 0.08; }
+}
+.star-twinkle-layer {
+  animation: star-twinkle 4.5s ease-in-out infinite alternate;
+}
+
+/* Floating math symbol opacity */
+.float-math-symbol {
+  position: absolute;
+  pointer-events: none;
+  font-family: 'DM Mono', monospace;
+  line-height: 1;
+  font-weight: 500;
+  opacity: 0.08;
+  color: var(--primary);
+  user-select: none;
+}
+.dark .float-math-symbol,
+[data-theme="dark"] .float-math-symbol {
+  opacity: 0.03;
+}
+
+/* Spectral gate button (replaces cta-gradient-btn) */
+@keyframes spectral-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(91, 143, 240, 0); }
+  50%       { box-shadow: 0 0 28px 6px rgba(91, 143, 240, 0.22); }
+}
+@keyframes spectral-trace {
+  0%        { transform: translateX(-100%) skewX(-20deg); opacity: 0; }
+  8%        { opacity: 1; }
+  42%       { transform: translateX(250%) skewX(-20deg); opacity: 0.9; }
+  43%, 100% { opacity: 0; transform: translateX(250%) skewX(-20deg); }
+}
+.spectral-gate-btn {
+  background: radial-gradient(ellipse at center, #5B8FF0 0%, #3B6FE8 50%, #1e3fa0 100%);
+  border: 1px solid rgba(91, 143, 240, 0.45);
+  color: #fff;
+  animation: spectral-pulse 3s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  font-weight: 600;
+}
+.spectral-gate-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 38%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.18) 50%, transparent 80%);
+  animation: spectral-trace 4.5s ease-in-out infinite;
+}
+
+/* Constellation ascent (replaces scrollX testimonials) */
+@keyframes constellation-ascent {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+.constellation-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: constellation-ascent 48s linear infinite;
+}
+.constellation-column:nth-child(2) {
+  animation-delay: -24s;
+}
+
+/* Witness (testimonial) cards */
+.witness-card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+.dark .witness-card,
+[data-theme="dark"] .witness-card {
+  background: rgba(17, 22, 34, 0.60);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-color: rgba(91, 143, 240, 0.08);
+}
+
+/* Pillar card hover effects */
+.pillar-card {
+  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+}
+.pillar-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(59, 111, 232, 0.12), 0 0 0 1px rgba(59, 111, 232, 0.12);
+}
+.dark .pillar-card:hover,
+[data-theme="dark"] .pillar-card:hover {
+  box-shadow: 0 20px 40px rgba(91, 143, 240, 0.18), 0 0 0 1px rgba(91, 143, 240, 0.18);
+}
+.pillar-glyph {
+  display: inline-block;
+  transition: text-shadow 0.3s ease, transform 0.3s ease;
+}
+.pillar-card:hover .pillar-glyph {
+  text-shadow: 0 0 20px currentColor;
+  transform: scale(1.12);
+}
+
+/* Floating glass navbar */
+.luminary-nav {
+  background: rgba(244, 246, 252, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(59, 111, 232, 0.08);
+}
+.dark .luminary-nav,
+[data-theme="dark"] .luminary-nav {
+  background: rgba(8, 11, 20, 0.82);
+  border-bottom-color: rgba(91, 143, 240, 0.08);
+}
+
+/* Nav link active underline glow */
+.nav-link-luminary {
+  position: relative;
+}
+.nav-link-luminary.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+/* ── High-contrast mode — Crystal Cosmos ───────────────────────────────── */
+@media (prefers-contrast: more) {
+  .nebula-wisp,
+  .star-field-wrapper { display: none; }
+  .luminary-nav {
+    background: var(--background) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: 2px solid var(--foreground) !important;
+  }
+  .pillar-card { border: 2px solid var(--foreground) !important; }
+  .spectral-gate-btn {
+    animation: none !important;
+    box-shadow: none !important;
+  }
+  .float-math-symbol { display: none; }
+}

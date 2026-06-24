@@ -80,9 +80,7 @@ function _attachInterceptors(instance) {
         }
         _isRefreshing = true
         try {
-          const res = await axios.post(`${BASE}/api/refresh`, {}, {
-            headers: _authToken ? { Authorization: `Bearer ${_authToken}` } : {},
-          })
+          const res = await axios.post(`${BASE}/api/refresh`, {})
           const newToken = res.data?.access_token
           const newCsrf = res.data?.csrf_token
           if (newToken) setAuthToken(newToken)

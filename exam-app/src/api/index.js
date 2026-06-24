@@ -4,7 +4,9 @@ import schoolsData from '../data/schools.json'
 const _API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
 async function _apiFetch(path) {
-  const res = await fetch(`${_API_BASE}${path}`, { credentials: 'include' })
+  const token = localStorage.getItem('auth_token')
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const res = await fetch(`${_API_BASE}${path}`, { headers })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json()
 }

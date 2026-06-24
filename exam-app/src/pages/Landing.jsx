@@ -1,234 +1,258 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
-import { pageVariants, heroItem, cardHover } from '../utils/animations.js'
+import { motion, useScroll, useTransform, useInView } from 'framer-motion'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { useAuth } from '../context/AuthContext.jsx'
-import { Button } from '../components/ui/button.jsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select.jsx'
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../components/ui/accordion.jsx'
-
-import { useHistory } from '../context/HistoryContext.jsx'
-import { computeStreak } from '../utils/streak.js'
-import { getDaysUntilExam, getExamYear } from '../utils/examCountdown.js'
-import { useReadiness } from '../hooks/useReadiness.js'
-import { loadQuestions } from '../api/index.js'
-import { getSessionToday } from '../api/aiClient.js'
-import { checkAndShowWeeklyReport } from '../utils/studyReminder.js'
-import ZenithLogo from '../components/ZenithLogo.jsx'
+import LuminaryLogo from '../components/LuminaryLogo.jsx'
+import { NumberTicker } from '../components/ui/number-ticker.jsx'
 
 const VN_PROVINCES = ['An Giang','Bà Rịa - Vũng Tàu','Bắc Giang','Bắc Kạn','Bạc Liêu','Bắc Ninh','Bến Tre','Bình Định','Bình Dương','Bình Phước','Bình Thuận','Cà Mau','Cần Thơ','Cao Bằng','Đà Nẵng','Đắk Lắk','Đắk Nông','Điện Biên','Đồng Nai','Đồng Tháp','Gia Lai','Hà Giang','Hà Nam','Hà Nội','Hà Tĩnh','Hải Dương','Hải Phòng','Hậu Giang','Hòa Bình','Hưng Yên','Khánh Hòa','Kiên Giang','Kon Tum','Lai Châu','Lâm Đồng','Lạng Sơn','Lào Cai','Long An','Nam Định','Nghệ An','Ninh Bình','Ninh Thuận','Phú Thọ','Phú Yên','Quảng Bình','Quảng Nam','Quảng Ngãi','Quảng Ninh','Quảng Trị','Sóc Trăng','Sơn La','Tây Ninh','Thái Bình','Thái Nguyên','Thanh Hóa','Thừa Thiên Huế','Tiền Giang','TP. Hồ Chí Minh','Trà Vinh','Tuyên Quang','Vĩnh Long','Vĩnh Phúc','Yên Bái']
+
+const TESTIMONIALS = [
+  { name: 'Nguyễn Minh Anh', grade: 'Lớp 12 · Hà Nội', result: 'Đạt 8.0 Toán THPT 2024', quote: 'AI giải thích từng bước rõ ràng hơn sách giáo khoa. Mình hiểu bản chất, không chỉ nhớ công thức.' },
+  { name: 'Trần Thảo Linh', grade: 'Lớp 9 · TP.HCM', result: 'Đỗ THPT Chuyên Lê Hồng Phong', quote: 'AI chỉ đúng điểm yếu của mình là Hình học. Luyện đúng chỗ, tiết kiệm thời gian hơn nhiều.' },
+  { name: 'Phạm Đức Huy', grade: 'Lớp 11 · Đà Nẵng', result: 'Tăng từ 5.5 lên 7.5 trong 2 tháng', quote: 'Thích nhất là thấy được mình đang ở đâu so với học sinh cùng tỉnh. Tạo động lực học hẳn.' },
+  { name: 'Lê Thu Hương', grade: 'Lớp 12 · Cần Thơ', result: 'Điểm Toán tăng 1.5 điểm', quote: 'Kế hoạch học cá nhân hoá thật sự hữu ích. Mỗi tuần biết mình cần ôn cái gì, không bị lạc hướng.' },
+  { name: 'Ngô Bảo Long', grade: 'Lớp 10 · Hải Phòng', result: 'Top 10% thi thử', quote: 'Làm đề thật từ Hải Phòng là lợi thế lớn. Luminary cho mình cảm giác đang luyện đúng kỳ thi thật.' },
+  { name: 'Vũ Thị Mai', grade: 'Lớp 9 · Hà Nội', result: 'Vào THPT Chuyên Ngữ', quote: 'Hỏi AI giải toán như một gia sư riêng — không chỉ cho đáp án mà còn giải thích tại sao.' },
+]
 
 const PLANS_MONTHLY = [
   {
     tier: 'basic', label: 'Thử miễn phí', price: 'Miễn phí', credits: 50,
-    features: ['5 lượt Zenith AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'],
+    features: ['5 lượt Luminary AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'],
   },
   {
     tier: 'student', label: 'Học sinh', price: '29,000đ / tháng', credits: 500, badge: '⭐ 95% học sinh chọn',
-    features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học'],
+    features: ['Luminary AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ', 'Thưởng chuỗi học', 'Kế hoạch học'],
   },
   {
     tier: 'complete', label: '8.5+ Nâng cao', price: '59,000đ / tháng', credits: 2000,
-    features: ['Tất cả gói Học sinh', 'Tất cả đề thi thử & luyện tập', '⚗ Tạo đề AI riêng', 'Dự đoán điểm số', 'Kế hoạch thích nghi AI', 'Chiến lược thi', 'So sánh tỉnh thành'],
+    features: ['Tất cả gói Học sinh', 'Tất cả đề thi thử & luyện tập', '⚗ Tạo đề AI riêng', 'Dự đoán điểm số', 'So sánh tỉnh thành'],
   },
 ]
 
-const TOPUP_PACKAGES = [
-  { price: '15,000đ', credits: 150 },
-  { price: '29,000đ', credits: 350 },
-  { price: '59,000đ', credits: 800 },
+// Precomputed static star field — no runtime Math.random()
+// Two layers: base (many dim stars) + twinkle (few bright, animated)
+const STAR_SHADOWS_DESKTOP =
+  '10px 34px 0 0 rgba(255,255,255,0.71),' +
+  '156px 18px 0 0 rgba(255,255,255,0.54),' +
+  '298px 67px 0 0 rgba(255,255,255,0.83),' +
+  '445px 23px 0 0 rgba(255,255,255,0.61),' +
+  '589px 78px 0 0 rgba(255,255,255,0.47),' +
+  '712px 45px 0 0 rgba(255,255,255,0.76),' +
+  '867px 12px 0 0 rgba(255,255,255,0.58),' +
+  '1023px 89px 0 0 rgba(255,255,255,0.69),' +
+  '1134px 34px 0 0 rgba(255,255,255,0.44),' +
+  '1278px 56px 0 0 rgba(255,255,255,0.82),' +
+  '1412px 21px 0 0 rgba(255,255,255,0.63),' +
+  '1567px 78px 0 0 rgba(255,255,255,0.51),' +
+  '67px 145px 0 0 rgba(255,255,255,0.67),' +
+  '189px 178px 0 0 rgba(255,255,255,0.49),' +
+  '334px 134px 0 0 rgba(255,255,255,0.78),' +
+  '478px 212px 0 0 rgba(255,255,255,0.55),' +
+  '623px 156px 0 0 rgba(255,255,255,0.72),' +
+  '756px 234px 0 0 rgba(255,255,255,0.43),' +
+  '901px 167px 0 0 rgba(255,255,255,0.86),' +
+  '1045px 198px 0 0 rgba(255,255,255,0.57),' +
+  '1189px 143px 0 0 rgba(255,255,255,0.68),' +
+  '1323px 267px 0 0 rgba(255,255,255,0.45),' +
+  '1467px 189px 0 0 rgba(255,255,255,0.73),' +
+  '23px 312px 0 0 rgba(255,255,255,0.53),' +
+  '145px 356px 0 0 rgba(255,255,255,0.74),' +
+  '289px 289px 0 0 rgba(255,255,255,0.41),' +
+  '434px 412px 0 0 rgba(255,255,255,0.67),' +
+  '578px 334px 0 0 rgba(255,255,255,0.58),' +
+  '723px 378px 0 0 rgba(255,255,255,0.81),' +
+  '867px 312px 0 0 rgba(255,255,255,0.46),' +
+  '1012px 456px 0 0 rgba(255,255,255,0.69),' +
+  '1156px 389px 0 0 rgba(255,255,255,0.52),' +
+  '1301px 312px 0 0 rgba(255,255,255,0.77),' +
+  '1445px 434px 0 0 rgba(255,255,255,0.43),' +
+  '89px 512px 0 0 rgba(255,255,255,0.65),' +
+  '212px 556px 0 0 rgba(255,255,255,0.48),' +
+  '356px 489px 0 0 rgba(255,255,255,0.79),' +
+  '501px 623px 0 0 rgba(255,255,255,0.54),' +
+  '645px 545px 0 0 rgba(255,255,255,0.71),' +
+  '790px 612px 0 0 rgba(255,255,255,0.42),' +
+  '934px 568px 0 0 rgba(255,255,255,0.83),' +
+  '1078px 634px 0 0 rgba(255,255,255,0.56),' +
+  '1223px 489px 0 0 rgba(255,255,255,0.68),' +
+  '1367px 578px 0 0 rgba(255,255,255,0.47),' +
+  '1512px 634px 0 0 rgba(255,255,255,0.75),' +
+  '34px 712px 0 0 rgba(255,255,255,0.61),' +
+  '178px 756px 0 0 rgba(255,255,255,0.44),' +
+  '323px 801px 0 0 rgba(255,255,255,0.78),' +
+  '467px 734px 0 0 rgba(255,255,255,0.52),' +
+  '612px 812px 0 0 rgba(255,255,255,0.67),' +
+  '756px 756px 0 0 rgba(255,255,255,0.41),' +
+  '901px 834px 0 0 rgba(255,255,255,0.73),' +
+  '1045px 778px 0 0 rgba(255,255,255,0.58),' +
+  '1190px 856px 0 0 rgba(255,255,255,0.45),' +
+  '1334px 712px 0 0 rgba(255,255,255,0.80),' +
+  '1478px 789px 0 0 rgba(255,255,255,0.53),' +
+  '234px 445px 0 0 rgba(255,255,255,0.61),' +
+  '678px 289px 0 0 rgba(255,255,255,0.49),' +
+  '1100px 534px 0 0 rgba(255,255,255,0.72),' +
+  '56px 478px 0 0 rgba(255,255,255,0.62),' +
+  '312px 623px 0 0 rgba(255,255,255,0.54),' +
+  '789px 145px 0 0 rgba(255,255,255,0.75),' +
+  '1089px 267px 0 0 rgba(255,255,255,0.48),' +
+  '445px 778px 0 0 rgba(255,255,255,0.69),' +
+  '934px 712px 0 0 rgba(255,255,255,0.43),' +
+  '1234px 134px 0 0 rgba(255,255,255,0.82),' +
+  '678px 567px 0 0 rgba(255,255,255,0.57),' +
+  '1489px 345px 0 0 rgba(255,255,255,0.71),' +
+  '123px 867px 0 0 rgba(255,255,255,0.46),' +
+  '567px 423px 0 0 rgba(255,255,255,0.79),' +
+  '1345px 812px 0 0 rgba(255,255,255,0.55)'
+
+const STAR_SHADOWS_MOBILE =
+  '12px 34px 0 0 rgba(255,255,255,0.72),' +
+  '89px 21px 0 0 rgba(255,255,255,0.58),' +
+  '178px 56px 0 0 rgba(255,255,255,0.81),' +
+  '267px 23px 0 0 rgba(255,255,255,0.49),' +
+  '356px 67px 0 0 rgba(255,255,255,0.65),' +
+  '45px 134px 0 0 rgba(255,255,255,0.71),' +
+  '134px 178px 0 0 rgba(255,255,255,0.44),' +
+  '223px 145px 0 0 rgba(255,255,255,0.83),' +
+  '312px 212px 0 0 rgba(255,255,255,0.56),' +
+  '23px 245px 0 0 rgba(255,255,255,0.67),' +
+  '112px 289px 0 0 rgba(255,255,255,0.41),' +
+  '201px 334px 0 0 rgba(255,255,255,0.78),' +
+  '290px 312px 0 0 rgba(255,255,255,0.53),' +
+  '367px 356px 0 0 rgba(255,255,255,0.69),' +
+  '56px 401px 0 0 rgba(255,255,255,0.47),' +
+  '145px 445px 0 0 rgba(255,255,255,0.74),' +
+  '234px 423px 0 0 rgba(255,255,255,0.58),' +
+  '323px 467px 0 0 rgba(255,255,255,0.43),' +
+  '78px 512px 0 0 rgba(255,255,255,0.81),' +
+  '167px 556px 0 0 rgba(255,255,255,0.52),' +
+  '256px 534px 0 0 rgba(255,255,255,0.67),' +
+  '345px 578px 0 0 rgba(255,255,255,0.45),' +
+  '23px 612px 0 0 rgba(255,255,255,0.73),' +
+  '112px 634px 0 0 rgba(255,255,255,0.48),' +
+  '201px 678px 0 0 rgba(255,255,255,0.82),' +
+  '290px 645px 0 0 rgba(255,255,255,0.57),' +
+  '367px 712px 0 0 rgba(255,255,255,0.44),' +
+  '89px 734px 0 0 rgba(255,255,255,0.71),' +
+  '178px 756px 0 0 rgba(255,255,255,0.39),' +
+  '267px 801px 0 0 rgba(255,255,255,0.63),' +
+  '134px 89px 0 0 rgba(255,255,255,0.76),' +
+  '312px 134px 0 0 rgba(255,255,255,0.51),' +
+  '45px 367px 0 0 rgba(255,255,255,0.84),' +
+  '223px 489px 0 0 rgba(255,255,255,0.47),' +
+  '356px 523px 0 0 rgba(255,255,255,0.73),' +
+  '89px 645px 0 0 rgba(255,255,255,0.58),' +
+  '178px 723px 0 0 rgba(255,255,255,0.42),' +
+  '312px 756px 0 0 rgba(255,255,255,0.67),' +
+  '56px 823px 0 0 rgba(255,255,255,0.79),' +
+  '245px 867px 0 0 rgba(255,255,255,0.53)'
+
+const STAR_SHADOWS_TWINKLE =
+  '187px 89px 0 1px rgba(255,255,255,0.90),' +
+  '423px 156px 0 1px rgba(255,255,255,0.88),' +
+  '678px 234px 0 1px rgba(255,255,255,0.92),' +
+  '934px 67px 0 1px rgba(255,255,255,0.87),' +
+  '1178px 189px 0 1px rgba(255,255,255,0.91),' +
+  '1423px 123px 0 1px rgba(255,255,255,0.85),' +
+  '234px 445px 0 1px rgba(255,255,255,0.89),' +
+  '578px 512px 0 1px rgba(255,255,255,0.93),' +
+  '823px 389px 0 1px rgba(255,255,255,0.86),' +
+  '1067px 456px 0 1px rgba(255,255,255,0.90),' +
+  '1312px 534px 0 1px rgba(255,255,255,0.88),' +
+  '345px 712px 0 1px rgba(255,255,255,0.91),' +
+  '689px 778px 0 1px rgba(255,255,255,0.87),' +
+  '1023px 756px 0 1px rgba(255,255,255,0.93),' +
+  '1267px 812px 0 1px rgba(255,255,255,0.85)'
+
+const FLOAT_SYMBOLS = [
+  { char: 'Σ', top: '12%', left: '8%',  size: 22, delay: 0,  dur: 28 },
+  { char: '∫', top: '32%', left: '91%', size: 18, delay: 7,  dur: 34 },
+  { char: 'π', top: '68%', left: '6%',  size: 20, delay: 14, dur: 28 },
+  { char: '√', top: '22%', left: '78%', size: 16, delay: 3,  dur: 42 },
+  { char: '∞', top: '78%', left: '85%', size: 24, delay: 21, dur: 34 },
+  { char: '∂', top: '52%', left: '93%', size: 16, delay: 10, dur: 42 },
 ]
 
-const TESTIMONIALS = [
-  { name: 'Nguyễn Minh Anh', grade: 'Lớp 12 · Hà Nội', result: 'Đạt 8.0 Toán THPT 2024', quote: 'Zenith AI giải thích từng bước rõ ràng hơn sách giáo khoa. Mình hiểu bản chất, không chỉ nhớ công thức.' },
-  { name: 'Trần Thảo Linh', grade: 'Lớp 9 · TP.HCM', result: 'Đỗ THPT Chuyên Lê Hồng Phong', quote: 'AI chỉ đúng điểm yếu của mình là Hình học. Luyện đúng chỗ, tiết kiệm thời gian hơn nhiều.' },
-  { name: 'Phạm Đức Huy', grade: 'Lớp 11 · Đà Nẵng', result: 'Tăng từ 5.5 lên 7.5 trong 2 tháng', quote: 'Thích nhất là thấy được mình đang ở đâu so với học sinh cùng tỉnh. Tạo động lực học hẳn.' },
-  { name: 'Lê Thu Hương', grade: 'Lớp 12 · Cần Thơ', result: 'Điểm Toán tăng 1.5 điểm', quote: 'Kế hoạch học cá nhân hoá thật sự hữu ích. Mỗi tuần biết mình cần ôn cái gì, không bị lạc hướng.' },
-  { name: 'Ngô Bảo Long', grade: 'Lớp 10 · Hải Phòng', result: 'Top 10% thi thử', quote: 'Làm đề thật từ Hải Phòng là lợi thế lớn. Zenith cho mình cảm giác đang luyện đúng kỳ thi thật.' },
-  { name: 'Vũ Thị Mai', grade: 'Lớp 9 · Hà Nội', result: 'Vào THPT Chuyên Ngữ', quote: 'Oracle giải toán như một gia sư riêng — không chỉ cho đáp án mà còn giải thích tại sao.' },
-]
+const stellarReveal = {
+  hidden: { opacity: 0, y: 32, filter: 'blur(8px)', scale: 0.96 },
+  show: (i = 0) => ({
+    opacity: 1, y: 0, filter: 'blur(0px)', scale: 1,
+    transition: { duration: 0.72, ease: [0.16, 1, 0.3, 1], delay: i * 0.1 },
+  }),
+}
 
-const FAQ_ITEMS = [
-  {
-    q: 'Khác gì app khác?',
-    a: 'Không cho đề tràn lan. Zenith tìm đúng chỗ bạn đang sai rồi luyện đúng chỗ đó — không phải ôn lại từ đầu.',
-  },
-  {
-    q: 'Có mất phí không?',
-    a: 'Thử miễn phí. Không cần thẻ ngân hàng. Nếu thấy ổn thì 29k/tháng — bằng 1 cốc trà sữa. Hoàn tiền 7 ngày.',
-  },
-  {
-    q: 'Đề có thật không hay do AI tạo?',
-    a: 'Tất cả 1,104 câu lấy từ đề thi chính thức — Bộ GD&ĐT và 63 tỉnh, cập nhật 2025. Không có câu nào do AI tạo ra.',
-  },
-  {
-    q: 'Lớp 9 thi vào 10 dùng được không?',
-    a: 'Được. Chọn chế độ "Thi vào 10" — đề và lộ trình sẽ khớp đúng với kỳ thi của bạn.',
-  },
-  {
-    q: 'Mất bao lâu mỗi ngày?',
-    a: '20–25 phút. 1 đề mini + ôn lại những câu AI nhắc. Có ngày bận chỉ cần 10 phút ôn nhanh cũng được.',
-  },
-  {
-    q: 'Không hợp có hoàn tiền không?',
-    a: 'Có. Hoàn tiền 7 ngày, không hỏi lý do. Liên hệ Zalo CSKH hoặc email — xử lý trong 24h.',
-  },
-  {
-    q: 'Bố mẹ mình có xem tiến độ được không?',
-    a: 'Được. Vào Tài khoản → Chia sẻ tiến độ để tạo link báo cáo tuần cho bố mẹ xem.',
-  },
-]
+const xReveal = {
+  hidden: { opacity: 0, x: 40, filter: 'blur(6px)', scale: 0.96 },
+  show: (i = 0) => ({
+    opacity: 1, x: 0, filter: 'blur(0px)', scale: 1,
+    transition: { duration: 0.72, ease: [0.16, 1, 0.3, 1], delay: i * 0.12 },
+  }),
+}
 
-const BENTO_FEATURES = [
-  {
-    id: 'analysis',
-    col: 'col-span-12 sm:col-span-7',
-    icon: '🎯',
-    accent: 'var(--warning)',
-    title: 'AI phát hiện đúng điểm yếu',
-    desc: 'Không đoán mò — phân tích từng câu sai và chỉ cách sửa',
-    preview: [
-      { topic: 'Hàm số', pct: 42, color: 'var(--destructive)' },
-      { topic: 'Hình học không gian', pct: 65, color: 'var(--warning)' },
-      { topic: 'Tích phân', pct: 83, color: 'var(--mastery-4)' },
-    ],
-  },
-  {
-    id: 'map',
-    col: 'col-span-12 sm:col-span-5',
-    icon: '🗺',
-    accent: 'var(--mastery-4)',
-    title: 'Bản đồ kiến thức cá nhân',
-    desc: 'Nhìn thấy toàn bộ lộ trình học của bạn',
-    preview: [
-      { concept: 'Đại số', mastery: 90, color: 'var(--success)' },
-      { concept: 'Hàm logarithm', mastery: 51, color: 'var(--warning)' },
-      { concept: 'Giải tích', mastery: 20, color: 'var(--destructive)' },
-    ],
-  },
-  {
-    id: 'questions',
-    col: 'col-span-12 sm:col-span-4',
-    icon: '📋',
-    accent: 'var(--primary)',
-    title: '1,104 câu từ đề thật',
-    desc: '63 tỉnh thành · Cập nhật hàng năm',
-    stat: '1,104',
-  },
-  {
-    id: 'streak',
-    col: 'col-span-12 sm:col-span-4',
-    icon: '🔥',
-    accent: 'var(--mastery-2)',
-    title: 'Chuỗi học hàng ngày',
-    desc: 'Học đều — nhớ lâu hơn nhiều',
-    stat: '30+',
-  },
-  {
-    id: 'oracle',
-    col: 'col-span-12 sm:col-span-4',
-    icon: '✦',
-    accent: 'var(--accent)',
-    title: 'Zenith Oracle AI',
-    desc: 'Giải toán từng bước theo kiểu Socratic',
-    stat: '∞',
-  },
-]
-
-function Demo4ScoreSlider({ onOpenAuth }) {
-  const [current, setCurrent] = useState(6.0)
-  const gain = Math.min(2.5, Math.max(0.3, (current - 4) * 0.35 + 0.4))
-  const predicted = Math.min(10, current + gain)
-  const weeks = Math.round((current - 4) * 2)
-  const lo = Math.max(current, predicted - 0.7).toFixed(1)
-  const hi = Math.min(10, predicted + 0.5).toFixed(1)
-  const onTrack = predicted >= 7.0
+function ConcentricRings() {
+  const radii = [18, 32, 46, 60, 74, 88]
   return (
-    <div className="flex flex-col gap-5 w-full">
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between font-sans text-[12px]">
-          <span className="text-dim">Điểm thi thử hiện tại</span>
-          <span className="font-bold text-foreground text-[16px]">{current.toFixed(1)}</span>
-        </div>
-        <input type="range" min="4" max="9.5" step="0.5" value={current}
-          onChange={e => setCurrent(parseFloat(e.target.value))}
-          className="w-full h-2 rounded-full appearance-none cursor-pointer"
-          style={{ accentColor: 'var(--primary)' }} />
-        <div className="flex justify-between font-sans text-[10px] text-dim">
-          <span>4.0</span><span>6.0</span><span>8.0</span><span>9.5</span>
-        </div>
-      </div>
-      <div className={`rounded-xl px-5 py-4 border ${onTrack ? 'border-success/30 bg-success/5' : 'border-[var(--warning)]/30 bg-[var(--warning)]/5'}`}>
-        <p className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Dự đoán sau {Math.max(2, weeks)} tuần</p>
-        <div className="flex items-baseline gap-2 mt-1">
-          <span className="font-sans text-[28px] font-bold" style={{ color: onTrack ? 'var(--success)' : 'var(--warning)' }}>{predicted.toFixed(1)}</span>
-          <span className="font-sans text-[12px] text-dim">({lo} – {hi})</span>
-        </div>
-        <p className="font-sans text-[11px] text-dim mt-1">
-          {onTrack ? '↗ Đang tiến đúng hướng để đạt mục tiêu' : '⚠ Cần tăng tốc luyện tập để bứt phá'}
-        </p>
-      </div>
-      <Button onClick={onOpenAuth} className="w-full cta-gradient-btn h-11 text-[13px] font-bold rounded-xl">
-        Nhận dự đoán chính xác của bạn →
-      </Button>
-      <p className="font-sans text-[11px] text-dim text-center">Dự đoán thực dùng thuật toán Kalman dựa trên lịch sử làm bài của bạn</p>
-    </div>
+    <svg width="200" height="200" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+      {radii.map((r, idx) => (
+        <circle
+          key={r}
+          cx="100" cy="100" r={r}
+          stroke="currentColor"
+          strokeWidth="1"
+          strokeDasharray={`${3 + idx * 0.6} ${5 + idx * 0.8}`}
+          opacity={0.10 + idx * 0.04}
+        />
+      ))}
+      <circle cx="100" cy="100" r="3.5" fill="currentColor" opacity={0.45} />
+    </svg>
   )
 }
 
+// Mounts NumberTicker only when the element enters view — count-up on scroll
+function StatTicker({ value, suffix, label, i }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, amount: 0.3 })
+  return (
+    <motion.div
+      ref={ref}
+      variants={stellarReveal}
+      custom={i}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.3 }}
+      className="flex flex-col items-center gap-2 text-center"
+    >
+      <span
+        className="font-bold"
+        style={{ fontSize: 'clamp(2.4rem,5vw,3.5rem)', letterSpacing: '-0.04em', color: 'var(--primary)', lineHeight: 1 }}
+      >
+        {inView ? <><NumberTicker value={value} />{suffix}</> : `0${suffix}`}
+      </span>
+      <span className="text-[13px]" style={{ color: 'var(--fg-secondary)' }}>{label}</span>
+    </motion.div>
+  )
+}
 
 export default function Landing({ onOpenAuth }) {
-  usePageMeta('', { description: 'Ôn tập Toán với 40+ đề thi thật từ 63 tỉnh thành — AI phát hiện lỗi sai, tạo kế hoạch học tập cá nhân hóa cho học sinh THPT & lớp 10.' })
+  usePageMeta('', { description: 'Ôn tập Toán với 1,104 câu đề thật từ 63 tỉnh thành — AI phát hiện lỗi sai, tạo kế hoạch học tập cá nhân hóa cho học sinh THPT & lớp 10.' })
   const navigate = useNavigate()
-  const { user } = useAuth()
-  const { results } = useHistory()
   const [searchParams] = useSearchParams()
-  const [session, setSession] = useState(null)
-  const [questionMap, setQuestionMap] = useState({})
-  const [showStickyCta, setShowStickyCta] = useState(false)
-  const [guestProvince, setGuestProvince] = useState(
-    () => localStorage.getItem('guest_province') || ''
-  )
-  function handleProvinceChange(e) {
-    const v = e.target.value
+  const { user } = useAuth()
+  const [guestProvince, setGuestProvince] = useState(() => localStorage.getItem('guest_province') || '')
+  const starLayerRef = useRef(null)
+  const starTwinkleRef = useRef(null)
+  const { scrollY, scrollYProgress } = useScroll()
+  const heroY = useTransform(scrollY, [0, 600], [0, -40])
+
+  function handleProvinceChange(v) {
     setGuestProvince(v)
     if (v) localStorage.setItem('guest_province', v)
   }
-  const streak = useMemo(() => computeStreak(results), [results])
-  const daysUntil = user ? getDaysUntilExam(user.province) : null
-  const province = user?.province ?? 'Hà Nội'
-  const readiness = useReadiness(results, questionMap)
-  const { scrollY, scrollYProgress } = useScroll()
-  const heroY = useTransform(scrollY, [0, 400], [0, -30])
 
-  useEffect(() => {
-    return scrollY.on('change', v => setShowStickyCta(v > 480))
-  }, [scrollY])
-
-  useEffect(() => {
-    if (!user?.id) { setSession(null); return }
-    getSessionToday().then(({ data }) => { if (data) setSession(data) }).catch(() => {})
-  }, [user?.id])
-
-  useEffect(() => {
-    if (!user || !session) return
-    const recentScores = results.slice(0, 7).map(r => r.score ?? 0)
-    const avgAccuracy = recentScores.length
-      ? Math.round((recentScores.reduce((a, b) => a + b, 0) / recentScores.length) * 10)
-      : null
-    checkAndShowWeeklyReport({
-      streak: session.learning_streak ?? streak,
-      masteredThisWeek: 0,
-      accuracyTrend: avgAccuracy,
-    })
-  }, [user?.id, session?.session_date]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (!user || !results.length) return
-    loadQuestions().then(qs => setQuestionMap(Object.fromEntries(qs.map(q => [q.id, q])))).catch(() => {})
-  }, [user, results.length]) // eslint-disable-line react-hooks/exhaustive-deps
-
+  // Preserve ref tracking without re-renders
   useEffect(() => {
     const ref = searchParams.get('ref')
     if (ref && /^[A-Za-z0-9_-]{8,20}$/.test(ref)) {
@@ -236,559 +260,530 @@ export default function Landing({ onOpenAuth }) {
     }
   }, [searchParams])
 
+  // Apply star shadows once on mount — no re-renders, no runtime Math.random()
+  useEffect(() => {
+    const isMobile = window.innerWidth < 640
+    if (starLayerRef.current) {
+      starLayerRef.current.style.boxShadow = isMobile ? STAR_SHADOWS_MOBILE : STAR_SHADOWS_DESKTOP
+    }
+    if (starTwinkleRef.current) {
+      starTwinkleRef.current.style.boxShadow = STAR_SHADOWS_TWINKLE
+    }
+  }, [])
+
+  const provinceSelector = (
+    <div className="flex items-center gap-2" data-testid="province-selector-wrap">
+      <span className="text-[12px]" style={{ color: 'var(--fg-tertiary)' }}>Tôi thi ở:</span>
+      <Select value={guestProvince || undefined} onValueChange={handleProvinceChange}>
+        <SelectTrigger data-testid="province-selector"
+          className="h-auto py-1 px-2 text-[12px] w-auto min-w-[120px]">
+          <SelectValue placeholder="Chọn tỉnh..." />
+        </SelectTrigger>
+        <SelectContent>
+          {VN_PROVINCES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+        </SelectContent>
+      </Select>
+    </div>
+  )
+
   return (
-    <motion.div
-      className="min-h-screen relative overflow-hidden flex flex-col items-center"
-      variants={pageVariants} initial="hidden" animate="show" exit="exit"
-    >
+    <div className="min-h-screen relative overflow-x-hidden flex flex-col items-center">
       {/* Scroll progress bar */}
       <motion.div
-        style={{ scaleX: scrollYProgress, transformOrigin: 'left' }}
-        className="fixed top-0 left-0 right-0 h-[2px] bg-primary z-[60] pointer-events-none"
+        style={{ scaleX: scrollYProgress, transformOrigin: 'left', background: 'var(--primary)', position: 'fixed', top: 0, left: 0, right: 0, height: 2, zIndex: 60, pointerEvents: 'none' }}
       />
 
-      {/* Sticky header CTA */}
-      <motion.div
-        initial={false}
-        animate={{ y: showStickyCta ? 0 : -64, opacity: showStickyCta ? 1 : 0 }}
-        transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3 border-b border-surface"
-        style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
+      {/* ── 01 THE VOID / THE ATLAS — Hero ──────────────────────────────────── */}
+      <section
+        className="relative w-full flex flex-col items-center justify-center overflow-hidden px-5 sm:px-8 pb-16 pt-20"
+        style={{ minHeight: '100dvh' }}
       >
-        <span className="font-sans text-[15px] font-bold text-foreground">Zenith</span>
-        <div className="flex items-center gap-2">
-          <Button onClick={() => navigate('/practice/diagnostic')} size="sm" className="cta-gradient-btn text-[12px]">
-            Thử ngay →
-          </Button>
-          {!user && (
-            <Button onClick={onOpenAuth} variant="ghost" size="sm" className="text-[12px] border border-border">
-              Đăng nhập
-            </Button>
-          )}
+        {/* Star field */}
+        <div className="star-field-wrapper" aria-hidden="true">
+          <div ref={starLayerRef} className="star-layer" />
+          <div ref={starTwinkleRef} className="star-layer star-twinkle-layer" />
         </div>
-      </motion.div>
 
-      {/* ── Hero section ─────────────────────────────────────────────────────── */}
-      <div className="relative z-10 w-full overflow-hidden">
-        {/* Aurora background blobs */}
-        <motion.div variants={heroItem('heroGlow')} initial="hidden" animate="show" className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="aurora-blob" style={{ width: 600, height: 600, top: '-10%', left: '-5%', background: 'radial-gradient(circle, #3B6FE8 0%, transparent 70%)', animationDuration: '22s' }} />
-          <div className="aurora-blob" style={{ width: 500, height: 500, top: '10%', right: '-8%', background: 'radial-gradient(circle, #7C5CE8 0%, transparent 70%)', animationDuration: '18s', animationDelay: '-7s' }} />
-          <div className="aurora-blob" style={{ width: 400, height: 400, bottom: '5%', left: '20%', background: 'radial-gradient(circle, #059669 0%, transparent 70%)', animationDuration: '26s', animationDelay: '-13s' }} />
-        </motion.div>
-        {/* Grain texture */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" aria-hidden="true"
-          style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundSize: '200px' }}
-        />
+        {/* Nebula wisps — must be direct children for :nth-child animations */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+          <div className="nebula-wisp" style={{ width: 700, height: 700, top: '-15%', left: '-10%' }} />
+          <div className="nebula-wisp" style={{ width: 500, height: 500, top: '20%', right: '-8%' }} />
+          <div className="nebula-wisp" style={{ width: 420, height: 420, bottom: '5%', left: '22%' }} />
+        </div>
 
-        <div className="flex flex-col items-center gap-10 text-center px-6 sm:px-8 pt-20 pb-16 w-full">
-          <motion.div style={{ y: heroY }} className="flex flex-col items-center gap-5">
-            <ZenithLogo variant="hero" />
-            <motion.span variants={heroItem('eyebrow')} initial="hidden" animate="show" className="font-sans text-[11px] font-semibold text-primary tracking-[3px] uppercase">
-              Kỳ thi tuyển sinh {getExamYear()} · Toán Lớp 10
-            </motion.span>
-            <motion.h1 variants={heroItem('headline')} initial="hidden" animate="show" className="font-sans text-foreground leading-[1.05] text-center"
-              style={{ fontSize: 'clamp(3.2rem,7vw,5.5rem)', letterSpacing: '-0.025em', fontWeight: 800 }}>
-              Học thật, đỗ thật.
-            </motion.h1>
-            <motion.p variants={heroItem('sub')} initial="hidden" animate="show" className="font-sans text-[17px] text-muted leading-relaxed max-w-[600px] text-center">
-              Zenith xem bạn sai câu nào, tìm đúng chỗ mất điểm nhiều nhất, rồi luyện đúng chỗ đó thôi. Không tốn thời gian ôn những gì bạn đã biết rồi.
-            </motion.p>
-          </motion.div>
-
-          {/* Oracle input */}
-          <motion.div variants={heroItem('cta')} initial="hidden" animate="show" className="w-full max-w-xl flex flex-col items-center gap-4">
-            <form
-              className="w-full flex items-center gap-2 bg-surface/80 border border-info/30 rounded-xl px-4 py-3 focus-within:border-info/50 transition"
-              style={{ backdropFilter: 'blur(8px)' }}
-              onSubmit={e => {
-                e.preventDefault()
-                const q = e.target.query.value.trim()
-                navigate(q ? `/oracle?q=${encodeURIComponent(q)}` : '/oracle')
+        {/* Floating math symbols */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+          {FLOAT_SYMBOLS.map((s, i) => (
+            <span
+              key={i}
+              className={i >= 3 ? 'float-math-symbol hidden sm:inline' : 'float-math-symbol'}
+              style={{
+                top: s.top, left: s.left, fontSize: s.size,
+                animationName: 'nebula-breathe-c',
+                animationDuration: `${s.dur}s`,
+                animationDelay: `${s.delay}s`,
+                animationTimingFunction: 'ease-in-out',
+                animationIterationCount: 'infinite',
               }}
             >
-              <span className="text-accent text-base select-none flex-shrink-0">✦</span>
-              <input name="query" placeholder="Nhập bài toán cần giải..."
-                className="flex-1 bg-transparent font-sans text-[15px] text-foreground placeholder-dim outline-none min-w-0" />
-              <Button type="submit" size="sm" className="flex-shrink-0 font-semibold text-[13px]">Hỏi →</Button>
-            </form>
-            <div className="flex flex-col items-center gap-2">
-              <div className="flex items-center gap-2 mb-3" data-testid="province-selector-wrap">
-                <span className="font-sans text-[12px] text-dim">Tôi thi ở:</span>
-                <Select
-                  value={guestProvince || undefined}
-                  onValueChange={v => handleProvinceChange({ target: { value: v } })}
-                >
-                  <SelectTrigger
-                    data-testid="province-selector"
-                    className="h-auto py-1 px-2 font-sans text-[12px] w-auto min-w-[120px]"
-                  >
-                    <SelectValue placeholder="Chọn tỉnh..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {VN_PROVINCES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center gap-3">
-                <motion.button onClick={() => navigate('/practice/diagnostic')}
-                  className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-bold cta-gradient-btn"
-                  whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
-                  Thi thử ngay — không cần đăng ký →
-                </motion.button>
-                <motion.button onClick={() => navigate('/diagnostic')}
-                  className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-semibold text-muted border border-surface bg-surface/60 hover:border-primary/30 hover:text-foreground transition"
-                  style={{ backdropFilter: 'blur(4px)' }}
-                  whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
-                  Kiểm tra năng lực
-                </motion.button>
-              </div>
-              {!user && <p className="font-sans text-[11px] text-dim">Không cần đăng ký · Kết quả sau 5 phút</p>}
-              {/* Objection strip */}
-              <div className="flex flex-wrap gap-3 justify-center mt-4">
-                {[
-                  { q: 'Đề thi thật 63 tỉnh?', a: 'Có. 1,104 câu, cập nhật 2025' },
-                  { q: 'Mất bao lâu?', a: '25 phút/ngày' },
-                  { q: 'Có mất phí không?', a: 'Thử miễn phí. 29k/tháng khi sẵn sàng' },
-                ].map(item => (
-                  <div key={item.q} className="flex flex-col items-center px-4 py-2 rounded-xl border border-border bg-surface text-center min-w-[140px]">
-                    <span className="font-sans text-[11px] text-dim">{item.q}</span>
-                    <span className="font-sans text-[12px] font-semibold text-foreground mt-0.5">{item.a}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+              {s.char}
+            </span>
+          ))}
+        </div>
+
+        {/* Hero content */}
+        <motion.div
+          style={{ y: heroY }}
+          className="relative z-10 flex flex-col items-center gap-7 text-center max-w-2xl w-full"
+        >
+          <motion.div variants={stellarReveal} custom={0} initial="hidden" animate="show">
+            <LuminaryLogo variant="hero" />
           </motion.div>
 
-          {/* Today card — logged in */}
-          {user && (
-            <motion.div variants={heroItem('heroCard')} initial="hidden" animate="show" className="w-full max-w-xl glass-card rounded-2xl px-5 py-4 flex items-center gap-5 flex-wrap">
-              {session?.placement_needed && (
-                <button onClick={() => navigate('/placement')}
-                  className="flex items-center gap-1.5 font-sans text-[13px] font-semibold text-info hover:opacity-80 transition">
-                  <span className="w-1.5 h-1.5 rounded-full bg-info" />
-                  Bắt đầu kiểm tra năng lực →
-                </button>
-              )}
-              {session?.pending_count > 0 && (
-                <button onClick={() => navigate('/daily')}
-                  className="flex items-center gap-1.5 font-sans text-[13px] font-semibold text-primary hover:opacity-80 transition">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  {session.pending_count} câu sai đang chờ — thử lại không?
-                </button>
-              )}
-              {(session?.learning_streak > 0 || streak > 0) && (
-                <motion.span className="font-sans text-[13px] font-semibold text-primary"
-                  animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 0.8, repeat: Infinity, ease: 'easeInOut' }}>
-                  <span className="streak-fire">🔥</span> {session?.learning_streak ?? streak} ngày
-                </motion.span>
-              )}
-              {daysUntil != null && <span className="font-sans text-[13px] font-semibold text-info">📅 Còn {daysUntil} ngày</span>}
-              {session?.due_count > 0 && (
-                <button onClick={() => navigate('/review')}
-                  className="flex items-center gap-1.5 font-sans text-[13px] font-semibold text-success hover:opacity-80 transition">
-                  <span className="w-1.5 h-1.5 rounded-full bg-success" />
-                  {session.due_count} câu cần ôn
-                </button>
-              )}
-              {session?.remediation_concept && (session.remediation_concept.error_count ?? 0) >= 3 && (
-                <button onClick={() => navigate('/review')}
-                  className="flex items-center gap-1.5 font-sans text-[13px] font-semibold text-destructive hover:opacity-80 transition">
-                  <span className="w-1.5 h-1.5 rounded-full bg-destructive" />
-                  Sửa lỗi {session.remediation_concept.name_vi} →
-                </button>
-              )}
-              {session?.advance_concept && !session?.is_complete && (
-                <button onClick={() => navigate('/practice/adaptive')}
-                  className="flex items-center gap-1.5 font-sans text-[13px] font-semibold text-info hover:opacity-80 transition">
-                  ✦ Học {session.advance_concept.name_vi}
-                </button>
-              )}
-              {readiness != null && <span className="font-sans text-[13px] font-semibold text-info">📊 {readiness.readiness}% sẵn sàng</span>}
-              {session?.predicted_score != null && (
-                <button onClick={() => navigate('/study-plan/adaptive')}
-                  className="flex items-center gap-1.5 font-sans text-[13px] font-semibold hover:opacity-80 transition"
-                  style={{ color: session.on_track ? 'var(--success)' : 'var(--accent)' }}>
-                  {session.on_track ? '↗' : '⚠'} Dự kiến {session.predicted_score?.toFixed(1)}
-                </button>
-              )}
-              <button onClick={() => navigate('/progress')} className="font-sans text-[12px] text-dim hover:text-muted transition">Bản đồ</button>
-              <button onClick={() => navigate('/history')} className="ml-auto font-sans text-[12px] text-dim hover:text-muted transition">Lịch sử →</button>
-            </motion.div>
-          )}
+          <motion.h1
+            variants={stellarReveal} custom={1} initial="hidden" animate="show"
+            className="leading-[1.05] text-center"
+            style={{ fontSize: 'clamp(2.8rem,7vw,5rem)', letterSpacing: '-0.025em', fontWeight: 800, color: 'var(--foreground)' }}
+          >
+            Ánh sáng dẫn đường.
+          </motion.h1>
 
-          {/* Ghost today card — guest only */}
-          {!user && (
-            <motion.div variants={heroItem('heroCard')} initial="hidden" animate="show" className="w-full max-w-xl relative rounded-2xl border border-surface overflow-hidden">
-              <div className="px-5 py-4 flex items-center gap-5 flex-wrap blur-[3px] pointer-events-none select-none opacity-60">
-                <span className="font-sans text-[13px] font-semibold text-primary">🔥 12 ngày</span>
-                <span className="font-sans text-[13px] font-semibold text-info">📅 Còn 47 ngày</span>
-                <span className="font-sans text-[13px] font-semibold text-success">📊 72% sẵn sàng</span>
-                <span className="font-sans text-[13px] font-semibold text-info">↗ Dự kiến 7.5</span>
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center bg-surface/60 backdrop-blur-[1px]">
-                <button onClick={onOpenAuth}
-                  className="px-5 py-2.5 rounded-xl font-sans text-[13px] font-bold text-background bg-primary hover:opacity-90 transition shadow-lg">
-                  Đăng nhập để xem lộ trình của bạn →
-                </button>
-              </div>
-            </motion.div>
-          )}
+          <motion.p
+            variants={stellarReveal} custom={2} initial="hidden" animate="show"
+            className="text-[16px] leading-relaxed max-w-[520px]"
+            style={{ color: 'var(--fg-secondary)' }}
+          >
+            Luminary soi đúng chỗ bạn đang mất điểm, rồi dẫn bạn ôn đúng chỗ đó. Không tốn thời gian ôn những gì bạn đã biết rồi.
+          </motion.p>
 
-          {/* Proof strip */}
-          <motion.div variants={heroItem('proof')} initial="hidden" animate="show" className="flex items-center gap-2 flex-wrap justify-center font-sans text-[13px] text-dim">
-            {[
-              { value: '1,104', label: 'câu từ đề thi thật', color: 'var(--primary)' },
-              { value: '63', label: 'tỉnh thành', color: 'var(--primary)' },
-              { value: '6', label: 'dạng toán có Zenith AI', color: 'var(--accent)' },
-              { value: 'FSRS', label: 'ghi nhớ thông minh', color: 'var(--mastery-4)' },
-            ].map(({ value, label, color }, i, arr) => (
-              <span key={label} className="flex items-center gap-1.5">
-                <span className="font-mono font-bold text-[15px]" style={{ color }}>{value}</span>
-                <span>{label}</span>
-                {i < arr.length - 1 && <span className="text-border mx-2">·</span>}
-              </span>
-            ))}
+          <motion.div variants={stellarReveal} custom={3} initial="hidden" animate="show">
+            {provinceSelector}
           </motion.div>
-        </div>
-      </div>
 
-      {/* ── Bento grid features ───────────────────────────────────────────────── */}
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-16">
-        <div className="text-center mb-10">
-          <span className="font-sans text-[11px] font-semibold tracking-[3px] uppercase text-dim">Tính năng</span>
-          <h2 className="font-sans font-bold text-foreground mt-2" style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)' }}>
-            Những thứ app khác không có
-          </h2>
-        </div>
-        <div className="grid grid-cols-12 gap-3">
-          {BENTO_FEATURES.map(feat => (
-            <motion.div
-              key={feat.id}
-              initial="hidden"
-              whileInView="rest"
-              variants={cardHover}
-              whileHover="hover"
-              viewport={{ once: true, margin: '-60px' }}
-              className={`${feat.col} glass-card rounded-2xl p-5 flex flex-col gap-3 overflow-hidden relative`}
+          <motion.div
+            variants={stellarReveal} custom={4} initial="hidden" animate="show"
+            className="flex flex-col sm:flex-row items-center gap-3"
+          >
+            <button
+              className="spectral-gate-btn px-7 py-3.5 rounded-xl text-[15px]"
+              onClick={() => navigate('/practice/diagnostic')}
             >
-              <div className="absolute top-0 right-0 w-28 h-28 pointer-events-none rounded-tr-2xl" style={{ background: 'radial-gradient(circle at 100% 0%, var(--primary-subtle), transparent 70%)' }} />
-              <div className="flex items-start gap-2">
-                <span className="text-2xl flex-shrink-0">{feat.icon}</span>
-                <div>
-                  <p className="font-sans text-[14px] font-bold text-foreground">{feat.title}</p>
-                  <p className="font-sans text-[12px] text-dim">{feat.desc}</p>
-                </div>
-              </div>
-              {feat.stat && (
-                <p className="font-mono font-bold" style={{ fontSize: 'clamp(1.75rem,4vw,2.5rem)', color: feat.accent }}>{feat.stat}</p>
-              )}
-              {feat.id === 'analysis' && feat.preview && (
-                <div className="flex flex-col gap-1.5 mt-1">
-                  {feat.preview.map(r => (
-                    <div key={r.topic} className="flex flex-col gap-0.5">
-                      <div className="flex justify-between font-sans text-[11px]">
-                        <span className="text-muted">{r.topic}</span>
-                        <span style={{ color: r.color }}>{r.pct}%</span>
-                      </div>
-                      <div className="h-1.5 bg-surface rounded-full overflow-hidden">
-                        <motion.div className="h-full rounded-full"
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${r.pct}%` }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.8, delay: 0.1 }}
-                          style={{ background: r.color }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {feat.id === 'map' && feat.preview && (
-                <div className="flex flex-col gap-1.5 mt-1">
-                  {feat.preview.map(r => (
-                    <div key={r.concept} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface">
-                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: r.color }} />
-                      <span className="font-sans text-[11px] text-muted flex-1 truncate">{r.concept}</span>
-                      <span className="font-sans text-[11px] font-bold flex-shrink-0" style={{ color: r.color }}>{r.mastery}%</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          ))}
-        </div>
-      </div>
+              Bắt đầu miễn phí →
+            </button>
+            <button
+              onClick={() => navigate('/practice/diagnostic')}
+              className="px-5 py-3 rounded-xl text-[13px] font-medium transition hover:opacity-80"
+              style={{ color: 'var(--fg-secondary)' }}
+            >
+              Xem tôi cần học gì →
+            </button>
+          </motion.div>
 
-      {/* ── How it works ─────────────────────────────────────────────────────── */}
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        <div className="text-center mb-10">
-          <span className="font-sans text-[11px] font-semibold tracking-[3px] uppercase text-dim">Cách hoạt động</span>
-          <h2 className="font-sans font-bold text-foreground mt-2" style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)' }}>
-            Dùng thế nào?
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[
-            { step: '01', title: 'Làm đề thật của tỉnh mình', desc: 'Đề từ tỉnh bạn, cập nhật 2025. Zenith ghi lại bạn sai câu nào — không chỉ tổng điểm.', color: 'var(--primary)' },
-            { step: '02', title: 'Biết mình đang yếu chỗ nào', desc: 'Không phải \'sai 15/50 câu\'. Là: Hình học — bạn sai 7/8 câu phần đường tròn.', color: 'var(--accent)' },
-            { step: '03', title: 'AI nhắc ôn đúng lúc bạn sắp quên', desc: 'Zenith nhắc bạn ôn lại câu đó đúng lúc bạn sắp quên. Không cần tự nhớ ôn — app tự nhắc.', color: 'var(--info)' },
-          ].map(({ step, title, desc, color }, i) => (
-            <motion.div key={step}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              className="glass-card rounded-2xl p-5 flex flex-col gap-3">
-              <span className="font-sans font-bold leading-none opacity-30" style={{ fontSize: 'clamp(2rem,4vw,3rem)', color: color }}>{step}</span>
-              <p className="font-sans text-[14px] font-semibold text-foreground">{title}</p>
-              <p className="font-sans text-[12px] text-dim leading-relaxed">{desc}</p>
+          {!user && (
+            <motion.div variants={stellarReveal} custom={5} initial="hidden" animate="show">
+              <button
+                onClick={onOpenAuth}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] transition hover:opacity-80 border"
+                style={{ borderColor: 'var(--border)', color: 'var(--fg-secondary)', background: 'transparent' }}
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+                Đăng nhập với Google
+              </button>
             </motion.div>
-          ))}
-        </div>
-      </div>
+          )}
 
-      {/* ── Comparison table ─────────────────────────────────────────────────── */}
-      <section className="py-16 px-4 max-w-3xl mx-auto" data-testid="comparison-table">
-        <h2 className="font-sans text-[22px] font-bold text-foreground text-center mb-2">
-          "Sách cho bạn đề. Zenith cho bạn chẩn đoán."
-        </h2>
-        <p className="font-sans text-[13px] text-dim text-center mb-8">Tại sao chẩn đoán quan trọng hơn làm đề tràn lan?</p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-2 text-dim font-normal"></th>
-                <th className="py-2 text-center text-dim font-normal">Sách luyện đề</th>
-                <th className="py-2 text-center text-dim font-normal">YouTube</th>
-                <th className="py-2 text-center font-bold text-primary border-b-2 border-t border-l border-r border-primary/40 bg-primary-subtle/30 rounded-t-lg px-2">Zenith</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { feature: 'Đề thi thật',             sach: true,  yt: false, zenith: true  },
-                { feature: 'Chẩn đoán điểm yếu',      sach: false, yt: false, zenith: true  },
-                { feature: 'AI giải Socratic',         sach: false, yt: false, zenith: true  },
-                { feature: 'Lộ trình cá nhân',        sach: false, yt: false, zenith: true  },
-                { feature: 'Ôn lại đúng lúc (FSRS)', sach: false, yt: false, zenith: true  },
-              ].map(row => (
-                <tr key={row.feature} className="border-b border-border/50">
-                  <td className="py-2.5 text-foreground">{row.feature}</td>
-                  <td className="py-2.5 text-center text-dim">{row.sach ? '✓' : '✗'}</td>
-                  <td className="py-2.5 text-center text-dim">{row.yt ? '✓' : '✗'}</td>
-                  <td className="py-2.5 text-center font-bold text-primary bg-[var(--primary-subtle)]/20 border-l border-r border-primary/20 px-2" data-testid="zenith-cell">{row.zenith ? '✓' : '✗'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <motion.div
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 text-xl select-none"
+            style={{ color: 'var(--fg-tertiary)' }}
+            aria-hidden="true"
+          >
+            ↓
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* ── 02 THE RECKONING — Stats + philosophy ───────────────────────────── */}
+      <section className="relative z-10 w-full max-w-4xl mx-auto px-5 sm:px-8 py-20">
+        <div className="flex flex-col sm:flex-row items-center gap-12 sm:gap-16">
+          {/* Left: stats + philosophy */}
+          <div className="flex-1 flex flex-col">
+            <div className="flex flex-col sm:flex-row items-center justify-start gap-10 sm:gap-14">
+              <StatTicker value={1104} suffix="" label="câu từ đề thi thật" i={0} />
+              <StatTicker value={63}   suffix="" label="tỉnh thành"          i={1} />
+              <StatTicker value={3}    suffix="+" label="năm đề chính thức"  i={2} />
+            </div>
+            <motion.p
+              variants={stellarReveal} custom={0}
+              initial="hidden" whileInView="show"
+              viewport={{ once: true, amount: 0.3 }}
+              className="mt-12 font-semibold text-center sm:text-left"
+              style={{ fontSize: 'clamp(1.1rem,2.5vw,1.5rem)', color: 'var(--fg-secondary)', letterSpacing: '-0.01em' }}
+            >
+              Không cần ôn nhiều hơn. Cần ôn đúng hơn.
+            </motion.p>
+          </div>
+          {/* Right: concentric dashed SVG rings — hidden on mobile */}
+          <motion.div
+            variants={stellarReveal} custom={1}
+            initial="hidden" whileInView="show"
+            viewport={{ once: true, amount: 0.3 }}
+            className="hidden sm:flex items-center justify-center flex-shrink-0"
+            style={{ color: 'var(--primary)', opacity: 0.55 }}
+          >
+            <ConcentricRings />
+          </motion.div>
         </div>
       </section>
 
-      {/* ── Score prediction ─────────────────────────────────────────────────── */}
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.4 }}
-          className="glass-card rounded-2xl p-8"
-        >
-          <div className="text-center mb-6">
-            <span className="font-sans text-[11px] font-semibold tracking-[3px] uppercase text-dim">Dự đoán điểm</span>
-            <h2 className="font-sans font-bold text-foreground mt-2" style={{ fontSize: 'clamp(1.25rem,2.5vw,1.75rem)' }}>
-              Bạn có thể đạt bao nhiêu điểm?
-            </h2>
-            <p className="font-sans text-[13px] text-dim mt-1">Điều chỉnh điểm hiện tại để xem dự đoán Zenith</p>
-          </div>
-          <div className="max-w-lg mx-auto">
-            <Demo4ScoreSlider onOpenAuth={onOpenAuth} />
-          </div>
-        </motion.div>
-      </div>
-
-      {/* ── Testimonials (auto-scroll) ────────────────────────────────────────── */}
-      <div className="relative z-10 w-full py-16 overflow-hidden">
-        <div className="text-center mb-8">
-          <h2 className="font-sans font-bold text-foreground" style={{ fontSize: 'clamp(1.25rem,2.5vw,1.75rem)' }}>
-            Học sinh nói gì về Zenith
+      {/* ── 03 THE THREE PILLARS ─────────────────────────────────────────────── */}
+      <section className="relative z-10 w-full max-w-4xl mx-auto px-5 sm:px-8 py-12">
+        <div className="text-center mb-10">
+          <span
+            className="text-[11px] font-semibold tracking-[3px] uppercase"
+            style={{ color: 'var(--fg-tertiary)' }}
+          >
+            Phương pháp
+          </span>
+          <h2
+            className="font-bold mt-2"
+            style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)', color: 'var(--foreground)' }}
+          >
+            Ba trụ cột
           </h2>
         </div>
-        <div className="relative w-full overflow-hidden">
-          <div className="testimonials-strip flex gap-4 px-4" style={{ width: 'max-content' }}>
-            {[...TESTIMONIALS, ...TESTIMONIALS].map((t, i) => (
-              <div key={i} className="glass-card rounded-2xl p-5 flex flex-col gap-3 flex-shrink-0" style={{ width: 280 }}>
-                <p className="font-sans text-[13px] text-muted leading-relaxed italic flex-1">"{t.quote}"</p>
-                <div className="pt-2 border-t border-border/30">
-                  <p className="font-sans text-[13px] font-semibold text-foreground">{t.name}</p>
-                  <p className="font-sans text-[11px] text-dim">{t.grade}</p>
-                  <p className="font-sans text-[11px] text-success mt-0.5">✓ {t.result}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          {[
+            {
+              glyph: '◇', color: 'var(--primary)',
+              title: 'THE LENS',
+              subtitle: 'Phát hiện điểm yếu',
+              desc: 'AI nhìn thấu từng câu sai — không chỉ đếm điểm mà chỉ đúng chỗ mất điểm để sửa trúng.',
+            },
+            {
+              glyph: '⊕', color: '#7C3AED',
+              title: 'THE MAP',
+              subtitle: 'Đề thi thật 63 tỉnh',
+              desc: 'Luyện đúng đề của tỉnh mình. 1,104 câu từ Bộ GD&ĐT và các Sở, cập nhật hàng năm.',
+            },
+            {
+              glyph: '⊛', color: '#059669',
+              title: 'THE COMPASS',
+              subtitle: 'Nhắc đúng lúc sắp quên',
+              desc: 'Thuật toán FSRS nhắc bạn ôn lại câu đó đúng khoảnh khắc bộ nhớ sắp mờ đi.',
+            },
+          ].map((p, i) => (
+            <motion.div
+              key={p.title}
+              variants={stellarReveal} custom={i}
+              initial="hidden" whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
+              className="pillar-card flex flex-col gap-4 p-6 rounded-2xl border"
+              style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
+            >
+              <span
+                className="pillar-glyph text-[2rem] font-bold"
+                style={{ color: p.color }}
+              >
+                {p.glyph}
+              </span>
+              <div className="flex flex-col gap-1">
+                <p
+                  className="text-[10px] font-bold tracking-[2px] uppercase"
+                  style={{ color: p.color }}
+                >
+                  {p.title}
+                </p>
+                <p className="text-[15px] font-semibold" style={{ color: 'var(--foreground)' }}>
+                  {p.subtitle}
+                </p>
+                <p className="text-[13px] leading-relaxed" style={{ color: 'var(--fg-secondary)' }}>
+                  {p.desc}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── 04 THE JOURNEY — How it works ───────────────────────────────────── */}
+      <section className="relative z-10 w-full max-w-4xl mx-auto px-5 sm:px-8 py-16">
+        <div className="text-center mb-12">
+          <span className="text-[11px] font-semibold tracking-[3px] uppercase" style={{ color: 'var(--fg-tertiary)' }}>Lộ trình</span>
+          <h2 className="font-bold mt-2" style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)', color: 'var(--foreground)' }}>Dùng thế nào?</h2>
+        </div>
+        {/* Desktop: horizontal with dashed connector / Mobile: vertical */}
+        <div className="hidden sm:flex items-start gap-0">
+          {[
+            { roman: 'I',   color: 'var(--primary)', title: 'Làm đề tỉnh mình', desc: 'Đề từ tỉnh bạn, cập nhật 2025. Luminary ghi lại bạn sai câu nào — không chỉ tổng điểm.' },
+            { roman: 'II',  color: '#7C3AED',        title: 'Biết yếu chỗ nào',  desc: 'Không phải "sai 15/50 câu". Là: Hình học — bạn sai 7/8 câu phần đường tròn.' },
+            { roman: 'III', color: '#059669',        title: 'Ôn đúng, nhớ lâu',  desc: 'AI nhắc bạn ôn lại đúng lúc sắp quên. Không cần tự nhớ — Luminary tự nhắc.' },
+          ].map((step, i, arr) => (
+            <div key={step.roman} className="flex items-start flex-1">
+              <motion.div
+                variants={xReveal} custom={i}
+                initial="hidden" whileInView="show"
+                viewport={{ once: true, amount: 0.3 }}
+                className="flex flex-col gap-3 flex-1 px-5"
+              >
+                <span
+                  className="font-bold"
+                  style={{ fontSize: 'clamp(2rem,4vw,3rem)', color: step.color, opacity: 0.28, lineHeight: 1 }}
+                >
+                  {step.roman}
+                </span>
+                <p className="text-[14px] font-semibold" style={{ color: 'var(--foreground)' }}>{step.title}</p>
+                <p className="text-[12px] leading-relaxed" style={{ color: 'var(--fg-secondary)' }}>{step.desc}</p>
+              </motion.div>
+              {i < arr.length - 1 && (
+                <div className="flex-shrink-0 self-center mt-2" style={{ borderTop: '1px dashed var(--border)', width: 24 }} />
+              )}
+            </div>
+          ))}
+        </div>
+        {/* Mobile: vertical */}
+        <div className="flex sm:hidden flex-col gap-0">
+          {[
+            { roman: 'I',   color: 'var(--primary)', title: 'Làm đề tỉnh mình', desc: 'Đề từ tỉnh bạn, cập nhật 2025. Luminary ghi lại bạn sai câu nào — không chỉ tổng điểm.' },
+            { roman: 'II',  color: '#7C3AED',        title: 'Biết yếu chỗ nào',  desc: 'Không phải "sai 15/50 câu". Là: Hình học — bạn sai 7/8 câu phần đường tròn.' },
+            { roman: 'III', color: '#059669',        title: 'Ôn đúng, nhớ lâu',  desc: 'AI nhắc bạn ôn lại đúng lúc sắp quên. Không cần tự nhớ — Luminary tự nhắc.' },
+          ].map((step, i, arr) => (
+            <div key={step.roman} className="flex gap-5">
+              <div className="flex flex-col items-center">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: step.color, opacity: 0.15 }} />
+                {i < arr.length - 1 && (
+                  <div className="w-px flex-1 mt-1" style={{ background: 'var(--border)', minHeight: 32 }} />
+                )}
+              </div>
+              <motion.div
+                variants={xReveal} custom={i}
+                initial="hidden" whileInView="show"
+                viewport={{ once: true, amount: 0.3 }}
+                className="flex flex-col gap-1 pb-8"
+              >
+                <span className="font-bold text-[11px] tracking-[2px] uppercase" style={{ color: step.color }}>{step.roman}</span>
+                <p className="text-[14px] font-semibold" style={{ color: 'var(--foreground)' }}>{step.title}</p>
+                <p className="text-[12px] leading-relaxed" style={{ color: 'var(--fg-secondary)' }}>{step.desc}</p>
+              </motion.div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── 05 THE WITNESSES — Testimonials ──────────────────────────────────── */}
+      <section className="relative z-10 w-full py-16 overflow-hidden">
+        <div className="text-center mb-8">
+          <h2 className="font-bold" style={{ fontSize: 'clamp(1.25rem,2.5vw,1.75rem)', color: 'var(--foreground)' }}>
+            Học sinh nói gì về Luminary
+          </h2>
+        </div>
+        <div
+          className="relative flex gap-5 px-5 mx-auto"
+          style={{
+            maxWidth: 900,
+            maskImage: 'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)',
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)',
+            height: 480,
+            overflow: 'hidden',
+          }}
+        >
+          {/* Column 1 */}
+          <div className="constellation-column flex-1 flex flex-col gap-3">
+            {[...TESTIMONIALS.slice(0, 3), ...TESTIMONIALS.slice(0, 3)].map((t, i) => (
+              <div key={i} className="witness-card p-5 flex flex-col gap-3">
+                <p className="text-[13px] leading-relaxed italic flex-1" style={{ color: 'var(--fg-secondary)' }}>
+                  "{t.quote}"
+                </p>
+                <div className="pt-2 border-t" style={{ borderColor: 'var(--border)' }}>
+                  <p className="text-[13px] font-semibold" style={{ color: 'var(--foreground)' }}>{t.name}</p>
+                  <p className="text-[11px]" style={{ color: 'var(--fg-tertiary)' }}>{t.grade}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: '#059669' }}>✓ {t.result}</p>
                 </div>
               </div>
             ))}
           </div>
-          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-20"
-            style={{ background: 'linear-gradient(90deg, var(--background), transparent)' }} />
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-20"
-            style={{ background: 'linear-gradient(270deg, var(--background), transparent)' }} />
-        </div>
-      </div>
-
-      {/* ── Exam phase / countdown strip ─────────────────────────────────────── */}
-      {(() => {
-        const d = getDaysUntilExam(user?.province ?? null)
-        if (d == null) return null
-        const phase = d > 60
-          ? { bg: 'var(--mastery-4-bg)', border: 'var(--mastery-4)', color: 'var(--success)', msg: `Giai đoạn nền tảng · Còn ${d} ngày — xây vững kiến thức cơ bản` }
-          : d > 14
-          ? { bg: 'var(--mastery-3-bg)', border: 'var(--mastery-3)', color: 'var(--warning)', msg: `Giai đoạn luyện đề · Còn ${d} ngày — tập trung làm thật nhiều đề` }
-          : { bg: 'var(--mastery-1-bg)', border: 'var(--mastery-1)', color: 'var(--destructive)', msg: `Giai đoạn nước rút · Còn ${d} ngày — tập trung tối đa, không học dàn trải` }
-        return (
-          <div className="relative z-10 w-full px-4 sm:px-8 py-3 flex items-center justify-center gap-3"
-            style={{ background: phase.bg, borderTop: `1px solid ${phase.border}`, borderBottom: `1px solid ${phase.border}` }}>
-            <span className="font-sans text-[13px] font-semibold" style={{ color: phase.color }}>{phase.msg}</span>
-            <button onClick={() => navigate('/study-plan/adaptive')}
-              className="flex-shrink-0 font-sans text-[12px] font-semibold underline underline-offset-2 hover:opacity-80 transition"
-              style={{ color: phase.color }}>
-              Xem kế hoạch →
-            </button>
+          {/* Column 2 */}
+          <div className="constellation-column flex-1 flex flex-col gap-3 hidden sm:flex">
+            {[...TESTIMONIALS.slice(3), ...TESTIMONIALS.slice(3)].map((t, i) => (
+              <div key={i} className="witness-card p-5 flex flex-col gap-3">
+                <p className="text-[13px] leading-relaxed italic flex-1" style={{ color: 'var(--fg-secondary)' }}>
+                  "{t.quote}"
+                </p>
+                <div className="pt-2 border-t" style={{ borderColor: 'var(--border)' }}>
+                  <p className="text-[13px] font-semibold" style={{ color: 'var(--foreground)' }}>{t.name}</p>
+                  <p className="text-[11px]" style={{ color: 'var(--fg-tertiary)' }}>{t.grade}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: '#059669' }}>✓ {t.result}</p>
+                </div>
+              </div>
+            ))}
           </div>
-        )
-      })()}
-
-      {/* ── Pricing ──────────────────────────────────────────────────────────── */}
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-16">
-        <div className="h-px w-full mb-12" style={{ background: 'linear-gradient(90deg, transparent, var(--border), transparent)' }} />
-        <div className="flex flex-col items-center gap-2 text-center mb-8">
-          <span className="font-sans text-[28px] font-bold text-foreground">7 ngày — biết ngay 3 điểm yếu cần sửa</span>
-          <p className="font-sans text-[14px] text-dim">Không cần thẻ ngân hàng · Hủy bất cứ lúc nào · Hoàn tiền 7 ngày nếu không hài lòng</p>
         </div>
-        <div className="flex flex-col gap-3">
+      </section>
+
+      {/* ── 06 THE THRESHOLD — Pricing ───────────────────────────────────────── */}
+      <section className="relative z-10 w-full max-w-4xl mx-auto px-5 sm:px-8 py-16">
+        <div className="h-px w-full mb-12" style={{ background: 'linear-gradient(90deg, transparent, var(--border), transparent)' }} />
+        <div className="flex flex-col items-center gap-2 text-center mb-10">
+          <h2 className="font-bold" style={{ fontSize: 'clamp(1.5rem,3vw,2rem)', color: 'var(--foreground)' }}>
+            Ba cấp độ, một đích đến
+          </h2>
+          <p className="text-[13px]" style={{ color: 'var(--fg-secondary)' }}>
+            Không cần thẻ ngân hàng · Hủy bất cứ lúc nào · Hoàn tiền 7 ngày
+          </p>
+        </div>
+        <div className="flex flex-col gap-4">
           {PLANS_MONTHLY.map((plan, i) => (
-            <motion.div key={plan.tier}
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.35, delay: i * 0.07 }}
-              className="glass-card flex items-start justify-between gap-4 px-6 py-5 rounded-2xl"
-              style={{ border: `1px solid ${plan.tier === 'student' ? 'var(--primary-border)' : 'var(--border)'}`, background: plan.tier === 'student' ? 'var(--primary-subtle)' : undefined }}
+            <motion.div
+              key={plan.tier}
+              variants={stellarReveal} custom={i}
+              initial="hidden" whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
+              className="flex items-start justify-between gap-4 px-6 py-5 rounded-2xl border"
+              style={{
+                borderColor: plan.tier === 'student' ? 'var(--primary-border)' : 'var(--border)',
+                background: plan.tier === 'student' ? 'var(--primary-subtle)' : 'var(--surface)',
+              }}
             >
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-sans text-[15px] font-bold text-foreground">{plan.label}</span>
+                  <span className="text-[15px] font-bold" style={{ color: 'var(--foreground)' }}>{plan.label}</span>
                   {plan.badge && (
-                    <span className="font-sans text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary">{plan.badge}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(59,111,232,0.15)', color: 'var(--primary)' }}>
+                      {plan.badge}
+                    </span>
                   )}
                 </div>
-                <span className="font-sans text-[12px] text-dim">⚡ {plan.credits.toLocaleString()} credits / tháng</span>
+                <span className="text-[12px]" style={{ color: 'var(--fg-tertiary)' }}>⚡ {plan.credits.toLocaleString()} credits / tháng</span>
                 <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
-                  {plan.features.map(f => <span key={f} className="font-sans text-[12px] text-dim">✓ {f}</span>)}
+                  {plan.features.map(f => (
+                    <span key={f} className="text-[12px]" style={{ color: 'var(--fg-secondary)' }}>✓ {f}</span>
+                  ))}
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                <span className="font-sans text-[16px] font-bold text-foreground">{plan.price}</span>
+              <div className="flex flex-col items-end gap-3 flex-shrink-0">
+                <span className="text-[16px] font-bold" style={{ color: 'var(--foreground)' }}>{plan.price}</span>
+                {plan.tier === 'basic' ? (
+                  <button
+                    onClick={() => navigate('/practice/diagnostic')}
+                    className="px-4 py-1.5 rounded-lg text-[12px] font-semibold border transition hover:opacity-80"
+                    style={{ borderColor: 'var(--border)', color: 'var(--fg-secondary)' }}
+                  >
+                    Thử miễn phí →
+                  </button>
+                ) : plan.tier === 'student' ? (
+                  <button
+                    className="spectral-gate-btn px-5 py-2 rounded-lg text-[13px]"
+                    onClick={user ? () => navigate('/account') : onOpenAuth}
+                  >
+                    {user ? 'Bắt đầu học ngay' : 'Đăng nhập'}
+                  </button>
+                ) : (
+                  <button
+                    onClick={user ? () => navigate('/account') : onOpenAuth}
+                    className="px-5 py-2 rounded-lg text-[13px] font-semibold border transition hover:opacity-80"
+                    style={{ borderColor: 'var(--primary-border)', color: 'var(--primary)' }}
+                  >
+                    {user ? 'Mở khóa toàn bộ' : 'Đăng nhập'}
+                  </button>
+                )}
                 {plan.tier !== 'basic' && (
-                  <>
-                    <motion.button
-                      onClick={user ? () => navigate('/account') : onOpenAuth}
-                      className="inline-flex items-center justify-center px-4 py-1.5 rounded-[var(--radius-md)] font-sans text-[12px] font-bold bg-[var(--primary)] text-[var(--primary-fg)] hover:bg-[var(--primary)]/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
-                      whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
-                      {user ? (plan.tier === 'student' ? 'Bắt đầu học ngay' : 'Mở khóa toàn bộ') : 'Đăng nhập'}
-                    </motion.button>
-                    <span className="font-sans text-[10px] text-dim">✓ Hoàn tiền 7 ngày · Không hỏi lý do · = 1 cốc trà sữa/tuần</span>
-                  </>
+                  <span className="text-[10px]" style={{ color: 'var(--fg-tertiary)' }}>✓ Hoàn tiền 7 ngày · = 1 cốc trà sữa/tuần</span>
                 )}
               </div>
             </motion.div>
           ))}
         </div>
-        <div className="mt-6 flex flex-col gap-4">
-          <span className="font-sans text-[13px] font-semibold text-muted text-center">Hoặc nạp thêm credits</span>
-          <div className="flex gap-3 flex-wrap justify-center">
-            {TOPUP_PACKAGES.map(pkg => (
-              <div key={pkg.price} className="glass-card flex flex-col items-center gap-1 px-6 py-4 rounded-xl">
-                <span className="font-sans text-[18px] font-bold text-primary">⚡ {pkg.credits}</span>
-                <span className="font-sans text-[12px] text-dim">{pkg.price}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      </section>
 
-      {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 pb-16">
-        <h2 className="font-sans font-bold text-foreground text-center mb-6" style={{ fontSize: 'clamp(1.25rem,2.5vw,1.75rem)' }}>
-          Câu hỏi thường gặp
-        </h2>
-        <Accordion type="single" collapsible className="glass-base border border-surface rounded-2xl overflow-hidden">
-          {FAQ_ITEMS.map((item, i) => (
-            <AccordionItem key={item.q} value={String(i)} className="[&:last-child]:border-b-0">
-              <AccordionTrigger className="px-5 font-sans text-[14px] font-semibold hover:no-underline">
-                {item.q}
-              </AccordionTrigger>
-              <AccordionContent className="px-5">
-                <p className="font-sans text-[13px] text-muted leading-relaxed">{item.a}</p>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </div>
-
-      {/* ── CTA banner ───────────────────────────────────────────────────────── */}
-      <div className="relative z-10 w-full overflow-hidden">
-        {/* Aurora blobs for CTA */}
+      {/* ── 07 THE CALLING — Final CTA ───────────────────────────────────────── */}
+      <section className="relative z-10 w-full overflow-hidden py-24 px-5 sm:px-8">
+        {/* Nebula wisps for CTA — direct children */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="aurora-blob" style={{ width: 500, height: 500, top: '-30%', left: '10%', background: 'radial-gradient(circle, #3B6FE8 0%, transparent 70%)', animationDuration: '20s' }} />
-          <div className="aurora-blob" style={{ width: 400, height: 400, bottom: '-20%', right: '5%', background: 'radial-gradient(circle, #7C5CE8 0%, transparent 70%)', animationDuration: '24s', animationDelay: '-8s' }} />
+          <div className="nebula-wisp" style={{ width: 500, height: 500, top: '-20%', left: '15%' }} />
+          <div className="nebula-wisp" style={{ width: 380, height: 380, bottom: '-15%', right: '10%' }} />
         </div>
-        <div className="flex flex-col items-center gap-6 text-center py-24 px-6 relative">
-          <h2 className="font-sans font-bold text-foreground max-w-xl"
-            style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.02em' }}>
+
+        <div className="relative flex flex-col items-center gap-7 text-center max-w-xl mx-auto">
+          <motion.h2
+            variants={stellarReveal} custom={0}
+            initial="hidden" whileInView="show"
+            viewport={{ once: true, amount: 0.4 }}
+            className="font-bold"
+            style={{ fontSize: 'clamp(1.75rem,4vw,3rem)', letterSpacing: '-0.02em', color: 'var(--foreground)' }}
+          >
             Thử ngay — chỉ mất 5 phút
-          </h2>
-          <p className="font-sans text-[15px] text-muted max-w-sm">
+          </motion.h2>
+
+          <motion.p
+            variants={stellarReveal} custom={1}
+            initial="hidden" whileInView="show"
+            viewport={{ once: true, amount: 0.4 }}
+            className="text-[15px]"
+            style={{ color: 'var(--fg-secondary)' }}
+          >
             Miễn phí · Không cần đăng ký · Kết quả sau 8 câu
-          </p>
-          <div className="flex items-center gap-3 flex-wrap justify-center">
-            <motion.button onClick={() => navigate('/practice/diagnostic')}
-              className="px-7 py-3.5 rounded-xl font-sans text-[15px] font-bold cta-gradient-btn"
-              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
-              Thi thử ngay →
-            </motion.button>
+          </motion.p>
+
+          <motion.div
+            variants={stellarReveal} custom={2}
+            initial="hidden" whileInView="show"
+            viewport={{ once: true, amount: 0.4 }}
+          >
+            {provinceSelector}
+          </motion.div>
+
+          <motion.div
+            variants={stellarReveal} custom={3}
+            initial="hidden" whileInView="show"
+            viewport={{ once: true, amount: 0.4 }}
+            className="flex flex-col sm:flex-row items-center gap-3"
+          >
+            <button
+              className="spectral-gate-btn px-8 py-4 rounded-xl text-[16px]"
+              onClick={() => navigate('/practice/diagnostic')}
+            >
+              Bắt đầu ngay →
+            </button>
             {!user && (
-              <motion.button onClick={onOpenAuth}
-                className="px-7 py-3.5 rounded-xl font-sans text-[15px] font-semibold text-foreground border border-border bg-surface/60 hover:border-primary/40 transition"
-                style={{ backdropFilter: 'blur(4px)' }}
-                whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
+              <button
+                onClick={onOpenAuth}
+                className="px-7 py-3.5 rounded-xl text-[15px] font-semibold border transition hover:opacity-80"
+                style={{ borderColor: 'var(--border)', color: 'var(--fg-secondary)' }}
+              >
                 Đăng nhập với Google
-              </motion.button>
+              </button>
             )}
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </section>
 
-      {/* ── Footer ───────────────────────────────────────────────────────────── */}
-      <footer className="relative z-10 w-full border-t border-border mt-8 px-6 sm:px-10 py-12">
+      {/* ── 08 FOOTER ────────────────────────────────────────────────────────── */}
+      <footer className="relative z-10 w-full border-t px-6 sm:px-10 py-12" style={{ borderColor: 'var(--border)' }}>
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row gap-10 justify-between">
-
           {/* Brand block */}
           <div className="flex flex-col gap-3 max-w-[220px]">
-            <span className="font-sans text-[16px] font-bold text-foreground">Zenith</span>
-            <span className="font-sans text-[12px] text-dim leading-relaxed">
+            <LuminaryLogo variant="nav" />
+            <span className="text-[12px] leading-relaxed mt-1" style={{ color: 'var(--fg-tertiary)' }}>
               Nền tảng luyện thi Toán THPT &amp; Lớp 10 được cá nhân hóa bởi AI.
             </span>
             <div className="flex gap-2 mt-1">
               <a href="https://github.com" target="_blank" rel="noreferrer" aria-label="GitHub"
-                className="p-1.5 rounded-lg border border-border text-dim hover:text-muted hover:border-border-subtle transition">
+                className="p-1.5 rounded-lg border transition hover:opacity-70"
+                style={{ borderColor: 'var(--border)', color: 'var(--fg-tertiary)' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.51 11.51 0 0 1 12 6.598c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
                 </svg>
               </a>
               <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"
-                className="p-1.5 rounded-lg border border-border text-dim hover:text-muted hover:border-border-subtle transition">
+                className="p-1.5 rounded-lg border transition hover:opacity-70"
+                style={{ borderColor: 'var(--border)', color: 'var(--fg-tertiary)' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M24 12.073C24 5.446 18.627 0 12 0S0 5.446 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047v-2.66c0-3.025 1.791-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.971H15.83c-1.491 0-1.956.932-1.956 1.888v2.262h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
                 </svg>
@@ -799,41 +794,53 @@ export default function Landing({ onOpenAuth }) {
           {/* Link columns */}
           <div className="flex gap-10 flex-wrap">
             <div className="flex flex-col gap-2">
-              <span className="font-sans text-[10px] font-bold uppercase tracking-[2px] text-dim mb-1">Sản phẩm</span>
+              <span className="text-[10px] font-bold uppercase tracking-[2px] mb-1" style={{ color: 'var(--fg-tertiary)' }}>Sản phẩm</span>
               {[['Thi thử', '/exams'], ['Luyện tập', '/exams?mode=practice'],
-                ['Zenith AI', '/oracle'], ['⚗ Lab', '/exams?mode=lab'],
+                ['Luminary AI', '/oracle'], ['⚗ Lab', '/exams?mode=lab'],
                 ['Bản đồ kiến thức', '/mastery']].map(([label, path]) => (
                 <button key={label} onClick={() => navigate(path)}
-                  className="font-sans text-[12px] text-dim hover:text-muted transition text-left">{label}</button>
+                  className="text-[12px] text-left transition hover:opacity-70"
+                  style={{ color: 'var(--fg-tertiary)' }}>
+                  {label}
+                </button>
               ))}
             </div>
             <div className="flex flex-col gap-2">
-              <span className="font-sans text-[10px] font-bold uppercase tracking-[2px] text-dim mb-1">Tài khoản</span>
+              <span className="text-[10px] font-bold uppercase tracking-[2px] mb-1" style={{ color: 'var(--fg-tertiary)' }}>Tài khoản</span>
               {[['Đăng nhập', null, onOpenAuth], ['Nâng cấp', '/account', null],
                 ['Lịch sử thi', '/history', null]].map(([label, path, fn]) => (
                 <button key={label} onClick={fn ?? (() => navigate(path))}
-                  className="font-sans text-[12px] text-dim hover:text-muted transition text-left">{label}</button>
+                  className="text-[12px] text-left transition hover:opacity-70"
+                  style={{ color: 'var(--fg-tertiary)' }}>
+                  {label}
+                </button>
               ))}
             </div>
             <div className="flex flex-col gap-2">
-              <span className="font-sans text-[10px] font-bold uppercase tracking-[2px] text-dim mb-1">Hỗ trợ</span>
+              <span className="text-[10px] font-bold uppercase tracking-[2px] mb-1" style={{ color: 'var(--fg-tertiary)' }}>Hỗ trợ</span>
               {[['Về chúng tôi', '#'], ['Phản hồi', '#'], ['Điều khoản', '#'], ['Riêng tư', '#']].map(([label, href]) => (
                 <a key={label} href={href}
-                  className="font-sans text-[12px] text-dim hover:text-muted transition">{label}</a>
+                  className="text-[12px] transition hover:opacity-70"
+                  style={{ color: 'var(--fg-tertiary)' }}>
+                  {label}
+                </a>
               ))}
             </div>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="max-w-5xl mx-auto mt-8 pt-4 border-t border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="font-sans text-[11px] text-dim">© {new Date().getFullYear()} Zenith. Tất cả đề thi từ nguồn chính thức.</p>
+        <div className="max-w-5xl mx-auto mt-8 pt-4 border-t flex flex-col sm:flex-row items-center justify-between gap-2"
+          style={{ borderColor: 'var(--border)' }}>
+          <p className="text-[11px]" style={{ color: 'var(--fg-tertiary)' }}>
+            © {new Date().getFullYear()} LUMINARY. Tất cả đề thi từ nguồn chính thức.
+          </p>
           <div className="flex gap-4">
-            <a href="#" className="font-sans text-[11px] text-dim hover:text-muted transition">Điều khoản dịch vụ</a>
-            <a href="#" className="font-sans text-[11px] text-dim hover:text-muted transition">Chính sách bảo mật</a>
+            <a href="#" className="text-[11px] transition hover:opacity-70" style={{ color: 'var(--fg-tertiary)' }}>Điều khoản dịch vụ</a>
+            <a href="#" className="text-[11px] transition hover:opacity-70" style={{ color: 'var(--fg-tertiary)' }}>Chính sách bảo mật</a>
           </div>
         </div>
       </footer>
-    </motion.div>
+    </div>
   )
 }
