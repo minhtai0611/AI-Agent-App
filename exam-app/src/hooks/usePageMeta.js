@@ -1,6 +1,6 @@
 ﻿import { useEffect } from 'react'
 
-const DEFAULT_TITLE = 'Luminary · Ôn thi Toán THPT & Lớp 10 cùng AI'
+const DEFAULT_TITLE = 'Luminary · Ánh sáng dẫn đường — Ôn thi Toán THPT & Lớp 10'
 const SUFFIX = ' — Luminary'
 
 /**

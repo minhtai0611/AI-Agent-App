@@ -4,8 +4,7 @@
    JetBrains Mono: math/code rendering (KaTeX). Self-hosted WOFF2.
    ─────────────────────────────────────────────────────────────────────────── */
 
-/* Sora + DM Mono — Vietnamese Unicode confirmed (U+0102-0103, U+1EA0-1EF9) */
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap');
+/* Sora + DM Mono loaded via <link> in index.html — @import url() drops silently in Vite bundle */
 @import "tw-animate-css";
 
 /* JetBrains Mono (variable: wght axis) */
@@ -785,6 +784,27 @@ body {
 .pillar-card:hover .pillar-glyph {
   text-shadow: 0 0 20px currentColor;
   transform: scale(1.12);
+}
+
+/* ─── LandingLoader — mystical portal keyframes ─────────────────────────── */
+@keyframes luminary-loader-spin-cw  { to { transform: rotate(360deg); } }
+@keyframes luminary-loader-spin-ccw { to { transform: rotate(-360deg); } }
+@keyframes luminary-loader-orb-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.94); }
+  50%       { opacity: 0.85; transform: scale(1.10); }
+}
+.luminary-loader-spin-cw {
+  animation: luminary-loader-spin-cw 20s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.luminary-loader-spin-ccw {
+  animation: luminary-loader-spin-ccw 30s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.luminary-loader-orb-pulse {
+  animation: luminary-loader-orb-pulse 3s ease-in-out infinite;
 }
 
 /* Floating glass navbar */

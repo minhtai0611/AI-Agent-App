@@ -302,7 +302,7 @@ export default function Account() {
     const next = isDarkMode ? 'light' : 'dark'
     document.documentElement.classList.toggle('dark', next === 'dark')
     document.documentElement.dataset.theme = next
-    localStorage.setItem('zenith-theme', next)
+    localStorage.setItem('luminary-theme', next)
     setIsDarkMode(next === 'dark')
   }
   const [reminderEnabled, setReminderEnabled] = useState(

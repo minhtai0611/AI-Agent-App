@@ -25,6 +25,7 @@ import {
   AccountPageSkeleton, ProgressPageSkeleton, StudyPlanPageSkeleton,
   HistoryPageSkeleton, PracticeSkeleton, QuestionCardSkeleton, SimplePageSkeleton,
 } from './components/Skeleton.jsx'
+import LandingLoader from './components/LandingLoader.jsx'
 
 
 const Landing = lazy(() => import('./pages/Landing.jsx'))
@@ -61,6 +62,7 @@ const Privacy = lazy(() => import('./pages/Privacy.jsx'))
 
 function PageFallback() {
   const { pathname } = useLocation()
+  if (pathname === '/') return <LandingLoader />
   if (pathname === '/home') return <HomePageSkeleton />
   if (pathname === '/exams') return <ExamSelectSkeleton />
   if (pathname.startsWith('/results')) return <ResultsPageSkeleton />

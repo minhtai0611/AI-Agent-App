@@ -1,7 +1,7 @@
 {
-  "name": "ExamApp — Ôn tập Toán",
-  "short_name": "ExamApp",
-  "description": "Ôn tập Toán với 40+ đề thi Việt Nam & quốc tế — AI phân tích kết quả và gợi ý ôn luyện.",
+  "name": "Luminary — Ánh sáng dẫn đường",
+  "short_name": "Luminary",
+  "description": "Ánh sáng dẫn đường tri thức — ôn thi Toán THPT & lớp 10 cùng AI.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0E1A",
