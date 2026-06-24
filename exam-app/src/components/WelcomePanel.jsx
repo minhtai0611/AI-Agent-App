@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const STEPS = [
   {
     id: 'diagnostic',
     label: 'Kiểm tra năng lực',
-    detail: 'Zenith cần biết điểm yếu của bạn — chỉ mất 5 phút.',
+    detail: 'Luminary cần biết điểm yếu của bạn — chỉ mất 5 phút.',
     cta: 'Kiểm tra ngay →',
     path: '/practice/diagnostic',
   },
@@ -51,7 +51,7 @@ export default function WelcomePanel({ userId, diagnosticDone, hasExams, aiInsig
   return (
     <div data-testid="welcome-panel" className="bg-surface border border-border rounded-2xl p-5 flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Bắt đầu với Zenith</span>
+        <span className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Bắt đầu với Luminary</span>
         <button onClick={handleDismiss} className="font-sans text-[11px] text-dim hover:text-muted">Bỏ qua</button>
       </div>
       <div className="flex flex-col gap-3">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../context/AuthContext'
 import { emailForgot, emailResendVerify } from '../api/aiClient'
@@ -150,7 +150,7 @@ export default function AuthModal({ open, onClose }) {
               <div className="flex flex-col items-center gap-3 py-2">
                 <span className="text-3xl">✅</span>
                 <p className="font-sans text-[13px] text-foreground text-center font-semibold">Kiểm tra email để xác minh tài khoản</p>
-                <p className="font-sans text-[11px] text-dim text-center">Nhấn vào đường dẫn trong email từ Zenith để kích hoạt tài khoản.</p>
+                <p className="font-sans text-[11px] text-dim text-center">Nhấn vào đường dẫn trong email từ Luminary để kích hoạt tài khoản.</p>
                 <button onClick={() => emailResendVerify(email)}
                   className="font-sans text-[11px] text-primary hover:underline">Gửi lại email</button>
               </div>

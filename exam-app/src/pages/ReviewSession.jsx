@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -261,8 +261,8 @@ export default function ReviewSession() {
               </div>
               <button
                 onClick={() => {
-                  const text = `Tôi vừa thành thạo ${stage5Topics.map(t => TOPIC_LABELS[t] ?? t).join(', ')} trên Zenith! 🎯`
-                  if (navigator.share) navigator.share({ title: 'Zenith — Thành tích học tập', text }).catch(() => {})
+                  const text = `Tôi vừa thành thạo ${stage5Topics.map(t => TOPIC_LABELS[t] ?? t).join(', ')} trên Luminary! 🎯`
+                  if (navigator.share) navigator.share({ title: 'Luminary — Thành tích học tập', text }).catch(() => {})
                   else navigator.clipboard?.writeText(text).catch(() => {})
                 }}
                 className="font-sans text-[11px] text-success/70 hover:text-success transition"
@@ -384,7 +384,7 @@ export default function ReviewSession() {
                         : interval ? Math.round(interval * 2.5) : null
                       const parts = [
                         lastCorrectDays !== null && lastCorrectDays >= 0 && `Bạn trả lời đúng lần cuối ${lastCorrectDays} ngày trước.`,
-                        interval !== null && `Zenith nhắc ôn sau ${interval} ngày để bạn không quên.`,
+                        interval !== null && `Luminary nhắc ôn sau ${interval} ngày để bạn không quên.`,
                         nextInterval !== null && `Lần ôn tiếp theo: ~${nextInterval} ngày nữa.`,
                       ].filter(Boolean)
                       if (parts.length === 0) return null
@@ -405,7 +405,7 @@ export default function ReviewSession() {
                           Tại sao ôn câu này hôm nay?
                         </summary>
                         <p className="font-sans text-[11px] text-dim mt-1">
-                          Zenith sử dụng thuật toán FSRS để nhắc bạn ôn đúng lúc bạn sắp quên.
+                          Luminary sử dụng thuật toán FSRS để nhắc bạn ôn đúng lúc bạn sắp quên.
                         </p>
                       </details>
                     )
@@ -483,7 +483,7 @@ export default function ReviewSession() {
                   onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
                   className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-info/20 bg-info/5 font-sans text-[11px] font-semibold text-info hover:border-info/40 hover:bg-info/10 transition"
                 >
-                  <span className="text-[10px]">✦</span> Hỏi Zenith AI
+                  <span className="text-[10px]">✦</span> Hỏi Luminary AI
                 </button>
 
                 <div className="flex flex-col gap-2">

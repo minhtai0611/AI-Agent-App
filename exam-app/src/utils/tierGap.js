@@ -1,4 +1,4 @@
-/**
+﻿/**
  * getTierGap — what features is this tier missing vs the next tier?
  *
  * @param {'basic'|'student'|'complete'} tier
@@ -11,7 +11,7 @@ export function getTierGap(tier) {
     return {
       missingFeatures: [
         'Kế hoạch học tập AI cá nhân hoá 4 tuần',
-        'Zenith AI không giới hạn (500 lượt hỏi AI/tháng)',
+        'Luminary AI không giới hạn (500 lượt hỏi AI/tháng)',
         'AI Phân tích kết quả miễn phí',
         'Xu hướng tiến bộ 30 ngày',
       ],

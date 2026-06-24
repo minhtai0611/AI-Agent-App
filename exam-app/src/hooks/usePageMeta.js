@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
+﻿import { useEffect } from 'react'
 
-const DEFAULT_TITLE = 'Zenith · Ôn thi Toán THPT & Lớp 10 cùng AI'
-const SUFFIX = ' — Zenith'
+const DEFAULT_TITLE = 'Luminary · Ôn thi Toán THPT & Lớp 10 cùng AI'
+const SUFFIX = ' — Luminary'
 
 /**
  * Sets document.title, meta description, and noindex per page.

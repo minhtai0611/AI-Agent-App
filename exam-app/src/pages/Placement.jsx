@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+﻿import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { loadQuestions } from '../api/index.js'
@@ -121,7 +121,7 @@ export default function Placement() {
             </p>
           </div>
           <p className="font-sans text-[13px] text-dim leading-relaxed">
-            Zenith đã ghi nhận năng lực của bạn và sẽ gợi ý lộ trình học phù hợp.
+            Luminary đã ghi nhận năng lực của bạn và sẽ gợi ý lộ trình học phù hợp.
           </p>
           <div className="flex gap-3 w-full">
             <button

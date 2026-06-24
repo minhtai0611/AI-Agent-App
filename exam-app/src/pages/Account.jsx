@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from 'react'
+﻿import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Badge } from '../components/ui/badge.jsx'
 import { Button } from '../components/ui/button.jsx'
@@ -68,7 +68,7 @@ const MASTERY_RANK_LABELS = {
   'Pemula':    'Tân học viên',
   'Học sinh':  'Học sinh Tiến bộ',
   'Sinh viên': 'Chiến sĩ Tri thức',
-  'Chuyên gia':'Ngôi sao Zenith',
+  'Chuyên gia':'Ngôi sao Luminary',
 }
 const MASTERY_RANK_COLORS = {
   'Pemula':    '#64748B',
@@ -82,17 +82,17 @@ const GRADE_LABELS = { '9': 'Lớp 9 trở xuống', '10': 'Lớp 10', '11': 'L�
 
 const PLANS_MONTHLY = [
   { tier: 'basic',    label: 'Thử miễn phí',    price: 'Miễn phí',       credits: 50,   studyPlan: false, badge: null,
-    features: ['5 lượt Zenith AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'] },
+    features: ['5 lượt Luminary AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'] },
   { tier: 'student',  label: 'Học sinh',  price: '29,000đ/tháng',  credits: 500,  studyPlan: true,  badge: '⭐ 95% học sinh chọn',
-    features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
+    features: ['Luminary AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
   { tier: 'complete', label: '8.5+ Nâng cao', price: '59,000đ/tháng',  credits: 2000, studyPlan: true,  badge: null,
     features: ['Tất cả gói Học sinh', 'Tất cả đề thi thử & luyện tập', '⚗ Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
 ]
 const PLANS_ANNUAL = [
   { tier: 'basic',    label: 'Thử miễn phí',    price: 'Miễn phí',        credits: 50,   studyPlan: false, badge: null,
-    features: ['5 lượt Zenith AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'] },
+    features: ['5 lượt Luminary AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'] },
   { tier: 'student',  label: 'Học sinh',  price: '261,000đ/năm',    credits: 500,  studyPlan: true,  badge: '⭐ 95% học sinh chọn', bonus: '+1,000 lượt hỏi AI', effective: '21,750đ/tháng',
-    features: ['Zenith AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
+    features: ['Luminary AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
   { tier: 'complete', label: '8.5+ Nâng cao', price: '531,000đ/năm',    credits: 2000, studyPlan: true,  badge: null, bonus: '+3,000 lượt hỏi AI', effective: '44,250đ/tháng',
     features: ['Tất cả gói Học sinh', 'Tất cả đề thi thử & luyện tập', '⚗ Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
 ]
@@ -1492,7 +1492,7 @@ export default function Account() {
                     onClick={() => {
                       const text = reportToText(progressReport)
                       if (navigator.share) {
-                        navigator.share({ title: 'Báo cáo học tập Zenith', text }).catch(() => {})
+                        navigator.share({ title: 'Báo cáo học tập Luminary', text }).catch(() => {})
                       } else {
                         navigator.clipboard?.writeText(text)
                           .then(() => toast.success('Đã sao chép báo cáo'))
@@ -2519,7 +2519,7 @@ export default function Account() {
                   </button>
                 </div>
                 <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Zenith nhé! Dùng link này để nhận 30 ngày dùng thử miễn phí (thay vì 7 ngày): ${referralUrl}`)}`}
+                  href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Luminary nhé! Dùng link này để nhận 30 ngày dùng thử miễn phí (thay vì 7 ngày): ${referralUrl}`)}`}
                   target="_blank" rel="noopener noreferrer"
                   className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-sans text-xs font-semibold bg-whatsapp text-white hover:opacity-90 transition"
                 >

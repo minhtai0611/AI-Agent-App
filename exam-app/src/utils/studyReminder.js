@@ -1,4 +1,4 @@
-const PERMISSION_ASKED_KEY = 'notif_permission_asked'
+﻿const PERMISSION_ASKED_KEY = 'notif_permission_asked'
 const WEEKLY_REPORT_KEY = 'weekly_report_shown_week'
 
 function currentWeekKey() {
@@ -49,7 +49,7 @@ export function checkAndShowWeeklyReport({ streak = 0, masteredThisWeek = 0, acc
     : 'Bắt đầu tuần mới với một buổi ôn tập ngắn!'
 
   try {
-    new Notification('Zenith — Tuần học vừa qua', {
+    new Notification('Luminary — Tuần học vừa qua', {
       body,
       icon: '/favicon.svg',
       badge: '/favicon.svg',
@@ -76,7 +76,7 @@ export function checkAndShowStudyReminder() {
 
   localStorage.setItem(lastKey, String(now))
   try {
-    new Notification('Zenith — Ôn tập hôm nay chưa?', {
+    new Notification('Luminary — Ôn tập hôm nay chưa?', {
       body: 'Một bài thi ngắn giúp bạn ghi nhớ kiến thức tốt hơn!',
       icon: '/favicon.svg',
       badge: '/favicon.svg',

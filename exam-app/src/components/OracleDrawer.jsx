@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useOracle } from '../context/OracleContext.jsx'
 import { solveMath } from '../api/aiClient.js'
@@ -68,7 +68,7 @@ export default function OracleDrawer() {
 
             <div className="flex items-center justify-between px-5 pb-3">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-foreground font-sans">✦ Zenith AI</span>
+                <span className="text-sm font-semibold text-foreground font-sans">✦ Luminary AI</span>
                 <span className="font-sans text-[0.625rem] px-1.5 py-0.5 rounded-full bg-info/10 text-info">Trong bài thi</span>
               </div>
               <button onClick={close} className="font-sans text-xs text-dim hover:text-muted transition px-2 py-1">

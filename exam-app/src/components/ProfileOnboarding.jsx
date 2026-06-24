@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { Button } from './ui/button.jsx'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog.jsx'
@@ -53,7 +53,7 @@ export default function ProfileOnboarding({ onDone }) {
           <div className="flex flex-col gap-2">
             <label className="font-sans text-[0.8125rem] font-semibold text-muted">Lớp học <span className="text-destructive">*</span></label>
             <p className="font-sans text-[13px] text-dim text-center mb-2">
-              Để Zenith hiển thị đúng đề thi cho cấp độ của bạn
+              Để Luminary hiển thị đúng đề thi cho cấp độ của bạn
             </p>
             <div className="grid grid-cols-2 gap-2">
               {GRADES.map(g => (

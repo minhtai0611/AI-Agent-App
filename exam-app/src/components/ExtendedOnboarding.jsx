@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { updateExtendedProfile } from '../api/aiClient.js'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -35,7 +35,7 @@ export default function ExtendedOnboarding({ onDone }) {
         <div className="flex flex-col gap-1">
           <span className="font-sans font-bold text-[20px] font-bold text-foreground">Một bước nữa thôi</span>
           <span className="font-sans text-[13px] text-dim">
-            Giúp Zenith lên kế hoạch học phù hợp với mục tiêu của bạn. Có thể bỏ qua.
+            Giúp Luminary lên kế hoạch học phù hợp với mục tiêu của bạn. Có thể bỏ qua.
           </span>
         </div>
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+﻿import { useState, useEffect, useRef, useCallback } from 'react'
 import { useOracle, ORACLE_STATUS } from '../context/OracleContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
@@ -966,7 +966,7 @@ export default function MathOracle() {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
-  usePageMeta('Zenith AI · Giải toán từng bước', { description: 'Nhập bài toán và Zenith AI giải từng bước chi tiết. Hỗ trợ LaTeX, tiếng Việt, nhiều dạng toán THPT.' })
+  usePageMeta('Luminary AI · Giải toán từng bước', { description: 'Nhập bài toán và Luminary AI giải từng bước chi tiết. Hỗ trợ LaTeX, tiếng Việt, nhiều dạng toán THPT.' })
   const { user } = useAuth()
   const isPaidTier = user?.subscription_tier === 'student' || user?.subscription_tier === 'complete'
   const MAX_RETRIES = 2

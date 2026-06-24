@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+﻿import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { listVariants, itemVariants, cardHover } from '../utils/animations.js'
@@ -107,8 +107,8 @@ const FOCUS_CONFIGS = {
   first_exam: {
     eyebrow: 'Bắt đầu hành trình',
     title: 'Làm bài thi đầu tiên của bạn',
-    context: 'Zenith cần ít nhất 1 kết quả để xây dựng lộ trình riêng cho bạn.',
-    description: 'Zenith sẽ phân tích kết quả và xác định đúng điểm yếu của bạn.',
+    context: 'Luminary cần ít nhất 1 kết quả để xây dựng lộ trình riêng cho bạn.',
+    description: 'Luminary sẽ phân tích kết quả và xác định đúng điểm yếu của bạn.',
     cta: 'Chọn bài thi',
     path: '/exams',
     accent: 'border-primary/40 bg-primary/5',
@@ -153,7 +153,7 @@ const FOCUS_CONFIGS = {
     eyebrow: 'Tạo tín hiệu học tập',
     title: 'Làm bài thi tiếp theo',
     context: null,
-    description: 'Mỗi bài thi giúp Zenith hiểu hơn về điểm yếu của bạn.',
+    description: 'Mỗi bài thi giúp Luminary hiểu hơn về điểm yếu của bạn.',
     cta: 'Chọn bài thi',
     path: '/exams',
     accent: 'border-border',
@@ -954,9 +954,9 @@ export default function Home() {
             </p>
             <div className="flex flex-col gap-2">
               {[
-                { n: '1', text: 'Làm bài thi thử — Zenith ghi nhận từng câu đúng/sai.' },
+                { n: '1', text: 'Làm bài thi thử — Luminary ghi nhận từng câu đúng/sai.' },
                 { n: '2', text: 'AI phân tích điểm yếu và phân loại lỗi sai.' },
-                { n: '3', text: 'Zenith tạo lịch ôn tập cá nhân theo thuật toán FSRS.' },
+                { n: '3', text: 'Luminary tạo lịch ôn tập cá nhân theo thuật toán FSRS.' },
               ].map(s => (
                 <div key={s.n} className="flex items-start gap-3">
                   <span className="shrink-0 w-5 h-5 rounded-full bg-primary/20 text-primary font-sans text-[11px] font-bold flex items-center justify-center mt-0.5">
@@ -990,7 +990,7 @@ export default function Home() {
           const totalReviews = results.reduce((acc, r) => acc + (r.questions_reviewed ?? 0), 0)
           return (
             <div data-testid="week-report-card" className="bg-surface border border-border rounded-2xl p-5 flex flex-col gap-2">
-              <span className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Tuần đầu tiên với Zenith</span>
+              <span className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Tuần đầu tiên với Luminary</span>
               <div className="grid grid-cols-2 gap-3 mt-1">
                 <div>
                   <p className="font-sans text-[20px] font-bold text-foreground">{results.length}</p>

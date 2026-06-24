@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+﻿import { useState, useEffect, useCallback, useRef } from 'react'
 import { Button } from '../components/ui/button.jsx'
 import { Card } from '../components/ui/card.jsx'
 import {
@@ -660,7 +660,7 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-surface flex flex-col">
       <nav className="flex items-center justify-between px-6 glass-base border-b border-surface" style={{ height: 56 }}>
-        <span className="font-sans text-[15px] font-bold text-[var(--accent)]">Zenith Admin</span>
+        <span className="font-sans text-[15px] font-bold text-[var(--accent)]">Luminary Admin</span>
         <Button variant="ghost" onClick={() => setAdminKey('')} className="text-[12px] text-dim">Đăng xuất</Button>
       </nav>
 

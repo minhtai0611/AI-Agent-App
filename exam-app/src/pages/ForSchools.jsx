@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { usePageMeta } from '../hooks/usePageMeta.js'
@@ -17,7 +17,7 @@ const FEATURES = [
 ]
 
 export default function ForSchools() {
-  usePageMeta('Zenith cho Trường học', { description: 'Giải pháp ôn thi THPT AI cho trường học và trung tâm luyện thi tại Việt Nam.' })
+  usePageMeta('Luminary cho Trường học', { description: 'Giải pháp ôn thi THPT AI cho trường học và trung tâm luyện thi tại Việt Nam.' })
   const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', school: '', phone: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
@@ -46,7 +46,7 @@ export default function ForSchools() {
         <button onClick={() => navigate('/')} className="font-sans text-sm text-dim hover:text-muted transition">
           ← Trang chủ
         </button>
-        <span className="font-sans text-[14px] font-semibold text-foreground">Zenith cho Trường học</span>
+        <span className="font-sans text-[14px] font-semibold text-foreground">Luminary cho Trường học</span>
         <a href="#contact" className="px-4 py-2 rounded-lg font-sans text-xs font-bold bg-primary text-primary-fg hover:opacity-90 transition">
           Liên hệ ngay
         </a>
@@ -60,7 +60,7 @@ export default function ForSchools() {
             Trợ lý ôn thi THPT AI<br />cho giáo viên và trung tâm
           </h1>
           <p className="font-sans text-[15px] text-muted max-w-xl mx-auto leading-relaxed">
-            Zenith phân tích điểm yếu của từng học sinh, tự động lên lịch ôn tập, và báo cáo tiến độ cả lớp — để giáo viên tập trung vào giảng dạy thay vì chấm điểm thủ công.
+            Luminary phân tích điểm yếu của từng học sinh, tự động lên lịch ôn tập, và báo cáo tiến độ cả lớp — để giáo viên tập trung vào giảng dạy thay vì chấm điểm thủ công.
           </p>
           <p className="font-sans text-[13px] text-dim">Ít hơn 2 buổi học thêm mỗi tháng · Sẵn sàng lúc 2 giờ sáng</p>
         </div>
