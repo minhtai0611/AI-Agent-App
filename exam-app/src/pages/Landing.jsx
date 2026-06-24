@@ -288,6 +288,19 @@ export default function Landing({ onOpenAuth }) {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden flex flex-col items-center">
+      {/* Fixed full-page atmospheric backdrop — stars + nebula visible across every section */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }} aria-hidden="true">
+        <div className="star-field-wrapper">
+          <div ref={starLayerRef} className="star-layer" />
+          <div ref={starTwinkleRef} className="star-layer star-twinkle-layer" />
+        </div>
+        <div className="absolute inset-0">
+          <div className="nebula-wisp" style={{ width: 700, height: 700, top: '-5%',  left: '-10%' }} />
+          <div className="nebula-wisp" style={{ width: 500, height: 500, top: '30%',  right: '-8%' }} />
+          <div className="nebula-wisp" style={{ width: 420, height: 420, top: '65%',  left: '22%' }} />
+        </div>
+      </div>
+
       {/* Scroll progress bar */}
       <motion.div
         style={{ scaleX: scrollYProgress, transformOrigin: 'left', background: 'var(--primary)', position: 'fixed', top: 0, left: 0, right: 0, height: 2, zIndex: 60, pointerEvents: 'none' }}
@@ -295,22 +308,9 @@ export default function Landing({ onOpenAuth }) {
 
       {/* ── 01 THE VOID / THE ATLAS — Hero ──────────────────────────────────── */}
       <section
-        className="relative w-full flex flex-col items-center justify-center overflow-hidden px-5 sm:px-8 pb-16 pt-20"
+        className="relative z-[1] w-full flex flex-col items-center justify-center overflow-hidden px-5 sm:px-8 pb-16 pt-20"
         style={{ minHeight: '100dvh' }}
       >
-        {/* Star field */}
-        <div className="star-field-wrapper" aria-hidden="true">
-          <div ref={starLayerRef} className="star-layer" />
-          <div ref={starTwinkleRef} className="star-layer star-twinkle-layer" />
-        </div>
-
-        {/* Nebula wisps — must be direct children for :nth-child animations */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="nebula-wisp" style={{ width: 700, height: 700, top: '-15%', left: '-10%' }} />
-          <div className="nebula-wisp" style={{ width: 500, height: 500, top: '20%', right: '-8%' }} />
-          <div className="nebula-wisp" style={{ width: 420, height: 420, bottom: '5%', left: '22%' }} />
-        </div>
-
         {/* Floating math symbols */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
           {FLOAT_SYMBOLS.map((s, i) => (
@@ -704,12 +704,6 @@ export default function Landing({ onOpenAuth }) {
 
       {/* ── 07 THE CALLING — Final CTA ───────────────────────────────────────── */}
       <section className="relative z-10 w-full overflow-hidden py-24 px-5 sm:px-8">
-        {/* Nebula wisps for CTA — direct children */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="nebula-wisp" style={{ width: 500, height: 500, top: '-20%', left: '15%' }} />
-          <div className="nebula-wisp" style={{ width: 380, height: 380, bottom: '-15%', right: '10%' }} />
-        </div>
-
         <div className="relative flex flex-col items-center gap-7 text-center max-w-xl mx-auto">
           <motion.h2
             variants={stellarReveal} custom={0}
