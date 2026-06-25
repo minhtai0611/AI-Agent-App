@@ -7,7 +7,7 @@ export default {
       fontFamily: {
         sans:    ['Sora', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
         display: ['Sora', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
-        mono:    ['"DM Mono"', '"JetBrains Mono"', '"Fira Code"', 'monospace'],
+        mono:    ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
       },
       colors: {
         background:          'var(--background)',

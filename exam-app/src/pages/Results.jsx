@@ -842,7 +842,7 @@ export default function Results({ onOpenAuth }) {
               />
               <foreignObject x="20" y="38" width="80" height="40">
                 <div xmlns="http://www.w3.org/1999/xhtml"
-                  style={{ fontFamily: '"DM Mono", monospace', fontSize: 26, fontWeight: 700, color, textAlign: 'center', lineHeight: '40px' }}>
+                  style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 26, fontWeight: 700, color, textAlign: 'center', lineHeight: '40px' }}>
                   <NumberTicker value={score} startValue={0} decimalPlaces={1} duration={scoreInView ? 1500 : 0} />
                 </div>
               </foreignObject>
