@@ -164,7 +164,7 @@ def test_hint_credits_query_is_executed():
     Observability: _spend_credits must execute a query referencing credits_balance.
     Guards against _spend_credits being accidentally bypassed.
     """
-    spy = SpyPool(credits=50, tos_accepted_at="2024-01-01T00:00:00")
+    spy = SpyPool(tier="basic", credits=50, tos_accepted_at="2024-01-01T00:00:00")
     app.dependency_overrides[get_pool] = lambda: spy.pool
 
     hint_json = json.dumps({"hint": "test", "difficulty_note": ""})
@@ -186,7 +186,7 @@ def test_hint_credit_log_is_written():
     Observability: after a successful hint, a credit deduction must be logged
     (INSERT INTO ai_credits_log). Guards against silent credit leaks.
     """
-    spy = SpyPool(credits=50, tos_accepted_at="2024-01-01T00:00:00")
+    spy = SpyPool(tier="basic", credits=50, tos_accepted_at="2024-01-01T00:00:00")
     app.dependency_overrides[get_pool] = lambda: spy.pool
 
     hint_json = json.dumps({"hint": "test", "difficulty_note": ""})

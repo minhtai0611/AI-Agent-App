@@ -180,7 +180,7 @@ def test_hint_credit_boundary_property(credits):
     This must hold for ANY non-negative credit amount.
     """
     saved = dict(app.dependency_overrides)
-    builder = PoolBuilder().with_credits(credits)
+    builder = PoolBuilder().with_tier("basic").with_credits(credits)
     builder.credits_update_succeeds = credits >= 1
     pool = builder.build_mock()
     app.dependency_overrides[get_pool] = lambda: pool

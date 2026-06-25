@@ -160,13 +160,12 @@ PYTHONPATH=backend python3 -m pytest backend/tests/ \
   -m "not live_ai and not fault_injection" \
   --randomly-seed=0 -q
 ```
-Files: `test_regressions.py`, `test_auth_flow.py`, `test_llm_oracle.py`, `test_resilience.py`, `test_streaming.py`, `test_budget.py`, `test_observability.py`, `test_admin.py`, `test_ai_endpoints.py`, `test_auth.py`, `test_auth_endpoint.py`, `test_user_endpoints.py`
+Files: `test_regressions.py`, `test_auth_flow.py`, `test_resilience.py`, `test_streaming.py`, `test_budget.py`, `test_observability.py`, `test_admin.py`, `test_ai_endpoints.py`, `test_auth.py`, `test_auth_endpoint.py`, `test_user_endpoints.py`
 
 ### Tier 2 — on-demand suites (excluded from default run — do NOT forget these)
 
 | Suite | Run when | Command |
 |---|---|---|
-| `test_golden.py` | After any model version bump or system prompt edit | `PYTHONPATH=backend pytest backend/tests/test_golden.py -v` |
 | `test_property_based.py` | After changes to credit logic or endpoint guards | `PYTHONPATH=backend pytest backend/tests/test_property_based.py -v` |
 | `test_contract.py` (smoke) | Before a deploy | `PYTHONPATH=backend pytest backend/tests/test_contract.py::test_health_endpoint backend/tests/test_contract.py::test_openapi_schema_has_minimum_endpoints` |
 | `test_contract.py` (full) | Weekly — catches 500s on edge inputs, light security fuzzing | `schemathesis run http://localhost:8000/openapi.json --checks all` |

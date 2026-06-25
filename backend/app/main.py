@@ -791,6 +791,49 @@ async def _apply_schema(pool) -> None:
     logger.info("Schema applied (%d statements)", len(_SCHEMA_DDL))
 
 
+async def _migrate_google_sub_nullable(pool) -> None:
+    """Make google_sub nullable so email/password users can register (one-time, idempotent)."""
+    async with pool.acquire() as conn:
+        cols = await conn.fetch("PRAGMA table_info(users)")
+        google_sub_col = next((c for c in cols if c["name"] == "google_sub"), None)
+        if google_sub_col is None or google_sub_col["notnull"] == 0:
+            return
+        col_defs = []
+        for c in cols:
+            name, typ, notnull, dflt, pk = c["name"], c["type"], c["notnull"], c["dflt_value"], c["pk"]
+            parts = [f'"{name}" {typ}']
+            if pk:
+                parts.append("PRIMARY KEY AUTOINCREMENT")
+            elif name != "google_sub" and notnull:
+                parts.append("NOT NULL")
+            if dflt is not None:
+                parts.append(f"DEFAULT {dflt}")
+            col_defs.append(" ".join(parts))
+        col_defs.append('UNIQUE("google_sub")')
+        create_sql = "CREATE TABLE users_patched (\n    " + ",\n    ".join(col_defs) + "\n)"
+        col_names = ", ".join(f'"{c["name"]}"' for c in cols)
+        try:
+            await conn.execute("PRAGMA foreign_keys = OFF")
+            await conn.execute(create_sql)
+            await conn.execute(f"INSERT INTO users_patched ({col_names}) SELECT {col_names} FROM users")
+            await conn.execute("DROP TABLE users")
+            await conn.execute("ALTER TABLE users_patched RENAME TO users")
+            await conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_custom_display_name "
+                "ON users(custom_display_name) WHERE custom_display_name IS NOT NULL"
+            )
+            await conn.execute("CREATE INDEX IF NOT EXISTS idx_users_last_seen ON users(last_seen_at)")
+            await conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS users_referral_code_idx ON users(referral_code)"
+            )
+            logger.info("Migrated google_sub to nullable")
+        except Exception as exc:
+            logger.error("google_sub migration failed: %s", exc)
+            raise
+        finally:
+            await conn.execute("PRAGMA foreign_keys = ON")
+
+
 async def _seed_from_json(pool) -> None:
     """Auto-seed exams and questions tables from bundled JSON files (runs once, INSERT OR IGNORE)."""
     import pathlib
@@ -1000,6 +1043,7 @@ async def lifespan(app: FastAPI):
     await pool.initialize()
     app.state.pool = pool
     await _apply_schema(app.state.pool)
+    await _migrate_google_sub_nullable(app.state.pool)
     logger.info("SQLite pool ready at %s", settings.sqlite_path)
     exam_count = (await app.state.pool.fetchrow("SELECT COUNT(*) AS cnt FROM exams"))
     q_count = (await app.state.pool.fetchrow("SELECT COUNT(*) AS cnt FROM questions"))
@@ -4767,10 +4811,11 @@ async def delete_account(
     if row["email"] != body.confirm_email:
         raise HTTPException(status_code=400, detail="Email confirmation does not match")
     # Preserve trial status so re-registration cannot claim another trial
-    await pool.execute(
-        "INSERT OR REPLACE INTO deleted_google_subs (google_sub, trial_used) VALUES (?, ?)",
-        row["google_sub"], row["trial_used"],
-    )
+    if row["google_sub"]:
+        await pool.execute(
+            "INSERT OR REPLACE INTO deleted_google_subs (google_sub, trial_used) VALUES (?, ?)",
+            row["google_sub"], row["trial_used"],
+        )
     await pool.execute("DELETE FROM users WHERE id = ?", current_user.user_id)
     from app.dependencies import invalidate_account_cache
     invalidate_account_cache(current_user.user_id)
@@ -5781,7 +5826,7 @@ async def admin_delete_user(
 ):
     _require_admin(request)
     row = await pool.fetchrow("SELECT google_sub, trial_used FROM users WHERE id = ?", user_id)
-    if row:
+    if row and row["google_sub"]:
         await pool.execute(
             "INSERT OR REPLACE INTO deleted_google_subs (google_sub, trial_used) VALUES (?, ?)",
             row["google_sub"], row["trial_used"],

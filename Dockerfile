@@ -2,18 +2,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Fix root→appuser cache path mismatch; must be set before bake AND kept for CMD
-ENV HF_HOME=/app/.cache/huggingface
-
-# Bake BGE-M3 into the image; avoids cold-start download (~570 MB)
-RUN python -c "from FlagEmbedding import BGEM3FlagModel; BGEM3FlagModel('BAAI/bge-m3', use_fp16=False)"
 
 COPY backend/ backend/
 COPY scripts/ scripts/

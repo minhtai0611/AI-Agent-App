@@ -29,7 +29,7 @@
   auth: active
   credits: 0
   tos: true
-  tier: student
+  tier: basic
   endpoint: /hint
   expect_status: 402
 
@@ -38,7 +38,7 @@
   auth: active
   credits: 20
   tos: false
-  tier: student
+  tier: basic
   endpoint: /hint
   expect_status: 403
   expect_error_code: tos_not_accepted
