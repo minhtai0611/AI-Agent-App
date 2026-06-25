@@ -1,18 +1,13 @@
 /* ─── Fonts ──────────────────────────────────────────────────────────────────
-   Sora: primary UI font — geometric humanist, full Vietnamese Unicode. Self-hosted.
+   Cormorant Garamond Variable: display/headings — mystical, engraved literary serif.
+   Plus Jakarta Sans Variable:  body/UI — clean humanist, full Vietnamese Unicode.
    JetBrains Mono: monospace UI + math/code rendering (KaTeX). Self-hosted WOFF2.
+   All fonts bundled via @fontsource-variable — no external CDN, ad-blocker safe.
    ─────────────────────────────────────────────────────────────────────────── */
 
 @import "tw-animate-css";
-
-/* Sora Variable (wght 100–800) — full font, self-hosted for ad-blocker immunity + full Vietnamese */
-@font-face {
-  font-family: 'Sora';
-  font-style: normal;
-  font-weight: 100 800;
-  font-display: swap;
-  src: url('/fonts/Sora-Variable.ttf') format('truetype');
-}
+@import '@fontsource-variable/cormorant-garamond/index.css';
+@import '@fontsource-variable/plus-jakarta-sans/index.css';
 
 /* JetBrains Mono (variable: wght axis) */
 @font-face {
@@ -314,7 +309,7 @@ html {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   letter-spacing: 0em;
