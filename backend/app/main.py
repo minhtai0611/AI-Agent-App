@@ -793,28 +793,44 @@ async def _apply_schema(pool) -> None:
 
 async def _migrate_google_sub_nullable(pool) -> None:
     """Make google_sub nullable so email/password users can register (one-time, idempotent)."""
+    import re as _re
     async with pool.acquire() as conn:
         cols = await conn.fetch("PRAGMA table_info(users)")
         google_sub_col = next((c for c in cols if c["name"] == "google_sub"), None)
         if google_sub_col is None or google_sub_col["notnull"] == 0:
             return
-        col_defs = []
-        for c in cols:
-            name, typ, notnull, dflt, pk = c["name"], c["type"], c["notnull"], c["dflt_value"], c["pk"]
-            parts = [f'"{name}" {typ}']
-            if pk:
-                parts.append("PRIMARY KEY AUTOINCREMENT")
-            elif name != "google_sub" and notnull:
-                parts.append("NOT NULL")
-            if dflt is not None:
-                parts.append(f"DEFAULT {dflt}")
-            col_defs.append(" ".join(parts))
-        col_defs.append('UNIQUE("google_sub")')
-        create_sql = "CREATE TABLE users_patched (\n    " + ",\n    ".join(col_defs) + "\n)"
+
+        # Fetch the exact CREATE TABLE SQL stored by SQLite — avoids rebuilding from
+        # PRAGMA table_info which loses CHECK constraints, DEFAULT expressions, etc.
+        schema_row = await conn.fetchrow(
+            "SELECT sql FROM sqlite_master WHERE name = 'users' AND type = 'table'"
+        )
+        if schema_row is None:
+            logger.error("google_sub migration: could not read schema from sqlite_master")
+            return
+        original_sql: str = schema_row["sql"]
+
+        # Create the patched table: rename and drop NOT NULL from google_sub only.
+        # Handle both `CREATE TABLE users` and `CREATE TABLE IF NOT EXISTS users`.
+        patched_sql = _re.sub(
+            r"CREATE TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+users\b",
+            "CREATE TABLE users_patched",
+            original_sql,
+            count=1,
+            flags=_re.IGNORECASE,
+        )
+        patched_sql = _re.sub(
+            r"(google_sub\s+TEXT\s+UNIQUE)\s+NOT\s+NULL",
+            r"\1",
+            patched_sql,
+            flags=_re.IGNORECASE,
+        )
+
         col_names = ", ".join(f'"{c["name"]}"' for c in cols)
         try:
             await conn.execute("PRAGMA foreign_keys = OFF")
-            await conn.execute(create_sql)
+            await conn.execute("DROP TABLE IF EXISTS users_patched")
+            await conn.execute(patched_sql)
             await conn.execute(f"INSERT INTO users_patched ({col_names}) SELECT {col_names} FROM users")
             await conn.execute("DROP TABLE users")
             await conn.execute("ALTER TABLE users_patched RENAME TO users")
