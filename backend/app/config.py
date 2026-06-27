@@ -52,13 +52,10 @@ class Settings(BaseSettings):
     payment_account_number: str = ""
     payment_account_name: str = ""
 
-    # Email / SMTP — required for email-auth verification and password-reset flows.
+    # Email (Resend) — required for email-auth verification and password-reset flows.
     # Leave blank in local dev; tokens are returned in API response as debug_token instead.
-    smtp_host: str = ""
-    smtp_port: int = 587
-    smtp_user: str = ""
-    smtp_pass: str = ""
-    smtp_from: str = "Zenith <noreply@example.com>"
+    resend_api_key: str = ""
+    resend_from: str = "Luminary <onboarding@resend.dev>"
     app_url: str = "https://exam-app-ey0.pages.dev"
 
     def __init__(self, **data):

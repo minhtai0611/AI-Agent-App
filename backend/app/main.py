@@ -1061,6 +1061,12 @@ async def lifespan(app: FastAPI):
     await _apply_schema(app.state.pool)
     await _migrate_google_sub_nullable(app.state.pool)
     logger.info("SQLite pool ready at %s", settings.sqlite_path)
+    if settings.resend_api_key:
+        try:
+            import resend  # noqa: F401
+            logger.info("Resend email provider ready (from: %s)", settings.resend_from)
+        except ImportError:
+            logger.error("RESEND_API_KEY is set but 'resend' package is not installed — emails will not be sent")
     exam_count = (await app.state.pool.fetchrow("SELECT COUNT(*) AS cnt FROM exams"))
     q_count = (await app.state.pool.fetchrow("SELECT COUNT(*) AS cnt FROM questions"))
     if (exam_count and exam_count["cnt"] == 0) or (q_count and q_count["cnt"] == 0):
@@ -2638,31 +2644,112 @@ async def _check_login_rate(pool, ip: str, email: str) -> bool:
     return (ip_fails["cnt"] or 0) >= 10
 
 
+def _email_html_verify(link: str) -> str:
+    return f"""<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:Inter,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 0;">
+    <tr><td align="center">
+      <table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+        <tr>
+          <td style="background:#6c47ff;padding:32px 40px;">
+            <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.5px;">&#10022; Luminary</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px;">
+            <h2 style="margin:0 0 12px;color:#18181b;font-size:20px;font-weight:600;">Xác minh địa chỉ email của bạn</h2>
+            <p style="margin:0 0 24px;color:#52525b;font-size:15px;line-height:1.6;">
+              Chào mừng bạn đến với <strong>Luminary</strong>! Nhấn vào nút bên dưới để xác minh tài khoản và bắt đầu học.
+            </p>
+            <a href="{link}"
+               style="display:inline-block;background:#6c47ff;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:600;">
+              Xác minh tài khoản
+            </a>
+            <p style="margin:24px 0 0;color:#a1a1aa;font-size:13px;line-height:1.5;">
+              Hoặc sao chép đường dẫn này vào trình duyệt:<br>
+              <a href="{link}" style="color:#6c47ff;word-break:break-all;">{link}</a>
+            </p>
+            <p style="margin:20px 0 0;color:#a1a1aa;font-size:13px;">
+              Đường dẫn có hiệu lực trong <strong>24 giờ</strong>. Nếu bạn không đăng ký tài khoản này, hãy bỏ qua email.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 40px;border-top:1px solid #f4f4f5;">
+            <p style="margin:0;color:#a1a1aa;font-size:12px;text-align:center;">&#169; 2025 Luminary &middot; Học thông minh hơn mỗi ngày</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
+
+
+def _email_html_reset(link: str, email: str) -> str:
+    return f"""<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:Inter,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 0;">
+    <tr><td align="center">
+      <table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+        <tr>
+          <td style="background:#6c47ff;padding:32px 40px;">
+            <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.5px;">&#10022; Luminary</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px;">
+            <h2 style="margin:0 0 12px;color:#18181b;font-size:20px;font-weight:600;">Yêu cầu đặt lại mật khẩu</h2>
+            <p style="margin:0 0 24px;color:#52525b;font-size:15px;line-height:1.6;">
+              Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản <strong>{email}</strong>.<br>
+              Nhấn vào nút bên dưới để tạo mật khẩu mới.
+            </p>
+            <a href="{link}"
+               style="display:inline-block;background:#6c47ff;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:600;">
+              Đặt lại mật khẩu
+            </a>
+            <p style="margin:24px 0 0;color:#a1a1aa;font-size:13px;line-height:1.5;">
+              Hoặc sao chép đường dẫn này vào trình duyệt:<br>
+              <a href="{link}" style="color:#6c47ff;word-break:break-all;">{link}</a>
+            </p>
+            <p style="margin:20px 0 0;color:#a1a1aa;font-size:13px;">
+              Đường dẫn có hiệu lực trong <strong>1 giờ</strong>. Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này — tài khoản của bạn vẫn an toàn.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 40px;border-top:1px solid #f4f4f5;">
+            <p style="margin:0;color:#a1a1aa;font-size:12px;text-align:center;">&#169; 2025 Luminary &middot; Học thông minh hơn mỗi ngày</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
+
+
 async def _send_email_token(settings, email: str, token: str, purpose: str) -> None:
-    """Send verification/reset email. No-op when SMTP_HOST is not configured."""
-    if not settings.smtp_host:
+    """Send verification/reset email via Resend. No-op when RESEND_API_KEY is not configured."""
+    if not settings.resend_api_key:
         return  # debug mode — caller returns token in response body
-    import smtplib, ssl
-    from email.mime.text import MIMEText
+    import asyncio as _asyncio, resend  # resend.Emails.send is sync — run in thread pool
+    resend.api_key = settings.resend_api_key
     if purpose == "verify":
-        subject = "Xác minh tài khoản Zenith"
+        subject = "Xác minh tài khoản Luminary"
         link = f"{settings.app_url}/verify-email?token={token}"
-        body = f"Nhấn vào đường dẫn để xác minh tài khoản:\n{link}\n\nĐường dẫn có hiệu lực trong 24 giờ."
+        html = _email_html_verify(link)
     else:
-        subject = "Đặt lại mật khẩu Zenith"
+        subject = "Đặt lại mật khẩu Luminary"
         link = f"{settings.app_url}/reset-password?token={token}"
-        body = f"Nhấn vào đường dẫn để đặt lại mật khẩu:\n{link}\n\nĐường dẫn có hiệu lực trong 1 giờ."
-    msg = MIMEText(body, "plain", "utf-8")
-    msg["Subject"] = subject
-    msg["From"] = settings.smtp_from
-    msg["To"] = email
-    ctx = ssl.create_default_context()
+        html = _email_html_reset(link, email)
+    payload = {"from": settings.resend_from, "to": [email], "subject": subject, "html": html}
     try:
-        with smtplib.SMTP(settings.smtp_host, settings.smtp_port) as server:
-            server.ehlo()
-            server.starttls(context=ctx)
-            server.login(settings.smtp_user, settings.smtp_pass)
-            server.sendmail(msg["From"], [email], msg.as_string())
+        await _asyncio.to_thread(resend.Emails.send, payload)
     except Exception as exc:
         logger.warning("Email send failed to %s: %s", email, exc)
 
@@ -2710,8 +2797,8 @@ async def auth_email_register(body: EmailRegisterRequest, request: Request, pool
     await _send_email_token(settings, email, token, "verify")
 
     resp: dict = {"detail": "verification_sent"}
-    if not settings.smtp_host:
-        resp["debug_token"] = token  # only in dev/no-SMTP mode
+    if not settings.resend_api_key:
+        resp["debug_token"] = token  # only in dev/no-key mode
     return resp
 
 
@@ -2812,7 +2899,7 @@ async def auth_email_resend_verify(body: EmailResendRequest, pool=Depends(get_po
     )
     await _send_email_token(settings, email, token, "verify")
     resp: dict = {"detail": "verification_sent"}
-    if not settings.smtp_host:
+    if not settings.resend_api_key:
         resp["debug_token"] = token
     return resp
 
