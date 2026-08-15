@@ -146,7 +146,12 @@ export function AuthProvider({ children }) {
   async function emailRegister(email, password) {
     const { data, error } = await apiEmailRegister(email, password)
     if (error || !data) throw new Error(error || 'Đăng ký thất bại')
-    return data // caller handles "verification_sent" vs "debug_token"
+    if (data.access_token) setAuthToken(data.access_token)
+    if (data.csrf_token) setCsrfToken(data.csrf_token)
+    const { data: profile } = await getMe()
+    if (profile?.csrf_token) setCsrfToken(profile.csrf_token)
+    setUser(profile || data.user)
+    resetToLocalRef.current?.(false)
   }
 
   async function refreshUser() {

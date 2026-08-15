@@ -16,7 +16,6 @@ import { safeSetItem } from '../utils/storageManager.js'
 
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 
-import { useOracle } from '../context/OracleContext.jsx'
 const DIFF_LABELS = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
 const KB_HINT_KEY = 'kb_hint_seen'
 
@@ -162,22 +161,6 @@ export default function TestInterface() {
   // Keyboard shortcuts
   const { questions, answers, mode, timeLeft, exam } = session
   const question = questions[currentIndex]
-
-  // Oracle context — update whenever question or exam state changes
-  const { setPageContext } = useOracle()
-  useEffect(() => {
-    setPageContext({
-      inExam: true,
-      examTitle: exam?.title ?? '',
-      examId: exam?.id ?? '',
-      mode: mode ?? 'timed',
-      currentQuestionNumber: currentIndex + 1,
-      totalQuestions: questions.length,
-      currentTopic: question?.topic ?? '',
-      timeLeftSeconds: timeLeft ?? null,
-    })
-    return () => setPageContext({})
-  }, [currentIndex, mode, timeLeft, exam?.id, question?.topic]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Adaptive difficulty aura — pulse when difficulty level changes between questions
   useEffect(() => {

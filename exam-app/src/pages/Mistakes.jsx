@@ -221,12 +221,6 @@ function MistakeRow({ question, userAnswer, examTitle }) {
                 {t.label}
               </button>
             ))}
-            <button
-              onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
-              className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-full border border-info/20 bg-info/5 font-sans text-[11px] font-semibold text-info hover:border-info/40 hover:bg-info/10 transition"
-            >
-              <span className="text-[9px]">✦</span> Oracle
-            </button>
           </div>
         </div>
         </motion.div>

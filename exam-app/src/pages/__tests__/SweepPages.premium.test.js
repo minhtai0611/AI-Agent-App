@@ -5,28 +5,6 @@ import { resolve } from 'node:path'
 const page = name => readFileSync(resolve(__dirname, `../${name}.jsx`), 'utf8')
 const comp = name => readFileSync(resolve(__dirname, `../../components/${name}.jsx`), 'utf8')
 
-// ─── MathOracle ───────────────────────────────────────────────────────────────
-const oracle = page('MathOracle')
-describe('MathOracle premium sweep', () => {
-  it('no text-[#334155]', () => expect(oracle).not.toContain('text-[#334155]'))
-  it('no bg-[#0F1726]', () => expect(oracle).not.toContain('bg-[#0F1726]'))
-  it('no bg-[#0A0F1E]', () => expect(oracle).not.toContain('bg-[#0A0F1E]'))
-  it('no bg-[#080D1A]', () => expect(oracle).not.toContain('bg-[#080D1A]'))
-  it('no bg-[#141D2E]', () => expect(oracle).not.toContain('bg-[#141D2E]'))
-  it('no bg-[#1E2D45] hover', () => expect(oracle).not.toContain('hover:bg-[#1E2D45]'))
-  it('no border-[#1E2D45]', () => expect(oracle).not.toContain('border-[#1E2D45]'))
-  it('no text-[#EF4444]', () => expect(oracle).not.toContain('text-[#EF4444]'))
-  it('no text-[#6366F1]', () => expect(oracle).not.toContain('text-[#6366F1]'))
-  it('no bg-[#6366F1]', () => expect(oracle).not.toContain('bg-[#6366F1]'))
-  it('no border-[#6366F1]', () => expect(oracle).not.toContain('border-[#6366F1]/'))
-  it('no focus-within:border-[#6366F1]', () => expect(oracle).not.toContain('focus-within:border-[#6366F1]'))
-  it('no hover:bg-[#4F46E5]', () => expect(oracle).not.toContain('hover:bg-[#4F46E5]'))
-  it('no rounded-full bg-[#334155]', () => expect(oracle).not.toContain("bg-[#334155]"))
-  it('no border-[#2A3A5E] inline', () => expect(oracle).not.toContain("border: '1px solid #2A3A5E'"))
-  it('no bg-[#6366F1] inline style', () => expect(oracle).not.toContain("background: '#6366F1'"))
-  it('no color #E2E8F0 textarea inline', () => expect(oracle).not.toContain("color: '#E2E8F0'"))
-})
-
 // ─── Landing ──────────────────────────────────────────────────────────────────
 const land = page('Landing')
 describe('Landing premium sweep', () => {
@@ -265,14 +243,6 @@ describe('LockedFeatureCard premium sweep', () => {
 const rb = comp('ReportButton')
 describe('ReportButton premium sweep', () => {
   it('no text-[#34D399]', () => expect(rb).not.toContain('text-[#34D399]'))
-})
-
-// ─── SymbolPalette ────────────────────────────────────────────────────────────
-const sp = comp('SymbolPalette')
-describe('SymbolPalette premium sweep', () => {
-  it('no border-b-2 border-[#6366F1]', () => expect(sp).not.toContain('border-[#6366F1]'))
-  it('no hover:bg-[#1E293B]', () => expect(sp).not.toContain('hover:bg-[#1E293B]'))
-  it('no hover:text-[#E2E8F0]', () => expect(sp).not.toContain('hover:text-[#E2E8F0]'))
 })
 
 // ─── Account residuals ────────────────────────────────────────────────────────

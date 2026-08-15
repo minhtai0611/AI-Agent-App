@@ -1,7 +1,6 @@
 import asyncio
 import hashlib
 import httpx
-import io
 import json
 import logging
 import re
@@ -16,7 +15,6 @@ from openai import AsyncOpenAI, APIStatusError, APIConnectionError, RateLimitErr
 from app.config import get_settings
 from app.dependencies import get_ai_client, get_current_user, CurrentUser
 from app.middleware import RateLimitMiddleware
-from app.math_wiki.admin_router import router as admin_router
 from app.auth import (
     verify_google_token, create_jwt,
     hash_password, verify_password, validate_password_strength,
@@ -503,283 +501,6 @@ _SCHEMA_DDL = [
 ]
 
 
-async def _hf_set_space_variable(key: str, value: str) -> None:
-    """Update a HF Space variable via the Hub API (no-op outside HF Spaces)."""
-    import os
-    space_id = os.environ.get("SPACE_ID")
-    hf_token = os.environ.get("HF_TOKEN")
-    if not space_id or not hf_token:
-        return
-    try:
-        from huggingface_hub import HfApi
-        HfApi(token=hf_token).add_space_variable(space_id, key, value)
-        logger.info("HF Space variable %s set to %r", key, value)
-    except Exception as exc:
-        logger.warning("Could not update HF Space variable %s: %s", key, exc)
-
-
-async def _auto_seed_wiki(pool, client) -> None:
-    """Crawl and ingest wiki content on startup.
-
-    Normal mode (CRAWL_AUTO_SEED_ENABLED=true): only runs when wiki_units is empty.
-    Force-reseed mode (CRAWL_FORCE_RESEED=true): truncates wiki_units, resets the
-    crawl-progress cache, then runs a full crawl regardless of existing data.
-    Gap-fill mode (CRAWL_GAP_FILL_ENABLED=true): crawls only topics with zero units.
-    After a successful forced reseed the app self-disables the flag via the HF API.
-    """
-    from app.math_wiki.storage import pg_db
-    settings = get_settings()
-    force = settings.crawl_force_reseed
-    gap_fill = settings.crawl_gap_fill_enabled
-    topic_target = settings.crawl_topic_target.strip()
-
-    try:
-        from crawl.runner import crawl_and_ingest
-        from crawl.topic_map import AOPS_QUERIES
-        from crawl.progress import reset as reset_crawl_progress
-    except ImportError as exc:
-        logger.warning("auto-seed: crawl module not available (%s), skipping", exc)
-        return
-
-    if topic_target:
-        from app.math_wiki.taxonomy import CANONICAL_TOPICS
-        if topic_target not in CANONICAL_TOPICS:
-            logger.warning("auto-seed: CRAWL_TOPIC_TARGET=%r is not a canonical topic, skipping", topic_target)
-            await _hf_set_space_variable("CRAWL_TOPIC_TARGET", "")
-            return
-        logger.info("auto-seed: CRAWL_TOPIC_TARGET=%s — force-crawling one topic", topic_target)
-        topics = [topic_target]
-    elif force:
-        logger.info("auto-seed: CRAWL_FORCE_RESEED=true — wiping wiki_units for fresh crawl")
-        try:
-            async with pool.acquire() as conn:
-                await conn.execute("DELETE FROM wiki_units")
-        except Exception as exc:
-            logger.error("auto-seed: truncate failed: %s — aborting reseed", exc)
-            return
-        reset_crawl_progress()
-        topics = list(AOPS_QUERIES.keys())
-    elif gap_fill:
-        try:
-            topic_counts = await pg_db.count_wiki_units_by_topic(pool)
-        except Exception as exc:
-            logger.warning("auto-seed: could not count wiki_units by topic: %s", exc)
-            return
-        topics = [t for t in AOPS_QUERIES.keys() if topic_counts.get(t, 0) == 0]
-        if not topics:
-            logger.info("auto-seed: gap-fill — no zero-unit topics found, skipping")
-            await _hf_set_space_variable("CRAWL_GAP_FILL_ENABLED", "false")
-            return
-        logger.info("auto-seed: gap-fill — crawling %d zero-unit topics: %s", len(topics), topics)
-    else:
-        try:
-            count = await pg_db.count_wiki_units(pool)
-        except Exception as exc:
-            logger.warning("auto-seed: could not count wiki_units: %s", exc)
-            return
-        if count > 0:
-            logger.info("auto-seed: wiki already has %d units, skipping", count)
-            return
-        topics = list(AOPS_QUERIES.keys())
-
-    logger.info("auto-seed: starting background crawl (%s)",
-                "force-reseed" if force else ("gap-fill" if gap_fill else "empty wiki"))
-
-    crawl_ok = True
-    for topic in topics:
-        try:
-            stats = await crawl_and_ingest(
-                client, topics=[topic], sources=["aops", "pauls", "generic"], pool=pool
-            )
-            logger.info(
-                "auto-seed [%s]: pages=%d units=%d errors=%d",
-                topic, stats["pages_fetched"], stats["wiki_units_added"], stats["errors"],
-            )
-        except Exception as exc:
-            logger.error("auto-seed [%s] failed: %s", topic, exc)
-            crawl_ok = False
-        await asyncio.sleep(3)
-
-    try:
-        final = await pg_db.count_wiki_units(pool)
-        logger.info("auto-seed complete: %d wiki units in DB", final)
-    except Exception:
-        pass
-
-    if topic_target and crawl_ok:
-        await _hf_set_space_variable("CRAWL_TOPIC_TARGET", "")
-    if force and crawl_ok:
-        await _hf_set_space_variable("CRAWL_FORCE_RESEED", "false")
-    if gap_fill and crawl_ok:
-        await _hf_set_space_variable("CRAWL_GAP_FILL_ENABLED", "false")
-
-
-async def _sanitize_wiki(pool) -> None:
-    """Fix non-canonical labels and remove content duplicates; self-disables after success."""
-    from app.math_wiki.storage.sanitizer import run_all
-    try:
-        report = await run_all(pool)
-        logger.info(
-            "wiki-sanitize complete: topic_remaps=%d topic_deletes=%d "
-            "type_remaps=%d duplicates_removed=%d",
-            report["topic_remaps"], report["topic_deletes"],
-            report["type_remaps"], report["duplicates_removed"],
-        )
-        await _hf_set_space_variable("WIKI_SANITIZE_ENABLED", "false")
-    except Exception as exc:
-        logger.error("wiki-sanitize failed: %s", exc)
-
-
-_VI_RE = __import__("re").compile(
-    r"[àáảãạăắặẳẵằâấầẩẫậđèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵ"
-    r"ÀÁẢÃẠĂẮẶẲẴẰÂẤẦẨẪẬĐÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴ]"
-)
-
-_TRANSLATE_SYSTEM = (
-    "You are a Vietnamese math translator. Translate the given English math knowledge unit "
-    "into Vietnamese.\n\n"
-    "Rules:\n"
-    "- Output ONLY the translated content string — no JSON, no labels, no explanation.\n"
-    "- Preserve ALL math expressions exactly: keep $...$ and $$...$$ delimiters, LaTeX commands, "
-    "and variable names unchanged.\n"
-    "- Write all prose, procedure names, and explanations in Vietnamese.\n"
-    "- Keep the same structure and level of detail as the original.\n"
-    "- Do NOT add any introductory phrase like \"Dưới đây là...\" — start the content directly."
-)
-
-
-_RATE_LIMIT_RETRY_DELAY_S = 2 * 3600  # 2 hours — wait for quota window to reset
-
-
-async def _fix_english_wiki_units(pool, client) -> None:
-    """Translate all English wiki units to Vietnamese; self-disables after success.
-
-    Three-phase design to protect the live app:
-      Phase 1 — translate concurrently (API-bound, semaphore=3, no DB contact)
-      Phase 2 — batch-embed translated content (BGE-M3, batches of 50, single thread)
-      Phase 3 — write to DB sequentially with precomputed embeddings (no re-inference)
-
-    Rate-limit recovery: if ALL phase-1 translations fail the function sleeps
-    _RATE_LIMIT_RETRY_DELAY_S then retries automatically, up to 12 times.
-    """
-    import json as _json
-    from app.config import get_settings as _gs
-    from app.math_wiki.storage import pg_db
-    from app.math_wiki.storage.vectors import embed_texts
-    from app.math_wiki.schemas import WikiUnit
-    from app.agent.core import call_with_retry
-
-    settings = _gs()
-    MAX_RATE_LIMIT_RETRIES = 12
-
-    for rate_attempt in range(MAX_RATE_LIMIT_RETRIES + 1):
-        try:
-            rows = await pool.fetch(
-                "SELECT id, type, topic, subtopic, content, problem_ids, source, source_url "
-                "FROM wiki_units WHERE deleted = false"
-            )
-            english = [r for r in rows if not _VI_RE.search(r["content"])]
-            logger.warning("fix-english-wiki: %d total units, %d need translation", len(rows), len(english))
-            if not english:
-                logger.warning("fix-english-wiki: nothing to do — all units already Vietnamese")
-                await _hf_set_space_variable("WIKI_FIX_ENGLISH_ENABLED", "false")
-                return
-
-            # ── Phase 1: Translate (API-bound, concurrent) ────────────────
-            sem = asyncio.Semaphore(3)
-            translated: list[tuple] = []
-            failed_ids: list[str] = []
-
-            async def _translate_one(r):
-                async with sem:
-                    try:
-                        resp = await call_with_retry(
-                            client,
-                            model=settings.default_model,  # Sonnet — 5× less quota than Opus
-                            max_tokens=1024,
-                            messages=[
-                                {"role": "system", "content": _TRANSLATE_SYSTEM},
-                                {"role": "user", "content": r["content"]},
-                            ],
-                        )
-                        text = (resp.choices[0].message.content or "").strip()
-                        if not text:
-                            raise ValueError("empty response")
-                        orig_dollar = r["content"].count("$")
-                        if orig_dollar > 0 and text.count("$") % 2 != 0:
-                            logger.warning("fix-english-wiki: %s — odd $ count after translation, skipping", r["id"])
-                            failed_ids.append(r["id"])
-                            return
-                        translated.append((r, text))
-                    except Exception as exc:
-                        logger.warning("fix-english-wiki: translate failed %s — %s", r["id"], exc)
-                        failed_ids.append(r["id"])
-
-            await asyncio.gather(*(_translate_one(r) for r in english))
-            logger.warning("fix-english-wiki phase1 done: %d translated, %d failed", len(translated), len(failed_ids))
-
-            # All units rate-limited → quota exhausted; sleep and retry
-            if len(translated) == 0 and len(failed_ids) == len(english):
-                if rate_attempt < MAX_RATE_LIMIT_RETRIES:
-                    wait_h = _RATE_LIMIT_RETRY_DELAY_S // 3600
-                    logger.warning(
-                        "fix-english-wiki: quota exhausted (attempt %d/%d) — sleeping %dh before retry",
-                        rate_attempt + 1, MAX_RATE_LIMIT_RETRIES, wait_h,
-                    )
-                    await asyncio.sleep(_RATE_LIMIT_RETRY_DELAY_S)
-                    continue
-                logger.warning("fix-english-wiki: quota exhausted after %d retries — giving up until next boot", MAX_RATE_LIMIT_RETRIES)
-                return
-
-            # ── Phase 2: Batch-embed (CPU-bound, batched for BGE-M3 efficiency)
-            loop = asyncio.get_event_loop()
-            EMBED_BATCH = 50
-            embeddings: list[list[float]] = []
-            for i in range(0, len(translated), EMBED_BATCH):
-                batch_texts = [t for _, t in translated[i:i + EMBED_BATCH]]
-                vecs = await loop.run_in_executor(None, embed_texts, batch_texts, "passage")
-                embeddings.extend(vecs)
-                logger.warning("fix-english-wiki phase2: embedded %d/%d",
-                               min(i + EMBED_BATCH, len(translated)), len(translated))
-                await asyncio.sleep(0)
-
-            # ── Phase 3: Write to DB (sequential, precomputed embeddings) ───
-            ok = 0
-            for (r, text), emb in zip(translated, embeddings):
-                try:
-                    unit = WikiUnit(
-                        id=r["id"], type=r["type"], topic=r["topic"],
-                        subtopic=r["subtopic"] or "",
-                        content=text,
-                        problem_ids=[] if r["problem_ids"] is None else _json.loads(r["problem_ids"]),
-                    )
-                    await pg_db.upsert_wiki_unit(
-                        pool, unit,
-                        source=r["source"], source_url=r["source_url"],
-                        editor="fix_english_wiki_units",
-                        reason="Translated English content to Vietnamese (bulk migration)",
-                        embedding=emb,
-                    )
-                    ok += 1
-                    if ok % 100 == 0:
-                        logger.warning("fix-english-wiki phase3: %d/%d written", ok, len(translated))
-                except Exception as exc:
-                    logger.warning("fix-english-wiki: write failed %s — %s", r["id"], exc)
-                    failed_ids.append(r["id"])
-
-            logger.warning("fix-english-wiki complete: translated=%d failed=%d", ok, len(failed_ids))
-            if not failed_ids:
-                await _hf_set_space_variable("WIKI_FIX_ENGLISH_ENABLED", "false")
-            else:
-                logger.warning("fix-english-wiki: %d failures — flag not auto-disabled (will retry on next boot)",
-                               len(failed_ids))
-            return  # success — exit retry loop
-
-        except Exception as exc:
-            logger.error("fix-english-wiki failed: %s", exc)
-            return
-
-
 async def _apply_schema(pool) -> None:
     """Run DDL idempotently on every startup — all statements are CREATE IF NOT EXISTS."""
     async with pool.acquire() as conn:
@@ -789,6 +510,13 @@ async def _apply_schema(pool) -> None:
             except Exception as exc:
                 logger.warning("DDL skipped (%s): %.80s", exc, stmt)
     logger.info("Schema applied (%d statements)", len(_SCHEMA_DDL))
+
+
+async def _migrate_email_verified_users(pool) -> None:
+    """Back-fill email_verified=1 for any pre-existing unverified email accounts (idempotent)."""
+    async with pool.acquire() as conn:
+        await conn.execute("UPDATE users SET email_verified = 1 WHERE email_verified = 0")
+    logger.info("Migration: email_verified back-fill complete")
 
 
 async def _migrate_google_sub_nullable(pool) -> None:
@@ -1052,7 +780,6 @@ async def _seed_concepts(pool) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from app.db import AsyncSQLitePool
-    from app.math_wiki.pipeline import _wiki_status, _ensure_bm25
 
     settings = get_settings()
     pool = AsyncSQLitePool(settings.sqlite_path)
@@ -1060,13 +787,8 @@ async def lifespan(app: FastAPI):
     app.state.pool = pool
     await _apply_schema(app.state.pool)
     await _migrate_google_sub_nullable(app.state.pool)
+    await _migrate_email_verified_users(app.state.pool)
     logger.info("SQLite pool ready at %s", settings.sqlite_path)
-    if settings.resend_api_key:
-        try:
-            import resend  # noqa: F401
-            logger.info("Resend email provider ready (from: %s)", settings.resend_from)
-        except ImportError:
-            logger.error("RESEND_API_KEY is set but 'resend' package is not installed — emails will not be sent")
     exam_count = (await app.state.pool.fetchrow("SELECT COUNT(*) AS cnt FROM exams"))
     q_count = (await app.state.pool.fetchrow("SELECT COUNT(*) AS cnt FROM questions"))
     if (exam_count and exam_count["cnt"] == 0) or (q_count and q_count["cnt"] == 0):
@@ -1075,21 +797,8 @@ async def lifespan(app: FastAPI):
     await _tag_question_concepts(app.state.pool)
     await _seed_teacher_classes(app.state.pool)
 
-    _wiki_status.update({"phase": "starting", "progress": 0, "error": None})
-    asyncio.ensure_future(_ensure_bm25(app.state.pool))
     from app.abuse_detector import _run_abuse_detector
     asyncio.ensure_future(_run_abuse_detector(app.state.pool))
-    if app.state.pool and (settings.crawl_auto_seed_enabled or settings.crawl_force_reseed or settings.crawl_gap_fill_enabled or bool(settings.crawl_topic_target)):
-        asyncio.ensure_future(_auto_seed_wiki(app.state.pool, get_ai_client()))
-    elif app.state.pool:
-        logger.info("auto-seed disabled (set CRAWL_AUTO_SEED_ENABLED, CRAWL_FORCE_RESEED, CRAWL_GAP_FILL_ENABLED, or CRAWL_TOPIC_TARGET to enable)")
-    if app.state.pool and settings.wiki_sanitize_enabled:
-        asyncio.ensure_future(_sanitize_wiki(app.state.pool))
-    print(f"[startup] wiki_fix_english_enabled={settings.wiki_fix_english_enabled}", flush=True)
-    logger.warning("startup: wiki_fix_english_enabled=%s", settings.wiki_fix_english_enabled)
-    if app.state.pool and settings.wiki_fix_english_enabled:
-        logger.warning("startup: launching fix-english-wiki background task")
-        asyncio.ensure_future(_fix_english_wiki_units(app.state.pool, get_ai_client()))
     yield
 
     if app.state.pool:
@@ -1101,7 +810,6 @@ def get_pool(request: Request):
 
 
 app = FastAPI(title="AI Agent App", lifespan=lifespan)
-app.include_router(admin_router)
 
 settings = get_settings()
 app.add_middleware(RateLimitMiddleware)
@@ -1200,44 +908,6 @@ class StudyPlanResponse(BaseModel):
     concept_chain: list[dict] = []   # ordered prerequisite path from KST gap analysis
 
 
-class MathIngestRequest(BaseModel):
-    text: str
-
-
-class MathSolveRequest(BaseModel):
-    question: str
-    image_base64: str | None = None
-    image_mime: str | None = None
-
-
-class MathSolveResponse(BaseModel):
-    label: str | None = None
-    answer: dict | None = None
-    validation: dict | None = None
-    retrieved_ids: list[str] = []
-    error: str | None = None
-    wiki_assisted: bool = True
-
-
-class MathOcrResponse(BaseModel):
-    text: str
-
-
-class MathReviewRequest(BaseModel):
-    problem: str
-    solution: str
-
-
-class MathReviewResponse(BaseModel):
-    verdict: str
-    score: str
-    correct_steps: list[str]
-    errors: list[str]
-    feedback: str
-    correct_approach: str = ""
-    retrieved_ids: list[str] = []
-
-
 
 class ChartInsightsRequest(BaseModel):
     spark_data: list[dict] = []
@@ -1256,12 +926,6 @@ class ChartInsightsResponse(BaseModel):
 @app.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     return {"status": "ok"}
-
-
-@app.get("/wiki/status")
-async def wiki_status():
-    from app.math_wiki.pipeline import get_wiki_status
-    return get_wiki_status()
 
 
 # ── Exam AI routes ───────────────────────────────────────────────────────────
@@ -1495,7 +1159,7 @@ async def hint(
     from app.agent.hint_generator import generate_hint
     try:
         merged_prefs = {"hint_style": req.hint_style, "encouragement_level": req.encouragement_level, **req.ai_preferences}
-        data = await generate_hint(client, req.question, req.attempt_count, req.previous_hints, merged_prefs, pool=pool)
+        data = await generate_hint(client, req.question, req.attempt_count, req.previous_hints, merged_prefs)
         return HintResponse(
             hint=data.get("hint", ""),
             difficulty_note=data.get("difficulty_note", ""),
@@ -2108,21 +1772,6 @@ async def peer_stats(
     }
 
 
-@app.post("/math-ingest")
-async def math_ingest(
-    req: MathIngestRequest,
-    current_user: CurrentUser = Depends(get_current_user),
-    pool=Depends(get_pool),
-):
-    client = get_ai_client()
-    from app.math_wiki.agents.ingest import ingest_exam
-    try:
-        output = await ingest_exam(client, req.text, pool=pool)
-        return {"problems": len(output.problems), "wiki_units": len(output.wiki_units)}
-    except (json.JSONDecodeError, ValueError) as exc:
-        raise HTTPException(status_code=502, detail=str(exc))
-
-
 _ACCEPTED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 _IMAGE_MAGIC = {
     b"\xff\xd8\xff": "image/jpeg",
@@ -2138,36 +1787,6 @@ def _validate_image_magic(data: bytes) -> str:
                 continue
             return mime
     raise HTTPException(status_code=415, detail="File does not match an accepted image format (JPEG, PNG, or WebP).")
-
-
-@app.post("/math-ocr", response_model=MathOcrResponse)
-async def math_ocr(
-    file: UploadFile = File(...),
-    current_user: CurrentUser = Depends(get_current_user),
-):
-    content_type = file.content_type or ""
-    if content_type not in _ACCEPTED_IMAGE_TYPES:
-        raise HTTPException(
-            status_code=415,
-            detail=f"Unsupported media type: {content_type!r}. Accepted: image/jpeg, image/png, image/webp",
-        )
-
-    MAX_SIZE = 5 * 1024 * 1024  # 5 MB
-    content = await file.read(MAX_SIZE + 1)
-    if len(content) > MAX_SIZE:
-        raise HTTPException(status_code=413, detail="Image too large (max 5 MB)")
-
-    client = get_ai_client()
-    from app.math_wiki.agents.ocr import extract_math_from_image
-    try:
-        text = await extract_math_from_image(client, content, content_type)
-    except ValueError as exc:
-        raise HTTPException(status_code=502, detail=str(exc))
-    except Exception as exc:
-        logger.error("math-ocr error: %s", exc)
-        raise HTTPException(status_code=502, detail=f"OCR failed: {exc}")
-
-    return MathOcrResponse(text=text)
 
 
 @app.post("/ocr/exam")
@@ -2223,175 +1842,9 @@ async def ocr_exam(
     return {"questions": questions}
 
 
-@app.post("/math-solve", response_model=MathSolveResponse)
-async def math_solve(
-    req: MathSolveRequest,
-    current_user: CurrentUser = Depends(get_current_user),
-    pool=Depends(get_pool),
-):
-    tier_row_ms = await pool.fetchrow("SELECT subscription_tier, tos_accepted_at FROM users WHERE id = ?", current_user.user_id)
-    if not tier_row_ms or not tier_row_ms["tos_accepted_at"]:
-        raise HTTPException(status_code=403, detail={"code": "tos_not_accepted"})
-    if tier_row_ms["subscription_tier"] == "basic":
-        today_uses = await pool.fetchrow(
-            "SELECT COUNT(*) AS cnt FROM ai_credits_log WHERE user_id = ? AND reason = 'math_solve' AND created_at >= datetime('now', '-24 hours')",
-            current_user.user_id,
-        )
-        if (today_uses["cnt"] or 0) >= 8:
-            raise HTTPException(403, detail={"code": "tier_required", "message": "Đã dùng hết 8 lượt Oracle trong 24 giờ qua — nâng cấp để dùng không giới hạn"})
-    await pool.execute("INSERT INTO ai_credits_log (user_id, delta, reason) VALUES (?, 0, 'math_solve')", current_user.user_id)
-    image_bytes: bytes | None = None
-    if req.image_base64:
-        try:
-            import base64 as _b64
-            raw = req.image_base64
-            # Strip data URI prefix if present
-            if ',' in raw:
-                raw = raw.split(',', 1)[1]
-            decoded = _b64.b64decode(raw)
-            if len(decoded) > 4 * 1024 * 1024:
-                raise HTTPException(status_code=400, detail="Image too large (max 4 MB)")
-            image_bytes = decoded
-        except Exception as exc:
-            if isinstance(exc, HTTPException):
-                raise
-            raise HTTPException(status_code=400, detail=f"Invalid image_base64: {exc}")
-
-    client = get_ai_client()
-    from app.math_wiki.pipeline import run_pipeline
-    for attempt in range(2):
-        try:
-            return await asyncio.wait_for(
-                run_pipeline(pool, client, req.question, image_bytes=image_bytes, image_mime=req.image_mime or "image/jpeg"),
-                timeout=55,
-            )
-        except asyncio.TimeoutError:
-            if attempt == 0:
-                logger.warning("math-solve attempt 1 timed out, retrying")
-                continue
-            raise HTTPException(status_code=504, detail="Pipeline timed out — try again")
-        except HTTPException:
-            raise
-        except (json.JSONDecodeError, ValueError) as exc:
-            raise HTTPException(status_code=502, detail=str(exc))
-        except RateLimitError as exc:
-            raise HTTPException(status_code=429, detail=f"AI service rate limit: {exc}")
-        except (APIStatusError, APIConnectionError) as exc:
-            logger.error("math-solve AI client error: %s", exc)
-            raise HTTPException(status_code=502, detail=f"AI service error: {exc}")
-        except Exception as exc:
-            logger.exception("math-solve unexpected error: %s", exc)
-            raise HTTPException(status_code=502, detail=f"Pipeline error: {exc}")
-
-
-@app.get("/math-wiki/calibration-report")
-async def math_wiki_calibration_report(
-    days: int = 30,
-    pool=Depends(get_pool),
-    current_user: CurrentUser = Depends(get_current_user),
-):
-    from app.math_wiki.storage.analytics import get_calibration_report
-    return await get_calibration_report(pool, days=days)
-
-
-@app.post("/math-wiki/calibration-feedback")
-async def math_wiki_calibration_feedback(
-    log_id: int,
-    actual_correct: bool,
-    pool=Depends(get_pool),
-    current_user: CurrentUser = Depends(get_current_user),
-):
-    from app.math_wiki.storage.analytics import log_solution_feedback
-    await log_solution_feedback(pool, log_id, actual_correct)
-    return {"ok": True}
-
-
-@app.post("/math-review", response_model=MathReviewResponse)
-async def math_review(
-    req: MathReviewRequest,
-    current_user: CurrentUser = Depends(get_current_user),
-    pool=Depends(get_pool),
-):
-    tier_row_mr = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
-    if not tier_row_mr or tier_row_mr["subscription_tier"] not in _PAID_TIERS:
-        raise HTTPException(403, detail={"code": "tier_required", "message": "Chế độ Chấm bài yêu cầu gói Học sinh trở lên"})
-    client = get_ai_client()
-    from app.math_wiki.agents.reviewer import review_solution
-    from app.math_wiki.pipeline import _retrieve_rerank_context
-    retrieved_ids, context = await _retrieve_rerank_context(pool, client, req.problem)
-    try:
-        result = await review_solution(client, req.problem, req.solution, context)
-    except ValueError as exc:
-        raise HTTPException(status_code=502, detail=str(exc))
-    except Exception as exc:
-        logger.error("math-review error: %s", exc)
-        raise HTTPException(status_code=502, detail=f"Review failed: {exc}")
-    return MathReviewResponse(
-        verdict=result.verdict,
-        score=result.score,
-        correct_steps=result.correct_steps,
-        errors=result.errors,
-        feedback=result.feedback,
-        correct_approach=result.correct_approach,
-        retrieved_ids=retrieved_ids,
-    )
-
-
-@app.post("/math-upload")
-async def math_upload(
-    file: UploadFile = File(...),
-    current_user: CurrentUser = Depends(get_current_user),
-    pool=Depends(get_pool),
-):
-    MAX_SIZE = 10 * 1024 * 1024  # 10MB
-    content = await file.read(MAX_SIZE + 1)
-    if len(content) > MAX_SIZE:
-        raise HTTPException(status_code=413, detail="File too large (max 10MB)")
-
-    filename = file.filename or ""
-    content_type = file.content_type or ""
-
-    if filename.lower().endswith(".pdf") or content_type == "application/pdf":
-        try:
-            from pypdf import PdfReader
-        except ImportError:
-            raise HTTPException(status_code=501, detail="pypdf not installed")
-        reader = PdfReader(io.BytesIO(content))
-        pages = [p.extract_text() or "" for p in reader.pages]
-        raw_text = "\n\n".join(p.strip() for p in pages if p.strip())
-    elif content_type in _ACCEPTED_IMAGE_TYPES:
-        upload_client = get_ai_client()
-        from app.math_wiki.agents.ocr import extract_math_from_image
-        try:
-            raw_text = await extract_math_from_image(upload_client, content, content_type)
-        except ValueError as exc:
-            raise HTTPException(status_code=502, detail=str(exc))
-    elif content_type.startswith("text/") or not content_type:
-        raw_text = content.decode("utf-8", errors="replace")
-    else:
-        raise HTTPException(status_code=415, detail=f"Unsupported file type: {content_type!r}")
-
-    chunk_size = 3000
-    chunks = [raw_text[i:i + chunk_size] for i in range(0, len(raw_text), chunk_size)] if raw_text else []
-
-    client = get_ai_client()
-    from app.math_wiki.agents.ingest import ingest_exam
-    total_problems = total_wiki = 0
-    try:
-        for chunk in chunks:
-            output = await ingest_exam(client, chunk, pool=pool)
-            total_problems += len(output.problems)
-            total_wiki += len(output.wiki_units)
-    except (ValueError, json.JSONDecodeError) as exc:
-        raise HTTPException(status_code=502, detail=str(exc))
-
-    return {"chunks_ingested": len(chunks), "problems": total_problems, "wiki_units": total_wiki}
-
-
 @app.get("/metrics")
 async def metrics(request: Request, pool=Depends(get_pool)):
     from app.metrics import get_metrics
-    from app.math_wiki.storage.analytics import get_unit_usage_stats
     _require_admin(request)
     data = get_metrics()
     if pool:
@@ -2402,34 +1855,7 @@ async def metrics(request: Request, pool=Depends(get_pool)):
             data["sqlite_size_bytes"] = os.path.getsize(db_path) if os.path.exists(db_path) else 0
         except Exception:
             pass
-        try:
-            data["top_units"] = await get_unit_usage_stats(pool, days=30)
-        except Exception:
-            pass
     return data
-
-
-@app.get("/math-gaps")
-async def math_gaps(threshold: int = 5, pool=Depends(get_pool)):
-    from app.math_wiki.storage import pg_db
-    from app.math_wiki.taxonomy import CANONICAL_TOPICS
-    topic_counts = await pg_db.count_wiki_units_by_topic(pool)
-    gaps = [
-        {"topic": t, "count": topic_counts.get(t, 0)}
-        for t in CANONICAL_TOPICS
-        if topic_counts.get(t, 0) < threshold
-    ]
-    return sorted(gaps, key=lambda x: x["count"])
-
-
-@app.get("/math-stats")
-async def math_stats(pool=Depends(get_pool)):
-    from app.math_wiki.storage import pg_db
-    return {
-        "problems": await pg_db.count_problems(pool),
-        "wiki_units": await pg_db.count_wiki_units(pool),
-        "topics": await pg_db.count_wiki_units_by_topic(pool),
-    }
 
 
 # ── Auth endpoints ────────────────────────────────────────────────────────────
@@ -2644,131 +2070,17 @@ async def _check_login_rate(pool, ip: str, email: str) -> bool:
     return (ip_fails["cnt"] or 0) >= 10
 
 
-def _email_html_verify(link: str) -> str:
-    return f"""<!DOCTYPE html>
-<html lang="vi">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f4f4f5;font-family:Inter,Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 0;">
-    <tr><td align="center">
-      <table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
-        <tr>
-          <td style="background:#6c47ff;padding:32px 40px;">
-            <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.5px;">&#10022; Luminary</h1>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:40px;">
-            <h2 style="margin:0 0 12px;color:#18181b;font-size:20px;font-weight:600;">Xác minh địa chỉ email của bạn</h2>
-            <p style="margin:0 0 24px;color:#52525b;font-size:15px;line-height:1.6;">
-              Chào mừng bạn đến với <strong>Luminary</strong>! Nhấn vào nút bên dưới để xác minh tài khoản và bắt đầu học.
-            </p>
-            <a href="{link}"
-               style="display:inline-block;background:#6c47ff;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:600;">
-              Xác minh tài khoản
-            </a>
-            <p style="margin:24px 0 0;color:#a1a1aa;font-size:13px;line-height:1.5;">
-              Hoặc sao chép đường dẫn này vào trình duyệt:<br>
-              <a href="{link}" style="color:#6c47ff;word-break:break-all;">{link}</a>
-            </p>
-            <p style="margin:20px 0 0;color:#a1a1aa;font-size:13px;">
-              Đường dẫn có hiệu lực trong <strong>24 giờ</strong>. Nếu bạn không đăng ký tài khoản này, hãy bỏ qua email.
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:20px 40px;border-top:1px solid #f4f4f5;">
-            <p style="margin:0;color:#a1a1aa;font-size:12px;text-align:center;">&#169; 2025 Luminary &middot; Học thông minh hơn mỗi ngày</p>
-          </td>
-        </tr>
-      </table>
-    </td></tr>
-  </table>
-</body>
-</html>"""
-
-
-def _email_html_reset(link: str, email: str) -> str:
-    return f"""<!DOCTYPE html>
-<html lang="vi">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f4f4f5;font-family:Inter,Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 0;">
-    <tr><td align="center">
-      <table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
-        <tr>
-          <td style="background:#6c47ff;padding:32px 40px;">
-            <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.5px;">&#10022; Luminary</h1>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:40px;">
-            <h2 style="margin:0 0 12px;color:#18181b;font-size:20px;font-weight:600;">Yêu cầu đặt lại mật khẩu</h2>
-            <p style="margin:0 0 24px;color:#52525b;font-size:15px;line-height:1.6;">
-              Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản <strong>{email}</strong>.<br>
-              Nhấn vào nút bên dưới để tạo mật khẩu mới.
-            </p>
-            <a href="{link}"
-               style="display:inline-block;background:#6c47ff;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:600;">
-              Đặt lại mật khẩu
-            </a>
-            <p style="margin:24px 0 0;color:#a1a1aa;font-size:13px;line-height:1.5;">
-              Hoặc sao chép đường dẫn này vào trình duyệt:<br>
-              <a href="{link}" style="color:#6c47ff;word-break:break-all;">{link}</a>
-            </p>
-            <p style="margin:20px 0 0;color:#a1a1aa;font-size:13px;">
-              Đường dẫn có hiệu lực trong <strong>1 giờ</strong>. Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này — tài khoản của bạn vẫn an toàn.
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:20px 40px;border-top:1px solid #f4f4f5;">
-            <p style="margin:0;color:#a1a1aa;font-size:12px;text-align:center;">&#169; 2025 Luminary &middot; Học thông minh hơn mỗi ngày</p>
-          </td>
-        </tr>
-      </table>
-    </td></tr>
-  </table>
-</body>
-</html>"""
-
-
-async def _send_email_token(settings, email: str, token: str, purpose: str) -> None:
-    """Send verification/reset email via Resend. No-op when RESEND_API_KEY is not configured."""
-    if not settings.resend_api_key:
-        return  # debug mode — caller returns token in response body
-    import asyncio as _asyncio, resend  # resend.Emails.send is sync — run in thread pool
-    resend.api_key = settings.resend_api_key
-    if purpose == "verify":
-        subject = "Xác minh tài khoản Luminary"
-        link = f"{settings.app_url}/verify-email?token={token}"
-        html = _email_html_verify(link)
-    else:
-        subject = "Đặt lại mật khẩu Luminary"
-        link = f"{settings.app_url}/reset-password?token={token}"
-        html = _email_html_reset(link, email)
-    payload = {"from": settings.resend_from, "to": [email], "subject": subject, "html": html}
-    try:
-        await _asyncio.to_thread(resend.Emails.send, payload)
-    except Exception as exc:
-        logger.warning("Email send failed to %s: %s", email, exc)
 
 
 @app.post("/auth/email/register")
-async def auth_email_register(body: EmailRegisterRequest, request: Request, pool=Depends(get_pool)):
-    import secrets as _sec
-    settings = get_settings()
+async def auth_email_register(body: EmailRegisterRequest, request: Request, response: Response, pool=Depends(get_pool)):
     email = body.email.lower().strip()
 
     if not validate_password_strength(body.password):
         raise HTTPException(400, detail="password_too_weak")
 
-    # IP-level registration rate limit (3/hour)
+    # IP-level registration rate limit (20/hour per IP)
     ip = request.client.host if request.client else "unknown"
-    recent_reg = await pool.fetchrow(
-        "SELECT COUNT(*) AS cnt FROM users WHERE created_at > datetime('now','-1 hour') AND email=$1",
-        email,
-    )
     ip_recent = await pool.fetchrow(
         "SELECT COUNT(*) AS cnt FROM login_attempts WHERE ip=$1 AND attempted_at > datetime('now','-1 hour')",
         ip,
@@ -2784,22 +2096,17 @@ async def auth_email_register(body: EmailRegisterRequest, request: Request, pool
 
     pw_hash = hash_password(body.password)
     row = await pool.fetchrow(
-        "INSERT INTO users (email, password_hash, email_verified, credits_balance, created_at, updated_at) VALUES ($1,$2,0,50,datetime('now'),datetime('now')) RETURNING id",
+        "INSERT INTO users (email, password_hash, email_verified, credits_balance, created_at, updated_at) VALUES ($1,$2,1,50,datetime('now'),datetime('now')) RETURNING id",
         email, pw_hash,
     )
     user_id = row["id"]
 
-    token = _sec.token_urlsafe(32)
-    await pool.execute(
-        "INSERT INTO email_tokens (user_id, token, purpose, expires_at) VALUES ($1,$2,'verify',datetime('now','+1 day'))",
-        user_id, token,
-    )
-    await _send_email_token(settings, email, token, "verify")
-
-    resp: dict = {"detail": "verification_sent"}
-    if not settings.resend_api_key:
-        resp["debug_token"] = token  # only in dev/no-key mode
-    return resp
+    access_token, csrf_token = await _issue_session(pool, response, user_id)
+    return {
+        "csrf_token": csrf_token,
+        "access_token": access_token,
+        "user": {"id": user_id, "email": email},
+    }
 
 
 @app.post("/auth/email/verify")
@@ -2857,8 +2164,6 @@ async def auth_email_login(body: EmailLoginRequest, request: Request, response: 
 
     if not user or not password_ok:
         raise HTTPException(401, detail="invalid_credentials")
-    if not user["email_verified"]:
-        raise HTTPException(403, detail="email_not_verified")
     if user["is_suspended"]:
         raise HTTPException(403, detail="account_suspended")
 
@@ -2879,7 +2184,6 @@ async def auth_email_login(body: EmailLoginRequest, request: Request, response: 
 @app.post("/auth/email/resend-verify")
 async def auth_email_resend_verify(body: EmailResendRequest, pool=Depends(get_pool)):
     import secrets as _sec
-    settings = get_settings()
     email = body.email.lower().strip()
     user = await pool.fetchrow("SELECT id, email_verified FROM users WHERE email=$1 AND password_hash IS NOT NULL", email)
     # Always return 200 — no account enumeration
@@ -2897,17 +2201,12 @@ async def auth_email_resend_verify(body: EmailResendRequest, pool=Depends(get_po
         "INSERT INTO email_tokens (user_id, token, purpose, expires_at) VALUES ($1,$2,'verify',datetime('now','+1 day'))",
         user["id"], token,
     )
-    await _send_email_token(settings, email, token, "verify")
-    resp: dict = {"detail": "verification_sent"}
-    if not settings.resend_api_key:
-        resp["debug_token"] = token
-    return resp
+    return {"detail": "verification_sent", "debug_token": token}
 
 
 @app.post("/auth/email/forgot-password")
 async def auth_email_forgot_password(body: EmailForgotRequest, pool=Depends(get_pool)):
     import secrets as _sec
-    settings = get_settings()
     email = body.email.lower().strip()
     user = await pool.fetchrow("SELECT id FROM users WHERE email=$1 AND password_hash IS NOT NULL", email)
     # Always return 200 — no enumeration
@@ -2922,7 +2221,6 @@ async def auth_email_forgot_password(body: EmailForgotRequest, pool=Depends(get_
                 "INSERT INTO email_tokens (user_id, token, purpose, expires_at) VALUES ($1,$2,'reset',datetime('now','+1 hour'))",
                 user["id"], token,
             )
-            await _send_email_token(settings, email, token, "reset")
     return {"detail": "reset_sent"}
 
 
@@ -5382,7 +4680,7 @@ async def adaptive_practice(
     current_user: CurrentUser = Depends(get_current_user),
     pool=Depends(get_pool),
 ):
-    from app.math_wiki.taxonomy import CANONICAL_TOPICS, TOPIC_MAP
+    from app.taxonomy import CANONICAL_TOPICS, TOPIC_MAP
     # Normalize non-canonical slugs via TOPIC_MAP, then keep only canonical ones
     normalized = list(dict.fromkeys(
         TOPIC_MAP.get(t, t) for t in req.weak_topics
@@ -5451,7 +4749,7 @@ async def adaptive_next_question(
 
     # Fetch candidate questions (topic-filtered if specified)
     if req.topic:
-        from app.math_wiki.taxonomy import TOPIC_MAP
+        from app.taxonomy import TOPIC_MAP
         # Expand to all non-canonical slugs that map to the same canonical topic
         canonical = TOPIC_MAP.get(req.topic, req.topic)
         all_slugs = [slug for slug, canon in TOPIC_MAP.items() if canon == canonical]
@@ -6031,61 +5329,6 @@ async def admin_update_profile(
 
 
 # ─── Admin wiki operations ───────────────────────────────────────────────────
-
-class AdminCrawlRequest(BaseModel):
-    topics: list[str] | None = None   # None = auto-detect zero-unit topics
-    sources: list[str] = ["aops", "pauls", "generic"]
-    dry_run: bool = False
-
-
-@app.post("/admin/crawl")
-async def admin_crawl(req: AdminCrawlRequest, request: Request, pool=Depends(get_pool)):
-    """Trigger a targeted wiki crawl. Without topics, auto-detects zero-unit topics (gap-fill)."""
-    _require_admin(request)
-    try:
-        from crawl.runner import crawl_and_ingest
-        from crawl.topic_map import AOPS_QUERIES
-    except ImportError as exc:
-        raise HTTPException(status_code=503, detail=f"Crawl module not available: {exc}")
-
-    topics = list(req.topics) if req.topics else None
-    if not topics:
-        from app.math_wiki.storage import pg_db
-        counts = await pg_db.count_wiki_units_by_topic(pool)
-        all_topics = list(AOPS_QUERIES.keys())
-        topics = [t for t in all_topics if counts.get(t, 0) == 0]
-        if not topics:
-            return {"message": "No zero-unit topics found, nothing to crawl", "topics": []}
-
-    if req.dry_run:
-        return {"message": "dry_run=true, crawl not triggered", "topics": topics}
-
-    ai_client = get_ai_client()
-
-    async def _do_crawl():
-        for topic in topics:
-            try:
-                stats = await crawl_and_ingest(
-                    ai_client, topics=[topic], sources=req.sources, pool=pool
-                )
-                logger.info(
-                    "admin-crawl [%s]: pages=%d units=%d errors=%d",
-                    topic, stats["pages_fetched"], stats["wiki_units_added"], stats["errors"],
-                )
-            except Exception as exc:
-                logger.error("admin-crawl [%s] failed: %s", topic, exc)
-
-    asyncio.ensure_future(_do_crawl())
-    return {"message": "Crawl started in background", "topics": topics}
-
-
-@app.post("/admin/wiki-sanitize")
-async def admin_wiki_sanitize(request: Request, pool=Depends(get_pool)):
-    """Trigger wiki sanitization (label normalization + deduplication) as a background task."""
-    _require_admin(request)
-    asyncio.ensure_future(_sanitize_wiki(pool))
-    return {"message": "Sanitize started in background"}
-
 
 # ─── Exam-day simulation brief ───────────────────────────────────────────────
 

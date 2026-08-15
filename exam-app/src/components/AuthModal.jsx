@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from 'react'
 import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../context/AuthContext'
-import { emailForgot, emailResendVerify } from '../api/aiClient'
+import { emailForgot } from '../api/aiClient'
 import { Input } from './ui/input.jsx'
 import { Button } from './ui/button.jsx'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog.jsx'
@@ -48,14 +48,13 @@ export default function AuthModal({ open, onClose }) {
   const [confirmPw, setConfirmPw] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [registered, setRegistered] = useState(false)
   const [forgotSent, setForgotSent] = useState(false)
 
   // Reset state on open/close
   useEffect(() => {
     if (open) {
       setTab('google'); setEmailMode('login'); setEmail(''); setPassword('')
-      setConfirmPw(''); setError(null); setLoading(false); setRegistered(false); setForgotSent(false)
+      setConfirmPw(''); setError(null); setLoading(false); setForgotSent(false)
     }
   }, [open])
 
@@ -77,7 +76,7 @@ export default function AuthModal({ open, onClose }) {
         if (password !== confirmPw) { setError('Mật khẩu xác nhận không khớp.'); return }
         if (calcStrength(password) < 2) { setError('Mật khẩu quá yếu. Cần chữ hoa, số và ký tự đặc biệt.'); return }
         await emailRegister(email, password)
-        setRegistered(true)
+        onClose()
       } else if (emailMode === 'forgot') {
         await emailForgot(email)
         setForgotSent(true)
@@ -87,14 +86,13 @@ export default function AuthModal({ open, onClose }) {
       if (code === 'email_taken') setError('Email này đã được đăng ký.')
       else if (code === 'email_google_only') setError('Email này dùng đăng nhập Google. Nhấn tab Google để đăng nhập.')
       else if (code === 'invalid_credentials') setError('Email hoặc mật khẩu không đúng.')
-      else if (code === 'email_not_verified') setError('Tài khoản chưa được xác minh. Kiểm tra hộp thư đến.')
       else if (code === 'password_too_weak') setError('Mật khẩu quá yếu.')
       else if (code === 'too_many_attempts') setError('Quá nhiều lần thử. Vui lòng đợi vài phút.')
       else setError(err.message || 'Đã xảy ra lỗi. Thử lại sau.')
     } finally { setLoading(false) }
   }
 
-  function switchMode(mode) { setEmailMode(mode); setError(null); setRegistered(false); setForgotSent(false) }
+  function switchMode(mode) { setEmailMode(mode); setError(null); setForgotSent(false) }
 
   const title = tab === 'google'
     ? 'Đăng nhập'
@@ -145,16 +143,7 @@ export default function AuthModal({ open, onClose }) {
         {/* Email tab */}
         {tab === 'email' && (
           <>
-            {/* Post-register success */}
-            {registered ? (
-              <div className="flex flex-col items-center gap-3 py-2">
-                <span className="text-3xl">✅</span>
-                <p className="font-sans text-[13px] text-foreground text-center font-semibold">Kiểm tra email để xác minh tài khoản</p>
-                <p className="font-sans text-[11px] text-dim text-center">Nhấn vào đường dẫn trong email từ Luminary để kích hoạt tài khoản.</p>
-                <button onClick={() => emailResendVerify(email)}
-                  className="font-sans text-[11px] text-primary hover:underline">Gửi lại email</button>
-              </div>
-            ) : forgotSent ? (
+            {forgotSent ? (
               <div className="flex flex-col items-center gap-3 py-2">
                 <span className="text-3xl">📧</span>
                 <p className="font-sans text-[13px] text-foreground text-center font-semibold">Kiểm tra hộp thư đến</p>

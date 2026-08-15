@@ -16,10 +16,8 @@ import LowCreditBanner from './components/LowCreditBanner.jsx'
 import OfflineBanner from './components/OfflineBanner.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import InstallPrompt from './components/InstallPrompt.jsx'
-import { OracleProvider } from './context/OracleContext.jsx'
 import { useToast } from './context/ToastContext.jsx'
 import { Toaster } from './components/ui/sonner.jsx'
-import OracleDrawer from './components/OracleDrawer.jsx'
 import {
   HomePageSkeleton, ExamSelectSkeleton, ResultsPageSkeleton,
   AccountPageSkeleton, ProgressPageSkeleton, StudyPlanPageSkeleton,
@@ -34,7 +32,6 @@ const TestInterface = lazy(() => import('./pages/TestInterface.jsx'))
 const Results = lazy(() => import('./pages/Results.jsx'))
 const History = lazy(() => import('./pages/History.jsx'))
 const StudyPlan = lazy(() => import('./pages/StudyPlan.jsx'))
-const MathOracle = lazy(() => import('./pages/MathOracle.jsx'))
 const Account = lazy(() => import('./pages/Account.jsx'))
 const ReviewSession = lazy(() => import('./pages/ReviewSession.jsx'))
 const Mistakes = lazy(() => import('./pages/Mistakes.jsx'))
@@ -265,7 +262,6 @@ function AppInner() {
             <Route path="/results/:resultId" element={<Results onOpenAuth={() => setAuthOpen(true)} />} />
             <Route path="/history" element={<History />} />
             <Route path="/study-plan/:resultId" element={<StudyPlan />} />
-            <Route path="/oracle" element={<MathOracle />} />
             <Route path="/account" element={<Account />} />
             <Route path="/review" element={<ReviewSession />} />
             <Route path="/learn" element={<Learn />} />
@@ -323,11 +319,8 @@ export default function App() {
     <MotionConfig reducedMotion="user">
       <HistoryProvider>
         <ExamProvider>
-          <OracleProvider>
-            <AppInner />
-            <OracleDrawer />
-            <Toaster />
-          </OracleProvider>
+          <AppInner />
+          <Toaster />
         </ExamProvider>
       </HistoryProvider>
     </MotionConfig>

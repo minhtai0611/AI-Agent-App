@@ -459,28 +459,8 @@ export default function ExamSelect({ onOpenAuth }) {
 
             <div className="flex flex-col gap-1">
               <span className="font-sans text-[0.6875rem] font-bold tracking-[3px] uppercase text-faint">Công cụ AI</span>
-              <p className="font-sans text-[0.8125rem] text-faint">Toán Oracle · Tạo đề · Tải ảnh đề · Bản đồ khái niệm · Phân tích lỗi sai</p>
+              <p className="font-sans text-[0.8125rem] text-faint">Tạo đề · Tải ảnh đề · Bản đồ khái niệm · Phân tích lỗi sai</p>
             </div>
-
-            {/* Hero: Oracle */}
-            <motion.button variants={cardVariants}
-              onClick={() => navigate('/oracle')}
-              className="w-full text-left rounded-2xl p-6 flex items-center justify-between gap-4 glass-brand transition"
-            >
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">✦</span>
-                  <span className="font-sans text-[17px] font-bold text-primary">Toán Oracle</span>
-                  <span className="font-sans text-[0.625rem] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded bg-info/10 text-info border border-info/30">
-                    Oracle AI
-                  </span>
-                </div>
-                <span className="font-sans text-[0.8125rem] text-dim leading-relaxed max-w-sm">
-                  Nhập bất kỳ bài toán nào — Oracle giải từng bước chi tiết và chấm bài của bạn
-                </span>
-              </div>
-              <span className="font-sans text-[0.8125rem] font-semibold flex-shrink-0 text-info">Mở Oracle →</span>
-            </motion.button>
 
             {/* OCR upload in lab */}
             {user && user.subscription_tier !== 'basic' && (

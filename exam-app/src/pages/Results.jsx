@@ -24,7 +24,6 @@ import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { MathText } from '../components/MathText.jsx'
 import { TOPIC_LABELS, getTopicLabel } from '../utils/topicLabels.js'
-import { useOracle } from '../context/OracleContext.jsx'
 import { classifyLearner } from '../utils/learnerArchetype.js'
 import { TOPIC_ID_MAP } from '../utils/learningGraph.js'
 import { safeSetItem } from '../utils/storageManager.js'
@@ -341,13 +340,6 @@ export default function Results({ onOpenAuth }) {
 
   const isCurrent = !resultId || resultId === 'current'
   const savedRef = useRef(false)
-  const { setPageContext } = useOracle()
-  useEffect(() => {
-    if (!result) return
-    const weakTopics = analysis?.weak_topics ?? []
-    setPageContext({ inExam: false, examTitle: loadExamById(result.examId)?.title ?? '', weakTopics, score: result.score })
-    return () => setPageContext({})
-  }, [result?.examId, analysis?.weak_topics]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (isCurrent) {
@@ -1430,26 +1422,6 @@ export default function Results({ onOpenAuth }) {
                     )
                   })}
                 </div>
-
-                {/* Oracle CTA */}
-                {weakTopics.length > 0 && (
-                  <div className="flex flex-col gap-3 px-5 py-4 rounded-xl glass-base">
-                    <p className="font-sans text-[0.8125rem] text-muted">
-                      Bạn sai <strong className="text-foreground">{wrongCount} câu</strong>
-                      {weakTopics.length > 0 && <> về <strong className="text-foreground">{weakTopics.map(t => getTopicLabel(t)).join(', ')}</strong></>}
-                      {' '}— hỏi <strong className="text-info">Toán Oracle</strong> về chủ đề này?
-                    </p>
-                    <button
-                      onClick={() => navigate('/oracle', { state: {
-                        weakTopics,
-                        wrongQuestions: wrongQuestions.slice(0, 3).map(q => ({ topic: q.topic, question: q.question })),
-                      }})}
-                      className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-sans text-xs font-bold text-info border border-info/30 hover:bg-info/10 transition"
-                    >
-                      <span>✦</span>Hỏi Toán Oracle
-                    </button>
-                  </div>
-                )}
 
                 <button onClick={() => navigate('/review')}
                   className="w-full py-3 rounded-xl font-sans text-[0.8125rem] font-semibold border border-primary/25 text-primary hover:border-primary transition">

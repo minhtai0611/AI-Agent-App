@@ -30,7 +30,6 @@ export default function Privacy() {
               <li>Tên, địa chỉ email, và thông tin đăng nhập Google (qua OAuth 2.0)</li>
               <li>Cấp học, tỉnh/thành, loại trường học (do bạn cung cấp tự nguyện)</li>
               <li>Kết quả bài thi, lịch sử câu trả lời, và mẫu lỗi học tập</li>
-              <li>Câu hỏi gửi đến AI Oracle và lời giải nhận được</li>
               <li>Dữ liệu sử dụng: thời gian làm bài, tần suất đăng nhập, thiết bị sử dụng</li>
             </ul>
           </Section>
@@ -80,7 +79,7 @@ export default function Privacy() {
           <Section title="6. Cookie và lưu trữ cục bộ">
             <p>
               Luminary sử dụng <code>localStorage</code> và <code>sessionStorage</code> của trình duyệt để lưu
-              bài thi đang làm dở, lịch sử Oracle, và trạng thái ứng dụng. Không có cookie theo dõi
+              bài thi đang làm dở và trạng thái ứng dụng. Không có cookie theo dõi
               quảng cáo. Token đăng nhập được lưu trong <code>localStorage</code> và hết hạn sau 30 ngày.
             </p>
           </Section>

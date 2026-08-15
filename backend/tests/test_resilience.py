@@ -180,6 +180,118 @@ async def test_call_with_retry_passes_kwargs_to_client():
     )
 
 
+def _auth_unavailable_error():
+    """503 auth_unavailable — router-side provider outage, not our credentials."""
+    from openai import APIStatusError
+    return APIStatusError(
+        message="503 auth_unavailable: no auth available (providers=claude, model=claude-sonnet-4-6)",
+        response=MagicMock(status_code=503, headers={}),
+        body={},
+    )
+
+
+@pytest.mark.asyncio
+async def test_call_with_retry_falls_back_on_provider_unavailable():
+    """401/503 provider-unavailable errors retry once against settings.fallback_model."""
+    from openai import AuthenticationError
+
+    async def primary_fails_fallback_succeeds(**kwargs):
+        if kwargs.get("model") == "claude-sonnet-4.6":
+            raise AuthenticationError(
+                message="401 OAuth access token has expired",
+                response=MagicMock(status_code=401, headers={}),
+                body={},
+            )
+        return _make_fake_response("from fallback")
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create = primary_fails_fallback_succeeds
+
+    with patch("asyncio.sleep"), \
+         patch("app.config.get_settings") as mock_settings:
+        mock_settings.return_value.fallback_model = "gemini-2.5-pro"
+        result = await call_with_retry(mock_client, model="claude-sonnet-4.6", messages=[])
+
+    assert result.choices[0].message.content == "from fallback"
+
+
+@pytest.mark.asyncio
+async def test_call_with_retry_falls_back_on_503_auth_unavailable():
+    """503 auth_unavailable (router has no working session for that provider) triggers fallback too."""
+    call_models = []
+
+    async def track_and_respond(**kwargs):
+        call_models.append(kwargs.get("model"))
+        if kwargs["model"] == "claude-sonnet-4.6":
+            raise _auth_unavailable_error()
+        return _make_fake_response("ok")
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create = track_and_respond
+
+    with patch("asyncio.sleep"), \
+         patch("app.config.get_settings") as mock_settings:
+        mock_settings.return_value.fallback_model = "gemini-2.5-pro"
+        result = await call_with_retry(mock_client, model="claude-sonnet-4.6", messages=[])
+
+    assert call_models == ["claude-sonnet-4.6", "gemini-2.5-pro"]
+    assert result.choices[0].message.content == "ok"
+
+
+@pytest.mark.asyncio
+async def test_call_with_retry_no_fallback_when_unconfigured():
+    """fallback_model blank (default) — provider-unavailable errors still raise, no second call."""
+    call_count = 0
+
+    async def auth_fail(**kwargs):
+        nonlocal call_count
+        call_count += 1
+        from openai import AuthenticationError
+        raise AuthenticationError(
+            message="401 OAuth access token has expired",
+            response=MagicMock(status_code=401, headers={}),
+            body={},
+        )
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create = auth_fail
+
+    with patch("asyncio.sleep"), \
+         patch("app.config.get_settings") as mock_settings:
+        mock_settings.return_value.fallback_model = ""
+        with pytest.raises(Exception):
+            await call_with_retry(mock_client, model="claude-sonnet-4.6", messages=[])
+
+    assert call_count == 1
+
+
+@pytest.mark.asyncio
+async def test_call_with_retry_no_fallback_on_bad_request():
+    """400 BadRequestError is not a provider-availability problem — no fallback attempt."""
+    from openai import BadRequestError
+    call_count = 0
+
+    async def bad_request(**kwargs):
+        nonlocal call_count
+        call_count += 1
+        raise BadRequestError(
+            message="400 invalid request",
+            response=MagicMock(status_code=400, headers={}),
+            body={},
+        )
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create = bad_request
+
+    with patch("asyncio.sleep"), \
+         patch("app.config.get_settings") as mock_settings:
+        mock_settings.return_value.fallback_model = "gemini-2.5-pro"
+        with pytest.raises(Exception):
+            await call_with_retry(mock_client, model="claude-sonnet-4.6", messages=[])
+
+    assert call_count == 1
+
+
 @pytest.mark.asyncio
 async def test_call_with_retry_attempt_count_boundary():
     """

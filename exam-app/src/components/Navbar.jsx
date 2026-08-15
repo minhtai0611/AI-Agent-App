@@ -21,7 +21,6 @@ const AUTH_NAV = [
   { label: 'Thi thử', path: '/exams' },
   { label: 'Ôn sai', path: '/review' },
   { label: 'Luyện yếu', path: '/practice' },
-  { label: 'Hỏi AI', path: '/oracle' },
   { label: 'Tiến độ', path: '/mastery' },
 ]
 
@@ -293,24 +292,6 @@ export default function Navbar({ onOpenAuth }) {
                       {link.label}
                     </motion.button>
                   ))}
-                </div>
-
-                {/* Secondary: AI Oracle */}
-                <div className="px-3 pb-2">
-                  <div className="border-t my-1" style={{ borderColor: 'var(--border)' }} />
-                  <motion.button
-                    custom={MOBILE_NAV_PRIMARY.length + 1} variants={stellarReveal} initial="hidden" animate="show"
-                    onClick={() => go('/oracle')}
-                    className="flex items-center gap-3 px-3 py-3 rounded-xl text-left text-[14px] transition-colors w-full"
-                    style={{
-                      color: isActive('/oracle') ? 'var(--primary)' : 'var(--fg-tertiary)',
-                      background: isActive('/oracle') ? 'var(--surface)' : 'transparent',
-                      fontWeight: isActive('/oracle') ? 600 : 400,
-                    }}
-                  >
-                    <span className="w-5 text-center text-[15px] flex-shrink-0" style={{ color: 'var(--primary)' }}>✦</span>
-                    Hỏi AI
-                  </motion.button>
                 </div>
 
                 {/* Account + logout at bottom */}

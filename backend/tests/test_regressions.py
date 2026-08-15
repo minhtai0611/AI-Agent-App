@@ -118,6 +118,60 @@ def test_answer_matcher_handles_pm_notation():
         )
 
 
+# ── 2026-06-30 — email registration issues JWT directly ──────────────────────
+
+@pytest.mark.regression
+@pytest.mark.asyncio
+async def test_email_register_issues_jwt_immediately():
+    """
+    Bug: POST /auth/email/register returned {"detail": "verification_sent"} and
+    created the user with email_verified=0, forcing a click-through email before
+    login was possible. Registration is now instant — the endpoint issues a JWT
+    session directly (email_verified=1, same as Google OAuth).
+
+    Fixed: 2026-06-30 — insert email_verified=1, call _issue_session(), return
+    access_token/csrf_token instead of verification_sent.
+
+    Reproduce: revert email_verified INSERT to 0 and remove _issue_session() call
+    from auth_email_register — the endpoint returns 200 with no access_token.
+    """
+    import os
+    os.environ.setdefault("JWT_SECRET", "test-secret-at-least-32-chars-long!")
+    os.environ.setdefault("ANTHROPIC_AUTH_TOKEN", "test-token")
+    from unittest.mock import AsyncMock, MagicMock, patch
+    from httpx import AsyncClient, ASGITransport
+    from app.main import app
+
+    pool = MagicMock()
+    pool.fetchrow = AsyncMock(side_effect=[
+        {"cnt": 0},   # IP rate limit check
+        None,         # existing user check → not found
+        {"id": 42},   # INSERT RETURNING id
+    ])
+    pool.execute = AsyncMock(return_value="OK")
+    pool.acquire = MagicMock()
+
+    saved = dict(app.dependency_overrides)
+    app.dependency_overrides[get_pool] = lambda: pool
+    try:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            resp = await client.post(
+                "/auth/email/register",
+                json={"email": "new@example.com", "password": "StrongPass1!"},
+            )
+    finally:
+        app.dependency_overrides.clear()
+        app.dependency_overrides.update(saved)
+
+    # Must return a usable session — not a "check your email" message
+    assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
+    data = resp.json()
+    assert "access_token" in data, f"Missing access_token in: {data}"
+    assert "detail" not in data or data.get("detail") != "verification_sent", (
+        "Regression: registration still returns verification_sent instead of JWT"
+    )
+
+
 # ── Template regression: copy this block for future production bugs ───────────
 #
 # @pytest.mark.regression

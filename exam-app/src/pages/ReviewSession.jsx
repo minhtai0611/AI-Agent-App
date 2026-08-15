@@ -103,7 +103,6 @@ export default function ReviewSession() {
   const [done, setDone] = useState(false)
   const [stageLabel, setStageLabel] = useState(null)
   const [stage5Topics, setStage5Topics] = useState([])
-  const [wrongStreak, setWrongStreak] = useState(0)
   const startTimeRef = useRef(null)
 
   useEffect(() => {
@@ -176,7 +175,6 @@ export default function ReviewSession() {
 
     const markCorrect = typeof quality === 'number' ? quality >= 3 : Boolean(quality)
     setResults(r => [...r, markCorrect ? 'correct' : 'wrong'])
-    setWrongStreak(s => markCorrect ? 0 : s + 1)
 
     if (isLoggedIn) {
       // Find the server review_item id for this question
@@ -468,23 +466,6 @@ export default function ReviewSession() {
                       : `Đáp án đúng: ${String.fromCharCode(65 + question.correct)}. ${question.choices[question.correct]}`}
                   </span>
                 </div>
-
-                {/* Struggle support — after 2 consecutive wrong */}
-                {!isCorrect && wrongStreak >= 2 && (
-                  <div className="px-4 py-3 rounded-xl glass-base border border-info/20">
-                    <p className="font-sans text-[12px] text-info/80 leading-relaxed">
-                      Bài này khó với nhiều học sinh. Hỏi Oracle để hiểu rõ hơn.
-                    </p>
-                  </div>
-                )}
-
-                {/* Oracle button — shown after reveal, especially useful on wrong answers */}
-                <button
-                  onClick={() => navigate(`/oracle?q=${encodeURIComponent(question.question)}`)}
-                  className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-info/20 bg-info/5 font-sans text-[11px] font-semibold text-info hover:border-info/40 hover:bg-info/10 transition"
-                >
-                  <span className="text-[10px]">✦</span> Hỏi Luminary AI
-                </button>
 
                 <div className="flex flex-col gap-2">
                   <span className="font-sans text-[11px] text-dim text-center">Mức độ tự tin:</span>

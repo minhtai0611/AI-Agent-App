@@ -6,7 +6,6 @@ import ReportButton from './ReportButton.jsx'
 import { loadPreferences } from '../utils/aiPreferences.js'
 import { sanitizeSvg } from '../utils/sanitizeSvg.js'
 import { MathText } from './MathText.jsx'
-import { useOracle } from '../context/OracleContext.jsx'
 
 const LABELS = ['A', 'B', 'C', 'D']
 const MAX_HINTS = 3
@@ -116,7 +115,6 @@ function choiceStyle(index, chosen, aiCorrect, showFeedback) {
 
 function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hintState, onHint, wrongStreak = 0 }) {
   const navigate = useNavigate()
-  const { open: openOracle, setPageContext: setOracleContext } = useOracle()
   const showFeedback = practiceMode && chosen !== null && chosen !== undefined
   const [hintLoading, setHintLoading] = useState(false)
   const [hintError, setHintError] = useState(null)
@@ -276,7 +274,7 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
       {practiceMode && !submitted && showFeedback && !isCorrect && wrongStreak >= 2 && (
         <div className="mt-3 px-4 py-3 rounded-xl glass-base border-info/20">
           <p className="font-sans text-xs text-[var(--info)] leading-relaxed" style={{ opacity: 0.8 }}>
-            Bài này khó với nhiều học sinh. Xem giải thích hoặc hỏi Oracle để hiểu rõ hơn.
+            Bài này khó với nhiều học sinh. Xem giải thích hoặc thử gợi ý bên dưới.
           </p>
         </div>
       )}
@@ -331,16 +329,6 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, hin
               </div>
             </motion.div>
           ))}
-
-          {/* Level 3 — Oracle in-context (after 2+ hints, or immediately when wrongStreak ≥ 2) */}
-          {(hintCount >= 2 || wrongStreak >= 2) && (
-            <button
-              onClick={() => { setOracleContext({ currentQuestion: question, inExam: true }); openOracle() }}
-              className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-info/30 bg-info/5 font-sans text-xs font-semibold text-[var(--info)] hover:bg-[var(--surface)] transition"
-            >
-              <span className="text-[0.625rem]">✦</span> Vẫn chưa hiểu — Hỏi Luminary AI
-            </button>
-          )}
         </div>
       )}
 

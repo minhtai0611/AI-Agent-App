@@ -551,12 +551,6 @@ export default function Progress() {
                 </div>
               </div>
             )}
-            <button
-              onClick={() => { setSelected(null); navigate(`/oracle?q=${encodeURIComponent('Giải thích khái niệm: ' + selected.name_vi)}`) }}
-              className="w-full py-2.5 rounded-xl border border-info/20 bg-info/5 font-sans text-[13px] font-semibold text-info hover:bg-info/10 transition"
-            >
-              ✦ Hỏi Oracle về {selected.name_vi}
-            </button>
           </motion.div>
         </div>
       )}

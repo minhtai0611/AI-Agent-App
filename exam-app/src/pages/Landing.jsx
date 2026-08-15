@@ -15,17 +15,17 @@ const TESTIMONIALS = [
   { name: 'Phạm Đức Huy', grade: 'Lớp 11 · Đà Nẵng', result: 'Tăng từ 5.5 lên 7.5 trong 2 tháng', quote: 'Thích nhất là thấy được mình đang ở đâu so với học sinh cùng tỉnh. Tạo động lực học hẳn.' },
   { name: 'Lê Thu Hương', grade: 'Lớp 12 · Cần Thơ', result: 'Điểm Toán tăng 1.5 điểm', quote: 'Kế hoạch học cá nhân hoá thật sự hữu ích. Mỗi tuần biết mình cần ôn cái gì, không bị lạc hướng.' },
   { name: 'Ngô Bảo Long', grade: 'Lớp 10 · Hải Phòng', result: 'Top 10% thi thử', quote: 'Làm đề thật từ Hải Phòng là lợi thế lớn. Luminary cho mình cảm giác đang luyện đúng kỳ thi thật.' },
-  { name: 'Vũ Thị Mai', grade: 'Lớp 9 · Hà Nội', result: 'Vào THPT Chuyên Ngữ', quote: 'Hỏi AI giải toán như một gia sư riêng — không chỉ cho đáp án mà còn giải thích tại sao.' },
+  { name: 'Vũ Thị Mai', grade: 'Lớp 9 · Hà Nội', result: 'Vào THPT Chuyên Ngữ', quote: 'Gợi ý AI khi làm bài giúp mình hiểu bản chất chứ không chỉ học thuộc.' },
 ]
 
 const PLANS_MONTHLY = [
   {
     tier: 'basic', label: 'Thử miễn phí', price: 'Miễn phí', credits: 50,
-    features: ['5 lượt Luminary AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'],
+    features: ['1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'],
   },
   {
     tier: 'student', label: 'Học sinh', price: '29,000đ / tháng', credits: 500, badge: '⭐ 95% học sinh chọn',
-    features: ['Luminary AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ', 'Thưởng chuỗi học', 'Kế hoạch học'],
+    features: ['AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ', 'Thưởng chuỗi học', 'Kế hoạch học'],
   },
   {
     tier: 'complete', label: '8.5+ Nâng cao', price: '59,000đ / tháng', credits: 2000,
@@ -790,7 +790,7 @@ export default function Landing({ onOpenAuth }) {
             <div className="flex flex-col gap-2">
               <span className="text-[10px] font-bold uppercase tracking-[2px] mb-1" style={{ color: 'var(--fg-tertiary)' }}>Sản phẩm</span>
               {[['Thi thử', '/exams'], ['Luyện tập', '/exams?mode=practice'],
-                ['Luminary AI', '/oracle'], ['⚗ Lab', '/exams?mode=lab'],
+                ['⚗ Lab', '/exams?mode=lab'],
                 ['Bản đồ kiến thức', '/mastery']].map(([label, path]) => (
                 <button key={label} onClick={() => navigate(path)}
                   className="text-[12px] text-left transition hover:opacity-70"

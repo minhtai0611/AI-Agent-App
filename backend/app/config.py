@@ -16,28 +16,13 @@ class Settings(BaseSettings):
     anthropic_default_sonnet_model: str = "claude-sonnet-4.6"
     anthropic_default_haiku_model: str = "claude-haiku-4.5"
     anthropic_default_hint_model: str = "claude-haiku-4.5"
+    # Model to retry against when the router reports the primary model's provider
+    # is unavailable (401 expired OAuth session, 503 auth_unavailable — router-side
+    # outage, not our credentials). Leave blank to disable fallback entirely.
+    anthropic_fallback_model: str = ""
 
     allowed_origins: str = "http://localhost:5173,https://exam-app-ey0.pages.dev"
     database_url: str = ""
-    # Set to "true" to run the background wiki crawl on startup.
-    # Keep "false" on HF Spaces until local testing is complete.
-    crawl_auto_seed_enabled: bool = False
-    # Set to "true" to wipe wiki_units and re-crawl everything from scratch.
-    # The app self-disables this flag via the HF Spaces API after one successful run.
-    crawl_force_reseed: bool = False
-    # Set to "true" to crawl only topics that have zero wiki units (gap-fill).
-    # Idempotent: re-runs are safe — the zero-unit check is the gate.
-    crawl_gap_fill_enabled: bool = False
-    # Set to a topic name (e.g. "geometry") to force-crawl that one topic regardless of unit count.
-    # Self-disables via HF Spaces API after one run. Leave blank to disable.
-    crawl_topic_target: str = ""
-    # Set to "true" to fix non-canonical topic/type labels and remove content duplicates on startup.
-    # Self-disables via HF Spaces API after one successful run.
-    wiki_sanitize_enabled: bool = False
-    # Set to "true" to translate English wiki units (exam_upload source) to Vietnamese.
-    # Self-disables via HF Spaces API after one successful run.
-    wiki_fix_english_enabled: bool = False
-    embedding_model_name: str = "BAAI/bge-m3"
     google_client_id: str = ""
     jwt_secret: str = ""
     admin_key: str = ""
@@ -52,10 +37,6 @@ class Settings(BaseSettings):
     payment_account_number: str = ""
     payment_account_name: str = ""
 
-    # Email (Resend) — required for email-auth verification and password-reset flows.
-    # Leave blank in local dev; tokens are returned in API response as debug_token instead.
-    resend_api_key: str = ""
-    resend_from: str = "Luminary <onboarding@resend.dev>"
     app_url: str = "https://exam-app-ey0.pages.dev"
 
     def __init__(self, **data):
@@ -70,7 +51,6 @@ class Settings(BaseSettings):
             raise RuntimeError("CRON_SECRET must be at least 32 characters if set")
         if not self.google_client_id:
             raise RuntimeError("GOOGLE_CLIENT_ID must be set in environment variables")
-    embedding_dim: int = 1024
 
     @property
     def allowed_origins_list(self) -> list[str]:
@@ -91,6 +71,10 @@ class Settings(BaseSettings):
     @property
     def hint_model(self) -> str:
         return self.anthropic_default_hint_model
+
+    @property
+    def fallback_model(self) -> str:
+        return self.anthropic_fallback_model
 
 
 @lru_cache
