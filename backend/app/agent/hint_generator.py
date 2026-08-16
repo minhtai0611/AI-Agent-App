@@ -2,7 +2,7 @@ import json
 import logging
 from openai import AsyncOpenAI
 from app.config import get_settings
-from app.agent.core import call_with_retry
+from app.agent.core import call_with_retry, extract_json
 
 logger = logging.getLogger(__name__)
 
@@ -24,15 +24,6 @@ _DETAIL_LEVEL = {
     2: "gợi ý vừa — chỉ ra phương pháp giải cụ thể, vẫn không tiết lộ đáp án",
     3: "gợi ý chi tiết — giải thích từng bước tiếp cận, nhưng để học sinh tự chọn đáp án",
 }
-
-
-def _strip_code_fence(text: str) -> str:
-    if text.startswith("```"):
-        parts = text.split("```")
-        text = parts[1] if len(parts) > 1 else text
-        if text.startswith("json"):
-            text = text[4:]
-    return text.strip()
 
 
 _HINT_STYLE_INSTRUCTIONS = {
@@ -100,5 +91,5 @@ Trả về đúng định dạng JSON sau, không thêm text nào khác:
     )
 
     raw = response.choices[0].message.content or ""
-    content = _strip_code_fence(raw)
+    content = extract_json(raw)
     return json.loads(content)

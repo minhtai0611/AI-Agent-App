@@ -1,7 +1,7 @@
 import json
 from openai import AsyncOpenAI
 from app.config import get_settings
-from app.agent.core import call_with_retry
+from app.agent.core import call_with_retry, extract_json
 
 THPT_CONTEXT = """
 Bối cảnh: Đây là kỳ thi THPT Quốc gia Việt Nam. Các câu hỏi thường có bẫy sau:
@@ -17,20 +17,6 @@ Phân tích câu hỏi trắc nghiệm, xác định đáp án đúng bằng l�
 Trả lời bằng tiếng Việt."""
 
 LABELS = ["A", "B", "C", "D"]
-
-
-import re
-
-def _extract_json(text: str) -> str:
-    """Return the first {...} block found anywhere in the text."""
-    match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
-    if match:
-        return match.group(0)
-    # Fallback: strip code fences and return
-    text = re.sub(r'^```(?:json)?\s*', '', text.strip())
-    text = re.sub(r'\s*```$', '', text)
-    return text.strip()
-
 
 _EXPLANATION_DEPTH_INSTRUCTIONS = {
     "brief": "Giải thích ngắn gọn — chỉ 2-3 câu nêu bật ý chính.",
@@ -119,7 +105,7 @@ QUAN TRỌNG: Chỉ trả về JSON, không có bất kỳ văn bản nào khác
     )
 
     raw = response.choices[0].message.content or ""
-    content = _extract_json(raw)
+    content = extract_json(raw)
     try:
         data = json.loads(content)
         # Always use ground-truth correct_index regardless of what AI returns

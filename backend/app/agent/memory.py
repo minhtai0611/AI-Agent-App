@@ -1,6 +1,7 @@
 import json
 from openai import AsyncOpenAI
 from app.config import get_settings
+from app.agent.core import call_with_retry
 
 
 async def compress_conversation(
@@ -13,7 +14,8 @@ async def compress_conversation(
         for m in messages
         if m["role"] != "system"
     )
-    response = await client.chat.completions.create(
+    response = await call_with_retry(
+        client,
         model=settings.haiku_model,
         max_tokens=512,
         messages=[

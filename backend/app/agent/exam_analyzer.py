@@ -1,7 +1,7 @@
 import json
 from openai import AsyncOpenAI
 from app.config import get_settings
-from app.agent.core import call_with_retry
+from app.agent.core import call_with_retry, extract_json
 
 STATIC_EXAM_ANALYSIS_INSTRUCTIONS = """Bạn là chuyên gia phân tích kết quả thi Toán cho học sinh Việt Nam. Nhiệm vụ: phân tích CỤ THỂ, CHI TIẾT dựa trên số liệu thực tế được cung cấp.
 
@@ -284,15 +284,6 @@ def _get_province_context(province: str | None) -> str:
     )
 
 
-def _strip_code_fence(text: str) -> str:
-    if text.startswith("```"):
-        parts = text.split("```")
-        text = parts[1] if len(parts) > 1 else text
-        if text.startswith("json"):
-            text = text[4:]
-    return text.strip()
-
-
 def build_analyze_prompt(
     result: dict,
     history: list[dict],
@@ -463,5 +454,5 @@ async def analyze_exam_result(
         ],
     )
 
-    content = _strip_code_fence(response.choices[0].message.content or "{}")
+    content = extract_json(response.choices[0].message.content or "{}")
     return json.loads(content)

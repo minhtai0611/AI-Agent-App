@@ -1154,7 +1154,8 @@ async def hint(
     pool=Depends(get_pool),
 ):
     tier_row_h = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
-    if not tier_row_h or tier_row_h["subscription_tier"] not in _PAID_TIERS:
+    credits_deducted_h = not tier_row_h or tier_row_h["subscription_tier"] not in _PAID_TIERS
+    if credits_deducted_h:
         await _spend_credits(pool, current_user.user_id, 1, "hint")
     from app.agent.hint_generator import generate_hint
     try:
@@ -1167,6 +1168,8 @@ async def hint(
     except HTTPException:
         raise
     except Exception as exc:
+        if credits_deducted_h:
+            await _add_credits(pool, current_user.user_id, 1)
         raise HTTPException(status_code=502, detail=f"Không thể tạo gợi ý: {exc}")
 
 
@@ -1514,7 +1517,8 @@ async def explain(
     pool=Depends(get_pool),
 ):
     tier_row_ex = await pool.fetchrow("SELECT subscription_tier FROM users WHERE id = ?", current_user.user_id)
-    if not tier_row_ex or tier_row_ex["subscription_tier"] not in _PAID_TIERS:
+    credits_deducted_ex = not tier_row_ex or tier_row_ex["subscription_tier"] not in _PAID_TIERS
+    if credits_deducted_ex:
         await _spend_credits(pool, current_user.user_id, 1, "explain")
     from app.agent.exam_explainer import generate_explanation
     try:
@@ -1524,7 +1528,11 @@ async def explain(
             correct_index=data.get("correct_index", 0),
             explanation=data.get("explanation", ""),
         )
+    except HTTPException:
+        raise
     except Exception as exc:
+        if credits_deducted_ex:
+            await _add_credits(pool, current_user.user_id, 1)
         raise HTTPException(status_code=502, detail=f"Không thể tạo giải thích: {exc}")
 
 

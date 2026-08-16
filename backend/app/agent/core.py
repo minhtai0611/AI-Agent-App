@@ -1,4 +1,5 @@
 import logging
+import re
 
 from openai import (
     AsyncOpenAI,
@@ -59,3 +60,23 @@ async def call_with_retry(client: AsyncOpenAI, **kwargs):
             requested, exc, fallback,
         )
         return await _call(client, **{**kwargs, "model": fallback})
+
+
+def extract_json(text: str) -> str:
+    """Return the first balanced {...} block found anywhere in the text
+    (depth-matched, so nested objects/arrays survive), falling back to
+    stripping markdown code fences. Models occasionally wrap JSON in prose
+    or code fences despite instructions not to."""
+    start = text.find("{")
+    if start != -1:
+        depth = 0
+        for i, ch in enumerate(text[start:], start):
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    return text[start:i + 1]
+    text = re.sub(r'^```(?:json)?\s*', '', text.strip())
+    text = re.sub(r'\s*```$', '', text)
+    return text.strip()

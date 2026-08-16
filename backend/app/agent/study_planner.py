@@ -1,7 +1,7 @@
 import json
 from openai import AsyncOpenAI
 from app.config import get_settings
-from app.agent.core import call_with_retry
+from app.agent.core import call_with_retry, extract_json
 from app.agent.exam_analyzer import _PROVINCE_DATA
 
 STATIC_RECOVERY_PATH_INSTRUCTIONS = """Bạn là huấn luyện viên thi Toán lớp 9 vào lớp 10.
@@ -15,15 +15,6 @@ Nguyên tắc bắt buộc:
 - checkpoint: số câu cần trả lời đúng liên tiếp để coi là nắm vững (target: 3–5).
 - LATEX BẮT BUỘC: mọi ký hiệu toán học trong tasks/error_pattern PHẢI bọc trong $...$. Ví dụ: $\\Delta > 0$, $\\log_a x$, $x^2 - 5x + 6 = 0$.
 Trả lời bằng tiếng Việt. Luôn trả về JSON hợp lệ, không có text ngoài JSON."""
-
-
-def _strip_code_fence(text: str) -> str:
-    if text.startswith("```"):
-        parts = text.split("```")
-        text = parts[1] if len(parts) > 1 else text
-        if text.startswith("json"):
-            text = text[4:]
-    return text.strip()
 
 
 async def generate_study_plan(
@@ -110,7 +101,7 @@ Trả về JSON (không có text ngoài JSON):
                 {"role": "user", "content": prompt},
             ],
         )
-        content = _strip_code_fence(response.choices[0].message.content or "{}")
+        content = extract_json(response.choices[0].message.content or "{}")
         return json.loads(content)
     except Exception:
         return {
