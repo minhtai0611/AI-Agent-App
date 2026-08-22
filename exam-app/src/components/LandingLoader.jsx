@@ -158,7 +158,7 @@ export default function LandingLoader() {
             {/* Outer ring — draws itself */}
             <motion.circle
               cx="140" cy="140" r="130"
-              stroke="rgba(91,143,240,0.55)"
+              stroke="rgba(166,98,12,0.55)"
               strokeWidth="0.8"
               strokeDasharray="817"
               initial={{ strokeDashoffset: 817, opacity: 0 }}
@@ -168,7 +168,7 @@ export default function LandingLoader() {
             {/* Middle ring — slow CW rotation */}
             <circle
               cx="140" cy="140" r="100"
-              stroke="rgba(124,92,232,0.28)"
+              stroke="rgba(76,59,140,0.28)"
               strokeWidth="0.7"
               strokeDasharray="5 8"
               fill="none"
@@ -177,7 +177,7 @@ export default function LandingLoader() {
             {/* Inner ring — slow CCW rotation */}
             <circle
               cx="140" cy="140" r="68"
-              stroke="rgba(91,143,240,0.18)"
+              stroke="rgba(166,98,12,0.18)"
               strokeWidth="0.6"
               fill="none"
               className="vantage-loader-spin-ccw"
@@ -187,7 +187,7 @@ export default function LandingLoader() {
               <motion.circle
                 key={i}
                 cx={dot.cx} cy={dot.cy} r="2.5"
-                fill="rgba(91,143,240,0.72)"
+                fill="rgba(166,98,12,0.72)"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 1.2 + i * 0.1, duration: 0.3, ease: 'easeOut' }}
@@ -208,7 +208,7 @@ export default function LandingLoader() {
               width: 88,
               height: 88,
               borderRadius: '50%',
-              background: 'radial-gradient(ellipse at center, rgba(91,143,240,0.32) 0%, rgba(91,143,240,0) 70%)',
+              background: 'radial-gradient(ellipse at center, rgba(166,98,12,0.32) 0%, rgba(166,98,12,0) 70%)',
             }}
           />
 
@@ -220,7 +220,7 @@ export default function LandingLoader() {
               left: '50%',
               transform: 'translate(-50%, -50%)',
               color: '#ffffff',
-              filter: 'drop-shadow(0 0 18px rgba(91,143,240,0.52))',
+              filter: 'drop-shadow(0 0 18px rgba(166,98,12,0.52))',
             }}
           >
             <SummitBeacon size={64} />

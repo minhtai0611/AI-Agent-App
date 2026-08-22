@@ -330,7 +330,7 @@ export default function TestInterface() {
                   position: 'absolute',
                   inset: -12,
                   borderRadius: '50%',
-                  background: 'radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%)',
+                  background: 'radial-gradient(circle, rgba(76,59,140,0.15) 0%, transparent 70%)',
                   animation: 'breathe 4s ease-in-out infinite',
                   pointerEvents: 'none',
                 }}
@@ -426,7 +426,7 @@ export default function TestInterface() {
                 initial={{ opacity: 0.8, scale: 1 }}
                 animate={{ opacity: 0, scale: 2.2 }}
                 transition={{ duration: 0.6, ease: 'easeOut' }}
-                style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%)' }}
+                style={{ background: 'radial-gradient(circle, rgba(76,59,140,0.15) 0%, transparent 70%)' }}
               />
             )}
             <span className="px-2.5 py-1 bg-surface border border-surface text-dim font-sans text-[11px] font-medium rounded-md block">
