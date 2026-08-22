@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
 import { getConceptMastery } from '../api/aiClient.js'
 import { pageVariants, listVariants, itemVariants } from '../utils/animations.js'
-import { useRevealOnScroll } from '../hooks/useRevealOnScroll.js'
+import { useGsapReveal } from '../hooks/useGsapReveal.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 
@@ -188,7 +188,7 @@ export default function Progress() {
   const [concepts, setConcepts]     = useState([])
   const [conceptsLoaded, setConceptsLoaded] = useState(false)
   const [selected, setSelected]     = useState(null)
-  const { ref: expandRef, inView: expandInView } = useRevealOnScroll()
+  const { ref: expandRef } = useGsapReveal({ variant: 'rise' })
 
   const recentResults = useMemo(() => [...results].slice(0, 10), [results])
   const scores = useMemo(() => recentResults.map(r => r.score ?? 0).reverse(), [recentResults])
@@ -390,13 +390,7 @@ export default function Progress() {
             </button>
 
             {showMore && (
-              <motion.div
-                ref={expandRef}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: expandInView ? 1 : 0 }}
-                transition={{ duration: 0.4, ease: 'easeOut' }}
-                className="flex flex-col gap-5"
-              >
+              <div ref={expandRef} className="flex flex-col gap-5">
                 {/* Concept map */}
                 {!conceptsLoaded ? (
                   <div className="py-8 flex items-center justify-center">
@@ -467,7 +461,7 @@ export default function Progress() {
                     </div>
                   )
                 })()}
-              </motion.div>
+              </div>
             )}
 
                 {/* Province score comparison — only when ≥20 results and province is set */}

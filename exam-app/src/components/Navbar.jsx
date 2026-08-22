@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from './ui/button.jsx'
 import { Badge } from './ui/badge.jsx'
 import { useAuth } from '../context/AuthContext'
-import LuminaryLogo from './LuminaryLogo'
+import VantageLogo from './VantageLogo'
 import CreditsTooltip from './CreditsTooltip'
 import { NavbarSkeleton } from './Skeleton.jsx'
 
@@ -90,12 +90,12 @@ export default function Navbar({ onOpenAuth }) {
   return (
     <>
       <nav
-        className="luminary-nav fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4"
+        className="vantage-nav fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4"
         style={{ height: 48 }}
       >
         {/* Left: Logo + authenticated nav links */}
         <div className="flex items-center gap-1">
-          <LuminaryLogo variant="nav" onClick={() => go(logoTarget)} />
+          <VantageLogo variant="nav" onClick={() => go(logoTarget)} />
 
           {user && (
             <div className="hidden sm:flex items-center gap-0.5 ml-3">
@@ -103,7 +103,7 @@ export default function Navbar({ onOpenAuth }) {
                 <button
                   key={link.path}
                   onClick={() => go(link.path)}
-                  className={`nav-link-luminary px-2.5 py-1.5 rounded-md text-[12px] transition-colors ${
+                  className={`nav-link-vantage px-2.5 py-1.5 rounded-md text-[12px] transition-colors ${
                     isActive(link.path) ? 'active font-semibold' : ''
                   }`}
                   style={{
@@ -239,12 +239,12 @@ export default function Navbar({ onOpenAuth }) {
             <div className="nebula-wisp" style={{
               width: 360, height: 360,
               top: '-10%', right: '-15%',
-              background: 'radial-gradient(circle, #3B6FE8 0%, transparent 70%)',
+              background: 'radial-gradient(circle, var(--primary) 0%, transparent 70%)',
             }} />
             <div className="nebula-wisp" style={{
               width: 280, height: 280,
               bottom: '10%', left: '-10%',
-              background: 'radial-gradient(circle, #7C3AED 0%, transparent 70%)',
+              background: 'radial-gradient(circle, var(--purple) 0%, transparent 70%)',
             }} />
 
             {user ? (

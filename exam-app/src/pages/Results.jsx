@@ -7,6 +7,8 @@ import { NumberTicker } from '../components/ui/number-ticker.jsx'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { pageVariants, viewNavigate, cardHover } from '../utils/animations.js'
 import AchievementCeremony from '../components/AchievementCeremony.jsx'
+import { Reveal3D } from '../components/motion/Reveal3D.jsx'
+import { Scene3DLazy } from '../components/motion/Scene3DLazy.jsx'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
@@ -330,6 +332,7 @@ export default function Results({ onOpenAuth }) {
   const [studyPlanError, setStudyPlanError] = useState(null)
   const [studyPlanLoading, setStudyPlanLoading] = useState(false)
   const confettiFiredRef = useRef(false)
+  const [showCelebrationScene, setShowCelebrationScene] = useState(false)
   const scoreRef = useRef(null)
   const scoreInView = useInView(scoreRef, { once: true, margin: '0px 0px -40px 0px' })
   const toast = useToast()
@@ -804,11 +807,22 @@ export default function Results({ onOpenAuth }) {
           subscriptionTier={user?.subscription_tier}
         />
 
-        {/* ── Score hero ── */}
+        {/* ── Score hero — Tier-2 GSAP tilt-in entrance wraps the existing framer-motion fade/rise ── */}
+        <Reveal3D variant="tilt" amount={0.3}>
         <motion.div
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="flex items-center gap-8 glass-base rounded-2xl px-8 py-8"
+          className="relative flex items-center gap-8 glass-base rounded-2xl px-8 py-8"
         >
+          {/* Tier 3 — one-shot WebGL particle burst layered alongside (not replacing) canvas-confetti above */}
+          {showCelebrationScene && (
+            <div className="absolute inset-0" style={{ pointerEvents: 'none', zIndex: 5 }}>
+              <Scene3DLazy
+                scene={() => import('../components/motion/scenes/ResultsCelebrationScene.jsx')}
+                sceneProps={{ onComplete: () => setShowCelebrationScene(false) }}
+                fallback={null}
+              />
+            </div>
+          )}
           <div ref={scoreRef} className="flex-shrink-0 score-circle">
             <svg width="120" height="120" viewBox="0 0 120 120">
               <circle cx="60" cy="60" r="54" stroke="var(--border)" strokeWidth="6" fill="none" />
@@ -826,9 +840,10 @@ export default function Results({ onOpenAuth }) {
                       particleCount: score >= 9 ? 300 : 150,
                       spread: 70,
                       origin: { x: 0.5, y: 0.25 },
-                      colors: ['#3B6FE8', '#7C5CE8', '#059669', '#5B8FF0'],
+                      colors: ['#A6620C', '#4C3B8C', '#059669', '#F0A93E'],
                       ticks: 300, scalar: 1.2,
                     })
+                    setShowCelebrationScene(true)
                   }
                 }}
               />
@@ -880,6 +895,7 @@ export default function Results({ onOpenAuth }) {
             </motion.div>
           </motion.div>
         </motion.div>
+        </Reveal3D>
 
         {/* Percentile banner */}
         {percentile != null && (
@@ -1015,12 +1031,12 @@ export default function Results({ onOpenAuth }) {
                       <PolarGrid stroke="var(--border)" strokeOpacity={0.8} />
                       <PolarAngleAxis
                         dataKey="topic"
-                        tick={{ fontSize: topics.length > 8 ? 9 : 10, fill: 'var(--muted-fg)', fontFamily: 'Sora, sans-serif' }}
+                        tick={{ fontSize: topics.length > 8 ? 9 : 10, fill: 'var(--muted-fg)', fontFamily: "'Inter Variable', Inter, sans-serif" }}
                       />
                       <Radar
                         dataKey="score"
-                        stroke="rgba(91,143,240,0.6)"
-                        fill="rgba(91,143,240,0.15)"
+                        stroke="rgba(166,98,12,0.6)"
+                        fill="rgba(166,98,12,0.15)"
                         strokeWidth={1.5}
                         dot={{ fill: 'var(--primary)', r: 3 }}
                       />

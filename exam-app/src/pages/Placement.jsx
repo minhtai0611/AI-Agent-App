@@ -121,7 +121,7 @@ export default function Placement() {
             </p>
           </div>
           <p className="font-sans text-[13px] text-dim leading-relaxed">
-            Luminary đã ghi nhận năng lực của bạn và sẽ gợi ý lộ trình học phù hợp.
+            Vantage đã ghi nhận năng lực của bạn và sẽ gợi ý lộ trình học phù hợp.
           </p>
           <div className="flex gap-3 w-full">
             <button

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRevealOnScroll } from '../hooks/useRevealOnScroll.js'
+import { useGsapReveal } from '../hooks/useGsapReveal.js'
 import AchievementCeremony from '../components/AchievementCeremony.jsx'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useHistory } from '../context/HistoryContext.jsx'
@@ -61,14 +61,11 @@ function FocusCard({ area, index, streak, onPractice }) {
   const checkpoint = area.checkpoint
   const isResolved = checkpoint ? streak >= checkpoint.target : false
   const wasResolvedOnMount = useRef(isResolved)
-  const { ref, inView } = useRevealOnScroll()
+  const { ref } = useGsapReveal({ variant: 'rise' })
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: inView ? 1 : 0 }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
       className="rounded-2xl overflow-hidden"
       style={{
         background: isResolved ? 'var(--primary-subtle)' : 'var(--surface)',
@@ -150,7 +147,7 @@ function FocusCard({ area, index, streak, onPractice }) {
           </button>
         </div>
       )}
-    </motion.div>
+    </div>
   )
 }
 

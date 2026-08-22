@@ -3,8 +3,8 @@ import { usePageMeta } from '../hooks/usePageMeta.js'
 import { motion } from 'framer-motion'
 
 export default function Privacy() {
-  usePageMeta('Chính sách quyền riêng tư · Luminary', {
-    description: 'Chính sách bảo mật và quyền riêng tư của Luminary AI — nền tảng học toán thích ứng cho học sinh Việt Nam.',
+  usePageMeta('Chính sách quyền riêng tư · Vantage', {
+    description: 'Chính sách bảo mật và quyền riêng tư của Vantage AI — nền tảng học toán thích ứng cho học sinh Việt Nam.',
   })
   const navigate = useNavigate()
 
@@ -25,7 +25,7 @@ export default function Privacy() {
 
         <div className="flex flex-col gap-6 font-sans text-[14px] text-muted leading-relaxed">
           <Section title="1. Thông tin chúng tôi thu thập">
-            <p>Luminary thu thập các thông tin sau khi bạn sử dụng dịch vụ:</p>
+            <p>Vantage thu thập các thông tin sau khi bạn sử dụng dịch vụ:</p>
             <ul className="list-disc list-inside flex flex-col gap-1 mt-2 text-[13px]">
               <li>Tên, địa chỉ email, và thông tin đăng nhập Google (qua OAuth 2.0)</li>
               <li>Cấp học, tỉnh/thành, loại trường học (do bạn cung cấp tự nguyện)</li>
@@ -56,13 +56,13 @@ export default function Privacy() {
 
           <Section title="4. Chia sẻ dữ liệu">
             <p>
-              Luminary <strong>không bán</strong> dữ liệu cá nhân cho bên thứ ba. Chúng tôi chỉ chia sẻ
+              Vantage <strong>không bán</strong> dữ liệu cá nhân cho bên thứ ba. Chúng tôi chỉ chia sẻ
               dữ liệu trong các trường hợp:
             </p>
             <ul className="list-disc list-inside flex flex-col gap-1 mt-2 text-[13px]">
               <li>Nhà cung cấp AI (Anthropic qua proxy) — chỉ nội dung câu hỏi, không có thông tin cá nhân</li>
               <li>Yêu cầu pháp lý hợp lệ theo quy định pháp luật Việt Nam hoặc quốc tế</li>
-              <li>Trường học tham gia chương trình Luminary for Schools (chỉ khi học sinh đăng ký qua trường)</li>
+              <li>Trường học tham gia chương trình Vantage for Schools (chỉ khi học sinh đăng ký qua trường)</li>
             </ul>
           </Section>
 
@@ -78,7 +78,7 @@ export default function Privacy() {
 
           <Section title="6. Cookie và lưu trữ cục bộ">
             <p>
-              Luminary sử dụng <code>localStorage</code> và <code>sessionStorage</code> của trình duyệt để lưu
+              Vantage sử dụng <code>localStorage</code> và <code>sessionStorage</code> của trình duyệt để lưu
               bài thi đang làm dở và trạng thái ứng dụng. Không có cookie theo dõi
               quảng cáo. Token đăng nhập được lưu trong <code>localStorage</code> và hết hạn sau 30 ngày.
             </p>
@@ -86,7 +86,7 @@ export default function Privacy() {
 
           <Section title="7. Dữ liệu trẻ em">
             <p>
-              Luminary phục vụ học sinh từ cấp THCS trở lên. Nếu bạn dưới 13 tuổi, bạn cần sự đồng ý
+              Vantage phục vụ học sinh từ cấp THCS trở lên. Nếu bạn dưới 13 tuổi, bạn cần sự đồng ý
               của phụ huynh hoặc người giám hộ trước khi đăng ký. Chúng tôi không thu thập thông tin
               nhạy cảm từ người dùng dưới 13 tuổi.
             </p>

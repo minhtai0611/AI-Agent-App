@@ -2,9 +2,12 @@ import { useEffect, useState, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, useScroll, useTransform, useInView } from 'framer-motion'
 import { usePageMeta } from '../hooks/usePageMeta.js'
+import { useGsapTimeline } from '../hooks/useGsapTimeline.js'
+import { useTilt3D } from '../hooks/useTilt3D.js'
+import { Scene3DLazy } from '../components/motion/Scene3DLazy.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select.jsx'
-import LuminaryLogo from '../components/LuminaryLogo.jsx'
+import VantageLogo from '../components/VantageLogo.jsx'
 import { NumberTicker } from '../components/ui/number-ticker.jsx'
 
 const VN_PROVINCES = ['An Giang','Bà Rịa - Vũng Tàu','Bắc Giang','Bắc Kạn','Bạc Liêu','Bắc Ninh','Bến Tre','Bình Định','Bình Dương','Bình Phước','Bình Thuận','Cà Mau','Cần Thơ','Cao Bằng','Đà Nẵng','Đắk Lắk','Đắk Nông','Điện Biên','Đồng Nai','Đồng Tháp','Gia Lai','Hà Giang','Hà Nam','Hà Nội','Hà Tĩnh','Hải Dương','Hải Phòng','Hậu Giang','Hòa Bình','Hưng Yên','Khánh Hòa','Kiên Giang','Kon Tum','Lai Châu','Lâm Đồng','Lạng Sơn','Lào Cai','Long An','Nam Định','Nghệ An','Ninh Bình','Ninh Thuận','Phú Thọ','Phú Yên','Quảng Bình','Quảng Nam','Quảng Ngãi','Quảng Ninh','Quảng Trị','Sóc Trăng','Sơn La','Tây Ninh','Thái Bình','Thái Nguyên','Thanh Hóa','Thừa Thiên Huế','Tiền Giang','TP. Hồ Chí Minh','Trà Vinh','Tuyên Quang','Vĩnh Long','Vĩnh Phúc','Yên Bái']
@@ -14,7 +17,7 @@ const TESTIMONIALS = [
   { name: 'Trần Thảo Linh', grade: 'Lớp 9 · TP.HCM', result: 'Đỗ THPT Chuyên Lê Hồng Phong', quote: 'AI chỉ đúng điểm yếu của mình là Hình học. Luyện đúng chỗ, tiết kiệm thời gian hơn nhiều.' },
   { name: 'Phạm Đức Huy', grade: 'Lớp 11 · Đà Nẵng', result: 'Tăng từ 5.5 lên 7.5 trong 2 tháng', quote: 'Thích nhất là thấy được mình đang ở đâu so với học sinh cùng tỉnh. Tạo động lực học hẳn.' },
   { name: 'Lê Thu Hương', grade: 'Lớp 12 · Cần Thơ', result: 'Điểm Toán tăng 1.5 điểm', quote: 'Kế hoạch học cá nhân hoá thật sự hữu ích. Mỗi tuần biết mình cần ôn cái gì, không bị lạc hướng.' },
-  { name: 'Ngô Bảo Long', grade: 'Lớp 10 · Hải Phòng', result: 'Top 10% thi thử', quote: 'Làm đề thật từ Hải Phòng là lợi thế lớn. Luminary cho mình cảm giác đang luyện đúng kỳ thi thật.' },
+  { name: 'Ngô Bảo Long', grade: 'Lớp 10 · Hải Phòng', result: 'Top 10% thi thử', quote: 'Làm đề thật từ Hải Phòng là lợi thế lớn. Vantage cho mình cảm giác đang luyện đúng kỳ thi thật.' },
   { name: 'Vũ Thị Mai', grade: 'Lớp 9 · Hà Nội', result: 'Vào THPT Chuyên Ngữ', quote: 'Gợi ý AI khi làm bài giúp mình hiểu bản chất chứ không chỉ học thuộc.' },
 ]
 
@@ -236,6 +239,43 @@ function StatTicker({ value, suffix, label, i }) {
   )
 }
 
+// One of "The Three Pillars" — its own component so useTilt3D (a hook) can be
+// called per-card instead of inside the parent's .map() callback.
+function PillarCard({ p, i }) {
+  const { ref, handlers } = useTilt3D()
+  return (
+    <motion.div
+      ref={ref}
+      variants={stellarReveal} custom={i}
+      initial="hidden" whileInView="show"
+      viewport={{ once: true, amount: 0.2 }}
+      className="pillar-card flex flex-col gap-4 p-6 rounded-2xl border"
+      style={{
+        borderColor: 'var(--border)',
+        background: 'var(--surface)',
+        perspective: 'var(--perspective-md)',
+        transformStyle: 'preserve-3d',
+      }}
+      {...handlers}
+    >
+      <span className="pillar-glyph text-[2rem] font-bold" style={{ color: p.color }}>
+        {p.glyph}
+      </span>
+      <div className="flex flex-col gap-1">
+        <p className="text-[10px] font-bold tracking-[2px] uppercase" style={{ color: p.color }}>
+          {p.title}
+        </p>
+        <p className="text-[15px] font-semibold" style={{ color: 'var(--foreground)' }}>
+          {p.subtitle}
+        </p>
+        <p className="text-[13px] leading-relaxed" style={{ color: 'var(--fg-secondary)' }}>
+          {p.desc}
+        </p>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function Landing({ onOpenAuth }) {
   usePageMeta('', { description: 'Ôn tập Toán với 1,104 câu đề thật từ 63 tỉnh thành — AI phát hiện lỗi sai, tạo kế hoạch học tập cá nhân hóa cho học sinh THPT & lớp 10.' })
   const navigate = useNavigate()
@@ -244,8 +284,30 @@ export default function Landing({ onOpenAuth }) {
   const [guestProvince, setGuestProvince] = useState(() => localStorage.getItem('guest_province') || '')
   const starLayerRef = useRef(null)
   const starTwinkleRef = useRef(null)
+  const heroIntroRef = useRef(null)
   const { scrollY, scrollYProgress } = useScroll()
   const heroY = useTransform(scrollY, [0, 600], [0, -40])
+
+  // Tier 2 GSAP moment — the hero logo + headline entrance. Everything else
+  // in this hero stays on framer-motion's stellarReveal variants; only these
+  // two elements are GSAP-owned (one-library-per-element rule).
+  useGsapTimeline(
+    (tl) => {
+      tl.set(['.hero-gsap-logo', '.hero-gsap-heading'], {
+        opacity: 0,
+        y: 28,
+        rotateX: -10,
+        transformPerspective: 800,
+      })
+        .to('.hero-gsap-logo', { opacity: 1, y: 0, rotateX: 0, duration: 0.7, ease: 'power3.out' })
+        .to(
+          '.hero-gsap-heading',
+          { opacity: 1, y: 0, rotateX: 0, duration: 0.7, ease: 'power3.out' },
+          '-=0.45'
+        )
+    },
+    { scope: heroIntroRef }
+  )
 
   function handleProvinceChange(v) {
     setGuestProvince(v)
@@ -299,6 +361,10 @@ export default function Landing({ onOpenAuth }) {
           <div className="nebula-wisp" style={{ width: 500, height: 500, top: '30%',  right: '-8%' }} />
           <div className="nebula-wisp" style={{ width: 420, height: 420, top: '65%',  left: '22%' }} />
         </div>
+        {/* Tier 3 — ambient WebGL summit-beacon, hero viewport only; lazy + capability-gated, no fallback needed since the CSS layers above already cover the skip case */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '100vh', opacity: 0.5 }}>
+          <Scene3DLazy scene={() => import('../components/motion/scenes/LandingHeroScene.jsx')} fallback={null} />
+        </div>
       </div>
 
       {/* Scroll progress bar */}
@@ -333,27 +399,33 @@ export default function Landing({ onOpenAuth }) {
 
         {/* Hero content */}
         <motion.div
+          ref={heroIntroRef}
           style={{ y: heroY }}
           className="relative z-10 flex flex-col items-center gap-7 text-center max-w-2xl w-full"
         >
-          <motion.div variants={stellarReveal} custom={0} initial="hidden" animate="show">
-            <LuminaryLogo variant="hero" />
-          </motion.div>
+          <div className="hero-gsap-logo" style={{ perspective: 'var(--perspective-md)' }}>
+            <VantageLogo variant="hero" />
+          </div>
 
-          <motion.h1
-            variants={stellarReveal} custom={1} initial="hidden" animate="show"
-            className="leading-[1.05] text-center"
-            style={{ fontSize: 'clamp(2.8rem,7vw,5rem)', letterSpacing: '-0.025em', fontWeight: 800, color: 'var(--foreground)' }}
+          <h1
+            className="hero-gsap-heading leading-[1.05] text-center"
+            style={{
+              fontSize: 'clamp(2.8rem,7vw,5rem)',
+              letterSpacing: '-0.025em',
+              fontWeight: 800,
+              color: 'var(--foreground)',
+              perspective: 'var(--perspective-md)',
+            }}
           >
             Ánh sáng dẫn đường.
-          </motion.h1>
+          </h1>
 
           <motion.p
             variants={stellarReveal} custom={2} initial="hidden" animate="show"
             className="text-[16px] leading-relaxed max-w-[520px]"
             style={{ color: 'var(--fg-secondary)' }}
           >
-            Luminary soi đúng chỗ bạn đang mất điểm, rồi dẫn bạn ôn đúng chỗ đó. Không tốn thời gian ôn những gì bạn đã biết rồi.
+            Vantage soi đúng chỗ bạn đang mất điểm, rồi dẫn bạn ôn đúng chỗ đó. Không tốn thời gian ôn những gì bạn đã biết rồi.
           </motion.p>
 
           <motion.div variants={stellarReveal} custom={3} initial="hidden" animate="show">
@@ -467,47 +539,19 @@ export default function Landing({ onOpenAuth }) {
               desc: 'AI nhìn thấu từng câu sai — không chỉ đếm điểm mà chỉ đúng chỗ mất điểm để sửa trúng.',
             },
             {
-              glyph: '⊕', color: '#7C3AED',
+              glyph: '⊕', color: 'var(--purple)',
               title: 'THE MAP',
               subtitle: 'Đề thi thật 63 tỉnh',
               desc: 'Luyện đúng đề của tỉnh mình. 1,104 câu từ Bộ GD&ĐT và các Sở, cập nhật hàng năm.',
             },
             {
-              glyph: '⊛', color: '#059669',
+              glyph: '⊛', color: 'var(--success)',
               title: 'THE COMPASS',
               subtitle: 'Nhắc đúng lúc sắp quên',
               desc: 'Thuật toán FSRS nhắc bạn ôn lại câu đó đúng khoảnh khắc bộ nhớ sắp mờ đi.',
             },
           ].map((p, i) => (
-            <motion.div
-              key={p.title}
-              variants={stellarReveal} custom={i}
-              initial="hidden" whileInView="show"
-              viewport={{ once: true, amount: 0.2 }}
-              className="pillar-card flex flex-col gap-4 p-6 rounded-2xl border"
-              style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
-            >
-              <span
-                className="pillar-glyph text-[2rem] font-bold"
-                style={{ color: p.color }}
-              >
-                {p.glyph}
-              </span>
-              <div className="flex flex-col gap-1">
-                <p
-                  className="text-[10px] font-bold tracking-[2px] uppercase"
-                  style={{ color: p.color }}
-                >
-                  {p.title}
-                </p>
-                <p className="text-[15px] font-semibold" style={{ color: 'var(--foreground)' }}>
-                  {p.subtitle}
-                </p>
-                <p className="text-[13px] leading-relaxed" style={{ color: 'var(--fg-secondary)' }}>
-                  {p.desc}
-                </p>
-              </div>
-            </motion.div>
+            <PillarCard key={p.title} p={p} i={i} />
           ))}
         </div>
       </section>
@@ -521,9 +565,9 @@ export default function Landing({ onOpenAuth }) {
         {/* Desktop: horizontal with dashed connector / Mobile: vertical */}
         <div className="hidden sm:flex items-start gap-0">
           {[
-            { roman: 'I',   color: 'var(--primary)', title: 'Làm đề tỉnh mình', desc: 'Đề từ tỉnh bạn, cập nhật 2025. Luminary ghi lại bạn sai câu nào — không chỉ tổng điểm.' },
-            { roman: 'II',  color: '#7C3AED',        title: 'Biết yếu chỗ nào',  desc: 'Không phải "sai 15/50 câu". Là: Hình học — bạn sai 7/8 câu phần đường tròn.' },
-            { roman: 'III', color: '#059669',        title: 'Ôn đúng, nhớ lâu',  desc: 'AI nhắc bạn ôn lại đúng lúc sắp quên. Không cần tự nhớ — Luminary tự nhắc.' },
+            { roman: 'I',   color: 'var(--primary)', title: 'Làm đề tỉnh mình', desc: 'Đề từ tỉnh bạn, cập nhật 2025. Vantage ghi lại bạn sai câu nào — không chỉ tổng điểm.' },
+            { roman: 'II',  color: 'var(--purple)',        title: 'Biết yếu chỗ nào',  desc: 'Không phải "sai 15/50 câu". Là: Hình học — bạn sai 7/8 câu phần đường tròn.' },
+            { roman: 'III', color: 'var(--success)',        title: 'Ôn đúng, nhớ lâu',  desc: 'AI nhắc bạn ôn lại đúng lúc sắp quên. Không cần tự nhớ — Vantage tự nhắc.' },
           ].map((step, i, arr) => (
             <div key={step.roman} className="flex items-start flex-1">
               <motion.div
@@ -550,9 +594,9 @@ export default function Landing({ onOpenAuth }) {
         {/* Mobile: vertical */}
         <div className="flex sm:hidden flex-col gap-0">
           {[
-            { roman: 'I',   color: 'var(--primary)', title: 'Làm đề tỉnh mình', desc: 'Đề từ tỉnh bạn, cập nhật 2025. Luminary ghi lại bạn sai câu nào — không chỉ tổng điểm.' },
-            { roman: 'II',  color: '#7C3AED',        title: 'Biết yếu chỗ nào',  desc: 'Không phải "sai 15/50 câu". Là: Hình học — bạn sai 7/8 câu phần đường tròn.' },
-            { roman: 'III', color: '#059669',        title: 'Ôn đúng, nhớ lâu',  desc: 'AI nhắc bạn ôn lại đúng lúc sắp quên. Không cần tự nhớ — Luminary tự nhắc.' },
+            { roman: 'I',   color: 'var(--primary)', title: 'Làm đề tỉnh mình', desc: 'Đề từ tỉnh bạn, cập nhật 2025. Vantage ghi lại bạn sai câu nào — không chỉ tổng điểm.' },
+            { roman: 'II',  color: 'var(--purple)',        title: 'Biết yếu chỗ nào',  desc: 'Không phải "sai 15/50 câu". Là: Hình học — bạn sai 7/8 câu phần đường tròn.' },
+            { roman: 'III', color: 'var(--success)',        title: 'Ôn đúng, nhớ lâu',  desc: 'AI nhắc bạn ôn lại đúng lúc sắp quên. Không cần tự nhớ — Vantage tự nhắc.' },
           ].map((step, i, arr) => (
             <div key={step.roman} className="flex gap-5">
               <div className="flex flex-col items-center">
@@ -581,7 +625,7 @@ export default function Landing({ onOpenAuth }) {
       <section className="relative z-10 w-full py-16 overflow-hidden">
         <div className="text-center mb-8">
           <h2 className="font-bold" style={{ fontSize: 'clamp(1.25rem,2.5vw,1.75rem)', color: 'var(--foreground)' }}>
-            Học sinh nói gì về Luminary
+            Học sinh nói gì về Vantage
           </h2>
         </div>
         <div
@@ -604,7 +648,7 @@ export default function Landing({ onOpenAuth }) {
                 <div className="pt-2 border-t" style={{ borderColor: 'var(--border)' }}>
                   <p className="text-[13px] font-semibold" style={{ color: 'var(--foreground)' }}>{t.name}</p>
                   <p className="text-[11px]" style={{ color: 'var(--fg-tertiary)' }}>{t.grade}</p>
-                  <p className="text-[11px] mt-0.5" style={{ color: '#059669' }}>✓ {t.result}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: 'var(--success)' }}>✓ {t.result}</p>
                 </div>
               </div>
             ))}
@@ -619,7 +663,7 @@ export default function Landing({ onOpenAuth }) {
                 <div className="pt-2 border-t" style={{ borderColor: 'var(--border)' }}>
                   <p className="text-[13px] font-semibold" style={{ color: 'var(--foreground)' }}>{t.name}</p>
                   <p className="text-[11px]" style={{ color: 'var(--fg-tertiary)' }}>{t.grade}</p>
-                  <p className="text-[11px] mt-0.5" style={{ color: '#059669' }}>✓ {t.result}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: 'var(--success)' }}>✓ {t.result}</p>
                 </div>
               </div>
             ))}
@@ -655,7 +699,7 @@ export default function Landing({ onOpenAuth }) {
                 <div className="flex items-center gap-2">
                   <span className="text-[15px] font-bold" style={{ color: 'var(--foreground)' }}>{plan.label}</span>
                   {plan.badge && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(59,111,232,0.15)', color: 'var(--primary)' }}>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--primary-subtle)', color: 'var(--primary)' }}>
                       {plan.badge}
                     </span>
                   )}
@@ -763,7 +807,7 @@ export default function Landing({ onOpenAuth }) {
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row gap-10 justify-between">
           {/* Brand block */}
           <div className="flex flex-col gap-3 max-w-[220px]">
-            <LuminaryLogo variant="nav" />
+            <VantageLogo variant="nav" />
             <span className="text-[12px] leading-relaxed mt-1" style={{ color: 'var(--fg-tertiary)' }}>
               Nền tảng luyện thi Toán THPT &amp; Lớp 10 được cá nhân hóa bởi AI.
             </span>
@@ -827,7 +871,7 @@ export default function Landing({ onOpenAuth }) {
         <div className="max-w-5xl mx-auto mt-8 pt-4 border-t flex flex-col sm:flex-row items-center justify-between gap-2"
           style={{ borderColor: 'var(--border)' }}>
           <p className="text-[11px]" style={{ color: 'var(--fg-tertiary)' }}>
-            © {new Date().getFullYear()} LUMINARY. Tất cả đề thi từ nguồn chính thức.
+            © {new Date().getFullYear()} VANTAGE. Tất cả đề thi từ nguồn chính thức.
           </p>
           <div className="flex gap-4">
             <a href="#" className="text-[11px] transition hover:opacity-70" style={{ color: 'var(--fg-tertiary)' }}>Điều khoản dịch vụ</a>

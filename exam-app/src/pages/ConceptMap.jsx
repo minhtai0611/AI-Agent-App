@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { getConceptMastery, getConceptMasteryHistory, getReviewItemCounts } from '../api/aiClient.js'
 import { CONCEPTS, TOPIC_COLORS } from '../data/concepts.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
+import { Reveal3D } from '../components/motion/Reveal3D.jsx'
 
 // ── Mastery colour ────────────────────────────────────────────────────────────
 function masteryColor(score) {
@@ -81,10 +82,10 @@ function ConceptNode({ data }) {
       {isLocked && (
         <span style={{ position: 'absolute', top: 4, right: 6, fontSize: 10, opacity: 0.7 }}>🔒</span>
       )}
-      <div style={{ fontSize: Math.max(10, Math.min(13, size)), fontFamily: 'Sora, sans-serif', fontWeight: 600, color: isLocked ? 'var(--muted-fg)' : 'var(--foreground)', lineHeight: 1.3, marginTop: 4 }}>
+      <div style={{ fontSize: Math.max(10, Math.min(13, size)), fontFamily: "'Inter Variable', Inter, sans-serif", fontWeight: 600, color: isLocked ? 'var(--muted-fg)' : 'var(--foreground)', lineHeight: 1.3, marginTop: 4 }}>
         {data.name_vi}
       </div>
-      <div style={{ fontSize: 9, color: 'var(--dim)', fontFamily: 'Sora, sans-serif', marginTop: 2 }}>
+      <div style={{ fontSize: 9, color: 'var(--dim)', fontFamily: "'Inter Variable', Inter, sans-serif", marginTop: 2 }}>
         Lớp {data.grade} · {isLocked ? 'Chưa mở khoá' : `${Math.round((data.mastery_score || 0) * 100)}%`}
       </div>
     </div>
@@ -315,8 +316,8 @@ export default function ConceptMap() {
     <div className="min-h-screen bg-surface flex flex-col">
       <style>{`
         @keyframes masteryPulse {
-          0%, 100% { box-shadow: 0 0 0 1px rgba(91,143,240,0.25), 0 4px 16px rgba(91,143,240,0.15); }
-          50%       { box-shadow: 0 0 0 2px rgba(91,143,240,0.5), 0 4px 24px rgba(91,143,240,0.35); }
+          0%, 100% { box-shadow: 0 0 0 1px rgba(166,98,12,0.25), 0 4px 16px rgba(166,98,12,0.15); }
+          50%       { box-shadow: 0 0 0 2px rgba(166,98,12,0.5), 0 4px 24px rgba(166,98,12,0.35); }
         }
       `}</style>
       {/* Header */}
@@ -344,7 +345,7 @@ export default function ConceptMap() {
       </div>
 
       {/* Stats bar */}
-      <div className="flex items-center gap-6 px-6 py-2 glass-base border-b border-surface">
+      <Reveal3D as="div" variant="rise" className="flex items-center gap-6 px-6 py-2 glass-base border-b border-surface">
         <span className="font-sans text-[11px] text-dim">{stats.total} khái niệm</span>
         <span className="font-sans text-[11px] text-info">{stats.tried} đã học</span>
         <span className="font-sans text-[11px] text-success">{stats.strong} thành thạo ≥70%</span>
@@ -363,7 +364,7 @@ export default function ConceptMap() {
             </span>
           ))}
         </div>
-      </div>
+      </Reveal3D>
 
       <div className="flex flex-1" style={{ height: 'calc(100vh - 120px)' }}>
         {/* Flow canvas */}

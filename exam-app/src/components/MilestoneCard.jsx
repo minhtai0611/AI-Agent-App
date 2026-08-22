@@ -41,7 +41,7 @@ function getMilestone(examCount, current, previous, subscriptionTier) {
     if (!strongest || !weakest) return null
     return {
       type: 'exam_1',
-      message: `Luminary đã xác định: ${TOPIC_VI[strongest] ?? strongest} là điểm mạnh · ${TOPIC_VI[weakest] ?? weakest} là điểm cần cải thiện nhất`,
+      message: `Vantage đã xác định: ${TOPIC_VI[strongest] ?? strongest} là điểm mạnh · ${TOPIC_VI[weakest] ?? weakest} là điểm cần cải thiện nhất`,
     }
   }
   if (examCount === 2 && previous) {
@@ -72,7 +72,7 @@ export default function MilestoneCard({ examCount, currentResult, previousResult
   return (
     <div data-testid="milestone-card" className="bg-surface border border-primary/20 rounded-2xl px-5 py-4 flex flex-col gap-2 mb-4">
       <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-primary">
-        {milestone.type === 'exam_1' ? 'Lần đầu thi với Luminary' : milestone.type === 'exam_2' ? 'So sánh với lần trước' : 'Bạn đã thi 4 lần'}
+        {milestone.type === 'exam_1' ? 'Lần đầu thi với Vantage' : milestone.type === 'exam_2' ? 'So sánh với lần trước' : 'Bạn đã thi 4 lần'}
       </span>
       <p className="font-sans text-[14px] text-foreground leading-snug">{milestone.message}</p>
       {milestone.showKalman && (

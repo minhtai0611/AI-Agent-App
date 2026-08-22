@@ -38,7 +38,7 @@
 
 export function reportToText(report) {
   const lines = [
-    `📊 Báo cáo học tập Luminary — ${report.generatedAt}`,
+    `📊 Báo cáo học tập Vantage — ${report.generatedAt}`,
     `👤 ${report.studentName}${report.grade ? ` · ${report.grade}` : ''}`,
     ``,
     `📝 Đã hoàn thành: ${report.totalExams} bài thi`,
@@ -54,7 +54,7 @@ export function reportToText(report) {
     lines.push(`⚠️ Cần ôn thêm: ${report.weakTopics.join(' · ')}`)
   }
 
-  lines.push(``, `🎓 Ôn thi cùng Luminary AI: https://exam-app-ey0.pages.dev`)
+  lines.push(``, `🎓 Ôn thi cùng Vantage AI: https://exam-app-ey0.pages.dev`)
 
   return lines.filter(l => l !== null).join('\n')
 }

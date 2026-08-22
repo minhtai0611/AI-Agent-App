@@ -660,7 +660,7 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-surface flex flex-col">
       <nav className="flex items-center justify-between px-6 glass-base border-b border-surface" style={{ height: 56 }}>
-        <span className="font-sans text-[15px] font-bold text-[var(--accent)]">Luminary Admin</span>
+        <span className="font-sans text-[15px] font-bold text-[var(--accent)]">Vantage Admin</span>
         <Button variant="ghost" onClick={() => setAdminKey('')} className="text-[12px] text-dim">Đăng xuất</Button>
       </nav>
 

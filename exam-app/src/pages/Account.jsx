@@ -68,7 +68,7 @@ const MASTERY_RANK_LABELS = {
   'Pemula':    'Tân học viên',
   'Học sinh':  'Học sinh Tiến bộ',
   'Sinh viên': 'Chiến sĩ Tri thức',
-  'Chuyên gia':'Ngôi sao Luminary',
+  'Chuyên gia':'Ngôi sao Vantage',
 }
 const MASTERY_RANK_COLORS = {
   'Pemula':    '#64748B',
@@ -82,17 +82,17 @@ const GRADE_LABELS = { '9': 'Lớp 9 trở xuống', '10': 'Lớp 10', '11': 'L�
 
 const PLANS_MONTHLY = [
   { tier: 'basic',    label: 'Thử miễn phí',    price: 'Miễn phí',       credits: 50,   studyPlan: false, badge: null,
-    features: ['5 lượt Luminary AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'] },
+    features: ['5 lượt Vantage AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'] },
   { tier: 'student',  label: 'Học sinh',  price: '29,000đ/tháng',  credits: 500,  studyPlan: true,  badge: '⭐ 95% học sinh chọn',
-    features: ['Luminary AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
+    features: ['Vantage AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
   { tier: 'complete', label: '8.5+ Nâng cao', price: '59,000đ/tháng',  credits: 2000, studyPlan: true,  badge: null,
     features: ['Tất cả gói Học sinh', 'Tất cả đề thi thử & luyện tập', '⚗ Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
 ]
 const PLANS_ANNUAL = [
   { tier: 'basic',    label: 'Thử miễn phí',    price: 'Miễn phí',        credits: 50,   studyPlan: false, badge: null,
-    features: ['5 lượt Luminary AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'] },
+    features: ['5 lượt Vantage AI/ngày', '1 đề thi mỗi cấp độ', 'Thử thách hằng ngày', '⚗ Bản đồ khái niệm'] },
   { tier: 'student',  label: 'Học sinh',  price: '261,000đ/năm',    credits: 500,  studyPlan: true,  badge: '⭐ 95% học sinh chọn', bonus: '+1,000 lượt hỏi AI', effective: '21,750đ/tháng',
-    features: ['Luminary AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
+    features: ['Vantage AI không giới hạn', 'AI Phân tích miễn phí', '3 đề thi mỗi cấp độ', '⚗ Lab AI đầy đủ (Phân tích lỗi sai, OCR)', 'Thưởng chuỗi học', 'Xu hướng 30 ngày', 'Kế hoạch học AI'] },
   { tier: 'complete', label: '8.5+ Nâng cao', price: '531,000đ/năm',    credits: 2000, studyPlan: true,  badge: null, bonus: '+3,000 lượt hỏi AI', effective: '44,250đ/tháng',
     features: ['Tất cả gói Học sinh', 'Tất cả đề thi thử & luyện tập', '⚗ Tạo đề AI riêng', 'Dự đoán điểm số', 'AI Gia sư ghi nhớ', 'Chiến lược thi', 'So sánh tỉnh thành'] },
 ]
@@ -302,7 +302,7 @@ export default function Account() {
     const next = isDarkMode ? 'light' : 'dark'
     document.documentElement.classList.toggle('dark', next === 'dark')
     document.documentElement.dataset.theme = next
-    localStorage.setItem('luminary-theme', next)
+    localStorage.setItem('vantage-theme', next)
     setIsDarkMode(next === 'dark')
   }
   const [reminderEnabled, setReminderEnabled] = useState(
@@ -695,8 +695,8 @@ export default function Account() {
       {/* ── Persistent header ──────────────────────────────────────────── */}
       <div className="bg-surface border-b border-border relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="absolute w-[450px] h-[450px] -top-24 -right-16 opacity-[0.12] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-0_20s_ease-in-out_0s_infinite]" style={{ background: '#5B8FF0' }} />
-          <div className="absolute w-[350px] h-[350px] -bottom-24 -left-16 opacity-[0.08] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-1_24s_ease-in-out_3s_infinite]" style={{ background: '#A78BFA' }} />
+          <div className="absolute w-[450px] h-[450px] -top-24 -right-16 opacity-[0.12] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-0_20s_ease-in-out_0s_infinite]" style={{ background: '#F0A93E' }} />
+          <div className="absolute w-[350px] h-[350px] -bottom-24 -left-16 opacity-[0.08] rounded-full mix-blend-screen blur-[100px] animate-[ambient-float-1_24s_ease-in-out_3s_infinite]" style={{ background: '#4C3B8C' }} />
         </div>
         {/* Top row: avatar + name + actions */}
         <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex items-center gap-4 relative">
@@ -1492,7 +1492,7 @@ export default function Account() {
                     onClick={() => {
                       const text = reportToText(progressReport)
                       if (navigator.share) {
-                        navigator.share({ title: 'Báo cáo học tập Luminary', text }).catch(() => {})
+                        navigator.share({ title: 'Báo cáo học tập Vantage', text }).catch(() => {})
                       } else {
                         navigator.clipboard?.writeText(text)
                           .then(() => toast.success('Đã sao chép báo cáo'))
@@ -2519,7 +2519,7 @@ export default function Account() {
                   </button>
                 </div>
                 <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Luminary nhé! Dùng link này để nhận 30 ngày dùng thử miễn phí (thay vì 7 ngày): ${referralUrl}`)}`}
+                  href={`https://wa.me/?text=${encodeURIComponent(`Ôn thi cùng Vantage nhé! Dùng link này để nhận 30 ngày dùng thử miễn phí (thay vì 7 ngày): ${referralUrl}`)}`}
                   target="_blank" rel="noopener noreferrer"
                   className="self-start flex items-center gap-2 px-4 py-2 rounded-lg font-sans text-xs font-semibold bg-whatsapp text-white hover:opacity-90 transition"
                 >

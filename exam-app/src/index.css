@@ -1,13 +1,16 @@
-/* ─── Fonts ──────────────────────────────────────────────────────────────────
-   Cormorant Garamond Variable: display/headings — mystical, engraved literary serif.
-   Plus Jakarta Sans Variable:  body/UI — clean humanist, full Vietnamese Unicode.
+/* ─── Fonts — Vantage identity ───────────────────────────────────────────────
+   Fraunces Variable: display/headings — characterful editorial serif (opsz/wght/
+     SOFT/WONK axes), chosen for genuine personality over generic sameness.
+   Inter Variable:     body/UI — humanist, full Vietnamese Unicode, built for
+     small-size UI legibility.
    JetBrains Mono: monospace UI + math/code rendering (KaTeX). Self-hosted WOFF2.
+     Unchanged — Vietnamese subset already solved, not part of the brand rebrand.
    All fonts bundled via @fontsource-variable — no external CDN, ad-blocker safe.
    ─────────────────────────────────────────────────────────────────────────── */
 
 @import "tw-animate-css";
-@import '@fontsource-variable/cormorant-garamond/index.css';
-@import '@fontsource-variable/plus-jakarta-sans/index.css';
+@import '@fontsource-variable/fraunces/index.css';
+@import '@fontsource-variable/inter/index.css';
 
 /* JetBrains Mono (variable: wght axis) */
 @font-face {
@@ -39,61 +42,63 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Lumina — Cool Deep Color Tokens ───────────────────────────────────────
+/* ─── Vantage — Ascent Color Tokens ──────────────────────────────────────────
    Light defaults in :root; dark overrides in .dark / [data-theme="dark"].
    CSS variable names preserved for Tailwind class compatibility.
+   Replaces the old "Lumina" cobalt/violet palette — see the approved blueprint
+   at groovy-baking-beaver.md for rationale (WCAG AA re-verified for this pass).
    ─────────────────────────────────────────────────────────────────────────── */
 :root {
   color-scheme: light;
 
   /* ── Surfaces ── */
-  --background:        #F4F6FC;  /* cool blue-tinted off-white */
-  --foreground:        #0F1629;  /* deep navy text */
-  --surface:           #EDF0F8;  /* cool card fill */
-  --surface-elevated:  #F4F6FC;  /* modals, dropdowns */
-  --border:            #CBD2E8;  /* cool slate border */
-  --border-subtle:     #DDE2F0;  /* very subtle dividers */
+  --background:        #F7F3EC;  /* warm ivory off-white */
+  --foreground:        #201A33;  /* deep indigo-dusk text */
+  --surface:           #F0EAE0;  /* warm card fill */
+  --surface-elevated:  #F7F3EC;  /* modals, dropdowns */
+  --border:            #DCD1BE;  /* warm sand border */
+  --border-subtle:     #EAE2D1;  /* very subtle dividers */
 
   /* ── Text ── */
-  --muted:             #94A3B8;  /* slate-400 */
-  --muted-fg:          #64748B;  /* slate-500 */
-  --dim:               #475569;  /* slate-600 */
-  --faint:             #334155;  /* slate-700 */
+  --muted:             #918A7A;  /* warm gray */
+  --muted-fg:          #6E6656;  /* warm gray, darker */
+  --dim:               #4B4436;  /* warm gray, darkest before faint */
+  --faint:             #332E23;  /* near-foreground warm gray */
 
   /* ── Text aliases (plan tokens) ── */
   --fg-secondary:      var(--muted-fg);
   --fg-tertiary:       var(--muted);
-  --fg-disabled:       #CBD5E1;
+  --fg-disabled:       #D4C9B4;
   --surface-raised:    var(--surface-elevated);
 
-  /* ── Brand — cobalt blue ── */
-  --primary:           #3B6FE8;
+  /* ── Brand — radiant gold (primary) ── */
+  --primary:           #A6620C;  /* burnished amber gold — 4.6:1 vs white */
   --primary-fg:        #FFFFFF;
-  --primary-subtle:    #EFF4FE;
-  --primary-border:    #BFCFFA;
+  --primary-subtle:    #FBF0DC;
+  --primary-border:    #E8C68C;
 
-  /* ── Accent — violet ── */
-  --accent:            #7C5CE8;
+  /* ── Accent — indigo-dusk ── */
+  --accent:            #4C3B8C;  /* deep indigo-violet — 8.1:1 vs white */
   --accent-fg:         #FFFFFF;
-  --accent-subtle:     #F0EEFE;
-  --accent-border:     #C4B5FD;
+  --accent-subtle:     #ECE9F8;
+  --accent-border:     #C3B8E8;
 
-  /* ── Status ── */
+  /* ── Status (kept — universal semantics, not brand-specific) ── */
   --success:           #059669;
   --warning:           #D97706;
   --destructive:       #DC2626;
   --info:              #0284C7;
   --purple:            #7C3AED;
-  --highlight:         #EFF4FE;
+  --highlight:         #FBF0DC;
 
   /* ── Choice feedback state (QuestionCard) ── */
-  --choice-chosen-bg:   #F0EEFE;  /* accent-subtle */
+  --choice-chosen-bg:   #ECE9F8;  /* accent-subtle */
   --choice-wrong-bg:    #FEF2F2;  /* red-50 */
   --choice-wrong-border:#FECACA;  /* red-200 */
 
-  /* ── Mastery scale (0=unknown → 5=mastered) ── */
-  --mastery-0:         #94A3B8;
-  --mastery-0-bg:      #F1F5F9;
+  /* ── Mastery scale (0=base camp → 5=vantage point) ── */
+  --mastery-0:         #9C948A;
+  --mastery-0-bg:      #F3EFE8;
   --mastery-1:         #DC2626;
   --mastery-1-bg:      #FEF2F2;
   --mastery-2:         #EA580C;
@@ -102,16 +107,16 @@
   --mastery-3-bg:      #FFFBEB;
   --mastery-4:         #059669;
   --mastery-4-bg:      #ECFDF5;
-  --mastery-5:         #3B6FE8;  /* peak = primary brand */
-  --mastery-5-bg:      #EFF4FE;
+  --mastery-5:         #A6620C;  /* vantage point = primary brand */
+  --mastery-5-bg:      #FBF0DC;
 
   /* ── Shadows ── */
-  --shadow-xs: 0 1px 2px rgba(15,22,41,0.05);
-  --shadow-sm: 0 1px 3px rgba(15,22,41,0.10), 0 1px 2px rgba(15,22,41,0.06);
-  --shadow-md: 0 4px 6px rgba(15,22,41,0.07), 0 2px 4px rgba(15,22,41,0.06);
-  --shadow-lg: 0 10px 15px rgba(15,22,41,0.08), 0 4px 6px rgba(15,22,41,0.05);
-  --shadow-xl: 0 20px 25px rgba(15,22,41,0.10), 0 10px 10px rgba(15,22,41,0.04);
-  --shadow-glow: 0 0 0 1px rgba(91,143,240,0.25), 0 4px 16px rgba(91,143,240,0.15);
+  --shadow-xs: 0 1px 2px rgba(32,26,51,0.05);
+  --shadow-sm: 0 1px 3px rgba(32,26,51,0.10), 0 1px 2px rgba(32,26,51,0.06);
+  --shadow-md: 0 4px 6px rgba(32,26,51,0.07), 0 2px 4px rgba(32,26,51,0.06);
+  --shadow-lg: 0 10px 15px rgba(32,26,51,0.08), 0 4px 6px rgba(32,26,51,0.05);
+  --shadow-xl: 0 20px 25px rgba(32,26,51,0.10), 0 10px 10px rgba(32,26,51,0.04);
+  --shadow-glow: 0 0 0 1px rgba(166,98,12,0.25), 0 4px 16px rgba(166,98,12,0.15);
 
   /* ── Border radius ── */
   --radius-xs:   4px;
@@ -141,48 +146,64 @@
   --z-radius-md:  var(--radius-lg);
   --z-radius-lg:  var(--radius-xl);
   --z-radius-xl:  20px;
+
+  /* ── Fluid type scale (clamp-based) ── */
+  --font-size-xs:      clamp(0.75rem, 0.73rem + 0.10vw, 0.8125rem);
+  --font-size-sm:      clamp(0.875rem, 0.85rem + 0.12vw, 0.9375rem);
+  --font-size-base:    clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+  --font-size-lg:      clamp(1.125rem, 1.05rem + 0.30vw, 1.25rem);
+  --font-size-xl:      clamp(1.375rem, 1.20rem + 0.60vw, 1.625rem);
+  --font-size-2xl:     clamp(1.75rem, 1.40rem + 1.20vw, 2.25rem);
+  --font-size-3xl:     clamp(2.25rem, 1.60rem + 2.20vw, 3rem);
+  --font-size-display: clamp(2.75rem, 1.80rem + 3.50vw, 4.5rem);
+
+  /* ── 3D perspective / tilt (Tier 1 — used by useTilt3D, Reveal3D) ── */
+  --perspective-sm: 800px;
+  --perspective-md: 1200px;
+  --perspective-lg: 1800px;
+  --tilt-max: 4deg;
 }
 
 /* ── Dark theme ── */
 .dark, [data-theme="dark"] {
   color-scheme: dark;
 
-  --background:        #0B0F1A;  /* midnight indigo */
-  --foreground:        #E8EDFF;
-  --surface:           #111622;
-  --surface-elevated:  #161C2E;
-  --border:            #1E2740;
-  --border-subtle:     #252E47;
+  --background:        #14101F;  /* deep indigo-dusk */
+  --foreground:        #F5EFE3;  /* warm off-white */
+  --surface:           #1B1730;
+  --surface-elevated:  #221C3B;
+  --border:            #322A4D;
+  --border-subtle:     #3B3258;
 
-  --muted:             #8194B3;  /* WCAG fix: readable secondary text (6.65:1 on bg) */
-  --muted-fg:          #3D4F6E;  /* very dim/inactive — non-critical tertiary UI only */
-  --dim:               #A0B3CF;
-  --faint:             #B8C8DC;
+  --muted:             #B3A899;  /* WCAG fix: readable secondary text (~6.6:1 on bg) */
+  --muted-fg:          #6E6656;  /* dim/inactive — non-critical tertiary UI only */
+  --dim:               #CFC4B3;
+  --faint:             #E3D9C8;
 
-  --fg-secondary:      var(--muted);     /* #8194B3 — readable secondary text */
-  --fg-tertiary:       var(--muted-fg);  /* #3D4F6E — truly dim/inactive states */
-  --fg-disabled:       #1E2740;
+  --fg-secondary:      var(--muted);     /* readable secondary text */
+  --fg-tertiary:       var(--muted-fg);  /* truly dim/inactive states */
+  --fg-disabled:       #322A4D;
   --surface-raised:    var(--surface-elevated);
 
-  --primary:           #5B8FF0;  /* light cobalt */
-  --primary-fg:        #0B1436;
-  --primary-subtle:    rgba(91,143,240,0.15);
-  --primary-border:    #1E3A7A;
+  --primary:           #F0A93E;  /* light radiant gold */
+  --primary-fg:        #241505;
+  --primary-subtle:    rgba(240,169,62,0.15);
+  --primary-border:    #7A4E10;
 
-  --accent:            #A78BFA;  /* light violet */
-  --accent-fg:         #1A0E40;
-  --accent-subtle:     rgba(167,139,250,0.15);
-  --accent-border:     #3D2A7A;
+  --accent:            #9C8FE0;  /* light indigo-violet */
+  --accent-fg:         #17102E;
+  --accent-subtle:     rgba(156,143,224,0.15);
+  --accent-border:     #453B7A;
 
   --success:           #34D399;
   --warning:           #FCD34D;
   --destructive:       #F87171;
   --info:              #38BDF8;
   --purple:            #C084FC;
-  --highlight:         rgba(91,143,240,0.12);
+  --highlight:         rgba(240,169,62,0.12);
 
-  --mastery-0:         #3D4F6E;
-  --mastery-0-bg:      #161C2E;
+  --mastery-0:         #6E6656;
+  --mastery-0-bg:      #221C3B;
   --mastery-1:         #F87171;
   --mastery-1-bg:      #450A0A;
   --mastery-2:         #FB923C;
@@ -191,10 +212,10 @@
   --mastery-3-bg:      #78350F;
   --mastery-4:         #34D399;
   --mastery-4-bg:      #052E1A;
-  --mastery-5:         #5B8FF0;  /* peak = primary brand */
-  --mastery-5-bg:      #0B1A40;
+  --mastery-5:         #F0A93E;  /* vantage point = primary brand */
+  --mastery-5-bg:      #3A2A0B;
 
-  --choice-chosen-bg:   rgba(167,139,250,0.15);
+  --choice-chosen-bg:   rgba(156,143,224,0.15);
   --choice-wrong-bg:    rgba(220, 38, 38, 0.15);
   --choice-wrong-border:rgba(220, 38, 38, 0.35);
 
@@ -203,22 +224,22 @@
   --shadow-md: 0 4px 6px rgba(0,0,0,0.40), 0 2px 4px rgba(0,0,0,0.30);
   --shadow-lg: 0 10px 15px rgba(0,0,0,0.45), 0 4px 6px rgba(0,0,0,0.25);
   --shadow-xl: 0 20px 25px rgba(0,0,0,0.50), 0 10px 10px rgba(0,0,0,0.25);
-  --shadow-glow: 0 0 0 1px rgba(91,143,240,0.30), 0 4px 20px rgba(91,143,240,0.20);
+  --shadow-glow: 0 0 0 1px rgba(240,169,62,0.30), 0 4px 20px rgba(240,169,62,0.20);
 }
 
 /* ─── Accessibility: High contrast boosts ────────────────────────────────── */
 @media (prefers-contrast: more) {
   :root {
-    --muted-fg: #334155;
-    --dim:      #1E293B;
-    --faint:    #0F172A;
-    --border:   #64748B;
+    --muted-fg: #332E23;
+    --dim:      #201C15;
+    --faint:    #14110C;
+    --border:   #6E6656;
   }
   .dark, [data-theme="dark"] {
-    --muted-fg: #CBD5E1;
-    --dim:      #E2E8F0;
-    --faint:    #F1F5F9;
-    --border:   #475569;
+    --muted-fg: #E3D9C8;
+    --dim:      #EFE8DB;
+    --faint:    #F7F3EC;
+    --border:   #B3A899;
   }
 }
 
@@ -309,7 +330,7 @@ html {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: 'Inter Variable', 'Inter', system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   letter-spacing: 0em;
@@ -570,6 +591,7 @@ body {
     scroll-behavior: auto !important;
   }
   ::view-transition-new(root), ::view-transition-old(root) { animation: none; }
+  :root, .dark, [data-theme="dark"] { --tilt-max: 0deg; }
 }
 
 /* ─── shadcn/ui v3-compatible variable aliases ────────────────────────────────
@@ -609,9 +631,12 @@ body {
   }
 }
 
-/* ─── Celestial effects — Luminary ───────────────────────────────────────────
-   New effects for Landing/Navbar rebuild. Old aurora-drift/scrollX/cta-gradient-btn
-   remain unchanged above for other pages that reference them.
+/* ─── Celestial effects (legacy — pending Phase 2/3 reskin) ──────────────────
+   Effects for Landing/Navbar. Still uses the old cobalt/violet hex values and
+   "nebula/star/spectral" naming — full visual reskin to the Vantage "ascent"
+   palette + summit-beacon motif is scoped to later phases per the approved
+   blueprint, not renamed wholesale here to avoid a half-migrated look.
+   Old aurora-drift/scrollX/cta-gradient-btn remain unchanged for other pages.
    ─────────────────────────────────────────────────────────────────────────── */
 
 /* Nebula wisp breathing (transform only — opacity set by mode selectors) */
@@ -788,45 +813,47 @@ body {
   transform: scale(1.12);
 }
 
-/* ─── LandingLoader — mystical portal keyframes ─────────────────────────── */
-@keyframes luminary-loader-spin-cw  { to { transform: rotate(360deg); } }
-@keyframes luminary-loader-spin-ccw { to { transform: rotate(-360deg); } }
-@keyframes luminary-loader-orb-pulse {
+/* ─── LandingLoader — summit-beacon portal keyframes ──────────────────────
+   Renamed from luminary-loader-* as part of the Luminary → Vantage rebrand.
+   ─────────────────────────────────────────────────────────────────────────── */
+@keyframes vantage-loader-spin-cw  { to { transform: rotate(360deg); } }
+@keyframes vantage-loader-spin-ccw { to { transform: rotate(-360deg); } }
+@keyframes vantage-loader-orb-pulse {
   0%, 100% { opacity: 0.45; transform: scale(0.94); }
   50%       { opacity: 0.85; transform: scale(1.10); }
 }
-.luminary-loader-spin-cw {
-  animation: luminary-loader-spin-cw 20s linear infinite;
+.vantage-loader-spin-cw {
+  animation: vantage-loader-spin-cw 20s linear infinite;
   transform-box: fill-box;
   transform-origin: center;
 }
-.luminary-loader-spin-ccw {
-  animation: luminary-loader-spin-ccw 30s linear infinite;
+.vantage-loader-spin-ccw {
+  animation: vantage-loader-spin-ccw 30s linear infinite;
   transform-box: fill-box;
   transform-origin: center;
 }
-.luminary-loader-orb-pulse {
-  animation: luminary-loader-orb-pulse 3s ease-in-out infinite;
+.vantage-loader-orb-pulse {
+  animation: vantage-loader-orb-pulse 3s ease-in-out infinite;
 }
 
 /* Floating glass navbar */
-.luminary-nav {
-  background: rgba(244, 246, 252, 0.82);
+.vantage-nav {
+  background: rgba(247, 243, 236, 0.82);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(59, 111, 232, 0.08);
+  border-bottom: 1px solid rgba(166, 98, 12, 0.08);
 }
-.dark .luminary-nav,
-[data-theme="dark"] .luminary-nav {
-  background: rgba(8, 11, 20, 0.82);
-  border-bottom-color: rgba(91, 143, 240, 0.08);
+.dark .vantage-nav,
+[data-theme="dark"] .vantage-nav {
+  background: rgba(20, 16, 31, 0.82);
+  border-bottom-color: rgba(240, 169, 62, 0.08);
 }
 
 /* Nav link active underline glow */
-.nav-link-luminary {
+.nav-link-vantage {
   position: relative;
 }
-.nav-link-luminary.active::after {
+.nav-link-vantage.active::after {
   content: '';
   position: absolute;
   bottom: -4px;
@@ -841,7 +868,7 @@ body {
 @media (prefers-contrast: more) {
   .nebula-wisp,
   .star-field-wrapper { display: none; }
-  .luminary-nav {
+  .vantage-nav {
     background: var(--background) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;

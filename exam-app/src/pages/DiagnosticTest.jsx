@@ -60,7 +60,7 @@ export function loadDiagnosticWeights(uid) {
 }
 
 export default function DiagnosticTest({ onOpenAuth = null }) {
-  usePageMeta('Kiểm tra năng lực nhanh', { description: 'Làm bài kiểm tra 8 câu để AI Luminary đánh giá năng lực và đề xuất lộ trình ôn tập phù hợp.' })
+  usePageMeta('Kiểm tra năng lực nhanh', { description: 'Làm bài kiểm tra 8 câu để AI Vantage đánh giá năng lực và đề xuất lộ trình ôn tập phù hợp.' })
   const navigate = useNavigate()
   const { user } = useAuth()
 
@@ -140,7 +140,7 @@ export default function DiagnosticTest({ onOpenAuth = null }) {
               8 câu · 5 phút · Không cần tài khoản
             </p>
             <p className="font-sans text-[13px] text-dim mt-2 leading-relaxed">
-              Sau 8 câu, Luminary biết mình đang yếu chỗ nào.
+              Sau 8 câu, Vantage biết mình đang yếu chỗ nào.
             </p>
           </div>
           <div className="flex flex-col gap-2 text-left">
@@ -240,7 +240,7 @@ export default function DiagnosticTest({ onOpenAuth = null }) {
         className="w-full max-w-xl flex flex-col gap-6">
         <div className="text-center">
           <span className="text-4xl">{overallPct >= 70 ? '🎉' : overallPct >= 40 ? '📊' : '💪'}</span>
-          <h1 className="font-sans text-[24px] font-bold text-foreground mt-3">Luminary đã phân tích xong</h1>
+          <h1 className="font-sans text-[24px] font-bold text-foreground mt-3">Vantage đã phân tích xong</h1>
           <p className="font-sans text-[14px] text-muted mt-1">{totalCorrect}/{totalQ} câu đúng · Đây là bản đồ điểm yếu của bạn:</p>
         </div>
 
@@ -264,13 +264,13 @@ export default function DiagnosticTest({ onOpenAuth = null }) {
         </div>
 
         <p className="font-sans text-[13px] text-dim text-center">
-          Dựa trên kết quả này, Luminary sẽ luyện đúng chỗ bạn đang thiếu — không tốn thời gian ôn lại cái bạn đã biết rồi.
+          Dựa trên kết quả này, Vantage sẽ luyện đúng chỗ bạn đang thiếu — không tốn thời gian ôn lại cái bạn đã biết rồi.
         </p>
 
         {/* Personalized path preview */}
         {Object.keys(topicScores || {}).length > 0 && (
           <div data-testid="path-preview" className="bg-surface border border-border rounded-xl p-4 mt-4">
-            <p className="font-sans text-[12px] text-dim mb-2">Dựa trên kết quả này, Luminary sẽ luyện:</p>
+            <p className="font-sans text-[12px] text-dim mb-2">Dựa trên kết quả này, Vantage sẽ luyện:</p>
             <div className="flex flex-wrap gap-2">
               {Object.entries(topicScores)
                 .sort(([, a], [, b]) => a - b)

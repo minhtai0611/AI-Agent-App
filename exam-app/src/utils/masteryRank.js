@@ -2,7 +2,7 @@
   { id: 'Pemula',    label: 'Tân học viên',      icon: '🌱', minSolid: 0  },
   { id: 'Học sinh',  label: 'Học sinh Tiến bộ',  icon: '📚', minSolid: 16 },
   { id: 'Sinh viên', label: 'Chiến sĩ Tri thức', icon: '⚔️', minSolid: 36 },
-  { id: 'Chuyên gia',label: 'Ngôi sao Luminary',   icon: '⭐', minSolid: 56 },
+  { id: 'Chuyên gia',label: 'Ngôi sao Vantage',   icon: '⭐', minSolid: 56 },
 ]
 
 export function didRankAdvance(prevRank, newRank) {

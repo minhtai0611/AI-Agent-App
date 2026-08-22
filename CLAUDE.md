@@ -73,6 +73,18 @@ exam-app/src/
     AuthContext.jsx  # user (all profile fields), login, logout, updateProfile()
 ```
 
+## Frontend brand identity (rebrand in progress)
+
+exam-app's visible brand is being renamed from "Luminary" to **Vantage** — a full replacement of typography, icons, color palette, and visual-asset motif (not an extension of the old system). This is unrelated to the "Zenith" internal product name above; only the exam-app UI's consumer-facing brand changes.
+
+- **Mark**: summit-beacon motif (geometric peak + radiant glow) replacing the old astrolabe mark (`AstrolabeMark`/`LuminaryLogo.jsx` → `VantageLogo.jsx`)
+- **Typography**: Fraunces (display) + Inter (body/UI) — both confirmed full Vietnamese diacritic support — replacing Cormorant Garamond + Plus Jakarta Sans; JetBrains Mono kept for math/code
+- **Icons**: Phosphor (`@phosphor-icons/react`) replacing `lucide-react`
+- **Palette**: gold/amber "ascent" accent + indigo-dusk base replacing the cobalt/violet tokens; `--mastery-0..5` reskinned as base-camp→vantage-point
+- **Animation**: GSAP (+ `@gsap/react`) added alongside framer-motion (not replacing it) for scroll choreography and a tiered 3D-transform system (CSS 3D on every route, GSAP-choreographed 3D on high-traffic pages, optional lazy-loaded WebGL on 1-2 hero/celebration surfaces only)
+
+Full rollout plan (phases, file-level detail, rationale, sources) lives in the approved blueprint: `C:\Users\Tai Minh\.claude\plans\groovy-baking-beaver.md`. Check that plan's phase progress before assuming old "Luminary" naming/tokens are still current.
+
 ## User profile fields (users table)
 
 | Field | Values | Effect |
@@ -245,7 +257,7 @@ Indexed as **AI-Agent-App** — re-index with `gitnexus analyze /mnt/d/AI-Agent-
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **AI-Agent-App** (5529 symbols, 21003 relationships, 246 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **AI-Agent-App** (4517 symbols, 16798 relationships, 213 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 

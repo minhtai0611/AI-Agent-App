@@ -11,6 +11,26 @@ import { pageVariants, viewNavigate } from '../utils/animations.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { buildBriefing } from '../utils/examBriefing.js'
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
+import { useTilt3D } from '../hooks/useTilt3D.js'
+
+// Tier-1 3D hover-tilt wrapper — GSAP owns rotateX/rotateY on this outer node,
+// framer-motion (via the existing cardVariants/hoverProps) keeps owning the
+// inner scale/opacity transform on its own child element. One library per
+// DOM element, per the Vantage rebrand's animation boundary rule.
+function TiltCard({ children, className, ...rest }) {
+  const { ref, handlers } = useTilt3D()
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{ perspective: 'var(--perspective-md)', transformStyle: 'preserve-3d' }}
+      {...handlers}
+      {...rest}
+    >
+      {children}
+    </div>
+  )
+}
 
 const listVariants = {
   hidden: {},
@@ -560,14 +580,14 @@ export default function ExamSelect({ onOpenAuth }) {
                 </div>
                 <div className="flex flex-col gap-2">
                   {recommended.map(exam => (
-                    <div
+                    <TiltCard
                       key={exam.id}
                       onClick={() => openPreview(exam)}
                       className="flex items-center justify-between p-3 rounded-xl border border-primary/20 bg-surface cursor-pointer hover:border-primary/40 transition-colors"
                     >
                       <span className="font-sans text-[13px] font-semibold text-foreground">{exam.title}</span>
                       <span className="font-sans text-[11px] text-primary font-semibold">→</span>
-                    </div>
+                    </TiltCard>
                   ))}
                 </div>
               </motion.div>
@@ -643,7 +663,8 @@ export default function ExamSelect({ onOpenAuth }) {
                         }
 
                         return (
-                          <motion.div key={exam.id}
+                          <TiltCard key={exam.id} className="rounded-xl">
+                          <motion.div
                             variants={cardVariants}
                             {...hoverProps}
                             className="glass-base rounded-xl px-6 py-5 flex flex-col gap-3"
@@ -670,6 +691,7 @@ export default function ExamSelect({ onOpenAuth }) {
                                 </button>
                               </div>
                             </motion.div>
+                          </TiltCard>
                         )
                       })}
                       {!isExpanded && hiddenCount > 0 && (

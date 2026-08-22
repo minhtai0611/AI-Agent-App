@@ -43,40 +43,26 @@ const STAR_SHADOWS_TWINKLE =
   '1134px 756px 0 0 rgba(255,255,255,0.93),' +
   '67px 823px 0 0 rgba(255,255,255,0.89)'
 
-// Astrolabe mark — copied inline from LuminaryLogo.jsx (local fn, not exported)
-function AstrolabeMark({ size = 64 }) {
+// Summit-beacon mark — copied inline from VantageLogo.jsx (local fn, not exported)
+function SummitBeacon({ size = 64 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" aria-hidden="true">
-      <motion.circle
-        cx="50" cy="50" r="44"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeDasharray="3 4"
-        opacity={0.45}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 120, repeat: Infinity, ease: 'linear' }}
-        style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
-      />
+      <line x1="10" y1="84" x2="90" y2="84" stroke="currentColor" strokeWidth="1" opacity={0.3} />
+      <path d="M35 84 L58 46 L78 84" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" opacity={0.5} />
+      <path d="M18 84 L50 20 L82 84" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" opacity={0.95} />
       <motion.g
-        animate={{ rotate: -360 }}
-        transition={{ duration: 240, repeat: Infinity, ease: 'linear' }}
-        style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
+        animate={{ opacity: [0.45, 1, 0.45] }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <circle cx="50" cy="50" r="28" stroke="currentColor" strokeWidth="1" opacity={0.6} />
-        <line x1="50" y1="22" x2="50" y2="6"  stroke="currentColor" strokeWidth="2" />
-        <line x1="78" y1="50" x2="94" y2="50" stroke="currentColor" strokeWidth="2" />
-        <line x1="50" y1="78" x2="50" y2="94" stroke="currentColor" strokeWidth="2" />
-        <line x1="22" y1="50" x2="6"  y2="50" stroke="currentColor" strokeWidth="2" />
-        <line x1="50" y1="50" x2="50" y2="22" stroke="currentColor" strokeWidth="1.5" opacity={0.7} />
-        <line x1="50" y1="50" x2="78" y2="50" stroke="currentColor" strokeWidth="1.5" opacity={0.7} />
-        <line x1="50" y1="50" x2="50" y2="78" stroke="currentColor" strokeWidth="1.5" opacity={0.7} />
-        <line x1="50" y1="50" x2="22" y2="50" stroke="currentColor" strokeWidth="1.5" opacity={0.7} />
+        <line x1="50" y1="18" x2="50" y2="4" stroke="currentColor" strokeWidth="2" />
+        <line x1="58" y1="20" x2="64" y2="8" stroke="currentColor" strokeWidth="1.5" />
+        <line x1="42" y1="20" x2="36" y2="8" stroke="currentColor" strokeWidth="1.5" />
+        <line x1="65" y1="26" x2="76" y2="16" stroke="currentColor" strokeWidth="1.3" />
+        <line x1="35" y1="26" x2="24" y2="16" stroke="currentColor" strokeWidth="1.3" />
+        <line x1="70" y1="34" x2="84" y2="28" stroke="currentColor" strokeWidth="1" opacity={0.8} />
+        <line x1="30" y1="34" x2="16" y2="28" stroke="currentColor" strokeWidth="1" opacity={0.8} />
       </motion.g>
-      <line x1="75.5" y1="24.5" x2="81.1" y2="18.9" stroke="currentColor" strokeWidth="1" opacity={0.6} />
-      <line x1="75.5" y1="75.5" x2="81.1" y2="81.1" stroke="currentColor" strokeWidth="1" opacity={0.6} />
-      <line x1="24.5" y1="75.5" x2="18.9" y2="81.1" stroke="currentColor" strokeWidth="1" opacity={0.6} />
-      <line x1="24.5" y1="24.5" x2="18.9" y2="18.9" stroke="currentColor" strokeWidth="1" opacity={0.6} />
-      <circle cx="50" cy="50" r="5" fill="currentColor" opacity={0.9} />
+      <circle cx="50" cy="20" r="4" fill="currentColor" opacity={0.95} />
     </svg>
   )
 }
@@ -96,7 +82,7 @@ const MATH_GLYPHS = [
   { glyph: '∂', style: { bottom: '10%', right: '6%', fontSize: 30 } },
 ]
 
-const WORD = 'LUMINARY'.split('')
+const WORD = 'VANTAGE'.split('')
 
 export default function LandingLoader() {
   return (
@@ -186,7 +172,7 @@ export default function LandingLoader() {
               strokeWidth="0.7"
               strokeDasharray="5 8"
               fill="none"
-              className="luminary-loader-spin-cw"
+              className="vantage-loader-spin-cw"
             />
             {/* Inner ring — slow CCW rotation */}
             <circle
@@ -194,7 +180,7 @@ export default function LandingLoader() {
               stroke="rgba(91,143,240,0.18)"
               strokeWidth="0.6"
               fill="none"
-              className="luminary-loader-spin-ccw"
+              className="vantage-loader-spin-ccw"
             />
             {/* Cardinal compass dots — appear after outer ring completes */}
             {CARDINAL_DOTS.map((dot, i) => (
@@ -212,7 +198,7 @@ export default function LandingLoader() {
 
           {/* Pulsing center orb — centered via negative margins to avoid transform conflict */}
           <div
-            className="luminary-loader-orb-pulse"
+            className="vantage-loader-orb-pulse"
             style={{
               position: 'absolute',
               top: '50%',
@@ -226,7 +212,7 @@ export default function LandingLoader() {
             }}
           />
 
-          {/* Astrolabe mark */}
+          {/* Summit-beacon mark */}
           <div
             style={{
               position: 'absolute',
@@ -237,16 +223,16 @@ export default function LandingLoader() {
               filter: 'drop-shadow(0 0 18px rgba(91,143,240,0.52))',
             }}
           >
-            <AstrolabeMark size={64} />
+            <SummitBeacon size={64} />
           </div>
         </div>
 
-        {/* LUMINARY — character stagger */}
+        {/* VANTAGE — character stagger */}
         <div
           style={{
             display: 'flex',
             letterSpacing: '0.24em',
-            fontFamily: "'Sora', sans-serif",
+            fontFamily: "'Fraunces Variable', Fraunces, serif",
             fontWeight: 700,
             fontSize: 20,
             color: '#E8EDFF',
@@ -272,7 +258,7 @@ export default function LandingLoader() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.45, duration: 0.5, ease: 'easeOut' }}
           style={{
-            fontFamily: "'Sora', sans-serif",
+            fontFamily: "'Inter Variable', Inter, sans-serif",
             fontSize: 10,
             fontWeight: 400,
             letterSpacing: '0.18em',

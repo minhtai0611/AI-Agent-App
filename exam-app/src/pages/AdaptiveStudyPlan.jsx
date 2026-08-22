@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { getAdaptiveStudyPlan } from '../api/aiClient.js'
 import { pageVariants, listVariants, itemVariants } from '../utils/animations.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
-import { useRevealOnScroll } from '../hooks/useRevealOnScroll.js'
+import { useGsapReveal } from '../hooks/useGsapReveal.js'
 
 const STAGE_COLORS = [
   '#475569', // 0 unknown
@@ -108,13 +108,10 @@ function FocusConceptCard({ concept }) {
 
 function WeekSchedule({ week }) {
   const [open, setOpen] = useState(week.week === 1)
-  const { ref, inView } = useRevealOnScroll()
+  const { ref } = useGsapReveal({ variant: 'rise' })
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: inView ? 1 : 0 }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
       className="rounded-2xl border border-surface glass-base overflow-hidden"
     >
       <button
@@ -181,7 +178,7 @@ function WeekSchedule({ week }) {
           </div>
         </div>
       )}
-    </motion.div>
+    </div>
   )
 }
 

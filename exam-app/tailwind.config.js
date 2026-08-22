@@ -5,9 +5,20 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans:    ['Sora', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
-        display: ['Sora', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
+        sans:    ['"Inter Variable"', 'Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
+        body:    ['"Inter Variable"', 'Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', 'sans-serif'],
+        display: ['"Fraunces Variable"', 'Fraunces', 'ui-serif', 'Georgia', 'serif'],
         mono:    ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
+      },
+      fontSize: {
+        xs:      'var(--font-size-xs)',
+        sm:      'var(--font-size-sm)',
+        base:    'var(--font-size-base)',
+        lg:      'var(--font-size-lg)',
+        xl:      'var(--font-size-xl)',
+        '2xl':   'var(--font-size-2xl)',
+        '3xl':   'var(--font-size-3xl)',
+        display: 'var(--font-size-display)',
       },
       colors: {
         background:          'var(--background)',

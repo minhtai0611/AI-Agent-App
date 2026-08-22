@@ -14,6 +14,7 @@ import { getTopicLabel } from '../utils/topicLabels.js'
 import { PROVINCE_THRESHOLDS } from './Progress.jsx'
 import WelcomePanel from '../components/WelcomePanel'
 import { getTwoExamEstimate } from '../utils/scoreProjection'
+import { Reveal3D } from '../components/motion/Reveal3D.jsx'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -107,8 +108,8 @@ const FOCUS_CONFIGS = {
   first_exam: {
     eyebrow: 'Bắt đầu hành trình',
     title: 'Làm bài thi đầu tiên của bạn',
-    context: 'Luminary cần ít nhất 1 kết quả để xây dựng lộ trình riêng cho bạn.',
-    description: 'Luminary sẽ phân tích kết quả và xác định đúng điểm yếu của bạn.',
+    context: 'Vantage cần ít nhất 1 kết quả để xây dựng lộ trình riêng cho bạn.',
+    description: 'Vantage sẽ phân tích kết quả và xác định đúng điểm yếu của bạn.',
     cta: 'Chọn bài thi',
     path: '/exams',
     accent: 'border-primary/40 bg-primary/5',
@@ -153,7 +154,7 @@ const FOCUS_CONFIGS = {
     eyebrow: 'Tạo tín hiệu học tập',
     title: 'Làm bài thi tiếp theo',
     context: null,
-    description: 'Mỗi bài thi giúp Luminary hiểu hơn về điểm yếu của bạn.',
+    description: 'Mỗi bài thi giúp Vantage hiểu hơn về điểm yếu của bạn.',
     cta: 'Chọn bài thi',
     path: '/exams',
     accent: 'border-border',
@@ -551,7 +552,7 @@ export default function Home() {
         particleCount: streak >= 14 ? 200 : 100,
         spread: 60,
         origin: { x: 0.5, y: 0.3 },
-        colors: ['#3B6FE8', '#7C5CE8', '#059669', '#5B8FF0'],
+        colors: ['#A6620C', '#4C3B8C', '#059669', '#F0A93E'],
         ticks: 300,
       })
     }, 800)
@@ -884,7 +885,7 @@ export default function Home() {
 
         {/* ── Weak Concepts + Recent Exam ── */}
         {hasLearningData && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Reveal3D as="div" variant="rise" amount={0.2} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
             {/* Weak concepts */}
             {weakConcepts.length > 0 && (
@@ -941,7 +942,7 @@ export default function Home() {
                 )}
               </div>
             )}
-          </div>
+          </Reveal3D>
         )}
 
         </>}
@@ -954,9 +955,9 @@ export default function Home() {
             </p>
             <div className="flex flex-col gap-2">
               {[
-                { n: '1', text: 'Làm bài thi thử — Luminary ghi nhận từng câu đúng/sai.' },
+                { n: '1', text: 'Làm bài thi thử — Vantage ghi nhận từng câu đúng/sai.' },
                 { n: '2', text: 'AI phân tích điểm yếu và phân loại lỗi sai.' },
-                { n: '3', text: 'Luminary tạo lịch ôn tập cá nhân theo thuật toán FSRS.' },
+                { n: '3', text: 'Vantage tạo lịch ôn tập cá nhân theo thuật toán FSRS.' },
               ].map(s => (
                 <div key={s.n} className="flex items-start gap-3">
                   <span className="shrink-0 w-5 h-5 rounded-full bg-primary/20 text-primary font-sans text-[11px] font-bold flex items-center justify-center mt-0.5">
@@ -990,7 +991,7 @@ export default function Home() {
           const totalReviews = results.reduce((acc, r) => acc + (r.questions_reviewed ?? 0), 0)
           return (
             <div data-testid="week-report-card" className="bg-surface border border-border rounded-2xl p-5 flex flex-col gap-2">
-              <span className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Tuần đầu tiên với Luminary</span>
+              <span className="font-sans text-[11px] font-semibold uppercase tracking-wider text-dim">Tuần đầu tiên với Vantage</span>
               <div className="grid grid-cols-2 gap-3 mt-1">
                 <div>
                   <p className="font-sans text-[20px] font-bold text-foreground">{results.length}</p>

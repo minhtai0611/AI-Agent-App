@@ -49,7 +49,7 @@ export function checkAndShowWeeklyReport({ streak = 0, masteredThisWeek = 0, acc
     : 'Bắt đầu tuần mới với một buổi ôn tập ngắn!'
 
   try {
-    new Notification('Luminary — Tuần học vừa qua', {
+    new Notification('Vantage — Tuần học vừa qua', {
       body,
       icon: '/favicon.svg',
       badge: '/favicon.svg',
@@ -76,7 +76,7 @@ export function checkAndShowStudyReminder() {
 
   localStorage.setItem(lastKey, String(now))
   try {
-    new Notification('Luminary — Ôn tập hôm nay chưa?', {
+    new Notification('Vantage — Ôn tập hôm nay chưa?', {
       body: 'Một bài thi ngắn giúp bạn ghi nhớ kiến thức tốt hơn!',
       icon: '/favicon.svg',
       badge: '/favicon.svg',
