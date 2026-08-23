@@ -1,16 +1,13 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useState, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useExamDispatch } from '../context/ExamContext.jsx'
-import { useAuth } from '../context/AuthContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
-import { loadExams, loadThiThuExams, loadQuestionsByIds, loadExamById, getAccessibleExamIds, loadQuestions } from '../api/index.js'
-import { ocrExam } from '../api/aiClient.js'
+import { loadExams, loadThiThuExams, loadQuestionsByIds, loadExamById } from '../api/index.js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pageVariants, viewNavigate } from '../utils/animations.js'
 
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { buildBriefing } from '../utils/examBriefing.js'
-import { TOPIC_LABELS } from '../utils/topicLabels.js'
 import { useTilt3D } from '../hooks/useTilt3D.js'
 
 // Tier-1 3D hover-tilt wrapper — GSAP owns rotateX/rotateY on this outer node,
@@ -66,23 +63,11 @@ function saveFilters(f) {
   try { sessionStorage.setItem(FILTER_KEY, JSON.stringify(f)) } catch {}
 }
 
-function getAllowedCategories() {
-  return ['grade10', 'thpt']
-}
-
-export default function ExamSelect({ onOpenAuth }) {
-  usePageMeta('Chọn đề thi', { description: 'Đề thi THPT & lớp 10 từ 63 tỉnh thành · Luyện tập toán có thời gian · Công cụ Lab AI.' })
+export default function ExamSelect() {
+  usePageMeta('Chọn đề thi', { description: 'Đề thi THPT & lớp 10 từ 63 tỉnh thành · Luyện tập toán có thời gian.' })
   const navigate = useNavigate()
   const dispatch = useExamDispatch()
-  const { user } = useAuth()
   const { results } = useHistory()
-  const [searchParams] = useSearchParams()
-  const urlMode = searchParams.get('mode')
-  const [mode, setMode] = useState(
-    ['lab', 'study_plan'].includes(urlMode) ? urlMode : 'exams'
-  )
-  const [studyPlanTopics, setStudyPlanTopics] = useState([])
-  const [studyPlanLoading, setStudyPlanLoading] = useState(false)
   const [previewExam, setPreviewExam] = useState(null)
   const [expandedCategories, setExpandedCategories] = useState({})
 
@@ -90,74 +75,17 @@ export default function ExamSelect({ onOpenAuth }) {
   const [filterYear, setFilterYear] = useState(saved.year ?? null)
   const [filterSearch, setFilterSearch] = useState(saved.search ?? '')
   const [allExams, setAllExams] = useState([])
-  const [ocrLoading, setOcrLoading] = useState(false)
-  const [ocrError, setOcrError] = useState('')
-  const [ocrQuestions, setOcrQuestions] = useState(null)
-  const ocrInputRef = useRef(null)
   const [briefingChecked, setBriefingChecked] = useState({ quiet: false, water: false, phone: false })
   const [metacogAnswer, setMetacogAnswer] = useState(null)
 
   useEffect(() => {
-    if (mode === 'lab' || mode === 'study_plan') { setAllExams([]); return }
     Promise.all([loadThiThuExams(), loadExams()]).then(([timedData, practiceData]) => {
       setAllExams([
         ...timedData.map(e => ({ ...e, _examType: 'timed' })),
         ...practiceData.map(e => ({ ...e, _examType: 'practice' })),
       ])
     })
-  }, [mode])
-
-  // Study plan tab: read focus areas from most recent cached plan
-  useEffect(() => {
-    if (mode !== 'study_plan' || !user) return
-    const uid = user.id
-    // Build reverse map: Vietnamese name → slug
-    const viToSlug = Object.fromEntries(
-      Object.entries(TOPIC_LABELS).map(([slug, vi]) => [vi.toLowerCase(), slug])
-    )
-    // Scan localStorage for latest recovery-path-data for this user
-    const prefix = `recovery-path-data-${uid}-`
-    const topics = new Set()
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i)
-      if (!key?.startsWith(prefix)) continue
-      try {
-        const plan = JSON.parse(localStorage.getItem(key))
-        if (Array.isArray(plan?.focus_areas)) {
-          plan.focus_areas.forEach(fa => {
-            const slug = viToSlug[fa.topic?.toLowerCase()] || fa.topic
-            if (slug) topics.add(slug)
-          })
-        }
-      } catch {}
-    }
-    // Also scan AI analysis cache for weak_topics
-    const analysisPfx = `ai-analysis-${uid}-`
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i)
-      if (!key?.startsWith(analysisPfx)) continue
-      try {
-        const cached = JSON.parse(localStorage.getItem(key))
-        if (Array.isArray(cached?.data?.weak_topics)) {
-          cached.data.weak_topics.forEach(t => topics.add(t))
-        }
-      } catch {}
-    }
-    setStudyPlanTopics([...topics].filter(slug => slug in TOPIC_LABELS))
-  }, [mode, user])
-
-  const mistakeCount = useMemo(() => {
-    const seen = new Set()
-    for (const r of results) {
-      for (const qId of Object.keys(r.answers ?? {})) seen.add(qId)
-    }
-    return seen.size
-  }, [results])
-
-  const { accessible: accessibleExamIds, lockReason } = useMemo(
-    () => getAccessibleExamIds(allExams, user),
-    [allExams, user]
-  )
+  }, [])
 
   const bestScores = useMemo(() => {
     const map = {}
@@ -170,7 +98,7 @@ export default function ExamSelect({ onOpenAuth }) {
   const availableYears = [...new Set(allExams.map(e => e.year).filter(Boolean))].sort((a, b) => b - a)
 
   const exams = useMemo(() => {
-    const filtered = allExams.filter(e => {
+    return allExams.filter(e => {
       if (filterYear && e.year !== filterYear) return false
       if (filterSearch.trim()) {
         const q = filterSearch.toLowerCase()
@@ -178,19 +106,7 @@ export default function ExamSelect({ onOpenAuth }) {
       }
       return true
     })
-
-    // Province moat: sort province-matching exams to the top when user has a province set
-    const province = user?.province
-    if (!province || filterSearch.trim()) return filtered
-    const pLower = province.toLowerCase()
-    return [...filtered].sort((a, b) => {
-      const aMatch = (a.title || '').toLowerCase().includes(pLower) || (a.source || '').toLowerCase().includes(pLower)
-      const bMatch = (b.title || '').toLowerCase().includes(pLower) || (b.source || '').toLowerCase().includes(pLower)
-      if (aMatch && !bMatch) return -1
-      if (!aMatch && bMatch) return 1
-      return 0
-    })
-  }, [allExams, filterYear, filterSearch, user?.province])
+  }, [allExams, filterYear, filterSearch])
 
   function setYear(y) {
     setFilterYear(y)
@@ -200,36 +116,6 @@ export default function ExamSelect({ onOpenAuth }) {
     setFilterSearch(s)
     saveFilters({ year: filterYear, search: s })
   }
-
-  async function handleOcrUpload(e) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (file.size > 5 * 1024 * 1024) { setOcrError('Ảnh quá lớn — tối đa 5 MB'); return }
-    setOcrLoading(true)
-    setOcrError('')
-    setOcrQuestions(null)
-    const { data, error } = await ocrExam(file)
-    setOcrLoading(false)
-    if (error) { setOcrError(typeof error === 'string' ? error : 'Không đọc được ảnh — thử lại với ảnh rõ hơn'); return }
-    if (!data?.questions?.length) { setOcrError('Không tìm thấy câu hỏi nào trong ảnh'); return }
-    setOcrQuestions(data.questions)
-    e.target.value = ''
-  }
-
-  function startOcrExam() {
-    if (!ocrQuestions?.length) return
-    const fakeExam = {
-      id: `ocr-${Date.now()}`,
-      title: 'Đề thi từ ảnh',
-      questionIds: ocrQuestions.map(q => q.id),
-      duration: Math.ceil(ocrQuestions.length * 1.5),
-      source: 'ocr',
-    }
-    dispatch({ type: 'START_EXAM', exam: fakeExam, questions: ocrQuestions, mode: 'practice' })
-    navigate(`/test/${fakeExam.id}`)
-  }
-
-  const allowedCategories = getAllowedCategories()
 
   const motivationalHeader = useMemo(() => {
     if (!results || results.length === 0) return 'Bắt đầu với một đề thi phù hợp với trình độ của bạn.'
@@ -249,16 +135,8 @@ export default function ExamSelect({ onOpenAuth }) {
   }, [results])
 
   async function handleStart(exam, startMode = 'timed') {
-    if (!user) { onOpenAuth?.(); return }
-    // API-loaded exams omit questionIds; fall back to bundled exam data which always has them
     const ids = exam.questionIds?.length ? exam.questionIds : (loadExamById(exam.id)?.questionIds ?? [])
-    let questions
-    try {
-      questions = await loadQuestionsByIds(ids, true)
-    } catch (err) {
-      if (err.message === 'auth_required') { onOpenAuth?.(); return }
-      questions = await loadQuestionsByIds(ids, false)
-    }
+    const questions = await loadQuestionsByIds(ids)
     dispatch({ type: 'START_EXAM', exam, questions, mode: startMode })
     viewNavigate(navigate, `/test/${exam.id}`)
   }
@@ -275,49 +153,8 @@ export default function ExamSelect({ onOpenAuth }) {
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
       className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-10 py-4 bg-surface border-b border-border">
-        <button onClick={() => navigate('/')} className="font-sans text-sm text-dim hover:text-muted transition">
-          ← Trang chủ
-        </button>
-        <div className="flex items-center gap-1 glass-base rounded-full p-1">
-          {[
-            { value: 'exams',       label: 'Đề thi' },
-            { value: 'study_plan',  label: '📋 Kế hoạch' },
-            { value: 'lab',         label: '⚗ Công cụ AI' },
-          ].map(opt => (
-            <button key={opt.value} onClick={() => setMode(opt.value)}
-              className={`px-3 py-2 rounded-full font-sans text-xs transition ${
-                mode === opt.value
-                  ? opt.value === 'lab'
-                    ? 'bg-info text-white font-semibold'
-                    : 'bg-primary text-primary-fg font-semibold'
-                  : 'text-muted'
-              }`}>
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </nav>
-
-      {/* Guest notice */}
-      {!user && (
-        <div className="mx-10 mt-6 px-5 py-3 rounded-xl border border-border bg-surface flex items-center justify-between gap-3">
-          <span className="font-sans text-[0.8125rem] text-muted">
-            Đăng nhập để truy cập đề thi có thời gian và luyện tập.
-          </span>
-          <button
-            onClick={onOpenAuth}
-            className="flex-shrink-0 px-4 py-1.5 rounded-lg font-sans text-xs font-bold"
-            style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}
-          >
-            Đăng nhập
-          </button>
-        </div>
-      )}
-
-      {/* Filter bar — hidden in Lab / Study Plan mode */}
-      <div className={`flex flex-wrap items-center gap-3 px-10 pt-6${(mode === 'lab' || mode === 'study_plan') ? ' hidden' : ''}`}>
+      {/* Filter bar */}
+      <div className="flex flex-wrap items-center gap-3 px-10 pt-6">
         <input
           type="search"
           placeholder="Tìm đề thi..."
@@ -325,19 +162,6 @@ export default function ExamSelect({ onOpenAuth }) {
           onChange={e => setSearch(e.target.value)}
           className="h-9 px-4 rounded-full border border-border bg-surface-elevated font-sans text-[0.8125rem] text-foreground placeholder-faint focus:outline-none focus:border-primary w-48"
         />
-        {/* OCR upload — student/complete tier only */}
-        {user && user.subscription_tier !== 'basic' && (
-          <>
-            <input ref={ocrInputRef} type="file" accept="image/*" className="hidden" onChange={handleOcrUpload} />
-            <button
-              onClick={() => ocrInputRef.current?.click()}
-              disabled={ocrLoading}
-              className="h-9 px-4 rounded-full border border-info/30 bg-info/10 font-sans text-xs font-semibold text-info hover:border-info/60 transition disabled:opacity-50 flex items-center gap-1.5"
-            >
-              {ocrLoading ? <><span className="animate-spin">⟳</span> Đang đọc...</> : <>📷 Tải ảnh đề thi</>}
-            </button>
-          </>
-        )}
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setYear(null)}
@@ -357,29 +181,6 @@ export default function ExamSelect({ onOpenAuth }) {
         </div>
       </div>
 
-      {/* OCR result panel */}
-      {(ocrError || ocrQuestions) && (
-        <div className={`mx-10 mt-4 px-5 py-4 rounded-xl flex items-center justify-between gap-4 ${ocrError ? 'bg-destructive/5 border border-destructive/25' : 'bg-success/5 border border-success/25'}`}>
-          {ocrError ? (
-            <span className="font-sans text-[0.8125rem] text-destructive">{ocrError}</span>
-          ) : (
-            <>
-              <span className="font-sans text-[0.8125rem] text-success">
-                ✓ Đọc được <strong>{ocrQuestions.length}</strong> câu hỏi từ ảnh
-              </span>
-              <button
-                onClick={startOcrExam}
-                className="px-5 py-2 rounded-lg font-sans text-[0.8125rem] font-bold text-primary-fg bg-success hover:opacity-90 transition flex-shrink-0"
-              >
-                Bắt đầu luyện tập →
-              </button>
-            </>
-          )}
-          <button onClick={() => { setOcrError(''); setOcrQuestions(null) }}
-            className="text-faint hover:text-muted text-lg flex-shrink-0">✕</button>
-        </div>
-      )}
-
       {/* Content */}
       <div className="flex flex-col gap-10 p-10">
         <div className="flex flex-col gap-2">
@@ -387,219 +188,18 @@ export default function ExamSelect({ onOpenAuth }) {
           <p className="font-sans text-sm text-dim">{motivationalHeader}</p>
         </div>
 
-        {/* ── 📋 Study Plan mode ───────────────────────────────────────────── */}
-        {mode === 'study_plan' && !user && (
-          <div className="flex flex-col items-center gap-4 py-20 text-center">
-            <span className="text-4xl">📋</span>
-            <p className="font-sans text-sm text-foreground font-semibold">Đăng nhập để dùng Kế hoạch học</p>
-            <p className="font-sans text-xs text-muted">Hoàn thành bài thi và tạo kế hoạch học AI để ôn tập đúng trọng tâm.</p>
-            <button onClick={onOpenAuth}
-              className="px-5 py-2.5 rounded-xl font-sans text-sm font-bold bg-primary text-primary-fg">
-              Đăng nhập →
-            </button>
-          </div>
-        )}
-
-        {mode === 'study_plan' && user && (
-          <motion.div key="study_plan" variants={listVariants} initial="hidden" animate="show"
-            className="flex flex-col gap-6">
-            <div className="flex flex-col gap-1">
-              <span className="font-sans text-[0.6875rem] font-bold tracking-[3px] uppercase text-faint">Ôn tập theo kế hoạch</span>
-              <p className="font-sans text-[0.8125rem] text-faint">Câu hỏi được lọc theo các chủ đề yếu trong kế hoạch học của bạn</p>
-            </div>
-
-            {studyPlanTopics.length === 0 ? (
-              <motion.div variants={cardVariants}
-                className="flex flex-col items-center gap-4 py-20 text-center">
-                <span className="text-5xl">🗺️</span>
-                <p className="font-sans text-sm text-foreground font-semibold">Chưa có kế hoạch học</p>
-                <p className="font-sans text-xs text-muted max-w-xs">
-                  Hoàn thành một bài thi và nhấn "Tạo Kế Hoạch" trên trang Kết quả để kích hoạt tính năng này.
-                </p>
-                <button onClick={() => setMode('exams')}
-                  className="px-5 py-2.5 rounded-xl font-sans text-sm font-bold bg-primary text-primary-fg">
-                  Chọn đề thi →
-                </button>
-              </motion.div>
-            ) : (
-              <motion.div variants={cardVariants} className="flex flex-col gap-6">
-                <div className="flex flex-col gap-3">
-                  <span className="font-sans text-[0.8125rem] font-semibold text-muted">Chủ đề cần ôn tập</span>
-                  <div className="flex flex-wrap gap-2">
-                    {studyPlanTopics.map(slug => (
-                      <span key={slug}
-                        className="px-3 py-1.5 rounded-full font-sans text-xs font-semibold border border-primary/30 bg-primary/5 text-primary">
-                        {TOPIC_LABELS[slug] ?? slug}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <button
-                  onClick={async () => {
-                    const allQs = await loadQuestions()
-                    const filtered = allQs.filter(q => studyPlanTopics.includes(q.topic))
-                    if (!filtered.length) { navigate('/practice/adaptive'); return }
-                    const shuffled = [...filtered].sort(() => Math.random() - 0.5).slice(0, 40)
-                    const fakeExam = {
-                      id: `study-plan-session-${Date.now()}`,
-                      title: 'Ôn tập theo kế hoạch',
-                      questionIds: shuffled.map(q => q.id),
-                      duration: Math.ceil(shuffled.length * 1.5),
-                      source: 'study_plan',
-                    }
-                    dispatch({ type: 'START_EXAM', exam: fakeExam, questions: shuffled, mode: 'practice' })
-                    navigate(`/test/${fakeExam.id}`)
-                  }}
-                  className="self-start px-6 py-3 rounded-xl font-sans text-sm font-bold bg-primary text-primary-fg hover:opacity-90 transition"
-                >
-                  Bắt đầu ôn tập →
-                </button>
-              </motion.div>
-            )}
-          </motion.div>
-        )}
-
-        {/* ── ⚗ Lab mode ──────────────────────────────────────────────────── */}
-        {mode === 'lab' && !user && (
-          <div className="flex flex-col items-center gap-4 py-20 text-center">
-            <span className="text-4xl">🔒</span>
-            <p className="font-sans text-sm text-foreground font-semibold">Đăng nhập để dùng Lab</p>
-            <p className="font-sans text-xs text-muted">Lab cung cấp công cụ AI phân tích và luyện tập nâng cao.</p>
-            <button onClick={onOpenAuth}
-              className="px-5 py-2.5 rounded-xl font-sans text-sm font-bold bg-primary text-primary-fg">
-              Đăng nhập →
-            </button>
-          </div>
-        )}
-
-        {mode === 'lab' && user && (
-          <motion.div key="lab" variants={listVariants} initial="hidden" animate="show"
-            className="flex flex-col gap-6">
-
-            <div className="flex flex-col gap-1">
-              <span className="font-sans text-[0.6875rem] font-bold tracking-[3px] uppercase text-faint">Công cụ AI</span>
-              <p className="font-sans text-[0.8125rem] text-faint">Tạo đề · Tải ảnh đề · Bản đồ khái niệm · Phân tích lỗi sai</p>
-            </div>
-
-            {/* OCR upload in lab */}
-            {user && user.subscription_tier !== 'basic' && (
-              <motion.button variants={cardVariants}
-                onClick={() => ocrInputRef.current?.click()}
-                disabled={ocrLoading}
-                className="w-full text-left rounded-2xl p-5 flex items-center gap-4 border border-info/20 bg-info/5 hover:border-info/40 transition disabled:opacity-50"
-              >
-                <span className="text-2xl">📷</span>
-                <div className="flex flex-col gap-0.5 flex-1">
-                  <span className="font-sans text-sm font-semibold text-foreground">
-                    {ocrLoading ? 'Đang đọc đề thi...' : 'Tải ảnh đề thi'}
-                  </span>
-                  <span className="font-sans text-xs text-dim">Chụp đề thi — AI nhận dạng và tạo bài ngay</span>
-                </div>
-                {ocrLoading && <span className="animate-spin text-info">⟳</span>}
-              </motion.button>
-            )}
-
-            {/* Grid: secondary tools */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {user?.subscription_tier === 'complete' && (
-                <motion.button variants={cardVariants}
-                  onClick={() => navigate('/generate-exam')}
-                  className="w-full text-left rounded-2xl p-5 flex flex-col gap-3 glass-brand transition"
-                >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xl">✦</span>
-                      <span className="font-sans text-[0.625rem] font-bold tracking-[2px] uppercase px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/30">Toàn diện</span>
-                    </div>
-                    <div>
-                      <p className="font-sans text-sm font-semibold text-foreground">Tạo đề riêng</p>
-                      <p className="font-sans text-xs text-dim mt-0.5">AI tạo đề theo chủ đề & độ khó bạn chọn</p>
-                    </div>
-                    <span className="font-sans text-xs font-semibold mt-auto text-primary">Tạo đề →</span>
-                  </motion.button>
-              )}
-
-              {/* Lab feature cards */}
-              {[
-                { label: 'Bản đồ khái niệm', desc: 'Visualize mối liên hệ giữa các chủ đề Toán', path: '/concept-map', accent: '#818CF8', minTier: null },
-                { label: 'Phân tích lỗi sai', desc: 'AI phân tích pattern lỗi trong toàn bộ lịch sử thi', path: '/error-analysis', accent: '#FB7185', minTier: 'student' },
-              ].map(({ label, desc, path, accent, minTier }) => {
-                const isLabLocked = minTier === 'student' && user?.subscription_tier === 'basic'
-                if (isLabLocked) {
-                  return (
-                    <div key={label}
-                      className="rounded-2xl p-5 border border-border flex flex-col gap-2 text-left opacity-50">
-                      <p className="font-sans text-sm font-semibold text-dim">🔒 {label}</p>
-                      <p className="font-sans text-xs text-faint">Yêu cầu gói Học sinh hoặc Toàn diện</p>
-                      <button onClick={() => navigate('/account')}
-                        className="font-sans text-xs font-semibold mt-auto text-dim hover:text-foreground transition text-left">
-                        Nâng cấp →
-                      </button>
-                    </div>
-                  )
-                }
-                return (
-                  <motion.button key={label}
-                    onClick={() => navigate(path)}
-                    className="rounded-2xl p-5 border border-border flex flex-col gap-2 text-left transition hover:border-primary/30 hover:bg-surface-elevated"
-                    whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-                    <p className="font-sans text-sm font-semibold text-foreground">{label}</p>
-                    <p className="font-sans text-xs text-dim">{desc}</p>
-                    <span className="font-sans text-xs font-semibold mt-auto transition" style={{ color: accent }}>Mở →</span>
-                  </motion.button>
-                )
-              })}
-            </div>
-          </motion.div>
-        )}
-
-        {/* ── Exam list: timed / practice / applied / olympiad ─────────────── */}
-        {mode !== 'lab' && mode !== 'study_plan' && (
-          <motion.div
-            className="flex flex-col gap-10"
-            key={mode}
-            variants={listVariants}
-            initial="hidden"
-            animate="show"
-          >
-          {/* Pinned recommendation row */}
-          {user?.grade && (() => {
-            const gradeCategory = parseInt(user.grade) <= 9 ? 'grade10' : 'thpt'
-            const recommended = allExams
-              .filter(e => e.category === gradeCategory)
-              .sort((a, b) => (b.year ?? 0) - (a.year ?? 0))
-              .slice(0, 2)
-            if (!recommended.length) return null
-            return (
-              <motion.div data-testid="recommended-exams" variants={cardVariants} className="mb-2">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="font-sans text-[12px] font-semibold text-foreground">Đề phù hợp với bạn</span>
-                  <span className="font-sans text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
-                    Mới nhất 2025
-                  </span>
-                </div>
-                <div className="flex flex-col gap-2">
-                  {recommended.map(exam => (
-                    <TiltCard
-                      key={exam.id}
-                      onClick={() => openPreview(exam)}
-                      className="flex items-center justify-between p-3 rounded-xl border border-primary/20 bg-surface cursor-pointer hover:border-primary/40 transition-colors"
-                    >
-                      <span className="font-sans text-[13px] font-semibold text-foreground">{exam.title}</span>
-                      <span className="font-sans text-[11px] text-primary font-semibold">→</span>
-                    </TiltCard>
-                  ))}
-                </div>
-              </motion.div>
-            )
-          })()}
+        <motion.div
+          className="flex flex-col gap-10"
+          variants={listVariants}
+          initial="hidden"
+          animate="show"
+        >
           {groups.map(group => {
-            const categoryAllowed = !allowedCategories || allowedCategories.includes(group.category)
             const groupExams = exams.filter(e => e.category === group.category && e._examType === group.source)
             const groupKey = group.category + (group.source ?? '')
             if (groupExams.length === 0) return null
             return (
-              <motion.section key={groupKey + mode} variants={cardVariants}>
+              <motion.section key={groupKey} variants={cardVariants}>
                 <div className="flex items-center gap-3 mb-4">
                   <span
                     className="font-sans text-[0.6875rem] font-bold tracking-[2px] uppercase px-2.5 py-1 rounded"
@@ -614,89 +214,48 @@ export default function ExamSelect({ onOpenAuth }) {
                 </div>
                 <div className="h-px mb-4" style={{ background: group.accent + '33' }} />
 
-                {!categoryAllowed ? (
-                  <div className="px-5 py-4 rounded-xl border border-border bg-surface flex items-center justify-between gap-4">
-                    <span className="font-sans text-[0.8125rem] text-dim">
-                      Nâng cấp lên gói <strong className="text-[var(--accent)]">Toàn diện</strong> để truy cập danh mục này.
-                    </span>
-                    <button
-                      onClick={() => navigate('/account#topup')}
-                      className="flex-shrink-0 px-4 py-1.5 rounded-lg font-sans text-xs font-bold"
-                      style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}
-                    >
-                      Nâng cấp
-                    </button>
-                  </div>
-                ) : (() => {
+                {(() => {
                   const SHOW_FIRST = 5
-                  const isExpanded = !!expandedCategories[groupKey + mode]
+                  const isExpanded = !!expandedCategories[groupKey]
                   const visibleExams = isExpanded ? groupExams : groupExams.slice(0, SHOW_FIRST)
                   const hiddenCount = groupExams.length - SHOW_FIRST
                   return (
                     <div className="flex flex-col gap-3">
-                      {visibleExams.map(exam => {
-                        const isLocked = !accessibleExamIds.has(exam.id)
-                        if (isLocked) {
-                          const lockMsg = lockReason === 'auth'
-                            ? 'Đăng nhập để truy cập đề thi này'
-                            : user?.subscription_tier === 'basic'
-                              ? 'Yêu cầu gói Học sinh hoặc Toàn diện'
-                              : 'Yêu cầu gói Toàn diện'
-                          const lockCta = lockReason === 'auth' ? 'Đăng nhập' : 'Nâng cấp'
-                          const lockAction = lockReason === 'auth' ? onOpenAuth : () => navigate('/account')
-                          return (
-                            <motion.div key={exam.id} variants={cardVariants}
-                              className="glass-base rounded-xl px-6 py-5 flex items-center justify-between gap-4 opacity-60">
-                              <div className="flex items-center gap-2">
-                                <span className="text-dim">🔒</span>
-                                <div className="flex flex-col gap-0.5">
-                                  <span className="font-sans text-[15px] font-semibold text-dim">{exam.title}</span>
-                                  <span className="font-sans text-xs text-faint">{lockMsg}</span>
-                                </div>
-                              </div>
-                              <button onClick={lockAction}
-                                className="flex-shrink-0 px-4 py-2 rounded-md font-sans text-xs font-semibold border border-border text-dim hover:text-foreground hover:border-foreground/40 transition">
-                                {lockCta} →
-                              </button>
-                            </motion.div>
-                          )
-                        }
-
-                        return (
-                          <TiltCard key={exam.id} className="rounded-xl">
+                      {visibleExams.map(exam => (
+                        <TiltCard key={exam.id} className="rounded-xl">
                           <motion.div
                             variants={cardVariants}
                             {...hoverProps}
                             className="glass-base rounded-xl px-6 py-5 flex flex-col gap-3"
                             style={{ borderLeft: `3px solid ${group.accent}99` }}
                           >
-                              <div className="flex items-start justify-between gap-4">
-                                <div className="flex flex-col gap-1.5">
-                                  <span className="font-sans text-[15px] font-semibold text-foreground">{exam.title}</span>
-                                  <span className="font-sans text-[0.8125rem] text-dim">
-                                    {exam.year} · {exam.totalQuestions} câu · {exam.duration} phút
-                                    {exam.source && ` · ${exam.source}`}
-                                  </span>
-                                </div>
-                                <button
-                                  onClick={() => openPreview(exam)}
-                                  className="flex-shrink-0 px-5 py-2 rounded-md font-sans text-[0.8125rem] font-semibold transition"
-                                  style={{ background: 'transparent', border: `1px solid ${group.accent}`, color: group.accent }}
-                                  onMouseEnter={e => e.currentTarget.style.background = group.accent + '1A'}
-                                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                  onFocus={e => e.currentTarget.style.background = group.accent + '1A'}
-                                  onBlur={e => e.currentTarget.style.background = 'transparent'}
-                                >
-                                  Bắt đầu
-                                </button>
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex flex-col gap-1.5">
+                                <span className="font-sans text-[15px] font-semibold text-foreground">{exam.title}</span>
+                                <span className="font-sans text-[0.8125rem] text-dim">
+                                  {exam.year} · {exam.totalQuestions} câu · {exam.duration} phút
+                                  {exam.source && ` · ${exam.source}`}
+                                  {bestScores[exam.id] !== undefined && ` · Điểm cao nhất: ${bestScores[exam.id]}`}
+                                </span>
                               </div>
-                            </motion.div>
-                          </TiltCard>
-                        )
-                      })}
+                              <button
+                                onClick={() => openPreview(exam)}
+                                className="flex-shrink-0 px-5 py-2 rounded-md font-sans text-[0.8125rem] font-semibold transition"
+                                style={{ background: 'transparent', border: `1px solid ${group.accent}`, color: group.accent }}
+                                onMouseEnter={e => e.currentTarget.style.background = group.accent + '1A'}
+                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                onFocus={e => e.currentTarget.style.background = group.accent + '1A'}
+                                onBlur={e => e.currentTarget.style.background = 'transparent'}
+                              >
+                                Bắt đầu
+                              </button>
+                            </div>
+                          </motion.div>
+                        </TiltCard>
+                      ))}
                       {!isExpanded && hiddenCount > 0 && (
                         <button
-                          onClick={() => setExpandedCategories(prev => ({ ...prev, [groupKey + mode]: true }))}
+                          onClick={() => setExpandedCategories(prev => ({ ...prev, [groupKey]: true }))}
                           className="font-sans text-[0.8125rem] text-center py-2.5 rounded-xl border border-dashed border-border text-faint hover:text-muted hover:border-border-subtle transition">
                           + Xem thêm ({hiddenCount} đề)
                         </button>
@@ -707,9 +266,7 @@ export default function ExamSelect({ onOpenAuth }) {
               </motion.section>
             )
           })}
-          </motion.div>
-        )}
-
+        </motion.div>
       </div>
 
       {/* Exam preview modal */}

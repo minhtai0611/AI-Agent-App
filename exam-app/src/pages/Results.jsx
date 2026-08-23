@@ -1,12 +1,9 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import confetti from 'canvas-confetti'
-import { Button } from '../components/ui/button.jsx'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs.jsx'
-import { useAuth } from '../context/AuthContext.jsx'
 import { NumberTicker } from '../components/ui/number-ticker.jsx'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { pageVariants, viewNavigate, cardHover } from '../utils/animations.js'
-import AchievementCeremony from '../components/AchievementCeremony.jsx'
 import { Reveal3D } from '../components/motion/Reveal3D.jsx'
 import { Scene3DLazy } from '../components/motion/Scene3DLazy.jsx'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
@@ -18,25 +15,14 @@ import {
   RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer,
   LineChart, Line, XAxis, Tooltip,
 } from 'recharts'
-import { loadExamById, loadQuestionsByIds, buildStudyPlanPayload, buildAnalyzePayload, recommendNextExam } from '../api/index.js'
-import { analyzeResult as aiAnalyzeResult, analyzeResultStream, generateStudyPlan, getPercentile, predictScore, getExamDistribution, postHistory } from '../api/aiClient.js'
-import { loadPreferences } from '../utils/aiPreferences.js'
-import AIInsights from '../components/AIInsights.jsx'
-import AIErrorBoundary from '../components/AIErrorBoundary.jsx'
+import { loadExamById, loadQuestionsByIds } from '../api/index.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { MathText } from '../components/MathText.jsx'
-import { TOPIC_LABELS, getTopicLabel } from '../utils/topicLabels.js'
-import { classifyLearner } from '../utils/learnerArchetype.js'
-import { TOPIC_ID_MAP } from '../utils/learningGraph.js'
-import { safeSetItem } from '../utils/storageManager.js'
+import { getTopicLabel } from '../utils/topicLabels.js'
 import { requestStudyReminder, checkAndShowStudyReminder } from '../utils/studyReminder.js'
-import MilestoneCard from '../components/MilestoneCard'
 import ResultShareCard from '../components/ResultShareCard.jsx'
-import { useToast } from '../context/ToastContext.jsx'
-import MarkdownProse from '../components/MarkdownProse.jsx'
 import schoolsData from '../data/schools.json'
-import provincePatterns from '../data/province_patterns.json'
-import scoreCorrelation from '../data/score_correlation.json'
+
 const DIFF_RANK = { hard: 3, medium: 2, easy: 1 }
 
 const _listVariants = {
@@ -48,107 +34,6 @@ const _itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.28, ease: 'easeOut' } },
   hover:   cardHover.hover,
 }
-
-function parseSchoolsFromText(text) {
-  if (!text) return []
-  const parts = text.split(/(?=\(\d+\))/).filter(Boolean)
-  if (parts.length <= 1) return []
-  return parts.map((raw, i) => {
-    const clean = raw.replace(/^\(\d+\)\s*/, '').trim()
-    const dashIdx = clean.indexOf('—')
-    const name = dashIdx > -1 ? clean.slice(0, dashIdx).trim() : clean
-    const note = dashIdx > -1 ? clean.slice(dashIdx + 1).trim() : ''
-    return { name, note, score_range: '', type: '', region_note: '' }
-  })
-}
-
-function parseScoreRange(rangeStr) {
-  if (!rangeStr) return null
-  const nums = rangeStr.match(/[\d.]+/g)
-  if (!nums || nums.length < 2) return null
-  return { min: parseFloat(nums[0]), max: parseFloat(nums[1]) }
-}
-
-function SchoolCard({ school, studentScore }) {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '0px 0px -20px 0px' })
-  const range = parseScoreRange(school.score_range)
-  // Match ratio: how far the student's score falls within [min-2, max] window (clamped 0–1)
-  const matchRatio = range
-    ? Math.min(1, Math.max(0, (studentScore - (range.min - 2)) / (range.max - range.min + 2)))
-    : null
-
-  return (
-    <motion.div
-      ref={ref}
-      variants={_itemVariants}
-      whileHover="hover"
-      className="rounded-xl glass-base p-4 flex flex-col gap-2"
-    >
-      <div className="flex items-start justify-between gap-2">
-        <h4
-          className="font-sans font-semibold text-sm text-foreground leading-snug"
-          style={{ overflowWrap: 'break-word', hyphens: 'none' }}
-        >
-          {school.name}
-        </h4>
-        {school.type && (
-          <span className="shrink-0 text-[0.6875rem] px-2 py-0.5 rounded-full bg-info/10 text-info border border-info/30">
-            {school.type}
-          </span>
-        )}
-      </div>
-      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-faint">
-        {school.score_range && <span>🎯 {school.score_range}</span>}
-        {school.region_note && <span>📍 {school.region_note}</span>}
-      </div>
-      {matchRatio !== null && (
-        <div className="h-1 rounded-full bg-border overflow-hidden">
-          <motion.div
-            className="h-full rounded-full bg-primary origin-left"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: inView ? matchRatio : 0 }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-          />
-        </div>
-      )}
-      {school.note && (
-        <p className="font-sans text-[0.8125rem] text-dim leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
-          {school.note}
-        </p>
-      )}
-    </motion.div>
-  )
-}
-
-function SchoolList({ schools, studentScore }) {
-  if (!schools || schools.length === 0) return null
-  if (schools.length > 3) {
-    return (
-      <div
-        className="flex gap-3 overflow-x-auto pb-2"
-        style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
-      >
-        {schools.map((s, i) => (
-          <div key={i} className="flex-shrink-0 w-72" style={{ scrollSnapAlign: 'start' }}>
-            <SchoolCard school={s} studentScore={studentScore} />
-          </div>
-        ))}
-      </div>
-    )
-  }
-  return (
-    <motion.div
-      variants={_listVariants}
-      initial="hidden"
-      animate="visible"
-      className="grid grid-cols-1 gap-3 sm:grid-cols-2"
-    >
-      {schools.map((s, i) => <SchoolCard key={i} school={s} studentScore={studentScore} />)}
-    </motion.div>
-  )
-}
-
 
 // Sigmoid probability: 50% at cutoff, ~88% at +0.5, ~12% at -0.5
 function schoolFitProbability(score, cutoff) {
@@ -187,12 +72,6 @@ function HelixDecor({ color }) {
   )
 }
 
-function pctColor(acc) {
-  if (acc >= 0.7) return 'var(--success)'
-  if (acc >= 0.5) return 'var(--warning)'
-  return 'var(--destructive)'
-}
-
 function arcColor(score) {
   if (score >= 9) return 'var(--mastery-5)'
   if (score >= 7.5) return 'var(--mastery-4)'
@@ -220,24 +99,6 @@ function topicVerdict(acc) {
   return { text: '✗ Yếu', color: 'var(--destructive)', cls: 'bg-destructive/5 border border-destructive/20' }
 }
 
-function addToReviewQueue(examId, answers, questions, uid) {
-  try {
-    const key = `review_queue-${uid ?? 'guest'}`
-    const queue = JSON.parse(localStorage.getItem(key) ?? '{}')
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    const dueDate = tomorrow.toISOString().slice(0, 10)
-    for (const q of questions) {
-      const chosen = answers[q.id] ?? null
-      const isWrong = chosen === null || chosen !== q.correct
-      if (isWrong && !queue[q.id]) {
-        queue[q.id] = { interval: 1, dueDate }
-      }
-    }
-    localStorage.setItem(key, JSON.stringify(queue))
-  } catch { /* non-critical */ }
-}
-
 function parseExplanationSteps(text) {
   if (!text) return []
   // Split on newlines first
@@ -261,47 +122,7 @@ function parseExplanationSteps(text) {
   return steps.length > 1 ? steps : [text]
 }
 
-function ProvincePatternTip({ province }) {
-  if (!province) return null
-  const patterns = provincePatterns[province]
-  if (!patterns || patterns.length === 0) return null
-  return (
-    <div className="glass-base rounded-xl px-5 py-4 flex flex-col gap-2">
-      <span className="font-sans text-xs font-semibold text-info">📌 Xu hướng đề thi {province}</span>
-      {patterns.map((p, i) => (
-        <p key={i} className="font-sans text-[0.8125rem] text-muted">{p.note}</p>
-      ))}
-    </div>
-  )
-}
-
-function ScoreCorrelation({ examId, score, province }) {
-  if (!examId || score == null || !province) return null
-  const examData = scoreCorrelation[examId]
-  if (!examData) return null
-  const provData = examData[province]
-  if (!provData) return null
-  const ranges = Object.entries(provData)
-  const range = ranges.find(([k]) => {
-    const [lo, hi] = k.split('-').map(Number)
-    return score >= lo && score <= hi
-  })
-  if (!range) return null
-  const [, { school, predictedScore }] = range
-  return (
-    <div className="glass-base rounded-xl px-5 py-4 flex flex-col gap-1">
-      <span className="font-sans text-xs font-semibold text-success">📊 Dự đoán thực tế</span>
-      <p className="font-sans text-[0.8125rem] text-muted">
-        Điểm thi thử của bạn tương ứng với khoảng{' '}
-        <strong className="text-foreground">{predictedScore} điểm</strong> tuyển sinh vào{' '}
-        <strong className="text-foreground">{school}</strong>.
-      </p>
-      <span className="font-sans text-[0.625rem] text-faint">Ước tính dựa trên dữ liệu lịch sử · Không phải kết quả chính thức</span>
-    </div>
-  )
-}
-
-export default function Results({ onOpenAuth }) {
+export default function Results() {
   usePageMeta('Kết quả thi', { noindex: true })
   const navigate = useNavigate()
   const location = useLocation()
@@ -311,35 +132,15 @@ export default function Results({ onOpenAuth }) {
   const session = useExam()
   const dispatch = useExamDispatch()
   const { results, addResult } = useHistory()
-  const { user, refundCredits, refreshUser } = useAuth()
-  const [nudgeDismissed, setNudgeDismissed] = useState(false)
-  const [practiceNudgeDismissed, setPracticeNudgeDismissed] = useState(false)
   const [result, setResult] = useState(() => location.state?.result ?? null)
   const [allQuestions, setAllQuestions] = useState([])
-  const [analysis, setAnalysis] = useState(null)
-  const [aiLoading, setAiLoading] = useState(false)
-  const [aiError, setAiError] = useState(null)
-  const [retryKey, setRetryKey] = useState(0)
-  const [planReady, setPlanReady] = useState(false)
   const [wrongAccordion, setWrongAccordion] = useState({})
   const [revealedSteps, setRevealedSteps] = useState({})
-  const [nextExam, setNextExam] = useState(null)
   const [showShareCard, setShowShareCard] = useState(false)
-  const [percentile, setPercentile] = useState(null)
-  const [predictedScoreData, setPredictedScoreData] = useState(null)
-  const [distributionData, setDistributionData] = useState(null)
-  const [streakRecovered, setStreakRecovered] = useState(false)
-  const [studyPlanError, setStudyPlanError] = useState(null)
-  const [studyPlanLoading, setStudyPlanLoading] = useState(false)
   const confettiFiredRef = useRef(false)
   const [showCelebrationScene, setShowCelebrationScene] = useState(false)
   const scoreRef = useRef(null)
   const scoreInView = useInView(scoreRef, { once: true, margin: '0px 0px -40px 0px' })
-  const toast = useToast()
-  const challengerData = location.state?.challengerScore != null ? {
-    score: location.state.challengerScore,
-    name: location.state.challengerName || 'Đối thủ',
-  } : null
 
   const isCurrent = !resultId || resultId === 'current'
   const savedRef = useRef(false)
@@ -358,20 +159,6 @@ export default function Results({ onOpenAuth }) {
         devtools_detected: location.state?.devtools_detected ?? 0,
       }
       setResult(scored)
-      // Post history directly to capture streak_recovered from server response
-      if (navigator.onLine) {
-        const historyEntry = {
-          result_id: scored.id,
-          exam_id: scored.examId ?? null,
-          score: scored.score ?? null,
-          payload: { ...scored, durationSeconds: scored.timeSpent ?? null },
-          created_at: scored.createdAt ?? null,
-        }
-        postHistory([historyEntry]).then(({ data }) => {
-          if (data?.streak_recovered) setStreakRecovered(true)
-          sessionStorage.removeItem('zenith_weekly_summary')
-        })
-      }
       addResult(scored).then(id => {
         navigate(`/results/${id}`, { replace: true, state: { result: scored } })
       })
@@ -382,163 +169,12 @@ export default function Results({ onOpenAuth }) {
     }
   }, [resultId, results]) // eslint-disable-line react-hooks/exhaustive-deps
 
-
   useEffect(() => {
-    if (!result) return
-    let cancelled = false
-    const abortCtrl = new AbortController()
-    const allPast = results.filter(r => r.id !== result.id)
-    const examObj = loadExamById(result.examId)
-
-    async function run() {
-      // Don't run side effects while still at /results/current — about to navigate away
-      if (isCurrent) return
-
-      // Add wrong questions to spaced-repetition queue
-      if (examObj) {
-        const qs = await loadQuestionsByIds(examObj.questionIds)
-        if (!cancelled) addToReviewQueue(result.examId, result.answers, qs, user?.id)
-      }
-
-      // Request notification permission on first result load (high engagement moment)
-      if (results.length === 1) {
-        requestStudyReminder()
-      }
-      checkAndShowStudyReminder()
-
-      // Fetch leaderboard percentile
-      if (result.examId && result.score != null) {
-        getPercentile(result.examId, result.score).then(({ data }) => {
-          if (!cancelled && data?.percentile != null) setPercentile(data.percentile)
-        })
-      }
-
-      const planCacheKey = `study-plan-data-${result.id}`
-      const planCached = localStorage.getItem(planCacheKey)
-      const prefetchFlag = `_prefetching-${result.id}`
-      if (planCached) {
-        setPlanReady(true)
-      } else if (!window[prefetchFlag]) {
-        if ((user?.credits_balance ?? 0) < 5) {
-          setStudyPlanError('Không đủ lượt hỏi AI. Cần ít nhất 5 lượt hỏi AI để tạo kế hoạch.')
-        } else {
-          window[prefetchFlag] = true
-          if (!cancelled) setStudyPlanLoading(true)
-          const _archetype = classifyLearner(results)
-          buildStudyPlanPayload(result, allPast).then(payload =>
-            generateStudyPlan({ ...payload, learner_archetype: _archetype?.id ?? null, ai_preferences: loadPreferences() }).then(({ data }) => {
-              delete window[prefetchFlag]
-              if (data && !cancelled) { localStorage.setItem(planCacheKey, JSON.stringify(data)); setPlanReady(true) }
-              if (!cancelled) setStudyPlanLoading(false)
-            })
-          )
-        }
-      }
-
-      const localAnalysis = analyzeResult(result, allPast, [])
-
-      // Skip AI call until auth is confirmed — prevents double-fire on hydration
-      if (!user?.id) {
-        if (!cancelled) setAnalysis(localAnalysis)
-        return
-      }
-
-      const cacheKey = `ai-analysis-${user.id}-${result.id}`
-      const AI_CACHE_TTL = 7 * 24 * 60 * 60 * 1000 // 7 days
-      const cachedRaw = localStorage.getItem(cacheKey)
-      if (cachedRaw) {
-        try {
-          const entry = JSON.parse(cachedRaw)
-          const userGradeNum = user?.grade ? parseInt(user.grade, 10) : null
-          const needsSchoolInsight = userGradeNum !== null && userGradeNum >= 10
-          const cacheHasSchoolInsight = !!entry.data?.school_insight
-          if (entry.ts && Date.now() - entry.ts < AI_CACHE_TTL && entry.data?._source === 'ai' && (!needsSchoolInsight || cacheHasSchoolInsight)) {
-            if (!cancelled) setAnalysis(entry.data)
-            return
-          }
-        } catch { /* stale or corrupt — re-fetch */ }
-      }
-
-      if (!cancelled) {
-        setAnalysis(localAnalysis)
-        setAiLoading(true)
-        setAiError(null)
-      }
-      const obj = examObj || {}
-      const archetype = classifyLearner(results)
-      const payload = await buildAnalyzePayload(
-        result, allPast, [], obj.category || '',
-        { location: user.province || '', province: user.province || '', grade: user.grade || '', display_name: user.display_name || '' }
-      )
-      payload.learner_archetype = archetype?.id ?? null
-      if (cancelled) return
-      const _prevTitle = document.title
-      document.title = '⏳ Đang phân tích...'
-      let streamAccum = {}
-      analyzeResultStream(payload, (updates) => {
-        // Called via RAF with accumulated field values as they stream in
-        if (cancelled) return
-        streamAccum = { ...streamAccum, ...updates }
-        setAnalysis(prev => ({ ...(prev || {}), ...updates, _streaming: true }))
-        // Save partial result incrementally so back-navigation mid-stream recovers content
-        safeSetItem(cacheKey, JSON.stringify({ data: { ...streamAccum, _source: 'ai' }, ts: Date.now() }))
-      }, abortCtrl.signal).then(({ data: analysisObj, error, status: streamStatus }) => {
-        if (cancelled) return
-        document.title = _prevTitle
-        setAiLoading(false)
-        // If the stream HTTP succeeded (200), backend already charged 3 credits.
-        // Never call aiAnalyzeResult as fallback — it would double-charge.
-        const streamHttpOk = streamStatus === 200
-        if (analysisObj && Object.keys(analysisObj).length > 0) {
-          const aiAnalysis = { ...analysisObj, _source: 'ai', _streaming_done: true }
-          safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
-          setAnalysis(aiAnalysis)
-          window.dispatchEvent(new CustomEvent('credit_spent', { detail: { cost: 3, feature: 'Phân tích bài thi' } }))
-          refreshUser()
-        } else {
-          const failed = !!error
-          if (streamStatus === 402) {
-            setAiError('Không đủ lượt hỏi AI để phân tích. Nạp thêm lượt hỏi AI trong trang Tài khoản.')
-          } else if (streamStatus === 401) {
-            setAiError('Vui lòng đăng nhập để dùng tính năng AI.')
-          } else if (failed) {
-            const rawError = typeof error === 'string' ? error : ''
-            const isRawException = rawError.startsWith('Error code:') || rawError.startsWith('Error ') || rawError.includes('authentication')
-            setAiError(isRawException ? 'Phân tích AI tạm thời không khả dụng. Vui lòng thử lại.' : (rawError || 'Phân tích AI tạm thời không khả dụng.'))
-          } else {
-            setAiError(null)
-          }
-          // If streaming produced AI content before failing, surface it rather than offline fallback
-          if (streamStatus !== 402 && streamStatus !== 401) {
-            setAnalysis(prev => {
-              if (prev?._streaming && (prev.insights || prev.question_analysis)) {
-                return { ...prev, _source: 'ai', _streaming_done: true }
-              }
-              return prev
-            })
-          }
-          // Only fall back to non-streaming if stream never connected (not HTTP 200)
-          if (failed && !streamHttpOk && streamStatus !== 402 && !cancelled) {
-            refundCredits(3)
-            aiAnalyzeResult(payload).then(({ data, status: fbStatus }) => {
-              if (cancelled || !data) {
-                if (fbStatus === 402) setAiError('Không đủ lượt hỏi AI để phân tích. Nạp thêm lượt hỏi AI trong trang Tài khoản.')
-                return
-              }
-              const aiAnalysis = { ...data, _source: 'ai' }
-              safeSetItem(cacheKey, JSON.stringify({ data: aiAnalysis, ts: Date.now() }))
-              setAnalysis(aiAnalysis)
-              setAiError(null)
-              refreshUser()
-            })
-          }
-        }
-      })
-    }
-
-    run()
-    return () => { cancelled = true; abortCtrl.abort() }
-  }, [result?.id, user?.id, isCurrent, retryKey]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (!result || isCurrent) return
+    // Request notification permission on first result load (high engagement moment)
+    if (results.length === 1) requestStudyReminder()
+    checkAndShowStudyReminder()
+  }, [result?.id, isCurrent]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Overall score delta vs immediate previous exam (any exam, not just same)
   const prevResult = result ? results.find(r => r.id !== result.id) : null
@@ -549,33 +185,6 @@ export default function Results({ onOpenAuth }) {
   const isPersonalBest = result != null && pastSameExam.length > 0 && result.score > Math.max(...pastSameExam.map(r => r.score))
   const personalBestScore = pastSameExam.length > 0 ? Math.max(...pastSameExam.map(r => r.score)) : null
   const isScoreDrop = result != null && pastSameExam.length > 0 && !isPersonalBest && result.score < personalBestScore
-
-  // Recovery Path identity message — shown when this is a personal best retake of an exam that had a recovery path
-  const recoveryPathTopic = (() => {
-    if (!isPersonalBest || !user?.id || pastSameExam.length === 0) return null
-    const prevResult = [...pastSameExam].sort((a, b) => new Date(b.finishedAt) - new Date(a.finishedAt))[0]
-    if (!prevResult) return null
-    try {
-      const plan = JSON.parse(localStorage.getItem(`recovery-path-data-${user.id}-${prevResult.id}`) ?? 'null')
-      return plan?.focus_areas?.[0]?.topic ?? null
-    } catch { return null }
-  })()
-
-  // Recommend next exam based on weak topics
-  useEffect(() => {
-    if (!result || !results.length) return
-    const weak = Object.entries(result.topicBreakdown ?? {})
-      .filter(([, tb]) => tb.accuracy < 0.6)
-      .map(([t]) => t)
-    const attemptedIds = results.map(r => r.examId).filter(Boolean)
-    recommendNextExam(weak, attemptedIds).then(exam => {
-      if (exam) setNextExam(exam)
-    })
-  }, [result?.id]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // These must stay ABOVE the conditional return to keep hook order stable
-  const isPaidUser = user?.subscription_tier === 'student' || user?.subscription_tier === 'complete'
-  const isComplete = user?.subscription_tier === 'complete'
 
   useEffect(() => {
     if (!result) return
@@ -589,80 +198,26 @@ export default function Results({ onOpenAuth }) {
 
   const schoolFitList = useMemo(() => {
     if (!result) return []
-    const userProvince = user?.province ?? null
     const score = result.score
-    // Normalize province string for fuzzy matching (handles "TP.HCM" vs "Hồ Chí Minh" etc.)
-    const _normProv = (p = '') => p.toLowerCase()
-      .replace(/thành phố|tp\.|tỉnh\s*/gi, '')
-      .replace(/\bhcm\b|ho chi minh|hồ chí minh/gi, 'hcm')
-      .trim()
-    const normUserProv = userProvince ? _normProv(userProvince) : ''
     const scored = schoolsData
       .map(s => {
         const cutoff = latestCutoff(s)
         if (cutoff === null) return null
         const prob = schoolFitProbability(score, cutoff)
-        const sameProvince = normUserProv ? _normProv(s.province ?? '').includes(normUserProv) || normUserProv.includes(_normProv(s.province ?? '')) : false
-        return { ...s, prob, cutoff, sameProvince }
+        return { ...s, prob, cutoff }
       })
       .filter(Boolean)
-    // Sort: same province first; within each province group, prefer schools closest to 50% prob
-    scored.sort((a, b) => {
-      if (a.sameProvince !== b.sameProvince) return a.sameProvince ? -1 : 1
-      const da = Math.abs(a.prob - 50)
-      const db = Math.abs(b.prob - 50)
-      return da - db
-    })
-    const sameProvSchools = scored.filter(s => s.sameProvince).slice(0, 6)
-    // Show same-province schools exclusively when we have any matches
-    if (normUserProv && sameProvSchools.length > 0) return sameProvSchools
-    // Fallback: no province set, or province set but 0 matching schools in data
+      .sort((a, b) => Math.abs(a.prob - 50) - Math.abs(b.prob - 50))
     return scored.slice(0, 6)
-  }, [result?.score, user?.province]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [result?.score])
 
-  useEffect(() => {
-    if (!isComplete || !result) return
-    predictScore().then(({ data }) => {
-      if (data?.predicted != null) setPredictedScoreData(data)
-    })
-  }, [result?.id, isComplete]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (!result?.examId) return
-    getExamDistribution(result.examId).then(({ data }) => {
-      if (data?.total >= 5) setDistributionData(data)
-    })
-  }, [result?.examId]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const topicTrends = useMemo(() => {
-    if (!isPaidUser || !results.length) return null
-    const cutoff = Date.now() - 30 * 86400000
-    const recent = results.filter(r => new Date(r.timestamp).getTime() >= cutoff)
-    if (!recent.length) return null
-    const weekData = {}
-    for (const r of recent) {
-      const weekNum = Math.floor((Date.now() - new Date(r.timestamp).getTime()) / (7 * 86400000))
-      const weekLabel = weekNum === 0 ? 'Tuần này' : weekNum === 1 ? 'Tuần trước' : `${weekNum * 7}n trước`
-      for (const [qId, chosen] of Object.entries(r.answers ?? {})) {
-        const tb = r.topicBreakdown
-        if (!tb) continue
-        for (const [topic, data] of Object.entries(tb)) {
-          if (!weekData[topic]) weekData[topic] = {}
-          if (!weekData[topic][weekLabel]) weekData[topic][weekLabel] = { correct: 0, total: 0 }
-          weekData[topic][weekLabel].total += data.total ?? 0
-          weekData[topic][weekLabel].correct += data.correct ?? 0
-        }
-      }
-    }
-    const topics = Object.keys(weekData)
-    if (!topics.length) return null
-    return topics.map(topic => {
-      const weeks = Object.entries(weekData[topic]).map(([week, d]) => ({
-        week, accuracy: d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0,
-      })).reverse()
-      return { topic, weeks }
-    }).filter(t => t.weeks.some(w => w.accuracy > 0))
-  }, [isPaidUser, results])
+  // Local heuristic insights (no backend/AI call) — predicted score range, percentile
+  // estimate from local history, weak topics, and an improvement checklist.
+  const localInsights = useMemo(() => {
+    if (!result) return null
+    const allPast = results.filter(r => r.id !== result.id)
+    return analyzeResult(result, allPast, schoolsData)
+  }, [result, results])
 
   if (!result) {
     if (!isCurrent && results.length > 0 && !results.find(r => r.id === resultId)) {
@@ -713,10 +268,6 @@ export default function Results({ onOpenAuth }) {
 
   const wrongCount = wrongQuestions.length
 
-  const weakTopics = Object.entries(topicBreakdown ?? {})
-    .filter(([, tb]) => tb.accuracy < 0.6)
-    .map(([t]) => t)
-
   // RadarChart data
   const radarData = topics.map(([t, tb]) => ({
     topic: getTopicLabel(t),
@@ -728,11 +279,9 @@ export default function Results({ onOpenAuth }) {
 
   const TABS = [
     { id: 'overview', label: 'Kết quả' },
-    { id: 'ai', label: 'Phân tích AI' },
+    { id: 'insights', label: 'Nhận xét' },
     { id: 'wrong', label: wrongCount > 0 ? `Câu sai (${wrongCount})` : 'Câu sai' },
     { id: 'schools', label: 'Trường phù hợp' },
-    { id: 'plan', label: 'Kế hoạch', loading: studyPlanLoading && !planReady },
-    ...(isPaidUser ? [{ id: 'trends', label: 'Xu hướng 30 ngày' }] : []),
   ]
 
   return (
@@ -749,7 +298,7 @@ export default function Results({ onOpenAuth }) {
 
       {/* NavBar */}
       <nav className="relative z-10 flex items-center justify-between px-8 bg-surface border-b border-border" style={{ height: 64 }}>
-        <button onClick={() => navigate('/')}
+        <button onClick={() => navigate('/exams')}
           className="flex items-center gap-1.5 font-sans text-[0.8125rem] text-muted hover:text-foreground transition">
           ← Trang chủ
         </button>
@@ -760,25 +309,6 @@ export default function Results({ onOpenAuth }) {
             title="Chia sẻ kết quả">
             📤
           </button>
-          {result && examId && (
-            <button
-              onClick={() => {
-                const BASE_URL = import.meta.env.VITE_APP_URL || 'https://exam-app-ey0.pages.dev'
-                const payload = encodeURIComponent(JSON.stringify({
-                  name: user?.display_name || 'Bạn',
-                  score: result.score ?? 0,
-                  examId,
-                  dt: new Date().toISOString().slice(0, 10),
-                }))
-                const url = `${BASE_URL}/challenge?c=${payload}`
-                navigator.clipboard?.writeText(url).then(() => toast.success('Đã sao chép link thách đấu')).catch(() => {})
-              }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-elevated border border-border rounded-lg font-sans text-xs text-muted hover:text-foreground transition"
-              title="Thách đấu bạn bè"
-            >
-              ⚔️
-            </button>
-          )}
           <button onClick={() => navigate('/history')}
             className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-elevated border border-border rounded-lg font-sans text-xs text-muted hover:text-foreground transition">
             Lịch sử
@@ -786,26 +316,7 @@ export default function Results({ onOpenAuth }) {
         </div>
       </nav>
 
-      {streakRecovered && (
-        <div className="relative z-10 max-w-3xl mx-auto w-full px-4 pt-4">
-          <div className="rounded-xl px-4 py-3 flex items-center gap-3 bg-accent/10 border border-accent/50">
-            <span>🔥</span>
-            <p className="text-sm font-semibold text-[var(--accent)]">
-              Streak khôi phục! Bạn đã làm 2 bài hôm nay — streak của bạn tiếp tục.
-            </p>
-          </div>
-        </div>
-      )}
-
       <div className="relative z-10 flex flex-col gap-5 max-w-3xl mx-auto w-full px-4 py-8">
-
-        {/* ── Milestone card ── */}
-        <MilestoneCard
-          examCount={results?.length ?? 1}
-          currentResult={result}
-          previousResult={results?.length >= 2 ? results[results.length - 2] : null}
-          subscriptionTier={user?.subscription_tier}
-        />
 
         {/* ── Score hero — Tier-2 GSAP tilt-in entrance wraps the existing framer-motion fade/rise ── */}
         <Reveal3D variant="tilt" amount={0.3}>
@@ -897,30 +408,13 @@ export default function Results({ onOpenAuth }) {
         </motion.div>
         </Reveal3D>
 
-        {/* Percentile banner */}
-        {percentile != null && (
-          <div className="flex items-center gap-3 px-5 py-3 rounded-xl glass-base">
-            <span className="text-[18px]">📊</span>
-            <span className="font-sans text-[0.8125rem] text-muted">
-              Bạn đạt <strong className="text-info">top {100 - percentile}%</strong> người làm đề này
-            </span>
-          </div>
-        )}
-
         {/* Personal best */}
         <AnimatePresence>
           {isPersonalBest && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="flex flex-col gap-2 px-5 py-3.5 rounded-xl glass-brand">
-              <div className="flex items-center gap-3">
-                <span className="text-xl">🏆</span>
-                <span className="font-sans text-sm font-semibold text-primary">Điểm cao nhất của bạn trên đề thi này!</span>
-              </div>
-              {recoveryPathTopic && (
-                <p className="font-sans text-[0.8125rem] text-muted pl-9">
-                  Bạn đã sửa được lỗi ở <span className="text-primary font-semibold">{recoveryPathTopic}</span>. Điểm của bạn phản ánh điều đó.
-                </p>
-              )}
+              className="flex items-center gap-3 px-5 py-3.5 rounded-xl glass-brand">
+              <span className="text-xl">🏆</span>
+              <span className="font-sans text-sm font-semibold text-primary">Điểm cao nhất của bạn trên đề thi này!</span>
             </motion.div>
           )}
           {isScoreDrop && (
@@ -967,31 +461,6 @@ export default function Results({ onOpenAuth }) {
           )
         })()}
 
-        {/* Challenger comparison banner */}
-        {challengerData && result && (
-          <div className="flex items-center justify-between gap-4 px-5 py-3.5 rounded-xl glass-base">
-            <div className="flex flex-col gap-0.5">
-              <span className="font-sans text-xs text-dim">So với {challengerData.name}</span>
-              <span className="font-sans text-[0.8125rem] font-semibold" style={{
-                color: (result.score ?? 0) >= challengerData.score ? 'var(--success)' : 'var(--destructive)'
-              }}>
-                {(result.score ?? 0) >= challengerData.score ? '🏆 Bạn thắng! ' : '💪 Cố lên! '}
-                Bạn: {(result.score ?? 0).toFixed(1)} · {challengerData.name}: {challengerData.score.toFixed(1)}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Sign-in nudge */}
-        {!user && !nudgeDismissed && (
-          <div className="flex items-center justify-between gap-3 px-5 py-3 rounded-xl glass-base">
-            <button onClick={onOpenAuth} className="font-sans text-[0.8125rem] text-[var(--accent)] hover:text-[var(--accent)] transition-colors text-left">
-              Đăng nhập để lưu kết quả vào tài khoản →
-            </button>
-            <button onClick={() => setNudgeDismissed(true)} className="text-[var(--muted-fg)] hover:text-[var(--fg-secondary)] text-lg leading-none flex-shrink-0">×</button>
-          </div>
-        )}
-
         {/* ── Tab bar ── */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="w-full justify-start h-auto rounded-none bg-transparent border-b border-border p-0">
@@ -1002,10 +471,6 @@ export default function Results({ onOpenAuth }) {
                 className="relative px-4 py-2.5 font-sans text-[0.8125rem] font-medium rounded-none bg-transparent h-auto flex items-center gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary data-[state=inactive]:text-muted-fg hover:text-foreground"
               >
                 {tab.label}
-                {tab.loading && (
-                  <span className="ml-1 inline-block w-3 h-3 rounded-full border-2 animate-spin flex-shrink-0"
-                    style={{ borderColor: 'var(--info)', borderTopColor: 'transparent' }} />
-                )}
                 {activeTab === tab.id && (
                   <motion.div
                     layoutId="results-tab-indicator"
@@ -1076,112 +541,11 @@ export default function Results({ onOpenAuth }) {
               ) : null}
             </div>
 
-            {/* Next exam recommendation */}
-            {nextExam && (
-              <div className="bg-surface border border-border rounded-xl px-5 py-4 flex items-center justify-between gap-3">
-                <div className="flex flex-col gap-0.5 min-w-0">
-                  <span className="font-sans text-[0.6875rem] text-dim">Đề tiếp theo cho bạn</span>
-                  <span className="font-sans text-sm font-semibold text-foreground truncate">{nextExam.title}</span>
-                </div>
-                <Button
-                  size="sm"
-                  className="flex-shrink-0 text-xs font-bold"
-                  onClick={() => navigate(`/test/${nextExam.id}`)}
-                >
-                  Bắt đầu →
-                </Button>
-              </div>
-            )}
-
-            {/* Predictive Score card (Complete tier) */}
-            {predictedScoreData && (
-              <div className="flex items-center justify-between gap-4 px-5 py-4 rounded-xl glass-base">
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-[0.6875rem] text-dim">Dự đoán điểm thi thật</span>
-                  <span className="font-sans text-[15px] font-bold text-success">
-                    {predictedScoreData.predicted}/10
-                    <span className="font-normal text-faint text-xs ml-1.5">
-                      ({predictedScoreData.low}–{predictedScoreData.high})
-                    </span>
-                  </span>
-                  <span className="font-sans text-[0.6875rem] text-faint">
-                    Độ tin cậy: {predictedScoreData.confidence === 'high' ? 'Cao' : predictedScoreData.confidence === 'medium' ? 'Trung bình' : 'Thấp'}
-                    {' '}· Dựa trên {predictedScoreData.sample_size} bài làm gần nhất
-                  </span>
-                </div>
-                <span className="text-2xl flex-shrink-0">📊</span>
-              </div>
-            )}
-
-            {/* Score prediction reconciliation */}
-            {predictedScoreData && Math.abs(predictedScoreData.predicted - score) > 0.8 && (() => {
-              const overshot = score < predictedScoreData.predicted
-              const weakestTopic = topicBreakdown
-                ? Object.entries(topicBreakdown).sort(([, a], [, b]) => a.accuracy - b.accuracy)[0]
-                : null
-              const driver = weakestTopic ? getTopicLabel(weakestTopic[0]) : null
-              return (
-                <div className="flex items-start gap-3 px-4 py-3 rounded-xl border border-border bg-surface-elevated">
-                  <span className="text-base flex-shrink-0">🔄</span>
-                  <div className="flex flex-col gap-0.5">
-                    <p className="font-sans text-[12px] text-foreground">
-                      Dự đoán {predictedScoreData.predicted}/10 · Thực tế {score}/10
-                      {driver && ` · ${overshot ? 'Nguyên nhân chính: ' : 'Vượt kỳ vọng nhờ '}${driver}`}
-                    </p>
-                    <p className="font-sans text-[11px] text-muted">Mô hình đã điều chỉnh cho lần tới.</p>
-                  </div>
-                </div>
-              )
-            })()}
-
-            {/* Province exam pattern tip */}
-            <ProvincePatternTip province={user?.province} />
-
-            {/* Score correlation */}
-            <ScoreCorrelation examId={examId} score={score} province={user?.province} />
-
-            {/* Peer score distribution */}
-            {distributionData && (() => {
-              const max = Math.max(...distributionData.buckets.map(b => b.count), 1)
-              const userBucket = Math.min(Math.floor(score), 9)
-              const below = distributionData.buckets.slice(0, userBucket).reduce((s, b) => s + b.count, 0)
-              const pct = Math.round((below / distributionData.total) * 100)
-              return (
-                <div className="flex flex-col gap-3 px-4 py-4 rounded-xl border border-border bg-surface-elevated">
-                  <div className="flex items-center justify-between">
-                    <span className="font-sans text-[0.6875rem] font-semibold text-foreground uppercase tracking-wider">Phân phối điểm</span>
-                    <span className="font-sans text-[0.6875rem] text-muted">Top {100 - pct}% · {distributionData.total} người thi</span>
-                  </div>
-                  <div className="flex items-end gap-0.5 h-10">
-                    {distributionData.buckets.map((b, i) => {
-                      const height = Math.round((b.count / max) * 100)
-                      const isUser = i === userBucket
-                      return (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
-                          <div
-                            className={`w-full rounded-sm transition-all ${isUser ? 'bg-primary' : 'bg-border'}`}
-                            style={{ height: `${Math.max(height, 4)}%` }}
-                          />
-                        </div>
-                      )
-                    })}
-                  </div>
-                  <div className="flex justify-between font-sans text-[10px] text-faint">
-                    <span>0</span><span>5</span><span>10</span>
-                  </div>
-                  <p className="font-sans text-[11px] text-muted">Cột xanh = điểm của bạn ({score}/10)</p>
-                </div>
-              )
-            })()}
-
             {/* Navigation shortcuts — compact chip row */}
             <div className="flex flex-wrap gap-2 pt-1">
-              <button onClick={() => setActiveTab('ai')}
+              <button onClick={() => setActiveTab('insights')}
                 className="px-3 py-1.5 rounded-lg border border-primary/30 bg-primary/5 font-sans text-xs text-primary hover:border-primary hover:bg-primary/10 transition flex items-center gap-1.5">
-                {analysis?._streaming && !analysis?._streaming_done
-                  ? <span className="w-2.5 h-2.5 rounded-full border border-primary/40 border-t-primary animate-spin flex-shrink-0" />
-                  : <span>✦</span>}
-                Phân tích AI →
+                <span>✦</span> Nhận xét →
               </button>
               {wrongCount > 0 && (
                 <button onClick={() => setActiveTab('wrong')}
@@ -1195,17 +559,6 @@ export default function Results({ onOpenAuth }) {
                   <span>⌂</span> Trường phù hợp
                 </button>
               )}
-              <button onClick={() => setActiveTab('plan')}
-                className="px-3 py-1.5 rounded-lg border border-border font-sans text-xs text-muted hover:border-faint hover:text-foreground transition flex items-center gap-1.5">
-                {!planReady && <span className="w-2.5 h-2.5 rounded-full border border-border border-t-primary animate-spin flex-shrink-0" />}
-                {planReady ? '→ Kế hoạch' : 'Đang tải kế hoạch…'}
-              </button>
-              {weakTopics.length > 0 && (
-                <button onClick={() => navigate(`/practice/adaptive?topic=${weakTopics[0]}`)}
-                  className="px-3 py-1.5 rounded-lg border border-info/30 font-sans text-xs text-info hover:border-info hover:text-info/80 transition flex items-center gap-1.5">
-                  <span>⚡</span> Luyện điểm yếu
-                </button>
-              )}
               <button onClick={() => { dispatch({ type: 'RESET' }); viewNavigate(navigate, '/exams') }}
                 className="px-3 py-1.5 rounded-lg border border-border font-sans text-xs text-muted hover:border-faint hover:text-foreground transition">
                 Thi lại
@@ -1214,11 +567,11 @@ export default function Results({ onOpenAuth }) {
           </motion.div>
         )}
 
-        {/* ── Tab: Phân tích AI ── */}
-        {activeTab === 'ai' && (
-          <motion.div key="ai" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
-            {/* ── Failure-First: What you defended ── */}
-            {analysis && (() => {
+        {/* ── Tab: Nhận xét (local heuristic — no backend/AI call) ── */}
+        {activeTab === 'insights' && localInsights && (
+          <motion.div key="insights" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
+            {/* What you defended */}
+            {(() => {
               const defended = Object.entries(topicBreakdown ?? {}).filter(([, tb]) => tb.accuracy >= 0.6)
               if (!defended.length) return null
               return (
@@ -1234,73 +587,38 @@ export default function Results({ onOpenAuth }) {
                 </div>
               )
             })()}
-            {/* AI Insights */}
-            <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-[16px] font-semibold text-gradient-aurora">Phân tích AI</span>
-                  {!isPaidUser && !analysis?._source && (
-                    <span className="font-sans text-[11px] text-dim">⚡ 3 lượt hỏi AI</span>
-                  )}
-                </div>
-                {isPaidUser
-                  ? <span className="font-sans text-[0.6875rem] text-success/80">Miễn phí</span>
-                  : <span className="font-sans text-[0.6875rem] text-[var(--accent)]/70">⚡3 lượt hỏi AI</span>
-                }
-              </div>
-              {/* Streaming progress bar */}
-              {analysis?._streaming && !analysis?._streaming_done && (
-                <div className="h-0.5 w-full rounded-full bg-border overflow-hidden -mb-2">
-                  <motion.div
-                    className="h-full rounded-full bg-primary/60"
-                    initial={{ width: '5%' }}
-                    animate={{ width: '85%' }}
-                    transition={{ duration: 12, ease: 'easeOut' }}
-                  />
-                </div>
-              )}
-              <AIErrorBoundary>
-                <AIInsights
-                  analysis={analysis}
-                  loading={aiLoading && !analysis?._streaming}
-                  error={aiError}
-                  score={score}
-                  onRetry={() => {
-                    if (user?.id && result?.id) {
-                      localStorage.removeItem(`ai-analysis-${user.id}-${result.id}`)
-                    }
-                    setRetryKey(k => k + 1)
-                  }}
-                />
-              </AIErrorBoundary>
-            </div>
 
-            {/* Post-analysis practice nudge — appears when stream completes */}
-            {analysis?._streaming_done && !practiceNudgeDismissed && user && (analysis?.weak_topics ?? []).length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.25, delay: 0.3 }}
-                className="flex items-center justify-between gap-3 px-5 py-3.5 rounded-xl border border-info/30 bg-info/5"
-              >
-                <p className="font-sans text-[13px] text-foreground min-w-0">
-                  Bạn muốn ôn ngay <strong className="text-info">{getTopicLabel(analysis.weak_topics[0])}</strong> không?
-                </p>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button size="sm" onClick={() => { setPracticeNudgeDismissed(true); navigate(`/practice/adaptive?topic=${analysis.weak_topics[0]}`) }}
-                    className="font-bold text-xs">
-                    Ôn ngay →
-                  </Button>
-                  <button
-                    onClick={() => setPracticeNudgeDismissed(true)}
-                    className="font-sans text-xs text-dim hover:text-muted transition"
-                  >
-                    Để sau
-                  </button>
+            <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
+              <span className="font-sans text-[16px] font-semibold text-gradient-aurora">Nhận xét</span>
+
+              <div className="flex items-center gap-6 flex-wrap">
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-sans text-[0.6875rem] text-faint">Ước tính top</span>
+                  <span className="font-sans text-[15px] font-semibold text-info">top {100 - localInsights.percentile}%</span>
                 </div>
-              </motion.div>
-            )}
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-sans text-[0.6875rem] text-faint">Dự đoán lần tới</span>
+                  <span className="font-sans text-[15px] font-semibold text-foreground">
+                    {localInsights.predictedScoreRange[0]}–{localInsights.predictedScoreRange[1]}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <span className="font-sans text-[0.8125rem] font-semibold text-muted">Gợi ý cải thiện</span>
+                <ul className="flex flex-col gap-1.5">
+                  {localInsights.improvementStrategy.map((tip, i) => (
+                    <li key={i} className="font-sans text-[0.8125rem] text-dim flex gap-2">
+                      <span className="text-primary flex-shrink-0">·</span> {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <p className="font-sans text-[0.6875rem] text-faint">
+                Ước tính dựa trên lịch sử làm bài của bạn trên thiết bị này — không phải kết quả chính thức.
+              </p>
+            </div>
           </motion.div>
         )}
 
@@ -1438,210 +756,52 @@ export default function Results({ onOpenAuth }) {
                     )
                   })}
                 </div>
-
-                <button onClick={() => navigate('/review')}
-                  className="w-full py-3 rounded-xl font-sans text-[0.8125rem] font-semibold border border-primary/25 text-primary hover:border-primary transition">
-                  Ôn tập theo lịch (Spaced Repetition)
-                </button>
               </>
             )}
           </motion.div>
         )}
 
         {/* ── Tab: Trường phù hợp ── */}
-        {activeTab === 'schools' && (() => {
-          const userGrade = user?.grade ? parseInt(user.grade, 10) : null
-          const isCollegeUser = userGrade !== null && userGrade >= 10
-          return (
+        {activeTab === 'schools' && (
           <motion.div key="schools" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className="flex flex-col gap-4">
-
-            {/* Grade 10-12: show AI university recommendations as primary content */}
-            {isCollegeUser ? (
-              <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
-                <div className="flex items-center justify-between">
-                  <span className="font-sans text-[16px] font-semibold text-foreground">Gợi ý đại học / cao đẳng</span>
-                  <span className="font-sans text-[0.6875rem] text-faint">Điểm Toán: <span className="text-primary font-bold">{score.toFixed(1)}/10</span></span>
-                </div>
-                {aiLoading && !analysis?.school_insight && (
-                  <p className="font-sans text-[0.8125rem] text-faint">Đang phân tích...</p>
-                )}
-                {analysis?.school_insight ? (
-                  <>
-                    <p className="font-sans text-[0.8125rem] text-muted leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
-                      {analysis.school_insight}
-                    </p>
-                    {(() => {
-                      const schoolList = analysis.schools?.length
-                        ? analysis.schools
-                        : parseSchoolsFromText(analysis.school_insight)
-                      return schoolList.length > 0
-                        ? <SchoolList schools={schoolList} studentScore={score} />
-                        : <p className="font-sans text-xs text-faint italic">Xem nhận xét ở trên để biết thêm chi tiết.</p>
-                    })()}
-                  </>
-                ) : !aiLoading && (
-                  <div className="flex flex-col gap-3">
-                    {!user?.grade ? (
-                      <>
-                        <p className="font-sans text-[0.8125rem] text-dim">Hãy cập nhật lớp học trong hồ sơ để nhận gợi ý trường phù hợp.</p>
-                        <button onClick={() => navigate('/account')}
-                          className="self-start px-4 py-1.5 rounded-lg font-sans text-xs font-semibold border border-primary/40 text-primary hover:bg-primary/10 transition">
-                          Cập nhật hồ sơ →
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <p className="font-sans text-[0.8125rem] text-dim">Gợi ý trường chưa được tạo trong lần phân tích này.</p>
-                        <button onClick={() => { localStorage.removeItem(`ai-analysis-${user.id}-${result.id}`); setAnalysis(null); setAiError(false); setAiLoading(false); setRetryKey(k => k + 1) }}
-                          className="self-start px-4 py-1.5 rounded-lg font-sans text-xs font-semibold border border-primary/40 text-primary hover:bg-primary/10 transition">
-                          Thử phân tích lại →
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
-                <p className="font-sans text-[0.6875rem] text-faint">
-                  Gợi ý từ AI dựa trên điểm Toán và hồ sơ của bạn. Không phải kết quả tuyển sinh chính thức.
-                </p>
+            <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
+              <div className="flex items-center justify-between">
+                <span className="font-sans text-[16px] font-semibold text-foreground">Khả năng đỗ THPT</span>
+                <span className="font-sans text-[0.6875rem] text-faint">Điểm Toán: <span className="text-primary font-bold">{score.toFixed(1)}/10</span></span>
               </div>
-            ) : (
-              /* Grade ≤9 or unknown: show THPT probability bars */
-              <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
-                <div className="flex items-center justify-between">
-                  <span className="font-sans text-[16px] font-semibold text-foreground">Khả năng đỗ THPT</span>
-                  <span className="font-sans text-[0.6875rem] text-faint">Điểm Toán: <span className="text-primary font-bold">{score.toFixed(1)}/10</span></span>
-                </div>
-                <p className="font-sans text-xs text-faint">Dựa trên điểm chuẩn môn Toán các năm gần nhất.</p>
-                <div className="flex flex-col gap-4">
-                  {schoolFitList.map(school => {
-                    const prob = school.prob
-                    const barColor = prob >= 70 ? 'var(--success)' : prob >= 40 ? 'var(--warning)' : 'var(--destructive)'
-                    return (
-                      <div key={school.id} className="flex flex-col gap-1.5">
-                        <div className="flex items-center justify-between">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{school.name}</span>
-                            <span className="font-sans text-[0.6875rem] text-faint">{school.district} · Chuẩn Toán: {school.cutoff}</span>
-                          </div>
-                          <span className="font-sans text-[20px] font-bold flex-shrink-0 ml-4" style={{ color: barColor }}>
-                            {prob}%
-                          </span>
+              <p className="font-sans text-xs text-faint">Dựa trên điểm chuẩn môn Toán các năm gần nhất.</p>
+              <div className="flex flex-col gap-4">
+                {schoolFitList.map(school => {
+                  const prob = school.prob
+                  const barColor = prob >= 70 ? 'var(--success)' : prob >= 40 ? 'var(--warning)' : 'var(--destructive)'
+                  return (
+                    <div key={school.id} className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-sans text-[0.8125rem] font-semibold text-foreground">{school.name}</span>
+                          <span className="font-sans text-[0.6875rem] text-faint">{school.district} · Chuẩn Toán: {school.cutoff}</span>
                         </div>
-                        <div className="h-2 rounded-full bg-surface-elevated overflow-hidden">
-                          <motion.div
-                            className="h-full rounded-full"
-                            style={{ background: barColor }}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${prob}%` }}
-                            transition={{ duration: 0.8, ease: 'easeOut' }}
-                          />
-                        </div>
+                        <span className="font-sans text-[20px] font-bold flex-shrink-0 ml-4" style={{ color: barColor }}>
+                          {prob}%
+                        </span>
                       </div>
-                    )
-                  })}
-                </div>
-                <p className="font-sans text-[0.6875rem] text-faint">
-                  Xác suất ước tính theo hàm sigmoid so với điểm chuẩn năm gần nhất. Không phải kết quả chính thức.
-                </p>
-              </div>
-            )}
-
-            {/* AI school insight — only shown for grade ≤9 as supplementary */}
-            {!isCollegeUser && analysis?.school_insight && (
-              <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-4">
-                <span className="font-sans text-xs font-bold text-[var(--accent)]/70 uppercase tracking-wider">Gợi ý từ AI</span>
-                <p className="font-sans text-[0.8125rem] text-muted leading-relaxed" style={{ overflowWrap: 'break-word', hyphens: 'none' }}>
-                  {analysis.school_insight}
-                </p>
-                {(() => {
-                  const schoolList = analysis.schools?.length
-                    ? analysis.schools
-                    : parseSchoolsFromText(analysis.school_insight)
-                  return schoolList.length > 0
-                    ? <SchoolList schools={schoolList} studentScore={score} />
-                    : <p className="font-sans text-xs text-faint italic">Xem nhận xét ở trên để biết thêm chi tiết.</p>
-                })()}
-              </div>
-            )}
-          </motion.div>
-          )
-        })()}
-
-        {/* ── Tab: Kế hoạch ── */}
-        {activeTab === 'plan' && (
-          <motion.div key="plan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
-            <div className="glass-brand rounded-2xl p-7 flex flex-col gap-4">
-              <span className="text-[16px] font-semibold text-primary">Kế hoạch học tập 4 tuần</span>
-              <p className="font-sans text-[0.8125rem] text-dim leading-relaxed">
-                AI sẽ tạo lịch ôn tập cá nhân hóa dựa trên điểm yếu và lịch sử làm bài của bạn.
-              </p>
-              {studyPlanError && (
-                <p className="font-sans text-[0.8125rem] text-destructive px-1">{studyPlanError}</p>
-              )}
-              {planReady ? (
-                <Button
-                  className="w-full text-sm font-bold"
-                  onClick={() => {
-                    if (user?.id && result?.id) {
-                      localStorage.setItem(`latest_study_plan_result_${user.id}`, result.id)
-                    }
-                    navigate(`/study-plan/${resultId}`, { state: { result, history: results.filter(r => r.id !== resultId) } })
-                  }}
-                >
-                  Xem kế hoạch học tập ⚡5 lượt hỏi AI
-                </Button>
-              ) : (
-                <button
-                  onClick={() => {
-                    if ((user?.credits_balance ?? 0) < 5) {
-                      setStudyPlanError('Không đủ lượt hỏi AI. Cần ít nhất 5 lượt hỏi AI để tạo kế hoạch.')
-                    }
-                  }}
-                  className="w-full py-3.5 rounded-xl font-sans text-sm font-bold flex items-center justify-center gap-2 text-faint border border-border transition"
-                >
-                  {!studyPlanError && <span className="w-3.5 h-3.5 rounded-full border border-border border-t-primary animate-spin" />}
-                  {studyPlanError ? 'Không đủ lượt hỏi AI' : 'Đang chuẩn bị…'}
-                </button>
-              )}
-            </div>
-            <button onClick={() => { dispatch({ type: 'RESET' }); viewNavigate(navigate, '/exams') }}
-              className="w-full py-3 rounded-xl font-sans text-[0.8125rem] font-medium text-faint hover:text-muted transition">
-              Thi lại
-            </button>
-          </motion.div>
-        )}
-
-        {/* ── Tab: Xu hướng 30 ngày (Student+) ── */}
-        {activeTab === 'trends' && (
-          <motion.div key="trends" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
-            <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-5">
-              <span className="font-sans text-[16px] font-semibold text-foreground">Xu hướng 30 ngày</span>
-              {!topicTrends || topicTrends.length === 0 ? (
-                <p className="font-sans text-[0.8125rem] text-dim">Chưa đủ dữ liệu — hãy làm thêm bài để xem xu hướng.</p>
-              ) : (
-                <div className="flex flex-col gap-5">
-                  {topicTrends.map(({ topic, weeks }) => (
-                    <div key={topic} className="flex flex-col gap-2">
-                      <span className="font-sans text-[0.8125rem] font-semibold text-muted-fg">{getTopicLabel(topic)}</span>
-                      <div className="flex items-end gap-2">
-                        {weeks.map(({ week, accuracy }) => (
-                          <div key={week} className="flex flex-col items-center gap-1 flex-1">
-                            <span className="font-sans text-[0.625rem] text-faint">{accuracy}%</span>
-                            <div className="w-full rounded-t"
-                              style={{
-                                height: `${Math.max(4, accuracy * 0.6)}px`,
-                                background: accuracy >= 70 ? 'var(--success)' : accuracy >= 40 ? 'var(--warning)' : 'var(--destructive)',
-                                minHeight: 4,
-                              }} />
-                            <span className="font-sans text-[9px] text-faint text-center leading-tight">{week}</span>
-                          </div>
-                        ))}
+                      <div className="h-2 rounded-full bg-surface-elevated overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{ background: barColor }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${prob}%` }}
+                          transition={{ duration: 0.8, ease: 'easeOut' }}
+                        />
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                  )
+                })}
+              </div>
+              <p className="font-sans text-[0.6875rem] text-faint">
+                Xác suất ước tính theo hàm sigmoid so với điểm chuẩn năm gần nhất. Không phải kết quả chính thức.
+              </p>
             </div>
           </motion.div>
         )}

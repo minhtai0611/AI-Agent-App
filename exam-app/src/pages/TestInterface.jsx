@@ -2,17 +2,12 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pageVariants, viewNavigate } from '../utils/animations.js'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useExam, useExamDispatch, useHints, useFlags } from '../context/ExamContext.jsx'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useExam, useExamDispatch, useFlags } from '../context/ExamContext.jsx'
 import QuestionCard from '../components/QuestionCard.jsx'
 import Timer from '../components/Timer.jsx'
 import { FormulaDrawer } from '../components/FormulaDrawer.jsx'
 import { usePageMeta } from '../hooks/usePageMeta.js'
-import { embedWatermark } from '../utils/watermark.js'
 import { scoreExam } from '../engine/scoringEngine.js'
-import { buildAnalyzePayload } from '../api/index.js'
-import { analyzeResult as aiAnalyzeResult } from '../api/aiClient.js'
-import { safeSetItem } from '../utils/storageManager.js'
 
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 
@@ -25,7 +20,6 @@ export default function TestInterface() {
   const { examId } = useParams()
   const session = useExam()
   const dispatch = useExamDispatch()
-  const { user } = useAuth()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [submitModal, setSubmitModal] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -38,7 +32,6 @@ export default function TestInterface() {
   const prevDiffRef = useRef(null)
   const [showTabWarning, setShowTabWarning] = useState(false)
   const [devToolsOpen, setDevToolsOpen] = useState(false)
-  const canvasRef = useRef(null)
 
   // Time-per-question tracking
   const questionStartTime = useRef(Date.now())
@@ -79,7 +72,6 @@ export default function TestInterface() {
       answers: session.answers,
       startedAt: session.startedAt ?? new Date().toISOString(),
       mode: session.mode,
-      userId: user?.id ?? null,
     }))
   }, [examId, session.answers, session.status])
 
@@ -130,26 +122,6 @@ export default function TestInterface() {
     }, 1000)
     return () => clearInterval(id)
   }, [session.status, session.mode])
-
-  // Tier 3 — Canvas watermark overlay (user identity)
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas || !user) return
-    const ctx = canvas.getContext('2d')
-    canvas.width = canvas.offsetWidth || 600
-    canvas.height = canvas.offsetHeight || 400
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.save()
-    ctx.font = '12px monospace'
-    ctx.fillStyle = 'rgba(242,162,12,0.03)'
-    ctx.translate(canvas.width / 2, canvas.height / 2)
-    ctx.rotate(-Math.PI / 6)
-    const label = `${user.email ?? user.id} · ${user.id}`
-    for (let y = -canvas.height; y < canvas.height; y += 60)
-      for (let x = -canvas.width; x < canvas.width; x += 200)
-        ctx.fillText(label, x, y)
-    ctx.restore()
-  }, [user, currentIndex])
 
   // Fullscreen sync
   useEffect(() => {
@@ -212,7 +184,6 @@ export default function TestInterface() {
     return () => window.removeEventListener('popstate', onPop)
   }, [mode, session.status])
 
-  const { hints, setHint } = useHints()
   const { flags, toggleFlag } = useFlags()
 
   if (session.status === 'idle' || !session.exam) return null
@@ -261,20 +232,6 @@ export default function TestInterface() {
     const scored = scoreExam(session)
     dispatch({ type: 'SUBMIT' })
     viewNavigate(navigate, '/results/current', { replace: true, state: { result: scored, tab_switches: tabSwitchCount, devtools_detected: devToolsOpen ? 1 : 0 } })
-
-    // Precompute AI analysis in background — Results.jsx reads from this cache key
-    if (user) {
-      const cacheKey = `ai-analysis-${user.id}-${scored.id}`
-      if (!localStorage.getItem(cacheKey)) {
-        const examObj = session.exam || {}
-        const profile = { province: user.province || '', grade: user.grade || '', display_name: user.display_name || '' }
-        buildAnalyzePayload(scored, [], [], examObj.category || '', profile).then(payload =>
-          aiAnalyzeResult(payload).then(({ data }) => {
-            if (data) safeSetItem(cacheKey, JSON.stringify({ data: { ...data, _source: 'ai' }, ts: Date.now() }))
-          })
-        )
-      }
-    }
   }
 
   function resumeFromPause() {
@@ -462,19 +419,11 @@ export default function TestInterface() {
               className="relative"
             >
               <QuestionCard
-                question={user ? { ...question, question: embedWatermark(question.question, user.id) } : question}
+                question={question}
                 chosen={chosen}
                 onAnswer={handleAnswer}
                 practiceMode={isPractice}
                 submitted={session.status === 'submitted'}
-                hintState={hints[question.id]}
-                onHint={setHint}
-              />
-              {/* Canvas watermark — invisible diagonal user identity overlay */}
-              <canvas
-                ref={canvasRef}
-                className="absolute inset-0 w-full h-full pointer-events-none"
-                style={{ zIndex: 1 }}
               />
             </motion.div>
           )}

@@ -1,78 +1,29 @@
-import { useState, lazy, Suspense, useCallback, useEffect, useRef } from 'react'
-import { useGoogleOneTapLogin } from '@react-oauth/google'
+import { useState, lazy, Suspense, useCallback } from 'react'
 import { MotionConfig, AnimatePresence } from 'framer-motion'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { ExamProvider } from './context/ExamContext.jsx'
 import { HistoryProvider } from './context/HistoryContext.jsx'
-import { useAuth } from './context/AuthContext.jsx'
-import { useHistory } from './context/HistoryContext.jsx'
 import { useExamDispatch } from './context/ExamContext.jsx'
 import { loadExamById, loadQuestionsByIds } from './api/index.js'
 import Navbar from './components/Navbar.jsx'
-import AuthModal from './components/AuthModal.jsx'
-import ProfileOnboarding from './components/ProfileOnboarding.jsx'
-import ExtendedOnboarding from './components/ExtendedOnboarding.jsx'
-import LowCreditBanner from './components/LowCreditBanner.jsx'
 import OfflineBanner from './components/OfflineBanner.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import InstallPrompt from './components/InstallPrompt.jsx'
-import { useToast } from './context/ToastContext.jsx'
 import { Toaster } from './components/ui/sonner.jsx'
 import {
-  HomePageSkeleton, ExamSelectSkeleton, ResultsPageSkeleton,
-  AccountPageSkeleton, ProgressPageSkeleton, StudyPlanPageSkeleton,
-  HistoryPageSkeleton, PracticeSkeleton, QuestionCardSkeleton, SimplePageSkeleton,
+  ExamSelectSkeleton, ResultsPageSkeleton, HistoryPageSkeleton, QuestionCardSkeleton, SimplePageSkeleton,
 } from './components/Skeleton.jsx'
-import LandingLoader from './components/LandingLoader.jsx'
 
-
-const Landing = lazy(() => import('./pages/Landing.jsx'))
 const ExamSelect = lazy(() => import('./pages/ExamSelect.jsx'))
 const TestInterface = lazy(() => import('./pages/TestInterface.jsx'))
 const Results = lazy(() => import('./pages/Results.jsx'))
 const History = lazy(() => import('./pages/History.jsx'))
-const StudyPlan = lazy(() => import('./pages/StudyPlan.jsx'))
-const Account = lazy(() => import('./pages/Account.jsx'))
-const ReviewSession = lazy(() => import('./pages/ReviewSession.jsx'))
-const Mistakes = lazy(() => import('./pages/Mistakes.jsx'))
-const AdaptivePractice = lazy(() => import('./pages/AdaptivePractice.jsx'))
-const DailyChallenge = lazy(() => import('./pages/DailyChallenge.jsx'))
-const Admin = lazy(() => import('./pages/Admin.jsx'))
-const AdminSecurityEvents = lazy(() => import('./pages/AdminSecurityEvents.jsx'))
-const ShareView = lazy(() => import('./pages/ShareView.jsx'))
-const ChallengeLanding = lazy(() => import('./pages/ChallengeLanding.jsx'))
-const DiagnosticTest = lazy(() => import('./pages/DiagnosticTest.jsx'))
-const GenerateExam = lazy(() => import('./pages/GenerateExam.jsx'))
-const Progress = lazy(() => import('./pages/Progress.jsx'))
-const AdaptiveStudyPlan = lazy(() => import('./pages/AdaptiveStudyPlan.jsx'))
-const Learn = lazy(() => import('./pages/Learn.jsx'))
-const Placement = lazy(() => import('./pages/Placement.jsx'))
-const ConceptMap = lazy(() => import('./pages/ConceptMap.jsx'))
-const ErrorAnalysis = lazy(() => import('./pages/ErrorAnalysis.jsx'))
-const Home = lazy(() => import('./pages/Home.jsx'))
-const VerifyEmail = lazy(() => import('./pages/VerifyEmail.jsx'))
-const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'))
-const ForSchools = lazy(() => import('./pages/ForSchools.jsx'))
-const Gift = lazy(() => import('./pages/Gift.jsx'))
-const SchoolExplorer = lazy(() => import('./pages/SchoolExplorer.jsx'))
-const Privacy = lazy(() => import('./pages/Privacy.jsx'))
 
 function PageFallback() {
   const { pathname } = useLocation()
-  if (pathname === '/') return <LandingLoader />
-  if (pathname === '/home') return <HomePageSkeleton />
   if (pathname === '/exams') return <ExamSelectSkeleton />
   if (pathname.startsWith('/results')) return <ResultsPageSkeleton />
-  if (pathname === '/account') return <AccountPageSkeleton />
-  if (pathname === '/progress' || pathname === '/mastery') return <ProgressPageSkeleton />
-  if (pathname.startsWith('/study-plan')) return <StudyPlanPageSkeleton />
   if (pathname === '/history') return <HistoryPageSkeleton />
-  if (pathname === '/practice') return <PracticeSkeleton />
-  if (pathname === '/practice/daily' || pathname === '/practice/diagnostic') return (
-    <div className="min-h-screen bg-background pt-12 px-4 flex flex-col gap-4 max-w-2xl mx-auto pt-8">
-      <QuestionCardSkeleton />
-    </div>
-  )
   if (pathname.startsWith('/test/')) return (
     <div className="min-h-screen bg-background pt-12 px-4 flex flex-col gap-4 max-w-2xl mx-auto pt-8">
       <QuestionCardSkeleton />
@@ -81,76 +32,11 @@ function PageFallback() {
   return <SimplePageSkeleton />
 }
 
-function SuspensionModal({ reason, onLogout }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
-      <div className="max-w-sm w-full bg-surface border border-destructive/40 rounded-2xl p-8 flex flex-col gap-5 text-center">
-        <span className="text-destructive text-4xl">⚠</span>
-        <div className="flex flex-col gap-2">
-          <span className="font-sans text-[18px] font-bold text-foreground">Tài khoản bị tạm khoá</span>
-          {reason && <p className="font-sans text-[0.8125rem] text-muted">{reason}</p>}
-          <p className="font-sans text-xs text-faint">Liên hệ hỗ trợ nếu bạn cho rằng đây là nhầm lẫn.</p>
-        </div>
-        <button
-          onClick={onLogout}
-          className="w-full py-3 rounded-xl font-sans text-[0.8125rem] font-bold bg-border text-muted hover:text-foreground transition"
-        >
-          Đăng xuất
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function GoogleOneTap() {
-  const { user, login } = useAuth()
-  useGoogleOneTapLogin({
-    onSuccess: async ({ credential }) => {
-      try { await login(credential) } catch (_) {}
-    },
-    onError: () => {},
-    disabled: !!user,
-    cancel_on_tap_outside: true,
-  })
-  return null
-}
-
 function AppInner() {
-  const [authOpen, setAuthOpen] = useState(false)
-  const { user, loading, logout } = useAuth()
-  const { results } = useHistory()
   const dispatch = useExamDispatch()
   const navigate = useNavigate()
   const location = useLocation()
-  const isHiddenNavRoute = location.pathname === '/admin'
-    || location.pathname === '/admin/security-events'
-    || location.pathname.startsWith('/test/')
-
-  // Post-login redirect: if user just logged in and a redirect path was saved, navigate there
-  const prevUserRef = useRef(user)
-  useEffect(() => {
-    const wasLoggedOut = !prevUserRef.current
-    prevUserRef.current = user
-    if (wasLoggedOut && user) {
-      const redirectPath = localStorage.getItem('post_login_redirect')
-      if (redirectPath) {
-        localStorage.removeItem('post_login_redirect')
-        navigate(redirectPath)
-      }
-    }
-  }, [user, navigate])
-
-  // Credit receipt toast — only for basic-tier users who actually spend credits
-  const toast = useToast()
-  useEffect(() => {
-    const handler = (e) => {
-      if (!user || user.subscription_tier === 'student' || user.subscription_tier === 'complete') return
-      const { cost, feature } = e.detail
-      toast.info(`${feature} · còn ${(user?.credits_balance ?? 0) - cost} lượt`)
-    }
-    window.addEventListener('credit_spent', handler)
-    return () => window.removeEventListener('credit_spent', handler)
-  }, [toast, user])
+  const isHiddenNavRoute = location.pathname.startsWith('/test/')
 
   const [resumeBanner] = useState(() => {
     try {
@@ -166,7 +52,6 @@ function AppInner() {
               answers: draft.answers,
               mode: draft.mode || 'timed',
               answeredCount: Object.keys(draft.answers).length,
-              userId: draft.userId ?? null,
             }
           }
         }
@@ -202,103 +87,28 @@ function AppInner() {
     navigate(`/test/${resumeBanner.examId}`)
   }, [resumeBanner, dispatch, navigate])
 
-  const showOnboarding = !loading && user && !user.grade
-  const showExtendedOnboarding = !loading && user && user.grade && !user.extended_onboarding_done && results.length >= 1
-  const showLowCredit = !loading && user && (user.credits_balance ?? 0) < 20
-  const showSuspension = !loading && Boolean(user?.is_suspended)
-  const showLocked = !loading && Boolean(user?.is_locked)
-  const showDeactivated = !loading && Boolean(user?.is_deactivated)
-
   return (
     <>
-      <GoogleOneTap />
       <ScrollToTop />
       <OfflineBanner />
       <InstallPrompt />
-      {!isHiddenNavRoute && <Navbar onOpenAuth={() => setAuthOpen(true)} />}
-      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-      {showDeactivated && (
-        <SuspensionModal reason="Tài khoản đã bị tạm xóa do không hoạt động. Liên hệ hỗ trợ để khôi phục tài khoản." onLogout={logout} />
-      )}
-      {!showDeactivated && showLocked && (
-        <SuspensionModal reason={user.lock_reason || 'Tài khoản bị khóa do hoạt động bất thường. Liên hệ hỗ trợ để mở khóa.'} onLogout={logout} />
-      )}
-      {!showDeactivated && !showLocked && showSuspension && (
-        <SuspensionModal reason={user.suspension_reason} onLogout={logout} />
-      )}
-      {!isHiddenNavRoute && !showDeactivated && !showLocked && !showSuspension && showOnboarding && (
-        <ProfileOnboarding onDone={() => { if (results.length === 0) navigate('/practice/diagnostic') }} />
-      )}
-      {!isHiddenNavRoute && !showDeactivated && !showLocked && !showSuspension && !showOnboarding && showExtendedOnboarding && (
-        <ExtendedOnboarding onDone={() => {}} />
-      )}
+      {!isHiddenNavRoute && <Navbar />}
       <div className={`min-h-screen bg-background text-foreground${isHiddenNavRoute ? '' : ' pt-12'}`}>
-        {showLowCredit && !isHiddenNavRoute && !showOnboarding && !showDeactivated && !showLocked && !showSuspension && (
-          <LowCreditBanner balance={user.credits_balance} />
-        )}
         <Suspense fallback={<PageFallback />}>
           <AnimatePresence mode="wait" initial={false}>
-          <Routes location={location} key={location.pathname}>
-            {/* Root: authenticated → /home, guest → Landing */}
-            <Route path="/" element={
-              loading
-                ? <PageFallback />
-                : user
-                  ? <Navigate to="/home" replace />
-                  : <Landing onOpenAuth={() => setAuthOpen(true)} />
-            } />
-            {/* Authenticated home */}
-            <Route path="/home" element={
-              loading
-                ? <PageFallback />
-                : user
-                  ? <Home />
-                  : <Navigate to="/" replace />
-            } />
-            {/* Core exam flow */}
-            <Route path="/exams" element={<ExamSelect onOpenAuth={() => setAuthOpen(true)} />} />
-            <Route path="/test/:examId" element={<TestInterface />} />
-            <Route path="/results/current" element={<Results onOpenAuth={() => setAuthOpen(true)} />} />
-            <Route path="/results/:resultId" element={<Results onOpenAuth={() => setAuthOpen(true)} />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/study-plan/:resultId" element={<StudyPlan />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/review" element={<ReviewSession />} />
-            <Route path="/learn" element={<Learn />} />
-            <Route path="/mistakes" element={<Mistakes />} />
-            {/* Learning routes — canonical paths */}
-            <Route path="/practice" element={<AdaptivePractice />} />
-            <Route path="/practice/daily" element={<DailyChallenge />} />
-            <Route path="/practice/diagnostic" element={<DiagnosticTest onOpenAuth={() => setAuthOpen(true)} />} />
-            <Route path="/mastery" element={<ConceptMap />} />
-            {/* Legacy redirects — keep old URLs alive */}
-            <Route path="/practice/adaptive" element={<Navigate to="/practice" replace />} />
-            <Route path="/daily" element={<Navigate to="/practice/daily" replace />} />
-            <Route path="/diagnostic" element={<Navigate to="/practice/diagnostic" replace />} />
-            <Route path="/concept-map" element={<Navigate to="/mastery" replace />} />
-            {/* Other pages */}
-            <Route path="/verify-email" element={<VerifyEmail />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/security-events" element={<AdminSecurityEvents />} />
-            <Route path="/share" element={<ShareView />} />
-            <Route path="/challenge" element={<ChallengeLanding />} />
-            <Route path="/generate-exam" element={<GenerateExam />} />
-            <Route path="/progress" element={<Progress />} />
-            <Route path="/study-plan" element={<AdaptiveStudyPlan />} />
-            <Route path="/study-plan/adaptive" element={<Navigate to="/study-plan" replace />} />
-            <Route path="/placement" element={<Placement />} />
-            <Route path="/error-analysis" element={<ErrorAnalysis />} />
-            <Route path="/for-schools" element={<ForSchools />} />
-            <Route path="/gift" element={<Gift />} />
-            <Route path="/schools" element={<SchoolExplorer />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<Navigate to="/exams" replace />} />
+              <Route path="/exams" element={<ExamSelect />} />
+              <Route path="/test/:examId" element={<TestInterface />} />
+              <Route path="/results/current" element={<Results />} />
+              <Route path="/results/:resultId" element={<Results />} />
+              <Route path="/history" element={<History />} />
+              <Route path="*" element={<Navigate to="/exams" replace />} />
+            </Routes>
           </AnimatePresence>
         </Suspense>
       </div>
-      {resumeBanner && !resumeDismissed && (resumeBanner.userId ?? null) === (user?.id ?? null) && (
+      {resumeBanner && !resumeDismissed && (
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-primary/25 px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
             <span className="font-sans text-[0.8125rem] font-semibold text-foreground">Bạn có bài thi đang dở</span>

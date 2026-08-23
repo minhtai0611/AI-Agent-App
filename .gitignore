@@ -89,3 +89,6 @@ response-*.json
 
 # Runtime caches
 scripts/.pauls_sentences_cache.json
+
+# Serena MCP local state
+.serena/
