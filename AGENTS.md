@@ -1,46 +1,6 @@
-## Auth & Credit System
+## Auth & Credit System — removed
 
-### Auth-required endpoints
-All AI endpoints (`/analyze`, `/hint`, `/explain`, `/study-plan`) require a valid JWT in `Authorization: Bearer <token>`. The token is obtained from `POST /auth/google`.
-
-### Credit deduction per feature
-| Feature | Endpoint | Credits |
-|---|---|---|
-| Socratic hint | POST /hint | 1 |
-| Answer explanation | POST /explain | 1 |
-| Result analysis | POST /analyze | 3 |
-| Study plan | POST /study-plan | 5 |
-
-`/study-plan` also requires `subscription_tier` ∈ {student, complete} — returns 403 `tier_required` otherwise.
-
-### Getting the current admin key
-
-Admin keys rotate automatically (default: weekly). Get the current key from either:
-1. **HF Spaces** → Files tab → `/data/admin_keys.txt` → copy the latest line's key
-2. **Local fallback**: `python tools/gen_admin_key.py` (prompts for `ADMIN_MASTER_SECRET`)
-
-### Granting manual top-ups (admin)
-```
-POST /admin/users/{user_id}/credits
-X-Admin-Key: <current derived key from admin_keys.txt or gen_admin_key.py>
-{"amount": 500, "reason": "manual_topup_bank_transfer"}
-```
-
-### Activating subscriptions (admin)
-```
-POST /admin/users/{user_id}/subscription
-X-Admin-Key: <current derived key>
-{"tier": "student", "period": "monthly", "expires_at": "2026-06-15T00:00:00Z", "bonus_credits": 0}
-```
-
-### Suspending abusive accounts (admin)
-```
-POST /admin/users/{user_id}/suspend
-X-Admin-Key: <current derived key>
-{"reason": "credit_velocity abuse"}
-```
-
-The abuse detector (`backend/app/abuse_detector.py`) runs every 5 minutes and auto-suspends on HIGH-confidence signals (credit velocity, burst >100 req/10min). MEDIUM-confidence events are logged to `security_events` for manual review via `GET /admin/security-events`.
+The auth, JWT, credits, subscription tiers, and admin moderation system this section used to document was deleted in the 2026-08-23 strip-to-exam-core pass. There is no auth, no credits, no admin API in this codebase anymore — see `CLAUDE.md` for the current minimal backend surface (`/health`, `/exams`, `/exams/{id}`, `/questions`, `/questions/batch`).
 
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence

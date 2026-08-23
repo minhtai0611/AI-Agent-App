@@ -1,12 +1,12 @@
 # AI Agent App
 
-Zenith — AI-native adaptive learning system for Vietnamese students (FastAPI + Claude via ai-router proxy).
+Zenith — exam-taking app for Vietnamese students (grade-10 and THPT math exams). Currently a **clean, stripped-down baseline**: static exam content + the question-taking/scoring experience only. All AI tutoring, auth, credits/billing, admin moderation, and gamification were removed in the 2026-08-23 strip-to-exam-core pass ([[project_strip_to_exam_core]]) to serve as the foundation for a from-scratch visual/product reimagining. No AI router, no backend LLM calls, no user accounts exist in this codebase right now — don't assume any of the old AI/auth/credit architecture below is still current without checking the code first.
 
 ## Stack
 
-- **Python** — FastAPI, pydantic-settings, tenacity, openai SDK (>=1.58.0)
+- **Python** — FastAPI, pydantic-settings, aiosqlite
 - **Runtime** — uvicorn
-- **AI** — Claude models via internal OpenAI-compatible proxy at `https://ai-router.locdo.tech`
+- **Frontend** — React (Vite), React Router, Framer Motion, GSAP, Recharts, Radix/shadcn UI (`@base-ui/react`)
 
 ## Dev commands
 
@@ -18,59 +18,41 @@ npm run dev          # starts backend :8000 and frontend :5173 concurrently
 # Backend only
 pip install -r requirements.txt
 PYTHONPATH=backend uvicorn app.main:app --reload   # http://localhost:8000
-python3 -m pytest backend/tests/ -m "not live_ai" --randomly-seed=0 -q   # fast suite
-python3 -m pytest backend/tests/ -m "live_ai" -v                         # live AI tests (needs token)
-
-# Mutation testing (run from backend/, takes ~15-20 min for agent/ module)
-cd backend && mutmut run     # config in backend/pyproject.toml — baseline score: 16.5%
-mutmut results               # show killed/survived/no-tests breakdown
-# WARNING: never run `mutmut apply <mutant>` without immediately running:
-#   git checkout -- app/agent/<file>.py   (it physically corrupts source files)
+PYTHONPATH=backend python3 -m pytest backend/tests/ -q   # backend/tests/test_exams.py — 7 tests
 
 # Frontend only
 cd exam-app && npm install && npm run dev   # http://localhost:5173
+cd exam-app && npm run test                 # vitest
 ```
 
 ## Project structure
 
 ```
 backend/app/
-  config.py          # Settings (pydantic-settings), get_settings(); ALLOWED_ORIGINS for CORS
-  dependencies.py    # get_ai_client() singleton (AsyncOpenAI)
-  middleware.py      # RateLimitMiddleware — IP (20/min) + per-user (60/min) + rapid-fire hint detection
-  abuse_detector.py # Background loop (5 min) — credit velocity, burst, score anomaly, new-account checks
-  main.py            # FastAPI routes: /analyze /hint /explain /study-plan /health
-                     #   + /auth/google, /users/me, /users/me/profile, /users/me/credits/log
-                     #   + /admin/users/{id}/subscription|credits|suspend|unsuspend
-                     #   + GET /admin/security-events
-  agent/
-    core.py          # call_with_retry() — tenacity retry wrapper for all AI calls
-    memory.py        # compress_conversation() via Haiku
-    exam_analyzer.py # analyze_exam_result() — grade+province → location-aware school recs
-    hint_generator.py# generate_hint() — Socratic hints via Haiku
-    study_planner.py # generate_study_plan() — 4-week study plan with JSON fallback
-  tests/
-    test_ai_endpoints.py  # pytest tests covering AI endpoints (LLM mocked)
+  config.py          # Settings (pydantic-settings): allowed_origins, sqlite_path; get_settings()
+  db.py              # AsyncSQLitePool — asyncpg-compatible wrapper over aiosqlite (single connection + lock)
+  main.py            # lifespan seeds exams/questions/exam_questions from exam-app/src/data/*.json on first boot
+                     #   routes: GET /health, GET /exams, GET /exams/{id}, GET /questions, POST /questions/batch
+backend/tests/
+  test_exams.py      # covers all 5 routes against a module-scoped seeded SQLite fixture
 
 exam-app/src/
   api/
-    index.js         # Static data loaders (questions, exams, schools)
-    aiClient.js      # Axios client wrapping all backend endpoints; wrap() preserves structured errors
+    index.js         # loadExams / loadThiThuExams / loadExamById / loadQuestionsByIds — static JSON with
+                     #   optional live-backend fallback via _apiFetch
   components/
-    AIInsights.jsx   # Renders AI analysis; handles 401/402/403 error codes + credit top-up CTA
-    AIErrorBoundary.jsx  # React error boundary wrapping AI sections
-    QuestionCard.jsx # Question renderer + hint (⚡1 credit) + explanation toggle (practice mode)
-    ProfileOnboarding.jsx # Modal: grade (required) + province (required) + school type + ToS gate
-    LowCreditBanner.jsx   # Sticky banner when credits_balance < 10; dismissible per session
-    Navbar.jsx       # ⚡ credits badge → /account; avatar/name → /account
+    QuestionCard.jsx # Question renderer + static explanation toggle (practice mode) — no AI hints
+    Navbar.jsx       # Bare nav shell: VantageLogo + "Thi thử" / "Lịch sử" links (no auth/credits UI)
+    motion/          # Reveal3D.jsx, Scene3DLazy.jsx, scenes/ — GSAP/3D animation infra (Vantage rebrand)
   pages/
-    Results.jsx      # Async AI analysis with grade+province in payload; "Tạo Kế Hoạch" button
-    StudyPlan.jsx    # /study-plan/:resultId — 4-week plan with localStorage checkbox progress
-    Account.jsx      # /account — profile, tier/credits, pricing table (monthly/annual toggle), credit log
-    ExamSelect.jsx   # Auth gate (1 guest trial), grade/tier filter, category lock for non-complete tiers
+    ExamSelect.jsx   # Exam list + year/search filters + preview modal (briefing checklist, weak-topic warning)
+    TestInterface.jsx# Timed/practice exam-taking flow; tab-switch pause overlay in timed mode
+    Results.jsx      # Score hero + 4 tabs: Kết quả (radar chart), Nhận xét (local heuristic insights via
+                     #   engine/aiEngine.js — NOT a backend AI call), Câu sai (wrong-answer review), Trường phù hợp
+    History.jsx       # Past attempts, localStorage-backed
   context/
-    ExamContext.jsx  # Exam state + hints: {} + SET_HINT action + useHints() hook
-    AuthContext.jsx  # user (all profile fields), login, logout, updateProfile()
+    ExamContext.jsx  # Exam-taking session state (pure, no auth dependency)
+    HistoryContext.jsx # Pure localStorage history — no server sync
 ```
 
 ## Frontend brand identity (rebrand in progress)
@@ -85,76 +67,14 @@ exam-app's visible brand is being renamed from "Luminary" to **Vantage** — a f
 
 Full rollout plan (phases, file-level detail, rationale, sources) lives in the approved blueprint: `C:\Users\Tai Minh\.claude\plans\groovy-baking-beaver.md`. Check that plan's phase progress before assuming old "Luminary" naming/tokens are still current.
 
-## User profile fields (users table)
-
-| Field | Values | Effect |
-|---|---|---|
-| `grade` | '9','10','11','12' | ≤9 → grade10 exams only; 10-12 → thpt only |
-| `province` | 63 VN provinces | AI school recs localized to province |
-| `school_type` | 'chuyên','công lập','quốc tế' | Optional, informational |
-| `subscription_tier` | 'basic','student','complete' | Controls exam access + study-plan gate |
-| `subscription_period` | 'monthly','annual' | Annual shown with badge in Navbar/Account |
-| `credits_balance` | integer ≥0 | Deducted per AI call; 402 when exhausted |
-| `tos_accepted_at` | ISO timestamp | Required before any credit-deducting request |
-| `is_suspended` | 0/1 | 403 account_suspended → suspension modal |
-
-## AI credit costs
-
-| Endpoint | Credits |
-|---|---|
-| `/hint` | 1 |
-| `/explain` | 1 |
-| `/analyze` | 3 |
-| `/study-plan` | 5 (student/complete tier only) |
-
-## Admin endpoints (require X-Admin-Key: current derived key)
-
-Admin key rotates automatically (default: weekly). Get current key from `/data/admin_keys.txt` on HF Spaces or run `python tools/gen_admin_key.py`.
-
-- `POST /admin/users/{id}/subscription` — set tier/period/expiry + bonus credits
-- `POST /admin/users/{id}/credits` — grant top-up credits
-- `POST /admin/users/{id}/suspend` — suspend with reason
-- `POST /admin/users/{id}/unsuspend`
-- `GET /admin/security-events` — recent HIGH/MEDIUM events with user status
-- `POST /admin/generate-key-log` — (cron use only) derive + append current key to log; requires `X-Cron-Secret` header
-
-## AI router rules (CRITICAL)
-
-- **SDK**: `openai` (never `anthropic`)
-- **Base URL**: `https://ai-router.locdo.tech/v2` (set via `ANTHROPIC_BASE_URL` env var)
-- **Auth**: env var `ANTHROPIC_AUTH_TOKEN` — never hardcode
-- **Model names use dots**: `claude-sonnet-4.6`, `claude-opus-4.6`, `claude-haiku-4.5`
-- **Never hardcode model names** — use `settings.default_model` / `settings.opus_model` / `settings.haiku_model`
-- **Never create a new client per request** — use singleton `get_ai_client()` from `dependencies.py`
-
-## Model tiers
-
-| Property | Model | Use |
-|---|---|---|
-| `settings.default_model` | `claude-sonnet-4.6` | Main agent loop |
-| `settings.haiku_model` | `claude-haiku-4.5` | Cheap tasks: summarization, compression |
-| `settings.opus_model` | `claude-opus-4.6` | Complex reasoning |
-
 ## Env vars
 
 **`backend/.env`** (copy from `backend/.env.example`, never commit)
 
 | Variable | Example value |
 |---|---|
-| `ANTHROPIC_BASE_URL` | `https://ai-router.locdo.tech` |
-| `ANTHROPIC_AUTH_TOKEN` | *(your token)* |
-| `ANTHROPIC_DEFAULT_OPUS_MODEL` | `claude-opus-4.6` |
-| `ANTHROPIC_DEFAULT_SONNET_MODEL` | `claude-sonnet-4.6` |
-| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `claude-haiku-4.5` |
-| `ALLOWED_ORIGINS` | `http://localhost:5173` |
-| `SQLITE_PATH` | `./math_wiki.db` (local) / `/data/app.db` (HF Spaces) |
-| `GOOGLE_CLIENT_ID` | *(Google OAuth client ID)* |
-| `JWT_SECRET` | *(≥32 chars, required)* |
-| `ADMIN_MASTER_SECRET` | *(≥32 chars — static master; effective key is HMAC-derived + time window)* |
-| `ADMIN_KEY_ROTATION_PERIOD` | `weekly` *(daily\|weekly\|monthly\|quarterly\|annual)* |
-| `ADMIN_KEY_LOG_PATH` | `./admin_keys.txt` (local) / `/data/admin_keys.txt` (HF Spaces) |
-| `ADMIN_KEY_LOG_ENABLED` | `true` |
-| `CRON_SECRET` | *(≥32 chars — authenticates POST /admin/generate-key-log from cron-job.org/GitHub Actions)* |
+| `ALLOWED_ORIGINS` | `http://localhost:5173,https://exam-app-ey0.pages.dev` |
+| `SQLITE_PATH` | `./app.db` (local) / `/data/app.db` (HF Spaces) |
 
 **`exam-app/.env`** (copy from `exam-app/.env.example`, never commit)
 
@@ -164,49 +84,17 @@ Admin key rotates automatically (default: weekly). Get current key from `/data/a
 
 ## Test suite
 
-**Two tiers — run at different times, never mix them up.**
-
-### Tier 1 — fast suite (run on every commit, blocks merge)
+Single suite, no markers/tiers needed anymore:
 ```bash
-PYTHONPATH=backend python3 -m pytest backend/tests/ \
-  -m "not live_ai and not fault_injection" \
-  --randomly-seed=0 -q
+PYTHONPATH=backend python3 -m pytest backend/tests/ -q   # backend/tests/test_exams.py
+cd exam-app && npx vitest run                            # frontend
 ```
-Files: `test_regressions.py`, `test_auth_flow.py`, `test_resilience.py`, `test_streaming.py`, `test_budget.py`, `test_observability.py`, `test_admin.py`, `test_ai_endpoints.py`, `test_auth.py`, `test_auth_endpoint.py`, `test_user_endpoints.py`
-
-### Tier 2 — on-demand suites (excluded from default run — do NOT forget these)
-
-| Suite | Run when | Command |
-|---|---|---|
-| `test_property_based.py` | After changes to credit logic or endpoint guards | `PYTHONPATH=backend pytest backend/tests/test_property_based.py -v` |
-| `test_contract.py` (smoke) | Before a deploy | `PYTHONPATH=backend pytest backend/tests/test_contract.py::test_health_endpoint backend/tests/test_contract.py::test_openapi_schema_has_minimum_endpoints` |
-| `test_contract.py` (full) | Weekly — catches 500s on edge inputs, light security fuzzing | `schemathesis run http://localhost:8000/openapi.json --checks all` |
-| `test_fault_injection.py` | After changing retry/fallback logic | `PYTHONPATH=backend pytest backend/tests/ -m fault_injection -v` |
-| `test_wiki_math_system.py` | After changing `app/math_wiki/` pipeline | `PYTHONPATH=backend pytest backend/tests/test_wiki_math_system.py -m live_ai -v` |
-
-These are excluded from the fast suite because they either load PyTorch (segfault risk in subprocesses), use Hypothesis (too slow per mutant), require a live API token, or are non-deterministic. **Excluding them from the default run does not make them optional** — they catch different classes of bugs.
-
-### Adding new test cases
-- **Parametrized tests** (auth flow, hints, analyze): edit YAML in `backend/tests/fixtures/` — no Python needed
-- **Any test needing a mock pool/user**: use `PoolBuilder`, `UserBuilder`, `FULL_USER_ROW` from `backend/tests/builders.py`
-- **Regression for a production bug**: add to `test_regressions.py` with `@pytest.mark.regression`, docstring stating commit hash + what broke
-
-### Mutation testing
-Baseline: **16.5% kill rate** on `app/agent/` (June 2025). Run from `backend/` directory:
-```bash
-cd backend && mutmut run    # config: backend/pyproject.toml
-mutmut results              # show killed/survived breakdown
-```
-Low score is expected — tests mock `call_with_retry` so prompt-building logic executes but tests only assert on HTTP status.
-**WARNING: `mutmut apply <mutant>` physically modifies source files. Always revert immediately:** `git checkout -- app/agent/<file>.py`
 
 ## Key patterns
 
-**Error handling** — wrap all `client.chat.completions.create()` with `call_with_retry()` from `agent/core.py`. Catches `RateLimitError` (retry), `APIConnectionError`, `APIStatusError`.
+**Static-JSON-first data flow** — `exam-app/src/api/index.js` reads exam/question data from the bundled `exam-app/src/data/{exams,questions}.json` and only falls back to the live backend (`_apiFetch`) when the static JSON doesn't have what's needed. The exam-taking flow works with the frontend alone; the backend's SQLite tables are just a seeded mirror of the same JSON for future backend-driven use.
 
-**Prefix caching** — static system prompt content first (e.g. `STATIC_EXAM_ANALYSIS_INSTRUCTIONS`); dynamic context (student name, score, weak topics) appended last.
-
-**Pricing** — `PRICE_TABLE` in `tools/registry.py` maps product type → VND/m². Default fallback: 1,600,000 VND/m².
+**Local-only "AI" naming is not backend AI** — `exam-app/src/engine/aiEngine.js` (`analyzeResult`) and `exam-app/src/utils/studyReminder.js` are pure client-side heuristics (no imports, no network calls) despite the "ai" naming. Don't confuse them with the AI backend features that were removed — verify with a grep for imports before assuming either calls out to a model.
 
 ## Development workflow
 
