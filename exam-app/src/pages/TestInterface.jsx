@@ -8,6 +8,7 @@ import Timer from '../components/Timer.jsx'
 import { FormulaDrawer } from '../components/FormulaDrawer.jsx'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { scoreExam } from '../engine/scoringEngine.js'
+import { track } from '../lib/eventTrack.js'
 
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 
@@ -48,6 +49,12 @@ export default function TestInterface() {
     }
   }, [session.status, session.exam, examId, navigate])
 
+  useEffect(() => {
+    if (session.exam?.id === examId && session.status === 'active') {
+      track('exam_started', { examId, mode: session.mode })
+    }
+  }, [session.exam?.id, examId, session.mode]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Timer tick (only when active)
   useEffect(() => {
     if (session.mode !== 'timed' || session.status !== 'active') return
@@ -84,6 +91,7 @@ export default function TestInterface() {
         if (session.mode === 'timed') {
           dispatch({ type: 'PAUSE' })
           setPauseOverlay(true)
+          track('exam_paused', { examId, elapsedMs: Date.now() - questionStartTime.current })
         }
       }
     }
@@ -148,6 +156,7 @@ export default function TestInterface() {
   const handleAnswerCallback = useCallback((choiceIndex) => {
     if (!question) return
     dispatch({ type: 'ANSWER_QUESTION', questionId: question.id, choiceIndex })
+    track('question_answered', { questionId: question.id, topic: question.topic })
   }, [dispatch, question])
 
   useEffect(() => {
@@ -201,6 +210,7 @@ export default function TestInterface() {
 
   function handleAnswer(choiceIndex) {
     dispatch({ type: 'ANSWER_QUESTION', questionId: question.id, choiceIndex })
+    track('question_answered', { questionId: question.id, topic: question.topic })
   }
 
   function handleNext() {
@@ -231,6 +241,7 @@ export default function TestInterface() {
     sessionStorage.removeItem(`exam-draft-${examId}`)
     const scored = scoreExam(session)
     dispatch({ type: 'SUBMIT' })
+    track('exam_submitted', { examId, score: scored?.score, durationMs: Date.now() - (session.startedAt ? Date.parse(session.startedAt) : Date.now()) })
     viewNavigate(navigate, '/results/current', { replace: true, state: { result: scored, tab_switches: tabSwitchCount, devtools_detected: devToolsOpen ? 1 : 0 } })
   }
 

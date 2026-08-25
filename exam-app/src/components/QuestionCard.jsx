@@ -2,6 +2,8 @@
 import { motion } from 'framer-motion'
 import { sanitizeSvg } from '../utils/sanitizeSvg.js'
 import { MathText } from './MathText.jsx'
+import { ReportIssueButton } from './ReportIssueButton.jsx'
+import { track } from '../lib/eventTrack.js'
 
 const LABELS = ['A', 'B', 'C', 'D']
 
@@ -195,7 +197,11 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, wro
       {practiceMode && !submitted && showFeedback && !isCorrect && (
         <div className="mt-3 flex flex-col gap-2">
           <button
-            onClick={() => setShowExplanation(v => !v)}
+            onClick={() => {
+              const next = !showExplanation
+              setShowExplanation(next)
+              if (next) track('explanation_opened', { questionId: question.id })
+            }}
             className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] font-sans text-xs text-[var(--muted-fg)] hover:text-[var(--foreground)] hover:border-[var(--primary-border)] transition"
           >
             <span>📖</span>
@@ -210,6 +216,10 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, wro
           )}
         </div>
       )}
+
+      <div className="mt-3">
+        <ReportIssueButton questionId={question.id} />
+      </div>
 
     </div>
   )

@@ -18,6 +18,7 @@ const ExamSelect = lazy(() => import('./pages/ExamSelect.jsx'))
 const TestInterface = lazy(() => import('./pages/TestInterface.jsx'))
 const Results = lazy(() => import('./pages/Results.jsx'))
 const History = lazy(() => import('./pages/History.jsx'))
+const ContentAudit = lazy(() => import('./pages/ContentAudit.jsx'))
 
 function PageFallback() {
   const { pathname } = useLocation()
@@ -103,6 +104,7 @@ function AppInner() {
               <Route path="/results/current" element={<Results />} />
               <Route path="/results/:resultId" element={<Results />} />
               <Route path="/history" element={<History />} />
+              <Route path="/content-audit" element={<ContentAudit />} />
               <Route path="*" element={<Navigate to="/exams" replace />} />
             </Routes>
           </AnimatePresence>

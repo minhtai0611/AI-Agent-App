@@ -81,3 +81,24 @@ export async function loadQuestionsByIds(ids) {
   const map = Object.fromEntries(data.map(q => [q.id, q]))
   return ids.map(id => map[id]).filter(Boolean)
 }
+
+// Content-issue reporting (Phase 2) — a bug report on the content ("this rendered
+// wrong", "this answer key looks wrong"), not a learning-experience survey. No static
+// fallback: there's nothing to report against when the backend is unreachable.
+export async function reportQuestion(questionId, kind, note) {
+  const res = await fetch(`${_API_BASE}/questions/${encodeURIComponent(questionId)}/report`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ kind, note }),
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+// Content review queue — student-submitted reports and AI-audit-filed mismatches
+// (backend/app/agent/auditor.py) both live in content_reports; no static fallback,
+// there's nothing to review when the backend is unreachable.
+export async function loadContentReports(kind) {
+  const qs = kind ? `?kind=${encodeURIComponent(kind)}` : ''
+  return _apiFetch(`/content-reports${qs}`)
+}
