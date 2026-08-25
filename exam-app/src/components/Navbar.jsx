@@ -5,8 +5,12 @@ import VantageLogo from './VantageLogo'
 import { useOrgAuth } from '../context/OrgAuthContext.jsx'
 
 function vNavigate(navigate, path) {
+  // See utils/animations.js#viewNavigate — startViewTransition can reject with
+  // InvalidStateError (hidden document, transition already in flight); the nav itself
+  // still happens via the callback, so an unhandled rejection here is just noise.
   if (document.startViewTransition) {
-    document.startViewTransition(() => navigate(path))
+    const transition = document.startViewTransition(() => navigate(path))
+    transition.ready.catch(() => {})
   } else {
     navigate(path)
   }

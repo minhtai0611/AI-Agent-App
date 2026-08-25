@@ -58,8 +58,12 @@ export const heroItem = (key) => ({
 // ── View Transitions API — falls back gracefully ──────────────────────────────
 
 export function viewNavigate(navigateFn, path, opts) {
+  // startViewTransition throws/rejects (InvalidStateError) when the document is hidden
+  // or a transition is already in flight — navigation itself still succeeds via the
+  // callback, so this is safe to swallow rather than let surface as an unhandled rejection.
   if (document.startViewTransition) {
-    document.startViewTransition(() => navigateFn(path, opts))
+    const transition = document.startViewTransition(() => navigateFn(path, opts))
+    transition.ready.catch(() => {})
   } else {
     navigateFn(path, opts)
   }
