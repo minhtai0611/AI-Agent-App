@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import uuid
@@ -70,6 +71,196 @@ _SCHEMA_DDL = [
         status TEXT NOT NULL,
         verified_at TEXT DEFAULT (datetime('now'))
     )""",
+    # Institutions Phase 1 — org/tenant model, SSO/SCIM identity, RBAC, audit log.
+    """CREATE TABLE IF NOT EXISTS orgs (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        workos_org_id TEXT UNIQUE,
+        domain TEXT,
+        status TEXT NOT NULL DEFAULT 'active',
+        settings_json TEXT NOT NULL DEFAULT '{}',
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    """CREATE TABLE IF NOT EXISTS org_members (
+        id TEXT PRIMARY KEY,
+        org_id TEXT NOT NULL REFERENCES orgs(id) ON DELETE CASCADE,
+        email TEXT NOT NULL,
+        workos_user_id TEXT,
+        role TEXT NOT NULL DEFAULT 'learner',
+        source TEXT NOT NULL DEFAULT 'manual',
+        status TEXT NOT NULL DEFAULT 'active',
+        created_at TEXT DEFAULT (datetime('now')),
+        updated_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(org_id, email)
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_org_members_org ON org_members(org_id)",
+    "CREATE INDEX IF NOT EXISTS idx_org_members_workos_user ON org_members(workos_user_id)",
+    """CREATE TABLE IF NOT EXISTS org_sessions (
+        id TEXT PRIMARY KEY,
+        org_member_id TEXT NOT NULL REFERENCES org_members(id) ON DELETE CASCADE,
+        workos_access_token TEXT,
+        expires_at TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_org_sessions_member ON org_sessions(org_member_id)",
+    """CREATE TABLE IF NOT EXISTS org_audit_log (
+        id TEXT PRIMARY KEY,
+        org_id TEXT NOT NULL REFERENCES orgs(id) ON DELETE CASCADE,
+        actor_member_id TEXT REFERENCES org_members(id),
+        action TEXT NOT NULL,
+        target TEXT,
+        metadata_json TEXT NOT NULL DEFAULT '{}',
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_org_audit_org ON org_audit_log(org_id)",
+    # Institutions Phase 2 — branding, cohorts, org content library, attempts/analytics,
+    # integrations & webhooks, compliance. Additive columns on orgs (ALTER, not CREATE IF
+    # NOT EXISTS — expected to fail-and-be-swallowed on re-run, same convention as the
+    # origin/qti_identifier columns above).
+    "ALTER TABLE orgs ADD COLUMN branding_logo_url TEXT",
+    "ALTER TABLE orgs ADD COLUMN branding_primary_color TEXT",
+    "ALTER TABLE orgs ADD COLUMN branding_secondary_color TEXT",
+    "ALTER TABLE orgs ADD COLUMN support_tier TEXT DEFAULT 'standard'",
+    "ALTER TABLE orgs ADD COLUMN status_page_url TEXT",
+    "ALTER TABLE orgs ADD COLUMN retention_days INTEGER",
+    """CREATE TABLE IF NOT EXISTS org_cohorts (
+        id TEXT PRIMARY KEY,
+        org_id TEXT NOT NULL REFERENCES orgs(id) ON DELETE CASCADE,
+        name TEXT NOT NULL,
+        external_ref TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    """CREATE TABLE IF NOT EXISTS org_cohort_members (
+        cohort_id TEXT NOT NULL REFERENCES org_cohorts(id) ON DELETE CASCADE,
+        org_member_id TEXT NOT NULL REFERENCES org_members(id) ON DELETE CASCADE,
+        PRIMARY KEY (cohort_id, org_member_id)
+    )""",
+    """CREATE TABLE IF NOT EXISTS org_content_items (
+        id TEXT PRIMARY KEY,
+        org_id TEXT NOT NULL REFERENCES orgs(id) ON DELETE CASCADE,
+        source_question_id TEXT REFERENCES questions(id),
+        question TEXT,
+        choices TEXT,
+        correct INTEGER,
+        explanation TEXT,
+        topic TEXT,
+        difficulty TEXT,
+        status TEXT NOT NULL DEFAULT 'draft',
+        version INTEGER NOT NULL DEFAULT 1,
+        created_by TEXT REFERENCES org_members(id),
+        approved_by TEXT REFERENCES org_members(id),
+        approved_at TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    """CREATE TABLE IF NOT EXISTS org_exams (
+        id TEXT PRIMARY KEY,
+        org_id TEXT NOT NULL REFERENCES orgs(id) ON DELETE CASCADE,
+        title TEXT NOT NULL,
+        created_by TEXT REFERENCES org_members(id),
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    """CREATE TABLE IF NOT EXISTS org_exam_items (
+        org_exam_id TEXT NOT NULL REFERENCES org_exams(id) ON DELETE CASCADE,
+        question_id TEXT REFERENCES questions(id),
+        org_content_item_id TEXT REFERENCES org_content_items(id),
+        position INTEGER NOT NULL,
+        PRIMARY KEY (org_exam_id, position)
+    )""",
+    """CREATE TABLE IF NOT EXISTS org_exam_attempts (
+        id TEXT PRIMARY KEY,
+        org_id TEXT NOT NULL REFERENCES orgs(id) ON DELETE CASCADE,
+        cohort_id TEXT REFERENCES org_cohorts(id),
+        org_member_id TEXT NOT NULL REFERENCES org_members(id),
+        exam_ref_type TEXT NOT NULL,
+        exam_id TEXT NOT NULL,
+        score REAL,
+        item_responses TEXT,
+        started_at TEXT,
+        submitted_at TEXT DEFAULT (datetime('now')),
+        source TEXT DEFAULT 'web'
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_attempts_org_cohort ON org_exam_attempts(org_id, cohort_id)",
+    """CREATE TABLE IF NOT EXISTS org_api_keys (
+        id TEXT PRIMARY KEY,
+        org_id TEXT NOT NULL REFERENCES orgs(id) ON DELETE CASCADE,
+        key_hash TEXT NOT NULL,
+        label TEXT,
+        scopes TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        revoked_at TEXT
+    )""",
+    """CREATE TABLE IF NOT EXISTS org_webhooks (
+        id TEXT PRIMARY KEY,
+        org_id TEXT NOT NULL REFERENCES orgs(id) ON DELETE CASCADE,
+        url TEXT NOT NULL,
+        secret TEXT NOT NULL,
+        event_types TEXT NOT NULL,
+        active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    """CREATE TABLE IF NOT EXISTS org_webhook_deliveries (
+        id TEXT PRIMARY KEY,
+        webhook_id TEXT NOT NULL REFERENCES org_webhooks(id) ON DELETE CASCADE,
+        event_type TEXT NOT NULL,
+        payload TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'pending',
+        attempt INTEGER NOT NULL DEFAULT 0,
+        last_error TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        delivered_at TEXT
+    )""",
+    # Institutions Phase 3 — tiered AI proctoring (scaffold, no vendor wired), org-scoped
+    # AI generation with a human-review gate, psychometric flagging, predictive cohort
+    # signals, plain-language narration.
+    "ALTER TABLE exams ADD COLUMN stakes_tier TEXT DEFAULT 'low'",
+    """CREATE TABLE IF NOT EXISTS org_proctoring_settings (
+        org_id TEXT PRIMARY KEY REFERENCES orgs(id) ON DELETE CASCADE,
+        tier_enabled TEXT NOT NULL DEFAULT 'none',
+        vendor_config TEXT,
+        updated_at TEXT DEFAULT (datetime('now'))
+    )""",
+    """CREATE TABLE IF NOT EXISTS proctoring_sessions (
+        id TEXT PRIMARY KEY,
+        exam_attempt_id TEXT,
+        org_id TEXT NOT NULL REFERENCES orgs(id) ON DELETE CASCADE,
+        tier TEXT NOT NULL,
+        vendor_session_id TEXT,
+        status TEXT NOT NULL DEFAULT 'pending',
+        flags_json TEXT NOT NULL DEFAULT '[]',
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    "ALTER TABLE pending_questions ADD COLUMN org_id TEXT",
+    "ALTER TABLE pending_questions ADD COLUMN content_library_id TEXT",
+    """CREATE TABLE IF NOT EXISTS question_response_stats (
+        question_id TEXT NOT NULL,
+        org_id TEXT,
+        choice_index INTEGER NOT NULL,
+        pick_count INTEGER NOT NULL DEFAULT 0,
+        correct_count INTEGER NOT NULL DEFAULT 0,
+        total_attempts INTEGER NOT NULL DEFAULT 0,
+        updated_at TEXT DEFAULT (datetime('now')),
+        PRIMARY KEY (question_id, org_id, choice_index)
+    )""",
+    """CREATE TABLE IF NOT EXISTS psychometric_flags (
+        id TEXT PRIMARY KEY,
+        question_id TEXT NOT NULL,
+        org_id TEXT,
+        flag_type TEXT NOT NULL,
+        metric_value REAL,
+        detail TEXT,
+        flagged_at TEXT DEFAULT (datetime('now')),
+        status TEXT NOT NULL DEFAULT 'open'
+    )""",
+    """CREATE TABLE IF NOT EXISTS cohort_risk_signals (
+        id TEXT PRIMARY KEY,
+        cohort_id TEXT,
+        org_id TEXT NOT NULL,
+        org_member_id TEXT,
+        signal_type TEXT NOT NULL,
+        severity TEXT NOT NULL,
+        detail_json TEXT NOT NULL DEFAULT '{}',
+        computed_at TEXT DEFAULT (datetime('now'))
+    )""",
 ]
 
 
@@ -137,8 +328,16 @@ async def lifespan(app: FastAPI):
     if (exam_count and exam_count["cnt"] == 0) or (q_count and q_count["cnt"] == 0):
         await _seed_from_json(app.state.pool)
 
+    retry_task = None
+    if settings.webhook_retry_enabled:
+        from app.webhooks import retry_sweep_loop
+
+        retry_task = asyncio.create_task(retry_sweep_loop(app.state.pool))
+
     yield
 
+    if retry_task:
+        retry_task.cancel()
     if app.state.pool:
         await app.state.pool.close()
 
@@ -338,3 +537,478 @@ async def agent_reject_pending(pending_id: str, pool=Depends(get_pool)):
         raise HTTPException(status_code=404, detail="Pending item not found")
     await pool.execute("UPDATE pending_questions SET status='rejected' WHERE id=?", pending_id)
     return {"id": pending_id, "status": "rejected"}
+
+
+# --- Institutions Phase 1: org/tenant model, SSO, SCIM, RBAC, audit log -----------------
+
+from app.org_auth import get_current_member, provision_or_update_member, record_audit, require_role  # noqa: E402
+
+
+def _get_workos_client():
+    from app.config import OrgAuthNotConfiguredError
+    from app.org_auth import _get_workos_client as build_client
+
+    try:
+        return build_client(get_settings())
+    except OrgAuthNotConfiguredError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/auth/login")
+async def auth_login():
+    client = _get_workos_client()
+    settings = get_settings()
+    url = client.user_management.get_authorization_url(
+        provider="authkit",
+        redirect_uri=f"{settings.app_base_url.rstrip('/')}/auth/callback",
+    )
+    from fastapi.responses import RedirectResponse
+
+    return RedirectResponse(url, status_code=302)
+
+
+@app.get("/auth/callback")
+async def auth_callback(code: str, pool=Depends(get_pool)):
+    from fastapi.responses import RedirectResponse
+
+    client = _get_workos_client()
+    settings = get_settings()
+    try:
+        auth_response = client.user_management.authenticate_with_code(code=code)
+    except Exception as exc:
+        raise HTTPException(status_code=401, detail=f"WorkOS authentication failed: {exc}") from exc
+
+    user = auth_response.user
+    workos_org_id = getattr(auth_response, "organization_id", None)
+    org_row = await pool.fetchrow("SELECT * FROM orgs WHERE workos_org_id=?", workos_org_id) if workos_org_id else None
+    if not org_row:
+        org_id = f"org_{uuid.uuid4().hex[:12]}"
+        org_name = getattr(user, "email", "New Organization").split("@")[-1]
+        await pool.execute(
+            "INSERT INTO orgs (id, name, workos_org_id) VALUES (?,?,?)", org_id, org_name, workos_org_id,
+        )
+    else:
+        org_id = org_row["id"]
+
+    member = await provision_or_update_member(
+        pool, org_id, email=user.email, workos_user_id=user.id, role="learner", source="sso_jit",
+    )
+    from app.org_auth import create_session
+
+    token = await create_session(pool, member["id"])
+    resp = RedirectResponse(f"{settings.app_base_url.rstrip('/')}/org", status_code=302)
+    resp.set_cookie("org_session", token, httponly=True, secure=True, samesite="lax", max_age=7 * 24 * 3600)
+    return resp
+
+
+@app.post("/auth/logout")
+async def auth_logout(request: Request, pool=Depends(get_pool)):
+    from fastapi.responses import JSONResponse
+
+    token = request.cookies.get("org_session")
+    if token:
+        await pool.execute("DELETE FROM org_sessions WHERE id=?", token)
+    resp = JSONResponse({"status": "ok"})
+    resp.delete_cookie("org_session")
+    return resp
+
+
+@app.get("/auth/me")
+async def auth_me(current=Depends(get_current_member)):
+    return current
+
+
+@app.post("/webhooks/workos")
+async def webhook_workos(request: Request, pool=Depends(get_pool)):
+    settings = get_settings()
+    if not settings.workos_webhook_secret:
+        raise HTTPException(status_code=503, detail="workos_webhook_secret is not set")
+
+    body = await request.json()
+    event_type = body.get("event")
+    data = body.get("data", {})
+
+    if event_type in ("dsync.user.created", "dsync.user.updated"):
+        org_row = await pool.fetchrow("SELECT id FROM orgs WHERE workos_org_id=?", data.get("directory_id"))
+        if org_row:
+            await provision_or_update_member(
+                pool, org_row["id"],
+                email=data.get("emails", [{}])[0].get("value") if data.get("emails") else data.get("username"),
+                workos_user_id=data.get("id"), role="learner", source="scim",
+            )
+    elif event_type == "dsync.user.deleted":
+        await pool.execute("UPDATE org_members SET status='deactivated' WHERE workos_user_id=?", data.get("id"))
+    # dsync.group.* — log-and-ignore in Phase 1 (group->role mapping deferred).
+
+    return {"received": True}
+
+
+@app.get("/org/members")
+async def org_list_members(current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    rows = await pool.fetch("SELECT * FROM org_members WHERE org_id=? ORDER BY created_at", current["org"]["id"])
+    return [dict(r) for r in rows]
+
+
+@app.patch("/org/members/{member_id}")
+async def org_patch_member(member_id: str, body: dict, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    org_id = current["org"]["id"]
+    row = await pool.fetchrow("SELECT * FROM org_members WHERE id=? AND org_id=?", member_id, org_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Member not found")
+    if row["source"] == "scim":
+        raise HTTPException(status_code=409, detail="SCIM-managed members can't be edited locally")
+
+    if "role" in body:
+        await pool.execute("UPDATE org_members SET role=?, updated_at=datetime('now') WHERE id=?", body["role"], member_id)
+        await record_audit(pool, org_id, current["member"]["id"], "member.role_changed", target=member_id)
+    if "status" in body:
+        await pool.execute("UPDATE org_members SET status=?, updated_at=datetime('now') WHERE id=?", body["status"], member_id)
+        await record_audit(pool, org_id, current["member"]["id"], "member.status_changed", target=member_id)
+    return dict(await pool.fetchrow("SELECT * FROM org_members WHERE id=?", member_id))
+
+
+@app.post("/org/members/invite")
+async def org_invite_member(body: dict, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    email = body.get("email")
+    role = body.get("role", "learner")
+    if not email:
+        raise HTTPException(status_code=422, detail="email is required")
+    org_id = current["org"]["id"]
+    member_id = f"mem_{uuid.uuid4().hex[:12]}"
+    try:
+        await pool.execute(
+            "INSERT INTO org_members (id, org_id, email, role, source) VALUES (?,?,?,?,?)",
+            member_id, org_id, email, role, "manual",
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=409, detail=f"Could not invite member: {exc}") from exc
+    await record_audit(pool, org_id, current["member"]["id"], "member.invited", target=member_id)
+    return dict(await pool.fetchrow("SELECT * FROM org_members WHERE id=?", member_id))
+
+
+@app.get("/org/audit-log")
+async def org_audit_log(current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    rows = await pool.fetch(
+        "SELECT * FROM org_audit_log WHERE org_id=? ORDER BY created_at DESC", current["org"]["id"],
+    )
+    return {"local": [dict(r) for r in rows]}
+
+
+@app.get("/org/settings")
+async def org_get_settings(current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    row = await pool.fetchrow("SELECT id, name FROM orgs WHERE id=?", current["org"]["id"])
+    return dict(row)
+
+
+@app.patch("/org/settings")
+async def org_patch_settings(body: dict, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    org_id = current["org"]["id"]
+    if "name" in body:
+        await pool.execute("UPDATE orgs SET name=? WHERE id=?", body["name"], org_id)
+        await record_audit(pool, org_id, current["member"]["id"], "org.settings_changed", target="name")
+    return dict(await pool.fetchrow("SELECT id, name FROM orgs WHERE id=?", org_id))
+
+
+# --- Institutions Phase 2: branding, content library, attempts/analytics, ---------------
+# --- integrations & webhooks, compliance ------------------------------------------------
+
+from app import org_attempts, org_branding, org_compliance, org_content, org_integrations, webhooks  # noqa: E402
+
+
+@app.get("/org/{org_id}/branding")
+async def get_org_branding(org_id: str, pool=Depends(get_pool)):
+    """Unauthenticated — the learner portal needs to theme itself before SSO completes."""
+    branding = await org_branding.get_branding(pool, org_id)
+    if not branding:
+        raise HTTPException(status_code=404, detail="Org not found")
+    return branding
+
+
+@app.put("/org/settings/branding")
+async def put_org_branding(body: dict, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    return await org_branding.set_branding(pool, current["org"]["id"], body)
+
+
+@app.get("/org/attempts/{attempt_id}/report.pdf")
+async def get_attempt_report_pdf(attempt_id: str, current=Depends(get_current_member), pool=Depends(get_pool)):
+    from app.org_reports import PdfReportsUnavailableError, render_attempt_pdf
+    from fastapi.responses import Response
+
+    attempt = await pool.fetchrow("SELECT * FROM org_exam_attempts WHERE id=? AND org_id=?", attempt_id, current["org"]["id"])
+    if not attempt:
+        raise HTTPException(status_code=404, detail="Attempt not found")
+    is_self = attempt["org_member_id"] == current["member"]["id"]
+    is_admin = current["member"]["role"] in ("admin", "owner")
+    if not (is_self or is_admin):
+        raise HTTPException(status_code=403, detail="Not authorized to view this report")
+
+    org = await pool.fetchrow("SELECT * FROM orgs WHERE id=?", current["org"]["id"])
+    try:
+        pdf_bytes = render_attempt_pdf(dict(org), current["member"]["email"], dict(attempt))
+    except PdfReportsUnavailableError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return Response(content=pdf_bytes, media_type="application/pdf")
+
+
+@app.post("/org/content")
+async def post_org_content(body: dict, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    return await org_content.create_draft(pool, current["org"]["id"], current["member"]["id"], body)
+
+
+@app.get("/org/content")
+async def get_org_content(status: str | None = None, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    return await org_content.list_items(pool, current["org"]["id"], status)
+
+
+@app.post("/org/content/{item_id}/submit")
+async def submit_org_content(item_id: str, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    item = await org_content.submit_for_review(pool, current["org"]["id"], item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Content item not found")
+    return item
+
+
+@app.post("/org/content/{item_id}/approve")
+async def approve_org_content(item_id: str, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    item = await org_content.approve(pool, current["org"]["id"], item_id, current["member"]["id"])
+    if not item:
+        raise HTTPException(status_code=404, detail="Content item not found")
+    return item
+
+
+@app.post("/org/exams")
+async def post_org_exam(body: dict, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    return await org_content.create_org_exam(pool, current["org"]["id"], current["member"]["id"], body["title"], body.get("items", []))
+
+
+@app.get("/org/exams/{exam_id}")
+async def get_org_exam(exam_id: str, current=Depends(get_current_member), pool=Depends(get_pool)):
+    exam = await org_content.get_org_exam(pool, current["org"]["id"], exam_id)
+    if not exam:
+        raise HTTPException(status_code=404, detail="Org exam not found")
+    return exam
+
+
+@app.post("/org/exam-attempts")
+async def post_org_attempt(body: dict, current=Depends(get_current_member), pool=Depends(get_pool)):
+    attempt = await org_attempts.record_attempt(pool, current["org"]["id"], current["member"]["id"], body)
+    await webhooks.enqueue_delivery(pool, current["org"]["id"], "attempt.completed", attempt)
+    return attempt
+
+
+@app.get("/org/analytics/cohorts/{cohort_id}")
+async def get_cohort_analytics(cohort_id: str, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    return await org_attempts.cohort_analytics(pool, current["org"]["id"], cohort_id)
+
+
+@app.get("/org/analytics/items")
+async def get_item_analytics(current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    return await org_attempts.item_analytics(pool, current["org"]["id"])
+
+
+@app.get("/org/integrations/keys")
+async def list_org_api_keys(current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    return await org_integrations.list_api_keys(pool, current["org"]["id"])
+
+
+@app.post("/org/integrations/keys")
+async def create_org_api_key(body: dict, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    return await org_integrations.create_api_key(pool, current["org"]["id"], body.get("label"), body.get("scopes", ""))
+
+
+@app.get("/org/webhooks")
+async def list_org_webhooks(current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    return await webhooks.list_webhooks(pool, current["org"]["id"])
+
+
+@app.post("/org/webhooks")
+async def post_org_webhook(body: dict, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    return await webhooks.create_webhook(pool, current["org"]["id"], body["url"], body["secret"], body.get("eventTypes", ""))
+
+
+@app.get("/org/compliance/export")
+async def get_compliance_export(current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    return await org_compliance.export_evidence(pool, current["org"]["id"])
+
+
+@app.get("/api/v1/org/roster")
+async def api_get_roster(key=Depends(org_integrations.require_api_key), pool=Depends(get_pool)):
+    rows = await pool.fetch("SELECT id, email, role, status FROM org_members WHERE org_id=?", key["org_id"])
+    return [dict(r) for r in rows]
+
+
+@app.get("/api/v1/org/scores")
+async def api_get_scores(key=Depends(org_integrations.require_api_key), pool=Depends(get_pool)):
+    rows = await pool.fetch(
+        "SELECT id, org_member_id, exam_id, score, submitted_at FROM org_exam_attempts WHERE org_id=?", key["org_id"],
+    )
+    return [dict(r) for r in rows]
+
+
+# --- Institutions Phase 3: tiered AI proctoring (scaffold, no vendor wired) -------------
+
+from app.proctoring.tiers import requires_vendor, resolve_tier  # noqa: E402
+
+
+@app.get("/org/proctoring-settings")
+async def get_proctoring_settings(current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    row = await pool.fetchrow("SELECT * FROM org_proctoring_settings WHERE org_id=?", current["org"]["id"])
+    return dict(row) if row else {"org_id": current["org"]["id"], "tier_enabled": "none"}
+
+
+@app.patch("/org/proctoring-settings")
+async def patch_proctoring_settings(body: dict, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    org_id = current["org"]["id"]
+    tier = body.get("tierEnabled", "none")
+    await pool.execute(
+        "INSERT INTO org_proctoring_settings (org_id, tier_enabled) VALUES (?,?) "
+        "ON CONFLICT(org_id) DO UPDATE SET tier_enabled=excluded.tier_enabled, updated_at=datetime('now')",
+        org_id, tier,
+    )
+    await record_audit(pool, org_id, current["member"]["id"], "proctoring.settings_changed", target=tier)
+    return {"org_id": org_id, "tier_enabled": tier}
+
+
+@app.post("/proctoring/sessions")
+async def post_proctoring_session(body: dict, current=Depends(get_current_member), pool=Depends(get_pool)):
+    org_id = current["org"]["id"]
+    settings_row = await pool.fetchrow("SELECT tier_enabled FROM org_proctoring_settings WHERE org_id=?", org_id)
+    ceiling = settings_row["tier_enabled"] if settings_row else "none"
+    tier = resolve_tier(body.get("stakesTier", "low"), ceiling)
+
+    vendor_session_id = None
+    if requires_vendor(tier):
+        from app.config import ProctorNotConfiguredError
+        from app.proctoring.vendor_client import ProctorVendorClient
+
+        try:
+            client = ProctorVendorClient(get_settings())
+        except ProctorNotConfiguredError as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        vendor_response = await client.create_vendor_session(body.get("examAttemptId", ""))
+        vendor_session_id = vendor_response.get("id")
+
+    session_id = f"psess_{uuid.uuid4().hex[:12]}"
+    await pool.execute(
+        "INSERT INTO proctoring_sessions (id, exam_attempt_id, org_id, tier, vendor_session_id) VALUES (?,?,?,?,?)",
+        session_id, body.get("examAttemptId"), org_id, tier, vendor_session_id,
+    )
+    return dict(await pool.fetchrow("SELECT * FROM proctoring_sessions WHERE id=?", session_id))
+
+
+@app.post("/proctoring/sessions/{session_id}/events")
+async def post_proctoring_event(session_id: str, body: dict, current=Depends(get_current_member), pool=Depends(get_pool)):
+    row = await pool.fetchrow("SELECT * FROM proctoring_sessions WHERE id=? AND org_id=?", session_id, current["org"]["id"])
+    if not row:
+        raise HTTPException(status_code=404, detail="Proctoring session not found")
+    flags = json.loads(row["flags_json"] or "[]")
+    flags.append(body)
+    new_status = "flagged" if body.get("severity") == "high" else row["status"]
+    await pool.execute(
+        "UPDATE proctoring_sessions SET flags_json=?, status=? WHERE id=?",
+        json.dumps(flags, ensure_ascii=False), new_status, session_id,
+    )
+    return dict(await pool.fetchrow("SELECT * FROM proctoring_sessions WHERE id=?", session_id))
+
+
+@app.get("/proctoring/sessions/{session_id}")
+async def get_proctoring_session(session_id: str, current=Depends(get_current_member), pool=Depends(get_pool)):
+    row = await pool.fetchrow("SELECT * FROM proctoring_sessions WHERE id=? AND org_id=?", session_id, current["org"]["id"])
+    if not row:
+        raise HTTPException(status_code=404, detail="Proctoring session not found")
+    return {**dict(row), "flags_json": json.loads(row["flags_json"] or "[]")}
+
+
+# --- Institutions Phase 3: org-scoped AI generation with a human-review gate ------------
+# The existing /agent/generate above is untouched — still auto-promotes, platform-wide.
+# Only this org-scoped path routes through an explicit approve step.
+
+@app.post("/org/agent/generate")
+async def org_agent_generate(body: dict, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    from app.agent.orchestrator import generate_batch_for_org
+
+    topic = body.get("topic")
+    difficulty = body.get("difficulty")
+    count = min(int(body.get("count", 1)), 10)
+    if not topic or not difficulty:
+        raise HTTPException(status_code=422, detail="topic and difficulty are required")
+
+    client = _get_router_client()
+    results = await generate_batch_for_org(pool, client, topic, difficulty, count, current["org"]["id"], body.get("contentLibraryId"))
+    return {"results": results}
+
+
+@app.get("/org/pending")
+async def org_pending(status: str | None = None, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    if status:
+        rows = await pool.fetch("SELECT * FROM pending_questions WHERE org_id=? AND status=? ORDER BY created_at DESC", current["org"]["id"], status)
+    else:
+        rows = await pool.fetch("SELECT * FROM pending_questions WHERE org_id=? ORDER BY created_at DESC", current["org"]["id"])
+    return [dict(r) for r in rows]
+
+
+@app.post("/org/pending/{pending_id}/approve")
+async def org_approve_pending(pending_id: str, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    from app.agent.orchestrator import approve_pending
+
+    result = await approve_pending(pool, current["org"]["id"], pending_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Pending item not found or not awaiting review")
+    await record_audit(pool, current["org"]["id"], current["member"]["id"], "content.generated_question_approved", target=pending_id)
+    return result
+
+
+@app.post("/org/pending/{pending_id}/reject")
+async def org_reject_pending(pending_id: str, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    row = await pool.fetchrow("SELECT * FROM pending_questions WHERE id=? AND org_id=?", pending_id, current["org"]["id"])
+    if not row:
+        raise HTTPException(status_code=404, detail="Pending item not found")
+    await pool.execute("UPDATE pending_questions SET status='rejected' WHERE id=?", pending_id)
+    return {"id": pending_id, "status": "rejected"}
+
+
+# --- Institutions Phase 3: automated psychometric flagging ------------------------------
+
+from app.psychometrics.aggregator import recompute_stats_for_question  # noqa: E402
+
+
+@app.get("/questions/{question_id}/psychometrics")
+async def get_question_psychometrics(question_id: str, pool=Depends(get_pool)):
+    return await recompute_stats_for_question(pool, question_id)
+
+
+@app.get("/org/psychometric-flags")
+async def get_psychometric_flags(status: str = "open", current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    rows = await pool.fetch(
+        "SELECT * FROM psychometric_flags WHERE org_id=? AND status=? ORDER BY flagged_at DESC", current["org"]["id"], status,
+    )
+    return [dict(r) for r in rows]
+
+
+@app.post("/psychometric-flags/{flag_id}/dismiss")
+async def dismiss_psychometric_flag(flag_id: str, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    await pool.execute("UPDATE psychometric_flags SET status='dismissed' WHERE id=? AND org_id=?", flag_id, current["org"]["id"])
+    return {"id": flag_id, "status": "dismissed"}
+
+
+# --- Institutions Phase 3: predictive cohort signals + plain-language narration ---------
+
+from app.predictive.at_risk import compute_at_risk_signals, persist_signals  # noqa: E402
+
+
+@app.get("/org/cohorts/{cohort_id}/at-risk")
+async def get_cohort_at_risk(cohort_id: str, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    signals = await compute_at_risk_signals(pool, current["org"]["id"], cohort_id)
+    await persist_signals(pool, signals)
+    return signals
+
+
+@app.post("/org/cohorts/{cohort_id}/report-narrative")
+async def post_cohort_narrative(cohort_id: str, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    from app.agent.narrator import narrate_cohort_summary
+
+    cohort_stats = await org_attempts.cohort_analytics(pool, current["org"]["id"], cohort_id)
+    at_risk_signals = await compute_at_risk_signals(pool, current["org"]["id"], cohort_id)
+    client = _get_router_client()
+    narrative = await narrate_cohort_summary(client, cohort_stats, at_risk_signals)
+    return {"narrative": narrative}

@@ -102,3 +102,31 @@ export async function loadContentReports(kind) {
   const qs = kind ? `?kind=${encodeURIComponent(kind)}` : ''
   return _apiFetch(`/content-reports${qs}`)
 }
+
+// Institutions Phase 3 — org-scoped AI generation with a human-review gate. Live-only,
+// credentials included (these are org-session-authenticated admin routes).
+async function _orgAgentFetch(path, options = {}) {
+  const res = await fetch(`${_API_BASE}${path}`, { credentials: 'include', ...options })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+export async function generateOrgQuestions(topic, difficulty, count) {
+  return _orgAgentFetch('/org/agent/generate', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topic, difficulty, count }),
+  })
+}
+
+export async function loadOrgPending(status) {
+  const qs = status ? `?status=${encodeURIComponent(status)}` : ''
+  return _orgAgentFetch(`/org/pending${qs}`)
+}
+
+export async function approvePending(pendingId) {
+  return _orgAgentFetch(`/org/pending/${encodeURIComponent(pendingId)}/approve`, { method: 'POST' })
+}
+
+export async function rejectPending(pendingId) {
+  return _orgAgentFetch(`/org/pending/${encodeURIComponent(pendingId)}/reject`, { method: 'POST' })
+}

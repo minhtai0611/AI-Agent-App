@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import VantageLogo from './VantageLogo'
+import { useOrgAuth } from '../context/OrgAuthContext.jsx'
 
 function vNavigate(navigate, path) {
   if (document.startViewTransition) {
@@ -15,6 +16,8 @@ const NAV = [
   { label: 'Thi thử', path: '/exams', icon: '📋' },
   { label: 'Lịch sử', path: '/history', icon: '🕘' },
 ]
+
+const ORG_LINK = { label: 'Tổ chức', path: '/org', icon: '🏛️' }
 
 const stellarReveal = {
   hidden: { opacity: 0, y: 32, filter: 'blur(8px)', scale: 0.96 },
@@ -30,6 +33,8 @@ export default function Navbar() {
   const go = (path) => { vNavigate(navigate, path); setMenuOpen(false) }
   const [menuOpen, setMenuOpen] = useState(false)
   const [supportsClipPath, setSupportsClipPath] = useState(true)
+  const { status: orgStatus } = useOrgAuth() ?? {}
+  const navLinks = orgStatus === 'authenticated' ? [...NAV, ORG_LINK] : NAV
 
   useEffect(() => {
     setSupportsClipPath(CSS.supports('clip-path', 'circle(0%)'))
@@ -51,7 +56,7 @@ export default function Navbar() {
           <VantageLogo variant="nav" onClick={() => go('/exams')} />
 
           <div className="hidden sm:flex items-center gap-0.5 ml-3">
-            {NAV.map(link => (
+            {navLinks.map(link => (
               <button
                 key={link.path}
                 onClick={() => go(link.path)}
@@ -112,7 +117,7 @@ export default function Navbar() {
             }} />
 
             <div className="flex flex-col px-3 py-4 gap-1 relative z-10">
-              {NAV.map((link, i) => (
+              {navLinks.map((link, i) => (
                 <motion.button
                   key={link.path}
                   custom={i} variants={stellarReveal} initial="hidden" animate="show"
