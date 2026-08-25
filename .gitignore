@@ -51,6 +51,9 @@ math_wiki.faiss
 math_wiki.meta.pkl
 backend/math_wiki.db
 
+# Local SQLite runtime db (seeded fresh from exam-app/src/data/*.json on boot)
+backend/app.db
+
 # Crawl runtime state
 scripts/crawl_progress.json
 
