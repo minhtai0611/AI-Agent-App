@@ -1,3 +1,5 @@
+> **Superseded (2026-08-25):** this personal Google Sign-In design was never implemented and has been superseded by the Institutions org/SSO identity model (WorkOS SSO/SCIM, `backend/app/org_auth.py`). There is only one identity system going forward — org membership via SSO — and this document is kept for historical reference only. See `C:\Users\Tai Minh\.claude\plans\cosmic-popping-moth.md`.
+
 # Implementation Plan: Google Sign-Up / Sign-In
 
 ## Overview

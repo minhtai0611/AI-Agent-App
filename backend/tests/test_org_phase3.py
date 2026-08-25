@@ -174,6 +174,35 @@ async def test_proctoring_session_ai_review_needs_no_vendor(client):
     assert resp.json()["tier"] == "ai_review"
 
 
+@pytest.mark.asyncio
+async def test_proctoring_session_flagged_by_high_severity_event_and_reviewable(client):
+    pool = app.state.pool
+    admin_id, cookies = await _seed_org_with_admin(pool, "org_proc3", "admin@proc3.test")
+    await client.patch("/org/proctoring-settings", json={"tierEnabled": "ai_review"}, cookies=cookies)
+
+    created = await client.post("/proctoring/sessions", json={"examAttemptId": "att3", "stakesTier": "low"}, cookies=cookies)
+    session_id = created.json()["id"]
+
+    # Not flagged until a high-severity event lands.
+    resp = await client.get("/org/proctoring-sessions?status=flagged", cookies=cookies)
+    assert resp.json() == []
+
+    await client.post(f"/proctoring/sessions/{session_id}/events", json={"type": "tab_switch", "severity": "high"}, cookies=cookies)
+    resp = await client.get("/org/proctoring-sessions?status=flagged", cookies=cookies)
+    ids = [row["id"] for row in resp.json()]
+    assert session_id in ids
+
+    resp = await client.post(f"/org/proctoring-sessions/{session_id}/review", cookies=cookies)
+    assert resp.status_code == 200
+    resp = await client.get("/org/proctoring-sessions?status=flagged", cookies=cookies)
+    assert session_id not in [row["id"] for row in resp.json()]
+
+    # Cross-org isolation: another org's admin can't see or review this session.
+    _, other_cookies = await _seed_org_with_admin(pool, "org_proc3_other", "admin@proc3other.test")
+    resp = await client.post(f"/org/proctoring-sessions/{session_id}/review", cookies=other_cookies)
+    assert resp.status_code == 404
+
+
 # --- Psychometrics: pure stats functions -------------------------------------------------
 
 def test_difficulty_index_basic():

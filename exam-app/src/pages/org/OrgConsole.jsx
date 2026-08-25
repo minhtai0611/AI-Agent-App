@@ -16,6 +16,7 @@ const LINKS = [
   { path: '/org/agent/generate', label: 'Sinh câu hỏi bằng AI' },
   { path: '/org/pending', label: 'Duyệt câu hỏi AI' },
   { path: '/org/proctoring-settings', label: 'Giám sát thi' },
+  { path: '/org/proctoring-review', label: 'Phiên thi bị gắn cờ' },
   { path: '/org/psychometric-flags', label: 'Cảnh báo chất lượng câu hỏi' },
   { path: '/org/settings', label: 'Cài đặt' },
 ]

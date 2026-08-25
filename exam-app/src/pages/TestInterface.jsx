@@ -9,6 +9,7 @@ import { FormulaDrawer } from '../components/FormulaDrawer.jsx'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { scoreExam } from '../engine/scoringEngine.js'
 import { track } from '../lib/eventTrack.js'
+import ProctoringMonitor from '../components/ProctoringMonitor.jsx'
 
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 
@@ -271,6 +272,15 @@ export default function TestInterface() {
       className="min-h-screen bg-surface flex flex-col relative overflow-hidden">
       {/* Accent line */}
       <div className="absolute top-0 left-0 right-0 h-0.5 pointer-events-none bg-[var(--primary-border)]" />
+
+      {mode === 'timed' && (
+        <ProctoringMonitor
+          examId={examId}
+          stakesTier={exam?.stakesTier ?? 'low'}
+          tabSwitchCount={tabSwitchCount}
+          devToolsOpen={devToolsOpen}
+        />
+      )}
 
       {/* NavBar */}
       <nav

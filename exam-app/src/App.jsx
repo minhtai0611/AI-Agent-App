@@ -33,6 +33,7 @@ const Compliance = lazy(() => import('./pages/org/Compliance.jsx'))
 const ContentGeneration = lazy(() => import('./pages/admin/ContentGeneration.jsx'))
 const PendingReview = lazy(() => import('./pages/admin/PendingReview.jsx'))
 const ProctoringSettings = lazy(() => import('./pages/admin/ProctoringSettings.jsx'))
+const ProctoringReview = lazy(() => import('./pages/admin/ProctoringReview.jsx'))
 const PsychometricFlags = lazy(() => import('./pages/admin/PsychometricFlags.jsx'))
 
 function PageFallback() {
@@ -132,6 +133,7 @@ function AppInner() {
               <Route path="/org/agent/generate" element={<RequireOrgRole min="admin"><ContentGeneration /></RequireOrgRole>} />
               <Route path="/org/pending" element={<RequireOrgRole min="admin"><PendingReview /></RequireOrgRole>} />
               <Route path="/org/proctoring-settings" element={<RequireOrgRole min="admin"><ProctoringSettings /></RequireOrgRole>} />
+              <Route path="/org/proctoring-review" element={<RequireOrgRole min="admin"><ProctoringReview /></RequireOrgRole>} />
               <Route path="/org/psychometric-flags" element={<RequireOrgRole min="admin"><PsychometricFlags /></RequireOrgRole>} />
               <Route path="*" element={<Navigate to="/exams" replace />} />
             </Routes>

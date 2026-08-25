@@ -919,6 +919,24 @@ async def get_proctoring_session(session_id: str, current=Depends(get_current_me
     return {**dict(row), "flags_json": json.loads(row["flags_json"] or "[]")}
 
 
+@app.get("/org/proctoring-sessions")
+async def list_proctoring_sessions(status: str = "flagged", current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    rows = await pool.fetch(
+        "SELECT * FROM proctoring_sessions WHERE org_id=? AND status=? ORDER BY created_at DESC", current["org"]["id"], status,
+    )
+    return [{**dict(r), "flags_json": json.loads(r["flags_json"] or "[]")} for r in rows]
+
+
+@app.post("/org/proctoring-sessions/{session_id}/review")
+async def review_proctoring_session(session_id: str, current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    row = await pool.fetchrow("SELECT * FROM proctoring_sessions WHERE id=? AND org_id=?", session_id, current["org"]["id"])
+    if not row:
+        raise HTTPException(status_code=404, detail="Proctoring session not found")
+    await pool.execute("UPDATE proctoring_sessions SET status='reviewed' WHERE id=?", session_id)
+    await record_audit(pool, current["org"]["id"], current["member"]["id"], "proctoring.session_reviewed", target=session_id)
+    return {"id": session_id, "status": "reviewed"}
+
+
 # --- Institutions Phase 3: org-scoped AI generation with a human-review gate ------------
 # The existing /agent/generate above is untouched — still auto-promotes, platform-wide.
 # Only this org-scoped path routes through an explicit approve step.

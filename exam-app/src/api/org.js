@@ -152,3 +152,24 @@ export async function getPsychometricFlags(status = 'open') {
 export async function dismissPsychometricFlag(flagId) {
   return _orgFetch(`/psychometric-flags/${encodeURIComponent(flagId)}/dismiss`, { method: 'POST' })
 }
+
+export async function postProctoringSession(examAttemptId, stakesTier) {
+  return _orgFetch('/proctoring/sessions', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ examAttemptId, stakesTier }),
+  })
+}
+
+export async function postProctoringEvent(sessionId, event) {
+  return _orgFetch(`/proctoring/sessions/${encodeURIComponent(sessionId)}/events`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(event),
+  })
+}
+
+export async function getFlaggedProctoringSessions(status = 'flagged') {
+  return _orgFetch(`/org/proctoring-sessions?status=${encodeURIComponent(status)}`)
+}
+
+export async function reviewProctoringSession(sessionId) {
+  return _orgFetch(`/org/proctoring-sessions/${encodeURIComponent(sessionId)}/review`, { method: 'POST' })
+}
