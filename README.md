@@ -10,6 +10,6 @@ app_port: 7860
 
 # AI Agent App
 
-Vietnamese aluminum/glass door sales chatbot + AI-powered exam backend.
+Backend for **Zenith** — an exam-taking app for Vietnamese grade-10/THPT math students — plus its AI router and agent features: content auditing/narration, org-scoped question generation, and the Pure Mathematics Toolset (3D concept visualization, step-by-step CAS solving, linear algebra, and probability simulation).
 
-Built with FastAPI + Claude via ai-router proxy.
+Built with FastAPI + Claude via an internal AI router proxy (`ai-router.locdo.tech`).
