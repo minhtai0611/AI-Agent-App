@@ -71,6 +71,26 @@ _SCHEMA_DDL = [
         status TEXT NOT NULL,
         verified_at TEXT DEFAULT (datetime('now'))
     )""",
+    # Pure Mathematics Toolset Phase 1 — cached AI-generated 3D visualization specs,
+    # keyed by question_id since they're optional/regenerable, not a questions column.
+    """CREATE TABLE IF NOT EXISTS question_visualizations (
+        question_id TEXT PRIMARY KEY REFERENCES questions(id),
+        status TEXT NOT NULL,
+        template TEXT,
+        params_json TEXT,
+        annotation TEXT,
+        verification_log TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
+    # Pure Mathematics Toolset Phase 3 — cached AI-narrated, sympy-verified step-by-step
+    # solutions, keyed by question_id for the same reason as question_visualizations.
+    """CREATE TABLE IF NOT EXISTS question_steps (
+        question_id TEXT PRIMARY KEY REFERENCES questions(id),
+        status TEXT NOT NULL,
+        steps_json TEXT,
+        verification_log TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+    )""",
     # Institutions Phase 1 — org/tenant model, SSO/SCIM identity, RBAC, audit log.
     """CREATE TABLE IF NOT EXISTS orgs (
         id TEXT PRIMARY KEY,
@@ -537,6 +557,233 @@ async def agent_reject_pending(pending_id: str, pool=Depends(get_pool)):
         raise HTTPException(status_code=404, detail="Pending item not found")
     await pool.execute("UPDATE pending_questions SET status='rejected' WHERE id=?", pending_id)
     return {"id": pending_id, "status": "rejected"}
+
+
+def _visualization_row_to_result(row) -> dict:
+    return {
+        "available": row["status"] == "verified",
+        "spec": json.loads(row["params_json"]) if row["params_json"] else None,
+        "annotation": row["annotation"],
+        "reason": None if row["status"] == "verified" else row["verification_log"],
+    }
+
+
+@app.get("/agent/visualize/{question_id}")
+async def agent_get_visualization(question_id: str, pool=Depends(get_pool)):
+    """Cache-only read — never triggers generation. The Concept Explorer calls this
+    first and only POSTs to /agent/visualize/{question_id} if nothing is cached yet.
+    """
+    row = await pool.fetchrow("SELECT * FROM question_visualizations WHERE question_id=?", question_id)
+    if not row:
+        return {"available": False, "spec": None, "annotation": None, "reason": "not generated yet"}
+    return _visualization_row_to_result(row)
+
+
+@app.post("/agent/visualize/{question_id}")
+async def agent_visualize(question_id: str, pool=Depends(get_pool)):
+    """Phase 1 (Pure Mathematics Toolset) — generate, independently verify, and cache a
+    constrained 3D visualization spec for one question. No org-scoped mirror: this only
+    visualizes already-verified bank content, it doesn't create new content or consume an
+    org's content-library quota, unlike /agent/generate and /org/agent/generate.
+    """
+    from app.agent.visualization_generator import generate_visualization
+
+    row = await pool.fetchrow("SELECT id, topic, question, choices, correct, explanation FROM questions WHERE id=?", question_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Question not found")
+
+    cached = await pool.fetchrow("SELECT * FROM question_visualizations WHERE question_id=?", question_id)
+    if cached:
+        return _visualization_row_to_result(cached)
+
+    question_row = {**dict(row), "choices": json.loads(row["choices"])}
+    client = _get_router_client()
+    result = await generate_visualization(client, question_row)
+
+    status = "verified" if result["available"] else "unavailable"
+    await pool.execute(
+        "INSERT INTO question_visualizations (question_id, status, template, params_json, annotation, verification_log) "
+        "VALUES (?,?,?,?,?,?)",
+        question_id, status,
+        result["spec"]["template"] if result["spec"] else None,
+        json.dumps(result["spec"], ensure_ascii=False) if result["spec"] else None,
+        result["annotation"], result["reason"],
+    )
+    return result
+
+
+def _serialize_linalg_result(op: str, result):
+    import sympy
+
+    if isinstance(result, sympy.Matrix):
+        return [[str(v) for v in result.row(r)] for r in range(result.shape[0])]
+    if op == "rank":
+        return int(result)
+    if op == "eigen":
+        return {str(k): v for k, v in result.items()}
+    return str(result)
+
+
+@app.post("/agent/linalg")
+async def agent_linalg(body: dict):
+    """Phase 6 (Pure Mathematics Toolset) — linear-algebra workspace. Stateless (no
+    caching table — free-form matrix/prompt input isn't a stable cache key). Body is
+    either a manually-entered {operation, matrices} spec (zero AI-router involvement,
+    same as the mathlive calculator) or {prompt_text} (routes through draft_linalg_spec
+    first). `eigen` is only reachable via the manual-spec path — never via prompt_text.
+    """
+    from app.agent.linalg_schema import validate_spec
+    from app.agent.linalg_solver import LinAlgShapeError, draft_linalg_spec, solve_linalg, verify_linalg
+
+    if "prompt_text" in body:
+        client = _get_router_client()
+        try:
+            draft = await draft_linalg_spec(client, body["prompt_text"])
+        except LinAlgShapeError as exc:
+            return {"available": False, "result": None, "steps": None, "reason": str(exc)}
+        if not draft.get("available"):
+            return {"available": False, "result": None, "steps": None, "reason": draft.get("reason")}
+        spec = draft["spec"]
+    else:
+        try:
+            spec = validate_spec(body)
+        except Exception as exc:
+            return {"available": False, "result": None, "steps": None, "reason": str(exc)}
+
+    try:
+        derivation = solve_linalg(spec)
+    except ValueError as exc:
+        return {"available": False, "result": None, "steps": None, "reason": str(exc)}
+
+    verification = verify_linalg(derivation)
+    if not verification.ok:
+        return {"available": False, "result": None, "steps": None, "reason": verification.reason}
+
+    return {
+        "available": True,
+        "result": _serialize_linalg_result(spec.operation, derivation["result"]),
+        "steps": derivation["steps"],
+        "reason": None,
+    }
+
+
+@app.post("/agent/plot")
+async def agent_plot(body: dict):
+    """Phase 5 (Pure Mathematics Toolset) — Math Playground natural-language entry.
+    Stateless (free-text input isn't a stable cache key). This is the ONLY path that
+    calls the AI router for the playground — manually-typed curves render entirely
+    client-side and never reach this route.
+    """
+    from app.agent.plot_generator import generate_plot
+
+    prompt_text = body.get("prompt_text", "")
+    client = _get_router_client()
+    result = await generate_plot(client, prompt_text)
+    return result
+
+
+@app.post("/agent/simulate")
+async def agent_simulate(body: dict):
+    """Phase 7 (Pure Mathematics Toolset) — discrete probability simulator. Stateless,
+    same manual-spec-or-prompt_text split as /agent/linalg. Only "dice" and "coin" are
+    implemented; any other experiment abstains rather than fabricating a result.
+    """
+    from app.agent.stats_schema import validate_spec
+    from app.agent.stats_simulator import (
+        SimulationShapeError, _serialize_pmf, draft_simulation, run_simulation, verify_simulation,
+    )
+
+    if "prompt_text" in body:
+        client = _get_router_client()
+        try:
+            draft = await draft_simulation(client, body["prompt_text"])
+        except SimulationShapeError as exc:
+            return {"available": False, "histogram": None, "pmf": None, "reason": str(exc)}
+        if not draft.get("available"):
+            return {"available": False, "histogram": None, "pmf": None, "reason": draft.get("reason")}
+        spec = draft["spec"]
+    else:
+        try:
+            spec = validate_spec(body)
+        except Exception as exc:
+            return {"available": False, "histogram": None, "pmf": None, "reason": str(exc)}
+
+    try:
+        result = run_simulation(spec)
+    except NotImplementedError as exc:
+        return {"available": False, "histogram": None, "pmf": None, "reason": str(exc)}
+
+    verification = verify_simulation(result)
+    if not verification["ok"]:
+        return {"available": False, "histogram": None, "pmf": None, "reason": verification["reason"]}
+
+    return {
+        "available": True,
+        "histogram": [int(v) for v in result["samples"]],
+        "pmf": _serialize_pmf(result["pmf"]),
+        "reason": None,
+    }
+
+
+@app.post("/cas/evaluate")
+async def cas_evaluate(body: dict):
+    """Phase 4 (Pure Mathematics Toolset) — authoritative "kiểm tra" check for the
+    mathlive calculator. Plain sympy, zero AiRouterClient involvement: this endpoint
+    exists purely to catch client-CAS (mathjs) edge cases with a second deterministic
+    engine, not to add any AI translation step.
+    """
+    import sympy
+    from sympy.parsing.sympy_parser import (
+        convert_xor, implicit_multiplication_application, parse_expr, standard_transformations,
+    )
+
+    expr_str = body.get("expr", "")
+    transformations = standard_transformations + (implicit_multiplication_application, convert_xor)
+    try:
+        parsed = parse_expr(expr_str, transformations=transformations)
+        simplified = sympy.simplify(parsed)
+    except (sympy.SympifyError, TypeError, SyntaxError, KeyError) as exc:
+        return {"available": False, "reason": str(exc)}
+    return {"available": True, "simplified": str(simplified)}
+
+
+def _steps_row_to_result(row) -> dict:
+    return {
+        "available": row["status"] == "verified",
+        "steps": json.loads(row["steps_json"]) if row["steps_json"] else None,
+        "reason": None if row["status"] == "verified" else row["verification_log"],
+    }
+
+
+@app.get("/agent/solve/{question_id}")
+async def agent_solve(question_id: str, pool=Depends(get_pool)):
+    """Phase 3 (Pure Mathematics Toolset) — generate, independently verify, and cache a
+    step-by-step solution for one question. Generates on cache-miss (unlike
+    /agent/visualize's GET, which is cache-only) since a solution panel is opened
+    on-demand from QuestionCard and there's no separate POST trigger for it.
+    """
+    from app.agent.step_solver import generate_solution
+
+    row = await pool.fetchrow("SELECT id, topic, question, choices, correct, explanation FROM questions WHERE id=?", question_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Question not found")
+
+    cached = await pool.fetchrow("SELECT * FROM question_steps WHERE question_id=?", question_id)
+    if cached:
+        return _steps_row_to_result(cached)
+
+    question_row = {**dict(row), "choices": json.loads(row["choices"])}
+    client = _get_router_client()
+    result = await generate_solution(client, question_row)
+
+    status = "verified" if result["available"] else "unavailable"
+    await pool.execute(
+        "INSERT INTO question_steps (question_id, status, steps_json, verification_log) VALUES (?,?,?,?)",
+        question_id, status,
+        json.dumps(result["steps"], ensure_ascii=False) if result["steps"] else None,
+        result["reason"],
+    )
+    return result
 
 
 # --- Institutions Phase 1: org/tenant model, SSO, SCIM, RBAC, audit log -----------------

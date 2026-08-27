@@ -763,6 +763,12 @@ export default function Results() {
                                     </div>
                                   )
                                 })()}
+                                <button
+                                  onClick={() => navigate(`/concept/${q.id}`)}
+                                  className="self-start font-sans text-xs text-info hover:text-info/60 transition"
+                                >
+                                  Xem trực quan 3D →
+                                </button>
                               </div>
                             </motion.div>
                           )}

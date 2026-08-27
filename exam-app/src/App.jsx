@@ -15,12 +15,18 @@ import OrgBrandingProvider from './components/OrgBrandingProvider.jsx'
 import { Toaster } from './components/ui/sonner.jsx'
 import {
   ExamSelectSkeleton, ResultsPageSkeleton, HistoryPageSkeleton, QuestionCardSkeleton, SimplePageSkeleton,
+  ConceptExplorerSkeleton,
 } from './components/Skeleton.jsx'
 
 const ExamSelect = lazy(() => import('./pages/ExamSelect.jsx'))
 const TestInterface = lazy(() => import('./pages/TestInterface.jsx'))
 const Results = lazy(() => import('./pages/Results.jsx'))
 const History = lazy(() => import('./pages/History.jsx'))
+const ConceptExplorer = lazy(() => import('./pages/ConceptExplorer.jsx'))
+const CasCalculator = lazy(() => import('./pages/CasCalculator.jsx'))
+const LinearAlgebraWorkspace = lazy(() => import('./pages/LinearAlgebraWorkspace.jsx'))
+const ProbabilitySimulator = lazy(() => import('./pages/ProbabilitySimulator.jsx'))
+const MathPlayground = lazy(() => import('./pages/MathPlayground.jsx'))
 const ContentAudit = lazy(() => import('./pages/ContentAudit.jsx'))
 const OrgConsole = lazy(() => import('./pages/org/OrgConsole.jsx'))
 const OrgMembers = lazy(() => import('./pages/org/OrgMembers.jsx'))
@@ -41,6 +47,7 @@ function PageFallback() {
   if (pathname === '/exams') return <ExamSelectSkeleton />
   if (pathname.startsWith('/results')) return <ResultsPageSkeleton />
   if (pathname === '/history') return <HistoryPageSkeleton />
+  if (pathname.startsWith('/concept/')) return <ConceptExplorerSkeleton />
   if (pathname.startsWith('/test/')) return (
     <div className="min-h-screen bg-background pt-12 px-4 flex flex-col gap-4 max-w-2xl mx-auto pt-8">
       <QuestionCardSkeleton />
@@ -121,6 +128,11 @@ function AppInner() {
               <Route path="/results/current" element={<Results />} />
               <Route path="/results/:resultId" element={<Results />} />
               <Route path="/history" element={<History />} />
+              <Route path="/concept/:questionId" element={<ConceptExplorer />} />
+              <Route path="/calculator" element={<CasCalculator />} />
+              <Route path="/linalg" element={<LinearAlgebraWorkspace />} />
+              <Route path="/probability" element={<ProbabilitySimulator />} />
+              <Route path="/playground" element={<MathPlayground />} />
               <Route path="/content-audit" element={<ContentAudit />} />
               <Route path="/org" element={<RequireOrgRole min="admin"><OrgConsole /></RequireOrgRole>} />
               <Route path="/org/members" element={<RequireOrgRole min="admin"><OrgMembers /></RequireOrgRole>} />

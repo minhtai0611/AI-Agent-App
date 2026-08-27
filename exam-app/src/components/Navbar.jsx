@@ -19,6 +19,10 @@ function vNavigate(navigate, path) {
 const NAV = [
   { label: 'Thi thử', path: '/exams', icon: '📋' },
   { label: 'Lịch sử', path: '/history', icon: '🕘' },
+  { label: 'Máy tính CAS', path: '/calculator', icon: '🧮' },
+  { label: 'Đại số tuyến tính', path: '/linalg', icon: '🔢' },
+  { label: 'Xác suất', path: '/probability', icon: '🎲' },
+  { label: 'Playground', path: '/playground', icon: '📈' },
 ]
 
 const ORG_LINK = { label: 'Tổ chức', path: '/org', icon: '🏛️' }

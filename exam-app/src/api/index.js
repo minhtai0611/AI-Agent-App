@@ -103,6 +103,33 @@ export async function loadContentReports(kind) {
   return _apiFetch(`/content-reports${qs}`)
 }
 
+// Pure Mathematics Toolset Phase 2 — AI-generated 3D visualization spec for a question
+// (backend/app/agent/visualization_generator.py). No static fallback: there's nothing to
+// visualize when the backend is unreachable. POST triggers generate-on-miss + cache;
+// resolves to null (never throws) so ConceptExplorer can render its own empty state.
+export async function loadConceptSpec(questionId) {
+  try {
+    const res = await fetch(`${_API_BASE}/agent/visualize/${encodeURIComponent(questionId)}`, { method: 'POST' })
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
+// Pure Mathematics Toolset Phase 3 — AI-narrated, sympy-verified step-by-step solution
+// for a question (backend/app/agent/step_solver.py). No static fallback — same
+// null-on-any-failure contract as loadConceptSpec. GET triggers generate-on-miss + cache.
+export async function loadStepSolution(questionId) {
+  try {
+    const res = await fetch(`${_API_BASE}/agent/solve/${encodeURIComponent(questionId)}`)
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
 // Institutions Phase 3 — org-scoped AI generation with a human-review gate. Live-only,
 // credentials included (these are org-session-authenticated admin routes).
 async function _orgAgentFetch(path, options = {}) {

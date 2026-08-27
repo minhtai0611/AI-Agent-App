@@ -19,12 +19,13 @@ class Tier3ErrorBoundary extends Component {
 
 /**
  * Tier 3 — the sole WebGL entry point (see the Vantage rebrand blueprint).
- * Lazy-loads three.js/@react-three/fiber ONLY when canUseTier3() passes
+ * Lazy-loads three.js/@react-three/fiber/drei ONLY when canUseTier3() passes
  * (not prefers-reduced-motion, not a low-memory/low-bandwidth device), and
  * renders `fallback` on skip or on load/runtime failure. No other file in
- * the app should import three.js or @react-three/fiber directly — always
- * go through this component so the bundle stays out of every route except
- * the ones that explicitly mount a scene (Landing hero, Results celebration).
+ * the app should import three.js, @react-three/fiber, or @react-three/drei
+ * directly — always go through this component so the bundle stays out of
+ * every route except the ones that explicitly mount a scene (Landing hero,
+ * Results celebration, Concept Explorer).
  *
  * @param {{ scene: () => Promise<{default: React.ComponentType}>, fallback: React.ReactNode, sceneProps?: object }} props
  */

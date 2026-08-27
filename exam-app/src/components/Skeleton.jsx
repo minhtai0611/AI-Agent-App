@@ -172,6 +172,17 @@ export function SimplePageSkeleton() {
   )
 }
 
+export function ConceptExplorerSkeleton() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-3xl mx-auto px-4 sm:px-10 pt-6 flex flex-col gap-4">
+        <SkeletonBlock className="h-16 rounded-2xl" />
+        <SkeletonBlock className="rounded-2xl" style={{ height: 420 }} />
+      </div>
+    </div>
+  )
+}
+
 export function QuestionCardSkeleton() {
   return (
     <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-4">

@@ -4,6 +4,7 @@ import { sanitizeSvg } from '../utils/sanitizeSvg.js'
 import { MathText } from './MathText.jsx'
 import { ReportIssueButton } from './ReportIssueButton.jsx'
 import { track } from '../lib/eventTrack.js'
+import { loadStepSolution } from '../api/index.js'
 
 const LABELS = ['A', 'B', 'C', 'D']
 
@@ -77,6 +78,8 @@ function choiceStyle(index, chosen, aiCorrect, showFeedback) {
 function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, wrongStreak = 0 }) {
   const showFeedback = practiceMode && chosen !== null && chosen !== undefined
   const [showExplanation, setShowExplanation] = useState(false)
+  const [stepsOpen, setStepsOpen] = useState(false)
+  const [stepFetch, setStepFetch] = useState({ status: 'idle', result: null }) // 'idle'|'loading'|'done'
 
   // Correct answer is known from static data
   const correctIndex = question.correct
@@ -84,7 +87,19 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, wro
 
   useEffect(() => {
     setShowExplanation(false)
+    setStepsOpen(false)
+    setStepFetch({ status: 'idle', result: null })
   }, [question.id])
+
+  const handleToggleSteps = async () => {
+    const next = !stepsOpen
+    setStepsOpen(next)
+    if (next && stepFetch.status === 'idle') {
+      setStepFetch({ status: 'loading', result: null })
+      const result = await loadStepSolution(question.id)
+      setStepFetch({ status: 'done', result })
+    }
+  }
 
   return (
     <div>
@@ -212,6 +227,39 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, wro
               <MathText className="font-sans text-[0.8125rem] text-[var(--muted-fg)] leading-relaxed">
                 {question.explanation}
               </MathText>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Step-by-step CAS solution — sympy-verified, AI-narrated captions only */}
+      {practiceMode && (
+        <div className="mt-3 flex flex-col gap-2">
+          <button
+            onClick={handleToggleSteps}
+            className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] font-sans text-xs text-[var(--muted-fg)] hover:text-[var(--foreground)] hover:border-[var(--primary-border)] transition"
+          >
+            <span>🧮</span>
+            {stepsOpen ? 'Ẩn các bước giải' : 'Xem các bước giải'}
+          </button>
+          {stepsOpen && stepFetch.status === 'loading' && (
+            <p className="font-sans text-xs text-[var(--muted-fg)]">Đang tạo lời giải…</p>
+          )}
+          {stepsOpen && stepFetch.status === 'done' && !stepFetch.result?.available && (
+            <p className="font-sans text-xs text-[var(--fg-tertiary)]">Câu này chưa có lời giải từng bước.</p>
+          )}
+          {stepsOpen && stepFetch.status === 'done' && stepFetch.result?.available && (
+            <div className="flex flex-col gap-2">
+              {stepFetch.result.steps.map((step, i) => (
+                <div key={i} className="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] flex flex-col gap-1.5">
+                  <MathText className="font-sans text-[0.8125rem] text-[var(--foreground)]">
+                    {`$${step.before}$ $\\Rightarrow$ $${step.after}$`}
+                  </MathText>
+                  {step.caption && (
+                    <p className="font-sans text-[0.6875rem] text-[var(--muted-fg)]">{step.caption}</p>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>

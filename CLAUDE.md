@@ -1,6 +1,6 @@
 # AI Agent App
 
-Zenith — exam-taking app for Vietnamese students (grade-10 and THPT math exams). Currently a **clean, stripped-down baseline**: static exam content + the question-taking/scoring experience only. All AI tutoring, auth, credits/billing, admin moderation, and gamification were removed in the 2026-08-23 strip-to-exam-core pass ([[project_strip_to_exam_core]]) to serve as the foundation for a from-scratch visual/product reimagining. No AI router, no backend LLM calls, no user accounts exist in this codebase right now — don't assume any of the old AI/auth/credit architecture below is still current without checking the code first.
+Zenith — exam-taking app for Vietnamese students (grade-10 and THPT math exams). Started from a **clean, stripped-down baseline** (static exam content + question-taking/scoring only) after the 2026-08-23 strip-to-exam-core pass ([[project_strip_to_exam_core]]), but an AI router (`backend/app/agent/`, hitting `ai-router.locdo.tech`) and several AI-agent features have since been rebuilt on top of it — auditor/narrator content review, org-scoped question generation, and the Pure Mathematics Toolset (3D concept visualization, step-by-step CAS solving, a 2D graphing Math Playground, linear algebra, probability simulation). Every new agent feature extends this one router rather than standing up a second one. Don't assume the *old, pre-strip* AI/auth/credit architecture is current — check the code first — but do assume an AI router exists.
 
 ## Stack
 
@@ -32,17 +32,55 @@ backend/app/
   config.py          # Settings (pydantic-settings): allowed_origins, sqlite_path; get_settings()
   db.py              # AsyncSQLitePool — asyncpg-compatible wrapper over aiosqlite (single connection + lock)
   main.py            # lifespan seeds exams/questions/exam_questions from exam-app/src/data/*.json on first boot
-                     #   routes: GET /health, GET /exams, GET /exams/{id}, GET /questions, POST /questions/batch
+                     #   routes: GET /health, GET /exams, GET /exams/{id}, GET /questions, POST /questions/batch,
+                     #   plus /agent/*, /org/*, /cas/evaluate (see agent/ below)
+  agent/             # AI router + agent features — all go through router_client.AiRouterClient
+    router_client.py       # AiRouterClient — single ingress to ai-router.locdo.tech
+    generator.py / verifier.py / orchestrator.py  # question generate→verify→gate pipeline
+    auditor.py / narrator.py                      # content-review agents
+    visualization_schema.py / visualization_generator.py  # Pure Math Toolset — 3D concept-explorer specs
+                     #   (7 templates: pyramid/prism/sphere_cone/conic_section/vector_add/function_surface/
+                     #   solid_of_revolution), generate→verify→gate via sympy, cached in question_visualizations
+    step_solver.py          # Pure Math Toolset — step-by-step CAS solver: LLM only extracts the equation
+                     #   (draft_equation) and captions already-verified steps (narrate_steps); sympy computes
+                     #   and verifies every step. Cached in question_steps.
+    plot_schema.py / plot_generator.py     # Pure Math Toolset — Math Playground natural-language entry only
+                     #   (manually-typed curves render entirely client-side, never reach this file); LLM
+                     #   proposes a PlotSpec (curves + optional intersect/tangent_at op), sympy independently
+                     #   re-solves the op before the spec is trusted. Stateless, no caching table.
+    linalg_schema.py / linalg_solver.py    # Pure Math Toolset — linear algebra workspace (add/multiply/
+                     #   determinant/inverse/rank/rref/solve_system/eigen), sympy.Matrix + a manual Gauss-Jordan
+                     #   step ledger; eigen only reachable via manual spec, never NL drafting. Stateless.
+    stats_schema.py / stats_simulator.py   # Pure Math Toolset — discrete probability simulator (dice/coin;
+                     #   "sampling" intentionally unimplemented/abstains). numpy runs the trials, sympy computes
+                     #   the exact theoretical PMF; verification is tolerance-based, not exact. Stateless.
 backend/tests/
   test_exams.py      # covers all 5 routes against a module-scoped seeded SQLite fixture
+  test_visualization.py / test_step_solver.py / test_plot_generator.py / test_linalg_solver.py / test_stats_simulator.py / test_cas_evaluate.py
 
 exam-app/src/
   api/
     index.js         # loadExams / loadThiThuExams / loadExamById / loadQuestionsByIds — static JSON with
-                     #   optional live-backend fallback via _apiFetch
+                     #   optional live-backend fallback via _apiFetch; loadConceptSpec / loadStepSolution —
+                     #   live-only AI-agent calls (no static fallback, nothing to fall back to)
   components/
-    QuestionCard.jsx # Question renderer + static explanation toggle (practice mode) — no AI hints
-    Navbar.jsx       # Bare nav shell: VantageLogo + "Thi thử" / "Lịch sử" links (no auth/credits UI)
+    QuestionCard.jsx # Question renderer + static explanation toggle + "Xem các bước giải" AI step-solver panel
+                     #   (practice mode only)
+    Navbar.jsx       # VantageLogo + Thi thử / Lịch sử / Máy tính CAS / Đại số tuyến tính / Xác suất
+    motion/scenes/concept/  # Pure Math Toolset Concept Explorer — one R3F/drei scene per visualization
+                     #   template + registry.js (must stay in lockstep with visualization_schema.py) +
+                     #   Static2DFallback.jsx (Tier-3-unavailable SVG fallback) + geometry.js (pure helpers)
+  engine/
+    casEngine.js     # mathjs wrapper for the CAS calculator + Math Playground — zero AI-router involvement
+                     #   for manually-typed curves; compileFunctionOfX/toMathjsSyntax also back the playground
+  pages/
+    ConceptExplorer.jsx        # /concept/:questionId — AI-generated 3D visualization, GSAP-choreographed
+    CasCalculator.jsx          # /calculator — mathlive input, live client-side CAS, optional backend "kiểm tra"
+    MathPlayground.jsx         # /playground — mathlive expression-list + Mafs 2D canvas; the "mô tả bằng lời"
+                     #   box is the only path calling POST /agent/plot, AI-populated curves converge on the
+                     #   same row state manual typing uses (no special-cased AI-curve rendering)
+    LinearAlgebraWorkspace.jsx # /linalg — grid matrix input, manual spec (no AI) or NL prompt
+    ProbabilitySimulator.jsx   # /probability — dice/coin simulation, empirical-vs-theoretical histogram
     motion/          # Reveal3D.jsx, Scene3DLazy.jsx, scenes/ — GSAP/3D animation infra (Vantage rebrand)
   pages/
     ExamSelect.jsx   # Exam list + year/search filters + preview modal (briefing checklist, weak-topic warning)
