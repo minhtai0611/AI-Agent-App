@@ -74,3 +74,37 @@ async def test_does_not_fall_back_on_unparseable_json():
         with pytest.raises(RouterRequestError):
             await client.complete_json("sys", "user")
     assert mock_post.call_count == 1  # a model-quality issue, not a provider outage
+
+
+@pytest.mark.asyncio
+async def test_retries_the_same_model_on_a_transient_transport_error():
+    ok = _resp(200, {"choices": [{"message": {"content": '{"ok": true}'}}]})
+    with patch(
+        "httpx.AsyncClient.post", new=AsyncMock(side_effect=[httpx.ConnectTimeout("timed out"), ok])
+    ) as mock_post:
+        client = AiRouterClient(_settings())
+        result = await client.complete_json("sys", "user")
+    assert result == {"ok": True}
+    assert mock_post.call_count == 2
+    # both attempts hit the same (primary) model — a transport retry, not a fallback
+    assert mock_post.call_args_list[0].kwargs["json"]["model"] == "primary-model"
+    assert mock_post.call_args_list[1].kwargs["json"]["model"] == "primary-model"
+
+
+@pytest.mark.asyncio
+async def test_falls_back_to_next_model_after_transport_retries_are_exhausted():
+    ok = _resp(200, {"choices": [{"message": {"content": '{"ok": true}'}}]})
+    with patch(
+        "httpx.AsyncClient.post",
+        new=AsyncMock(side_effect=[
+            httpx.ConnectTimeout("timed out"), httpx.ConnectTimeout("timed out"), httpx.ConnectTimeout("timed out"),
+            ok,
+        ]),
+    ) as mock_post:
+        client = AiRouterClient(_settings())
+        result = await client.complete_json("sys", "user")
+    assert result == {"ok": True}
+    assert mock_post.call_count == 4  # 3 attempts on primary-model, then 1 on fallback-a
+    assert mock_post.call_args_list[0].kwargs["json"]["model"] == "primary-model"
+    assert mock_post.call_args_list[2].kwargs["json"]["model"] == "primary-model"
+    assert mock_post.call_args_list[3].kwargs["json"]["model"] == "fallback-a"

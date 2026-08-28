@@ -1062,6 +1062,20 @@ async def org_audit_log(current=Depends(require_role("admin")), pool=Depends(get
     return {"local": [dict(r) for r in rows]}
 
 
+@app.get("/org/content-ledger")
+async def get_content_ledger(current=Depends(require_role("admin")), pool=Depends(get_pool)):
+    """Phase 10 — read side of the write-only content_ledger table populated by
+    orchestrator.py's generate-verify-gate loop (both the platform-wide pipeline and
+    org-scoped generation share this table; it has no org_id column, so this surfaces
+    every org's generation activity, same as any admin viewing global AI activity).
+    """
+    rows = await pool.fetch("SELECT * FROM content_ledger ORDER BY verified_at DESC LIMIT 200")
+    entries = [dict(r) for r in rows]
+    verified_count = sum(1 for e in entries if e["status"] == "verified")
+    rejected_count = sum(1 for e in entries if e["status"] == "rejected")
+    return {"entries": entries, "verified_count": verified_count, "rejected_count": rejected_count}
+
+
 @app.get("/org/settings")
 async def org_get_settings(current=Depends(require_role("admin")), pool=Depends(get_pool)):
     row = await pool.fetchrow("SELECT id, name FROM orgs WHERE id=?", current["org"]["id"])

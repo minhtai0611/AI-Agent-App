@@ -45,6 +45,10 @@ export async function fetchAuditLog() {
   return _orgFetch('/org/audit-log')
 }
 
+export async function fetchContentLedger() {
+  return _orgFetch('/org/content-ledger')
+}
+
 export async function fetchOrgSettings() {
   return _orgFetch('/org/settings')
 }

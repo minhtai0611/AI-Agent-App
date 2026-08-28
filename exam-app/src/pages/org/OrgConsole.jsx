@@ -8,6 +8,7 @@ import { fetchMembers } from '../../api/org.js'
 const LINKS = [
   { path: '/org/members', label: 'Thành viên' },
   { path: '/org/audit-log', label: 'Nhật ký hoạt động' },
+  { path: '/org/content-ledger', label: 'Nhật ký nội dung AI' },
   { path: '/org/content', label: 'Thư viện nội dung' },
   { path: '/org/analytics', label: 'Phân tích học tập' },
   { path: '/org/integrations', label: 'Tích hợp' },

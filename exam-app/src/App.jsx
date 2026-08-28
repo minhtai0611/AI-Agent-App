@@ -31,6 +31,7 @@ const ContentAudit = lazy(() => import('./pages/ContentAudit.jsx'))
 const OrgConsole = lazy(() => import('./pages/org/OrgConsole.jsx'))
 const OrgMembers = lazy(() => import('./pages/org/OrgMembers.jsx'))
 const OrgAuditLog = lazy(() => import('./pages/org/OrgAuditLog.jsx'))
+const ContentLedger = lazy(() => import('./pages/org/ContentLedger.jsx'))
 const OrgSettings = lazy(() => import('./pages/org/OrgSettings.jsx'))
 const ContentLibrary = lazy(() => import('./pages/org/ContentLibrary.jsx'))
 const CohortAnalytics = lazy(() => import('./pages/org/CohortAnalytics.jsx'))
@@ -137,6 +138,7 @@ function AppInner() {
               <Route path="/org" element={<RequireOrgRole min="admin"><OrgConsole /></RequireOrgRole>} />
               <Route path="/org/members" element={<RequireOrgRole min="admin"><OrgMembers /></RequireOrgRole>} />
               <Route path="/org/audit-log" element={<RequireOrgRole min="admin"><OrgAuditLog /></RequireOrgRole>} />
+              <Route path="/org/content-ledger" element={<RequireOrgRole min="admin"><ContentLedger /></RequireOrgRole>} />
               <Route path="/org/settings" element={<RequireOrgRole min="admin"><OrgSettings /></RequireOrgRole>} />
               <Route path="/org/content" element={<RequireOrgRole min="admin"><ContentLibrary /></RequireOrgRole>} />
               <Route path="/org/analytics" element={<RequireOrgRole min="admin"><CohortAnalytics /></RequireOrgRole>} />

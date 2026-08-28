@@ -8,6 +8,7 @@ match generator.py's json_object response format. If the contract changes again,
 this file needs to change — every other agent module talks to `AiRouterClient`, never to
 an HTTP endpoint directly.
 """
+import asyncio
 import json
 import logging
 
@@ -22,6 +23,15 @@ logger = logging.getLogger(__name__)
 # ai-router.locdo.tech during its current outage falls in here: 401 (Claude OAuth expired),
 # 403 (Gemini license), 502 (broken model alias upstream), 503 (auth_unavailable).
 _PROVIDER_DOWN_STATUSES = {401, 403, 500, 502, 503}
+
+# These HTTP-status-based provider-down signals (OAuth expired, license issue, broken
+# alias, auth service down) are not transient in the seconds-scale sense — retrying the
+# same model won't help, so they fall straight through to the next model in the chain.
+# A genuine transport-level failure (timeout, connection reset) is a different story —
+# it can resolve within a retry or two, so only THIS class of failure gets a short
+# same-model retry with backoff before falling back.
+_MAX_TRANSPORT_RETRIES = 2
+_BACKOFF_BASE_SECONDS = 0.2
 
 
 class RouterNotConfiguredError(RuntimeError):
@@ -82,13 +92,27 @@ class AiRouterClient:
             "temperature": 0.4,
         }
 
+        resp = None
+        last_transport_exc: Exception | None = None
         async with httpx.AsyncClient(timeout=30.0) as client:
-            try:
-                resp = await client.post(
-                    f"{self._base_url}/v2/chat/completions", headers=headers, json=body
-                )
-            except httpx.HTTPError as exc:
-                raise _ProviderDownError(f"ai-router request failed: {exc}") from exc
+            for attempt in range(_MAX_TRANSPORT_RETRIES + 1):
+                try:
+                    resp = await client.post(
+                        f"{self._base_url}/v2/chat/completions", headers=headers, json=body
+                    )
+                    break
+                except httpx.HTTPError as exc:
+                    last_transport_exc = exc
+                    if attempt < _MAX_TRANSPORT_RETRIES:
+                        logger.warning(
+                            "ai-router transport error on model %s (attempt %d/%d), retrying: %s",
+                            model, attempt + 1, _MAX_TRANSPORT_RETRIES + 1, exc,
+                        )
+                        await asyncio.sleep(_BACKOFF_BASE_SECONDS * (2**attempt))
+            if resp is None:
+                raise _ProviderDownError(
+                    f"ai-router request failed after {_MAX_TRANSPORT_RETRIES + 1} attempts: {last_transport_exc}"
+                ) from last_transport_exc
 
         if resp.status_code in _PROVIDER_DOWN_STATUSES:
             raise _ProviderDownError(f"ai-router returned {resp.status_code}: {resp.text[:300]}")
