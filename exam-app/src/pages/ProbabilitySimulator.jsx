@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { pageVariants } from '../utils/animations.js'
+import PageShell, { PageCard } from '../components/PageShell.jsx'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 
 const _API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
@@ -34,7 +32,6 @@ function toChartData(histogram, pmf, trials) {
 
 export default function ProbabilitySimulator() {
   usePageMeta('Xác suất & mô phỏng', { noindex: true })
-  const navigate = useNavigate()
   const [experiment, setExperiment] = useState('dice')
   const [nDice, setNDice] = useState(2)
   const [trials, setTrials] = useState(2000)
@@ -52,19 +49,8 @@ export default function ProbabilitySimulator() {
   const chartData = result?.available ? toChartData(result.histogram, result.pmf, trials) : null
 
   return (
-    <motion.div
-      className="min-h-screen bg-background flex flex-col"
-      variants={pageVariants} initial="hidden" animate="show" exit="exit"
-    >
-      <header className="flex items-center justify-between px-10 py-4 border-b border-border">
-        <button onClick={() => navigate(-1)} className="font-sans text-sm text-dim hover:text-muted transition">
-          ← Quay lại
-        </button>
-        <h1 className="font-sans text-[20px] font-bold text-foreground">Xác suất & mô phỏng</h1>
-        <div className="w-16" />
-      </header>
-
-      <div className="flex-1 flex flex-col gap-5 p-6 sm:p-10 max-w-2xl mx-auto w-full">
+    <PageShell title="Xác suất & mô phỏng">
+      <PageCard>
         <div className="flex gap-2">
           {['dice', 'coin'].map((e) => (
             <button
@@ -83,7 +69,7 @@ export default function ProbabilitySimulator() {
             <input
               type="number" min={1} max={10} value={nDice}
               onChange={(e) => setNDice(parseInt(e.target.value, 10) || 1)}
-              className="w-24 h-9 px-2 rounded-md border border-border bg-surface font-sans text-sm"
+              className="w-24 h-9 px-2 rounded-md border border-border bg-background font-mono text-sm"
             />
           </label>
           <label className="flex flex-col gap-1 font-sans text-xs text-dim">
@@ -91,7 +77,7 @@ export default function ProbabilitySimulator() {
             <input
               type="number" min={100} max={50000} step={100} value={trials}
               onChange={(e) => setTrials(parseInt(e.target.value, 10) || 100)}
-              className="w-28 h-9 px-2 rounded-md border border-border bg-surface font-sans text-sm"
+              className="w-28 h-9 px-2 rounded-md border border-border bg-background font-mono text-sm"
             />
           </label>
         </div>
@@ -103,30 +89,29 @@ export default function ProbabilitySimulator() {
         >
           {loading ? 'Đang mô phỏng…' : 'Chạy mô phỏng'}
         </button>
+      </PageCard>
 
-        {result && !result.available && (
-          <p className="font-sans text-sm text-destructive">{result.reason ?? 'Không thể mô phỏng.'}</p>
-        )}
+      {result && !result.available && (
+        <p className="font-sans text-sm text-destructive">{result.reason ?? 'Không thể mô phỏng.'}</p>
+      )}
 
-        {chartData && (
-          <div className="bg-surface border border-border rounded-2xl p-5 flex flex-col gap-3">
-            <span className="font-sans text-[0.6875rem] text-faint">Thực nghiệm so với lý thuyết</span>
-            <div style={{ height: 260 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <XAxis dataKey="label" tick={{ fill: 'var(--dim)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: 'var(--dim)', fontSize: 10 }} axisLine={false} tickLine={false} width={36} />
-                  <Tooltip
-                    contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
-                  />
-                  <Bar dataKey="empirical" fill="var(--accent)" name="Thực nghiệm" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="theoretical" fill="var(--info)" name="Lý thuyết" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+      {chartData && (
+        <PageCard label="Thực nghiệm so với lý thuyết">
+          <div style={{ height: 260 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <XAxis dataKey="label" tick={{ fill: 'var(--dim)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--dim)', fontSize: 10 }} axisLine={false} tickLine={false} width={36} />
+                <Tooltip
+                  contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
+                />
+                <Bar dataKey="empirical" fill="var(--primary)" name="Thực nghiệm" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="theoretical" fill="var(--foreground)" fillOpacity={0.35} name="Lý thuyết" radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-        )}
-      </div>
-    </motion.div>
+        </PageCard>
+      )}
+    </PageShell>
   )
 }

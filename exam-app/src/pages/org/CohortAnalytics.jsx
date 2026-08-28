@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts'
-import { pageVariants } from '../../utils/animations.js'
+import PageShell, { PageCard } from '../../components/PageShell.jsx'
 import { usePageMeta } from '../../hooks/usePageMeta.js'
 import { getItemAnalytics } from '../../api/org.js'
 
@@ -18,32 +17,26 @@ export default function CohortAnalytics() {
   }))
 
   return (
-    <motion.div
-      className="min-h-screen bg-surface flex flex-col relative overflow-hidden"
-      variants={pageVariants} initial="hidden" animate="show" exit="exit"
-    >
-      <div className="max-w-3xl mx-auto w-full px-4 py-10 flex flex-col gap-6">
-        <div className="flex flex-col gap-1">
-          <h1 className="font-sans text-[20px] font-semibold text-foreground">Phân tích theo câu hỏi</h1>
-          <p className="font-sans text-[13px] text-dim">Tỷ lệ trả lời đúng trên toàn bộ lượt làm bài của tổ chức.</p>
-        </div>
+    <PageShell title="Phân tích theo câu hỏi" maxWidth="max-w-3xl">
+      <p className="font-sans text-[13px] text-dim -mt-2">Tỷ lệ trả lời đúng trên toàn bộ lượt làm bài của tổ chức.</p>
 
-        {items === null && <p className="font-sans text-[13px] text-dim">Đang tải…</p>}
-        {items !== null && items.length === 0 && <p className="font-sans text-[13px] text-dim">Chưa có dữ liệu lượt thi.</p>}
+      {items === null && <p className="font-sans text-[13px] text-dim">Đang tải…</p>}
+      {items !== null && items.length === 0 && <p className="font-sans text-[13px] text-dim">Chưa có dữ liệu lượt thi.</p>}
 
-        {items !== null && items.length > 0 && (
+      {items !== null && items.length > 0 && (
+        <PageCard label="Độ khó theo câu hỏi">
           <div style={{ width: '100%', height: 280 }}>
             <ResponsiveContainer>
               <BarChart data={chartData}>
                 <XAxis dataKey="name" hide />
-                <YAxis domain={[0, 100]} />
-                <Tooltip />
-                <Bar dataKey="difficulty" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                <YAxis domain={[0, 100]} tick={{ fill: 'var(--dim)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }} />
+                <Bar dataKey="difficulty" fill="var(--primary)" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        )}
-      </div>
-    </motion.div>
+        </PageCard>
+      )}
+    </PageShell>
   )
 }

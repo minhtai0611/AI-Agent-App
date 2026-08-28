@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { pageVariants } from '../../utils/animations.js'
+import PageShell, { PageCard } from '../../components/PageShell.jsx'
 import { usePageMeta } from '../../hooks/usePageMeta.js'
 import { getProctoringSettings, updateProctoringSettings } from '../../api/org.js'
 
@@ -28,37 +27,30 @@ export default function ProctoringSettings() {
   }
 
   return (
-    <motion.div
-      className="min-h-screen bg-surface flex flex-col relative overflow-hidden"
-      variants={pageVariants} initial="hidden" animate="show" exit="exit"
-    >
-      <div className="max-w-2xl mx-auto w-full px-4 py-10 flex flex-col gap-6">
-        <div className="flex flex-col gap-1">
-          <h1 className="font-sans text-[20px] font-semibold text-foreground">Giám sát thi (AI proctoring)</h1>
-          <p className="font-sans text-[13px] text-dim">
-            Mức giám sát cao nhất tổ chức cho phép — mức thực tế áp dụng cho mỗi bài thi còn phụ thuộc vào độ khó/tính chất kỳ thi.
-            Đây là bản khung: chưa kết nối nhà cung cấp giám sát thực tế.
-          </p>
-        </div>
+    <PageShell title="Giám sát thi (AI proctoring)">
+      <p className="font-sans text-[13px] text-dim -mt-2">
+        Mức giám sát cao nhất tổ chức cho phép — mức thực tế áp dụng cho mỗi bài thi còn phụ thuộc vào độ khó/tính chất kỳ thi.
+        Đây là bản khung: chưa kết nối nhà cung cấp giám sát thực tế.
+      </p>
 
-        <div className="flex flex-col gap-2 max-w-sm">
+      <PageCard className="max-w-sm">
+        <div className="flex flex-col gap-2">
           {TIERS.map(t => (
             <button
               key={t.value}
               onClick={() => handleChange(t.value)}
-              className="text-left px-4 py-3 rounded-xl border font-sans text-[13px] font-medium transition"
-              style={{
-                background: tier === t.value ? 'var(--primary-subtle)' : 'var(--surface-elevated)',
-                borderColor: tier === t.value ? 'var(--primary-border)' : 'var(--border)',
-                color: tier === t.value ? 'var(--primary)' : 'var(--foreground)',
-              }}
+              className={`text-left px-4 py-3 rounded-xl border font-sans text-[13px] font-medium transition ${
+                tier === t.value
+                  ? 'bg-primary-subtle border-primary-border text-primary'
+                  : 'bg-surface-elevated border-border text-foreground'
+              }`}
             >
               {t.label}
             </button>
           ))}
         </div>
-        {saved && <span className="font-sans text-[12px] text-[var(--primary)]">Đã lưu.</span>}
-      </div>
-    </motion.div>
+        {saved && <span className="font-sans text-[12px] text-primary">Đã lưu.</span>}
+      </PageCard>
+    </PageShell>
   )
 }

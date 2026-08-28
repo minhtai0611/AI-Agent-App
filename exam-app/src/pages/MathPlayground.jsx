@@ -1,15 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { Mafs, Coordinates, Plot } from 'mafs'
 import 'mafs/core.css'
 import 'mathlive'
-import { pageVariants } from '../utils/animations.js'
+import PageShell, { PageCard } from '../components/PageShell.jsx'
 import { compileFunctionOfX, toMathjsSyntax } from '../engine/casEngine.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 
 const _API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-const COLORS = ['#F0A93E', '#6366F1', '#059669', '#DC2626', '#0EA5E9']
+const COLORS = ['#8B5CF6', '#FAFAFA', '#22C55E', '#F87171', '#38BDF8']
 
 async function draftPlotFromPrompt(promptText) {
   try {
@@ -55,7 +53,7 @@ function ExpressionRow({ row, onChange, onRemove }) {
       >
         👁
       </button>
-      <math-field ref={fieldRef} className="flex-1 text-base px-2 py-1.5 rounded-lg border border-border bg-surface" />
+      <math-field ref={fieldRef} className="flex-1 text-base px-2 py-1.5 rounded-lg border border-border bg-background" />
       <button onClick={onRemove} className="text-faint hover:text-destructive text-sm flex-shrink-0">✕</button>
     </div>
   )
@@ -63,7 +61,6 @@ function ExpressionRow({ row, onChange, onRemove }) {
 
 export default function MathPlayground() {
   usePageMeta('Math Playground', { noindex: true })
-  const navigate = useNavigate()
   const [rows, setRows] = useState(() => [newRow('x^2')])
   const [prompt, setPrompt] = useState('')
   const [promptStatus, setPromptStatus] = useState({ loading: false, reason: null })
@@ -89,21 +86,9 @@ export default function MathPlayground() {
   }
 
   return (
-    <motion.div
-      className="min-h-screen bg-background flex flex-col"
-      variants={pageVariants} initial="hidden" animate="show" exit="exit"
-    >
-      <header className="flex items-center justify-between px-10 py-4 border-b border-border">
-        <button onClick={() => navigate(-1)} className="font-sans text-sm text-dim hover:text-muted transition">
-          ← Quay lại
-        </button>
-        <h1 className="font-sans text-[20px] font-bold text-foreground">Math Playground</h1>
-        <div className="w-16" />
-      </header>
-
-      <div className="flex-1 flex flex-col lg:flex-row gap-6 p-6 sm:p-10 max-w-5xl mx-auto w-full">
-        <div className="flex flex-col gap-3 lg:w-72 flex-shrink-0">
-          <span className="font-sans text-[0.6875rem] text-faint">Danh sách biểu thức</span>
+    <PageShell title="Math Playground" maxWidth="max-w-5xl">
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 w-full">
+        <PageCard label="Danh sách biểu thức" className="lg:w-72 flex-shrink-0">
           {rows.map((row) => (
             <ExpressionRow key={row.id} row={row} onChange={updateRow} onRemove={() => removeRow(row.id)} />
           ))}
@@ -111,14 +96,14 @@ export default function MathPlayground() {
             + Thêm biểu thức
           </button>
 
-          <div className="mt-4 flex flex-col gap-2 pt-4 border-t border-border">
-            <span className="font-sans text-[0.6875rem] text-faint">Mô tả bằng lời (AI)</span>
+          <div className="mt-2 flex flex-col gap-2 pt-4 border-t border-border">
+            <span className="font-sans text-[0.6875rem] font-semibold uppercase tracking-wide text-faint">Mô tả bằng lời (AI)</span>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="vẽ đồ thị giao của y=x^2 và y=2x+1"
               rows={2}
-              className="px-3 py-2 rounded-lg border border-border bg-surface font-sans text-xs resize-none"
+              className="px-3 py-2 rounded-lg border border-border bg-background font-sans text-xs resize-none"
             />
             <button
               onClick={handleDescribe}
@@ -131,9 +116,9 @@ export default function MathPlayground() {
               <p className="font-sans text-[0.6875rem] text-destructive">{promptStatus.reason}</p>
             )}
           </div>
-        </div>
+        </PageCard>
 
-        <div className="flex-1 bg-surface border border-border rounded-2xl overflow-hidden" style={{ minHeight: 420 }}>
+        <div className="flex-1 glass-elevated rounded-2xl overflow-hidden" style={{ minHeight: 420 }}>
           <Mafs viewBox={{ x: [-10, 10], y: [-10, 10] }}>
             <Coordinates.Cartesian />
             {rows
@@ -146,6 +131,6 @@ export default function MathPlayground() {
           </Mafs>
         </div>
       </div>
-    </motion.div>
+    </PageShell>
   )
 }

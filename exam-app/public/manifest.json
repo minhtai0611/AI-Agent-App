@@ -1,11 +1,11 @@
 {
-  "name": "Luminary — Ánh sáng dẫn đường",
-  "short_name": "Luminary",
-  "description": "Ánh sáng dẫn đường tri thức — ôn thi Toán THPT & lớp 10 cùng AI.",
+  "name": "Vantage — Tầm nhìn dẫn đường",
+  "short_name": "Vantage",
+  "description": "Tầm nhìn dẫn đường tri thức — ôn thi Toán THPT & lớp 10 cùng AI.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0A0E1A",
-  "theme_color": "#0A0E1A",
+  "background_color": "#0A0A0A",
+  "theme_color": "#0A0A0A",
   "icons": [
     {
       "src": "/favicon.svg",

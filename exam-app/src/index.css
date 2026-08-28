@@ -1,16 +1,17 @@
-/* ─── Fonts — Vantage identity ───────────────────────────────────────────────
-   Fraunces Variable: display/headings — characterful editorial serif (opsz/wght/
-     SOFT/WONK axes), chosen for genuine personality over generic sameness.
-   Inter Variable:     body/UI — humanist, full Vietnamese Unicode, built for
-     small-size UI legibility.
-   JetBrains Mono: monospace UI + math/code rendering (KaTeX). Self-hosted WOFF2.
-     Unchanged — Vietnamese subset already solved, not part of the brand rebrand.
+/* ─── Fonts — Vantage "Voltage" identity ─────────────────────────────────────
+   Sora Variable:    display/headings — bold geometric grotesk, full Vietnamese
+     Unicode. Replaces Fraunces as part of the Direction-C ("Voltage") redesign.
+   Manrope Variable: body/UI — humanist geometric sans, full Vietnamese Unicode,
+     built for small-size UI legibility. Replaces Inter.
+   JetBrains Mono: monospace UI + math/code rendering (KaTeX), and now every
+     numeric value (scores, matrix cells) per the Voltage direction. Self-hosted
+     WOFF2 — unchanged, Vietnamese subset already solved.
    All fonts bundled via @fontsource-variable — no external CDN, ad-blocker safe.
    ─────────────────────────────────────────────────────────────────────────── */
 
 @import "tw-animate-css";
-@import '@fontsource-variable/fraunces/index.css';
-@import '@fontsource-variable/inter/index.css';
+@import '@fontsource-variable/sora/index.css';
+@import '@fontsource-variable/manrope/index.css';
 
 /* JetBrains Mono (variable: wght axis) */
 @font-face {
@@ -42,89 +43,90 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Vantage — Ascent Color Tokens ──────────────────────────────────────────
+/* ─── Vantage — Voltage Color Tokens ──────────────────────────────────────────
    Light defaults in :root; dark overrides in .dark / [data-theme="dark"].
    CSS variable names preserved for Tailwind class compatibility.
-   Replaces the old "Lumina" cobalt/violet palette — see the approved blueprint
-   at groovy-baking-beaver.md for rationale (WCAG AA re-verified for this pass).
+   High-contrast, flat, single-hue-accent redesign (Direction C, replacing the
+   "Vantage — Ascent" amber/indigo palette wholesale) — dark is the first-class
+   surface; light is derived from it, not the other way around. No gradients.
    ─────────────────────────────────────────────────────────────────────────── */
 :root {
   color-scheme: light;
 
   /* ── Surfaces ── */
-  --background:        #F7F3EC;  /* warm ivory off-white */
-  --foreground:        #201A33;  /* deep indigo-dusk text */
-  --surface:           #F0EAE0;  /* warm card fill */
-  --surface-elevated:  #F7F3EC;  /* modals, dropdowns */
-  --border:            #DCD1BE;  /* warm sand border */
-  --border-subtle:     #EAE2D1;  /* very subtle dividers */
+  --background:        #FFFFFF;
+  --foreground:        #0A0A0A;
+  --surface:           #F4F4F4;
+  --surface-elevated:  #FFFFFF;
+  --border:            #E5E5E5;
+  --border-subtle:     #EFEFEF;
 
   /* ── Text ── */
-  --muted:             #918A7A;  /* warm gray */
-  --muted-fg:          #6E6656;  /* warm gray, darker */
-  --dim:               #4B4436;  /* warm gray, darkest before faint */
-  --faint:             #332E23;  /* near-foreground warm gray */
+  --muted:             #A3A3A3;
+  --muted-fg:          #737373;
+  --dim:               #404040;
+  --faint:             #171717;
 
   /* ── Text aliases (plan tokens) ── */
   --fg-secondary:      var(--muted-fg);
   --fg-tertiary:       var(--muted);
-  --fg-disabled:       #D4C9B4;
+  --fg-disabled:       #D4D4D4;
   --surface-raised:    var(--surface-elevated);
 
-  /* ── Brand — radiant gold (primary) ── */
-  --primary:           #A6620C;  /* burnished amber gold — 4.6:1 vs white */
+  /* ── Brand — electric violet (single accent, per Voltage direction) ── */
+  --primary:           #5B21F6;  /* electric violet — 6.9:1 vs white */
   --primary-fg:        #FFFFFF;
-  --primary-subtle:    #FBF0DC;
-  --primary-border:    #E8C68C;
+  --primary-subtle:    #F1EBFF;
+  --primary-border:    #C9B7FF;
 
-  /* ── Accent — indigo-dusk ── */
-  --accent:            #4C3B8C;  /* deep indigo-violet — 8.1:1 vs white */
+  /* ── Accent — same hue family, distinct lightness (no second hue) ── */
+  --accent:            #7C3AED;
   --accent-fg:         #FFFFFF;
-  --accent-subtle:     #ECE9F8;
-  --accent-border:     #C3B8E8;
+  --accent-subtle:     #F1EBFF;
+  --accent-border:     #C9B7FF;
 
   /* ── Status (kept — universal semantics, not brand-specific) ── */
-  --success:           #059669;
+  --success:           #16A34A;
   --warning:           #D97706;
   --destructive:       #DC2626;
   --info:              #0284C7;
   --purple:            #7C3AED;
-  --highlight:         #FBF0DC;
+  --highlight:         #F1EBFF;
 
   /* ── Choice feedback state (QuestionCard) ── */
-  --choice-chosen-bg:   #ECE9F8;  /* accent-subtle */
+  --choice-chosen-bg:   #F1EBFF;  /* accent-subtle */
   --choice-wrong-bg:    #FEF2F2;  /* red-50 */
   --choice-wrong-border:#FECACA;  /* red-200 */
 
   /* ── Mastery scale (0=base camp → 5=vantage point) ── */
-  --mastery-0:         #9C948A;
-  --mastery-0-bg:      #F3EFE8;
+  --mastery-0:         #A3A3A3;
+  --mastery-0-bg:      #F4F4F4;
   --mastery-1:         #DC2626;
   --mastery-1-bg:      #FEF2F2;
   --mastery-2:         #EA580C;
   --mastery-2-bg:      #FFF7ED;
   --mastery-3:         #D97706;
   --mastery-3-bg:      #FFFBEB;
-  --mastery-4:         #059669;
-  --mastery-4-bg:      #ECFDF5;
-  --mastery-5:         #A6620C;  /* vantage point = primary brand */
-  --mastery-5-bg:      #FBF0DC;
+  --mastery-4:         #16A34A;
+  --mastery-4-bg:      #F0FDF4;
+  --mastery-5:         #5B21F6;  /* vantage point = primary brand */
+  --mastery-5-bg:      #F1EBFF;
 
-  /* ── Shadows ── */
-  --shadow-xs: 0 1px 2px rgba(32,26,51,0.05);
-  --shadow-sm: 0 1px 3px rgba(32,26,51,0.10), 0 1px 2px rgba(32,26,51,0.06);
-  --shadow-md: 0 4px 6px rgba(32,26,51,0.07), 0 2px 4px rgba(32,26,51,0.06);
-  --shadow-lg: 0 10px 15px rgba(32,26,51,0.08), 0 4px 6px rgba(32,26,51,0.05);
-  --shadow-xl: 0 20px 25px rgba(32,26,51,0.10), 0 10px 10px rgba(32,26,51,0.04);
-  --shadow-glow: 0 0 0 1px rgba(166,98,12,0.25), 0 4px 16px rgba(166,98,12,0.15);
+  /* ── Shadows — flat, neutral-black, no colored glow ── */
+  --shadow-xs: 0 1px 2px rgba(10,10,10,0.06);
+  --shadow-sm: 0 1px 3px rgba(10,10,10,0.10), 0 1px 2px rgba(10,10,10,0.06);
+  --shadow-md: 0 4px 6px rgba(10,10,10,0.08), 0 2px 4px rgba(10,10,10,0.06);
+  --shadow-lg: 0 10px 15px rgba(10,10,10,0.09), 0 4px 6px rgba(10,10,10,0.05);
+  --shadow-xl: 0 20px 25px rgba(10,10,10,0.11), 0 10px 10px rgba(10,10,10,0.04);
+  --shadow-glow: 0 0 0 1px rgba(91,33,246,0.25), 0 4px 16px rgba(91,33,246,0.15);
 
-  /* ── Border radius ── */
-  --radius-xs:   4px;
-  --radius-sm:   6px;
-  --radius-md:   8px;
-  --radius-lg:   12px;
-  --radius-xl:   16px;
-  --radius-2xl:  28px;
+  /* ── Border radius — tighter, crisper geometry ── */
+  --radius-xs:   3px;
+  --radius-sm:   5px;
+  --radius-md:   7px;
+  --radius-lg:   10px;
+  --radius-xl:   14px;
+  --radius-2xl:  22px;
   --radius-full: 9999px;
 
   /* ── Easing (name-locked — used in animation definitions) ── */
@@ -164,82 +166,82 @@
   --tilt-max: 4deg;
 }
 
-/* ── Dark theme ── */
+/* ── Dark theme — the primary surface for Voltage ── */
 .dark, [data-theme="dark"] {
   color-scheme: dark;
 
-  --background:        #14101F;  /* deep indigo-dusk */
-  --foreground:        #F5EFE3;  /* warm off-white */
-  --surface:           #1B1730;
-  --surface-elevated:  #221C3B;
-  --border:            #322A4D;
-  --border-subtle:     #3B3258;
+  --background:        #0A0A0A;
+  --foreground:        #FAFAFA;
+  --surface:           #161616;
+  --surface-elevated:  #1D1D1D;
+  --border:            #262626;
+  --border-subtle:     #1F1F1F;
 
-  --muted:             #B3A899;  /* WCAG fix: readable secondary text (~6.6:1 on bg) */
-  --muted-fg:          #6E6656;  /* dim/inactive — non-critical tertiary UI only */
-  --dim:               #CFC4B3;
-  --faint:             #E3D9C8;
+  --muted:             #737373;
+  --muted-fg:          #A3A3A3;  /* readable secondary text on near-black */
+  --dim:               #D4D4D4;
+  --faint:             #F5F5F5;
 
-  --fg-secondary:      var(--muted);     /* readable secondary text */
-  --fg-tertiary:       var(--muted-fg);  /* truly dim/inactive states */
-  --fg-disabled:       #322A4D;
+  --fg-secondary:      var(--muted-fg);
+  --fg-tertiary:       var(--muted);
+  --fg-disabled:       #404040;
   --surface-raised:    var(--surface-elevated);
 
-  --primary:           #F0A93E;  /* light radiant gold */
-  --primary-fg:        #241505;
-  --primary-subtle:    rgba(240,169,62,0.15);
-  --primary-border:    #7A4E10;
+  --primary:           #8B5CF6;  /* lighter violet for dark-surface contrast */
+  --primary-fg:        #0A0A0A;
+  --primary-subtle:    rgba(139,92,246,0.15);
+  --primary-border:    #4C2E96;
 
-  --accent:            #9C8FE0;  /* light indigo-violet */
-  --accent-fg:         #17102E;
-  --accent-subtle:     rgba(156,143,224,0.15);
-  --accent-border:     #453B7A;
+  --accent:            #A78BFA;
+  --accent-fg:         #0A0A0A;
+  --accent-subtle:     rgba(167,139,250,0.15);
+  --accent-border:     #4C2E96;
 
-  --success:           #34D399;
+  --success:           #22C55E;
   --warning:           #FCD34D;
   --destructive:       #F87171;
   --info:              #38BDF8;
-  --purple:            #C084FC;
-  --highlight:         rgba(240,169,62,0.12);
+  --purple:            #A78BFA;
+  --highlight:         rgba(139,92,246,0.12);
 
-  --mastery-0:         #6E6656;
-  --mastery-0-bg:      #221C3B;
+  --mastery-0:         #737373;
+  --mastery-0-bg:      #1D1D1D;
   --mastery-1:         #F87171;
-  --mastery-1-bg:      #450A0A;
+  --mastery-1-bg:      #2A0A0A;
   --mastery-2:         #FB923C;
-  --mastery-2-bg:      #431407;
+  --mastery-2-bg:      #2A1506;
   --mastery-3:         #FCD34D;
-  --mastery-3-bg:      #78350F;
-  --mastery-4:         #34D399;
-  --mastery-4-bg:      #052E1A;
-  --mastery-5:         #F0A93E;  /* vantage point = primary brand */
-  --mastery-5-bg:      #3A2A0B;
+  --mastery-3-bg:      #2A2106;
+  --mastery-4:         #22C55E;
+  --mastery-4-bg:      #06210E;
+  --mastery-5:         #8B5CF6;  /* vantage point = primary brand */
+  --mastery-5-bg:      #221A3D;
 
-  --choice-chosen-bg:   rgba(156,143,224,0.15);
+  --choice-chosen-bg:   rgba(167,139,250,0.15);
   --choice-wrong-bg:    rgba(220, 38, 38, 0.15);
   --choice-wrong-border:rgba(220, 38, 38, 0.35);
 
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.30);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.35);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.40), 0 2px 4px rgba(0,0,0,0.30);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.45), 0 4px 6px rgba(0,0,0,0.25);
-  --shadow-xl: 0 20px 25px rgba(0,0,0,0.50), 0 10px 10px rgba(0,0,0,0.25);
-  --shadow-glow: 0 0 0 1px rgba(240,169,62,0.30), 0 4px 20px rgba(240,169,62,0.20);
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.40);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.40);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.50), 0 2px 4px rgba(0,0,0,0.35);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.55), 0 4px 6px rgba(0,0,0,0.30);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.60), 0 10px 10px rgba(0,0,0,0.30);
+  --shadow-glow: 0 0 0 1px rgba(139,92,246,0.35), 0 4px 20px rgba(139,92,246,0.25);
 }
 
 /* ─── Accessibility: High contrast boosts ────────────────────────────────── */
 @media (prefers-contrast: more) {
   :root {
-    --muted-fg: #332E23;
-    --dim:      #201C15;
-    --faint:    #14110C;
-    --border:   #6E6656;
+    --muted-fg: #171717;
+    --dim:      #0A0A0A;
+    --faint:    #000000;
+    --border:   #737373;
   }
   .dark, [data-theme="dark"] {
-    --muted-fg: #E3D9C8;
-    --dim:      #EFE8DB;
-    --faint:    #F7F3EC;
-    --border:   #B3A899;
+    --muted-fg: #F5F5F5;
+    --dim:      #FAFAFA;
+    --faint:    #FFFFFF;
+    --border:   #A3A3A3;
   }
 }
 
@@ -330,7 +332,7 @@ html {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  font-family: 'Manrope Variable', 'Manrope', system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   letter-spacing: 0em;
@@ -385,13 +387,13 @@ body {
   background: var(--primary);
   color: var(--primary-fg);
 }
-.btn-primary:hover { background: #2D5BC7; }
+.btn-primary:hover { background: var(--accent); }
 
 .btn-accent {
   background: var(--accent);
   color: var(--accent-fg);
 }
-.btn-accent:hover { background: #6347CC; }
+.btn-accent:hover { background: var(--primary); }
 
 .btn-outline {
   background: transparent;
@@ -408,18 +410,16 @@ body {
 
 /* ─── Text Utilities ─────────────────────────────────────────────────────── */
 
+/* Flat solid color, not a literal gradient — the Voltage direction is
+   deliberately gradient-free. Class names kept as-is (referenced from
+   Results.jsx / ExamSelect.jsx) rather than touching those pages in this
+   tokens-only pass. */
 .text-gradient-brand {
-  background: linear-gradient(135deg, #A6620C 0%, #C57F1E 50%, #9C8FE0 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--primary);
 }
 
 .text-gradient-aurora {
-  background: linear-gradient(135deg, var(--info) 0%, var(--primary) 50%, var(--accent) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--accent);
 }
 
 /* ─── Answer Feedback Animations (name-locked — QuestionCard.jsx lines 150–151) ── */
@@ -461,14 +461,14 @@ body {
   100% { background-position:  400px 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg, #DDE2F0 25%, #CBD2E8 50%, #DDE2F0 75%);
+  background: linear-gradient(90deg, #EFEFEF 25%, #E0E0E0 50%, #EFEFEF 75%);
   background-size: 800px 100%;
   animation: shimmer 1.4s infinite linear;
   border-radius: var(--radius-sm);
 }
 .dark .skeleton,
 [data-theme="dark"] .skeleton {
-  background: linear-gradient(90deg, #161C2E 25%, #1E2740 50%, #161C2E 75%);
+  background: linear-gradient(90deg, #161616 25%, #222222 50%, #161616 75%);
   background-size: 800px 100%;
 }
 
@@ -516,69 +516,6 @@ body {
 }
 ::view-transition-new(root) {
   animation: 200ms ease-out both vt-fade-in;
-}
-
-/* ─── Aurora / Landing visual effects ────────────────────────────────────── */
-
-@keyframes aurora-drift {
-  0%   { transform: translate(0, 0) scale(1); }
-  33%  { transform: translate(30px, -20px) scale(1.05); }
-  66%  { transform: translate(-20px, 10px) scale(0.95); }
-  100% { transform: translate(0, 0) scale(1); }
-}
-
-@keyframes gradient-shift {
-  0%   { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
-}
-
-@keyframes scrollX {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.aurora-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.06;
-  animation: aurora-drift 22s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-.dark .aurora-blob,
-[data-theme="dark"] .aurora-blob {
-  opacity: 0.35;
-}
-/* Vantage ascent palette — blobs 1-3 only; blob-4 removed */
-.aurora-blob:nth-child(1) { background: #A6620C; }
-.aurora-blob:nth-child(2) { background: #4C3B8C; }
-.aurora-blob:nth-child(3) { background: #059669; }
-
-.cta-gradient-btn {
-  background: linear-gradient(90deg, #A6620C, #4C3B8C, #059669, #A6620C);
-  background-size: 300% 100%;
-  animation: gradient-shift 4s linear infinite;
-  color: #fff;
-}
-
-.glass-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-}
-.dark .glass-card,
-[data-theme="dark"] .glass-card {
-  background: rgba(27, 23, 48, 0.75);
-  border-color: rgba(156, 143, 224, 0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-.testimonials-strip {
-  animation: scrollX 32s linear infinite;
-}
-.testimonials-strip:hover {
-  animation-play-state: paused;
 }
 
 /* ─── Reduced motion baseline ─────────────────────────────────────────────── */
@@ -657,197 +594,43 @@ body {
   100% { transform: translate(0, 0) scale(1); }
 }
 
+/* Single-hue violet texture only (Voltage is single-accent, no tri-color
+   nebula) — kept because Navbar's mobile-menu overlay actually renders this;
+   every other decorative class in this section (star field, floating math
+   symbols, spectral gate button, constellation ascent, witness/pillar cards,
+   the summit-beacon loader) was confirmed to have zero consumers anywhere in
+   src/ and was removed rather than recolored. */
 .nebula-wisp {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
   filter: blur(120px);
   opacity: 0.05;
+  background: #5B21F6;
 }
-.nebula-wisp:nth-child(1) {
-  background: #A6620C;
-  animation: nebula-breathe-a 28s ease-in-out infinite;
-}
-.nebula-wisp:nth-child(2) {
-  background: #4C3B8C;
-  animation: nebula-breathe-b 34s ease-in-out infinite;
-}
-.nebula-wisp:nth-child(3) {
-  background: #059669;
-  animation: nebula-breathe-c 42s ease-in-out infinite;
-}
+.nebula-wisp:nth-child(1) { animation: nebula-breathe-a 28s ease-in-out infinite; }
+.nebula-wisp:nth-child(2) { animation: nebula-breathe-b 34s ease-in-out infinite; opacity: 0.03; }
+.nebula-wisp:nth-child(3) { animation: nebula-breathe-c 42s ease-in-out infinite; opacity: 0.04; }
 .dark .nebula-wisp,
 [data-theme="dark"] .nebula-wisp {
-  opacity: 0.16;
+  background: #8B5CF6;
+  opacity: 0.14;
 }
 
-/* Star field wrapper — opacity multiplier for mode */
-.star-field-wrapper {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.07;
-}
-.dark .star-field-wrapper,
-[data-theme="dark"] .star-field-wrapper {
-  opacity: 1;
-}
-
-/* Star layers inside the wrapper */
-.star-layer,
-.star-twinkle-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  border-radius: 50%;
-  background: transparent;
-}
-@keyframes star-twinkle {
-  0%, 100% { opacity: 0.55; }
-  50%       { opacity: 0.08; }
-}
-.star-twinkle-layer {
-  animation: star-twinkle 4.5s ease-in-out infinite alternate;
-}
-
-/* Floating math symbol opacity */
-.float-math-symbol {
-  position: absolute;
-  pointer-events: none;
-  font-family: 'JetBrains Mono', monospace;
-  line-height: 1;
-  font-weight: 500;
-  opacity: 0.08;
-  color: var(--primary);
-  user-select: none;
-}
-.dark .float-math-symbol,
-[data-theme="dark"] .float-math-symbol {
-  opacity: 0.03;
-}
-
-/* Spectral gate button (replaces cta-gradient-btn) */
-@keyframes spectral-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(166, 98, 12, 0); }
-  50%       { box-shadow: 0 0 28px 6px rgba(166, 98, 12, 0.22); }
-}
-@keyframes spectral-trace {
-  0%        { transform: translateX(-100%) skewX(-20deg); opacity: 0; }
-  8%        { opacity: 1; }
-  42%       { transform: translateX(250%) skewX(-20deg); opacity: 0.9; }
-  43%, 100% { opacity: 0; transform: translateX(250%) skewX(-20deg); }
-}
-.spectral-gate-btn {
-  background: radial-gradient(ellipse at center, #C57F1E 0%, #A6620C 50%, #6E4207 100%);
-  border: 1px solid rgba(166, 98, 12, 0.45);
-  color: #fff;
-  animation: spectral-pulse 3s ease-in-out infinite;
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  font-weight: 600;
-}
-.spectral-gate-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 38%;
-  height: 100%;
-  background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.18) 50%, transparent 80%);
-  animation: spectral-trace 4.5s ease-in-out infinite;
-}
-
-/* Constellation ascent (replaces scrollX testimonials) */
-@keyframes constellation-ascent {
-  0%   { transform: translateY(0); }
-  100% { transform: translateY(-50%); }
-}
-.constellation-column {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  animation: constellation-ascent 48s linear infinite;
-}
-.constellation-column:nth-child(2) {
-  animation-delay: -24s;
-}
-
-/* Witness (testimonial) cards */
-.witness-card {
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  flex-shrink: 0;
-}
-.dark .witness-card,
-[data-theme="dark"] .witness-card {
-  background: rgba(27, 23, 48, 0.60);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-color: rgba(156, 143, 224, 0.08);
-}
-
-/* Pillar card hover effects */
-.pillar-card {
-  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
-}
-.pillar-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(166, 98, 12, 0.12), 0 0 0 1px rgba(166, 98, 12, 0.12);
-}
-.dark .pillar-card:hover,
-[data-theme="dark"] .pillar-card:hover {
-  box-shadow: 0 20px 40px rgba(240, 169, 62, 0.18), 0 0 0 1px rgba(240, 169, 62, 0.18);
-}
-.pillar-glyph {
-  display: inline-block;
-  transition: text-shadow 0.3s ease, transform 0.3s ease;
-}
-.pillar-card:hover .pillar-glyph {
-  text-shadow: 0 0 20px currentColor;
-  transform: scale(1.12);
-}
-
-/* ─── LandingLoader — summit-beacon portal keyframes ──────────────────────
-   Renamed from luminary-loader-* as part of the Luminary → Vantage rebrand.
-   ─────────────────────────────────────────────────────────────────────────── */
-@keyframes vantage-loader-spin-cw  { to { transform: rotate(360deg); } }
-@keyframes vantage-loader-spin-ccw { to { transform: rotate(-360deg); } }
-@keyframes vantage-loader-orb-pulse {
-  0%, 100% { opacity: 0.45; transform: scale(0.94); }
-  50%       { opacity: 0.85; transform: scale(1.10); }
-}
-.vantage-loader-spin-cw {
-  animation: vantage-loader-spin-cw 20s linear infinite;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.vantage-loader-spin-ccw {
-  animation: vantage-loader-spin-ccw 30s linear infinite;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.vantage-loader-orb-pulse {
-  animation: vantage-loader-orb-pulse 3s ease-in-out infinite;
-}
-
-/* Floating glass navbar */
+/* Floating glass navbar — restrained translucency per the Voltage direction */
 .vantage-nav {
-  background: rgba(247, 243, 236, 0.82);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(166, 98, 12, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(10, 10, 10, 0.08);
 }
 .dark .vantage-nav,
 [data-theme="dark"] .vantage-nav {
-  background: rgba(20, 16, 31, 0.82);
-  border-bottom-color: rgba(240, 169, 62, 0.08);
+  background: rgba(10, 10, 10, 0.82);
+  border-bottom-color: rgba(139, 92, 246, 0.12);
 }
 
-/* Nav link active underline glow */
+/* Nav link active underline */
 .nav-link-vantage {
   position: relative;
 }
@@ -858,24 +641,17 @@ body {
   left: 50%;
   transform: translateX(-50%);
   width: 60%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  height: 2px;
+  background: var(--primary);
 }
 
-/* ── High-contrast mode — Crystal Cosmos ───────────────────────────────── */
+/* ── High-contrast mode ───────────────────────────────────────────────── */
 @media (prefers-contrast: more) {
-  .nebula-wisp,
-  .star-field-wrapper { display: none; }
+  .nebula-wisp { display: none; }
   .vantage-nav {
     background: var(--background) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     border-bottom: 2px solid var(--foreground) !important;
   }
-  .pillar-card { border: 2px solid var(--foreground) !important; }
-  .spectral-gate-btn {
-    animation: none !important;
-    box-shadow: none !important;
-  }
-  .float-math-symbol { display: none; }
 }

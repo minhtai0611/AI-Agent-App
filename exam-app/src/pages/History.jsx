@@ -48,14 +48,6 @@ export default function History() {
       className="min-h-screen bg-surface flex flex-col relative overflow-hidden"
       variants={pageVariants} initial="hidden" animate="show" exit="exit"
     >
-      {/* Ambient glows */}
-      <div className="absolute pointer-events-none rounded-full"
-        style={{ width: 560, height: 560, right: -120, top: -60,
-          background: 'radial-gradient(circle, #F2A20C12 0%, transparent 100%)' }} />
-      <div className="absolute pointer-events-none rounded-full"
-        style={{ width: 420, height: 420, left: -80, bottom: 80,
-          background: 'radial-gradient(circle, #6366F112 0%, transparent 100%)' }} />
-
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between px-10 py-4 glass-base border-b border-surface">
         <button onClick={() => navigate('/')} className="font-sans text-sm text-dim hover:text-muted transition">
