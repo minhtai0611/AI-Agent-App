@@ -95,7 +95,42 @@ def test_eigen_is_verified_against_the_characteristic_equation():
     assert ls.verify_linalg(derivation).ok is True
 
 
-# --- draft_linalg_spec: eigen is excluded from the NL vocabulary --------------------
+# --- matrix decompositions: lu/qr/cholesky/svd ---------------------------------------
+
+def test_lu_decomposition_reconstructs_the_original_matrix():
+    spec = LinAlgSpec(operation="lu", matrices=[[[4, 3], [6, 3]]])
+    derivation = ls.solve_linalg(spec)
+    assert set(derivation["result"].keys()) == {"L", "U", "P"}
+    assert ls.verify_linalg(derivation).ok is True
+
+
+def test_qr_decomposition_is_orthogonal_and_reconstructs():
+    spec = LinAlgSpec(operation="qr", matrices=[[[1, 0], [0, 1], [1, 1]]])
+    derivation = ls.solve_linalg(spec)
+    assert set(derivation["result"].keys()) == {"Q", "R"}
+    assert ls.verify_linalg(derivation).ok is True
+
+
+def test_cholesky_of_a_positive_definite_matrix():
+    spec = LinAlgSpec(operation="cholesky", matrices=[[[4, 2], [2, 3]]])
+    derivation = ls.solve_linalg(spec)
+    assert ls.verify_linalg(derivation).ok is True
+
+
+def test_cholesky_raises_for_a_non_positive_definite_matrix():
+    spec = LinAlgSpec(operation="cholesky", matrices=[[[1, 2], [2, 1]]])
+    with pytest.raises(ValueError, match="positive-definite"):
+        ls.solve_linalg(spec)
+
+
+def test_svd_reconstructs_within_numeric_tolerance():
+    spec = LinAlgSpec(operation="svd", matrices=[[[3, 0], [0, -2]]])
+    derivation = ls.solve_linalg(spec)
+    result = ls.verify_linalg(derivation)
+    assert result["ok"] is True
+
+
+# --- draft_linalg_spec: eigen/svd are excluded from the NL vocabulary ---------------
 
 class _FakeRouterClient:
     def __init__(self, drafts):
@@ -110,6 +145,13 @@ async def test_draft_linalg_spec_rejects_eigen_even_if_the_model_proposes_it():
     fake_client = _FakeRouterClient([{"available": True, "operation": "eigen", "matrices": [[[1, 0], [0, 1]]]}])
     with pytest.raises(ls.LinAlgShapeError, match="not offered"):
         await ls.draft_linalg_spec(fake_client, "tìm giá trị riêng của ma trận")
+
+
+@pytest.mark.asyncio
+async def test_draft_linalg_spec_rejects_svd_even_if_the_model_proposes_it():
+    fake_client = _FakeRouterClient([{"available": True, "operation": "svd", "matrices": [[[1, 0], [0, 1]]]}])
+    with pytest.raises(ls.LinAlgShapeError, match="not offered"):
+        await ls.draft_linalg_spec(fake_client, "phân tích SVD của ma trận")
 
 
 @pytest.mark.asyncio
@@ -139,5 +181,21 @@ async def test_agent_linalg_prompt_text_returns_503_when_router_unconfigured(cli
 @pytest.mark.asyncio
 async def test_agent_linalg_returns_available_false_not_500_for_singular_inverse(client):
     resp = await client.post("/agent/linalg", json={"operation": "inverse", "matrices": [[[1, 2], [2, 4]]]})
+    assert resp.status_code == 200
+    assert resp.json()["available"] is False
+
+
+@pytest.mark.asyncio
+async def test_agent_linalg_lu_decomposition_via_manual_spec(client):
+    resp = await client.post("/agent/linalg", json={"operation": "lu", "matrices": [[[4, 3], [6, 3]]]})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["available"] is True
+    assert set(body["result"].keys()) == {"L", "U", "P"}
+
+
+@pytest.mark.asyncio
+async def test_agent_linalg_cholesky_returns_available_false_not_500_for_non_pd(client):
+    resp = await client.post("/agent/linalg", json={"operation": "cholesky", "matrices": [[[1, 2], [2, 1]]]})
     assert resp.status_code == 200
     assert resp.json()["available"] is False

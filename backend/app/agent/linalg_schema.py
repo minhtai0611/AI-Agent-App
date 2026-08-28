@@ -9,7 +9,10 @@ from typing import Literal
 
 from pydantic import BaseModel, TypeAdapter
 
-Operation = Literal["add", "multiply", "determinant", "inverse", "rank", "rref", "solve_system", "eigen"]
+Operation = Literal[
+    "add", "multiply", "determinant", "inverse", "rank", "rref", "solve_system", "eigen",
+    "lu", "qr", "cholesky", "svd",
+]
 
 
 class LinAlgSpec(BaseModel):

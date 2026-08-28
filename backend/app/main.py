@@ -598,11 +598,17 @@ async def agent_visualize(question_id: str, pool=Depends(get_pool)):
 
     question_row = {**dict(row), "choices": json.loads(row["choices"])}
     client = _get_router_client()
-    result = await generate_visualization(client, question_row)
+    from app.agent.router_client import RouterRequestError
+
+    try:
+        result = await generate_visualization(client, question_row)
+    except RouterRequestError as exc:
+        result = {"available": False, "spec": None, "annotation": None, "reason": str(exc)}
 
     status = "verified" if result["available"] else "unavailable"
     await pool.execute(
-        "INSERT INTO question_visualizations (question_id, status, template, params_json, annotation, verification_log) "
+        "INSERT OR REPLACE INTO question_visualizations "
+        "(question_id, status, template, params_json, annotation, verification_log) "
         "VALUES (?,?,?,?,?,?)",
         question_id, status,
         result["spec"]["template"] if result["spec"] else None,
@@ -617,6 +623,17 @@ def _serialize_linalg_result(op: str, result):
 
     if isinstance(result, sympy.Matrix):
         return [[str(v) for v in result.row(r)] for r in range(result.shape[0])]
+    if isinstance(result, dict):
+        # multi-matrix decompositions (lu/qr/cholesky/svd): dict of named matrices/lists
+        out = {}
+        for key, value in result.items():
+            if isinstance(value, sympy.Matrix):
+                out[key] = [[str(v) for v in value.row(r)] for r in range(value.shape[0])]
+            elif isinstance(value, list):
+                out[key] = [str(v) for v in value]
+            else:
+                out[key] = str(value)
+        return out
     if op == "rank":
         return int(result)
     if op == "eigen":
@@ -633,13 +650,16 @@ async def agent_linalg(body: dict):
     first). `eigen` is only reachable via the manual-spec path — never via prompt_text.
     """
     from app.agent.linalg_schema import validate_spec
-    from app.agent.linalg_solver import LinAlgShapeError, draft_linalg_spec, solve_linalg, verify_linalg
+    from app.agent.linalg_solver import (
+        LinAlgShapeError, draft_linalg_spec, result_ok_reason, solve_linalg, verify_linalg,
+    )
+    from app.agent.router_client import RouterRequestError
 
     if "prompt_text" in body:
         client = _get_router_client()
         try:
             draft = await draft_linalg_spec(client, body["prompt_text"])
-        except LinAlgShapeError as exc:
+        except (LinAlgShapeError, RouterRequestError) as exc:
             return {"available": False, "result": None, "steps": None, "reason": str(exc)}
         if not draft.get("available"):
             return {"available": False, "result": None, "steps": None, "reason": draft.get("reason")}
@@ -656,13 +676,104 @@ async def agent_linalg(body: dict):
         return {"available": False, "result": None, "steps": None, "reason": str(exc)}
 
     verification = verify_linalg(derivation)
-    if not verification.ok:
-        return {"available": False, "result": None, "steps": None, "reason": verification.reason}
+    ok, reason = result_ok_reason(verification)
+    if not ok:
+        return {"available": False, "result": None, "steps": None, "reason": reason}
 
     return {
         "available": True,
         "result": _serialize_linalg_result(spec.operation, derivation["result"]),
         "steps": derivation["steps"],
+        "reason": None,
+    }
+
+
+@app.post("/agent/calculus")
+async def agent_calculus(body: dict):
+    """Phase 8 (Pure Mathematics Toolset) — calculus toolkit (derivative, indefinite/
+    definite integral, limit, series, dsolve). Stateless, same manual-spec-or-prompt_text
+    split as /agent/linalg.
+    """
+    from app.agent.calculus_schema import validate_spec
+    from app.agent.calculus_solver import (
+        CalculusShapeError, _result_ok_reason, draft_calculus_spec, solve_calculus, verify_calculus,
+    )
+    from app.agent.router_client import RouterRequestError
+
+    if "prompt_text" in body:
+        client = _get_router_client()
+        try:
+            draft = await draft_calculus_spec(client, body["prompt_text"])
+        except (CalculusShapeError, RouterRequestError) as exc:
+            return {"available": False, "operation": None, "result": None, "reason": str(exc)}
+        if not draft.get("available"):
+            return {"available": False, "operation": None, "result": None, "reason": draft.get("reason")}
+        spec = draft["spec"]
+    else:
+        try:
+            spec = validate_spec(body)
+        except Exception as exc:
+            return {"available": False, "operation": None, "result": None, "reason": str(exc)}
+
+    try:
+        derivation = solve_calculus(spec)
+    except ValueError as exc:
+        return {"available": False, "operation": None, "result": None, "reason": str(exc)}
+
+    verification = verify_calculus(derivation)
+    ok, reason = _result_ok_reason(verification)
+    if not ok:
+        return {"available": False, "operation": None, "result": None, "result_latex": None, "reason": reason}
+
+    import sympy
+
+    return {
+        "available": True,
+        "operation": spec.operation,
+        "result": str(derivation["result"]),
+        "result_latex": sympy.latex(derivation["result"]),
+        "reason": None,
+    }
+
+
+@app.post("/agent/equations")
+async def agent_equations(body: dict):
+    """Phase 9 (Pure Mathematics Toolset) — nonlinear equation-system solving. Stateless,
+    same manual-spec-or-prompt_text split as /agent/linalg.
+    """
+    from app.agent.equations_schema import validate_spec
+    from app.agent.equations_solver import (
+        EquationSystemShapeError, draft_equation_system, solve_equation_system, verify_equation_system,
+    )
+    from app.agent.router_client import RouterRequestError
+
+    if "prompt_text" in body:
+        client = _get_router_client()
+        try:
+            draft = await draft_equation_system(client, body["prompt_text"])
+        except (EquationSystemShapeError, RouterRequestError) as exc:
+            return {"available": False, "solutions": None, "reason": str(exc)}
+        if not draft.get("available"):
+            return {"available": False, "solutions": None, "reason": draft.get("reason")}
+        spec = draft["spec"]
+    else:
+        try:
+            spec = validate_spec(body)
+        except Exception as exc:
+            return {"available": False, "solutions": None, "reason": str(exc)}
+
+    try:
+        derivation = solve_equation_system(spec)
+    except ValueError as exc:
+        return {"available": False, "solutions": None, "reason": str(exc)}
+
+    verification = verify_equation_system(derivation)
+    if not verification.ok:
+        return {"available": False, "solutions": None, "reason": verification.reason}
+
+    return {
+        "available": True,
+        "solutions": [{str(k): str(v) for k, v in sol.items()} for sol in derivation["solutions"]],
         "reason": None,
     }
 
@@ -675,10 +786,14 @@ async def agent_plot(body: dict):
     client-side and never reach this route.
     """
     from app.agent.plot_generator import generate_plot
+    from app.agent.router_client import RouterRequestError
 
     prompt_text = body.get("prompt_text", "")
     client = _get_router_client()
-    result = await generate_plot(client, prompt_text)
+    try:
+        result = await generate_plot(client, prompt_text)
+    except RouterRequestError as exc:
+        result = {"available": False, "spec": None, "reason": str(exc)}
     return result
 
 
@@ -692,12 +807,13 @@ async def agent_simulate(body: dict):
     from app.agent.stats_simulator import (
         SimulationShapeError, _serialize_pmf, draft_simulation, run_simulation, verify_simulation,
     )
+    from app.agent.router_client import RouterRequestError
 
     if "prompt_text" in body:
         client = _get_router_client()
         try:
             draft = await draft_simulation(client, body["prompt_text"])
-        except SimulationShapeError as exc:
+        except (SimulationShapeError, RouterRequestError) as exc:
             return {"available": False, "histogram": None, "pmf": None, "reason": str(exc)}
         if not draft.get("available"):
             return {"available": False, "histogram": None, "pmf": None, "reason": draft.get("reason")}
@@ -774,11 +890,16 @@ async def agent_solve(question_id: str, pool=Depends(get_pool)):
 
     question_row = {**dict(row), "choices": json.loads(row["choices"])}
     client = _get_router_client()
-    result = await generate_solution(client, question_row)
+    from app.agent.router_client import RouterRequestError
+
+    try:
+        result = await generate_solution(client, question_row)
+    except RouterRequestError as exc:
+        result = {"available": False, "steps": None, "reason": str(exc)}
 
     status = "verified" if result["available"] else "unavailable"
     await pool.execute(
-        "INSERT INTO question_steps (question_id, status, steps_json, verification_log) VALUES (?,?,?,?)",
+        "INSERT OR REPLACE INTO question_steps (question_id, status, steps_json, verification_log) VALUES (?,?,?,?)",
         question_id, status,
         json.dumps(result["steps"], ensure_ascii=False) if result["steps"] else None,
         result["reason"],

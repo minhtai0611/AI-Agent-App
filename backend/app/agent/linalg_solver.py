@@ -36,8 +36,8 @@ async def draft_linalg_spec(client: AiRouterClient, prompt_text: str) -> dict:
         spec = validate_spec(spec_fields)
     except Exception as exc:
         raise LinAlgShapeError(str(exc)) from exc
-    if spec.operation == "eigen":
-        raise LinAlgShapeError("eigen is not offered through natural-language drafting")
+    if spec.operation in ("eigen", "svd"):
+        raise LinAlgShapeError(f"{spec.operation} is not offered through natural-language drafting")
 
     return {"available": True, "spec": spec}
 
@@ -134,6 +134,51 @@ def solve_linalg(spec: LinAlgSpec) -> dict:
         derivation["steps"] = steps
     elif op == "eigen":
         derivation["result"] = mats[0].eigenvals()
+    elif op == "lu":
+        if mats[0].shape[0] != mats[0].shape[1]:
+            raise ValueError("LU decomposition requires a square matrix")
+        L, U, perm = mats[0].LUdecomposition()
+        P = sympy.eye(mats[0].shape[0])
+        for i, j in perm:
+            P.row_swap(i, j)
+        derivation["result"] = {"L": L, "U": U, "P": P}
+        derivation["lu_perm"] = perm
+    elif op == "qr":
+        Q, R = mats[0].QRdecomposition()
+        derivation["result"] = {"Q": Q, "R": R}
+    elif op == "cholesky":
+        if mats[0].shape[0] != mats[0].shape[1]:
+            raise ValueError("Cholesky decomposition requires a square matrix")
+        if mats[0] != mats[0].T:
+            raise ValueError("Cholesky decomposition requires a symmetric matrix")
+        try:
+            L = mats[0].cholesky()
+        except Exception as exc:
+            raise ValueError(f"matrix is not positive-definite — no Cholesky decomposition exists ({exc})") from exc
+        derivation["result"] = {"L": L}
+    elif op == "svd":
+        m = mats[0]
+        ata = m.T * m
+        eigenvals = ata.eigenvals()
+        # order singular values descending, expanding multiplicities
+        singular_vals = sorted((sympy.sqrt(ev) for ev, mult in eigenvals.items() for _ in range(mult)), reverse=True, key=lambda v: v.evalf())
+        eigenvects = ata.eigenvects()
+        v_cols = []
+        for ev, mult, vects in sorted(eigenvects, key=lambda e: e[0].evalf(), reverse=True):
+            for v in vects:
+                v_cols.append(v.normalized())
+        if len(v_cols) < ata.shape[0]:
+            raise ValueError("could not compute a full eigenbasis for SVD (repeated/defective eigenvalues)")
+        V = sympy.Matrix.hstack(*v_cols)
+        S_vals = singular_vals
+        u_cols = []
+        for i, s in enumerate(S_vals):
+            if s == 0:
+                u_cols.append(sympy.zeros(m.shape[0], 1))
+            else:
+                u_cols.append((m * V[:, i]) / s)
+        U = sympy.Matrix.hstack(*u_cols)
+        derivation["result"] = {"U": U, "S": S_vals, "V": V}
     else:
         raise ValueError(f"unknown operation: {op}")
 
@@ -206,4 +251,42 @@ def verify_linalg(derivation: dict) -> VerificationResult:
                 return VerificationResult(False, None, f"{eigenvalue} does not satisfy det(A - λI) = 0")
         return VerificationResult(True, None, "verified")
 
+    if op == "lu":
+        L, U = result["L"], result["U"]
+        target = mats[0].copy()
+        for i, j in derivation.get("lu_perm", []):
+            target.row_swap(i, j)
+        ok = sympy.simplify(L * U - target) == sympy.zeros(*target.shape)
+        return VerificationResult(ok, None, "verified" if ok else "L * U does not reconstruct the (row-permuted) original matrix")
+
+    if op == "qr":
+        Q, R = result["Q"], result["R"]
+        ok_reconstruct = sympy.simplify(Q * R - mats[0]) == sympy.zeros(*mats[0].shape)
+        identity = sympy.eye(Q.shape[1])
+        ok_orthogonal = sympy.simplify(Q.T * Q - identity) == sympy.zeros(*identity.shape)
+        ok = ok_reconstruct and ok_orthogonal
+        reason = "verified" if ok else ("Q * R does not reconstruct A" if not ok_reconstruct else "Q is not orthogonal (Q^T * Q != I)")
+        return VerificationResult(ok, None, reason)
+
+    if op == "cholesky":
+        L = result["L"]
+        ok = sympy.simplify(L * L.T - mats[0]) == sympy.zeros(*mats[0].shape)
+        return VerificationResult(ok, None, "verified" if ok else "L * L^T does not reconstruct A")
+
+    if op == "svd":
+        U, S, V = result["U"], result["S"], result["V"]
+        sigma = sympy.diag(*S)
+        reconstruction = sympy.Matrix(U) * sigma * sympy.Matrix(V).T
+        diff = reconstruction - mats[0]
+        max_err = max((abs(complex(sympy.N(v))) for v in diff), default=0)
+        tol = 1e-6
+        ok = max_err <= tol
+        return {"ok": ok, "reason": "verified" if ok else f"U*S*V^T reconstruction error {max_err} exceeds tolerance {tol}"}
+
     return VerificationResult(False, None, f"unknown operation: {op}")
+
+
+def result_ok_reason(verification) -> tuple[bool, str]:
+    if isinstance(verification, VerificationResult):
+        return verification.ok, verification.reason
+    return verification["ok"], verification["reason"]

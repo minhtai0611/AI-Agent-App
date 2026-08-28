@@ -57,6 +57,14 @@ const OPERATIONS = [
   { op: 'solve_system', label: 'Giải hệ (ma trận mở rộng)', n: 1 },
   { op: 'add', label: 'Cộng hai ma trận', n: 2 },
   { op: 'multiply', label: 'Nhân hai ma trận', n: 2 },
+  { op: 'lu', label: 'Phân tích LU', n: 1 },
+  { op: 'qr', label: 'Phân tích QR', n: 1 },
+  { op: 'cholesky', label: 'Phân tích Cholesky', n: 1 },
+]
+
+const ADVANCED_OPERATIONS = [
+  { op: 'eigen', label: 'Giá trị riêng', n: 1 },
+  { op: 'svd', label: 'Phân tích SVD', n: 1 },
 ]
 
 export default function LinearAlgebraWorkspace() {
@@ -68,7 +76,7 @@ export default function LinearAlgebraWorkspace() {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  const spec = OPERATIONS.find((o) => o.op === op) ?? { op: 'eigen', label: 'Giá trị riêng', n: 1 }
+  const spec = OPERATIONS.find((o) => o.op === op) ?? ADVANCED_OPERATIONS.find((o) => o.op === op) ?? ADVANCED_OPERATIONS[0]
 
   const handleRun = async () => {
     setLoading(true)
@@ -91,19 +99,20 @@ export default function LinearAlgebraWorkspace() {
               {o.label}
             </button>
           ))}
-          {advanced && (
+          {advanced && ADVANCED_OPERATIONS.map((o) => (
             <button
-              onClick={() => { setOp('eigen'); setResult(null) }}
-              className={`px-3.5 py-2 rounded-lg font-sans text-xs border transition ${op === 'eigen' ? 'bg-primary text-primary-fg border-primary' : 'bg-background text-muted border-border'}`}
+              key={o.op}
+              onClick={() => { setOp(o.op); setResult(null) }}
+              className={`px-3.5 py-2 rounded-lg font-sans text-xs border transition ${op === o.op ? 'bg-primary text-primary-fg border-primary' : 'bg-background text-muted border-border'}`}
             >
-              Giá trị riêng
+              {o.label}
             </button>
-          )}
+          ))}
         </div>
 
         <label className="flex items-center gap-2 font-sans text-xs text-dim">
           <input type="checkbox" checked={advanced} onChange={(e) => setAdvanced(e.target.checked)} />
-          Hiển thị chức năng nâng cao (giá trị riêng)
+          Hiển thị chức năng nâng cao (giá trị riêng, SVD)
         </label>
       </PageCard>
 
@@ -147,9 +156,22 @@ export default function LinearAlgebraWorkspace() {
           )}
           {result?.available && (
             <>
-              <pre className="font-mono text-lg text-primary whitespace-pre-wrap">
-                {typeof result.result === 'string' ? result.result : JSON.stringify(result.result, null, 2)}
-              </pre>
+              {result.result && typeof result.result === 'object' && !Array.isArray(result.result) ? (
+                <div className="flex flex-col gap-2">
+                  {Object.entries(result.result).map(([key, value]) => (
+                    <div key={key}>
+                      <span className="font-sans text-[0.6875rem] text-faint">{key}</span>
+                      <pre className="font-mono text-sm text-primary whitespace-pre-wrap">
+                        {Array.isArray(value) ? JSON.stringify(value, null, 2) : String(value)}
+                      </pre>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <pre className="font-mono text-lg text-primary whitespace-pre-wrap">
+                  {typeof result.result === 'string' ? result.result : JSON.stringify(result.result, null, 2)}
+                </pre>
+              )}
               {result.steps?.length > 0 && (
                 <div className="flex flex-col gap-1 pt-2 border-t border-border">
                   <span className="font-sans text-[0.6875rem] text-faint">Các bước biến đổi hàng</span>

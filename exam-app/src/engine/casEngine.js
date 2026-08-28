@@ -2,7 +2,7 @@
 // AI-router involvement. Wraps mathjs for instant, no-submit-button evaluation as the
 // user types, mirroring the Desmos/GeoGebra live-update convention used everywhere else
 // in this feature set. Pure functions — no React, no DOM — for direct table-driven tests.
-import { evaluate, simplify as mjsSimplify, compile } from 'mathjs'
+import { evaluate, simplify as mjsSimplify, compile, complex as mjsComplex } from 'mathjs'
 
 /** Evaluates a mathjs-syntax expression string. Never throws — returns
  * {value: string, error: null} or {value: null, error: string}. */
@@ -33,6 +33,45 @@ export function simplifyExpression(exprString) {
  * manually-typed rows (mathlive's ascii-math output) already use `^` and skip it. */
 export function toMathjsSyntax(sympyStyleExpr) {
   return sympyStyleExpr.replaceAll('**', '^')
+}
+
+/** Evaluates a complex-number expression (mathjs uses `i` for the imaginary unit) and
+ * returns its rectangular form. Never throws — {re: null, im: null, error} on failure. */
+export function toComplex(exprString) {
+  if (!exprString || !exprString.trim()) return { re: null, im: null, error: null }
+  try {
+    const result = evaluate(exprString)
+    const c = result && typeof result === 'object' && 're' in result ? result : mjsComplex(result)
+    return { re: c.re, im: c.im, error: null }
+  } catch (err) {
+    return { re: null, im: null, error: err.message }
+  }
+}
+
+/** Evaluates a complex-number expression and returns its polar form {r, phi} (phi in
+ * radians). Same never-throws contract. */
+export function toPolar(exprString) {
+  if (!exprString || !exprString.trim()) return { r: null, phi: null, error: null }
+  try {
+    const result = evaluate(exprString)
+    const c = result && typeof result === 'object' && 're' in result ? result : mjsComplex(result)
+    const polar = c.toPolar()
+    return { r: polar.r, phi: polar.phi, error: null }
+  } catch (err) {
+    return { r: null, phi: null, error: err.message }
+  }
+}
+
+/** Converts polar form (r, phi in radians) to rectangular {re, im}. Same never-throws
+ * contract. */
+export function fromPolar(r, phi) {
+  try {
+    const c = mjsComplex({ r: Number(r), phi: Number(phi) })
+    if (Number.isNaN(c.re) || Number.isNaN(c.im)) return { re: null, im: null, error: 'Giá trị không hợp lệ' }
+    return { re: c.re, im: c.im, error: null }
+  } catch (err) {
+    return { re: null, im: null, error: err.message }
+  }
 }
 
 /** Compiles a single-variable (x) expression into a reusable (x) => number function for
