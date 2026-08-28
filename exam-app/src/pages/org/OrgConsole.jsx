@@ -17,6 +17,7 @@ const LINKS = [
   { path: '/org/proctoring-settings', label: 'Giám sát thi' },
   { path: '/org/proctoring-review', label: 'Phiên thi bị gắn cờ' },
   { path: '/org/psychometric-flags', label: 'Cảnh báo chất lượng câu hỏi' },
+  { path: '/content-audit', label: 'Kiểm duyệt đáp án' },
   { path: '/org/settings', label: 'Cài đặt' },
 ]
 
