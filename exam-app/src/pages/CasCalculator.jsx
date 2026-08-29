@@ -4,6 +4,7 @@ import PageShell, { PageCard } from '../components/PageShell.jsx'
 import { MathText } from '../components/MathText.jsx'
 import { evaluateExpression, toComplex, toPolar, fromPolar } from '../engine/casEngine.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
+import { describeAgentFetchError } from '../lib/agentError.js'
 
 const _API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
@@ -37,7 +38,7 @@ async function runCalculus(body) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     })
-    if (!res.ok) return { available: false, reason: 'Máy chủ không phản hồi.' }
+    if (!res.ok) return { available: false, reason: await describeAgentFetchError(res) }
     return await res.json()
   } catch {
     return { available: false, reason: 'Không thể kết nối máy chủ.' }
@@ -51,7 +52,7 @@ async function runEquationSystem(body) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     })
-    if (!res.ok) return { available: false, reason: 'Máy chủ không phản hồi.' }
+    if (!res.ok) return { available: false, reason: await describeAgentFetchError(res) }
     return await res.json()
   } catch {
     return { available: false, reason: 'Không thể kết nối máy chủ.' }

@@ -79,7 +79,9 @@ exam-app/src/
     MathPlayground.jsx         # /playground — mathlive expression-list + Mafs 2D canvas; the "mô tả bằng lời"
                      #   box is the only path calling POST /agent/plot, AI-populated curves converge on the
                      #   same row state manual typing uses (no special-cased AI-curve rendering)
-    LinearAlgebraWorkspace.jsx # /linalg — grid matrix input, manual spec (no AI) or NL prompt
+    LinearAlgebraWorkspace.jsx # /linalg — grid matrix input, manual spec only today (zero AI-router
+                     #   involvement); backend's draft_linalg_spec (prompt_text NL-drafting) exists and is
+                     #   tested but has no frontend entry point on this page yet
     ProbabilitySimulator.jsx   # /probability — dice/coin simulation, empirical-vs-theoretical histogram
     motion/          # Reveal3D.jsx, Scene3DLazy.jsx, scenes/ — GSAP/3D animation infra (Vantage rebrand)
   pages/
@@ -113,6 +115,10 @@ Full rollout plan (phases, file-level detail, rationale, sources) lives in the a
 |---|---|
 | `ALLOWED_ORIGINS` | `http://localhost:5173,https://exam-app-ey0.pages.dev` |
 | `SQLITE_PATH` | `./app.db` (local) / `/data/app.db` (HF Spaces) |
+| `AI_ROUTER_BASE_URL` | `https://ai-router.locdo.tech` — **required** for every `/agent/*` route; without it `AiRouterClient` raises `RouterNotConfiguredError` and those routes 503. Defaults to `None` (unset), so it must be set explicitly in every environment, including HF Spaces secrets. |
+| `AI_ROUTER_API_KEY` | `sk-tai-...` — Bearer token for the router, from `/keys` on the AIRouter dashboard. |
+| `AI_ROUTER_MODEL` | `claude-sonnet-4-6` (or any model listed at `ai-router.locdo.tech/settings`) — defaults to `"default"`. |
+| `AI_ROUTER_FALLBACK_MODELS` | Comma-separated, tried in order if the primary model's provider is down, e.g. `claude-haiku-4.5,gemini-2.5-flash`. Empty by default (no fallback chain). |
 
 **`exam-app/.env`** (copy from `exam-app/.env.example`, never commit)
 
@@ -183,7 +189,7 @@ Indexed as **AI-Agent-App** — re-index with `gitnexus analyze /mnt/d/AI-Agent-
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **AI-Agent-App** (3598 symbols, 9058 relationships, 148 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **AI-Agent-App** (3702 symbols, 9622 relationships, 147 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 

@@ -5,6 +5,7 @@ import 'mathlive'
 import PageShell, { PageCard } from '../components/PageShell.jsx'
 import { compileFunctionOfX, toMathjsSyntax } from '../engine/casEngine.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
+import { describeAgentFetchError } from '../lib/agentError.js'
 
 const _API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 const COLORS = ['#8B5CF6', '#FAFAFA', '#22C55E', '#F87171', '#38BDF8']
@@ -16,7 +17,7 @@ async function draftPlotFromPrompt(promptText) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt_text: promptText }),
     })
-    if (!res.ok) return { available: false, reason: `HTTP ${res.status}` }
+    if (!res.ok) return { available: false, reason: await describeAgentFetchError(res) }
     return await res.json()
   } catch (err) {
     return { available: false, reason: err.message }
@@ -98,10 +99,11 @@ export default function MathPlayground() {
 
           <div className="mt-2 flex flex-col gap-2 pt-4 border-t border-border">
             <span className="font-sans text-[0.6875rem] font-semibold uppercase tracking-wide text-faint">Mô tả bằng lời (AI)</span>
+            <p className="font-sans text-[0.6875rem] text-faint -mt-1">Ví dụ: "vẽ đồ thị giao của y=x^2 và y=2x+1"</p>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="vẽ đồ thị giao của y=x^2 và y=2x+1"
+              placeholder="Nhập mô tả bằng lời…"
               rows={2}
               className="px-3 py-2 rounded-lg border border-border bg-background font-sans text-xs resize-none"
             />

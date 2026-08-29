@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import PageShell, { PageCard } from '../components/PageShell.jsx'
 import { usePageMeta } from '../hooks/usePageMeta.js'
+import { describeAgentFetchError } from '../lib/agentError.js'
 
 const _API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
@@ -12,7 +13,7 @@ async function runSimulation(body) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     })
-    if (!res.ok) return { available: false, reason: `HTTP ${res.status}` }
+    if (!res.ok) return { available: false, reason: await describeAgentFetchError(res) }
     return await res.json()
   } catch (err) {
     return { available: false, reason: err.message }
