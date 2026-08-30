@@ -1,8 +1,27 @@
 import { describe, it, expect } from 'vitest'
 import {
   evaluateExpression, simplifyExpression, toMathjsSyntax, compileFunctionOfX,
-  toComplex, toPolar, fromPolar,
+  compileFunctionOfY, compileParametric, compilePolar, compileImplicit,
+  toComplex, toPolar, fromPolar, compilePolynomialFromCoefficients,
 } from '../casEngine.js'
+
+describe('compilePolynomialFromCoefficients', () => {
+  it('evaluates a linear fit (numpy.polyfit order: highest degree first)', () => {
+    const fn = compilePolynomialFromCoefficients([2, 1]) // y = 2x + 1
+    expect(fn(0)).toBeCloseTo(1)
+    expect(fn(3)).toBeCloseTo(7)
+  })
+
+  it('evaluates a quadratic fit', () => {
+    const fn = compilePolynomialFromCoefficients([1, 0, 0]) // y = x^2
+    expect(fn(3)).toBeCloseTo(9)
+  })
+
+  it('never throws on empty/invalid coefficients', () => {
+    expect(compilePolynomialFromCoefficients([])(1)).toBeNaN()
+    expect(compilePolynomialFromCoefficients(null)(1)).toBeNaN()
+  })
+})
 
 describe('evaluateExpression', () => {
   const cases = [
@@ -66,6 +85,96 @@ describe('compileFunctionOfX', () => {
 
   it('returns an error, never throws, for invalid syntax', () => {
     const { fn, error } = compileFunctionOfX('x +* 1')
+    expect(fn).toBeNull()
+    expect(typeof error).toBe('string')
+  })
+
+  it('binds extra scope variables (slider parameters) alongside x', () => {
+    const { fn, error } = compileFunctionOfX('a*x^2', { a: 3 })
+    expect(error).toBeNull()
+    expect(fn(2)).toBe(12)
+  })
+})
+
+describe('compileFunctionOfY', () => {
+  it('compiles a reusable (y) => number function for x=f(y) curves', () => {
+    const { fn, error } = compileFunctionOfY('y^2')
+    expect(error).toBeNull()
+    expect(fn(3)).toBe(9)
+  })
+
+  it('returns a null fn and no error for empty input', () => {
+    expect(compileFunctionOfY('')).toEqual({ fn: null, error: null })
+  })
+
+  it('returns an error, never throws, for invalid syntax', () => {
+    const { fn, error } = compileFunctionOfY('y +* 1')
+    expect(fn).toBeNull()
+    expect(typeof error).toBe('string')
+  })
+})
+
+describe('compileParametric', () => {
+  it('compiles a (t) => [x, y] function from two expressions', () => {
+    const { fn, error } = compileParametric('cos(t)', 'sin(t)')
+    expect(error).toBeNull()
+    const [x, y] = fn(0)
+    expect(x).toBeCloseTo(1)
+    expect(y).toBeCloseTo(0)
+  })
+
+  it('returns a null fn and no error when either expression is empty', () => {
+    expect(compileParametric('', 'sin(t)')).toEqual({ fn: null, error: null })
+    expect(compileParametric('cos(t)', '')).toEqual({ fn: null, error: null })
+  })
+
+  it('returns an error, never throws, for invalid syntax', () => {
+    const { fn, error } = compileParametric('t +* 1', 't')
+    expect(fn).toBeNull()
+    expect(typeof error).toBe('string')
+  })
+})
+
+describe('compilePolar', () => {
+  it('converts r(theta) into a (theta) => [x, y] parametric function', () => {
+    const { fn, error } = compilePolar('2')
+    expect(error).toBeNull()
+    const [x, y] = fn(0)
+    expect(x).toBeCloseTo(2)
+    expect(y).toBeCloseTo(0)
+  })
+
+  it('returns an error, never throws, for invalid syntax', () => {
+    const { fn, error } = compilePolar('r +* 1')
+    expect(fn).toBeNull()
+    expect(typeof error).toBe('string')
+  })
+})
+
+describe('compileImplicit', () => {
+  it('splits "lhs = rhs" into a g(x,y) = lhs - rhs function and relop "="', () => {
+    const { fn, relop, error } = compileImplicit('x^2 + y^2 = 4')
+    expect(error).toBeNull()
+    expect(relop).toBe('=')
+    expect(fn(2, 0)).toBeCloseTo(0)
+    expect(fn(0, 0)).toBeCloseTo(-4)
+  })
+
+  it('handles inequality relops', () => {
+    const { fn, relop, error } = compileImplicit('x^2 + y^2 < 4')
+    expect(error).toBeNull()
+    expect(relop).toBe('<')
+    expect(fn(0, 0)).toBeLessThan(0)
+  })
+
+  it('defaults to relop "=" when no relational operator is present', () => {
+    const { relop, error } = compileImplicit('x^2 + y^2 - 4')
+    expect(error).toBeNull()
+    expect(relop).toBe('=')
+  })
+
+  it('returns an error, never throws, for invalid syntax', () => {
+    const { fn, error } = compileImplicit('x +* y = 4')
     expect(fn).toBeNull()
     expect(typeof error).toBe('string')
   })

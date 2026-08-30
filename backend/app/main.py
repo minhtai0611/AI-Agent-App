@@ -789,12 +789,48 @@ async def agent_plot(body: dict):
     from app.agent.router_client import RouterRequestError
 
     prompt_text = body.get("prompt_text", "")
+    previous_spec = body.get("previous_spec")
     client = _get_router_client()
     try:
-        result = await generate_plot(client, prompt_text)
+        result = await generate_plot(client, prompt_text, previous_spec=previous_spec)
     except RouterRequestError as exc:
         result = {"available": False, "spec": None, "reason": str(exc)}
     return result
+
+
+@app.post("/agent/plot/narrate")
+async def agent_plot_narrate(body: dict):
+    """Captions an already-verified PlotSpec/results pair in Vietnamese — never
+    recomputes anything. Body: {"spec": <PlotSpec dict>, "results": <dict>}."""
+    from app.agent.plot_generator import narrate_plot
+    from app.agent.plot_schema import validate_spec
+
+    try:
+        spec = validate_spec(body.get("spec") or {})
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f"invalid spec: {exc}") from exc
+
+    client = _get_router_client()
+    narrative = await narrate_plot(client, spec, body.get("results") or {})
+    return {"narrative": narrative}
+
+
+@app.post("/agent/plot/suggest")
+async def agent_plot_suggest(body: dict):
+    """Suggests one next exploration for an already-verified PlotSpec/results pair, in
+    Vietnamese — pure suggestion text, never trusted as math. Same body shape as
+    /agent/plot/narrate."""
+    from app.agent.plot_generator import suggest_next_step
+    from app.agent.plot_schema import validate_spec
+
+    try:
+        spec = validate_spec(body.get("spec") or {})
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f"invalid spec: {exc}") from exc
+
+    client = _get_router_client()
+    suggestion = await suggest_next_step(client, spec, body.get("results") or {})
+    return {"suggestion": suggestion}
 
 
 @app.post("/agent/simulate")
