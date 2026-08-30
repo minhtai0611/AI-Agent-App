@@ -30,7 +30,7 @@ export default function VantageLogo({ variant = 'nav', onClick }) {
       <span
         className="font-bold text-foreground uppercase"
         style={{
-          fontFamily: "'Sora Variable', Sora, system-ui, sans-serif",
+          fontFamily: "'Fraunces Variable', Fraunces, Georgia, serif",
           fontSize: isHero ? 38 : 14,
           letterSpacing: '-0.01em',
           lineHeight: 1,

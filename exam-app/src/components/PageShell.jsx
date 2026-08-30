@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { pageVariants } from '../utils/animations.js'
+import { Reveal3D } from './motion/Reveal3D.jsx'
 
 // Shared shell for the Pure Math Toolset pages — closes the gap between the
 // polished exam-flow pages (ExamSelect/Results, glass-elevated cards) and the
@@ -19,7 +20,9 @@ export default function PageShell({ title, onBack, maxWidth = 'max-w-2xl', child
         >
           ← Quay lại
         </button>
-        <h1 className="font-display text-[20px] font-bold text-foreground">{title}</h1>
+        <Reveal3D as="h1" variant="tilt" amount={0.3} className="font-display text-[20px] font-bold text-foreground">
+          {title}
+        </Reveal3D>
         <div className="w-16" />
       </header>
 
@@ -31,13 +34,15 @@ export default function PageShell({ title, onBack, maxWidth = 'max-w-2xl', child
 }
 
 // Bento-card primitive — glass-elevated surface with an optional eyebrow label.
+// Renders via Reveal3D (Tier-2 scroll-triggered rise) instead of a plain div —
+// every call site gets the reveal for free with no prop changes needed.
 export function PageCard({ label, className = '', children }) {
   return (
-    <div className={`glass-elevated rounded-2xl p-5 flex flex-col gap-3 ${className}`}>
+    <Reveal3D variant="rise" className={`glass-elevated rounded-2xl p-5 flex flex-col gap-3 ${className}`}>
       {label && (
         <span className="font-sans text-[0.6875rem] font-semibold uppercase tracking-wide text-faint">{label}</span>
       )}
       {children}
-    </div>
+    </Reveal3D>
   )
 }

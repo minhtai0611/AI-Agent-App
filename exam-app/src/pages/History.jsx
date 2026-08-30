@@ -5,6 +5,8 @@ import { useHistory } from '../context/HistoryContext.jsx'
 import { loadExamById } from '../api/index.js'
 import { listVariants, itemVariants, pageVariants } from '../utils/animations.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
+import { Reveal3D } from '../components/motion/Reveal3D.jsx'
+import { useTilt3D } from '../hooks/useTilt3D.js'
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from 'recharts'
@@ -21,6 +23,25 @@ function shortDate(iso) {
 }
 
 const PAGE_SIZE = 10
+
+// Tier-1 3D hover-tilt wrapper — GSAP owns rotateX/rotateY on this outer node,
+// framer-motion (via the existing itemVariants) keeps owning the inner
+// opacity/y entrance on its own child element. Mirrors ExamSelect.jsx's
+// TiltCard — same "one library per DOM element" rule.
+function TiltCard({ children, className, ...rest }) {
+  const { ref, handlers } = useTilt3D()
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{ perspective: 'var(--perspective-md)', transformStyle: 'preserve-3d' }}
+      {...handlers}
+      {...rest}
+    >
+      {children}
+    </div>
+  )
+}
 
 export default function History() {
   usePageMeta('Lịch sử', { noindex: true })
@@ -53,7 +74,9 @@ export default function History() {
         <button onClick={() => navigate('/')} className="font-sans text-sm text-dim hover:text-muted transition">
           ← Trang chủ
         </button>
-        <h1 className="font-sans text-[24px] font-bold text-foreground">Lịch sử làm bài</h1>
+        <Reveal3D as="h1" variant="tilt" amount={0.3} className="font-sans text-[24px] font-bold text-foreground">
+          Lịch sử làm bài
+        </Reveal3D>
         <div className="w-24" />
       </header>
 
@@ -80,10 +103,10 @@ export default function History() {
                 <div style={{ height: 120 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
-                      <XAxis dataKey="date" tick={{ fill: 'var(--dim)', fontSize: 10, fontFamily: 'Sora, sans-serif' }} axisLine={false} tickLine={false} />
+                      <XAxis dataKey="date" tick={{ fill: 'var(--dim)', fontSize: 10, fontFamily: 'Inter Variable, sans-serif' }} axisLine={false} tickLine={false} />
                       <YAxis domain={[0, 10]} tick={{ fill: 'var(--dim)', fontSize: 10 }} axisLine={false} tickLine={false} width={24} />
                       <Tooltip
-                        contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontFamily: 'Sora, sans-serif', fontSize: 12 }}
+                        contentStyle={{ background: 'var(--surface-elevated)', border: '1px solid var(--border)', borderRadius: 8, fontFamily: 'Inter Variable, sans-serif', fontSize: 12 }}
                         labelStyle={{ color: 'var(--muted-fg)' }}
                         itemStyle={{ color: 'var(--warning)' }}
                       />
@@ -107,29 +130,30 @@ export default function History() {
                       const examTitle = loadExamById(result.examId)?.title ?? result.examId
                       const isPersonalBest = result.score === bestByExam[result.examId] && results.filter(r => r.examId === result.examId).length > 1
                       return (
-                        <motion.div
-                          key={result.id}
-                          variants={itemVariants}
-                          className="flex items-center justify-between bg-surface rounded-xl px-6 py-5 cursor-pointer transition-all"
-                          style={{ border: `1px solid ${borderColor}` }}
-                          onClick={() => navigate(`/results/${result.id}`, { state: { result } })}
-                        >
-                          <div className="flex flex-col gap-1.5">
-                            <div className="flex items-center gap-2">
-                              <span className="font-sans text-[15px] font-semibold text-foreground">{examTitle}</span>
-                              {isPersonalBest && (
-                                <span className="font-sans text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">🏆 Best</span>
-                              )}
+                        <TiltCard key={result.id} className="rounded-xl">
+                          <motion.div
+                            variants={itemVariants}
+                            className="flex items-center justify-between bg-surface rounded-xl px-6 py-5 cursor-pointer transition-all"
+                            style={{ border: `1px solid ${borderColor}` }}
+                            onClick={() => navigate(`/results/${result.id}`, { state: { result } })}
+                          >
+                            <div className="flex flex-col gap-1.5">
+                              <div className="flex items-center gap-2">
+                                <span className="font-sans text-[15px] font-semibold text-foreground">{examTitle}</span>
+                                {isPersonalBest && (
+                                  <span className="font-sans text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)]">🏆 Best</span>
+                                )}
+                              </div>
+                              <span className="font-sans text-[13px] text-dim">{formatDate(result.finishedAt)}</span>
                             </div>
-                            <span className="font-sans text-[13px] text-dim">{formatDate(result.finishedAt)}</span>
-                          </div>
-                          <div className="flex items-center gap-5">
-                            <span className="font-sans text-[40px] font-bold" style={{ color: scoreColor }}>{result.score}</span>
-                            <span className="px-4 py-2 bg-surface rounded-md font-sans text-[13px] text-muted hover:text-foreground transition">
-                              Chi tiết →
-                            </span>
-                          </div>
-                        </motion.div>
+                            <div className="flex items-center gap-5">
+                              <span className="font-sans text-[40px] font-bold" style={{ color: scoreColor }}>{result.score}</span>
+                              <span className="px-4 py-2 bg-surface rounded-md font-sans text-[13px] text-muted hover:text-foreground transition">
+                                Chi tiết →
+                              </span>
+                            </div>
+                          </motion.div>
+                        </TiltCard>
                       )
                     })}
                   </motion.div>

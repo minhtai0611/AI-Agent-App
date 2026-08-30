@@ -511,7 +511,7 @@ export default function Results() {
                       <PolarGrid stroke="var(--border)" strokeOpacity={0.8} />
                       <PolarAngleAxis
                         dataKey="topic"
-                        tick={{ fontSize: topics.length > 8 ? 9 : 10, fill: 'var(--muted-fg)', fontFamily: "'Manrope Variable', Manrope, sans-serif" }}
+                        tick={{ fontSize: topics.length > 8 ? 9 : 10, fill: 'var(--muted-fg)', fontFamily: "'Inter Variable', Inter, sans-serif" }}
                       />
                       <Radar
                         dataKey="score"

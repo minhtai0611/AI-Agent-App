@@ -1,17 +1,21 @@
-/* ─── Fonts — Vantage "Voltage" identity ─────────────────────────────────────
-   Sora Variable:    display/headings — bold geometric grotesk, full Vietnamese
-     Unicode. Replaces Fraunces as part of the Direction-C ("Voltage") redesign.
-   Manrope Variable: body/UI — humanist geometric sans, full Vietnamese Unicode,
-     built for small-size UI legibility. Replaces Inter.
-   JetBrains Mono: monospace UI + math/code rendering (KaTeX), and now every
-     numeric value (scores, matrix cells) per the Voltage direction. Self-hosted
-     WOFF2 — unchanged, Vietnamese subset already solved.
+/* ─── Fonts — Vantage front-door redesign (post-Voltage) ─────────────────────
+   Fraunces Variable: display/headings — editorial serif with a wonky italic
+     axis, full Vietnamese Unicode. Reintroduced specifically for the italic
+     emphasis-word technique borrowed from the KAGAKU/Sifria design review
+     (e.g. "nơi *dữ liệu mở* ngần thành *nghệ thuật*"). Replaces Sora.
+   Inter Variable: body/UI — humanist sans built for small-size UI legibility,
+     full Vietnamese Unicode, the standard editorial pairing partner for
+     character-driven display serifs like Fraunces. Replaces Manrope.
+   JetBrains Mono: monospace UI + math/code rendering (KaTeX) + numeric values
+     (scores, matrix cells) — unchanged, Vietnamese subset already solved, no
+     reason tied to this redesign to replace a technical-content font.
    All fonts bundled via @fontsource-variable — no external CDN, ad-blocker safe.
    ─────────────────────────────────────────────────────────────────────────── */
 
 @import "tw-animate-css";
-@import '@fontsource-variable/sora/index.css';
-@import '@fontsource-variable/manrope/index.css';
+@import '@fontsource-variable/fraunces/standard.css';
+@import '@fontsource-variable/fraunces/standard-italic.css';
+@import '@fontsource-variable/inter/index.css';
 
 /* JetBrains Mono (variable: wght axis) */
 @font-face {
@@ -332,7 +336,7 @@ html {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Manrope Variable', 'Manrope', system-ui, sans-serif;
+  font-family: 'Inter Variable', 'Inter', system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   letter-spacing: 0em;
@@ -615,6 +619,50 @@ body {
 [data-theme="dark"] .nebula-wisp {
   background: #8B5CF6;
   opacity: 0.14;
+}
+
+/* App-wide ambient background — mounted once via AmbientBackground.jsx in
+   App.jsx's AppInner, so it sits behind every route (including org/admin)
+   for free instead of touching 24 page files. Reuses the nebula-breathe
+   keyframes/hue already proven on the Navbar mobile-menu overlay above,
+   just full-viewport and two-hue (primary + purple) instead of tri-color. */
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ambient-bg .ambient-wisp {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  background: #5B21F6;
+  opacity: 0.05;
+}
+.ambient-bg .ambient-wisp:nth-child(1) { animation: nebula-breathe-a 46s ease-in-out infinite; }
+.ambient-bg .ambient-wisp:nth-child(2) { animation: nebula-breathe-b 54s ease-in-out infinite; opacity: 0.035; background: #7C3AED; }
+.dark .ambient-bg .ambient-wisp,
+[data-theme="dark"] .ambient-bg .ambient-wisp {
+  background: #8B5CF6;
+  opacity: 0.10;
+}
+.dark .ambient-bg .ambient-wisp:nth-child(2),
+[data-theme="dark"] .ambient-bg .ambient-wisp:nth-child(2) {
+  background: #A78BFA;
+  opacity: 0.07;
+}
+.ambient-bg .ambient-texture {
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  color: var(--primary);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ambient-bg .ambient-wisp { animation: none !important; }
+}
+@media (prefers-contrast: more) {
+  .ambient-bg { display: none; }
 }
 
 /* Floating glass navbar — restrained translucency per the Voltage direction */

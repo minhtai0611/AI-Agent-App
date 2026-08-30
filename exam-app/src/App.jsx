@@ -9,6 +9,7 @@ import { loadExamById, loadQuestionsByIds } from './api/index.js'
 import Navbar from './components/Navbar.jsx'
 import OfflineBanner from './components/OfflineBanner.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
+import AmbientBackground from './components/motion/AmbientBackground.jsx'
 import InstallPrompt from './components/InstallPrompt.jsx'
 import RequireOrgRole from './components/RequireOrgRole.jsx'
 import OrgBrandingProvider from './components/OrgBrandingProvider.jsx'
@@ -18,6 +19,7 @@ import {
   ConceptExplorerSkeleton,
 } from './components/Skeleton.jsx'
 
+const Landing = lazy(() => import('./pages/Landing.jsx'))
 const ExamSelect = lazy(() => import('./pages/ExamSelect.jsx'))
 const TestInterface = lazy(() => import('./pages/TestInterface.jsx'))
 const Results = lazy(() => import('./pages/Results.jsx'))
@@ -61,7 +63,7 @@ function AppInner() {
   const dispatch = useExamDispatch()
   const navigate = useNavigate()
   const location = useLocation()
-  const isHiddenNavRoute = location.pathname.startsWith('/test/')
+  const isHiddenNavRoute = location.pathname.startsWith('/test/') || location.pathname === '/'
 
   const [resumeBanner] = useState(() => {
     try {
@@ -115,6 +117,7 @@ function AppInner() {
   return (
     <>
       <ScrollToTop />
+      <AmbientBackground />
       <OrgBrandingProvider />
       <OfflineBanner />
       <InstallPrompt />
@@ -123,7 +126,7 @@ function AppInner() {
         <Suspense fallback={<PageFallback />}>
           <AnimatePresence mode="wait" initial={false}>
             <Routes location={location} key={location.pathname}>
-              <Route path="/" element={<Navigate to="/exams" replace />} />
+              <Route path="/" element={<Landing />} />
               <Route path="/exams" element={<ExamSelect />} />
               <Route path="/test/:examId" element={<TestInterface />} />
               <Route path="/results/current" element={<Results />} />

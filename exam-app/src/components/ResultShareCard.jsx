@@ -65,7 +65,7 @@ export default function ResultShareCard({ result, examTitle, personalBest, onClo
           border: '1px solid var(--border)',
           borderRadius: 20,
           padding: 32,
-          fontFamily: "'Sora', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+          fontFamily: "'Fraunces Variable', Fraunces, Georgia, serif",
           display: 'flex',
           flexDirection: 'column',
           gap: 20,

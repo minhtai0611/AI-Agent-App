@@ -9,6 +9,21 @@ import { pageVariants, viewNavigate } from '../utils/animations.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { buildBriefing } from '../utils/examBriefing.js'
 import { useTilt3D } from '../hooks/useTilt3D.js'
+import { Reveal3D } from '../components/motion/Reveal3D.jsx'
+import { Scene3DLazy } from '../components/motion/Scene3DLazy.jsx'
+
+// Tier-1 fallback for the hero scene — reduced-motion / low-power devices get
+// a static ripple-ring motif instead of the WebGL surface (same accent color,
+// same "ripple" motif, zero animation).
+function StaticRippleFallback() {
+  return (
+    <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      {[1, 2, 3, 4, 5].map(i => (
+        <circle key={i} cx="200" cy="100" r={i * 22} fill="none" stroke="#8B5CF6" strokeWidth="1" opacity={0.12} />
+      ))}
+    </svg>
+  )
+}
 
 // Tier-1 3D hover-tilt wrapper — GSAP owns rotateX/rotateY on this outer node,
 // framer-motion (via the existing cardVariants/hoverProps) keeps owning the
@@ -183,9 +198,19 @@ export default function ExamSelect() {
 
       {/* Content */}
       <div className="flex flex-col gap-10 p-10">
-        <div className="flex flex-col gap-2">
-          <h1 className="font-display text-[36px] font-bold text-gradient-brand">Chọn đề thi</h1>
-          <p className="font-sans text-sm text-dim">{motivationalHeader}</p>
+        <div className="relative" style={{ minHeight: 180 }}>
+          {/* Tier 3 — ambient real-math hero (a computed function surface, not
+              stock decoration), rotating slowly behind the header only. */}
+          <div className="absolute inset-0" style={{ pointerEvents: 'none', zIndex: 0 }}>
+            <Scene3DLazy
+              scene={() => import('../components/motion/scenes/ExamSelectHeroScene.jsx')}
+              fallback={<StaticRippleFallback />}
+            />
+          </div>
+          <Reveal3D variant="tilt" amount={0.3} className="relative flex flex-col gap-2" style={{ zIndex: 10 }}>
+            <h1 className="font-display text-[36px] font-bold text-gradient-brand">Chọn đề thi</h1>
+            <p className="font-sans text-sm text-dim">{motivationalHeader}</p>
+          </Reveal3D>
         </div>
 
         <motion.div
@@ -200,19 +225,21 @@ export default function ExamSelect() {
             if (groupExams.length === 0) return null
             return (
               <motion.section key={groupKey} variants={cardVariants}>
-                <div className="flex items-center gap-3 mb-4">
-                  <span
-                    className="font-sans text-[0.6875rem] font-bold tracking-[2px] uppercase px-2.5 py-1 rounded"
-                    style={{ background: group.accent + '22', color: group.accent }}
-                  >
-                    {group.tag}
-                  </span>
-                  <div>
-                    <h2 className="font-sans text-[22px] font-bold text-foreground leading-tight">{group.label}</h2>
-                    <p className="font-sans text-[0.8125rem] text-dim">{group.description}</p>
+                <Reveal3D variant="rise">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span
+                      className="font-sans text-[0.6875rem] font-bold tracking-[2px] uppercase px-2.5 py-1 rounded"
+                      style={{ background: group.accent + '22', color: group.accent }}
+                    >
+                      {group.tag}
+                    </span>
+                    <div>
+                      <h2 className="font-sans text-[22px] font-bold text-foreground leading-tight">{group.label}</h2>
+                      <p className="font-sans text-[0.8125rem] text-dim">{group.description}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="h-px mb-4" style={{ background: group.accent + '33' }} />
+                  <div className="h-px mb-4" style={{ background: group.accent + '33' }} />
+                </Reveal3D>
 
                 {(() => {
                   const SHOW_FIRST = 5

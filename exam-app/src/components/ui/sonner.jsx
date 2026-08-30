@@ -11,7 +11,7 @@ export function Toaster(props) {
         style: {
           background: 'var(--surface-elevated, #161C2E)',
           border: '1px solid var(--border)',
-          fontFamily: "'Sora', sans-serif",
+          fontFamily: "'Inter Variable', sans-serif",
           fontSize: '13px',
           color: 'var(--foreground)',
           borderRadius: '12px',
