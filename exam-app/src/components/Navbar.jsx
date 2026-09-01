@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import VantageLogo from './VantageLogo'
 import { useOrgAuth } from '../context/OrgAuthContext.jsx'
+import { useTheme } from '../hooks/useTheme.js'
 
 function vNavigate(navigate, path) {
   // See utils/animations.js#viewNavigate — startViewTransition can reject with
@@ -16,23 +17,118 @@ function vNavigate(navigate, path) {
   }
 }
 
-const NAV = [
-  { label: 'Thi thử', path: '/exams', icon: '📋' },
-  { label: 'Lịch sử', path: '/history', icon: '🕘' },
-  { label: 'Máy tính CAS', path: '/calculator', icon: '🧮' },
-  { label: 'Đại số tuyến tính', path: '/linalg', icon: '🔢' },
-  { label: 'Xác suất', path: '/probability', icon: '🎲' },
-  { label: 'Playground', path: '/playground', icon: '📈' },
+// Cấm emoji trong UI (design-system.html §06) — mọi glyph dưới đây là SVG
+// kẻ tay 1.5px hoặc ký hiệu typographic thuần (☾/☀/▾/✕/☰), không phải emoji.
+const PRIMARY = [
+  { label: 'Thi thử', path: '/exams' },
+  { label: 'Lịch sử', path: '/history' },
 ]
 
-const ORG_LINK = { label: 'Tổ chức', path: '/org', icon: '🏛️' }
+const TOOLS = [
+  { label: 'Máy tính CAS', path: '/calculator' },
+  { label: 'Đại số tuyến tính', path: '/linalg' },
+  { label: 'Xác suất', path: '/probability' },
+  { label: 'Math Playground', path: '/playground' },
+]
 
-const stellarReveal = {
-  hidden: { opacity: 0, y: 32, filter: 'blur(8px)', scale: 0.96 },
-  show: (i) => ({
-    opacity: 1, y: 0, filter: 'blur(0px)', scale: 1,
-    transition: { duration: 0.72, ease: [0.16, 1, 0.3, 1], delay: i * 0.055 },
-  }),
+const ORG_LINK = { label: 'Tổ chức', path: '/org' }
+
+function SunIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.5" />
+      <path d="M12 2.5v2.5M12 19v2.5M4.4 4.4l1.8 1.8M17.8 17.8l1.8 1.8M2.5 12H5M19 12h2.5M4.4 19.6l1.8-1.8M17.8 6.2l1.8-1.8" />
+    </svg>
+  )
+}
+function MoonIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z" />
+    </svg>
+  )
+}
+function ChevronIcon({ size = 11 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  )
+}
+
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme()
+  return (
+    <button
+      onClick={toggleTheme}
+      aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+      className="flex items-center justify-center w-8 h-8 rounded-md transition-colors"
+      style={{ color: 'var(--ink-2)', border: '1px solid var(--line)', background: 'var(--paper)' }}
+    >
+      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+    </button>
+  )
+}
+
+function ToolsDropdown({ isActive, go }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    function onClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onClick)
+    return () => document.removeEventListener('mousedown', onClick)
+  }, [])
+
+  const active = TOOLS.some(t => isActive(t.path))
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[12px] transition-colors"
+        style={{
+          fontFamily: 'var(--font-mono)',
+          color: active ? 'var(--ink)' : 'var(--ink-2)',
+          fontWeight: active ? 600 : 400,
+        }}
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        CÔNG CỤ <ChevronIcon />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+            role="menu"
+            className="absolute top-full left-0 mt-1.5 py-1.5 min-w-[188px]"
+            style={{ background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow-md)' }}
+          >
+            {TOOLS.map(tool => (
+              <button
+                key={tool.path}
+                role="menuitem"
+                onClick={() => { go(tool.path); setOpen(false) }}
+                className="w-full text-left px-3 py-1.5 text-[13px] transition-colors"
+                style={{
+                  color: isActive(tool.path) ? 'var(--ink)' : 'var(--ink-2)',
+                  fontWeight: isActive(tool.path) ? 600 : 400,
+                }}
+              >
+                {tool.label}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
 }
 
 export default function Navbar() {
@@ -40,13 +136,8 @@ export default function Navbar() {
   const location = useLocation()
   const go = (path) => { vNavigate(navigate, path); setMenuOpen(false) }
   const [menuOpen, setMenuOpen] = useState(false)
-  const [supportsClipPath, setSupportsClipPath] = useState(true)
   const { status: orgStatus } = useOrgAuth() ?? {}
-  const navLinks = orgStatus === 'authenticated' ? [...NAV, ORG_LINK] : NAV
-
-  useEffect(() => {
-    setSupportsClipPath(CSS.supports('clip-path', 'circle(0%)'))
-  }, [])
+  const links = orgStatus === 'authenticated' ? [...PRIMARY, ORG_LINK] : PRIMARY
 
   useEffect(() => { setMenuOpen(false) }, [location.pathname])
 
@@ -57,38 +148,61 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className="vantage-nav fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4"
+        className="vantage-nav fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4"
         style={{ height: 48 }}
       >
         <div className="flex items-center gap-1">
           <VantageLogo variant="nav" onClick={() => go('/exams')} />
 
-          <div className="hidden sm:flex items-center gap-0.5 ml-3">
-            {navLinks.map(link => (
+          <div className="hidden sm:flex items-center gap-0.5 ml-4">
+            {links.map(link => (
               <button
                 key={link.path}
                 onClick={() => go(link.path)}
-                className={`nav-link-vantage px-2.5 py-1.5 rounded-md text-[12px] transition-colors ${
-                  isActive(link.path) ? 'active font-semibold' : ''
-                }`}
+                className="px-2.5 py-1.5 rounded-md text-[12px] transition-colors"
                 style={{
-                  color: isActive(link.path) ? 'var(--foreground)' : 'var(--fg-secondary)',
+                  fontFamily: 'var(--font-mono)',
+                  color: isActive(link.path) ? 'var(--ink)' : 'var(--ink-2)',
+                  fontWeight: isActive(link.path) ? 600 : 400,
                 }}
               >
-                {link.label}
+                {link.label.toUpperCase()}
               </button>
             ))}
+            <ToolsDropdown isActive={isActive} go={go} />
           </div>
         </div>
 
-        <div className="flex sm:hidden items-center gap-2">
+        <div className="hidden sm:flex items-center gap-2">
+          <ThemeToggle />
           <button
-            className="flex items-center justify-center w-10 h-10 text-lg transition hover:opacity-80"
-            style={{ color: 'var(--fg-secondary)' }}
+            onClick={() => go('/exams')}
+            className="px-3 py-1.5 text-[11.5px] font-bold transition-colors"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              color: 'var(--ink)',
+              border: '1px solid var(--line)',
+              borderRadius: 'var(--r-sm)',
+              background: 'var(--paper)',
+            }}
+          >
+            VÀO ÔN THI ▲
+          </button>
+        </div>
+
+        <div className="flex sm:hidden items-center gap-2">
+          <ThemeToggle />
+          <button
+            className="flex items-center justify-center w-9 h-9 transition"
+            style={{ color: 'var(--ink-2)' }}
             onClick={() => setMenuOpen(v => !v)}
             aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'}
           >
-            {menuOpen ? '✕' : '☰'}
+            {menuOpen ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M5 5l14 14M19 5L5 19" /></svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+            )}
           </button>
         </div>
       </nav>
@@ -96,50 +210,29 @@ export default function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            key="portal-overlay"
-            className="sm:hidden fixed inset-0 z-30 overflow-y-auto"
-            style={{
-              top: 48,
-              background: 'var(--background)',
-            }}
-            initial={supportsClipPath
-              ? { clipPath: 'circle(0% at calc(100% - 28px) 28px)' }
-              : { opacity: 0 }}
-            animate={supportsClipPath
-              ? { clipPath: 'circle(150% at calc(100% - 28px) 28px)' }
-              : { opacity: 1 }}
-            exit={supportsClipPath
-              ? { clipPath: 'circle(0% at calc(100% - 28px) 28px)' }
-              : { opacity: 0 }}
-            transition={{ duration: 0.42, ease: [0.4, 0, 0.2, 1] }}
+            key="mobile-nav-overlay"
+            className="sm:hidden fixed inset-0 z-40 overflow-y-auto"
+            style={{ top: 48, background: 'var(--paper)' }}
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="nebula-wisp" style={{
-              width: 360, height: 360,
-              top: '-10%', right: '-15%',
-              background: 'radial-gradient(circle, var(--primary) 0%, transparent 70%)',
-            }} />
-            <div className="nebula-wisp" style={{
-              width: 280, height: 280,
-              bottom: '10%', left: '-10%',
-              background: 'radial-gradient(circle, var(--purple) 0%, transparent 70%)',
-            }} />
-
-            <div className="flex flex-col px-3 py-4 gap-1 relative z-10">
-              {navLinks.map((link, i) => (
-                <motion.button
+            <div className="flex flex-col px-3 py-4 gap-0.5 relative z-10">
+              {[...links, ...TOOLS].map((link) => (
+                <button
                   key={link.path}
-                  custom={i} variants={stellarReveal} initial="hidden" animate="show"
                   onClick={() => go(link.path)}
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl text-left text-[14px] transition-colors"
+                  className="flex items-center gap-3 px-3 py-3 text-left text-[14px] transition-colors"
                   style={{
-                    color: isActive(link.path) ? 'var(--foreground)' : 'var(--fg-secondary)',
-                    background: isActive(link.path) ? 'var(--surface)' : 'transparent',
+                    color: isActive(link.path) ? 'var(--ink)' : 'var(--ink-2)',
+                    background: isActive(link.path) ? 'var(--paper-2)' : 'transparent',
                     fontWeight: isActive(link.path) ? 600 : 400,
+                    borderBottom: '1px solid var(--line-soft)',
                   }}
                 >
-                  <span className="w-5 text-center text-[15px] flex-shrink-0 opacity-70">{link.icon}</span>
                   {link.label}
-                </motion.button>
+                </button>
               ))}
             </div>
           </motion.div>

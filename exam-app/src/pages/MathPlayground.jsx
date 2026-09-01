@@ -1,19 +1,38 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Mafs, Coordinates, Plot, Line, Polygon, Point, Text } from 'mafs'
+import { motion } from 'framer-motion'
+import { Mafs, Coordinates, Plot, Line, Polygon, Point, Text, Circle } from 'mafs'
 import 'mafs/core.css'
 import 'mathlive'
-import PageShell, { PageCard } from '../components/PageShell.jsx'
+import { pageVariants } from '../utils/animations.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
+import { describeAgentFetchError } from '../lib/agentError.js'
 import {
   compileFunctionOfX, compileFunctionOfY, compileParametric, compilePolar,
   compileImplicit, compilePolynomialFromCoefficients, toMathjsSyntax,
 } from '../engine/casEngine.js'
 import { traceImplicitCurve, sampleInequalityCells } from '../engine/marchingSquares.js'
-import { usePageMeta } from '../hooks/usePageMeta.js'
-import { describeAgentFetchError } from '../lib/agentError.js'
+
+// /playground — "Sổ phác trắc địa" (The surveyor's sketchbook), per
+// vantage/uploads/07-playground.md. Signature moment: each function draws on
+// left→right over 900ms via a normalized (pathLength=1) stroke-dashoffset
+// sweep on Mafs' own <path> (svgPathProps), rather than a hand-rolled canvas
+// plotter — the spec explicitly forbids rewriting the graphing engine and
+// Mafs (SVG) turns out to be what /playground already used, contradicting
+// the spec's own "cấm chart library" framing (read as: don't add a NEW one).
+//
+// Deviation: the spec's "chốt trắc lượng" (survey pin) is written for a true
+// two-curve *intersection*. plot_schema.py's Op literal lists "intersect"
+// and "tangent_at", but plot_generator.py's compute_results() never actually
+// computes either — only roots/extrema/derivative_at/integral/regression are
+// populated. So the pin+chip treatment below is applied to what the backend
+// really returns: roots (x-axis crossings) and extrema, which are the same
+// "pinned coordinate" concept. derivative_at already covers the spec's
+// separate "TIẾP TUYẾN" toggle (a dashed tangent line), so no scope was cut,
+// just remapped onto real backend data.
 
 const _API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-const COLORS = ['#8B5CF6', '#FAFAFA', '#22C55E', '#F87171', '#38BDF8']
-const VIEW_BOUNDS = { xMin: -10, xMax: 10, yMin: -10, yMax: 10 }
+const VIEW_BOUNDS_DEFAULT = { xMin: -12, xMax: 12, yMin: -8, yMax: 8 }
+const COLOR_KEYS = ['accent', 'altitude', 'ink', 'amber']
 
 const KINDS = [
   { value: 'function', label: 'y = f(x)' },
@@ -52,6 +71,17 @@ async function fetchPlotNarration(kind, spec, results) {
   }
 }
 
+/** Plain `var(--token)` strings, not resolved hex — Mafs' `color` props render straight
+ * to SVG `stroke`/`fill` presentation attributes, which the browser resolves through the
+ * normal CSS cascade including var(), so these repaint on a theme toggle for free with no
+ * JS/getComputedStyle sync layer (and no risk of it drifting, unlike a value baked once
+ * into row state). The Mafs canvas's own bg/grid/axis tokens are themed the same way, via
+ * the `.playground-paper .MafsView { --mafs-bg: var(--paper); ... }` rule in index.css —
+ * an ancestor's inline style can't do this because core.css sets `--mafs-bg` etc. directly
+ * on `.MafsView` itself, and a value set directly on an element always wins over one
+ * inherited from an ancestor, regardless of specificity. */
+const COLORS = { accent: 'var(--accent)', altitude: 'var(--altitude)', ink: 'var(--ink)', ink2: 'var(--ink-2)', amber: 'var(--amber)' }
+
 let nextRowId = 1
 let nextParamId = 1
 
@@ -65,7 +95,6 @@ function newRow(expr = '', kind = 'function') {
     domainMax: '',
     tMin: '0',
     tMax: kind === 'polar' ? String(2 * Math.PI) : '10',
-    color: COLORS[(nextRowId - 1) % COLORS.length],
     visible: true,
   }
 }
@@ -74,15 +103,12 @@ function newParameter(name = 'a') {
   return { id: nextParamId++, name, min: -5, max: 5, step: 0.1, value: 1 }
 }
 
-/** Builds the mathjs evaluation scope from the current slider parameters. */
 function scopeFromParameters(parameters) {
   const scope = {}
   for (const p of parameters) scope[p.name] = p.value
   return scope
 }
 
-/** Per-curve domain restriction, shared by function/function-y rows. Falls back to the
- * full view bounds when the row's fields are blank or non-numeric. */
 function parseDomain(row, viewMin, viewMax) {
   const min = row.domainMin.trim() === '' ? viewMin : Number(row.domainMin)
   const max = row.domainMax.trim() === '' ? viewMax : Number(row.domainMax)
@@ -90,7 +116,41 @@ function parseDomain(row, viewMin, viewMax) {
   return [min, max]
 }
 
-function ExpressionRow({ row, onChange, onRemove }) {
+/** Never throws — mirrors casEngine's own never-throws contract, just narrowed to "does
+ * this row currently compile" for the margin's error state. */
+function getRowCompileError(row, scope) {
+  if (!row.expr.trim()) return null
+  if (row.kind === 'function') return compileFunctionOfX(row.expr, scope).error
+  if (row.kind === 'function-y') return compileFunctionOfY(row.expr, scope).error
+  if (row.kind === 'parametric') return row.expr2.trim() ? compileParametric(row.expr, row.expr2, scope).error : null
+  if (row.kind === 'polar') return compilePolar(row.expr, scope).error
+  if (row.kind === 'implicit') return compileImplicit(row.expr, scope).error
+  return null
+}
+
+function IconEye({ hidden }) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M1 8s2.7-5 7-5 7 5 7 5-2.7 5-7 5-7-5-7-5Z" stroke="currentColor" strokeWidth="1.5" opacity={hidden ? 0.45 : 1} />
+      <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.5" opacity={hidden ? 0.45 : 1} />
+      {hidden && <line x1="2" y1="2.5" x2="14" y2="13.5" stroke="currentColor" strokeWidth="1.5" />}
+    </svg>
+  )
+}
+
+function IconStrike() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5" />
+      <line x1="4.2" y1="11.8" x2="11.8" y2="4.2" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  )
+}
+
+/** One "dòng lề" — a margin line, not a card: color dot, live-typeset math-field, domain
+ * (or t/θ range), and the eye/strike icon pair. Hovering the row is echoed onto the
+ * matching stroke on the paper via onHover/hoveredId, per spec section 3. */
+function MarginRow({ row, index, colorIndex, colors, isHovered, onHover, onChange, onRemove, error }) {
   const fieldRef = useRef(null)
   const field2Ref = useRef(null)
 
@@ -116,71 +176,80 @@ function ExpressionRow({ row, onChange, onRemove }) {
 
   const isRange = row.kind === 'parametric' || row.kind === 'polar'
   const isDomain = row.kind === 'function' || row.kind === 'function-y'
+  const color = colors[COLOR_KEYS[colorIndex % COLOR_KEYS.length]]
+
+  const smallInput = {
+    width: 44, background: 'transparent', border: 'none',
+    borderBottom: '1px solid var(--line-soft)', fontFamily: 'var(--font-mono)',
+    fontSize: 11, color: 'var(--ink-2)', padding: '1px 2px',
+  }
 
   return (
-    <div className="flex flex-col gap-1.5 py-1.5 border-b border-border/50 last:border-0">
+    <div
+      className="playground-row flex flex-col gap-1.5 py-2.5"
+      style={error ? { borderLeft: '3px solid var(--accent-deep)', paddingLeft: 8, marginLeft: -8 } : undefined}
+      onMouseEnter={() => onHover(row.id)}
+      onMouseLeave={() => onHover(null)}
+      data-hovered={isHovered || undefined}
+    >
       <div className="flex items-center gap-2">
-        <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: row.color }} />
-        <button
-          onClick={() => onChange({ ...row, visible: !row.visible })}
-          className="text-xs flex-shrink-0"
-          style={{ opacity: row.visible ? 1 : 0.35 }}
-          aria-label={row.visible ? 'Ẩn đường' : 'Hiện đường'}
-        >
-          👁
-        </button>
+        <span
+          className="flex-shrink-0"
+          style={{ width: 8, height: 8, borderRadius: '50%', background: row.visible ? color : 'var(--ink-3)', opacity: row.visible ? 1 : 0.4 }}
+        />
         <select
           value={row.kind}
           onChange={(e) => onChange({ ...row, kind: e.target.value })}
-          className="text-[0.6875rem] rounded-md border border-border bg-background px-1 py-1 flex-shrink-0"
+          style={{ background: 'transparent', border: 'none', fontFamily: 'var(--font-mono)', fontSize: 10.5, color: 'var(--ink-3)', flexShrink: 0 }}
         >
-          {KINDS.map((k) => (
-            <option key={k.value} value={k.value}>{k.label}</option>
-          ))}
+          {KINDS.map((k) => <option key={k.value} value={k.value}>{k.label}</option>)}
         </select>
-        <math-field ref={fieldRef} className="flex-1 text-base px-2 py-1.5 rounded-lg border border-border bg-background" />
-        <button onClick={onRemove} className="text-faint hover:text-destructive text-sm flex-shrink-0">✕</button>
+        <div className="playground-expr-field flex-1">
+          <math-field ref={fieldRef} class="playground-input" style={{ fontSize: 16, display: 'block' }} />
+        </div>
+        <button
+          onClick={() => onChange({ ...row, visible: !row.visible })}
+          className="playground-row-icon flex-shrink-0"
+          aria-label={row.visible ? `Ẩn hàm số ${index + 1}` : `Hiện hàm số ${index + 1}`}
+        >
+          <IconEye hidden={!row.visible} />
+        </button>
+        <button onClick={onRemove} className="playground-row-icon flex-shrink-0" aria-label={`Xóa hàm số ${index + 1}`}>
+          <IconStrike />
+        </button>
       </div>
 
       {row.kind === 'parametric' && (
-        <div className="flex items-center gap-2 pl-8">
-          <span className="text-[0.6875rem] text-faint flex-shrink-0">y(t) =</span>
-          <math-field ref={field2Ref} className="flex-1 text-sm px-2 py-1 rounded-lg border border-border bg-background" />
+        <div className="flex items-center gap-2 pl-4" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-3)' }}>
+          <span className="flex-shrink-0">y(t) =</span>
+          <div className="playground-expr-field flex-1">
+            <math-field ref={field2Ref} class="playground-input" style={{ fontSize: 13, display: 'block' }} />
+          </div>
         </div>
       )}
 
       {isRange && (
-        <div className="flex items-center gap-2 pl-8 text-[0.6875rem] text-faint">
+        <div className="flex items-center gap-2 pl-4" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-3)' }}>
           <span>{row.kind === 'polar' ? 'θ ∈' : 't ∈'}</span>
-          <input
-            type="number" value={row.tMin}
-            onChange={(e) => onChange({ ...row, tMin: e.target.value })}
-            className="w-16 px-1.5 py-1 rounded-md border border-border bg-background"
-          />
+          <input type="number" value={row.tMin} onChange={(e) => onChange({ ...row, tMin: e.target.value })} style={smallInput} />
           <span>–</span>
-          <input
-            type="number" value={row.tMax}
-            onChange={(e) => onChange({ ...row, tMax: e.target.value })}
-            className="w-16 px-1.5 py-1 rounded-md border border-border bg-background"
-          />
+          <input type="number" value={row.tMax} onChange={(e) => onChange({ ...row, tMax: e.target.value })} style={smallInput} />
         </div>
       )}
 
       {isDomain && (
-        <div className="flex items-center gap-2 pl-8 text-[0.6875rem] text-faint">
-          <span>miền {row.kind === 'function' ? 'x' : 'y'} ∈</span>
-          <input
-            type="number" value={row.domainMin} placeholder="−∞"
-            onChange={(e) => onChange({ ...row, domainMin: e.target.value })}
-            className="w-16 px-1.5 py-1 rounded-md border border-border bg-background"
-          />
+        <div className="flex items-center gap-2 pl-4" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-3)' }}>
+          <span>{row.kind === 'function' ? 'x' : 'y'} ∈</span>
+          <input type="number" value={row.domainMin} placeholder="−∞" onChange={(e) => onChange({ ...row, domainMin: e.target.value })} style={smallInput} />
           <span>–</span>
-          <input
-            type="number" value={row.domainMax} placeholder="+∞"
-            onChange={(e) => onChange({ ...row, domainMax: e.target.value })}
-            className="w-16 px-1.5 py-1 rounded-md border border-border bg-background"
-          />
+          <input type="number" value={row.domainMax} placeholder="+∞" onChange={(e) => onChange({ ...row, domainMax: e.target.value })} style={smallInput} />
         </div>
+      )}
+
+      {error && (
+        <p className="pl-4" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent-deep)' }}>
+          MỰC CHƯA ĐỌC ĐƯỢC — kiểm tra dấu/ngoặc
+        </p>
       )}
     </div>
   )
@@ -188,73 +257,74 @@ function ExpressionRow({ row, onChange, onRemove }) {
 
 function ParameterSlider({ param, onChange, onRemove }) {
   return (
-    <div className="flex items-center gap-2 text-xs">
+    <div className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5 }}>
       <input
         value={param.name}
         onChange={(e) => onChange({ ...param, name: e.target.value.trim() || param.name })}
-        className="w-10 px-1 py-1 rounded-md border border-border bg-background font-mono text-center"
+        style={{ width: 28, background: 'transparent', border: 'none', borderBottom: '1px solid var(--line-soft)', fontFamily: 'var(--font-mono)', textAlign: 'center', color: 'var(--ink)' }}
       />
-      <span>=</span>
+      <span style={{ color: 'var(--ink-3)' }}>=</span>
       <input
-        type="range"
-        min={param.min} max={param.max} step={param.step}
+        type="range" min={param.min} max={param.max} step={param.step}
         value={param.value}
         onChange={(e) => onChange({ ...param, value: Number(e.target.value) })}
         className="flex-1"
+        style={{ accentColor: 'var(--accent)' }}
       />
-      <span className="w-10 text-right font-mono tabular-nums">{param.value.toFixed(2)}</span>
-      <button onClick={onRemove} className="text-faint hover:text-destructive">✕</button>
+      <span className="tabular-nums" style={{ width: 40, textAlign: 'right', color: 'var(--ink-2)' }}>{param.value.toFixed(2)}</span>
+      <button onClick={onRemove} className="playground-row-icon flex-shrink-0" aria-label={`Xóa tham số ${param.name}`}>
+        <IconStrike />
+      </button>
     </div>
   )
 }
 
-/** Renders one row against the current scope/view. Returns null (skips) for anything
- * that fails to compile — never throws, so one bad expression can't blank the canvas. */
-function RenderedCurve({ row, scope }) {
+/** Wraps the sweep animation key so a re-typed/re-colored/re-toggled curve replays its
+ * draw-on rather than freezing mid-sweep on every keystroke. */
+function drawOnKey(row, color) {
+  return `${row.id}-${row.expr}-${row.expr2}-${color}`
+}
+
+function RenderedCurve({ row, scope, color, weight = 2.4 }) {
+  const svgPathProps = { pathLength: 1, className: 'vtg-drawon-path', strokeLinecap: 'round' }
   if (row.kind === 'function') {
-    const [dMin, dMax] = parseDomain(row, VIEW_BOUNDS.xMin, VIEW_BOUNDS.xMax)
+    const [dMin, dMax] = parseDomain(row, VIEW_BOUNDS_DEFAULT.xMin, VIEW_BOUNDS_DEFAULT.xMax)
     const { fn } = compileFunctionOfX(row.expr, scope)
     if (!fn) return null
-    return <Plot.OfX y={fn} color={row.color} domain={[dMin, dMax]} />
+    return <Plot.OfX key={drawOnKey(row, color)} y={fn} color={color} weight={weight} domain={[dMin, dMax]} svgPathProps={svgPathProps} />
   }
   if (row.kind === 'function-y') {
-    const [dMin, dMax] = parseDomain(row, VIEW_BOUNDS.yMin, VIEW_BOUNDS.yMax)
+    const [dMin, dMax] = parseDomain(row, VIEW_BOUNDS_DEFAULT.yMin, VIEW_BOUNDS_DEFAULT.yMax)
     const { fn } = compileFunctionOfY(row.expr, scope)
     if (!fn) return null
-    return <Plot.OfY x={fn} color={row.color} domain={[dMin, dMax]} />
+    return <Plot.OfY key={drawOnKey(row, color)} x={fn} color={color} weight={weight} domain={[dMin, dMax]} svgPathProps={svgPathProps} />
   }
   if (row.kind === 'parametric') {
     const { fn } = compileParametric(row.expr, row.expr2, scope)
     const tMin = Number(row.tMin)
     const tMax = Number(row.tMax)
     if (!fn || !Number.isFinite(tMin) || !Number.isFinite(tMax) || tMin >= tMax) return null
-    return <Plot.Parametric xy={fn} domain={[tMin, tMax]} color={row.color} />
+    return <Plot.Parametric key={drawOnKey(row, color)} xy={fn} domain={[tMin, tMax]} color={color} weight={weight} svgPathProps={svgPathProps} />
   }
   if (row.kind === 'polar') {
     const { fn } = compilePolar(row.expr, scope)
     const tMin = Number(row.tMin)
     const tMax = Number(row.tMax)
     if (!fn || !Number.isFinite(tMin) || !Number.isFinite(tMax) || tMin >= tMax) return null
-    return <Plot.Parametric xy={fn} domain={[tMin, tMax]} color={row.color} />
+    return <Plot.Parametric key={drawOnKey(row, color)} xy={fn} domain={[tMin, tMax]} color={color} weight={weight} svgPathProps={svgPathProps} />
   }
   if (row.kind === 'implicit') {
     const { fn, relop } = compileImplicit(row.expr, scope)
     if (!fn) return null
-    const segments = traceImplicitCurve(fn, VIEW_BOUNDS)
-    const cells = relop === '=' ? [] : sampleInequalityCells(fn, relop, VIEW_BOUNDS)
+    const segments = traceImplicitCurve(fn, VIEW_BOUNDS_DEFAULT)
+    const cells = relop === '=' ? [] : sampleInequalityCells(fn, relop, VIEW_BOUNDS_DEFAULT)
     return (
       <>
         {cells.map((c, i) => (
-          <Polygon
-            key={`cell-${i}`}
-            points={[[c.x, c.y], [c.x + c.w, c.y], [c.x + c.w, c.y + c.h], [c.x, c.y + c.h]]}
-            color={row.color}
-            fillOpacity={0.15}
-            strokeOpacity={0}
-          />
+          <Polygon key={`cell-${i}`} points={[[c.x, c.y], [c.x + c.w, c.y], [c.x + c.w, c.y + c.h], [c.x, c.y + c.h]]} color={color} fillOpacity={0.15} strokeOpacity={0} />
         ))}
         {segments.map((s, i) => (
-          <Line.Segment key={`seg-${i}`} point1={[s.x1, s.y1]} point2={[s.x2, s.y2]} color={row.color} />
+          <Line.Segment key={`seg-${i}`} point1={[s.x1, s.y1]} point2={[s.x2, s.y2]} color={color} weight={weight} />
         ))}
       </>
     )
@@ -262,11 +332,9 @@ function RenderedCurve({ row, scope }) {
   return null
 }
 
-/** Samples a curve at N evenly spaced points across the current view, for the table of
- * values toggle. Only function/function-y rows have a natural 1-D sampling axis. */
 function sampleRowForTable(row, scope, n = 9) {
   if (row.kind === 'function') {
-    const [dMin, dMax] = parseDomain(row, VIEW_BOUNDS.xMin, VIEW_BOUNDS.xMax)
+    const [dMin, dMax] = parseDomain(row, VIEW_BOUNDS_DEFAULT.xMin, VIEW_BOUNDS_DEFAULT.xMax)
     const { fn } = compileFunctionOfX(row.expr, scope)
     if (!fn) return null
     const step = (dMax - dMin) / (n - 1)
@@ -278,7 +346,7 @@ function sampleRowForTable(row, scope, n = 9) {
     })
   }
   if (row.kind === 'function-y') {
-    const [dMin, dMax] = parseDomain(row, VIEW_BOUNDS.yMin, VIEW_BOUNDS.yMax)
+    const [dMin, dMax] = parseDomain(row, VIEW_BOUNDS_DEFAULT.yMin, VIEW_BOUNDS_DEFAULT.yMax)
     const { fn } = compileFunctionOfY(row.expr, scope)
     if (!fn) return null
     const step = (dMax - dMin) / (n - 1)
@@ -292,12 +360,6 @@ function sampleRowForTable(row, scope, n = 9) {
   return null
 }
 
-/** Maps one backend AI-drafted curve (plot_schema.py's richer `kind`/`expr_y`/`domain`)
- * onto the frontend's manual row shape, so AI-populated curves render through the exact
- * same primitives manual typing uses. Returns null for curves with no matching manual
- * row kind: "piecewise" (mathjs can't parse a sympy `Piecewise(...)` string) and
- * "dataset" (no single expr — its regression fit is rendered directly from
- * `results.regression` in ResultsOverlay instead of as a row). */
 function rowFromAiCurve(c) {
   if (c.kind === 'parametric') {
     const [tMin, tMax] = c.domain ?? [0, 10]
@@ -328,8 +390,6 @@ function rowFromAiCurve(c) {
   return null
 }
 
-/** Adds any backend-proposed sliders not already present locally (matched by name) —
- * merges rather than duplicates, since a follow-up turn re-sends the full parameter list. */
 function mergeAiParameters(existing, aiParameters) {
   if (!aiParameters || aiParameters.length === 0) return existing
   const existingNames = new Set(existing.map((p) => p.name))
@@ -339,33 +399,35 @@ function mergeAiParameters(existing, aiParameters) {
   return additions.length ? [...existing, ...additions] : existing
 }
 
-/** Renders the backend's independently-verified `results` (roots, extrema, a
- * derivative-at tangent line, an integral's shaded region, a regression fit) on the
- * canvas. Purely presentational — every number here was already computed and verified
- * server-side (plot_generator.py's compute_results); this component never computes
- * anything itself. The primary curve's y-value at a point (for anchoring the tangent
- * line / shading the integral) is a plain re-evaluation of the already-accepted
- * expression, not a new correctness claim. */
-function ResultsOverlay({ spec, results, scope }) {
+/** Restyled as pin+chip: a stroked ring, an accent dot, and a mono coordinate label with
+ * the library's own paper-colored halo (`.mafs-shadow`) for legibility over ink strokes —
+ * the closest real substitute for a literal background chip, since Mafs' <Text> has no
+ * background-box primitive of its own. */
+function ResultsOverlay({ spec, results, scope, colors }) {
   if (!results || !spec) return null
   const primaryCurve = spec.curves?.[0]
   const primaryExpr = primaryCurve && primaryCurve.kind === 'function' ? toMathjsSyntax(primaryCurve.expr) : null
   const { fn: primaryFn } = primaryExpr ? compileFunctionOfX(primaryExpr, scope) : { fn: null }
   const nodes = []
+  const chipProps = { fontFamily: 'var(--font-mono)', fontWeight: 600, className: 'mafs-shadow' }
+
+  function pushPin(key, x, y, label) {
+    nodes.push(<Circle key={`${key}-ring`} center={[x, y]} radius={0.18} color={colors.ink} weight={1.5} fillOpacity={0} />)
+    nodes.push(<Point key={`${key}-dot`} x={x} y={y} color={colors.accent} />)
+    nodes.push(<Text key={`${key}-chip`} x={x} y={y} attach="ne" attachDistance={10} color={colors.ink} size={11} svgTextProps={chipProps}>{label}</Text>)
+  }
 
   for (const r of results.roots ?? []) {
     const x = Number(r)
     if (!Number.isFinite(x)) continue
-    nodes.push(<Point key={`root-${r}`} x={x} y={0} color="#F87171" />)
-    nodes.push(<Text key={`root-label-${r}`} x={x} y={0} attach="n">{`x=${r}`}</Text>)
+    pushPin(`root-${r}`, x, 0, `(${x.toFixed(2)}; 0,00)`)
   }
 
   for (const e of results.extrema ?? []) {
     const x = Number(e.x)
     const y = Number(e.y)
     if (!Number.isFinite(x) || !Number.isFinite(y)) continue
-    nodes.push(<Point key={`ext-${e.x}`} x={x} y={y} color="#38BDF8" />)
-    nodes.push(<Text key={`ext-label-${e.x}`} x={x} y={y} attach="n">{e.kind}</Text>)
+    pushPin(`ext-${e.x}`, x, y, `(${x.toFixed(2)}; ${y.toFixed(2)})`)
   }
 
   if (results.derivative_at && primaryFn) {
@@ -374,8 +436,8 @@ function ResultsOverlay({ spec, results, scope }) {
     let y0 = NaN
     try { y0 = primaryFn(x0) } catch { /* leave NaN, skip below */ }
     if (Number.isFinite(x0) && Number.isFinite(slope) && Number.isFinite(y0)) {
-      nodes.push(<Point key="deriv-pt" x={x0} y={y0} color="#FAFAFA" />)
-      nodes.push(<Line.PointSlope key="deriv-line" point={[x0, y0]} slope={slope} color="#FAFAFA" opacity={0.6} />)
+      nodes.push(<Point key="deriv-pt" x={x0} y={y0} color={colors.accent} />)
+      nodes.push(<Line.PointSlope key="deriv-line" point={[x0, y0]} slope={slope} color={colors.ink2} strokeStyle="dashed" weight={2} />)
     }
   }
 
@@ -390,17 +452,15 @@ function ResultsOverlay({ spec, results, scope }) {
       try { y = primaryFn(x) } catch { y = 0 }
       curvePoints.push([x, Number.isFinite(y) ? y : 0])
     }
-    nodes.push(
-      <Polygon key="integral-fill" points={[[a, 0], ...curvePoints, [b, 0]]} color="#8B5CF6" fillOpacity={0.25} strokeOpacity={0} />
-    )
+    nodes.push(<Polygon key="integral-fill" points={[[a, 0], ...curvePoints, [b, 0]]} color={colors.altitude} fillOpacity={0.22} strokeOpacity={0} />)
   }
 
   if (results.regression) {
     const datasetCurve = spec.curves?.find((c) => c.kind === 'dataset')
     const regFn = compilePolynomialFromCoefficients(results.regression.coefficients)
-    nodes.push(<Plot.OfX key="regression-fit" y={regFn} color="#22C55E" />)
+    nodes.push(<Plot.OfX key="regression-fit" y={regFn} color={colors.altitude} weight={2} />)
     for (const [x, y] of datasetCurve?.points ?? []) {
-      nodes.push(<Point key={`dataset-${x}-${y}`} x={x} y={y} color="#22C55E" opacity={0.8} />)
+      nodes.push(<Point key={`dataset-${x}-${y}`} x={x} y={y} color={colors.altitude} opacity={0.8} />)
     }
   }
 
@@ -408,15 +468,16 @@ function ResultsOverlay({ spec, results, scope }) {
 }
 
 export default function MathPlayground() {
-  usePageMeta('Math Playground', { noindex: true })
+  usePageMeta('Sổ phác trắc địa', { description: 'Math Playground — gõ hàm, xem nét mực tự vẽ, chốt giao điểm và tiếp tuyến.' })
   const [rows, setRows] = useState(() => [newRow('x^2')])
   const [parameters, setParameters] = useState([])
   const [prompt, setPrompt] = useState('')
+  const [promptOpen, setPromptOpen] = useState(false)
   const [promptStatus, setPromptStatus] = useState({ loading: false, reason: null })
   const [showTable, setShowTable] = useState(false)
-  // Last AI-accepted spec/results — kept so a follow-up NL instruction ("giờ thêm đạo
-  // hàm của nó") can be sent as conversational context, and so narrate/suggest and the
-  // ResultsOverlay have something to render.
+  const [hoveredId, setHoveredId] = useState(null)
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const [viewKey, setViewKey] = useState(0)
   const [aiSpec, setAiSpec] = useState(null)
   const [aiResults, setAiResults] = useState(null)
   const [narrative, setNarrative] = useState({ loading: false, text: null })
@@ -435,18 +496,28 @@ export default function MathPlayground() {
   }
 
   const scope = useMemo(() => scopeFromParameters(parameters), [parameters])
-
   const visibleRows = rows.filter((r) => r.visible && r.expr.trim())
+  const allEmpty = rows.every((r) => !r.expr.trim())
+  // Color cycles by current position in the list (not a module-level creation counter,
+  // which drifts under StrictMode's deliberate double-invocation of lazy state
+  // initializers) — accent/altitude/ink/amber repeating every 4 rows.
+  const colorIndexById = useMemo(() => {
+    const map = new Map()
+    rows.forEach((r, i) => map.set(r.id, i % COLOR_KEYS.length))
+    return map
+  }, [rows])
+  const rowErrors = useMemo(() => {
+    const map = new Map()
+    for (const r of rows) map.set(r.id, getRowCompileError(r, scope))
+    return map
+  }, [rows, scope])
 
   const handleDescribe = async () => {
     if (!prompt.trim()) return
     setPromptStatus({ loading: true, reason: null })
-    // Sending the last accepted spec as context makes this a follow-up turn (e.g. "giờ
-    // thêm đạo hàm của nó") rather than a fresh request — same generate→verify→gate
-    // contract backend-side either way.
     const result = await draftPlotFromPrompt(prompt, aiSpec)
     if (!result.available) {
-      setPromptStatus({ loading: false, reason: result.reason ?? 'Không thể tạo đồ thị từ mô tả này.' })
+      setPromptStatus({ loading: false, reason: result.reason ?? 'Không thể phác từ mô tả này.' })
       return
     }
     const aiRows = result.spec.curves.map(rowFromAiCurve).filter(Boolean)
@@ -474,125 +545,226 @@ export default function MathPlayground() {
     setHint({ loading: false, text: text || reason || 'Không có gợi ý.' })
   }
 
-  return (
-    <PageShell title="Math Playground" maxWidth="max-w-5xl">
-      <div className="flex-1 flex flex-col lg:flex-row gap-6 w-full">
-        <PageCard label="Danh sách biểu thức" className="lg:w-80 flex-shrink-0">
-          {rows.map((row) => (
-            <ExpressionRow key={row.id} row={row} onChange={updateRow} onRemove={() => removeRow(row.id)} />
-          ))}
-          <button onClick={addRow} className="self-start px-3 py-1.5 rounded-lg border border-border font-sans text-xs text-muted">
-            + Thêm biểu thức
-          </button>
+  const ariaDescription = visibleRows.length
+    ? `Đang vẽ ${visibleRows.length} hàm số${aiResults?.roots?.length ? `; ${aiResults.roots.length} nghiệm được ghim` : ''}.`
+    : 'Giấy trống — chưa có hàm nào được vẽ.'
 
-          <div className="mt-2 flex flex-col gap-2 pt-4 border-t border-border">
-            <span className="font-sans text-[0.6875rem] font-semibold uppercase tracking-wide text-faint">Tham số (trượt)</span>
-            {parameters.map((p) => (
-              <ParameterSlider key={p.id} param={p} onChange={updateParam} onRemove={() => removeParam(p.id)} />
-            ))}
-            <button onClick={addParam} className="self-start px-3 py-1.5 rounded-lg border border-border font-sans text-xs text-muted">
-              + Thêm tham số
-            </button>
-          </div>
+  const sidebarBody = (
+    <>
+      <div>
+        {rows.map((row, i) => (
+          <MarginRow
+            key={row.id}
+            row={row}
+            index={i}
+            colorIndex={colorIndexById.get(row.id)}
+            colors={COLORS}
+            isHovered={hoveredId === row.id}
+            onHover={setHoveredId}
+            onChange={updateRow}
+            onRemove={() => removeRow(row.id)}
+            error={rowErrors.get(row.id)}
+          />
+        ))}
+      </div>
+      <button
+        onClick={addRow}
+        className="self-start"
+        style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, letterSpacing: '0.06em', color: 'var(--ink-2)', marginTop: 10, paddingTop: 8, borderTop: '1px solid var(--line-soft)', width: '100%', textAlign: 'left' }}
+      >
+        + VẼ NÉT NÀY
+      </button>
+      {rows.length > 4 && (
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, color: 'var(--ink-3)', marginTop: 6 }}>
+          HẾT MỰC MÀU — DÙNG LẠI CHU TRÌNH MỰC
+        </p>
+      )}
 
-          <label className="mt-2 flex items-center gap-2 pt-4 border-t border-border font-sans text-[0.6875rem] text-faint">
-            <input type="checkbox" checked={showTable} onChange={(e) => setShowTable(e.target.checked)} />
-            Hiện bảng giá trị
-          </label>
+      <div className="flex flex-col gap-2" style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid var(--line-soft)' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, letterSpacing: '0.08em', color: 'var(--ink-3)' }}>THAM SỐ (TRƯỢT)</span>
+        {parameters.map((p) => (
+          <ParameterSlider key={p.id} param={p} onChange={updateParam} onRemove={() => removeParam(p.id)} />
+        ))}
+        <button onClick={addParam} style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-2)', alignSelf: 'flex-start' }}>+ Thêm tham số</button>
+      </div>
 
-          <div className="mt-2 flex flex-col gap-2 pt-4 border-t border-border">
-            <span className="font-sans text-[0.6875rem] font-semibold uppercase tracking-wide text-faint">Mô tả bằng lời (AI)</span>
-            <p className="font-sans text-[0.6875rem] text-faint -mt-1">Ví dụ: "vẽ đồ thị giao của y=x^2 và y=2x+1"</p>
+      <label className="flex items-center gap-2" style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--line-soft)', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-3)' }}>
+        <input type="checkbox" checked={showTable} onChange={(e) => setShowTable(e.target.checked)} />
+        Hiện bảng giá trị
+      </label>
+
+      <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--line-soft)' }}>
+        <button
+          onClick={() => setPromptOpen((v) => !v)}
+          style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, letterSpacing: '0.08em', color: 'var(--ink-3)', width: '100%', textAlign: 'left' }}
+        >
+          PHÁC THEO LỜI {promptOpen ? '▾' : '▸'}
+        </button>
+        {promptOpen && (
+          <div className="flex flex-col gap-2" style={{ marginTop: 8 }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, color: 'var(--ink-3)' }}>vd: "vẽ giao của y=x^2 và y=2x+1"</p>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Nhập mô tả bằng lời…"
               rows={2}
-              className="px-3 py-2 rounded-lg border border-border bg-background font-sans text-xs resize-none"
+              style={{ background: 'transparent', border: '1px solid var(--line-soft)', borderRadius: 'var(--r-sm)', padding: 8, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink)', resize: 'none' }}
             />
             <button
               onClick={handleDescribe}
               disabled={promptStatus.loading || !prompt.trim()}
-              className="self-start px-4 py-2 rounded-lg font-sans text-xs font-bold bg-primary text-primary-fg disabled:opacity-40"
+              style={{ alignSelf: 'flex-start', fontFamily: 'var(--font-mono)', fontSize: 11.5, letterSpacing: '0.05em', color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', padding: '6px 12px', opacity: promptStatus.loading || !prompt.trim() ? 0.4 : 1 }}
             >
-              {promptStatus.loading ? 'Đang tạo…' : 'Vẽ từ mô tả'}
+              {promptStatus.loading ? 'ĐANG PHÁC…' : 'PHÁC ▲'}
             </button>
-            {promptStatus.reason && (
-              <p className="font-sans text-[0.6875rem] text-destructive">{promptStatus.reason}</p>
+            {promptStatus.reason && <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent-deep)' }}>{promptStatus.reason}</p>}
+          </div>
+        )}
+      </div>
+    </>
+  )
+
+  return (
+    <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit" className="relative z-[1] min-h-screen">
+      <div className="max-w-6xl mx-auto w-full px-6 sm:px-10 pt-8 pb-20 flex flex-col gap-6">
+        <div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.1em', color: 'var(--accent)', marginBottom: 8 }}>
+            TRẠM · DỤNG CỤ · D·04
+          </div>
+          <h1 className="font-display font-bold" style={{ fontSize: 39, color: 'var(--ink)' }}>Sổ phác trắc địa.</h1>
+          <p style={{ color: 'var(--ink-2)', maxWidth: '60ch', marginTop: 8 }}>
+            Gõ hàm, xem nét mực tự vẽ. Giao điểm được ghim chốt, tọa độ ghi như sổ đo.
+          </p>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex-[2] flex flex-col gap-3 min-w-0">
+            <div className="playground-paper relative" style={{ border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', overflow: 'hidden', minHeight: 420, background: 'var(--paper)' }}>
+              <button
+                onClick={() => setViewKey((k) => k + 1)}
+                style={{
+                  position: 'absolute', top: 10, right: 10, zIndex: 2,
+                  fontFamily: 'var(--font-mono)', fontSize: 10.5, letterSpacing: '0.06em', color: 'var(--ink-2)',
+                  background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', padding: '4px 8px',
+                }}
+              >
+                KHUNG GỐC
+              </button>
+              <Mafs key={viewKey} viewBox={{ x: [VIEW_BOUNDS_DEFAULT.xMin, VIEW_BOUNDS_DEFAULT.xMax], y: [VIEW_BOUNDS_DEFAULT.yMin, VIEW_BOUNDS_DEFAULT.yMax] }} pan zoom>
+                <Coordinates.Cartesian xAxis={{ lines: 2 }} yAxis={{ lines: 2 }} subdivisions={4} />
+                {allEmpty && (
+                  <>
+                    <Plot.OfX y={(x) => x * x / 8 - 2} color={COLORS.ink} weight={2} strokeOpacity={0.25} />
+                    <Text x={0} y={7.3} attach="s" color={COLORS.ink} size={10.5}>NÉT MẪU — GÕ HÀM ĐỂ THAY</Text>
+                  </>
+                )}
+                {visibleRows.map((row) => (
+                  <RenderedCurve
+                    key={row.id}
+                    row={row}
+                    scope={scope}
+                    color={COLORS[COLOR_KEYS[colorIndexById.get(row.id) % COLOR_KEYS.length]]}
+                    weight={hoveredId === row.id ? 3.2 : 2.4}
+                  />
+                ))}
+                <ResultsOverlay spec={aiSpec} results={aiResults} scope={scope} colors={COLORS} />
+              </Mafs>
+            </div>
+            <p aria-live="polite" className="sr-only">{ariaDescription}</p>
+
+            {aiSpec && (
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={handleNarrate}
+                  disabled={narrative.loading}
+                  style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-2)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', padding: '5px 10px', opacity: narrative.loading ? 0.4 : 1 }}
+                >
+                  {narrative.loading ? 'ĐANG GIẢI THÍCH…' : 'GIẢI THÍCH ĐỒ THỊ'}
+                </button>
+                <button
+                  onClick={handleHint}
+                  disabled={hint.loading}
+                  style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-2)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', padding: '5px 10px', opacity: hint.loading ? 0.4 : 1 }}
+                >
+                  {hint.loading ? 'ĐANG GỢI Ý…' : 'GỢI Ý'}
+                </button>
+              </div>
+            )}
+            {narrative.text && <p style={{ fontFamily: 'var(--font-body)', fontSize: 12.5, color: 'var(--ink-2)' }}>{narrative.text}</p>}
+            {hint.text && <p style={{ fontFamily: 'var(--font-body)', fontSize: 12.5, color: 'var(--ink-3)' }}>Gợi ý: {hint.text}</p>}
+
+            {showTable && (
+              <div style={{ border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', padding: 16, background: 'var(--paper)' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, letterSpacing: '0.08em', color: 'var(--ink-3)' }}>BẢNG GIÁ TRỊ</span>
+                <div className="overflow-x-auto" style={{ marginTop: 8 }}>
+                  <table className="w-full tabular-nums" style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>
+                    <thead>
+                      <tr style={{ color: 'var(--ink-3)' }}>
+                        <th className="text-left pr-4 py-1">Biểu thức</th>
+                        <th className="text-left pr-4 py-1">x</th>
+                        <th className="text-left py-1">y</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {visibleRows.map((row) => {
+                        const samples = sampleRowForTable(row, scope)
+                        if (!samples) return null
+                        const color = COLORS[COLOR_KEYS[colorIndexById.get(row.id) % COLOR_KEYS.length]]
+                        return samples.map((s, i) => (
+                          <tr key={`${row.id}-${i}`} style={{ borderTop: '1px solid var(--line-soft)' }}>
+                            {i === 0 && (
+                              <td rowSpan={samples.length} className="pr-4 py-1 align-top" style={{ color }}>{row.expr}</td>
+                            )}
+                            <td className="pr-4 py-1">{Number.isFinite(s.x) ? s.x.toFixed(3) : '—'}</td>
+                            <td className="py-1">{Number.isFinite(s.y) ? s.y.toFixed(3) : '—'}</td>
+                          </tr>
+                        ))
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             )}
           </div>
-        </PageCard>
 
-        <div className="flex-1 flex flex-col gap-4">
-          <div className="glass-elevated rounded-2xl overflow-hidden" style={{ minHeight: 420 }}>
-            <Mafs viewBox={{ x: [VIEW_BOUNDS.xMin, VIEW_BOUNDS.xMax], y: [VIEW_BOUNDS.yMin, VIEW_BOUNDS.yMax] }} pan zoom>
-              <Coordinates.Cartesian />
-              {visibleRows.map((row) => (
-                <RenderedCurve key={row.id} row={row} scope={scope} />
-              ))}
-              <ResultsOverlay spec={aiSpec} results={aiResults} scope={scope} />
-            </Mafs>
-          </div>
+          {/* Lề sổ tay — bottom sheet on mobile, fixed column on desktop */}
+          <aside className="hidden lg:flex lg:w-80 flex-shrink-0 flex-col" style={{ borderLeft: '1px solid var(--line-soft)', paddingLeft: 20 }}>
+            {sidebarBody}
+          </aside>
 
-          {aiSpec && (
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                onClick={handleNarrate}
-                disabled={narrative.loading}
-                className="px-3 py-1.5 rounded-lg border border-border font-sans text-xs text-muted disabled:opacity-40"
+          <div className="lg:hidden">
+            <button
+              onClick={() => setSheetOpen(true)}
+              style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, letterSpacing: '0.06em', color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', padding: '8px 14px', width: '100%' }}
+            >
+              LỀ SỔ TAY ({rows.length} HÀM) ▴
+            </button>
+            {sheetOpen && (
+              <div
+                role="dialog" aria-label="Lề sổ tay"
+                style={{ position: 'fixed', inset: 0, zIndex: 40, background: 'rgba(0,0,0,.35)' }}
+                onClick={(e) => { if (e.target === e.currentTarget) setSheetOpen(false) }}
               >
-                {narrative.loading ? 'Đang giải thích…' : 'Giải thích đồ thị'}
-              </button>
-              <button
-                onClick={handleHint}
-                disabled={hint.loading}
-                className="px-3 py-1.5 rounded-lg border border-border font-sans text-xs text-muted disabled:opacity-40"
-              >
-                {hint.loading ? 'Đang gợi ý…' : 'Gợi ý'}
-              </button>
-            </div>
-          )}
-          {narrative.text && (
-            <p className="font-sans text-xs text-muted px-1">{narrative.text}</p>
-          )}
-          {hint.text && (
-            <p className="font-sans text-xs text-faint px-1">Gợi ý: {hint.text}</p>
-          )}
-
-          {showTable && (
-            <PageCard label="Bảng giá trị">
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs font-mono">
-                  <thead>
-                    <tr className="text-faint">
-                      <th className="text-left pr-4 py-1">Biểu thức</th>
-                      <th className="text-left pr-4 py-1">x</th>
-                      <th className="text-left py-1">y</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visibleRows.map((row) => {
-                      const samples = sampleRowForTable(row, scope)
-                      if (!samples) return null
-                      return samples.map((s, i) => (
-                        <tr key={`${row.id}-${i}`} className="border-t border-border/40">
-                          {i === 0 && (
-                            <td rowSpan={samples.length} className="pr-4 py-1 align-top" style={{ color: row.color }}>
-                              {row.expr}
-                            </td>
-                          )}
-                          <td className="pr-4 py-1 tabular-nums">{Number.isFinite(s.x) ? s.x.toFixed(3) : '—'}</td>
-                          <td className="py-1 tabular-nums">{Number.isFinite(s.y) ? s.y.toFixed(3) : '—'}</td>
-                        </tr>
-                      ))
-                    })}
-                  </tbody>
-                </table>
+                <div
+                  style={{
+                    position: 'absolute', left: 0, right: 0, bottom: 0, maxHeight: '75dvh', overflowY: 'auto',
+                    background: 'var(--paper)', borderTop: '1px solid var(--line)', borderRadius: '16px 16px 0 0',
+                    padding: '16px 20px 24px',
+                  }}
+                >
+                  <button
+                    onClick={() => setSheetOpen(false)}
+                    style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-3)', marginBottom: 8 }}
+                  >
+                    ĐÓNG ▾
+                  </button>
+                  {sidebarBody}
+                </div>
               </div>
-            </PageCard>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </PageShell>
+    </motion.div>
   )
 }

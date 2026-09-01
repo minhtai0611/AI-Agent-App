@@ -2,25 +2,30 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { pageVariants, viewNavigate } from '../utils/animations.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
-import { Reveal3D } from '../components/motion/Reveal3D.jsx'
-import { Scene3DLazy } from '../components/motion/Scene3DLazy.jsx'
 import VantageLogo from '../components/VantageLogo.jsx'
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../components/ui/accordion.jsx'
+import HeroTerrain from '../components/motion/HeroTerrain.jsx'
 
-// Stat pills + FAQ content below are reused verbatim from the SEO-audited
-// SoftwareApplication/FAQPage JSON-LD in index.html, so the visible page and
-// the structured data never drift out of sync — no invented marketing claims.
+// Vantage v1.4.1 landing — editorial 2-column hero (bản đồ địa hình sống +
+// đường leo, via HeroTerrain — a live canvas terrain, cursor-tilt camera,
+// hover-for-formula tooltips), sổ tay trắc địa stats, "border-top" feature
+// rhythm, book-index FAQ, single-ink CTA panel. The hero previously shipped
+// a static two-peak SVG illustration (follow-up noted in that pass's
+// report); HeroTerrain replaces it with the real engine ported into
+// src/lib/terrain3d.js, reused later by /linalg for "ma trận là địa hình".
+// Deliberately still not ported: the reference file's URL-driven
+// "chế độ năng lực" competency-mode terrain morph (?ham-so=8.5&...) — a
+// distinct, much larger feature outside this step's scope.
 const STATS = [
-  { value: '40+', label: 'đề thi thật' },
-  { value: '63', label: 'tỉnh thành' },
-  { value: '1.104', label: 'câu hỏi' },
+  { value: '40+', label: 'ĐỀ THI THẬT' },
+  { value: '63', label: 'TỈNH THÀNH' },
+  { value: '1.104', label: 'CÂU HỎI' },
 ]
 
 const FEATURES = [
-  { icon: '📋', title: 'Thi thử đề thật', desc: 'Đề THPT Quốc gia & tuyển sinh lớp 10 từ Bộ GD&ĐT và 63 tỉnh thành.', path: '/exams' },
-  { icon: '🧮', title: 'Máy tính CAS', desc: 'Giải toán từng bước, hiển thị công thức trực tiếp trên máy tính.', path: '/calculator' },
-  { icon: '🔢', title: 'Đại số tuyến tính', desc: 'Ma trận, định thức, hệ phương trình — giải và kiểm tra ngay.', path: '/linalg' },
-  { icon: '📈', title: 'Math Playground', desc: 'Vẽ đồ thị hàm số, giao điểm, tiếp tuyến bằng lời hoặc thủ công.', path: '/playground' },
+  { num: 'D·01', title: 'Thi thử đề thật', desc: 'Đề THPT Quốc gia & tuyển sinh lớp 10 từ Bộ GD&ĐT và 63 tỉnh thành.', path: '/exams' },
+  { num: 'D·02', title: 'Máy tính CAS', desc: 'Giải toán từng bước, hiển thị công thức trực tiếp trên máy tính.', path: '/calculator' },
+  { num: 'D·03', title: 'Đại số tuyến tính', desc: 'Ma trận, định thức, hệ phương trình — giải và kiểm tra ngay.', path: '/linalg' },
+  { num: 'D·04', title: 'Math Playground', desc: 'Vẽ đồ thị hàm số, giao điểm, tiếp tuyến bằng lời hoặc thủ công.', path: '/playground' },
 ]
 
 const FAQS = [
@@ -31,15 +36,37 @@ const FAQS = [
   { q: 'AI có tạo ra câu hỏi thi không?', a: 'Không. Tất cả câu hỏi đều từ đề thi thật từ nguồn chính thức. AI chỉ dùng để phân tích kết quả và cá nhân hóa lộ trình học.' },
 ]
 
-function StaticRippleFallback() {
+function IconExam() {
   return (
-    <svg width="100%" height="100%" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      {[1, 2, 3, 4, 5, 6].map(i => (
-        <circle key={i} cx="200" cy="150" r={i * 26} fill="none" stroke="#8B5CF6" strokeWidth="1" opacity={0.1} />
-      ))}
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="5" y="3" width="14" height="18" rx="2" /><path d="M9 8h6M9 12h6M9 16h3" />
     </svg>
   )
 }
+function IconCalc() {
+  return (
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="6" y="2" width="12" height="20" rx="2" /><rect x="9" y="5" width="6" height="3" rx="0.5" />
+      <path d="M9 12h1M12 12h1M15 12h1M9 15h1M12 15h1M15 15h1M9 18h4M15 18h1" />
+    </svg>
+  )
+}
+function IconMatrix() {
+  return (
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 4v16M20 4v16" /><path d="M8 7h3M13 7h3M8 12h3M13 12h3M8 17h3M13 17h3" />
+    </svg>
+  )
+}
+function IconPlot() {
+  return (
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 21h18M3 21V3" /><path d="M5 16C8 16 8 8 12 8s4 6 7 6" stroke="var(--accent)" />
+      <circle cx="12" cy="8" r="1.4" fill="var(--accent)" stroke="none" />
+    </svg>
+  )
+}
+const ICONS = [IconExam, IconCalc, IconMatrix, IconPlot]
 
 export default function Landing() {
   usePageMeta('', { description: 'Tầm nhìn dẫn đường tri thức — Vantage khai mở hành trình ôn thi Toán cùng AI, với 40+ đề thi thật từ 63 tỉnh thành.' })
@@ -53,94 +80,155 @@ export default function Landing() {
         <VantageLogo variant="nav" onClick={goToExams} />
         <button
           onClick={goToExams}
-          className="px-4 py-2 rounded-full font-sans text-[0.8125rem] font-semibold bg-primary text-primary-fg hover:opacity-90 transition"
+          className="px-4 py-2 text-[12.5px] font-bold transition-colors"
+          style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', background: 'var(--paper)' }}
         >
-          Vào ôn thi
+          VÀO ÔN THI →
         </button>
       </header>
 
-      {/* Hero — real computed math surface as the glowing centerpiece, an
-          italic Fraunces emphasis phrase per the KAGAKU headline technique */}
-      <section className="relative flex flex-col items-center text-center px-6 pb-16" style={{ paddingTop: 240 }}>
-        {/* Glowing math-surface "crown" sits above the headline, not behind
-            it — keeps the wireframe from crossing running text. */}
-        <div
-          className="absolute"
-          style={{ pointerEvents: 'none', zIndex: 0, top: 0, left: '50%', transform: 'translateX(-50%)', width: 480, height: 220 }}
-        >
-          <Scene3DLazy
-            scene={() => import('../components/motion/scenes/ExamSelectHeroScene.jsx')}
-            fallback={<StaticRippleFallback />}
-          />
-        </div>
-        <Reveal3D variant="tilt" amount={0.3} className="relative flex flex-col items-center gap-5 max-w-2xl" style={{ zIndex: 10 }}>
-          <h1 className="font-display text-[40px] sm:text-[56px] font-bold leading-tight text-foreground">
-            Tầm nhìn dẫn đường,{' '}
-            <em className="text-gradient-brand">vươn tới đỉnh cao</em>
-          </h1>
-          <p className="font-sans text-base sm:text-lg text-dim max-w-xl">
-            Vantage khai mở hành trình ôn thi Toán cùng AI — đề thi thật, phân tích lỗi sai, lộ trình học riêng cho từng học sinh THPT &amp; lớp 10.
-          </p>
-          <button
-            onClick={goToExams}
-            className="px-7 py-3.5 rounded-full font-sans text-[15px] font-bold bg-primary text-primary-fg hover:opacity-90 transition"
-          >
-            Bắt đầu ôn thi miễn phí
-          </button>
-        </Reveal3D>
-      </section>
-
-      {/* Stat pills — real numbers, same as the SoftwareApplication JSON-LD */}
-      <section className="flex justify-center px-6 pb-16">
-        <Reveal3D variant="rise" className="flex flex-wrap justify-center gap-4">
-          {STATS.map(s => (
-            <div key={s.label} className="glass-base rounded-2xl px-8 py-5 flex flex-col items-center gap-1 min-w-[140px]">
-              <span className="font-display text-[28px] font-bold text-gradient-brand">{s.value}</span>
-              <span className="font-sans text-[0.8125rem] text-dim">{s.label}</span>
+      {/* Hero — editorial 2 columns: headline+CTA left, terrain card right */}
+      <section className="px-6 sm:px-10 pt-8 pb-16 sm:pb-20">
+        <div className="mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-[1.05fr_.95fr] gap-10 lg:gap-12 items-center">
+          <div className="flex flex-col gap-5" data-hero-readzone>
+            <div className="flex items-center gap-3" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.12em', color: 'var(--ink-3)' }}>
+              <span style={{ width: 32, height: 1, background: 'var(--accent)', display: 'inline-block' }} />
+              ÔN THI TOÁN THPT · TUYỂN SINH 10 · KHÓA 2026
             </div>
-          ))}
-        </Reveal3D>
-      </section>
-
-      {/* Feature grid — real product surfaces, not decorative teasers */}
-      <section className="px-6 sm:px-10 pb-20 max-w-5xl mx-auto w-full">
-        <h2 className="font-display text-[26px] font-bold text-foreground text-center mb-8">Công cụ đi cùng bạn</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {FEATURES.map(f => (
-            <Reveal3D key={f.path} variant="rise" as="button" onClick={() => viewNavigate(navigate, f.path)}
-              className="glass-base rounded-2xl p-6 flex flex-col items-start gap-2.5 text-left hover:border-primary/40 border border-transparent transition"
+            <h1
+              className="font-display font-bold"
+              style={{ fontSize: 'clamp(34px, 5vw, 48px)', lineHeight: 1.08, letterSpacing: '-0.02em', color: 'var(--ink)', maxWidth: '20ch' }}
             >
-              <span className="text-[28px]">{f.icon}</span>
-              <span className="font-sans text-[15px] font-semibold text-foreground">{f.title}</span>
-              <span className="font-sans text-[0.8125rem] text-dim leading-relaxed">{f.desc}</span>
-            </Reveal3D>
-          ))}
+              Tầm nhìn dẫn đường, <span style={{ color: 'var(--accent)' }}>vươn tới đỉnh cao.</span>
+            </h1>
+            <p className="font-sans" style={{ fontSize: 18, lineHeight: 1.6, color: 'var(--ink-2)', maxWidth: '46ch' }}>
+              Vantage khai mở hành trình ôn thi Toán cùng AI — đề thi thật, phân tích lỗi sai, lộ trình học riêng cho từng học sinh THPT &amp; lớp 10.
+            </p>
+            <div className="flex flex-wrap items-center gap-3 mt-1">
+              <button
+                onClick={goToExams}
+                className="px-6 py-3 text-[14.5px] font-bold transition-colors"
+                style={{ fontFamily: 'var(--font-mono)', background: 'var(--accent)', color: 'var(--paper)', border: '1px solid var(--accent)', borderRadius: 'var(--r-sm)' }}
+              >
+                BẮT ĐẦU ÔN THI MIỄN PHÍ →
+              </button>
+              <button
+                onClick={() => viewNavigate(navigate, '/playground')}
+                className="px-6 py-3 text-[14.5px] font-bold transition-colors"
+                style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', background: 'transparent' }}
+              >
+                XEM CÔNG CỤ
+              </button>
+            </div>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--ink-3)', letterSpacing: '0.06em' }}>
+              KHÔNG CẦN THẺ · DÙNG NGAY TRÊN TRÌNH DUYỆT · ∫Σ√π∞Δ
+            </p>
+          </div>
+          <HeroTerrain />
         </div>
       </section>
 
-      {/* FAQ — same 5 Q&As as the FAQPage JSON-LD, now visible on-page */}
-      <section className="px-6 sm:px-10 pb-20 max-w-2xl mx-auto w-full">
-        <h2 className="font-display text-[26px] font-bold text-foreground text-center mb-6">Câu hỏi thường gặp</h2>
-        <Reveal3D variant="rise">
-          <Accordion type="single" collapsible>
-            {FAQS.map((f, i) => (
-              <AccordionItem key={i} value={`faq-${i}`}>
-                <AccordionTrigger className="font-sans text-[15px] text-left">{f.q}</AccordionTrigger>
-                <AccordionContent className="font-sans text-[0.875rem] leading-relaxed">{f.a}</AccordionContent>
-              </AccordionItem>
+      {/* Stats — sổ tay trắc địa ledger line, not a 3-up SaaS stat grid */}
+      <section className="px-6 sm:px-10 pb-16">
+        <div className="mx-auto max-w-6xl">
+          <div
+            className="flex flex-wrap items-baseline gap-x-3 gap-y-2 py-4"
+            style={{ borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line-soft)', fontFamily: 'var(--font-mono)' }}
+          >
+            {STATS.map((s, i) => (
+              <span key={s.label} className="flex items-baseline gap-x-3">
+                {i > 0 && <span style={{ color: 'var(--line)' }} aria-hidden="true">·</span>}
+                <span style={{ fontSize: 22, fontWeight: 500, color: 'var(--ink)' }}>{s.value}</span>
+                <span style={{ fontSize: 11, letterSpacing: '0.1em', color: 'var(--ink-3)' }}>{s.label}</span>
+              </span>
             ))}
-          </Accordion>
-        </Reveal3D>
+          </div>
+        </div>
       </section>
 
-      {/* Closing CTA */}
-      <section className="flex flex-col items-center gap-4 px-6 pb-20 text-center">
-        <h2 className="font-display text-[28px] font-bold text-foreground">Sẵn sàng bắt đầu?</h2>
+      {/* Features — border-top rhythm, no uniform cards */}
+      <section className="px-6 sm:px-10 pb-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="flex items-baseline justify-between mb-8 flex-wrap gap-2">
+            <h2 className="font-display font-bold" style={{ fontSize: 28, color: 'var(--ink)' }}>Công cụ đi cùng bạn</h2>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, letterSpacing: '0.08em', color: 'var(--ink-3)' }}>
+              04 DỤNG CỤ · NHƯ HỘP BÚT CỦA NGƯỜI LEO NÚI
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {FEATURES.map((f, i) => {
+              const Icon = ICONS[i]
+              return (
+                <button
+                  key={f.path}
+                  onClick={() => viewNavigate(navigate, f.path)}
+                  className="flex flex-col items-start gap-2.5 text-left pt-4 transition-transform hover:-translate-y-[3px]"
+                  style={{ borderTop: '2px solid var(--ink)' }}
+                >
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--accent)' }}>{f.num}</span>
+                  <Icon />
+                  <span className="font-display" style={{ fontSize: 19, fontWeight: 500, color: 'var(--ink)' }}>{f.title}</span>
+                  <span className="font-sans" style={{ fontSize: 14, lineHeight: 1.5, color: 'var(--ink-2)' }}>{f.desc}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ — mục lục sách, not accordion default */}
+      <section className="px-6 sm:px-10 pb-20">
+        <div className="mx-auto max-w-2xl">
+          <h2 className="font-display font-bold text-center mb-6" style={{ fontSize: 28, color: 'var(--ink)' }}>Câu hỏi thường gặp</h2>
+          <div>
+            {FAQS.map((f, i) => (
+              <details
+                key={f.q}
+                open={i === 0}
+                className="group"
+                style={{ borderTop: '1px solid var(--line)', borderBottom: i === FAQS.length - 1 ? '1px solid var(--line)' : 'none' }}
+              >
+                <summary
+                  className="grid items-center py-4 cursor-pointer list-none"
+                  style={{ gridTemplateColumns: '40px 1fr 24px' }}
+                >
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--ink-3)' }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="font-display" style={{ fontSize: 17, color: 'var(--ink)' }}>{f.q}</span>
+                  <span
+                    className="transition-transform group-open:rotate-45 text-right"
+                    style={{ color: 'var(--accent)', fontSize: 18 }}
+                  >
+                    +
+                  </span>
+                </summary>
+                <p className="pb-4 font-sans" style={{ gridColumn: 2, marginLeft: 40, maxWidth: '64ch', fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-2)' }}>
+                  {f.a}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Closing CTA — the single ink panel of the page */}
+      <section
+        className="flex flex-col items-center gap-4 px-6 py-20 text-center relative overflow-hidden"
+        style={{ background: 'var(--summit-bg)' }}
+      >
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, letterSpacing: '0.12em', color: 'rgba(245,242,234,0.5)' }}>
+          CỘT MỐC TIẾP THEO LÀ CỦA BẠN
+        </span>
+        <h2 className="font-display font-bold relative z-10" style={{ fontSize: 30, color: '#F5F2EA' }}>
+          Sẵn sàng <span style={{ color: 'var(--accent)' }}>bắt đầu leo?</span>
+        </h2>
         <button
           onClick={goToExams}
-          className="px-7 py-3.5 rounded-full font-sans text-[15px] font-bold bg-primary text-primary-fg hover:opacity-90 transition"
+          className="relative z-10 px-6 py-3 text-[14.5px] font-bold"
+          style={{ fontFamily: 'var(--font-mono)', background: 'var(--accent)', color: '#F5F2EA', border: '1px solid var(--accent)', borderRadius: 'var(--r-sm)' }}
         >
-          Vào ôn thi ngay
+          VÀO ÔN THI NGAY →
         </button>
       </section>
     </motion.div>

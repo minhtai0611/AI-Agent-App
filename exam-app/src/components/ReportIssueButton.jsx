@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { reportQuestion } from '../api/index.js'
+import { useEscapeToClose } from '../hooks/useEscapeToClose.js'
 
 const KIND_LABELS = {
   render: 'Hiển thị lỗi (LaTeX/hình ảnh)',
@@ -16,6 +17,9 @@ export function ReportIssueButton({ questionId }) {
   const [note, setNote] = useState('')
   const [status, setStatus] = useState('idle') // idle | sending | sent | error
 
+  function close() { setOpen(false); setStatus('idle') }
+  useEscapeToClose(open, close)
+
   async function submit() {
     setStatus('sending')
     try {
@@ -26,61 +30,74 @@ export function ReportIssueButton({ questionId }) {
     }
   }
 
-  if (!open) {
-    return (
+  return (
+    <>
       <button
         onClick={() => setOpen(true)}
-        className="self-start flex items-center gap-2 px-3 py-1.5 rounded-lg font-sans text-[11px] text-[var(--fg-tertiary)] hover:text-[var(--foreground)] transition"
+        className="self-start flex items-center gap-2 px-3 py-1.5 transition"
+        style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-3)' }}
       >
-        <span>⚑</span> Báo lỗi câu hỏi
+        ⚑ Báo lỗi câu hỏi
       </button>
-    )
-  }
 
-  if (status === 'sent') {
-    return (
-      <p className="font-sans text-[12px] text-[var(--success)] px-1">
-        Đã gửi báo cáo — cảm ơn bạn.
-      </p>
-    )
-  }
+      {open && (
+        <div className="vtg-overlay" onClick={close}>
+          <div className="vtg-modal" style={{ maxWidth: 380 }} onClick={e => e.stopPropagation()}>
+            <div className="vtg-modal-head">
+              <div>
+                <span className="vtg-modal-kicker">PHIẾU BÁO SAI LỆCH TRẮC LƯỢNG</span>
+                <span className="vtg-modal-title">Đính chính câu hỏi</span>
+              </div>
+              <button onClick={close} className="vtg-modal-close" aria-label="Đóng">✕</button>
+            </div>
 
-  return (
-    <div className="flex flex-col gap-2 p-3 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)]">
-      <select
-        value={kind}
-        onChange={(e) => setKind(e.target.value)}
-        className="font-sans text-[12px] px-2 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)]"
-      >
-        {Object.entries(KIND_LABELS).map(([value, label]) => (
-          <option key={value} value={value}>{label}</option>
-        ))}
-      </select>
-      <textarea
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        placeholder="Mô tả ngắn (không bắt buộc)"
-        rows={2}
-        className="font-sans text-[12px] px-2 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] resize-none"
-      />
-      <div className="flex items-center gap-2">
-        <button
-          onClick={submit}
-          disabled={status === 'sending'}
-          className="px-3 py-1.5 rounded-lg font-sans text-[12px] font-semibold text-[var(--accent-fg)] bg-[var(--accent)] disabled:opacity-50"
-        >
-          {status === 'sending' ? 'Đang gửi…' : 'Gửi báo cáo'}
-        </button>
-        <button
-          onClick={() => setOpen(false)}
-          className="px-3 py-1.5 rounded-lg font-sans text-[12px] text-[var(--fg-tertiary)]"
-        >
-          Hủy
-        </button>
-        {status === 'error' && (
-          <span className="font-sans text-[11px] text-[var(--destructive)]">Gửi thất bại, thử lại sau.</span>
-        )}
-      </div>
-    </div>
+            <div className="vtg-modal-body">
+              {status === 'sent' ? (
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12.5, color: 'var(--pine)' }}>
+                  Đã gửi phiếu báo — cảm ơn bạn.
+                </p>
+              ) : (
+                <>
+                  <select
+                    value={kind}
+                    onChange={(e) => setKind(e.target.value)}
+                    className="w-full"
+                    style={{ fontFamily: 'var(--font-mono)', fontSize: 12.5, padding: '8px 10px', border: '1px solid var(--line)', background: 'var(--paper)', color: 'var(--ink)', borderRadius: 'var(--r-sm)' }}
+                  >
+                    {Object.entries(KIND_LABELS).map(([value, label]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                  <textarea
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="Mô tả ngắn (không bắt buộc)"
+                    rows={3}
+                    className="w-full resize-none"
+                    style={{ fontFamily: 'var(--font-body)', fontSize: 13, padding: '8px 10px', border: '1px solid var(--line)', background: 'var(--paper)', color: 'var(--ink)', borderRadius: 'var(--r-sm)' }}
+                  />
+                  {status === 'error' && (
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent-deep)' }}>Gửi thất bại, thử lại sau.</span>
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className="vtg-modal-foot">
+              {status === 'sent' ? (
+                <button onClick={close} className="vtg-btn-primary">ĐÓNG ▲</button>
+              ) : (
+                <>
+                  <button onClick={close} className="vtg-btn-ghost">HUỶ</button>
+                  <button onClick={submit} disabled={status === 'sending'} className="vtg-btn-primary">
+                    {status === 'sending' ? 'ĐANG GỬI…' : 'GỬI PHIẾU BÁO ▲'}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }

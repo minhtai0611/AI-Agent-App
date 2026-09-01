@@ -1,8 +1,9 @@
-// Voltage mark — a bold flat wedge, no gradient, no soft glow.
-// Replaces the "Summit Beacon" mark as part of the Ascent → Voltage redesign
-// (Direction C: high-contrast, single-accent, flat geometry).
-// viewBox 0 0 40 40
-function VoltageWedge({ size = 24 }) {
+// Vantage v1.4.1 "cờ đỉnh" (summit flag) mark — a flat vermillion wedge, no
+// gradient, no glow. The same geometry survives from the earlier "Voltage"
+// mark since it already reads as a mountain/flag triangle; only the type
+// pairing changes (Space Grotesk, per design-system.html) and the wordmark
+// gains the ▲ glyph the shell spec calls for ("Wordmark VANTAGE ▲").
+function SummitWedge({ size = 24 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" aria-hidden="true">
       <path d="M20 4 L34 30 L6 30 Z" fill="currentColor" />
@@ -24,28 +25,21 @@ export default function VantageLogo({ variant = 'nav', onClick }) {
         cursor: onClick ? 'pointer' : 'default',
       }}
     >
-      <div className="text-primary">
-        <VoltageWedge size={isHero ? 52 : 20} />
+      <div style={{ color: 'var(--accent)' }}>
+        <SummitWedge size={isHero ? 52 : 20} />
       </div>
       <span
-        className="font-bold text-foreground uppercase"
+        className="font-bold uppercase"
         style={{
-          fontFamily: "'Fraunces Variable', Fraunces, Georgia, serif",
+          fontFamily: 'var(--font-display)',
           fontSize: isHero ? 38 : 14,
-          letterSpacing: '-0.01em',
+          letterSpacing: '-0.02em',
           lineHeight: 1,
+          color: 'var(--ink)',
         }}
       >
-        VANTAGE
+        VANTAGE <span style={{ color: 'var(--accent)' }}>▲</span>
       </span>
-      {isHero && (
-        <span
-          className="text-muted-fg font-semibold"
-          style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase' }}
-        >
-          Học thật, đỗ thật
-        </span>
-      )}
     </div>
   )
 }

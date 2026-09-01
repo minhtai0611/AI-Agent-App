@@ -7,9 +7,10 @@ import { OrgAuthProvider } from './context/OrgAuthContext.jsx'
 import { useExamDispatch } from './context/ExamContext.jsx'
 import { loadExamById, loadQuestionsByIds } from './api/index.js'
 import Navbar from './components/Navbar.jsx'
+import Footer from './components/Footer.jsx'
 import OfflineBanner from './components/OfflineBanner.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
-import AmbientBackground from './components/motion/AmbientBackground.jsx'
+import BgField from './components/motion/BgField.jsx'
 import InstallPrompt from './components/InstallPrompt.jsx'
 import RequireOrgRole from './components/RequireOrgRole.jsx'
 import OrgBrandingProvider from './components/OrgBrandingProvider.jsx'
@@ -117,12 +118,12 @@ function AppInner() {
   return (
     <>
       <ScrollToTop />
-      <AmbientBackground />
+      <BgField />
       <OrgBrandingProvider />
       <OfflineBanner />
       <InstallPrompt />
       {!isHiddenNavRoute && <Navbar />}
-      <div className={`min-h-screen bg-background text-foreground${isHiddenNavRoute ? '' : ' pt-12'}`}>
+      <div className={`relative z-[1] min-h-screen bg-transparent text-foreground${isHiddenNavRoute ? '' : ' pt-12'}`}>
         <Suspense fallback={<PageFallback />}>
           <AnimatePresence mode="wait" initial={false}>
             <Routes location={location} key={location.pathname}>
@@ -157,6 +158,7 @@ function AppInner() {
           </AnimatePresence>
         </Suspense>
       </div>
+      {!isHiddenNavRoute && <Footer />}
       {resumeBanner && !resumeDismissed && (
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-primary/25 px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">

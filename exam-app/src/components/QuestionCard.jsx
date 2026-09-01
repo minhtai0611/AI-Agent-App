@@ -1,5 +1,4 @@
-﻿import { useState, useEffect, memo } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useEffect, memo } from 'react'
 import { sanitizeSvg } from '../utils/sanitizeSvg.js'
 import { MathText } from './MathText.jsx'
 import { ReportIssueButton } from './ReportIssueButton.jsx'
@@ -8,69 +7,57 @@ import { loadStepSolution } from '../api/index.js'
 
 const LABELS = ['A', 'B', 'C', 'D']
 
+function BookIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 5.5C4 4.7 4.7 4 5.5 4H12v16H5.5C4.7 20 4 19.3 4 18.5z" />
+      <path d="M20 5.5C20 4.7 19.3 4 18.5 4H12v16h6.5c.8 0 1.5-.7 1.5-1.5z" />
+    </svg>
+  )
+}
+
+function CompassIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M15 9l-4 6-2-2z" />
+    </svg>
+  )
+}
+
 // Returns CSS variable strings — resolved by the active theme at render time
 function choiceStyle(index, chosen, aiCorrect, showFeedback) {
   if (!showFeedback) {
     if (chosen === index) return {
-      bg: 'var(--choice-chosen-bg)',
-      border: 'var(--accent)',
-      bw: '1.5px',
-      labelBg: 'var(--accent)',
-      labelText: 'var(--accent-fg)',
-      text: 'var(--accent)',
+      bg: 'var(--paper-2)', border: 'var(--ink)', bw: '2px',
+      labelBg: 'var(--ink)', labelText: 'var(--paper)', text: 'var(--ink)',
     }
     return {
-      bg: 'var(--surface)',
-      border: 'var(--border)',
-      bw: '1px',
-      labelBg: 'var(--border)',
-      labelText: 'var(--fg-secondary)',
-      text: 'var(--fg-secondary)',
+      bg: 'var(--paper)', border: 'var(--line)', bw: '1px',
+      labelBg: 'var(--paper-2)', labelText: 'var(--ink-2)', text: 'var(--ink)',
     }
   }
-  // Answered but AI still loading — keep chosen highlighted, others neutral
   if (aiCorrect === null) {
     if (chosen === index) return {
-      bg: 'var(--choice-chosen-bg)',
-      border: 'var(--accent)',
-      bw: '1.5px',
-      labelBg: 'var(--accent)',
-      labelText: 'var(--accent-fg)',
-      text: 'var(--accent)',
+      bg: 'var(--paper-2)', border: 'var(--ink)', bw: '2px',
+      labelBg: 'var(--ink)', labelText: 'var(--paper)', text: 'var(--ink)',
     }
     return {
-      bg: 'var(--surface)',
-      border: 'var(--border)',
-      bw: '1px',
-      labelBg: 'var(--border)',
-      labelText: 'var(--fg-tertiary)',
-      text: 'var(--fg-tertiary)',
+      bg: 'var(--paper)', border: 'var(--line)', bw: '1px',
+      labelBg: 'var(--paper-2)', labelText: 'var(--ink-3)', text: 'var(--ink-2)',
     }
   }
-  // AI responded — show correct/wrong
   if (index === aiCorrect) return {
-    bg: 'var(--primary-subtle)',
-    border: 'var(--success)',
-    bw: '1.5px',
-    labelBg: 'var(--success)',
-    labelText: 'var(--primary-fg)',
-    text: 'var(--success)',
+    bg: 'color-mix(in srgb, var(--pine) 12%, var(--paper))', border: 'var(--pine)', bw: '2px',
+    labelBg: 'var(--pine)', labelText: 'var(--paper)', text: 'var(--pine)',
   }
   if (index === chosen) return {
-    bg: 'var(--choice-wrong-bg)',
-    border: 'var(--destructive)',
-    bw: '1.5px',
-    labelBg: 'var(--destructive)',
-    labelText: '#FFFFFF',
-    text: 'var(--destructive)',
+    bg: 'color-mix(in srgb, var(--accent) 10%, var(--paper))', border: 'var(--accent)', bw: '2px',
+    labelBg: 'var(--accent)', labelText: 'var(--accent-fg)', text: 'var(--accent-deep)',
   }
   return {
-    bg: 'var(--surface)',
-    border: 'var(--border)',
-    bw: '1px',
-    labelBg: 'var(--border)',
-    labelText: 'var(--fg-tertiary)',
-    text: 'var(--fg-tertiary)',
+    bg: 'var(--paper)', border: 'var(--line)', bw: '1px',
+    labelBg: 'var(--paper-2)', labelText: 'var(--ink-3)', text: 'var(--ink-2)',
   }
 }
 
@@ -105,13 +92,14 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, wro
     <div>
       {question.figure?.data && (
         <div
-          className="mb-4 rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--surface)] flex justify-center p-3"
+          className="mb-4 overflow-hidden flex justify-center p-3"
+          style={{ border: '1px solid var(--line)', background: 'var(--paper)', borderRadius: 'var(--r-sm)' }}
           dangerouslySetInnerHTML={{ __html: sanitizeSvg(question.figure.data) }}
         />
       )}
 
       {question.image && (
-        <div className="mb-4 rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--surface)] flex justify-center p-3">
+        <div className="mb-4 overflow-hidden flex justify-center p-3" style={{ border: '1px solid var(--line)', background: 'var(--paper)', borderRadius: 'var(--r-sm)' }}>
           <img
             src={question.image}
             alt=""
@@ -125,75 +113,68 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, wro
           href={question.imageLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] font-sans text-[0.8125rem] text-[var(--info)] hover:border-[var(--info)] hover:bg-[var(--surface-elevated)] transition w-fit"
+          className="mb-4 flex items-center gap-2 px-4 py-2.5 w-fit transition"
+          style={{ border: '1px solid var(--line)', background: 'var(--paper)', borderRadius: 'var(--r-sm)', fontFamily: 'var(--font-mono)', fontSize: 12.5, color: 'var(--altitude)' }}
         >
-          <span>🖼</span>
-          <span>Xem hình minh họa (nguồn chính thức) →</span>
+          XEM BẢN VẼ GỐC TRẮC ĐỊA →
         </a>
       )}
 
-      <MathText className="font-sans font-semibold text-[20px] text-[var(--foreground)] leading-relaxed mb-5 whitespace-pre-wrap">
+      <MathText className="mb-5 whitespace-pre-wrap block" style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 18.5, lineHeight: 1.75, color: 'var(--ink)' }}>
         {question.question}
       </MathText>
       <div className="flex flex-col gap-2.5">
         {question.choices.map((choice, i) => {
           const s = choiceStyle(i, chosen, showFeedback ? correctIndex : null, showFeedback)
-          const isChosen = i === chosen
-          const feedbackClass = showFeedback
-            ? i === correctIndex ? 'z-choice-correct'
-            : (isChosen && i !== correctIndex) ? 'z-choice-wrong'
-            : ''
-            : ''
           return (
-            <motion.button
+            <button
               key={i}
-              className={`w-full text-left flex items-center gap-3.5 px-[18px] py-3.5 rounded-xl transition-all ${feedbackClass}`}
-              style={{ background: s.bg, border: `${s.bw} solid ${s.border}` }}
+              className="w-full text-left flex items-stretch gap-0 overflow-hidden transition-colors duration-150"
+              style={{ border: `${s.bw} solid ${s.border}`, background: s.bg, borderRadius: '6px' }}
               onClick={() => !showFeedback && !submitted && onAnswer(i)}
               disabled={showFeedback || submitted}
-              whileHover={!showFeedback && !submitted ? { scale: 1.01 } : {}}
-              whileTap={!showFeedback && !submitted ? { scale: 0.98 } : {}}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              onMouseEnter={(e) => { if (!showFeedback && !submitted && chosen !== i) e.currentTarget.style.background = 'var(--paper-2)' }}
+              onMouseLeave={(e) => { if (!showFeedback && !submitted && chosen !== i) e.currentTarget.style.background = s.bg }}
             >
               <span
-                className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-md font-sans text-[0.8125rem] font-bold"
-                style={{ background: s.labelBg, color: s.labelText }}
+                className="flex-shrink-0 flex items-center justify-center font-bold"
+                style={{ width: 44, background: s.labelBg, color: s.labelText, fontFamily: 'var(--font-mono)', fontSize: 14 }}
               >
                 {LABELS[i]}
               </span>
-              <MathText className="font-sans text-[15px] font-medium" style={{ color: s.text }}>
-                {choice}
-              </MathText>
-            </motion.button>
+              <span className="flex items-center px-4 py-3.5">
+                <MathText style={{ fontFamily: 'var(--font-body)', fontSize: 15.5, color: s.text }}>
+                  {choice}
+                </MathText>
+              </span>
+            </button>
           )
         })}
       </div>
 
       {showFeedback && (
         <div
-          className="mt-5 flex items-start gap-3 p-3.5 rounded-xl"
+          className="mt-5 flex items-start gap-3 p-3.5"
           style={{
-            border: `1px solid ${isCorrect ? 'var(--primary-border)' : 'var(--choice-wrong-border)'}`,
-            background: isCorrect ? 'var(--primary-subtle)' : 'var(--choice-wrong-bg)',
+            border: `1px solid ${isCorrect ? 'var(--pine)' : 'var(--accent)'}`,
+            background: isCorrect ? 'color-mix(in srgb, var(--pine) 8%, var(--paper))' : 'color-mix(in srgb, var(--accent) 7%, var(--paper))',
+            borderRadius: 'var(--r-sm)',
           }}
         >
-          <span className="flex-shrink-0 mt-0.5" style={{ color: 'var(--success)' }}>
-            {isCorrect ? (
-              <svg className="z-checkmark w-5 h-5" viewBox="0 0 20 20" fill="none">
-                <path d="M4 10l4.5 4.5L16 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            ) : (
-              <span className="text-base leading-none text-[var(--destructive)]">✗</span>
-            )}
-          </span>
           <div className="flex-1 min-w-0">
-            {!isCorrect && (
-              <p className="font-sans text-xs font-semibold text-[var(--destructive)] mb-1">
-                Đáp án đúng: {LABELS[correctIndex] ?? '?'}
+            {isCorrect ? (
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12.5, fontWeight: 600, color: 'var(--pine)', letterSpacing: '0.03em' }}>
+                ✓ ĐẠT MỐC CHUẨN XÁC
               </p>
-            )}
-            {isCorrect && (
-              <p className="font-sans text-[0.8125rem] text-[var(--success)]">Đúng rồi.</p>
+            ) : (
+              <>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12.5, fontWeight: 600, color: 'var(--accent-deep)', letterSpacing: '0.03em' }}>
+                  ✕ TRẠM VẤP — CẦN ĐỐI CHIẾU
+                </p>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--ink-3)', marginTop: 4 }}>
+                  Đáp án đúng: {LABELS[correctIndex] ?? '?'}
+                </p>
+              </>
             )}
           </div>
         </div>
@@ -201,8 +182,8 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, wro
 
       {/* Struggle support — shown after 2 consecutive wrong across questions */}
       {practiceMode && !submitted && showFeedback && !isCorrect && wrongStreak >= 2 && (
-        <div className="mt-3 px-4 py-3 rounded-xl glass-base border-info/20">
-          <p className="font-sans text-xs text-[var(--info)] leading-relaxed" style={{ opacity: 0.8 }}>
+        <div className="mt-3 px-4 py-3" style={{ border: '1px solid var(--line)', background: 'var(--paper-2)', borderRadius: 'var(--r-sm)' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 12.5, color: 'var(--altitude)', lineHeight: 1.6 }}>
             Bài này khó với nhiều học sinh. Xem giải thích bên dưới.
           </p>
         </div>
@@ -217,14 +198,15 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, wro
               setShowExplanation(next)
               if (next) track('explanation_opened', { questionId: question.id })
             }}
-            className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] font-sans text-xs text-[var(--muted-fg)] hover:text-[var(--foreground)] hover:border-[var(--primary-border)] transition"
+            className="self-start flex items-center gap-2 px-3.5 py-2 transition"
+            style={{ border: '1px solid var(--line)', background: 'var(--paper-2)', borderRadius: 'var(--r-sm)', fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--ink-2)' }}
           >
-            <span>📖</span>
+            <BookIcon />
             {showExplanation ? 'Ẩn giải thích' : 'Xem giải thích'}
           </button>
           {showExplanation && question.explanation && (
-            <div className="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)]">
-              <MathText className="font-sans text-[0.8125rem] text-[var(--muted-fg)] leading-relaxed">
+            <div className="p-3.5" style={{ border: '1px solid var(--line)', background: 'var(--paper-2)', borderRadius: 'var(--r-sm)' }}>
+              <MathText style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.6 }}>
                 {question.explanation}
               </MathText>
             </div>
@@ -237,26 +219,27 @@ function QuestionCard({ question, chosen, onAnswer, practiceMode, submitted, wro
         <div className="mt-3 flex flex-col gap-2">
           <button
             onClick={handleToggleSteps}
-            className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] font-sans text-xs text-[var(--muted-fg)] hover:text-[var(--foreground)] hover:border-[var(--primary-border)] transition"
+            className="self-start flex items-center gap-2 px-3.5 py-2 transition"
+            style={{ border: '1px solid var(--line)', background: 'var(--paper-2)', borderRadius: 'var(--r-sm)', fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--ink-2)' }}
           >
-            <span>🧮</span>
-            {stepsOpen ? 'Ẩn các bước giải' : 'Xem các bước giải'}
+            <CompassIcon />
+            {stepsOpen ? 'Ẩn NHỊP LEO — SOI TỪNG BƯỚC' : 'NHỊP LEO — SOI TỪNG BƯỚC'}
           </button>
           {stepsOpen && stepFetch.status === 'loading' && (
-            <p className="font-sans text-xs text-[var(--muted-fg)]">Đang tạo lời giải…</p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--ink-3)' }}>Đang tạo lời giải…</p>
           )}
           {stepsOpen && stepFetch.status === 'done' && !stepFetch.result?.available && (
-            <p className="font-sans text-xs text-[var(--fg-tertiary)]">Câu này chưa có lời giải từng bước.</p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--ink-3)' }}>Câu này chưa có lời giải từng bước.</p>
           )}
           {stepsOpen && stepFetch.status === 'done' && stepFetch.result?.available && (
             <div className="flex flex-col gap-2">
               {stepFetch.result.steps.map((step, i) => (
-                <div key={i} className="p-3.5 rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] flex flex-col gap-1.5">
-                  <MathText className="font-sans text-[0.8125rem] text-[var(--foreground)]">
+                <div key={i} className="p-3.5 flex flex-col gap-1.5" style={{ border: '1px solid var(--line)', background: 'var(--paper-2)', borderRadius: 'var(--r-sm)' }}>
+                  <MathText style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--ink)' }}>
                     {`$${step.before}$ $\\Rightarrow$ $${step.after}$`}
                   </MathText>
                   {step.caption && (
-                    <p className="font-sans text-[0.6875rem] text-[var(--muted-fg)]">{step.caption}</p>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, fontStyle: 'italic', color: 'var(--ink-3)' }}>{step.caption}</p>
                   )}
                 </div>
               ))}
