@@ -2,8 +2,44 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { pageVariants, viewNavigate } from '../utils/animations.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
+import { useTheme } from '../hooks/useTheme.js'
 import VantageLogo from '../components/VantageLogo.jsx'
 import HeroTerrain from '../components/motion/HeroTerrain.jsx'
+
+const NAV_LINKS = [
+  { label: 'Công cụ', anchor: '#cong-cu' },
+  { label: 'Lộ trình', anchor: '#lo-trinh' },
+  { label: 'Hỏi đáp', anchor: '#hoi-dap' },
+]
+
+function SunIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </svg>
+  )
+}
+function MoonIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+    </svg>
+  )
+}
+
+function HeaderThemeToggle() {
+  const { theme, toggleTheme } = useTheme()
+  return (
+    <button
+      onClick={toggleTheme}
+      aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+      className="flex items-center justify-center w-9 h-9 transition-colors"
+      style={{ color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', background: 'transparent' }}
+    >
+      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+    </button>
+  )
+}
 
 // Vantage v1.4.1 landing — editorial 2-column hero (bản đồ địa hình sống +
 // đường leo, via HeroTerrain — a live canvas terrain, cursor-tilt camera,
@@ -75,16 +111,31 @@ export default function Landing() {
 
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit" className="min-h-screen flex flex-col">
-      {/* Minimal marketing header — no app nav tabs, single CTA */}
-      <header className="flex items-center justify-between px-6 sm:px-10 py-5 relative z-10">
+      {/* Marketing header — logo, section nav, theme toggle, single CTA */}
+      <header className="flex items-center justify-between px-6 sm:px-10 py-5 relative z-10 gap-4">
         <VantageLogo variant="nav" onClick={goToExams} />
-        <button
-          onClick={goToExams}
-          className="px-4 py-2 text-[12.5px] font-bold transition-colors"
-          style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', background: 'var(--paper)' }}
-        >
-          VÀO ÔN THI →
-        </button>
+        <nav className="hidden sm:flex items-center gap-8 ml-auto" aria-label="Chính">
+          {NAV_LINKS.map(link => (
+            <a
+              key={link.anchor}
+              href={link.anchor}
+              className="text-[15px] transition-colors"
+              style={{ color: 'var(--ink-2)' }}
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+        <div className="flex items-center gap-3">
+          <HeaderThemeToggle />
+          <button
+            onClick={goToExams}
+            className="px-4 py-2 text-[12.5px] font-bold transition-colors"
+            style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', background: 'var(--paper)' }}
+          >
+            VÀO ÔN THI →
+          </button>
+        </div>
       </header>
 
       {/* Hero — editorial 2 columns: headline+CTA left, terrain card right */}
@@ -102,7 +153,7 @@ export default function Landing() {
               Tầm nhìn dẫn đường, <span style={{ color: 'var(--accent)' }}>vươn tới đỉnh cao.</span>
             </h1>
             <p className="font-sans" style={{ fontSize: 18, lineHeight: 1.6, color: 'var(--ink-2)', maxWidth: '46ch' }}>
-              Vantage khai mở hành trình ôn thi Toán cùng AI — đề thi thật, phân tích lỗi sai, lộ trình học riêng cho từng học sinh THPT &amp; lớp 10.
+              Đề thi thật từ Bộ GD&amp;ĐT và 63 tỉnh thành. Hai lộ trình — THPT và tuyển sinh lớp 10 — cùng một xuất phát điểm. Bản đồ năng lực của riêng bạn, vẽ bằng điểm số thật.
             </p>
             <div className="flex flex-wrap items-center gap-3 mt-1">
               <button
@@ -129,7 +180,7 @@ export default function Landing() {
       </section>
 
       {/* Stats — sổ tay trắc địa ledger line, not a 3-up SaaS stat grid */}
-      <section className="px-6 sm:px-10 pb-16">
+      <section id="lo-trinh" className="px-6 sm:px-10 pb-16">
         <div className="mx-auto max-w-6xl">
           <div
             className="flex flex-wrap items-baseline gap-x-3 gap-y-2 py-4"
@@ -147,7 +198,7 @@ export default function Landing() {
       </section>
 
       {/* Features — border-top rhythm, no uniform cards */}
-      <section className="px-6 sm:px-10 pb-20">
+      <section id="cong-cu" className="px-6 sm:px-10 pb-20">
         <div className="mx-auto max-w-6xl">
           <div className="flex items-baseline justify-between mb-8 flex-wrap gap-2">
             <h2 className="font-display font-bold" style={{ fontSize: 28, color: 'var(--ink)' }}>Công cụ đi cùng bạn</h2>
@@ -177,7 +228,7 @@ export default function Landing() {
       </section>
 
       {/* FAQ — mục lục sách, not accordion default */}
-      <section className="px-6 sm:px-10 pb-20">
+      <section id="hoi-dap" className="px-6 sm:px-10 pb-20">
         <div className="mx-auto max-w-2xl">
           <h2 className="font-display font-bold text-center mb-6" style={{ fontSize: 28, color: 'var(--ink)' }}>Câu hỏi thường gặp</h2>
           <div>
