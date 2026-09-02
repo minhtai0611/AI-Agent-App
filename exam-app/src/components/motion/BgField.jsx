@@ -14,9 +14,11 @@ import { registerColorRefresh } from '../../lib/colorRefresh.js'
 // dampens further under the text via readzoneRect()), two "sky wash" radial
 // glows, cursor + scroll parallax, pauses off-tab, static single frame under
 // prefers-reduced-motion (traced with the same marching-squares method, not
-// a snapshot of the old crossing rings). Colors are re-sampled from CSS
-// custom properties on init and whenever window.VTG_REFRESH_COLORS() runs
-// (theme toggle).
+// a snapshot of the old crossing rings), plus the reference mockup's "đường
+// mòn" accent trail — a faint climbing path that draws itself in once over
+// ~2.2s after mount, bottom-left to top-right, then sits static with a dot
+// marker at its end. Colors are re-sampled from CSS custom properties on
+// init and whenever window.VTG_REFRESH_COLORS() runs (theme toggle).
 //
 // #bgField's position:fixed/inset:0 sizing rule lives in index.css, not
 // inline style — see the comment there for why (cover-bug lesson).
@@ -168,6 +170,40 @@ export default function BgField() {
       grad2.addColorStop(1, 'rgba(0,0,0,0)')
       ctx.fillStyle = grad2
       ctx.fillRect(0, 0, w, h)
+
+      // "Đường mòn" accent trail — a faint climbing path sweeping bottom-left to
+      // top-right, drawn in once over ~2.2s after mount then left static (matches
+      // the reference mockup's ambient field; this was the one signature ambient
+      // element the earlier port dropped — everything else here is decorative
+      // contour lines, this is the only element that reads as a "path").
+      const trailProgress = reduceMotion ? 1 : Math.min(1, Math.max(0, (t - 600) / 2200))
+      if (trailProgress > 0 && w > 0 && h > 0) {
+        ctx.save()
+        ctx.globalAlpha = 0.16
+        ctx.strokeStyle = `rgb(${colors.accentRgb})`
+        ctx.lineWidth = 1.3
+        ctx.lineCap = 'round'
+        ctx.beginPath()
+        const TN = 90
+        const upTo = Math.max(1, Math.floor(TN * trailProgress))
+        let lastX = 0, lastY = 0
+        for (let i = 0; i <= upTo; i++) {
+          const u = i / TN
+          const px = (0.05 + 0.86 * u + 0.03 * Math.sin(u * 4.4 + 1.2)) * w
+          const py = (0.96 - 0.86 * u + 0.085 * Math.sin(u * 7.0)) * h
+          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py)
+          lastX = px; lastY = py
+        }
+        ctx.stroke()
+        if (trailProgress >= 1) {
+          ctx.globalAlpha = 0.35
+          ctx.beginPath()
+          ctx.arc(lastX, lastY, 3, 0, Math.PI * 2)
+          ctx.fillStyle = `rgb(${colors.accentRgb})`
+          ctx.fill()
+        }
+        ctx.restore()
+      }
 
       // Contour = level sets of one combined height field (marching squares over a
       // shared vertex grid, one iso level per ring index) — mathematically cannot cross.
