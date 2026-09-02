@@ -8,9 +8,10 @@ import { registerColorRefresh } from '../../lib/colorRefresh.js'
 // of a continuous scalar field cannot cross each other, which the previous
 // per-hill "independent polar ellipse" drawing could (and did). No particles,
 // no noise texture. Vanilla canvas per design-system.html's motion spec
-// (Ambient field row): DPR capped at 1.5, alpha ≤0.12 at the screen edge /
-// ~0.03-0.04 at center via a vignette (lowered from ~0.05 in the polish pass
-// so contours read as background, not artifact), two "sky wash" radial
+// (Ambient field row): DPR capped at 1.5, alpha ≤0.22 at the screen edge /
+// ~0.09 at center via a vignette (raised post-launch — the original ~0.03-0.04
+// center floor read as "no background" to users; the hero readzone still
+// dampens further under the text via readzoneRect()), two "sky wash" radial
 // glows, cursor + scroll parallax, pauses off-tab, static single frame under
 // prefers-reduced-motion (traced with the same marching-squares method, not
 // a snapshot of the old crossing rings). Colors are re-sampled from CSS
@@ -122,8 +123,8 @@ export default function BgField() {
     // just factored out so both the height-field sampler and the static frame reuse it.
     function hillCenter(hill, t) {
       const driftT = (t * 0.001 * (0.012 + hill.depth * 0.004)) + hill.phase
-      const driftX = Math.sin(driftT) * 0.015
-      const driftY = Math.cos(driftT * 0.8) * 0.012
+      const driftX = Math.sin(driftT) * 0.028
+      const driftY = Math.cos(driftT * 0.8) * 0.022
       const parX = (mouse.x - 0.5) * 0.02 * hill.depth
       const parY = (mouse.y - 0.5) * 0.02 * hill.depth + scrollY * 0.00006 * hill.depth
       return [(hill.cx + driftX + parX) * w, (hill.cy + driftY + parY) * h]
@@ -133,9 +134,9 @@ export default function BgField() {
       const cxr = Math.abs(px - w / 2) / (w / 2)
       const cyr = Math.abs(py - h / 2) / (h / 2)
       const cr = Math.max(cxr, cyr)
-      // Lowered floor (was 0.42) so alpha at screen center comes out ~0.03-0.04
-      // instead of ~0.05 (P1.2's "vùng đọc sạch" requirement).
-      return 0.28 + 0.72 * Math.pow(Math.min(cr, 1), 1.4)
+      // Raised floor (was 0.28) — the readzone dampener below still keeps text
+      // legible, so the rest of the frame can read as more clearly "alive".
+      return 0.55 + 0.45 * Math.pow(Math.min(cr, 1), 1.4)
     }
 
     function readzoneRect() {
@@ -155,7 +156,7 @@ export default function BgField() {
       const g1x = w * (0.82 + Math.sin(washT) * 0.03)
       const g1y = h * (0.14 + Math.cos(washT * 0.7) * 0.02)
       const grad1 = ctx.createRadialGradient(g1x, g1y, 0, g1x, g1y, Math.max(w, h) * 0.65)
-      grad1.addColorStop(0, `rgba(${colors.accentRgb},0.05)`)
+      grad1.addColorStop(0, `rgba(${colors.accentRgb},0.12)`)
       grad1.addColorStop(1, 'rgba(0,0,0,0)')
       ctx.fillStyle = grad1
       ctx.fillRect(0, 0, w, h)
@@ -163,7 +164,7 @@ export default function BgField() {
       const g2x = w * (0.10 - Math.sin(washT * 0.9) * 0.03)
       const g2y = h * (0.88 - Math.cos(washT * 0.6) * 0.02)
       const grad2 = ctx.createRadialGradient(g2x, g2y, 0, g2x, g2y, Math.max(w, h) * 0.6)
-      grad2.addColorStop(0, `rgba(${colors.inkRgb},0.035)`)
+      grad2.addColorStop(0, `rgba(${colors.inkRgb},0.09)`)
       grad2.addColorStop(1, 'rgba(0,0,0,0)')
       ctx.fillStyle = grad2
       ctx.fillRect(0, 0, w, h)
@@ -197,11 +198,11 @@ export default function BgField() {
         // calls (one per distinct bucket) instead of one per tiny segment — segment
         // count from a 128x72 trace can run into the hundreds per ring.
         const buckets = new Map()
-        ctx.lineWidth = 1
+        ctx.lineWidth = 1.6
         for (let ring = 0; ring < RINGS_PER_HILL; ring++) {
           segBuf.length = 0
           traceGrid(values, cols, rows, 0, 0, dx, dy, ISO_LEVELS[ring], segBuf)
-          const baseAlpha = Math.max(0.02, 0.12 - ring * 0.018)
+          const baseAlpha = Math.max(0.06, 0.34 - ring * 0.04)
           for (let s = 0; s < segBuf.length; s += 4) {
             const ax = segBuf[s], ay = segBuf[s + 1], bx = segBuf[s + 2], by = segBuf[s + 3]
             const mx = (ax + bx) / 2, my = (ay + by) / 2
