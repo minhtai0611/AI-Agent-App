@@ -322,10 +322,16 @@ export function createTerrainScene(canvas, options = {}) {
     if (onHoverChange) onHoverChange(null)
   }
 
+  // Idle camera sway — keeps the scene visibly alive once the one-shot climb-in
+  // animation finishes (~3.4s) and nobody is actively hovering. Runs for every
+  // pointer type: touch devices never get a hover-tilt signal at all, and
+  // fine-pointer (desktop) visitors who haven't moved their mouse over the panel
+  // yet would otherwise see a frozen scene indefinitely. Skipped while the mouse
+  // is actively inside the panel so it doesn't fight handlePointerMove's tilt.
   let idleInterval = null
-  if (!finePointer && !reduced && interactive) {
+  if (!reduced && interactive) {
     idleInterval = setInterval(() => {
-      if (!running) return
+      if (!running || (finePointer && mouse.inside)) return
       tYaw = camera.baseYaw + Math.sin(performance.now() / 5200) * 0.10
     }, 50)
   }
