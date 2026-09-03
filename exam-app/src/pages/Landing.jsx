@@ -448,12 +448,14 @@ export default function Landing() {
 
       <SummitCTA onCta={goToExams} />
 
-      <footer
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-6 sm:px-10 py-6"
-        style={{ background: 'var(--summit-bg)', color: 'rgba(245,242,234,0.5)', borderTop: '1px solid rgba(245,242,234,0.12)', fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.08em' }}
-      >
-        <span>VANTAGE ▲ · VƯƠN TỚI ĐỈNH CAO</span>
-        <span>GIẤY — MỰC — CỜ ĐỈNH · V1.4.1 · ĐỊA HÌNH ĐỘNG · TUYẾN TOÁN HỌC · ĐỊA HÌNH DỮ LIỆU</span>
+      <footer style={{ background: 'var(--summit-bg)', borderTop: '1px solid rgba(245,242,234,0.12)' }}>
+        <div
+          className="mx-auto max-w-6xl flex flex-wrap justify-between gap-4 px-6 py-6"
+          style={{ color: 'rgba(245,242,234,0.5)', fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.08em' }}
+        >
+          <span>VANTAGE ▲ · VƯƠN TỚI ĐỈNH CAO</span>
+          <span>GIẤY — MỰC — CỜ ĐỈNH · V1.4.1 · ĐỊA HÌNH ĐỘNG · TUYẾN TOÁN HỌC · ĐỊA HÌNH DỮ LIỆU</span>
+        </div>
       </footer>
     </motion.div>
   )
