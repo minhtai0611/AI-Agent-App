@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
 import { viewNavigate } from '../utils/animations.js'
@@ -234,10 +234,10 @@ function SummitCTA({ onCta }) {
       </h2>
       <button
         onClick={onCta}
-        className="relative z-10 px-6 py-3 text-[14.5px] font-bold"
-        style={{ fontFamily: 'var(--font-mono)', background: 'var(--accent)', color: '#F5F2EA', border: '1px solid var(--accent)', borderRadius: 'var(--r-sm)' }}
+        className="relative z-10 font-sans"
+        style={{ padding: '14px 26px', fontSize: 16, fontWeight: 500, background: 'var(--accent)', color: '#F5F2EA', border: '1px solid transparent', borderRadius: 'var(--r-sm)' }}
       >
-        VÀO ÔN THI NGAY →
+        Vào ôn thi ngay →
       </button>
     </section>
   )
@@ -274,8 +274,8 @@ export default function Landing() {
           <HeaderThemeToggle />
           <button
             onClick={goToExams}
-            className="px-4 py-2 text-[13px] font-bold transition-colors"
-            style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', background: 'var(--paper)' }}
+            className="px-4 py-2 text-[13px] transition-colors"
+            style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.06em', color: 'var(--ink)', border: '1px solid var(--ink)', borderRadius: 'var(--r-sm)', background: 'transparent' }}
           >
             VÀO ÔN THI →
           </button>
@@ -298,10 +298,12 @@ export default function Landing() {
               style={{ fontSize: 'clamp(38px, 5.4vw, 61px)', lineHeight: 1.06, letterSpacing: '-0.02em', color: 'var(--ink)', maxWidth: '20ch' }}
             >
               {HEADLINE_WORDS.map((w, i) => (
-                <motion.span key={i} variants={wordVariants} style={{ display: 'inline-block', color: w.accent ? 'var(--accent)' : undefined }}>
+                <Fragment key={i}>
+                <motion.span variants={wordVariants} style={{ display: 'inline-block', color: w.accent ? 'var(--accent)' : undefined }}>
                   {w.text}
-                  {w.break ? <br /> : i < HEADLINE_WORDS.length - 1 ? ' ' : null}
                 </motion.span>
+                {w.break ? <br /> : i < HEADLINE_WORDS.length - 1 ? ' ' : null}
+                </Fragment>
               ))}
             </motion.h1>
             <motion.p variants={heroFadeUp} className="font-sans" style={{ fontSize: 20, lineHeight: 1.6, color: 'var(--ink-2)', maxWidth: '46ch' }}>
@@ -310,17 +312,17 @@ export default function Landing() {
             <motion.div variants={heroFadeUp} className="flex flex-wrap items-center gap-3 mt-1">
               <button
                 onClick={goToExams}
-                className="font-bold transition-colors"
-                style={{ fontFamily: 'var(--font-mono)', padding: '14px 26px', fontSize: 16, fontWeight: 500, background: 'var(--accent)', color: 'var(--paper)', border: '1px solid var(--accent)', borderRadius: 'var(--r-sm)' }}
+                className="font-sans transition-colors"
+                style={{ padding: '14px 26px', fontSize: 16, fontWeight: 500, background: 'var(--accent)', color: '#F5F2EA', border: '1px solid transparent', borderRadius: 'var(--r-sm)' }}
               >
-                BẮT ĐẦU ÔN THI MIỄN PHÍ →
+                Bắt đầu ôn thi miễn phí →
               </button>
               <button
                 onClick={() => viewNavigate(navigate, '/playground')}
-                className="font-bold transition-colors"
-                style={{ fontFamily: 'var(--font-mono)', padding: '14px 26px', fontSize: 16, fontWeight: 500, color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', background: 'transparent' }}
+                className="font-sans transition-colors"
+                style={{ padding: '14px 26px', fontSize: 16, fontWeight: 500, color: 'var(--ink)', border: '1px solid var(--ink)', borderRadius: 'var(--r-sm)', background: 'transparent' }}
               >
-                XEM CÔNG CỤ
+                Xem công cụ
               </button>
             </motion.div>
             <motion.p variants={heroFadeUp} style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--ink-3)', letterSpacing: '0.06em' }}>
