@@ -254,31 +254,33 @@ export default function Landing() {
           Only opacity-animated (see landingPageVariants comment) so position:sticky
           keeps working on this ancestor. */}
       <header
-        className="sticky top-0 z-50 flex items-center justify-between px-6 sm:px-10 gap-4"
-        style={{ height: 64, background: 'color-mix(in srgb, var(--paper) 88%, transparent)', backdropFilter: 'blur(8px)', borderBottom: '1px solid var(--line-soft)' }}
+        className="sticky top-0 z-50 px-6 sm:px-10"
+        style={{ background: 'color-mix(in srgb, var(--paper) 88%, transparent)', backdropFilter: 'blur(8px)', borderBottom: '1px solid var(--line-soft)' }}
       >
-        <VantageLogo variant="wordmark" onClick={goToExams} />
-        <nav className="hidden sm:flex items-center gap-8 ml-auto" aria-label="Chính">
-          {NAV_LINKS.map(link => (
-            <a
-              key={link.anchor}
-              href={link.anchor}
-              className="text-[15px] transition-colors"
-              style={{ color: 'var(--ink-2)' }}
+        <div className="mx-auto max-w-6xl flex items-center justify-between gap-4" style={{ height: 64 }}>
+          <VantageLogo variant="wordmark" onClick={goToExams} />
+          <nav className="hidden sm:flex items-center gap-8 ml-auto" aria-label="Chính">
+            {NAV_LINKS.map(link => (
+              <a
+                key={link.anchor}
+                href={link.anchor}
+                className="text-[15px] transition-colors"
+                style={{ color: 'var(--ink-2)' }}
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+          <div className="flex items-center gap-3">
+            <HeaderThemeToggle />
+            <button
+              onClick={goToExams}
+              className="px-4 py-2 text-[13px] transition-colors"
+              style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.06em', color: 'var(--ink)', border: '1px solid var(--ink)', borderRadius: 'var(--r-sm)', background: 'transparent' }}
             >
-              {link.label}
-            </a>
-          ))}
-        </nav>
-        <div className="flex items-center gap-3">
-          <HeaderThemeToggle />
-          <button
-            onClick={goToExams}
-            className="px-4 py-2 text-[13px] transition-colors"
-            style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.06em', color: 'var(--ink)', border: '1px solid var(--ink)', borderRadius: 'var(--r-sm)', background: 'transparent' }}
-          >
-            VÀO ÔN THI →
-          </button>
+              VÀO ÔN THI →
+            </button>
+          </div>
         </div>
       </header>
 
