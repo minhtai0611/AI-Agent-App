@@ -287,7 +287,7 @@ export default function Landing() {
           nests its own per-word stagger (wordContainerVariants/wordVariants). */}
       <section className="px-6 sm:px-10 pt-8 pb-16 sm:pb-20">
         <div className="mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-[1.05fr_.95fr] gap-10 lg:gap-12 items-center">
-          <motion.div className="flex flex-col gap-5" data-hero-readzone variants={heroContainerVariants} initial="hidden" animate="show">
+          <motion.div className="flex flex-col gap-5" variants={heroContainerVariants} initial="hidden" animate="show">
             <motion.div variants={heroFadeUp} className="flex items-center gap-3" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.12em', color: 'var(--ink-3)' }}>
               <span style={{ width: 32, height: 1, background: 'var(--accent)', display: 'inline-block' }} />
               ÔN THI TOÁN THPT · TUYỂN SINH 10 · KHÓA 2026
