@@ -188,7 +188,7 @@ function SummitCTA({ onCta }) {
       ref={sectionRef}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
-      className="flex flex-col items-center gap-4 px-6 py-20 text-center relative overflow-hidden"
+      className="flex flex-col items-center gap-4 px-6 py-24 text-center relative overflow-hidden"
       style={{ background: 'var(--summit-bg)' }}
     >
       <svg
@@ -226,10 +226,10 @@ function SummitCTA({ onCta }) {
         <path d="M960 16 l14 4.7 -14 4.7 z" fill="var(--accent)" />
       </svg>
 
-      <span className="relative z-10" style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, letterSpacing: '0.12em', color: 'rgba(245,242,234,0.5)' }}>
+      <span className="relative z-10" style={{ fontFamily: 'var(--font-mono)', fontSize: 13, letterSpacing: '0.12em', color: 'rgba(245,242,234,0.5)' }}>
         CỘT MỐC TIẾP THEO LÀ CỦA BẠN
       </span>
-      <h2 className="font-display font-bold relative z-10" style={{ fontSize: 30, color: '#F5F2EA' }}>
+      <h2 className="font-display font-bold relative z-10" style={{ fontSize: 'clamp(28px, 4vw, 44px)', color: '#F5F2EA' }}>
         Sẵn sàng <span style={{ color: 'var(--accent)' }}>bắt đầu leo?</span>
       </h2>
       <button
@@ -254,8 +254,8 @@ export default function Landing() {
           Only opacity-animated (see landingPageVariants comment) so position:sticky
           keeps working on this ancestor. */}
       <header
-        className="sticky top-0 z-50 flex items-center justify-between px-6 sm:px-10 py-5 gap-4"
-        style={{ background: 'color-mix(in srgb, var(--paper) 88%, transparent)', backdropFilter: 'blur(8px)', borderBottom: '1px solid var(--line-soft)' }}
+        className="sticky top-0 z-50 flex items-center justify-between px-6 sm:px-10 gap-4"
+        style={{ height: 64, background: 'color-mix(in srgb, var(--paper) 88%, transparent)', backdropFilter: 'blur(8px)', borderBottom: '1px solid var(--line-soft)' }}
       >
         <VantageLogo variant="wordmark" onClick={goToExams} />
         <nav className="hidden sm:flex items-center gap-8 ml-auto" aria-label="Chính">
@@ -274,7 +274,7 @@ export default function Landing() {
           <HeaderThemeToggle />
           <button
             onClick={goToExams}
-            className="px-4 py-2 text-[12.5px] font-bold transition-colors"
+            className="px-4 py-2 text-[13px] font-bold transition-colors"
             style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', background: 'var(--paper)' }}
           >
             VÀO ÔN THI →
@@ -285,17 +285,17 @@ export default function Landing() {
       {/* Hero — editorial 2 columns: headline+CTA left, terrain card right.
           Left column staggers in (heroContainerVariants); the headline itself
           nests its own per-word stagger (wordContainerVariants/wordVariants). */}
-      <section className="px-6 sm:px-10 pt-8 pb-16 sm:pb-20">
-        <div className="mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-[1.05fr_.95fr] gap-10 lg:gap-12 items-center">
+      <section className="px-6 sm:px-10 pt-[72px]">
+        <div className="mx-auto max-w-6xl grid grid-cols-1 min-[900px]:grid-cols-[1.05fr_.95fr] gap-12 min-[900px]:min-h-[560px] items-center">
           <motion.div className="flex flex-col gap-5" variants={heroContainerVariants} initial="hidden" animate="show">
-            <motion.div variants={heroFadeUp} className="flex items-center gap-3" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.12em', color: 'var(--ink-3)' }}>
+            <motion.div variants={heroFadeUp} className="flex items-center gap-3" style={{ fontFamily: 'var(--font-mono)', fontSize: 13, letterSpacing: '0.14em', color: 'var(--ink-3)' }}>
               <span style={{ width: 32, height: 1, background: 'var(--accent)', display: 'inline-block' }} />
               ÔN THI TOÁN THPT · TUYỂN SINH 10 · KHÓA 2026
             </motion.div>
             <motion.h1
               variants={wordContainerVariants}
               className="font-display font-bold"
-              style={{ fontSize: 'clamp(34px, 5vw, 48px)', lineHeight: 1.08, letterSpacing: '-0.02em', color: 'var(--ink)', maxWidth: '20ch' }}
+              style={{ fontSize: 'clamp(38px, 5.4vw, 61px)', lineHeight: 1.06, letterSpacing: '-0.02em', color: 'var(--ink)', maxWidth: '20ch' }}
             >
               {HEADLINE_WORDS.map((w, i) => (
                 <motion.span key={i} variants={wordVariants} style={{ display: 'inline-block', color: w.accent ? 'var(--accent)' : undefined }}>
@@ -304,26 +304,26 @@ export default function Landing() {
                 </motion.span>
               ))}
             </motion.h1>
-            <motion.p variants={heroFadeUp} className="font-sans" style={{ fontSize: 18, lineHeight: 1.6, color: 'var(--ink-2)', maxWidth: '46ch' }}>
+            <motion.p variants={heroFadeUp} className="font-sans" style={{ fontSize: 20, lineHeight: 1.6, color: 'var(--ink-2)', maxWidth: '46ch' }}>
               Đề thi thật từ Bộ GD&amp;ĐT và 63 tỉnh thành. Hai lộ trình — THPT và tuyển sinh lớp 10 — cùng một xuất phát điểm. Bản đồ năng lực của riêng bạn, vẽ bằng điểm số thật.
             </motion.p>
             <motion.div variants={heroFadeUp} className="flex flex-wrap items-center gap-3 mt-1">
               <button
                 onClick={goToExams}
-                className="px-6 py-3 text-[14.5px] font-bold transition-colors"
-                style={{ fontFamily: 'var(--font-mono)', background: 'var(--accent)', color: 'var(--paper)', border: '1px solid var(--accent)', borderRadius: 'var(--r-sm)' }}
+                className="font-bold transition-colors"
+                style={{ fontFamily: 'var(--font-mono)', padding: '14px 26px', fontSize: 16, fontWeight: 500, background: 'var(--accent)', color: 'var(--paper)', border: '1px solid var(--accent)', borderRadius: 'var(--r-sm)' }}
               >
                 BẮT ĐẦU ÔN THI MIỄN PHÍ →
               </button>
               <button
                 onClick={() => viewNavigate(navigate, '/playground')}
-                className="px-6 py-3 text-[14.5px] font-bold transition-colors"
-                style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', background: 'transparent' }}
+                className="font-bold transition-colors"
+                style={{ fontFamily: 'var(--font-mono)', padding: '14px 26px', fontSize: 16, fontWeight: 500, color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', background: 'transparent' }}
               >
                 XEM CÔNG CỤ
               </button>
             </motion.div>
-            <motion.p variants={heroFadeUp} style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--ink-3)', letterSpacing: '0.06em' }}>
+            <motion.p variants={heroFadeUp} style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--ink-3)', letterSpacing: '0.06em' }}>
               KHÔNG CẦN THẺ · DÙNG NGAY TRÊN TRÌNH DUYỆT · ∫Σ√π∞Δ
             </motion.p>
           </motion.div>
@@ -337,7 +337,7 @@ export default function Landing() {
           (mockup:250-256): border-top divider, border-left between columns, number
           above label. */}
       <motion.section
-        id="lo-trinh" className="px-6 sm:px-10 pb-16"
+        id="lo-trinh" className="px-6 sm:px-10 mt-14"
         variants={reveal} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.4 }}
       >
         <div className="mx-auto max-w-6xl">
@@ -345,8 +345,8 @@ export default function Landing() {
             {STATS.map((s, i) => (
               <div
                 key={s.label}
-                className={i === 0 ? 'py-7 pr-7 pl-1' : 'py-7 pr-7 pl-7 border-t sm:border-t-0 sm:border-l'}
-                style={i === 0 ? undefined : { borderTopColor: 'var(--line-soft)', borderLeftColor: 'var(--line)' }}
+                className={i === 0 ? 'pl-1' : 'pl-7 border-t sm:border-t-0 sm:border-l'}
+                style={{ paddingTop: 28, paddingRight: 28, paddingBottom: 32, borderTopColor: 'var(--line-soft)', borderLeftColor: 'var(--line)' }}
               >
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(30px,3.6vw,44px)', fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
                   <StatValue target={s.target} suffix={s.suffix} />
@@ -361,25 +361,25 @@ export default function Landing() {
       </motion.section>
 
       {/* Features — border-top rhythm, no uniform cards */}
-      <section id="cong-cu" className="px-6 sm:px-10 pb-20">
+      <section id="cong-cu" className="px-6 sm:px-10 pt-24 pb-[88px]">
         <div className="mx-auto max-w-6xl">
           <motion.div
             className="flex items-baseline justify-between mb-8 flex-wrap gap-2"
             variants={reveal} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.6 }}
           >
-            <h2 className="font-display font-bold" style={{ fontSize: 28, color: 'var(--ink)' }}>Công cụ đi cùng bạn</h2>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, letterSpacing: '0.08em', color: 'var(--ink-3)' }}>
+            <h2 className="font-display font-bold" style={{ fontSize: 31, color: 'var(--ink)' }}>Công cụ đi cùng bạn</h2>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, letterSpacing: '0.08em', color: 'var(--ink-3)' }}>
               04 DỤNG CỤ · NHƯ HỘP BÚT CỦA NGƯỜI LEO NÚI
             </span>
           </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 min-[561px]:grid-cols-2 min-[981px]:grid-cols-4 gap-8">
             {FEATURES.map((f, i) => {
               const Icon = ICONS[i]
               return (
                 <motion.button
                   key={f.path}
                   onClick={() => viewNavigate(navigate, f.path)}
-                  className="group flex flex-col items-start gap-2.5 text-left pt-4 transition-transform hover:-translate-y-[3px]"
+                  className="group flex flex-col items-start gap-2.5 text-left pt-5 transition-transform hover:-translate-y-[3px]"
                   style={{ borderTop: '2px solid var(--ink)' }}
                   initial={{ opacity: 0, y: 14 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -391,7 +391,7 @@ export default function Landing() {
                     <Icon />
                   </span>
                   <span className="font-display" style={{ fontSize: 19, fontWeight: 500, color: 'var(--ink)' }}>{f.title}</span>
-                  <span className="font-sans" style={{ fontSize: 14, lineHeight: 1.5, color: 'var(--ink-2)' }}>{f.desc}</span>
+                  <span className="font-sans" style={{ fontSize: 15, lineHeight: 1.5, color: 'var(--ink-2)' }}>{f.desc}</span>
                 </motion.button>
               )
             })}
@@ -408,7 +408,7 @@ export default function Landing() {
             variants={reveal} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.6 }}
           >
             <h2 className="font-display font-bold" style={{ fontSize: 28, color: 'var(--ink)' }}>Câu hỏi thường gặp</h2>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, letterSpacing: '0.08em', color: 'var(--ink-3)' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, letterSpacing: '0.08em', color: 'var(--ink-3)' }}>
               MỤC LỤC · {FAQS.length} MỤC
             </span>
           </motion.div>
@@ -421,13 +421,13 @@ export default function Landing() {
                 style={{ borderTop: '1px solid var(--line)', borderBottom: i === FAQS.length - 1 ? '1px solid var(--line)' : 'none' }}
               >
                 <summary
-                  className="grid items-center py-4 cursor-pointer list-none"
-                  style={{ gridTemplateColumns: '40px 1fr 24px' }}
+                  className="grid items-center cursor-pointer list-none"
+                  style={{ gridTemplateColumns: '56px 1fr 24px', paddingTop: 22, paddingBottom: 22 }}
                 >
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--ink-3)' }}>
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <span className="font-display" style={{ fontSize: 17, color: 'var(--ink)' }}>{f.q}</span>
+                  <span className="font-display" style={{ fontSize: 19, color: 'var(--ink)' }}>{f.q}</span>
                   <span
                     className="transition-transform group-open:rotate-45 text-right"
                     style={{ color: 'var(--accent)', fontSize: 18 }}
@@ -435,7 +435,7 @@ export default function Landing() {
                     +
                   </span>
                 </summary>
-                <p className="pb-4 font-sans" style={{ gridColumn: 2, marginLeft: 40, maxWidth: '64ch', fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-2)' }}>
+                <p className="pb-6 font-sans" style={{ gridColumn: 2, marginLeft: 72, maxWidth: '64ch', fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-2)' }}>
                   {f.a}
                 </p>
               </details>
@@ -451,7 +451,7 @@ export default function Landing() {
         style={{ background: 'var(--summit-bg)', color: 'rgba(245,242,234,0.5)', borderTop: '1px solid rgba(245,242,234,0.12)', fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.08em' }}
       >
         <span>VANTAGE ▲ · VƯƠN TỚI ĐỈNH CAO</span>
-        <span>GIẤY — MỰC — CỜ ĐỈNH · V1.4.1 · ĐỊA HÌNH ĐỘNG · TUYẾN TOÁN HỌC</span>
+        <span>GIẤY — MỰC — CỜ ĐỈNH · V1.4.1 · ĐỊA HÌNH ĐỘNG · TUYẾN TOÁN HỌC · ĐỊA HÌNH DỮ LIỆU</span>
       </footer>
     </motion.div>
   )

@@ -67,13 +67,35 @@ exam-app/src/
     QuestionCard.jsx # Question renderer + static explanation toggle + "Xem các bước giải" AI step-solver panel
                      #   (practice mode only)
     Navbar.jsx       # VantageLogo + Thi thử / Lịch sử / Máy tính CAS / Đại số tuyến tính / Xác suất
-    motion/scenes/concept/  # Pure Math Toolset Concept Explorer — one R3F/drei scene per visualization
-                     #   template + registry.js (must stay in lockstep with visualization_schema.py) +
-                     #   Static2DFallback.jsx (Tier-3-unavailable SVG fallback) + geometry.js (pure helpers)
+    VantageLogo.jsx  # 'nav'/'hero' variants = icon+wordmark (app-wide rebrand shell mark, Navbar/TestInterface);
+                     #   'wordmark' variant = text-only "VANTAGE▲", used ONLY by Landing.jsx's header to match
+                     #   the landing mockup's plain logo — don't apply 'wordmark' elsewhere, it's mockup-specific
+    motion/BgField.jsx      # Landing page ambient background canvas — a faithful line-by-line port of the
+                     #   Landing mockup's "NỀN ĐỘNG AMBIENT" script (see Landing hero mockup below): 7 hills ×
+                     #   5 independent closed elliptical contour curves each (r(θ)=k/√(cos²θ/sx²+sin²θ/sz²)),
+                     #   NOT a merged scalar field. An earlier pass replaced this with a summed-gaussian-field
+                     #   traced via marching squares to stop rings from crossing — don't reintroduce that; it's
+                     #   a different algorithm from the mockup and visibly under-renders it (fewer, blobbier
+                     #   contour clusters instead of 7 crisp separate ones).
+    motion/HeroTerrain.jsx  # Landing hero's live 3D terrain canvas — two named climbing routes (THPT cubic,
+                     #   lớp 10 parabola) plus a "chế độ năng lực" competency-mode tab that morphs the terrain
+                     #   into a 6-topic data terrain with score labels + weakest-topic flag, and read-only
+                     #   ?slug=score&name= URL preload. Built on lib/terrain3d.js.
+  lib/
+    terrain3d.js     # Shared canvas terrain-3D engine (camera/mesh/lifecycle) used by HeroTerrain.jsx and the
+                     #   /linalg "ma trận là địa hình" page. createTerrainScene(canvas, opts) — opts.dataHeightFn
+                     #   + opts.topics + the returned setMode() enable the competency-mode morph; omitting them
+                     #   keeps the original single-terrain behavior.
   engine/
     casEngine.js     # mathjs wrapper for the CAS calculator + Math Playground — zero AI-router involvement
                      #   for manually-typed curves; compileFunctionOfX/toMathjsSyntax also back the playground
   pages/
+    Landing.jsx      # / — marketing landing page. Ground truth is `vantage/uploads/hero-redesign-3d.html`
+                     #   (a standalone static mockup, opened via a local `python -m http.server` since
+                     #   claude-in-chrome rejects file:// URLs) — read ITS actual CSS/JS before assuming a
+                     #   visual difference is a bug or a deliberate deviation; several past "deliberate
+                     #   deviations" here (stats layout, logo mark, terrain competency mode, BgField's
+                     #   algorithm) turned out to be undocumented drift from the mockup, not real decisions.
     ConceptExplorer.jsx        # /concept/:questionId — AI-generated 3D visualization, GSAP-choreographed
     CasCalculator.jsx          # /calculator — mathlive input, live client-side CAS, optional backend "kiểm tra"
     MathPlayground.jsx         # /playground — mathlive expression-list + Mafs 2D canvas; the "mô tả bằng lời"
@@ -139,6 +161,8 @@ cd exam-app && npx vitest run                            # frontend
 **Static-JSON-first data flow** — `exam-app/src/api/index.js` reads exam/question data from the bundled `exam-app/src/data/{exams,questions}.json` and only falls back to the live backend (`_apiFetch`) when the static JSON doesn't have what's needed. The exam-taking flow works with the frontend alone; the backend's SQLite tables are just a seeded mirror of the same JSON for future backend-driven use.
 
 **Local-only "AI" naming is not backend AI** — `exam-app/src/engine/aiEngine.js` (`analyzeResult`) and `exam-app/src/utils/studyReminder.js` are pure client-side heuristics (no imports, no network calls) despite the "ai" naming. Don't confuse them with the AI backend features that were removed — verify with a grep for imports before assuming either calls out to a model.
+
+**claude-in-chrome screenshots can lie about subtle canvas/color effects** — this automation environment has been observed applying a forced-dark repaint to pages independent of their actual (correct) light/dark theme state: forcing `document.body`'s background/color inline with `!important` to known light-theme values and re-screenshotting still showed a dark page. Low-alpha canvas effects (ambient backgrounds, faint contour lines) can look completely absent in a screenshot while actually rendering correctly. Before concluding a canvas-based visual effect is broken, sample it directly — `canvas.getContext('2d').getImageData(...)` reads the real drawn pixels, unaffected by any display-layer repaint — rather than trusting a screenshot alone. Cross-checking against a reference render (e.g. the same technique against the mockup's own canvas) is a good sanity check.
 
 ## Development workflow
 

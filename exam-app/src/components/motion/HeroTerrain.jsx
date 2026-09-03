@@ -181,7 +181,8 @@ export default function HeroTerrain() {
         aspectRatio: '640 / 520',
         border: '1px solid var(--line)',
         borderRadius: 'var(--r-lg)',
-        background: 'var(--paper-2)',
+        backgroundImage: 'radial-gradient(var(--dot) 1px, transparent 1px)',
+        backgroundSize: '22px 22px',
         overflow: 'hidden',
       }}
     >
