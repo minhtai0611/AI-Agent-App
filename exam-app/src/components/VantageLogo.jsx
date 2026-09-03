@@ -14,6 +14,22 @@ function SummitWedge({ size = 24 }) {
 
 export default function VantageLogo({ variant = 'nav', onClick }) {
   const isHero = variant === 'hero'
+  // 'wordmark' — the landing page's own header logo (mockup:325: `<a class="logo">
+  // VANTAGE<span class="flag">▲</span></a>`, text only, no icon graphic). The
+  // icon+wordmark pairing elsewhere (Navbar/TestInterface) is the app-wide shell
+  // mark and stays as-is; this variant only matches the landing hero mockup.
+  if (variant === 'wordmark') {
+    return (
+      <div onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span
+          className="font-bold"
+          style={{ fontFamily: 'var(--font-display)', fontSize: 19, letterSpacing: '-0.01em', lineHeight: 1, color: 'var(--ink)' }}
+        >
+          VANTAGE<span style={{ color: 'var(--accent)', fontSize: 13, transform: 'translateY(-1px)', display: 'inline-block', marginLeft: 4 }}>▲</span>
+        </span>
+      </div>
+    )
+  }
   return (
     <div
       onClick={onClick}

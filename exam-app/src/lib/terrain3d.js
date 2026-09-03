@@ -45,6 +45,11 @@ export function createTerrainScene(canvas, options = {}) {
     // overlay) draws routes with no such semantics and sets this false. Additive,
     // defaults true so HeroTerrain.jsx's existing behavior is unchanged.
     showOrigin = true,
+    // Competency-mode ("chế độ năng lực") morph — ported from the mockup's mH()/
+    // TOPICS blend. Optional: a caller with no dataHeightFn/topics gets the old
+    // single-terrain behavior unchanged (dataW stays 0 forever).
+    dataHeightFn = null,
+    topics = [],
   } = options
 
   const ctx = canvas.getContext('2d')
@@ -59,6 +64,20 @@ export function createTerrainScene(canvas, options = {}) {
   let startT = null, raf = null, running = false, inView = true, docVisible = true
   const mouse = { x: -9999, y: -9999, inside: false }
   let hovered = null
+  let dataW = 0, modeTarget = 0
+
+  function mH(x, z) {
+    if (!dataHeightFn || dataW <= 0.001) return heightFn(x, z)
+    if (dataW >= 0.999) return dataHeightFn(x, z)
+    return heightFn(x, z) * (1 - dataW) + dataHeightFn(x, z) * dataW
+  }
+  function weakestTopic() {
+    return topics.reduce((a, b) => (b.score < a.score ? b : a))
+  }
+  function setMode(m) {
+    modeTarget = m
+    if (reduced) { dataW = m; drawFrame(performance.now(), true) }
+  }
 
   for (const r of routes) r.progress = reduced ? 1 : 0
 
@@ -93,7 +112,7 @@ export function createTerrainScene(canvas, options = {}) {
 
   function hitTest() {
     hovered = null
-    if (!interactive || !mouse.inside || !finePointer || reduced || routes.length === 0) return
+    if (!interactive || !mouse.inside || !finePointer || reduced || routes.length === 0 || dataW > 0.35) return
     const mx = mouse.x * DPR, my = mouse.y * DPR
     let best = Infinity
     for (const r of routes) {
@@ -120,7 +139,7 @@ export function createTerrainScene(canvas, options = {}) {
       ctx.beginPath()
       for (let j = 0; j <= world.nx; j++) {
         const x = world.xMin + (world.xMax - world.xMin) * j / world.nx
-        p = project(x, heightFn(x, z), z)
+        p = project(x, mH(x, z), z)
         if (j === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1])
       }
       ctx.strokeStyle = `rgba(${colors.ink},${a.toFixed(3)})`
@@ -132,7 +151,7 @@ export function createTerrainScene(canvas, options = {}) {
       ctx.beginPath()
       for (let i = 0; i <= world.nz; i++) {
         const z = world.zMin + (world.zMax - world.zMin) * i / world.nz
-        p = project(x, heightFn(x, z), z)
+        p = project(x, mH(x, z), z)
         if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1])
       }
       ctx.strokeStyle = `rgba(${colors.ink},0.09)`
@@ -143,7 +162,10 @@ export function createTerrainScene(canvas, options = {}) {
     ctx.textAlign = 'center'
     ctx.font = `500 ${9.5 * DPR}px "IBM Plex Mono", ui-monospace, monospace`
 
-    if (routes.length > 0) {
+    const routeAlpha = 1 - dataW
+    if (routes.length > 0 && routeAlpha > 0.02) {
+      ctx.save()
+      ctx.globalAlpha = routeAlpha
       const first = routes[0]
       if (showOrigin && (first.progress > 0.02 || staticFrame)) {
         const b0 = first.point(0)
@@ -276,6 +298,42 @@ export function createTerrainScene(canvas, options = {}) {
           }
         }
       })
+      ctx.restore()
+    }
+
+    // "Chế độ năng lực" — competency-mode topic labels + weakest-topic flag,
+    // ported from the mockup's dataW>0.02 block (mockup:995-1027). Fades in as
+    // dataW eases toward 1; the flag only appears once mostly-morphed (>0.55).
+    if (dataHeightFn && topics.length > 0 && dataW > 0.02) {
+      ctx.save()
+      ctx.globalAlpha = dataW
+      const weakest = weakestTopic()
+      for (const tp of topics) {
+        const h = mH(tp.x, tp.z)
+        p = project(tp.x, h + 0.03, tp.z)
+        haloText(tp.name, p[0], p[1] - 8 * DPR, `rgba(${colors.ink},0.85)`)
+        ctx.font = `500 ${10.5 * DPR}px "IBM Plex Mono", ui-monospace, monospace`
+        haloText(tp.score.toFixed(1), p[0], p[1] + 6 * DPR, tp === weakest ? colors.accent : colors.altitude)
+        ctx.font = `500 ${9.5 * DPR}px "IBM Plex Mono", ui-monospace, monospace`
+      }
+      if (dataW > 0.55) {
+        const fa = (dataW - 0.55) / 0.45
+        ctx.globalAlpha = dataW * fa
+        const h2 = mH(weakest.x, weakest.z)
+        const fp = project(weakest.x, h2 + 0.02, weakest.z)
+        const pole = 24 * DPR
+        ctx.beginPath(); ctx.moveTo(fp[0], fp[1]); ctx.lineTo(fp[0], fp[1] - pole)
+        ctx.strokeStyle = colors.accent; ctx.lineWidth = 1.5 * DPR; ctx.stroke()
+        const wob2 = staticFrame ? 0 : Math.sin(now / 500) * 1.5 * DPR
+        ctx.beginPath()
+        ctx.moveTo(fp[0], fp[1] - pole)
+        ctx.lineTo(fp[0] + 15 * DPR, fp[1] - pole + 5 * DPR + wob2)
+        ctx.lineTo(fp[0], fp[1] - pole + 10 * DPR)
+        ctx.closePath()
+        ctx.fillStyle = colors.accent; ctx.fill()
+        haloText(`MỤC TIÊU KẾ · ${weakest.name} ${weakest.score.toFixed(1)}`, fp[0], fp[1] + 34 * DPR, colors.accent)
+      }
+      ctx.restore()
     }
   }
 
@@ -288,6 +346,8 @@ export function createTerrainScene(canvas, options = {}) {
       const pr = (now - startT - r.delay) / r.dur
       r.progress = pr <= 0 ? 0 : pr >= 1 ? 1 : 1 - (1 - pr) ** 3
     }
+    dataW += (modeTarget - dataW) * 0.07
+    if (Math.abs(modeTarget - dataW) < 0.001) dataW = modeTarget
     hitTest()
     if (onHoverChange) onHoverChange(hovered)
     drawFrame(now, false)
@@ -383,5 +443,5 @@ export function createTerrainScene(canvas, options = {}) {
     drawFrame(performance.now(), reduced || !running)
   }
 
-  return { handlePointerMove, handlePointerLeave, destroy, project, redraw }
+  return { handlePointerMove, handlePointerLeave, destroy, project, redraw, setMode }
 }

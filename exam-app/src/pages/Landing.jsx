@@ -19,9 +19,6 @@ import HeroTerrain from '../components/motion/HeroTerrain.jsx'
 // below needs to NOT sit inside an ancestor with a `transform` (translateY)
 // applied, since any transform value (including translateY(0) at rest)
 // creates a new containing block and silently breaks position:sticky.
-// Deliberately still not ported: the reference file's URL-driven
-// "chế độ năng lực" competency-mode terrain morph (?ham-so=8.5&...) — a
-// distinct, much larger feature outside this step's scope.
 const EASE = [0.22, 1, 0.36, 1]
 
 const landingPageVariants = {
@@ -260,7 +257,7 @@ export default function Landing() {
         className="sticky top-0 z-50 flex items-center justify-between px-6 sm:px-10 py-5 gap-4"
         style={{ background: 'color-mix(in srgb, var(--paper) 88%, transparent)', backdropFilter: 'blur(8px)', borderBottom: '1px solid var(--line-soft)' }}
       >
-        <VantageLogo variant="nav" onClick={goToExams} />
+        <VantageLogo variant="wordmark" onClick={goToExams} />
         <nav className="hidden sm:flex items-center gap-8 ml-auto" aria-label="Chính">
           {NAV_LINKS.map(link => (
             <a
@@ -336,26 +333,28 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Stats — sổ tay trắc địa ledger line, not a 3-up SaaS stat grid (deliberate
-          deviation from the mockup's 3-column bordered grid); count-up + scroll-reveal
-          now match the mockup's behavior even though the layout doesn't. */}
+      {/* Stats — 3-column bordered grid, matching the mockup's .stats/.stat exactly
+          (mockup:250-256): border-top divider, border-left between columns, number
+          above label. */}
       <motion.section
         id="lo-trinh" className="px-6 sm:px-10 pb-16"
         variants={reveal} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.4 }}
       >
         <div className="mx-auto max-w-6xl">
-          <div
-            className="flex flex-wrap items-baseline gap-x-3 gap-y-2 py-4"
-            style={{ borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line-soft)', fontFamily: 'var(--font-mono)' }}
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-3" style={{ borderTop: '1px solid var(--line)' }}>
             {STATS.map((s, i) => (
-              <span key={s.label} className="flex items-baseline gap-x-3">
-                {i > 0 && <span style={{ color: 'var(--line)' }} aria-hidden="true">·</span>}
-                <span style={{ fontSize: 22, fontWeight: 500, color: 'var(--ink)' }}>
+              <div
+                key={s.label}
+                className={i === 0 ? 'py-7 pr-7 pl-1' : 'py-7 pr-7 pl-7 border-t sm:border-t-0 sm:border-l'}
+                style={i === 0 ? undefined : { borderTopColor: 'var(--line-soft)', borderLeftColor: 'var(--line)' }}
+              >
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(30px,3.6vw,44px)', fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
                   <StatValue target={s.target} suffix={s.suffix} />
-                </span>
-                <span style={{ fontSize: 11, letterSpacing: '0.1em', color: 'var(--ink-3)' }}>{s.label}</span>
-              </span>
+                </div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink-3)', marginTop: 6 }}>
+                  {s.label}
+                </div>
+              </div>
             ))}
           </div>
         </div>
