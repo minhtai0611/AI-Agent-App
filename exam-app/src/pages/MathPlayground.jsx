@@ -469,7 +469,7 @@ function ResultsOverlay({ spec, results, scope, colors }) {
 
 export default function MathPlayground() {
   usePageMeta('Sổ phác trắc địa', { description: 'Math Playground — gõ hàm, xem nét mực tự vẽ, chốt giao điểm và tiếp tuyến.' })
-  const [rows, setRows] = useState(() => [newRow('x^2')])
+  const [rows, setRows] = useState(() => [newRow('x^2/8 - 2'), newRow('sin(x)*1.5')])
   const [parameters, setParameters] = useState([])
   const [prompt, setPrompt] = useState('')
   const [promptOpen, setPromptOpen] = useState(false)

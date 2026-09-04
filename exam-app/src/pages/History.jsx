@@ -19,11 +19,15 @@ function monthLabel(iso) {
   return `THÁNG ${d.getMonth() + 1} · ${d.getFullYear()}`
 }
 
-function fmtDelta(delta) {
-  const abs = Math.abs(delta).toFixed(2).replace(/0$/, '').replace(/\.$/, '.0')
-  if (delta > 0.001) return { text: `▲ +${abs} SO LẦN TRƯỚC`, color: 'var(--accent)' }
-  if (delta < -0.001) return { text: `▼ −${abs} SO LẦN TRƯỚC`, color: 'var(--ink-3)' }
-  return { text: '· LẦN ĐẦU LÀM ĐỀ NÀY', color: 'var(--ink-3)' }
+// Vietnamese convention: comma decimal separator (matches lich-su.html mockup: "7,75", "+0,50").
+export function fmtNum(n) {
+  return n.toFixed(2).replace('.', ',')
+}
+
+export function fmtDelta(delta) {
+  if (delta > 0.001) return { text: `▲ +${fmtNum(delta)}`, color: 'var(--accent)' }
+  if (delta < -0.001) return { text: `▼ −${fmtNum(Math.abs(delta))}`, color: 'var(--ink-3)' }
+  return { text: '· LẦN ĐẦU', color: 'var(--ink-3)' }
 }
 
 // Hand-drawn summit flag — reuses the design system's "Đỉnh / Mục tiêu" glyph at empty-state scale.
@@ -37,7 +41,7 @@ function SummitFlag({ size = 56 }) {
   )
 }
 
-function buildAttempts(results) {
+export function buildAttempts(results) {
   // Chronological (oldest -> newest), each attempt annotated with its delta vs the
   // previous attempt of the SAME exam (for both the journal row indicator and the
   // switchback connector labels on the elevation chart).
@@ -96,7 +100,7 @@ function ElevationChart({ attempts, onSelect, reducedMotion }) {
     }
   }
 
-  const summaryLabel = `${attempts.length} lần thi từ ${monthTicks[0]?.label ?? ''} đến ${monthTicks[monthTicks.length - 1]?.label ?? ''}, điểm từ ${attempts[0].score.toFixed(2)} lên ${attempts[attempts.length - 1].score.toFixed(2)}.`
+  const summaryLabel = `${attempts.length} lần thi từ ${monthTicks[0]?.label ?? ''} đến ${monthTicks[monthTicks.length - 1]?.label ?? ''}, điểm từ ${fmtNum(attempts[0].score)} lên ${fmtNum(attempts[attempts.length - 1].score)}.`
 
   return (
     <div style={{ background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 16, padding: '20px 16px 12px' }}>
@@ -116,7 +120,7 @@ function ElevationChart({ attempts, onSelect, reducedMotion }) {
             <line x1={sb.x1} y1={sb.y1} x2={sb.x2} y2={sb.y2} stroke="var(--altitude)" strokeWidth="1.5" strokeDasharray="4 3" fill="none" />
             <text x={sb.midX} y={sb.midY} fontFamily="var(--font-mono)" fontSize="9" textAnchor="middle"
               fill={sb.delta >= 0 ? 'var(--accent)' : 'var(--ink-3)'}>
-              LEO LẠI {sb.delta >= 0 ? '+' : '−'}{Math.abs(sb.delta).toFixed(2)}
+              LEO LẠI {sb.delta >= 0 ? '+' : '−'}{fmtNum(Math.abs(sb.delta))}
             </text>
           </g>
         ))}
@@ -139,7 +143,7 @@ function ElevationChart({ attempts, onSelect, reducedMotion }) {
               onClick={() => onSelect(p)}
               tabIndex={0}
               role="button"
-              aria-label={`Mốc ${exam?.title ?? p.examId}, ${p.score.toFixed(2)} điểm`}
+              aria-label={`Mốc ${exam?.title ?? p.examId}, ${fmtNum(p.score)} điểm`}
               onKeyDown={e => { if (e.key === 'Enter') onSelect(p) }}
             >
               <circle cx={p.cx} cy={p.cy} r="6" fill="transparent" />
@@ -156,7 +160,7 @@ function ElevationChart({ attempts, onSelect, reducedMotion }) {
         const mins = Math.round(p.timeSpent / 60)
         return (
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--ink-2)', paddingTop: 6 }}>
-            {exam?.title ?? p.examId} · {p.score.toFixed(2)}Đ · {mins}/{exam?.duration ?? '—'}′
+            {exam?.title ?? p.examId} · {fmtNum(p.score)}Đ · {mins}/{exam?.duration ?? '—'}′
           </div>
         )
       })()}
@@ -173,7 +177,7 @@ function JournalRow({ result, delta }) {
   const navigate = useNavigate()
   const exam = loadExamById(result.examId)
   const mins = Math.round(result.timeSpent / 60)
-  const deltaNode = delta === null ? { text: '· LẦN ĐẦU LÀM ĐỀ NÀY', color: 'var(--ink-3)' } : fmtDelta(delta)
+  const deltaNode = delta === null ? { text: '· LẦN ĐẦU', color: 'var(--ink-3)' } : fmtDelta(delta)
 
   if (!exam) {
     return (
@@ -198,7 +202,7 @@ function JournalRow({ result, delta }) {
     >
       <span className="font-display truncate" style={{ fontSize: 15, color: 'var(--ink)', flex: '1 1 auto', minWidth: 0 }}>{exam.title}</span>
       <span className="flex-shrink-0 text-right" style={{ fontFamily: 'var(--font-mono)', fontSize: 12.5, color: 'var(--ink-2)', fontVariantNumeric: 'tabular-nums' }}>
-        {result.score.toFixed(2)}Đ · {mins}/{exam.duration} PHÚT
+        {fmtNum(result.score)}Đ · {mins}/{exam.duration}′
       </span>
       <span className="flex-shrink-0 text-right" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: deltaNode.color, letterSpacing: '0.02em', minWidth: 148 }}>
         {deltaNode.text}
@@ -263,7 +267,7 @@ export default function History() {
           </div>
           {results.length > 0 && (
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-3)', letterSpacing: '0.04em' }}>
-              TỔNG {results.length} MỐC · CAO NHẤT {bestScore.toFixed(2)}Đ
+              TỔNG {results.length} MỐC · CAO NHẤT {fmtNum(bestScore)}Đ
             </span>
           )}
         </div>
@@ -296,7 +300,7 @@ export default function History() {
           const mins = Math.round(only.timeSpent / 60)
           return (
             <div className="flex flex-col items-center gap-3 py-14 text-center" style={{ borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)' }}>
-              <span className="font-display font-bold" style={{ fontSize: 61, color: 'var(--ink)', lineHeight: 1 }}>{only.score.toFixed(2)}</span>
+              <span className="font-display font-bold" style={{ fontSize: 61, color: 'var(--ink)', lineHeight: 1 }}>{fmtNum(only.score)}</span>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12.5, color: 'var(--ink-2)' }}>
                 {exam?.title ?? only.examId} · {mins}/{exam?.duration ?? '—'} PHÚT · {new Date(only.finishedAt).toLocaleDateString('vi-VN')}
               </span>

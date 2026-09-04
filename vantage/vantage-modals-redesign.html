@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vantage Modal System Redesign — Hệ Thống Cửa Sổ Trắc Địa Toàn Nền Tảng</title>
+<!-- VANTAGE DESIGN SYSTEM v1.4.1 · TẤT CẢ CÁC MODAL ĐƯỢC THIẾT KẾ LẠI THEO NGÔN NGỮ GIẤY — MỰC — CỜ ĐỈNH -->
+<script>
+try{
+  var __t = localStorage.getItem('vantage-theme');
+  if(!__t) __t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', __t);
+}catch(e){ document.documentElement.setAttribute('data-theme','light'); }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+<style>
+:root{
+  --paper:        #F5F2EA;
+  --paper-2:      #ECE8DD;
+  --paper-3:      #E4DFC7;
+  --ink:          #1C2333;
+  --ink-2:        #4A5164;
+  --ink-3:        #8A8FA0;
+  --line:         rgba(28,35,51,.14);
+  --line-soft:    rgba(28,35,51,.08);
+  --accent:       #E4572E;
+  --accent-deep:  #B03E1C;
+  --altitude:     #2F5D8A;
+  --pine:         #33705C;
+  --dot:          rgba(28,35,51,.10);
+  --summit-bg:    var(--ink);
+  --ink-rgb:      28,35,51;
+  --paper-rgb:    245,242,234;
+  --accent-rgb:   228,87,46;
+  --altitude-rgb: 47,93,138;
+
+  --font-display: 'Space Grotesk','Be Vietnam Pro','Segoe UI',system-ui,sans-serif;
+  --font-body:    'Be Vietnam Pro','Segoe UI',system-ui,sans-serif;
+  --font-mono:    'IBM Plex Mono','JetBrains Mono',ui-monospace,monospace;
+  --ease-out:     cubic-bezier(0.22,1,0.36,1);
+}
+
+[data-theme="dark"]{
+  --paper:        #12161F;
+  --paper-2:      #1A202B;
+  --paper-3:      #242C3B;
+  --ink:          #EDEAE0;
+  --ink-2:        #B9BDC9;
+  --ink-3:        #79808F;
+  --line:         rgba(237,234,224,.15);
+  --line-soft:    rgba(237,234,224,.08);
+  --accent:       #F06840;
+  --accent-deep:  #E4572E;
+  --altitude:     #6B9BD1;
+  --pine:         #4FA586;
+  --dot:          rgba(237,234,224,.12);
+  --summit-bg:    #0B0E13;
+  --ink-rgb:      237,234,224;
+  --paper-rgb:    18,22,31;
+  --accent-rgb:   240,104,64;
+  --altitude-rgb: 107,155,209;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  transition:background .35s var(--ease-out),color .35s var(--ease-out);
+}
+::selection{background:var(--accent);color:var(--paper)}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+
+#bgField{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;z-index:0;pointer-events:none}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:40;background:color-mix(in srgb, var(--paper) 88%, transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line-soft)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.logo{font-family:var(--font-display);font-weight:700;font-size:19px;display:flex;align-items:center;gap:8px}
+.logo .flag{color:var(--accent);font-size:13px}
+.badge-tag{font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;padding:3px 8px;border-radius:4px;background:var(--paper-2);color:var(--ink-2);border:1px solid var(--line-soft)}
+
+.btn-icon{
+  width:36px;height:36px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink);
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all .16s;
+}
+.btn-icon:hover{border-color:var(--ink);background:var(--paper-2)}
+.btn-icon svg{width:16px;height:16px}
+.btn-icon .i-moon{display:block}
+[data-theme="dark"] .btn-icon .i-moon{display:none}
+[data-theme="dark"] .btn-icon .i-sun{display:block}
+
+/* Header showcase */
+.hero-head{padding:48px 0 32px;border-bottom:1px solid var(--line)}
+.kicker{
+  font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+  display:flex;align-items:center;gap:12px;margin-bottom:12px;
+}
+.kicker::before{content:"";width:32px;height:1px;background:var(--accent)}
+h1{font-family:var(--font-display);font-size:clamp(28px,4vw,38px);font-weight:700;letter-spacing:-0.02em;line-height:1.15}
+.sub{margin-top:10px;color:var(--ink-2);font-size:16.5px;max-width:70ch}
+
+/* Modal Grid Directory */
+.modals-directory{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));
+  gap:24px;
+  padding:40px 0 80px;
+}
+.modal-card{
+  border:1px solid var(--line);
+  background:var(--paper);
+  border-radius:8px;
+  padding:24px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:16px;
+  transition:border-color 0.16s, transform 0.16s;
+  box-shadow:0 2px 8px -4px rgba(28,35,51,0.05);
+}
+.modal-card:hover{
+  border-color:var(--ink);
+  transform:translateY(-2px);
+}
+.modal-card-tag{
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:0.1em;
+  color:var(--altitude);
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.modal-card-tag::before{
+  content:"";
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--altitude);
+}
+.modal-card h3{
+  font-family:var(--font-display);
+  font-size:20px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-0.01em;
+  margin-top:4px;
+}
+.modal-card p{
+  font-size:14px;
+  color:var(--ink-2);
+  line-height:1.6;
+}
+.modal-card .before-after-pill{
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  padding:8px 12px;
+  background:var(--paper-2);
+  border-radius:6px;
+  border:1px solid var(--line-soft);
+  color:var(--ink-3);
+  line-height:1.5;
+}
+.modal-card .before-after-pill strong{color:var(--accent)}
+
+.btn-trigger{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  letter-spacing:0.06em;
+  padding:10px 18px;
+  border-radius:6px;
+  border:1px solid var(--ink);
+  background:var(--ink);
+  color:var(--paper);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  transition:all 0.16s var(--ease-out);
+  font-weight:600;
+}
+.btn-trigger:hover{
+  background:var(--ink-2);
+  border-color:var(--ink-2);
+}
+
+/* ==========================================================================
+   VANTAGE MASTER MODAL SYSTEM SPEC & STYLES (Chung toàn nền tảng)
+   ========================================================================== */
+
+/* 1. Backdrop: Tĩnh lặng, ấm áp, không blur loè nhoè */
+.vtg-overlay{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:rgba(18,22,31,0.68);
+  backdrop-filter:blur(6px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.22s var(--ease-out);
+}
+.vtg-overlay.open{
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* 2. Modal Frame: Khối giấy trắc địa in gáy mực */
+.vtg-modal{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:8px;
+  width:100%;
+  max-width:540px;
+  box-shadow:0 20px 48px -12px rgba(0,0,0,0.35);
+  overflow:hidden;
+  position:relative;
+  transform:translateY(16px);
+  transition:transform 0.24s var(--ease-out);
+}
+.vtg-overlay.open .vtg-modal{
+  transform:none;
+}
+.vtg-modal::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:3px;
+  background:var(--ink);
+}
+
+/* Header */
+.vtg-modal-head{
+  padding:20px 24px 16px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:var(--paper-2);
+}
+.vtg-modal-head .kicker-modal{
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:2px;
+}
+.vtg-modal-head h2{
+  font-family:var(--font-display);
+  font-size:19px;
+  font-weight:700;
+  letter-spacing:-0.01em;
+  color:var(--ink);
+}
+.vtg-modal-close{
+  background:transparent;
+  border:1px solid transparent;
+  border-radius:4px;
+  color:var(--ink-3);
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+  padding:6px 10px;
+  transition:all 0.16s;
+}
+.vtg-modal-close:hover{
+  border-color:var(--line);
+  color:var(--ink);
+  background:var(--paper);
+}
+
+/* Body */
+.vtg-modal-body{
+  padding:24px;
+  max-height:70vh;
+  overflow-y:auto;
+  color:var(--ink);
+}
+
+/* Footer Action Bar */
+.vtg-modal-foot{
+  padding:16px 24px;
+  border-top:1px solid var(--line);
+  background:var(--paper-2);
+  display:flex;
+  justify-content:flex-end;
+  gap:12px;
+  align-items:center;
+}
+
+/* Buttons */
+.vtg-btn{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  letter-spacing:0.06em;
+  padding:9px 18px;
+  border-radius:6px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  transition:all 0.16s;
+  font-weight:500;
+}
+.vtg-btn:hover{border-color:var(--ink);background:var(--paper-3);transform:translateY(-1px)}
+.vtg-btn-primary{
+  background:var(--accent);
+  color:var(--paper);
+  border-color:var(--accent);
+  font-weight:600;
+}
+.vtg-btn-primary:hover{
+  background:var(--accent-deep);
+  border-color:var(--accent-deep);
+}
+.vtg-btn-dark{
+  background:var(--ink);
+  color:var(--paper);
+  border-color:var(--ink);
+  font-weight:600;
+}
+.vtg-btn-dark:hover{
+  background:var(--ink-2);
+  border-color:var(--ink-2);
+}
+
+/* Table / Ledger rows */
+.vtg-ledger-table{
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:var(--paper-2);
+  padding:14px;
+  margin:16px 0;
+}
+.vtg-ledger-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:7px 0;
+  border-bottom:1px dashed var(--line-soft);
+  font-family:var(--font-mono);
+  font-size:12.5px;
+}
+.vtg-ledger-row:last-child{border-bottom:none}
+.vtg-ledger-row .lbl{color:var(--ink-3)}
+.vtg-ledger-row .val{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+
+/* Mode Selection Cards inside Departure Modal */
+.mode-option-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin:16px 0;
+}
+.mode-card{
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:14px;
+  background:var(--paper);
+  cursor:pointer;
+  transition:all 0.16s;
+}
+.mode-card:hover{border-color:var(--ink-2);background:var(--paper-2)}
+.mode-card.active{
+  border:2px solid var(--ink);
+  background:color-mix(in srgb, var(--paper-2) 90%, transparent);
+}
+[data-theme="dark"] .mode-card.active{border-color:var(--accent)}
+.mode-card h4{
+  font-family:var(--font-display);
+  font-size:14.5px;
+  font-weight:700;
+  margin-bottom:4px;
+}
+.mode-card p{font-size:12px;color:var(--ink-3);line-height:1.4}
+
+/* Share Certificate Preview */
+.cert-card{
+  border:1px solid var(--ink);
+  border-radius:8px;
+  background:var(--paper);
+  padding:24px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 4px 16px -4px rgba(0,0,0,0.1);
+}
+.cert-card::after{
+  content:"VANTAGE CERTIFIED";
+  position:absolute;
+  right:-30px;
+  bottom:15px;
+  font-family:var(--font-mono);
+  font-size:10px;
+  letter-spacing:0.2em;
+  color:var(--line);
+  transform:rotate(-25deg);
+  pointer-events:none;
+}
+.cert-score{
+  font-family:var(--font-display);
+  font-size:56px;
+  font-weight:700;
+  color:var(--ink);
+  line-height:1;
+  letter-spacing:-0.03em;
+}
+.cert-score span{font-family:var(--font-mono);font-size:16px;color:var(--ink-3);margin-left:4px}
+</style>
+</head>
+<body>
+
+<canvas id="bgField"></canvas>
+
+<div class="wrap">
+  <!-- Nav -->
+  <header class="nav">
+    <div class="nav-in">
+      <div class="logo">
+        <a href="index.html" style="display:flex;align-items:center;gap:8px">
+          <span>VANTAGE</span>
+          <span class="flag">▲</span>
+        </a>
+        <span class="badge-tag">MODAL SYSTEM OVERHAUL</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px">
+        <a href="lam-bai.html" class="badge-tag" style="color:var(--accent);border-color:var(--accent)">← XEM PHÒNG THI</a>
+        <button class="btn-icon" id="themeToggle" title="Đổi giao diện sáng/tối">
+          <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="display:none"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero introduction -->
+  <div class="hero-head">
+    <div class="kicker">HỆ THỐNG CỬA SỔ & BIÊN BẢN TRẮC ĐỊA</div>
+    <h1>Tất cả 8 Modal trên Vantage đã được Redesign</h1>
+    <p class="sub">
+      Xóa bỏ triệt để định dạng popup SaaS generic bo tròn 24px, glassmorphism lòe loẹt, emoji và gradient. Thay thế bằng <strong>Biên bản trắc lượng, Lệnh xuất phát, Sổ tay bỏ túi và Chứng chỉ cắm đỉnh</strong> theo đúng ngôn ngữ <em>Giấy — Mực — Cờ Đỉnh</em>.
+    </p>
+  </div>
+
+  <!-- Directory of Modals -->
+  <div class="modals-directory">
+
+    <!-- Modal 1 -->
+    <div class="modal-card">
+      <div>
+        <div class="modal-card-tag">Trang /exams · Trạm Chọn Đề</div>
+        <h3>1. Lệnh Xuất Phát Mốc Thi</h3>
+        <p>Mở khi người dùng nhấn vào bất kỳ đề thi nào để chuẩn bị vào phòng thi.</p>
+        <div class="before-after-pill" style="margin-top:12px;">
+          <strong>Trước:</strong> Thẻ glass-elevated, checklist tick xanh generic.<br>
+          <strong>Sau:</strong> Phiếu lệnh xuất phát, chọn chế độ Thi Thật vs Ôn Luyện, mini contour độ khó.
+        </div>
+      </div>
+      <button class="btn-trigger" onclick="openVtgModal('modal-departure')">
+        <span>XEM MODAL XUẤT PHÁT</span>
+        <span>▲</span>
+      </button>
+    </div>
+
+    <!-- Modal 2 -->
+    <div class="modal-card">
+      <div>
+        <div class="modal-card-tag">Trang /test/:id · Phòng Làm Bài</div>
+        <h3>2. Biên Bản Chốt Bài & Gấp Giấy</h3>
+        <p>Mở khi người dùng nhấn "GẤP BÀI THI" hoặc khi thời gian làm bài kết thúc.</p>
+        <div class="before-after-pill" style="margin-top:12px;">
+          <strong>Trước:</strong> Modal popup "Nộp bài? Bạn còn X câu...".<br>
+          <strong>Sau:</strong> Biên bản kiểm kê mốc trắc lượng, số liệu mono, click nhảy câu chưa làm.
+        </div>
+      </div>
+      <button class="btn-trigger" onclick="openVtgModal('modal-submit-check')">
+        <span>XEM BIÊN BẢN CHỐT BÀI</span>
+        <span>▲</span>
+      </button>
+    </div>
+
+    <!-- Modal 3 -->
+    <div class="modal-card">
+      <div>
+        <div class="modal-card-tag">Trang /test/:id · Phòng Làm Bài</div>
+        <h3>3. Sổ Tay Công Thức Bỏ Túi</h3>
+        <p>Mở khi học sinh cần tra cứu nhanh công thức Toán 9 / 12 trong lúc ôn luyện.</p>
+        <div class="before-after-pill" style="margin-top:12px;">
+          <strong>Trước:</strong> Bottom drawer trượt từ đáy điện thoại + emoji.<br>
+          <strong>Sau:</strong> Sổ tay trắc địa 2 cột, tab chuyên đề mono, KaTeX sắc nét.
+        </div>
+      </div>
+      <button class="btn-trigger" onclick="openVtgModal('modal-formula-pocket')">
+        <span>XEM SỔ TAY CÔNG THỨC</span>
+        <span>▲</span>
+      </button>
+    </div>
+
+    <!-- Modal 4 -->
+    <div class="modal-card">
+      <div>
+        <div class="modal-card-tag">Trang /test/:id · Phòng Làm Bài</div>
+        <h3>4. Trạm Tạm Dừng & Khóa Giờ</h3>
+        <p>Tự động kích hoạt khi thí sinh chuyển tab hoặc rời khỏi cửa sổ phòng thi.</p>
+        <div class="before-after-pill" style="margin-top:12px;">
+          <strong>Trước:</strong> Màn hình đen chữ trắng generic "Bài thi tạm dừng".<br>
+          <strong>Sau:</strong> Giao diện khóa đồng hồ đo cao cơ học, đếm số lần chuyển tab kỷ luật.
+        </div>
+      </div>
+      <button class="btn-trigger" onclick="openVtgModal('modal-paused-lock')">
+        <span>XEM TRẠM TẠM DỪNG</span>
+        <span>▲</span>
+      </button>
+    </div>
+
+    <!-- Modal 5 -->
+    <div class="modal-card">
+      <div>
+        <div class="modal-card-tag">Trang /test & /results & /concept</div>
+        <h3>5. Phiếu Báo Sai Lệch Mốc</h3>
+        <p>Báo cáo lỗi hiển thị LaTeX, đáp án có vấn đề hoặc đề bài không rõ nghĩa.</p>
+        <div class="before-after-pill" style="margin-top:12px;">
+          <strong>Trước:</strong> Form select xám xịt + textarea AI generic.<br>
+          <strong>Sau:</strong> Phiếu đính chính trắc lượng ấn bản, phân loại 4 nhóm lỗi chuẩn xác.
+        </div>
+      </div>
+      <button class="btn-trigger" onclick="openVtgModal('modal-issue-report')">
+        <span>XEM PHIẾU BÁO LỖI</span>
+        <span>▲</span>
+      </button>
+    </div>
+
+    <!-- Modal 6 -->
+    <div class="modal-card">
+      <div>
+        <div class="modal-card-tag">Trang /results/:id · Biên Bản Mốc</div>
+        <h3>6. Chứng Chỉ Cắm Đỉnh & Chia Sẻ</h3>
+        <p>Mở khi người dùng muốn lưu ảnh hoặc chia sẻ thành tích sau 90 phút thi đấu.</p>
+        <div class="before-after-pill" style="margin-top:12px;">
+          <strong>Trước:</strong> Popup card Fraunces + emoji 🏆 Kỷ lục cá nhân.<br>
+          <strong>Sau:</strong> Chứng chỉ trắc lượng tỉ lệ vàng, điểm Space Grotesk 700, dấu mộc niêm phong.
+        </div>
+      </div>
+      <button class="btn-trigger" onclick="openVtgModal('modal-share-cert')">
+        <span>XEM CHỨNG CHỈ CẮM ĐỈNH</span>
+        <span>▲</span>
+      </button>
+    </div>
+
+    <!-- Modal 7 -->
+    <div class="modal-card">
+      <div>
+        <div class="modal-card-tag">Trang /history · Nhật Ký Hành Trình</div>
+        <h3>7. Biên Bản Đóng Sổ Hành Trình</h3>
+        <p>Xác nhận xóa toàn bộ lịch sử điểm số và các cột mốc đã cắm trên hệ thống.</p>
+        <div class="before-after-pill" style="margin-top:12px;">
+          <strong>Trước:</strong> Browser confirm alert khô khốc.<br>
+          <strong>Sau:</strong> Cảnh báo nghiêm cẩn về việc xóa trắng độ cao đã leo, xác nhận dứt khoát.
+        </div>
+      </div>
+      <button class="btn-trigger" onclick="openVtgModal('modal-reset-history')">
+        <span>XEM ĐÓNG SỔ HÀNH TRÌNH</span>
+        <span>▲</span>
+      </button>
+    </div>
+
+    <!-- Modal 8 -->
+    <div class="modal-card">
+      <div>
+        <div class="modal-card-tag">Trang /org/* · Quản Trị Tổ Chức</div>
+        <h3>8. Sổ Cài Đặt Giám Sát Trắc Lượng</h3>
+        <p>Thiết lập cấp độ giám sát AI / Giám thị trực tiếp cho kỳ thi của trường học.</p>
+        <div class="before-after-pill" style="margin-top:12px;">
+          <strong>Trước:</strong> Bảng select form SaaS enterprise generic.<br>
+          <strong>Sau:</strong> Phiếu điều phối trắc lượng với 3 nấc giám sát (AI, Danh tính, Giám sát viên).
+        </div>
+      </div>
+      <button class="btn-trigger" onclick="openVtgModal('modal-org-proctor')">
+        <span>XEM CÀI ĐẶT TỔ CHỨC</span>
+        <span>▲</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 1: LỆNH XUẤT PHÁT MỐC THI (EXAM PREVIEW & DEPARTURE)
+     ========================================================================== -->
+<div class="vtg-overlay" id="modal-departure" onclick="closeOnOverlay(event, 'modal-departure')">
+  <div class="vtg-modal">
+    <div class="vtg-modal-head">
+      <div>
+        <div class="kicker-modal">TUYẾN 01 · THI VÀO LỚP 10</div>
+        <h2>Lệnh Xuất Phát Mốc M·173342</h2>
+      </div>
+      <button class="vtg-modal-close" onclick="closeVtgModal('modal-departure')">✕</button>
+    </div>
+
+    <div class="vtg-modal-body">
+      <div style="font-size:16px;font-weight:600;color:var(--ink);margin-bottom:4px">
+        Ôn thi vào lớp 10 — Giữa kỳ 1 Toán 9 (Đề 1)
+      </div>
+      <div style="font-size:12.5px;color:var(--ink-3);font-family:var(--font-mono)">
+        NGUỒN CẤP: LOIGIAIHAY.COM · NIÊN KHÓA 2025
+      </div>
+
+      <div class="vtg-ledger-table">
+        <div class="vtg-ledger-row">
+          <span class="lbl">TỔNG ĐỘ DÀI TUYẾN:</span>
+          <span class="val">12 trạm câu hỏi</span>
+        </div>
+        <div class="vtg-ledger-row">
+          <span class="lbl">THỜI LƯỢNG QUY ĐỊNH:</span>
+          <span class="val">24 phút (2 phút / trạm)</span>
+        </div>
+        <div class="vtg-ledger-row">
+          <span class="lbl">MỨC ĐỘ DỐC DỰ KIẾN:</span>
+          <span class="val" style="color:var(--accent)">Dốc vừa · 4 trạm phân loại cao</span>
+        </div>
+      </div>
+
+      <div style="font-family:var(--font-mono);font-size:11.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-3);margin-top:16px">
+        CHỌN CHẾ ĐỘ LEO:
+      </div>
+
+      <div class="mode-option-grid">
+        <div class="mode-card active" id="depMode1" onclick="selectDepMode(1)">
+          <h4>THI THẬT ▲</h4>
+          <p>Bấm giờ chuẩn 24 phút, khóa toàn bộ lời giải và đáp án cho đến khi cắm đích.</p>
+        </div>
+        <div class="mode-card" id="depMode2" onclick="selectDepMode(2)">
+          <h4>ÔN LUYỆN ☵</h4>
+          <p>Không áp lực thời gian, hiển thị nhịp leo và soi bước giải KaTeX ngay sau mỗi câu.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="vtg-modal-foot">
+      <button class="vtg-btn" onclick="closeVtgModal('modal-departure')">QUAY LẠI TRẠM</button>
+      <a href="lam-bai.html" class="vtg-btn vtg-btn-primary">CẮM MỐC XUẤT PHÁT ▲</a>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 2: BIÊN BẢN CHỐT BÀI & GẤP GIẤY THI (SUBMIT CONFIRMATION)
+     ========================================================================== -->
+<div class="vtg-overlay" id="modal-submit-check" onclick="closeOnOverlay(event, 'modal-submit-check')">
+  <div class="vtg-modal">
+    <div class="vtg-modal-head">
+      <div>
+        <div class="kicker-modal">BIÊN BẢN TRẮC LƯỢNG</div>
+        <h2>Gấp Giấy Thi & Xác Nhận Cắm Đích</h2>
+      </div>
+      <button class="vtg-modal-close" onclick="closeVtgModal('modal-submit-check')">✕</button>
+    </div>
+
+    <div class="vtg-modal-body">
+      <p style="font-size:14.5px;color:var(--ink-2)">
+        Sau khi xác nhận nộp bài, hệ thống sẽ khóa toàn bộ bài làm và khởi tạo <strong>Biên bản mốc</strong> với biểu đồ mặt cắt độ cao chi tiết.
+      </p>
+
+      <div class="vtg-ledger-table">
+        <div class="vtg-ledger-row">
+          <span class="lbl">TỔNG SỐ TRẠM:</span>
+          <span class="val">12 trạm</span>
+        </div>
+        <div class="vtg-ledger-row">
+          <span class="lbl">TRẠM ĐÃ CẮM MỐC:</span>
+          <span class="val" style="color:var(--pine)">10 / 12</span>
+        </div>
+        <div class="vtg-ledger-row">
+          <span class="lbl">TRẠM CHƯA ĐẶT CHÂN:</span>
+          <span class="val" style="color:var(--accent)">02 trạm (Câu 07, Câu 12)</span>
+        </div>
+        <div class="vtg-ledger-row">
+          <span class="lbl">CỜ CẦN XEM LẠI:</span>
+          <span class="val" style="color:var(--accent)">01 trạm (Câu 09)</span>
+        </div>
+        <div class="vtg-ledger-row">
+          <span class="lbl">THỜI GIAN ĐÃ DÙNG:</span>
+          <span class="val">18:42 / 24:00</span>
+        </div>
+      </div>
+
+      <div style="font-size:12.5px;color:var(--accent);font-family:var(--font-mono);line-height:1.5">
+        ▲ CÒN 2 TRẠM CHƯA CẮM MỐC: Bạn vẫn còn 05 phút 18 giây. Bạn có muốn quay lại hoàn thành nốt không?
+      </div>
+    </div>
+
+    <div class="vtg-modal-foot">
+      <button class="vtg-btn" onclick="closeVtgModal('modal-submit-check')">LÀM TIẾP</button>
+      <a href="ket-qua.html" class="vtg-btn vtg-btn-primary">GẤP BÀI & CẮM ĐÍCH ▲</a>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 3: SỔ TAY CÔNG THỨC BỎ TÚI (FIELD FORMULA POCKET)
+     ========================================================================== -->
+<div class="vtg-overlay" id="modal-formula-pocket" onclick="closeOnOverlay(event, 'modal-formula-pocket')">
+  <div class="vtg-modal" style="max-width:580px;">
+    <div class="vtg-modal-head">
+      <div>
+        <div class="kicker-modal">DỤNG CỤ TRẮC ĐỊA</div>
+        <h2>Sổ Tra Cứu Công Thức Bỏ Túi</h2>
+      </div>
+      <button class="vtg-modal-close" onclick="closeVtgModal('modal-formula-pocket')">✕</button>
+    </div>
+
+    <div class="vtg-modal-body">
+      <div style="display:flex;gap:6px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:14px;overflow-x:auto">
+        <button class="vtg-btn" style="padding:4px 10px;font-size:11.5px;background:var(--ink);color:var(--paper)">CĂN BẬC HAI</button>
+        <button class="vtg-btn" style="padding:4px 10px;font-size:11.5px">HẰNG ĐẲNG THỨC</button>
+        <button class="vtg-btn" style="padding:4px 10px;font-size:11.5px">HỆ THỨC LƯỢNG</button>
+        <button class="vtg-btn" style="padding:4px 10px;font-size:11.5px">LƯỢNG GIÁC</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px" id="formulaDemoList">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--paper-2);border-radius:6px;border:1px solid var(--line-soft)">
+          <span style="font-family:var(--font-mono);font-size:11.5px;color:var(--ink-3);width:150px">Hằng đẳng thức căn</span>
+          <span style="font-size:15px">$\sqrt{A^2} = |A|$</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--paper-2);border-radius:6px;border:1px solid var(--line-soft)">
+          <span style="font-family:var(--font-mono);font-size:11.5px;color:var(--ink-3);width:150px">Khai phương tích</span>
+          <span style="font-size:15px">$\sqrt{AB} = \sqrt{A} \cdot \sqrt{B}$</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--paper-2);border-radius:6px;border:1px solid var(--line-soft)">
+          <span style="font-family:var(--font-mono);font-size:11.5px;color:var(--ink-3);width:150px">Trục căn thức mẫu</span>
+          <span style="font-size:15px">$\frac{C}{\sqrt{A} \pm \sqrt{B}} = \frac{C(\sqrt{A} \mp \sqrt{B})}{A-B}$</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="vtg-modal-foot">
+      <button class="vtg-btn vtg-btn-dark" onclick="closeVtgModal('modal-formula-pocket')">ĐÓNG SỔ CÔNG THỨC</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 4: TRẠM TẠM DỪNG & KHÓA GIỜ (EXAM PAUSED)
+     ========================================================================== -->
+<div class="vtg-overlay" id="modal-paused-lock" onclick="closeOnOverlay(event, 'modal-paused-lock')">
+  <div class="vtg-modal" style="text-align:center;max-width:460px;">
+    <div style="padding:36px 28px 20px;">
+      <div style="width:48px;height:48px;border-radius:50%;border:2px solid var(--accent);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:20px;font-family:var(--font-mono)">
+        ▲
+      </div>
+
+      <div class="kicker-modal" style="justify-content:center;display:flex">KỶ LUẬT PHÒNG THI</div>
+      <h2 style="font-family:var(--font-display);font-size:23px;font-weight:700;margin:6px 0 10px">
+        Đồng Hồ Đo Cao Đã Khóa
+      </h2>
+      <p style="font-size:14px;color:var(--ink-2);line-height:1.6">
+        Hệ thống phát hiện bạn đã rời khỏi cửa sổ làm bài. Bộ đếm thời gian được tạm dừng để bảo toàn tính chuẩn xác của trắc lượng.
+      </p>
+
+      <div class="vtg-ledger-table" style="text-align:left;margin-top:20px;">
+        <div class="vtg-ledger-row">
+          <span class="lbl">SỐ LẦN CHUYỂN TAB:</span>
+          <span class="val" style="color:var(--accent)">01 lần</span>
+        </div>
+        <div class="vtg-ledger-row">
+          <span class="lbl">TRẠM ĐANG DỪNG:</span>
+          <span class="val">Trạm 05 / 12</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="vtg-modal-foot" style="justify-content:center;padding:18px;">
+      <button class="vtg-btn vtg-btn-primary" style="padding:10px 28px;font-size:13px" onclick="closeVtgModal('modal-paused-lock')">
+        MỞ KHÓA & TIẾP TỤC LEO ▲
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 5: PHIẾU BÁO SAI LỆCH MỐC (ISSUE REPORT)
+     ========================================================================== -->
+<div class="vtg-overlay" id="modal-issue-report" onclick="closeOnOverlay(event, 'modal-issue-report')">
+  <div class="vtg-modal">
+    <div class="vtg-modal-head">
+      <div>
+        <div class="kicker-modal">ĐỐI CHIẾU HỌC THUẬT</div>
+        <h2>Phiếu Báo Sai Lệch Trắc Lượng</h2>
+      </div>
+      <button class="vtg-modal-close" onclick="closeVtgModal('modal-issue-report')">✕</button>
+    </div>
+
+    <div class="vtg-modal-body">
+      <p style="font-size:14px;color:var(--ink-2);margin-bottom:14px">
+        Đội ngũ biên tập của Vantage kiểm duyệt 1.104 câu hỏi từ đề thi thật. Nếu phát hiện sai sót, hãy gửi phiếu để chúng tôi hiệu đính:
+      </p>
+
+      <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--ink-3);margin-bottom:6px">PHÂN LOẠI SAI LỆCH:</div>
+      <select style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper-2);color:var(--ink);font-family:var(--font-body);font-size:14px;margin-bottom:14px">
+        <option>Lỗi hiển thị công thức LaTeX / Bản vẽ</option>
+        <option>Đáp án có vẻ lệch với đề gốc</option>
+        <option>Đề bài diễn đạt mơ hồ / thiếu dữ kiện</option>
+        <option>Khác</option>
+      </select>
+
+      <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--ink-3);margin-bottom:6px">GHI CHÚ CHI TIẾT (TÙY CHỌN):</div>
+      <textarea rows="3" placeholder="Ví dụ: Dấu căn ở phương án B bị thiếu ngoặc..." style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper-2);color:var(--ink);font-family:var(--font-body);font-size:13.5px;resize:none;margin-bottom:10px"></textarea>
+    </div>
+
+    <div class="vtg-modal-foot">
+      <button class="vtg-btn" onclick="closeVtgModal('modal-issue-report')">HỦY PHIẾU</button>
+      <button class="vtg-btn vtg-btn-primary" onclick="alert('Đã ghi nhận phiếu đính chính — Cảm ơn bạn đã đóng góp cho cộng đồng Vantage.'); closeVtgModal('modal-issue-report')">GỬI PHIẾU HIỆU ĐÍNH ▲</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 6: CHỨNG CHỈ CẮM ĐỈNH & CHIA SẺ (SHARE CERTIFICATE)
+     ========================================================================== -->
+<div class="vtg-overlay" id="modal-share-cert" onclick="closeOnOverlay(event, 'modal-share-cert')">
+  <div class="vtg-modal" style="max-width:480px;">
+    <div class="vtg-modal-head">
+      <div>
+        <div class="kicker-modal">CHỨNG NHẬN CHINH PHỤC</div>
+        <h2>Chứng Chỉ Cắm Đỉnh M·07</h2>
+      </div>
+      <button class="vtg-modal-close" onclick="closeVtgModal('modal-share-cert')">✕</button>
+    </div>
+
+    <div class="vtg-modal-body">
+      <div class="cert-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+          <div>
+            <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.14em;color:var(--accent)">VANTAGE · BIÊN BẢN TRẮC LƯỢNG</div>
+            <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--ink);margin-top:2px">ĐỀ THI THỬ HÀ NỘI 2025</div>
+          </div>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-3)">2026-09-01</span>
+        </div>
+
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin:20px 0 16px">
+          <div class="cert-score">8.50<span>/ 10</span></div>
+          <div style="text-align:right">
+            <div style="font-family:var(--font-mono);font-size:12px;color:var(--pine);font-weight:600">▲ +0.75 ĐIỂM</div>
+            <div style="font-family:var(--font-mono);font-size:10.5px;color:var(--ink-3)">SO LẦN TRƯỚC</div>
+          </div>
+        </div>
+
+        <div class="vtg-ledger-table" style="background:var(--paper-2);margin:0">
+          <div class="vtg-ledger-row">
+            <span class="lbl">TRẠM ĐẠT:</span>
+            <span class="val">19 / 22 trạm</span>
+          </div>
+          <div class="vtg-ledger-row">
+            <span class="lbl">THỜI GIAN:</span>
+            <span class="val">82 / 90 phút</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vtg-modal-foot">
+      <button class="vtg-btn" onclick="navigator.clipboard?.writeText(window.location.href); alert('Đã sao chép liên kết chứng chỉ!')">SAO CHÉP LIÊN KẾT</button>
+      <button class="vtg-btn vtg-btn-primary" onclick="alert('Đang xuất ảnh độ phân giải cao cho thẻ chia sẻ...'); closeVtgModal('modal-share-cert')">TẢI THẺ ẢNH ▲</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 7: BIÊN BẢN ĐÓNG SỔ HÀNH TRÌNH (RESET HISTORY)
+     ========================================================================== -->
+<div class="vtg-overlay" id="modal-reset-history" onclick="closeOnOverlay(event, 'modal-reset-history')">
+  <div class="vtg-modal" style="max-width:460px;">
+    <div class="vtg-modal-head">
+      <div>
+        <div class="kicker-modal" style="color:var(--accent)">CẢNH BÁO XÓA SỔ</div>
+        <h2>Đóng Sổ Hành Trình & Xóa Mốc</h2>
+      </div>
+      <button class="vtg-modal-close" onclick="closeVtgModal('modal-reset-history')">✕</button>
+    </div>
+
+    <div class="vtg-modal-body">
+      <p style="font-size:14.5px;color:var(--ink);margin-bottom:12px">
+        Bạn sắp xóa toàn bộ <strong>14 biên bản mốc</strong> và dữ liệu đo đạc độ cao từ trước đến nay.
+      </p>
+      <p style="font-size:13px;color:var(--ink-3);line-height:1.5">
+        Hành động này sẽ đưa trang Nhật ký hành trình về trạng thái cuốn sổ trắng ban đầu. Không thể khôi phục sau khi xác nhận.
+      </p>
+    </div>
+
+    <div class="vtg-modal-foot">
+      <button class="vtg-btn" onclick="closeVtgModal('modal-reset-history')">GIỮ LẠI SỔ</button>
+      <button class="vtg-btn" style="border-color:var(--accent);color:var(--accent);font-weight:600" onclick="alert('Đã đặt lại sổ nhật ký hành trình.'); closeVtgModal('modal-reset-history')">XÁC NHẬN XÓA TRẮNG</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 8: CÀI ĐẶT TỔ CHỨC & GIÁM SÁT (ORG PROCTORING CONFIG)
+     ========================================================================== -->
+<div class="vtg-overlay" id="modal-org-proctor" onclick="closeOnOverlay(event, 'modal-org-proctor')">
+  <div class="vtg-modal">
+    <div class="vtg-modal-head">
+      <div>
+        <div class="kicker-modal">QUẢN TRỊ ĐO ĐẠC</div>
+        <h2>Cài Đặt Cấp Độ Giám Sát Kỳ Thi</h2>
+      </div>
+      <button class="vtg-modal-close" onclick="closeVtgModal('modal-org-proctor')">✕</button>
+    </div>
+
+    <div class="vtg-modal-body">
+      <p style="font-size:14px;color:var(--ink-2);margin-bottom:14px">
+        Chọn cấp độ kiểm soát kỳ thi áp dụng cho nhóm học sinh trong tổ chức:
+      </p>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:12px;border:1px solid var(--line);border-radius:6px;background:var(--paper-2);cursor:pointer">
+          <input type="radio" name="proc_tier" checked style="accent-color:var(--accent);margin-top:3px">
+          <div>
+            <div style="font-family:var(--font-display);font-size:14.5px;font-weight:700">AI Rà Soát Nhẹ (Low Stakes)</div>
+            <div style="font-size:12px;color:var(--ink-3)">Ghi nhận số lần chuyển tab và thời gian dừng bài mà không khóa màn hình.</div>
+          </div>
+        </label>
+
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:12px;border:1px solid var(--line);border-radius:6px;background:var(--paper-2);cursor:pointer">
+          <input type="radio" name="proc_tier" style="accent-color:var(--accent);margin-top:3px">
+          <div>
+            <div style="font-family:var(--font-display);font-size:14.5px;font-weight:700">Xác Minh Danh Tính + AI (Medium)</div>
+            <div style="font-size:12px;color:var(--ink-3)">Khóa màn hình khi chuyển tab trên 3 lần, phát hiện mở DevTools.</div>
+          </div>
+        </label>
+
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:12px;border:1px solid var(--line);border-radius:6px;background:var(--paper-2);cursor:pointer">
+          <input type="radio" name="proc_tier" style="accent-color:var(--accent);margin-top:3px">
+          <div>
+            <div style="font-family:var(--font-display);font-size:14.5px;font-weight:700">Giám Sát Viên Trực Tiếp (High Stakes)</div>
+            <div style="font-size:12px;color:var(--ink-3)">Đồng bộ tín hiệu thời gian thực về bảng điều khiển giám thị phòng thi.</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="vtg-modal-foot">
+      <button class="vtg-btn" onclick="closeVtgModal('modal-org-proctor')">HỦY</button>
+      <button class="vtg-btn vtg-btn-dark" onclick="alert('Đã lưu cấu hình giám sát kỳ thi.'); closeVtgModal('modal-org-proctor')">LƯU CẤU HÌNH TỔ CHỨC ▲</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openVtgModal(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.add("open");
+    renderMath(el);
+  }
+}
+
+function closeVtgModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove("open");
+}
+
+function closeOnOverlay(e, id) {
+  if (e.target.id === id) closeVtgModal(id);
+}
+
+function selectDepMode(mode) {
+  const c1 = document.getElementById("depMode1");
+  const c2 = document.getElementById("depMode2");
+  if (mode === 1) {
+    c1.classList.add("active");
+    c2.classList.remove("active");
+  } else {
+    c2.classList.add("active");
+    c1.classList.remove("active");
+  }
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    document.querySelectorAll(".vtg-overlay.open").forEach(m => m.classList.remove("open"));
+  }
+});
+
+function renderMath(element) {
+  if (window.renderMathInElement) {
+    window.renderMathInElement(element, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false }
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderMath(document.body);
+  initCanvas();
+  
+  const btn = document.getElementById("themeToggle");
+  btn.addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme") || "light";
+    const next = cur === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("vantage-theme", next); } catch(e){}
+    if (window.VTG_REFRESH_COLORS) window.VTG_REFRESH_COLORS();
+  });
+});
+
+function initCanvas() {
+  const canvas = document.getElementById("bgField");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  let w, h;
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    draw();
+  }
+  window.addEventListener("resize", resize);
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    ctx.strokeStyle = isDark ? "rgba(237,234,224,0.035)" : "rgba(28,35,51,0.035)";
+    ctx.lineWidth = 1;
+    for (let i = 1; i <= 9; i++) {
+      ctx.beginPath();
+      ctx.ellipse(w * 0.85, h * 0.2, i * 45, i * 28, -0.2, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+  window.VTG_REFRESH_COLORS = draw;
+  resize();
+}
+</script>
+</body>
+</html>

@@ -134,6 +134,15 @@ def solve_linalg(spec: LinAlgSpec) -> dict:
         derivation["steps"] = steps
     elif op == "eigen":
         derivation["result"] = mats[0].eigenvals()
+        # Real eigenvector data (not fabricated) is only worth exposing for the 2x2 case
+        # the frontend's "Eigen (2x2)" panel actually draws principal axes for; sympy's
+        # eigenvects() works for any size but higher dimensions have no 2D axis to draw.
+        if mats[0].shape == (2, 2):
+            vectors: dict = {}
+            for eigenvalue, _mult, basis in mats[0].eigenvects():
+                if basis:
+                    vectors[eigenvalue] = basis[0].normalized()
+            derivation["eigen_vectors"] = vectors
     elif op == "lu":
         if mats[0].shape[0] != mats[0].shape[1]:
             raise ValueError("LU decomposition requires a square matrix")
@@ -249,6 +258,10 @@ def verify_linalg(derivation: dict) -> VerificationResult:
             char_val = sympy.simplify((mats[0] - eigenvalue * sympy.eye(mats[0].shape[0])).det())
             if char_val != 0:
                 return VerificationResult(False, None, f"{eigenvalue} does not satisfy det(A - λI) = 0")
+        for eigenvalue, vector in derivation.get("eigen_vectors", {}).items():
+            residual = sympy.simplify(mats[0] * vector - eigenvalue * vector)
+            if residual != sympy.zeros(*residual.shape):
+                return VerificationResult(False, None, f"eigenvector for {eigenvalue} does not satisfy Av = λv")
         return VerificationResult(True, None, "verified")
 
     if op == "lu":

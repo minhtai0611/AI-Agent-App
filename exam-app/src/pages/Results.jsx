@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import confetti from 'canvas-confetti'
+import { ShareNetwork, Printer } from '@phosphor-icons/react'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs.jsx'
 import { NumberTicker } from '../components/ui/number-ticker.jsx'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
@@ -46,34 +47,6 @@ function latestCutoff(school) {
   const years = Object.keys(school.cutoffs ?? {}).sort().reverse()
   return years.length ? school.cutoffs[years[0]]?.math ?? null : null
 }
-const CIRC = 2 * Math.PI * 54
-
-function HelixDecor({ color }) {
-  const pts = 40
-  const w = 60, h = 40
-  const path1 = Array.from({ length: pts }, (_, i) => {
-    const x = (i / (pts - 1)) * w
-    const y = h / 2 + Math.sin((i / pts) * Math.PI * 2) * (h / 2 - 2)
-    return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`
-  }).join(' ')
-  const path2 = Array.from({ length: pts }, (_, i) => {
-    const x = (i / (pts - 1)) * w
-    const y = h / 2 - Math.sin((i / pts) * Math.PI * 2) * (h / 2 - 2)
-    return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`
-  }).join(' ')
-  return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="opacity-30">
-      <style>{`
-        @keyframes helix-scroll { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -60; } }
-      `}</style>
-      <path d={path1} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round"
-        style={{ strokeDasharray: 6, animation: 'helix-scroll 2s linear infinite' }} />
-      <path d={path2} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" opacity="0.6"
-        style={{ strokeDasharray: 6, animationDelay: '-1s', animation: 'helix-scroll 2s linear infinite' }} />
-    </svg>
-  )
-}
-
 function arcColor(score) {
   if (score >= 9) return 'var(--mastery-5)'
   if (score >= 7.5) return 'var(--mastery-4)'
@@ -124,6 +97,94 @@ function parseExplanationSteps(text) {
   return steps.length > 1 ? steps : [text]
 }
 
+// Catmull-Rom → cubic-bezier smoothing, ported from vantage/uploads/ket-qua.html's smoothPath().
+function smoothPath(pts) {
+  let d = `M ${pts[0][0]} ${pts[0][1]}`
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[Math.max(0, i - 1)]
+    const p1 = pts[i]
+    const p2 = pts[i + 1]
+    const p3 = pts[Math.min(pts.length - 1, i + 2)]
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6]
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6]
+    d += ` C ${c1[0]} ${c1[1]}, ${c2[0]} ${c2[1]}, ${p2[0]} ${p2[1]}`
+  }
+  return d
+}
+
+const DIFF_HEIGHT = { easy: 1.2, medium: 2.5, hard: 4.2 }
+
+function questionStatus(q, answers) {
+  const chosen = answers[q.id] ?? null
+  if (chosen === null) return 'skip'
+  return chosen === q.correct ? 'ok' : 'bad'
+}
+
+// "Mặt cắt địa hình của đề" — per-question difficulty profile, ported from the
+// mockup's inline-SVG xsec (vantage/uploads/ket-qua.html). Clicking a missed
+// station jumps to that question's card in the wrong-answer log.
+function XsecProfile({ questions, answers, onJumpToWrong }) {
+  if (!questions.length) return null
+  const VW = 880, VH = 220, L = 40, R = 12, T = 12, B = 30
+  const IW = VW - L - R, IH = VH - T - B, BASE = T + IH
+  const xf = i => L + (questions.length > 1 ? i * (IW / (questions.length - 1)) : IW / 2)
+  const yf = v => BASE - (v / 5) * IH
+  const pts = questions.map((q, i) => [xf(i), yf(DIFF_HEIGHT[q.difficulty] ?? 2.5)])
+  const dLine = smoothPath(pts)
+  const areaD = `${dLine} L ${VW - R} ${BASE} L ${L} ${BASE} Z`
+  const bands = [['NHẸ', 1.25], ['VỪA', 2.5], ['DỐC', 4.4]]
+
+  return (
+    <div className="bg-surface border border-border rounded-2xl p-5 flex flex-col gap-1">
+      <div className="flex items-center justify-between gap-3 flex-wrap px-1">
+        <span className="font-sans text-[16px] font-semibold text-foreground">Mặt cắt địa hình của đề</span>
+        <span className="font-sans text-[0.6875rem] text-faint" style={{ fontFamily: 'var(--font-mono)' }}>
+          NHẤN MỘT TRẠM VẤP → NHẢY TỚI CÂU ĐÓ
+        </span>
+      </div>
+      <svg viewBox={`0 0 ${VW} ${VH}`} className="w-full h-auto" role="img"
+        aria-label={`${questions.filter(q => questionStatus(q, answers) === 'ok').length} trên ${questions.length} câu đúng`}>
+        {bands.map(([label, v]) => (
+          <g key={label}>
+            <line x1={L} x2={VW - R} y1={yf(v)} y2={yf(v)} stroke="var(--line-soft)" strokeWidth="1" />
+            <text x={L - 6} y={yf(v) + 3.5} textAnchor="end"
+              style={{ font: '9px var(--font-mono)', letterSpacing: '.08em', fill: 'var(--ink-3)' }}>{label}</text>
+          </g>
+        ))}
+        <line x1={L} x2={VW - R} y1={BASE} y2={BASE} stroke="var(--line)" strokeWidth="1" />
+        <path d={areaD} fill="var(--ink)" fillOpacity="0.05" />
+        <path d={dLine} fill="none" stroke="var(--ink)" strokeWidth="1.5" strokeLinecap="round" />
+        {questions.map((q, i) => {
+          const status = questionStatus(q, answers)
+          const x = xf(i), y = yf(DIFF_HEIGHT[q.difficulty] ?? 2.5)
+          const n = i + 1
+          const handleClick = () => { if (status === 'bad') onJumpToWrong(q.id) }
+          const label = `Câu ${n} — ${status === 'ok' ? 'đúng' : status === 'bad' ? 'sai' : 'bỏ trống'}`
+          if (status === 'bad') {
+            return (
+              <g key={q.id} tabIndex={0} role="button" aria-label={label} style={{ cursor: 'pointer' }}
+                onClick={handleClick} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick() } }}>
+                <line x1={x} x2={x} y1={y + 8} y2={BASE} stroke="var(--accent)" strokeOpacity="0.3" strokeDasharray="2 3" strokeWidth="1" />
+                <circle cx={x} cy={y} r="6" fill="none" stroke="var(--accent)" strokeWidth="1.5" />
+                <circle cx={x} cy={y} r="2.4" fill="var(--accent)" />
+              </g>
+            )
+          }
+          if (status === 'skip') {
+            return <circle key={q.id} cx={x} cy={y} r="4.6" fill="none" stroke="var(--ink-3)" strokeWidth="1.5" aria-label={label} />
+          }
+          return <circle key={q.id} cx={x} cy={y} r="4" fill="var(--pine)" aria-label={label} />
+        })}
+      </svg>
+      <div className="flex flex-wrap gap-5 px-1 pt-1" style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, letterSpacing: '.08em', color: 'var(--ink-3)' }}>
+        <span className="inline-flex items-center gap-1.5"><i style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--pine)', display: 'inline-block' }} />ĐÚNG</span>
+        <span className="inline-flex items-center gap-1.5"><i style={{ width: 8, height: 8, borderRadius: '50%', border: '1.5px solid var(--accent)', display: 'inline-block' }} />SAI</span>
+        <span className="inline-flex items-center gap-1.5"><i style={{ width: 8, height: 8, borderRadius: '50%', border: '1.5px solid var(--ink-3)', display: 'inline-block' }} />BỎ TRỐNG</span>
+      </div>
+    </div>
+  )
+}
+
 export default function Results() {
   usePageMeta('Kết quả thi', { noindex: true })
   const navigate = useNavigate()
@@ -144,6 +205,30 @@ export default function Results() {
   const [showCelebrationScene, setShowCelebrationScene] = useState(false)
   const scoreRef = useRef(null)
   const scoreInView = useInView(scoreRef, { once: true, margin: '0px 0px -40px 0px' })
+  const [jumpTargetId, setJumpTargetId] = useState(null)
+  const questionRefs = useRef({})
+
+  useEffect(() => {
+    if (!scoreInView || !result || confettiFiredRef.current) return
+    if (result.score < 7) return
+    confettiFiredRef.current = true
+    confetti({
+      particleCount: result.score >= 9 ? 300 : 150,
+      spread: 70,
+      origin: { x: 0.5, y: 0.25 },
+      colors: ['#A6620C', '#4C3B8C', '#059669', '#F0A93E'],
+      ticks: 300, scalar: 1.2,
+    })
+    setShowCelebrationScene(true)
+  }, [scoreInView, result])
+
+  useEffect(() => {
+    if (!jumpTargetId || activeTab !== 'wrong') return
+    const el = questionRefs.current[jumpTargetId]
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    const t = setTimeout(() => setJumpTargetId(null), 900)
+    return () => clearTimeout(t)
+  }, [jumpTargetId, activeTab])
 
   const isCurrent = !resultId || resultId === 'current'
   const savedRef = useRef(false)
@@ -283,6 +368,19 @@ export default function Results() {
 
   const wrongCount = wrongQuestions.length
 
+  // Prior attempt on this same exam (mockup's "SO LẦN TRƯỚC" spec row) — distinct
+  // from overallDelta above, which compares against the immediate previous exam of any kind.
+  const prevSameAttempt = pastSameExam.length
+    ? [...pastSameExam].sort((a, b) => new Date(b.finishedAt) - new Date(a.finishedAt))[0]
+    : null
+  const sameExamDelta = prevSameAttempt ? score - prevSameAttempt.score : null
+
+  function jumpToWrong(questionId) {
+    setActiveTab('wrong')
+    setWrongAccordion(prev => ({ ...prev, [questionId]: true }))
+    setJumpTargetId(questionId)
+  }
+
   // RadarChart data
   const radarData = topics.map(([t, tb]) => ({
     topic: getTopicLabel(t),
@@ -291,6 +389,14 @@ export default function Results() {
   }))
 
   const color = arcColor(score)
+
+  // Real per-question data behind the spec block's "TRẠM ĐẠT" row (mockup's
+  // correct/total, distinct from the "answered" count already shown elsewhere).
+  const correctCount = allQuestions.length
+    ? allQuestions.filter(q => answers[q.id] === q.correct).length
+    : Math.round(accuracy * (examObj?.totalQuestions ?? result.answeredCount))
+  const totalCount = allQuestions.length || examObj?.totalQuestions || result.answeredCount
+  const milestoneLabel = [examObj?.category?.toUpperCase(), examObj?.year].filter(Boolean).join(' · ') || 'ĐỀ THI'
 
   const TABS = [
     { id: 'overview', label: 'Kết quả' },
@@ -301,7 +407,7 @@ export default function Results() {
 
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
-      className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      className="relative z-[1] min-h-screen">
       {showShareCard && (
         <ResultShareCard
           result={result}
@@ -311,35 +417,38 @@ export default function Results() {
         />
       )}
 
-      {/* NavBar */}
-      <nav className="relative z-10 flex items-center justify-between px-8 bg-surface border-b border-border" style={{ height: 64 }}>
-        <button onClick={() => navigate('/exams')}
-          className="flex items-center gap-1.5 font-sans text-[0.8125rem] text-muted hover:text-foreground transition">
-          ← Trang chủ
-        </button>
-        <span className="font-sans text-sm font-semibold text-foreground">Kết quả thi</span>
-        <div className="flex items-center gap-2">
-          <button onClick={() => setShowShareCard(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-elevated border border-border rounded-lg font-sans text-xs text-muted hover:text-foreground transition"
-            title="Chia sẻ kết quả">
-            📤
-          </button>
-          <button onClick={() => navigate('/history')}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-elevated border border-border rounded-lg font-sans text-xs text-muted hover:text-foreground transition">
-            Lịch sử
-          </button>
+      <div className="relative z-10 flex flex-col gap-5 max-w-3xl mx-auto w-full px-4 sm:px-6 pt-8 pb-16">
+
+        {/* ── Breadcrumb + actions — mirrors the other AI-toolset pages' "TRẠM · …" header ── */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.1em', color: 'var(--accent)' }}>
+            TRẠM · BIÊN BẢN MỐC
+          </div>
+          <div className="flex items-center gap-2 print:hidden">
+            <button onClick={() => setShowShareCard(true)}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-elevated border border-border rounded-lg font-sans text-xs text-muted hover:text-foreground transition"
+              title="Chia sẻ kết quả">
+              <ShareNetwork size={14} weight="bold" /> Chia sẻ
+            </button>
+            <button onClick={() => window.print()}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-elevated border border-border rounded-lg font-sans text-xs text-muted hover:text-foreground transition"
+              title="In biên bản">
+              <Printer size={14} weight="bold" /> In
+            </button>
+            <button onClick={() => navigate('/history')}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-surface-elevated border border-border rounded-lg font-sans text-xs text-muted hover:text-foreground transition">
+              Lịch sử
+            </button>
+          </div>
         </div>
-      </nav>
 
-      <div className="relative z-10 flex flex-col gap-5 max-w-3xl mx-auto w-full px-4 py-8">
-
-        {/* ── Score hero — Tier-2 GSAP tilt-in entrance wraps the existing framer-motion fade/rise ── */}
+        {/* ── Score hero — "điểm là typography" per the mockup, replacing the small ring gauge ── */}
         <Reveal3D variant="tilt" amount={0.3}>
         <motion.div
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="relative flex items-center gap-8 glass-base rounded-2xl px-8 py-8"
+          className="relative glass-base rounded-2xl px-7 py-8 sm:px-8"
+          style={{ borderTop: '2px solid var(--ink)' }}
         >
-          {/* Tier 3 — one-shot WebGL particle burst layered alongside (not replacing) canvas-confetti above */}
           {showCelebrationScene && (
             <div className="absolute inset-0" style={{ pointerEvents: 'none', zIndex: 5 }}>
               <Scene3DLazy
@@ -349,79 +458,47 @@ export default function Results() {
               />
             </div>
           )}
-          <div ref={scoreRef} className="flex-shrink-0 score-circle">
-            <svg width="120" height="120" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="54" stroke="var(--border)" strokeWidth="6" fill="none" />
-              <motion.circle
-                cx="60" cy="60" r="54" stroke={color} strokeWidth="6" fill="none"
-                strokeLinecap="round" strokeDasharray={CIRC}
-                initial={{ strokeDashoffset: CIRC }}
-                animate={{ strokeDashoffset: scoreInView ? CIRC * (1 - score / 10) : CIRC }}
-                transition={{ duration: 1.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                transform="rotate(-90 60 60)"
-                onAnimationComplete={() => {
-                  if (score >= 7 && !confettiFiredRef.current) {
-                    confettiFiredRef.current = true
-                    confetti({
-                      particleCount: score >= 9 ? 300 : 150,
-                      spread: 70,
-                      origin: { x: 0.5, y: 0.25 },
-                      colors: ['#A6620C', '#4C3B8C', '#059669', '#F0A93E'],
-                      ticks: 300, scalar: 1.2,
-                    })
-                    setShowCelebrationScene(true)
-                  }
-                }}
-              />
-              <foreignObject x="20" y="38" width="80" height="40">
-                <div xmlns="http://www.w3.org/1999/xhtml"
-                  style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 26, fontWeight: 700, color, textAlign: 'center', lineHeight: '40px' }}>
-                  <NumberTicker value={score} startValue={0} decimalPlaces={1} duration={scoreInView ? 1500 : 0} />
-                </div>
-              </foreignObject>
-            </svg>
-          </div>
-          <motion.div
-            className="flex flex-col gap-3 flex-1"
-            initial="hidden"
-            animate={scoreInView ? 'show' : 'hidden'}
-            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12, delayChildren: 0.6 } } }}
-          >
-            <motion.div variants={{ hidden: { opacity: 0, x: -8 }, show: { opacity: 1, x: 0 } }} className="flex items-center gap-3">
-              <span className={`font-sans text-[26px] font-bold leading-tight ${score >= 7 ? 'text-gradient-brand' : 'text-foreground'}`}>{scoreLabel(score)}</span>
-              <HelixDecor color={color} />
-            </motion.div>
-            <motion.span variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }} className="font-sans text-[0.8125rem] text-faint">{examObj?.title ?? examId}</motion.span>
-            <motion.div variants={{ hidden: { opacity: 0, y: 6 }, show: { opacity: 1, y: 0 } }} className="flex items-center gap-6 flex-wrap">
-              <div className="flex flex-col gap-0.5">
-                <span className="font-sans text-[0.6875rem] text-faint">Độ chính xác</span>
-                <span className="font-sans text-[15px] font-semibold text-foreground">{Math.round(accuracy * 100)}%</span>
+          <h1 className="font-display font-bold" style={{ fontSize: 22, color: 'var(--ink)', marginBottom: 4 }}>
+            {examObj?.title ?? examId}
+          </h1>
+          <span className="font-sans text-[0.8125rem] text-faint">{scoreLabel(score)}</span>
+
+          <div ref={scoreRef} className="grid gap-6 mt-6" style={{ gridTemplateColumns: 'auto 1fr', alignItems: 'end' }}>
+            <div
+              className="font-display font-bold"
+              style={{ fontSize: 'clamp(56px,9vw,88px)', lineHeight: 0.95, letterSpacing: '-0.02em', color, display: 'flex', alignItems: 'baseline', gap: 6 }}
+            >
+              <NumberTicker value={score} startValue={0} decimalPlaces={1} />
+              <small style={{ fontFamily: 'var(--font-mono)', fontSize: 20, fontWeight: 400, color: 'var(--ink-3)' }}>/10</small>
+            </div>
+            <div className="justify-self-end w-full max-w-[380px]" style={{ fontFamily: 'var(--font-mono)', fontSize: 12.5 }}>
+              <div className="flex justify-between gap-4 py-1.5" style={{ color: 'var(--ink-3)', letterSpacing: '.08em' }}>
+                <span>MỐC</span><span className="tabular-nums text-right" style={{ color: 'var(--ink)' }}>{milestoneLabel}</span>
               </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="font-sans text-[0.6875rem] text-faint">Thời gian</span>
-                <span className="font-sans text-[15px] font-semibold text-foreground">{formatTime(timeSpent)}</span>
+              <div className="flex justify-between gap-4 py-1.5 border-t border-border-subtle" style={{ color: 'var(--ink-3)', letterSpacing: '.08em' }}>
+                <span>THỜI GIAN</span>
+                <span className="tabular-nums" style={{ color: 'var(--ink)' }}>
+                  {Math.round(timeSpent / 60)}{examObj?.duration ? `/${examObj.duration}` : ''} PHÚT
+                </span>
               </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="font-sans text-[0.6875rem] text-faint">Đã trả lời</span>
-                <span className="font-sans text-[15px] font-semibold text-foreground">{result.answeredCount}/{allQuestions.length || result.answeredCount}</span>
+              <div className="flex justify-between gap-4 py-1.5 border-t border-border-subtle" style={{ color: 'var(--ink-3)', letterSpacing: '.08em' }}>
+                <span>TRẠM ĐẠT</span><span className="tabular-nums" style={{ color: 'var(--ink)' }}>{correctCount}/{totalCount} ({Math.round(accuracy * 100)}%)</span>
               </div>
-              {overallDelta != null && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 1.0, duration: 0.3 }}
-                  className="flex flex-col gap-0.5"
-                >
-                  <span className="font-sans text-[0.6875rem] text-faint">So bài trước</span>
-                  <span className="font-sans text-[15px] font-semibold" style={{ color: overallDelta > 0 ? 'var(--success)' : overallDelta < 0 ? 'var(--destructive)' : 'var(--muted-fg)' }}>
-                    {overallDelta > 0 ? '+' : ''}{overallDelta.toFixed(1)}
+              {sameExamDelta != null && (
+                <div className="flex justify-between gap-4 py-1.5 border-t border-border-subtle" style={{ color: 'var(--ink-3)', letterSpacing: '.08em' }}>
+                  <span>SO LẦN TRƯỚC</span>
+                  <span className="tabular-nums" style={{ color: sameExamDelta >= 0 ? 'var(--accent)' : 'var(--ink-3)' }}>
+                    {sameExamDelta >= 0 ? '▲' : '▼'} {sameExamDelta >= 0 ? '+' : ''}{sameExamDelta.toFixed(2)} ({prevSameAttempt.score.toFixed(2)} → {score.toFixed(2)})
                   </span>
-                </motion.div>
+                </div>
               )}
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </motion.div>
         </Reveal3D>
+
+        {/* ── Mặt cắt địa hình của đề ── */}
+        <XsecProfile questions={allQuestions} answers={answers} onJumpToWrong={jumpToWrong} />
 
         {/* Personal best */}
         <AnimatePresence>
@@ -498,7 +575,7 @@ export default function Results() {
           </TabsList>
         </Tabs>
 
-        {/* ── Tab: Tổng quan ── */}
+        {/* ── Tab: Kết quả (topic radar + shortcuts) ── */}
         {activeTab === 'overview' && (
           <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-5">
             {/* Hồ sơ năng lực */}
@@ -583,7 +660,7 @@ export default function Results() {
         )}
 
         {/* ── Tab: Nhận xét (local heuristic — no backend/AI call) ── */}
-        {activeTab === 'insights' && localInsights && (
+        {activeTab === 'insights' && (
           <motion.div key="insights" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
             {/* What you defended */}
             {(() => {
@@ -603,37 +680,39 @@ export default function Results() {
               )
             })()}
 
-            <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
-              <span className="font-sans text-[16px] font-semibold text-gradient-aurora">Nhận xét</span>
+            {localInsights && (
+              <div className="bg-surface border border-border rounded-2xl p-7 flex flex-col gap-5">
+                <span className="font-sans text-[16px] font-semibold text-gradient-aurora">Nhận xét</span>
 
-              <div className="flex items-center gap-6 flex-wrap">
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-[0.6875rem] text-faint">Ước tính top</span>
-                  <span className="font-sans text-[15px] font-semibold text-info">top {100 - localInsights.percentile}%</span>
+                <div className="flex items-center gap-6 flex-wrap">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-sans text-[0.6875rem] text-faint">Ước tính top</span>
+                    <span className="font-sans text-[15px] font-semibold text-info">top {100 - localInsights.percentile}%</span>
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-sans text-[0.6875rem] text-faint">Dự đoán lần tới</span>
+                    <span className="font-sans text-[15px] font-semibold text-foreground">
+                      {localInsights.predictedScoreRange[0]}–{localInsights.predictedScoreRange[1]}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-[0.6875rem] text-faint">Dự đoán lần tới</span>
-                  <span className="font-sans text-[15px] font-semibold text-foreground">
-                    {localInsights.predictedScoreRange[0]}–{localInsights.predictedScoreRange[1]}
-                  </span>
+
+                <div className="flex flex-col gap-2">
+                  <span className="font-sans text-[0.8125rem] font-semibold text-muted">Gợi ý cải thiện</span>
+                  <ul className="flex flex-col gap-1.5">
+                    {localInsights.improvementStrategy.map((tip, i) => (
+                      <li key={i} className="font-sans text-[0.8125rem] text-dim flex gap-2">
+                        <span className="text-primary flex-shrink-0">·</span> {tip}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-2">
-                <span className="font-sans text-[0.8125rem] font-semibold text-muted">Gợi ý cải thiện</span>
-                <ul className="flex flex-col gap-1.5">
-                  {localInsights.improvementStrategy.map((tip, i) => (
-                    <li key={i} className="font-sans text-[0.8125rem] text-dim flex gap-2">
-                      <span className="text-primary flex-shrink-0">·</span> {tip}
-                    </li>
-                  ))}
-                </ul>
+                <p className="font-sans text-[0.6875rem] text-faint">
+                  Ước tính dựa trên lịch sử làm bài của bạn trên thiết bị này — không phải kết quả chính thức.
+                </p>
               </div>
-
-              <p className="font-sans text-[0.6875rem] text-faint">
-                Ước tính dựa trên lịch sử làm bài của bạn trên thiết bị này — không phải kết quả chính thức.
-              </p>
-            </div>
+            )}
           </motion.div>
         )}
 
@@ -665,7 +744,9 @@ export default function Results() {
                       return 'Bỏ trống — ưu tiên xem lời giải trước tiên.'
                     })()
                     return (
-                      <div key={q.id} className="rounded-xl border border-border overflow-hidden">
+                      <div key={q.id} ref={el => { questionRefs.current[q.id] = el }}
+                        className="rounded-xl border overflow-hidden transition-colors"
+                        style={{ borderColor: jumpTargetId === q.id ? 'var(--accent)' : 'var(--border)' }}>
                         <button
                           onClick={() => setWrongAccordion(prev => ({ ...prev, [q.id]: !prev[q.id] }))}
                           className="w-full flex items-center justify-between px-5 py-3.5 bg-surface-elevated hover:bg-surface transition text-left"
@@ -826,6 +907,50 @@ export default function Results() {
             </div>
           </motion.div>
         )}
+
+        {/* ── Bản đồ chuyên đề — always visible, mirrors the mockup's flat topic table ── */}
+        {topics.length > 0 && (
+          <div className="mt-4">
+            <h2 className="font-display font-bold mb-3" style={{ fontSize: 20, color: 'var(--ink)' }}>Bản đồ chuyên đề</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full" style={{ borderCollapse: 'collapse', fontFamily: 'var(--font-mono)', fontSize: 13 }}>
+                <thead>
+                  <tr>
+                    <th className="text-left" style={{ fontWeight: 500, fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', padding: '10px 8px', borderBottom: '2px solid var(--ink)' }}>Chuyên đề</th>
+                    <th className="text-right" style={{ fontWeight: 500, fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--ink-3)', padding: '10px 8px', borderBottom: '2px solid var(--ink)' }}>Trạm đạt</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topics.map(([topic, tb]) => (
+                    <tr key={topic}>
+                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--line-soft)', color: 'var(--ink)' }}>{getTopicLabel(topic).toUpperCase()}</td>
+                      <td className="text-right tabular-nums" style={{ padding: '10px 8px', borderBottom: '1px solid var(--line-soft)', color: 'var(--ink-2)' }}>{tb.correct}/{tb.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── Mốc kế — CTA, mirrors the mockup's closing section ── */}
+        <div className="flex items-center justify-between gap-4 flex-wrap mt-4 pt-5" style={{ borderTop: '2px solid var(--ink)' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, letterSpacing: '.06em', color: 'var(--ink-3)' }}>
+            SẴN SÀNG CHO LẦN LEO TIẾP THEO?
+          </div>
+          <div className="flex gap-3 flex-wrap">
+            <button onClick={() => { dispatch({ type: 'RESET' }); viewNavigate(navigate, '/exams') }}
+              className="px-6 py-3 rounded-lg font-sans text-[15px] font-medium"
+              style={{ background: 'var(--accent)', color: '#F5F2EA' }}>
+              CẮM MỐC MỚI ▲
+            </button>
+            <button onClick={() => navigate('/history')}
+              className="px-4 py-3 rounded-lg font-sans text-sm border"
+              style={{ borderColor: 'var(--ink)', color: 'var(--ink)', background: 'transparent' }}>
+              VỀ NHẬT KÝ HÀNH TRÌNH →
+            </button>
+          </div>
+        </div>
 
       </div>
     </motion.div>

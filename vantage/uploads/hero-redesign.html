@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vantage — Vươn tới đỉnh cao · Hero Redesign Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F2EA; --paper-2:#ECE8DD;
+  --ink:#1C2333; --ink-2:#4A5164; --ink-3:#8A8FA0;
+  --line:rgba(28,35,51,.14); --line-soft:rgba(28,35,51,.08);
+  --accent:#E4572E; --accent-deep:#B03E1C; --altitude:#2F5D8A; --pine:#33705C;
+  --font-display:'Space Grotesk','Be Vietnam Pro','Segoe UI',system-ui,sans-serif;
+  --font-body:'Be Vietnam Pro','Segoe UI',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+  --ease-out:cubic-bezier(0.22,1,0.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--accent);color:var(--paper)}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+
+/* ============ NAV ============ */
+.nav{
+  position:sticky;top:0;z-index:50;
+  background:color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line-soft);
+}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:var(--font-display);font-weight:700;letter-spacing:-.01em;font-size:19px;display:flex;align-items:center;gap:8px}
+.logo .flag{color:var(--accent);font-size:13px;transform:translateY(-1px)}
+.nav-links{display:flex;gap:32px;font-size:15px;color:var(--ink-2)}
+.nav-links a{position:relative;padding:4px 0;transition:color .16s var(--ease-out)}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:var(--accent);transition:width .22s var(--ease-out)}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a:hover::after{width:100%}
+.nav-cta{
+  font-family:var(--font-mono);font-size:13px;letter-spacing:.06em;
+  border:1px solid var(--ink);border-radius:6px;padding:8px 16px;background:transparent;color:var(--ink);
+  transition:all .16s var(--ease-out);
+}
+.nav-cta:hover{background:var(--ink);color:var(--paper)}
+@media(max-width:760px){.nav-links{display:none}}
+
+/* ============ HERO ============ */
+.hero{padding:72px 0 0;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;min-height:560px}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;min-height:0;gap:32px}}
+
+.kicker{
+  font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);display:flex;align-items:center;gap:12px;margin-bottom:20px;
+}
+.kicker::before{content:"";width:32px;height:1px;background:var(--accent)}
+
+h1{
+  font-family:var(--font-display);font-weight:700;letter-spacing:-0.02em;
+  font-size:clamp(38px,5.4vw,61px);line-height:1.06;
+}
+h1 .w{display:inline-block;opacity:0;transform:translateY(14px)}
+h1 .em{color:var(--accent);font-style:normal}
+body.in h1 .w{animation:rise .55s var(--ease-out) forwards;animation-delay:calc(var(--i)*70ms)}
+
+.sub{margin-top:20px;font-size:20px;color:var(--ink-2);max-width:46ch;opacity:0;transform:translateY(10px)}
+body.in .sub{animation:rise .55s var(--ease-out) .42s forwards}
+.cta-row{margin-top:32px;display:flex;gap:14px;flex-wrap:wrap;opacity:0;transform:translateY(10px)}
+body.in .cta-row{animation:rise .55s var(--ease-out) .54s forwards}
+.btn{
+  border-radius:6px;padding:14px 26px;font-weight:500;font-size:16px;border:1px solid transparent;
+  transition:transform .16s var(--ease-out),box-shadow .16s var(--ease-out),background .16s var(--ease-out);
+  display:inline-flex;align-items:center;gap:10px;
+}
+.btn-primary{background:var(--accent);color:var(--paper)}
+.btn-primary:hover{background:var(--accent-deep);transform:translateY(-2px);box-shadow:0 10px 24px -14px rgba(176,62,28,.55)}
+.btn-ghost{border-color:var(--ink);color:var(--ink);background:transparent}
+.btn-ghost:hover{transform:translateY(-2px);background:var(--paper-2)}
+.trust{margin-top:18px;font-family:var(--font-mono);font-size:13px;color:var(--ink-3);opacity:0}
+body.in .trust{animation:rise .55s var(--ease-out) .66s forwards}
+
+@keyframes rise{to{opacity:1;transform:none}}
+
+/* ---- Hero graphic: bản đồ contour + đường leo ---- */
+.map{
+  position:relative;border:1px solid var(--line);border-radius:16px;background:var(--paper);
+  background-image:radial-gradient(rgba(28,35,51,.10) 1px, transparent 1px);
+  background-size:22px 22px;
+  padding:8px;opacity:0;transform:translateY(16px);
+}
+body.in .map{animation:rise .7s var(--ease-out) .3s forwards}
+.map svg{display:block;width:100%;height:auto}
+.map .corner{
+  position:absolute;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--ink-3);
+}
+.map .c-tl{top:14px;left:16px}.map .c-br{bottom:14px;right:16px;text-align:right}
+
+.contour{stroke:var(--ink);fill:none}
+.c1{opacity:.9}.c2{opacity:.12}.c3{opacity:.10}.c4{opacity:.08}.c5{opacity:.06}.c6{opacity:.045}
+.alpine{stroke:var(--ink);stroke-opacity:.16;fill:none;stroke-dasharray:2 5}
+
+.climb{
+  stroke:var(--accent);stroke-width:2.5;fill:none;stroke-linecap:round;
+  stroke-dasharray:1;stroke-dashoffset:1;
+}
+body.in .climb{animation:draw 1.6s var(--ease-out) .8s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+.marker{opacity:0;transform-origin:center;transform-box:fill-box}
+body.in .marker{animation:pop .45s var(--ease-out) forwards}
+.m1{animation-delay:1.0s!important}.m2{animation-delay:1.35s!important}.m3{animation-delay:1.7s!important}.m4{animation-delay:2.1s!important}
+@keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+.pulse{transform-origin:center;transform-box:fill-box;animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{from{opacity:.45;transform:scale(1)}to{opacity:0;transform:scale(2.6)}}
+.map-label{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.08em;fill:var(--ink-2)}
+.map-label.fill-accent{fill:var(--accent)}
+.alt-line{stroke:var(--ink);stroke-opacity:.22}
+.alt-tick{font-family:var(--font-mono);font-size:9px;fill:var(--ink-3);letter-spacing:.06em}
+
+/* ---- Stats baseline: sổ tay trắc địa ---- */
+.stats{border-top:1px solid var(--line);margin-top:56px;display:grid;grid-template-columns:repeat(3,1fr)}
+.stat{padding:28px 28px 32px;border-left:1px solid var(--line)}
+.stat:first-child{border-left:none;padding-left:4px}
+.stat .n{font-family:var(--font-mono);font-size:clamp(30px,3.6vw,44px);font-weight:500;letter-spacing:-.02em;color:var(--ink)}
+.stat .n .unit{font-size:.5em;color:var(--accent);margin-left:2px}
+.stat .l{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:6px}
+@media(max-width:640px){.stats{grid-template-columns:1fr}.stat{border-left:none;border-top:1px solid var(--line-soft);padding-left:4px}.stat:first-child{border-top:none}}
+
+/* ============ FEATURES ============ */
+.features{padding:96px 0 88px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:24px;margin-bottom:48px;flex-wrap:wrap}
+h2{font-family:var(--font-display);font-size:31px;letter-spacing:-0.01em}
+.sec-note{font-family:var(--font-mono);font-size:13px;color:var(--ink-3);letter-spacing:.1em}
+.feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px}
+@media(max-width:980px){.feat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.feat-grid{grid-template-columns:1fr}}
+.feat{border-top:2px solid var(--ink);padding-top:20px;transition:transform .2s var(--ease-out)}
+.feat:hover{transform:translateY(-3px)}
+.feat .idx{font-family:var(--font-mono);font-size:12px;color:var(--accent);letter-spacing:.1em}
+.feat svg{display:block;margin:18px 0 14px;transition:transform .2s var(--ease-out)}
+.feat:hover svg{transform:translateX(4px)}
+.feat h3{font-family:var(--font-display);font-size:19px;margin-bottom:8px}
+.feat p{font-size:15px;color:var(--ink-2);line-height:1.6}
+
+/* ============ FAQ — mục lục sách ============ */
+.faq{padding:0 0 96px}
+details{border-top:1px solid var(--line)}
+details:last-of-type{border-bottom:1px solid var(--line)}
+summary{
+  list-style:none;cursor:pointer;display:grid;grid-template-columns:56px 1fr 24px;gap:16px;align-items:center;
+  padding:22px 4px;font-family:var(--font-display);font-size:19px;font-weight:500;
+  transition:background .16s var(--ease-out);
+}
+summary::-webkit-details-marker{display:none}
+summary:hover{background:var(--paper-2)}
+summary .no{font-family:var(--font-mono);font-size:13px;color:var(--ink-3)}
+summary .plus{font-family:var(--font-mono);font-size:18px;color:var(--accent);text-align:center;transition:transform .25s var(--ease-out)}
+details[open] .plus{transform:rotate(45deg)}
+.faq-body{padding:0 4px 24px 72px;color:var(--ink-2);max-width:64ch}
+@media(max-width:560px){.faq-body{padding-left:4px}}
+
+/* ============ CTA cuối — đảo nền duy nhất ============ */
+.summit{position:relative;background:var(--ink);color:var(--paper);overflow:hidden}
+.summit .wrap{padding:96px 24px;text-align:left;position:relative;z-index:1}
+.summit .sec-kicker{font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;color:rgba(245,242,234,.5);text-transform:uppercase}
+.summit h2{color:var(--paper);font-size:clamp(28px,4vw,44px);margin:16px 0 12px;max-width:22ch}
+.summit h2 em{font-style:normal;color:var(--accent)}
+.summit p{color:rgba(245,242,234,.72);max-width:52ch;margin-bottom:32px}
+.summit svg.bg{position:absolute;inset:0;width:100%;height:100%;opacity:.16}
+
+/* ============ FOOTER ============ */
+footer{background:var(--ink);color:rgba(245,242,234,.5);border-top:1px solid rgba(245,242,234,.12)}
+footer .wrap{padding:24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--font-mono);font-size:12px;letter-spacing:.08em}
+
+/* reveal on scroll cho các section dưới */
+.rv{opacity:0;transform:translateY(14px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-out)}
+.rv.in{opacity:1;transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+  h1 .w,.sub,.cta-row,.trust,.map,.rv{opacity:1;transform:none}
+  .climb{stroke-dashoffset:0}
+  .marker{opacity:1}
+  .pulse{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="#">VANTAGE<span class="flag">▲</span></a>
+    <nav class="nav-links" aria-label="Chính">
+      <a href="#cong-cu">Công cụ</a>
+      <a href="#lo-trinh">Lộ trình</a>
+      <a href="#hoi-dap">Hỏi đáp</a>
+    </nav>
+    <a class="nav-cta" href="#">VÀO ÔN THI →</a>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="kicker">Ôn thi Toán THPT · Tuyển sinh 10 · Khóa 2026</div>
+        <h1 aria-label="Tầm nhìn dẫn đường, vươn tới đỉnh cao.">
+          <span class="w" style="--i:0">Tầm</span> <span class="w" style="--i:1">nhìn</span>
+          <span class="w" style="--i:2">dẫn</span> <span class="w" style="--i:3">đường,</span><br>
+          <span class="w em" style="--i:4">vươn</span> <span class="w em" style="--i:5">tới</span>
+          <span class="w em" style="--i:6">đỉnh</span> <span class="w em" style="--i:7">cao.</span>
+        </h1>
+        <p class="sub">Đề thi thật từ Bộ GD&amp;ĐT và 63 tỉnh thành. AI phân tích từng lỗi sai
+        và vẽ lại lộ trình cho riêng bạn — mỗi buổi tối, thêm một đoạn đường lên đỉnh.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#">Bắt đầu ôn thi miễn phí <span aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" href="#cong-cu">Xem công cụ</a>
+        </div>
+        <div class="trust">KHÔNG CẦN THẺ · DÙNG NGAY TRÊN TRÌNH DUYỆT · ∫Σ√π∞Δ</div>
+      </div>
+
+      <!-- Bản đồ contour + đường leo -->
+      <figure class="map" aria-label="Minh họa lộ trình ôn thi như một đường leo núi">
+        <span class="corner c-tl">VN-02 · TỈ LỆ 1:63.000</span>
+        <span class="corner c-br">SƠ ĐỒ LỘ TRÌNH · 2026</span>
+        <svg viewBox="0 0 640 520" role="img" aria-hidden="true">
+          <!-- contour -->
+          <g stroke-width="1" class="contour-group">
+            <ellipse class="contour c6" cx="430" cy="210" rx="400" ry="300" transform="rotate(-12 430 210)"/>
+            <ellipse class="contour c5" cx="430" cy="210" rx="330" ry="248" transform="rotate(-12 430 210)"/>
+            <ellipse class="contour c4" cx="430" cy="210" rx="262" ry="196" transform="rotate(-12 430 210)"/>
+            <ellipse class="contour c3" cx="430" cy="210" rx="196" ry="146" transform="rotate(-12 430 210)"/>
+            <ellipse class="contour c2" cx="430" cy="210" rx="134" ry="99"  transform="rotate(-12 430 210)"/>
+            <ellipse class="contour c1" cx="430" cy="210" rx="76"  ry="56"  transform="rotate(-12 430 210)" stroke-opacity=".18"/>
+          </g>
+          <!-- vạch cao độ trái -->
+          <g>
+            <line class="alt-line" x1="34" y1="452" x2="34" y2="70"/>
+            <line class="alt-line" x1="30" y1="452" x2="38" y2="452"/><text class="alt-tick" x="44" y="456">0M</text>
+            <line class="alt-line" x1="30" y1="324" x2="38" y2="324"/><text class="alt-tick" x="44" y="328">1.000M</text>
+            <line class="alt-line" x1="30" y1="196" x2="38" y2="196"/><text class="alt-tick" x="44" y="200">2.000M</text>
+            <line class="alt-line" x1="30" y1="70"  x2="38" y2="70"/><text class="alt-tick" x="44" y="74">3.143M</text>
+          </g>
+          <!-- đường chân trời đứt nét -->
+          <path class="alpine" d="M60 452 H 600"/>
+          <!-- đường leo -->
+          <path class="climb" pathLength="1"
+            d="M70 452 C 150 440, 190 400, 240 372 S 320 318, 372 292 S 448 250, 488 214 S 546 150, 560 118"/>
+          <!-- cột mốc -->
+          <g class="marker m1">
+            <circle class="pulse" cx="240" cy="372" r="9" fill="none" stroke="#E4572E" stroke-width="1"/>
+            <circle cx="240" cy="372" r="5" fill="#F5F2EA" stroke="#E4572E" stroke-width="2"/>
+            <text class="map-label" x="240" y="352" text-anchor="middle">MỐC 01 · ĐỀ 2023</text>
+          </g>
+          <g class="marker m2">
+            <circle class="pulse" cx="372" cy="292" r="9" fill="none" stroke="#E4572E" stroke-width="1"/>
+            <circle cx="372" cy="292" r="5" fill="#F5F2EA" stroke="#E4572E" stroke-width="2"/>
+            <text class="map-label" x="372" y="272" text-anchor="middle">MỐC 02 · ĐỀ 2024</text>
+          </g>
+          <g class="marker m3">
+            <circle class="pulse" cx="488" cy="214" r="9" fill="none" stroke="#E4572E" stroke-width="1"/>
+            <circle cx="488" cy="214" r="5" fill="#F5F2EA" stroke="#E4572E" stroke-width="2"/>
+            <text class="map-label" x="488" y="194" text-anchor="middle">MỐC 03 · ĐỀ 2025</text>
+          </g>
+          <!-- đỉnh + cờ -->
+          <g class="marker m4">
+            <path d="M560 118 v-30" stroke="#1C2333" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M560 88 l16 5.5 -16 5.5 z" fill="#E4572E"/>
+            <circle cx="560" cy="118" r="5" fill="#E4572E"/>
+            <text class="map-label fill-accent" x="536" y="142" text-anchor="middle">ĐỈNH · ĐH MƠ ƯỚC</text>
+          </g>
+        </svg>
+      </figure>
+    </div>
+
+    <!-- Stats: sổ tay trắc địa -->
+    <div class="stats rv">
+      <div class="stat"><div class="n" data-count="40" data-suffix="+">0<span class="unit">+</span></div><div class="l">Đề thi thật</div></div>
+      <div class="stat"><div class="n" data-count="63" data-suffix="">0<span class="unit"></span></div><div class="l">Tỉnh thành</div></div>
+      <div class="stat"><div class="n" data-count="1104" data-suffix="">0<span class="unit"></span></div><div class="l">Câu hỏi đã phân tích</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FEATURES ================= -->
+<section class="features" id="cong-cu">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <h2>Công cụ đi cùng bạn</h2>
+      <span class="sec-note">04 DỤNG CỤ · NHƯ HỘP BÚT CỦA NGƯỜI LEO NÚI</span>
+    </div>
+    <div class="feat-grid">
+      <div class="feat rv">
+        <div class="idx">D·01</div>
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1C2333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/><path d="M9 3v-1h6v1"/>
+        </svg>
+        <h3>Thi thử đề thật</h3>
+        <p>Đề THPT Quốc gia &amp; tuyển sinh lớp 10 từ Bộ GD&amp;ĐT và 63 tỉnh thành — chấm và soi lỗi theo từng câu.</p>
+      </div>
+      <div class="feat rv">
+        <div class="idx">D·02</div>
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1C2333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="2" width="12" height="20" rx="2"/><rect x="9" y="5" width="6" height="3" rx="0.5"/><path d="M9 12h1M12 12h1M15 12h1M9 15h1M12 15h1M15 15h1M9 18h4M15 18h1"/>
+        </svg>
+        <h3>Máy tính CAS</h3>
+        <p>Giải toán từng bước, công thức hiển thị trực tiếp trên máy tính — học cách máy “nghĩ”, không chỉ đáp số.</p>
+      </div>
+      <div class="feat rv">
+        <div class="idx">D·03</div>
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1C2333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4v16M20 4v16"/><path d="M8 7h3M13 7h3M8 12h3M13 12h3M8 17h3M13 17h3"/>
+        </svg>
+        <h3>Đại số tuyến tính</h3>
+        <p>Ma trận, định thức, hệ phương trình — giải và kiểm tra ngay trong trình duyệt, không cần cài thêm gì.</p>
+      </div>
+      <div class="feat rv">
+        <div class="idx">D·04</div>
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1C2333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21h18M3 21V3"/><path d="M5 16C8 16 8 8 12 8s4 6 7 6" stroke="#E4572E"/><circle cx="12" cy="8" r="1.4" fill="#E4572E" stroke="none"/>
+        </svg>
+        <h3>Math Playground</h3>
+        <p>Vẽ đồ thị hàm số, giao điểm, tiếp tuyến — bằng lời nói hoặc thủ công. Toán nhìn thấy được mới thấm được.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="faq" id="hoi-dap">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <h2>Câu hỏi thường gặp</h2>
+      <span class="sec-note">MỤC LỤC · 5 MỤC</span>
+    </div>
+    <div class="rv">
+      <details open>
+        <summary><span class="no">01</span>Vantage có khác gì so với ôn thi thông thường?<span class="plus">+</span></summary>
+        <div class="faq-body">Mỗi đề thi bạn làm là một cột mốc. Hệ thống ghi lại chính xác bạn vấp ở đâu — dạng câu nào, bước nào — rồi vẽ lại lộ trình cho buổi học hôm sau, thay vì đưa bạn một danh sách bài tập giống hệt của mọi người.</div>
+      </details>
+      <details>
+        <summary><span class="no">02</span>Vantage có mất phí không?<span class="plus">+</span></summary>
+        <div class="faq-body">Không. Toàn bộ đề thi thật, máy tính CAS, đại số tuyến tính và Math Playground đều miễn phí — không cần thẻ, dùng ngay trên trình duyệt.</div>
+      </details>
+      <details>
+        <summary><span class="no">03</span>Đề thi trên Vantage có thật không?<span class="plus">+</span></summary>
+        <div class="faq-body">Có. Đề được sưu tầm từ kỳ thi THPT Quốc gia của Bộ GD&amp;ĐT và đề tuyển sinh lớp 10 công lập của 63 tỉnh thành, kèm năm và nguồn rõ ràng tại từng cột mốc.</div>
+      </details>
+      <details>
+        <summary><span class="no">04</span>Dùng được cho học sinh lớp 9 thi vào 10 không?<span class="plus">+</span></summary>
+        <div class="faq-body">Được. Vantage có lộ trình riêng cho tuyển sinh lớp 10: đề theo từng tỉnh, trọng tâm hàm số, hệ phương trình và hình học phẳng theo cấu trúc đề địa phương bạn chọn.</div>
+      </details>
+      <details>
+        <summary><span class="no">05</span>AI có tạo ra câu hỏi thi không?<span class="plus">+</span></summary>
+        <div class="faq-body">Không. AI của Vantage không bịa đề — nó phân tích lỗi sai của bạn trên đề thật, gợi ý câu tương tự từ ngân hàng đề có nguồn, và giải thích từng bước như một người thầy kèm riêng.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA CUỐI ================= -->
+<section class="summit">
+  <svg class="bg" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g fill="none" stroke="#F5F2EA" stroke-opacity=".5">
+      <ellipse cx="880" cy="200" rx="90" ry="62"/>
+      <ellipse cx="880" cy="200" rx="170" ry="116"/>
+      <ellipse cx="880" cy="200" rx="260" ry="176"/>
+      <ellipse cx="880" cy="200" rx="360" ry="244"/>
+      <ellipse cx="880" cy="200" rx="470" ry="318"/>
+    </g>
+    <path d="M120 380 C 260 350, 340 300, 430 262 S 620 190, 740 150 S 900 78, 960 40"
+      stroke="#E4572E" stroke-width="2" fill="none" pathLength="1" class="climb2"/>
+    <path d="M960 40 v-24" stroke="#F5F2EA" stroke-width="1.5"/>
+    <path d="M960 16 l14 4.7 -14 4.7 z" fill="#E4572E"/>
+  </svg>
+  <div class="wrap">
+    <div class="sec-kicker">Cột mốc tiếp theo là của bạn</div>
+    <h2>Sẵn sàng <em>bắt đầu leo?</em></h2>
+    <p>Vào ôn thi ngay — cột mốc đầu tiên chỉ cách bạn một đề thi thật.</p>
+    <a class="btn btn-primary" href="#">Vào ôn thi ngay <span aria-hidden="true">→</span></a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>VANTAGE ▲ · VƯƠN TỚI ĐỈNH CAO</span>
+    <span>GIẤY — MỰC — CỜ ĐỈNH · DESIGN V1.0</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Bật choreography của hero sau khi DOM sẵn sàng
+  requestAnimationFrame(function(){ document.body.classList.add('in'); });
+
+  // Reveal on scroll + count-up stats
+  var rvEls = document.querySelectorAll('.rv');
+  var counted = false;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      e.target.classList.add('in');
+      if(e.target.classList.contains('stats') && !counted){
+        counted = true;
+        countUp();
+      }
+      io.unobserve(e.target);
+    });
+  }, {threshold:.25});
+  rvEls.forEach(function(el){ io.observe(el); });
+
+  function countUp(){
+    document.querySelectorAll('.stat .n').forEach(function(el){
+      var target = parseInt(el.getAttribute('data-count'), 10);
+      var suffix = el.getAttribute('data-suffix') || '';
+      if(reduced){ el.innerHTML = format(target) + '<span class="unit">' + suffix + '</span>'; return; }
+      var start = null, dur = 900;
+      function step(ts){
+        if(!start) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        var eased = 1 - Math.pow(1 - p, 3);
+        var v = Math.round(target * eased);
+        el.innerHTML = format(v) + '<span class="unit">' + suffix + '</span>';
+        if(p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+    function format(n){ return n.toLocaleString('vi-VN'); }
+  }
+
+  // Draw đường leo ở panel cuối khi vào viewport
+  var climb2 = document.querySelector('.climb2');
+  if(climb2){
+    climb2.style.strokeDasharray = 1;
+    climb2.style.strokeDashoffset = 1;
+    var io2 = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          climb2.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(0.22,1,0.36,1)';
+          if(reduced){ climb2.style.transition = 'none'; }
+          climb2.style.strokeDashoffset = 0;
+          io2.disconnect();
+        }
+      });
+    }, {threshold:.35});
+    io2.observe(document.querySelector('.summit'));
+  }
+})();
+</script>
+</body>
+</html>

@@ -623,6 +623,12 @@ def _serialize_linalg_result(op: str, result):
 
     if isinstance(result, sympy.Matrix):
         return [[str(v) for v in result.row(r)] for r in range(result.shape[0])]
+    # eigen's result (sympy's .eigenvals()) is ALSO a plain dict — {eigenvalue: multiplicity}
+    # — so this must be checked before the generic isinstance(dict) branch below, which
+    # assumes string keys (decomposition names) and would otherwise try to JSON-encode raw
+    # sympy objects as dict keys and crash.
+    if op == "eigen":
+        return {str(k): int(v) for k, v in result.items()}
     if isinstance(result, dict):
         # multi-matrix decompositions (lu/qr/cholesky/svd): dict of named matrices/lists
         out = {}
@@ -636,9 +642,20 @@ def _serialize_linalg_result(op: str, result):
         return out
     if op == "rank":
         return int(result)
-    if op == "eigen":
-        return {str(k): v for k, v in result.items()}
     return str(result)
+
+
+def _serialize_eigen_vectors(vectors: dict) -> dict:
+    """Direction-only components (e.g. sqrt(2)/2) are frequently irrational, unlike every
+    other result in this module which stays an exact rational string — the frontend only
+    plots these as an axis direction, so a float is both sufficient and simpler for it to
+    parse than a symbolic expression."""
+    import sympy
+
+    out = {}
+    for eigenvalue, vector in vectors.items():
+        out[str(eigenvalue)] = [float(sympy.N(v)) for v in vector]
+    return out
 
 
 @app.post("/agent/linalg")
@@ -680,12 +697,15 @@ async def agent_linalg(body: dict):
     if not ok:
         return {"available": False, "result": None, "steps": None, "reason": reason}
 
-    return {
+    response = {
         "available": True,
         "result": _serialize_linalg_result(spec.operation, derivation["result"]),
         "steps": derivation["steps"],
         "reason": None,
     }
+    if spec.operation == "eigen" and derivation.get("eigen_vectors"):
+        response["vectors"] = _serialize_eigen_vectors(derivation["eigen_vectors"])
+    return response
 
 
 @app.post("/agent/calculus")

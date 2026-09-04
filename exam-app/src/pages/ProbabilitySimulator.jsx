@@ -11,19 +11,56 @@ import { registerColorRefresh } from '../lib/colorRefresh.js'
 // theoretical distribution drawn on top once n is large enough. No chart
 // library — the spec forbids it outright.
 //
-// Deviation from spec: section 3 lists a third "TÙY CHỈNH p" (custom
-// probability) rail option. The backend (stats_simulator.py) only implements
-// "dice" (sum of n dice) and "coin" (heads count over n flips) — there is no
-// arbitrary-p experiment to back a third mode, so it's omitted rather than
-// faked. Both real experiments accept an n stepper, which covers the spec's
-// "TỔNG 2 XÚC XẮC" as the n=2 case of "XÚC XẮC (TỔNG)".
+// "dice" (sum of n dice) and "coin" (heads count over n flips) both accept an
+// n stepper, which covers the mockup's "TỔNG 2 XÚC XẮC" (n=2 case of dice)
+// and "ĐỒNG XU ×10" (n=10 default case of coin) without needing separate
+// modes. "custom" (binomial n=10, adjustable p) is genuinely new: the
+// backend (stats_simulator.py) has no arbitrary-p experiment to back it, so
+// it runs entirely client-side — real Math.random() trials and an exact
+// binomial PMF via C(n,k), matching vantage/uploads/xac-suat.html's own
+// implementation. No numpy/sympy needed for this one; n is fixed at 10 like
+// the mockup, so a small closed-form PMF is exact, not an approximation.
 
 const _API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
 const EXPERIMENTS = [
   { key: 'dice', label: 'XÚC XẮC (TỔNG)', statistic: 'sum', nLabel: 'Số xúc xắc', nMin: 1, nMax: 10, nDefault: 2 },
   { key: 'coin', label: 'ĐỒNG XU', statistic: 'count', nLabel: 'Số lần tung', nMin: 1, nMax: 30, nDefault: 10 },
+  { key: 'custom', label: 'TÙY CHỈNH p', statistic: 'custom', client: true },
 ]
+
+const CUSTOM_N = 10
+
+function factorial(n) {
+  let r = 1
+  for (let i = 2; i <= n; i++) r *= i
+  return r
+}
+function binomCoeff(n, k) {
+  return factorial(n) / (factorial(k) * factorial(n - k))
+}
+function customPmf(p) {
+  const out = {}
+  for (let k = 0; k <= CUSTOM_N; k++) {
+    out[k] = binomCoeff(CUSTOM_N, k) * p ** k * (1 - p) ** (CUSTOM_N - k)
+  }
+  return out
+}
+function sampleCustom(p) {
+  let s = 0
+  for (let i = 0; i < CUSTOM_N; i++) if (Math.random() < p) s++
+  return s
+}
+
+// Bin-value range known statically per experiment, without needing a
+// simulation result yet — used to pre-render the chart frame/axis at rest,
+// matching the mockup (which pre-renders its frame from static bin arrays).
+function previewBinValues(experiment, n) {
+  if (experiment.key === 'dice') return Array.from({ length: 5 * n + 1 }, (_, i) => n + i)
+  if (experiment.key === 'coin') return Array.from({ length: n + 1 }, (_, i) => i)
+  if (experiment.key === 'custom') return Array.from({ length: CUSTOM_N + 1 }, (_, i) => i)
+  return []
+}
 
 const BATCH_SIZES = [
   { key: 1, label: '×1' },
@@ -65,7 +102,7 @@ function pmfMoments(pmf) {
 // state) for animation performance. Parent drives it imperatively through
 // stageRef.current.sow(values, durationMs).
 // ---------------------------------------------------------------------------
-function ValleyStage({ stageRef, bins, showTheory, onAriaUpdate }) {
+function ValleyStage({ stageRef, bins, previewBins, showTheory, onAriaUpdate }) {
   const canvasRef = useRef(null)
   const wrapRef = useRef(null)
   const stateRef = useRef({
@@ -123,13 +160,9 @@ function ValleyStage({ stageRef, bins, showTheory, onAriaUpdate }) {
       const s = stateRef.current
       ctx.clearRect(0, 0, w, h)
       if (w === 0 || h === 0) return
-      if (!bins.length || s.total === 0) {
-        ctx.fillStyle = `rgba(${s.colors.ink},0.4)`
-        ctx.font = '12px "IBM Plex Mono", monospace'
-        ctx.textAlign = 'center'
-        ctx.fillText('THUNG LŨNG ĐANG PHẲNG — GIEO HẠT ĐẦU TIÊN', w / 2, h / 2)
-        return
-      }
+
+      const activeBins = bins.length ? bins : previewBins
+      if (!activeBins.length) return
 
       const floorY = h - 28
       const topPad = 28
@@ -140,7 +173,8 @@ function ValleyStage({ stageRef, bins, showTheory, onAriaUpdate }) {
       s.displayMaxCount += (targetMax - s.displayMaxCount) * 0.12
       const scaleMax = Math.max(s.displayMaxCount, 1)
 
-      // axis baseline
+      // axis baseline — drawn even at rest (n=0) so the frame is visible
+      // before the first roll, matching the mockup.
       ctx.strokeStyle = `rgba(${s.colors.ink},0.28)`
       ctx.lineWidth = 1
       ctx.beginPath()
@@ -148,10 +182,29 @@ function ValleyStage({ stageRef, bins, showTheory, onAriaUpdate }) {
       ctx.lineTo(w - 12, floorY + 0.5)
       ctx.stroke()
 
-      const n = bins.length
+      // y-axis gridlines at rest (0 / half / full of current scale) — only
+      // label 0 and the top value; a middle label would round to a
+      // duplicate of one of those while scaleMax is still small (≤1).
+      const topLabel = Math.max(1, Math.round(scaleMax))
+      ;[0, 0.5, 1].forEach((frac) => {
+        const y = floorY - frac * plotH
+        ctx.strokeStyle = `rgba(${s.colors.ink},0.08)`
+        ctx.beginPath()
+        ctx.moveTo(24, y)
+        ctx.lineTo(w - 12, y)
+        ctx.stroke()
+        if (frac === 0 || frac === 1) {
+          ctx.fillStyle = `rgba(${s.colors.ink},0.4)`
+          ctx.font = '10px "IBM Plex Mono", monospace'
+          ctx.textAlign = 'left'
+          ctx.fillText(String(frac === 0 ? 0 : topLabel), 4, y + 3)
+        }
+      })
+
+      const n = activeBins.length
       const barW = Math.max(4, (w - 72) / n - 6)
 
-      bins.forEach((bin, i) => {
+      activeBins.forEach((bin, i) => {
         const x = binX(i, n)
         const landed = s.landed.get(bin.value) || 0
         const targetFrac = landed / scaleMax
@@ -173,14 +226,23 @@ function ValleyStage({ stageRef, bins, showTheory, onAriaUpdate }) {
         ctx.fillText(String(bin.value), x, floorY + 16)
       })
 
+      // rest-state overlay — the frame above is already drawn, this just
+      // labels it as empty (matches the mockup, which shows both at once)
+      if (s.total === 0) {
+        ctx.fillStyle = `rgba(${s.colors.ink},0.4)`
+        ctx.font = '12px "IBM Plex Mono", monospace'
+        ctx.textAlign = 'center'
+        ctx.fillText('THUNG LŨNG ĐANG PHẲNG — GIEO HẠT ĐẦU TIÊN', w / 2, (topPad + floorY) / 2)
+      }
+
       // falling particles (only spawned while a bin's landed count < 300)
       const t = now
       s.fallers = s.fallers.filter((f) => {
         const p = Math.min(1, (t - f.startT) / f.duration)
         const ease = 1 - (1 - p) * (1 - p) // ease-in-ish quad, no bounce
-        const bin = bins.find((b) => b.value === f.value)
+        const bin = activeBins.find((b) => b.value === f.value)
         if (!bin) return false
-        const i = bins.indexOf(bin)
+        const i = activeBins.indexOf(bin)
         const x = binX(i, n)
         const landedAtSpawn = f.landedAtSpawn
         const targetFrac = (landedAtSpawn + 1) / scaleMax
@@ -324,7 +386,7 @@ function ValleyStage({ stageRef, bins, showTheory, onAriaUpdate }) {
       stageRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bins, showTheory])
+  }, [bins, previewBins, showTheory])
 
   return (
     <div
@@ -345,6 +407,7 @@ export default function ProbabilitySimulator() {
   const [experimentKey, setExperimentKey] = useState('dice')
   const experiment = EXPERIMENTS.find((e) => e.key === experimentKey)
   const [n, setN] = useState(experiment.nDefault)
+  const [pCustom, setPCustom] = useState(0.5)
   const [pendingSwitch, setPendingSwitch] = useState(null)
   const [showTheory, setShowTheory] = useState(true)
   const [loading, setLoading] = useState(false)
@@ -362,6 +425,11 @@ export default function ProbabilitySimulator() {
       .sort((a, b) => a.value - b.value)
   }, [pmf])
 
+  const previewBins = useMemo(
+    () => previewBinValues(experiment, n).map((value) => ({ value, p: 0 })),
+    [experiment, n],
+  )
+
   const totalN = samples.length
   const empiricalMean = useMemo(() => mean(samples), [samples])
   const empiricalStd = useMemo(() => stdDev(samples, empiricalMean), [samples, empiricalMean])
@@ -377,6 +445,16 @@ export default function ProbabilitySimulator() {
   }
 
   async function sow(trials) {
+    if (experiment.client) {
+      // "custom" runs entirely in the browser — real Math.random() trials,
+      // exact closed-form binomial PMF, no backend round-trip.
+      const histogram = Array.from({ length: trials }, () => sampleCustom(pCustom))
+      setPmf(customPmf(pCustom))
+      setSamples((prev) => [...prev, ...histogram])
+      const duration = trials <= 1 ? 420 : trials <= 100 ? Math.min(3300, trials * 33) : 1000
+      stageRef.current?.sow(histogram, duration)
+      return
+    }
     setLoading(true)
     setError(null)
     const res = await runSimulation({ experiment: experimentKey, n_dice: n, trials, statistic: experiment.statistic })
@@ -386,6 +464,11 @@ export default function ProbabilitySimulator() {
     setSamples((prev) => [...prev, ...res.histogram])
     const duration = trials <= 1 ? 420 : trials <= 100 ? Math.min(3300, trials * 33) : 1000
     stageRef.current?.sow(res.histogram, duration)
+  }
+
+  function handlePCustomChange(value) {
+    setPCustom(value)
+    resetValley()
   }
 
   function resetValley() {
@@ -426,7 +509,7 @@ export default function ProbabilitySimulator() {
           </p>
         </div>
 
-        <ValleyStage stageRef={stageRef} bins={bins} showTheory={showTheory} onAriaUpdate={handleAriaUpdate} />
+        <ValleyStage stageRef={stageRef} bins={bins} previewBins={previewBins} showTheory={showTheory} onAriaUpdate={handleAriaUpdate} />
         <p aria-live="polite" className="sr-only">{ariaText}</p>
 
         {error && (
@@ -452,14 +535,29 @@ export default function ProbabilitySimulator() {
             ))}
           </div>
 
-          <label className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-3)' }}>
-            {experiment.nLabel}
-            <input
-              type="number" min={experiment.nMin} max={experiment.nMax} value={n}
-              onChange={(e) => setN(Math.min(experiment.nMax, Math.max(experiment.nMin, parseInt(e.target.value, 10) || experiment.nMin)))}
-              style={{ width: 48, fontFamily: 'var(--font-mono)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', background: 'var(--paper)', color: 'var(--ink)', padding: '2px 6px' }}
-            />
-          </label>
+          {experiment.client ? (
+            <label className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-3)' }}>
+              XÁC SUẤT p
+              <input
+                type="range" min={0.05} max={0.95} step={0.05} value={pCustom}
+                onChange={(e) => handlePCustomChange(Number(e.target.value))}
+                aria-label="Xác suất p"
+                style={{ width: 160, accentColor: 'var(--accent)' }}
+              />
+              <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--ink)', minWidth: '4ch' }}>
+                p = {pCustom.toLocaleString('vi-VN', { minimumFractionDigits: 2 })}
+              </span>
+            </label>
+          ) : (
+            <label className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-3)' }}>
+              {experiment.nLabel}
+              <input
+                type="number" min={experiment.nMin} max={experiment.nMax} value={n}
+                onChange={(e) => setN(Math.min(experiment.nMax, Math.max(experiment.nMin, parseInt(e.target.value, 10) || experiment.nMin)))}
+                style={{ width: 48, fontFamily: 'var(--font-mono)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', background: 'var(--paper)', color: 'var(--ink)', padding: '2px 6px' }}
+              />
+            </label>
+          )}
 
           <label className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-3)' }}>
             <input type="checkbox" checked={showTheory} onChange={(e) => setShowTheory(e.target.checked)} />

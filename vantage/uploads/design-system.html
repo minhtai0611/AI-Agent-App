@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vantage Design Language — “Vươn tới đỉnh cao”</title>
+<!-- Khi mở bằng trình duyệt có mạng, 2 font dưới sẽ nạp. Trong preview offline, hệ thống fallback vẫn giữ bố cục. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============ VANTAGE DESIGN TOKENS (nguồn chân lý duy nhất) ============ */
+  :root{
+    /* Màu — “giấy · mực · cờ đỉnh” */
+    --paper:        #F5F2EA;
+    --paper-2:      #ECE8DD;
+    --ink:          #1C2333;
+    --ink-2:        #4A5164;
+    --ink-3:        #8A8FA0;
+    --line:         rgba(28,35,51,.14);
+    --line-soft:    rgba(28,35,51,.08);
+    --accent:       #E4572E;
+    --accent-deep:  #B03E1C;
+    --altitude:     #2F5D8A;
+    --pine:         #33705C;
+
+    /* Typography scale — modular 1.25 */
+    --t-micro: 13px;
+    --t-body:  16px;
+    --t-lead:  20px;
+    --t-h3:    25px;
+    --t-h2:    31px;
+    --t-h1:    39px;
+    --t-hero:  61px;
+    --t-mono-stat: 49px;
+
+    --font-display: 'Space Grotesk','Be Vietnam Pro','Segoe UI',system-ui,sans-serif;
+    --font-body:    'Be Vietnam Pro','Segoe UI',system-ui,sans-serif;
+    --font-mono:    'IBM Plex Mono','JetBrains Mono',ui-monospace,monospace;
+
+    /* Spacing — thang 4pt */
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px;
+    --s6:32px; --s7:48px; --s8:64px; --s9:96px; --s10:128px;
+
+    /* Radius */
+    --r-sm:6px; --r-md:10px; --r-lg:16px;
+
+    /* Motion */
+    --ease-out: cubic-bezier(0.22,1,0.36,1);
+    --dur-fast: 160ms;
+    --dur-med:  380ms;
+    --dur-draw: 1200ms;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--t-body);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--accent);color:var(--paper)}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:0 var(--s5)}
+
+  /* ---------- Doc header ---------- */
+  .doc-head{
+    padding:var(--s8) 0 var(--s7);
+    border-bottom:1px solid var(--line);
+    position:relative;overflow:hidden;
+  }
+  .kicker{
+    font-family:var(--font-mono);font-size:var(--t-micro);
+    letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+    display:flex;align-items:center;gap:var(--s3);margin-bottom:var(--s4);
+  }
+  .kicker::before{content:"";width:32px;height:1px;background:var(--accent)}
+  h1{
+    font-family:var(--font-display);font-size:clamp(34px,6vw,var(--t-hero));
+    font-weight:700;letter-spacing:-0.02em;line-height:1.05;
+  }
+  h1 em{font-style:normal;color:var(--accent)}
+  .doc-sub{margin-top:var(--s4);max-width:56ch;color:var(--ink-2);font-size:var(--t-lead)}
+  .doc-meta{
+    margin-top:var(--s6);display:flex;gap:var(--s6);flex-wrap:wrap;
+    font-family:var(--font-mono);font-size:var(--t-micro);color:var(--ink-3);
+  }
+
+  .contour-bg{position:absolute;top:-80px;right:-160px;width:640px;opacity:.55;pointer-events:none}
+
+  /* ---------- Sections ---------- */
+  section{padding:var(--s8) 0;border-bottom:1px solid var(--line-soft)}
+  .sec-label{
+    font-family:var(--font-mono);font-size:var(--t-micro);letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink-3);margin-bottom:var(--s3);
+  }
+  h2{
+    font-family:var(--font-display);font-size:var(--t-h2);
+    letter-spacing:-0.01em;margin-bottom:var(--s5);
+  }
+  h3{font-family:var(--font-display);font-size:var(--t-lead);margin:var(--s6) 0 var(--s3)}
+  p{color:var(--ink-2);max-width:68ch}
+  .lead{font-size:var(--t-lead);color:var(--ink);max-width:60ch}
+  code{
+    font-family:var(--font-mono);font-size:.88em;background:var(--paper-2);
+    padding:2px 6px;border-radius:var(--r-sm);border:1px solid var(--line-soft);
+  }
+
+  /* Concept keywords */
+  .keywords{display:flex;gap:var(--s3);flex-wrap:wrap;margin-top:var(--s5)}
+  .kw{
+    border:1px solid var(--line);border-radius:999px;padding:var(--s2) var(--s4);
+    font-family:var(--font-mono);font-size:var(--t-micro);color:var(--ink-2);
+    background:var(--paper);
+  }
+
+  /* Principles */
+  .principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--s5);margin-top:var(--s6)}
+  .princ{border-top:2px solid var(--ink);padding-top:var(--s4)}
+  .princ .num{font-family:var(--font-mono);font-size:var(--t-micro);color:var(--accent)}
+  .princ h4{font-family:var(--font-display);font-size:var(--t-lead);margin:var(--s2) 0}
+  .princ p{font-size:var(--t-body)}
+
+  /* Swatches */
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--s4);margin-top:var(--s5)}
+  .sw{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:#fff}
+  .sw .chip{height:88px}
+  .sw .info{padding:var(--s3) var(--s3) var(--s4)}
+  .sw .name{font-family:var(--font-display);font-weight:500;font-size:var(--t-body)}
+  .sw .hex{font-family:var(--font-mono);font-size:var(--t-micro);color:var(--ink-3);margin-top:2px}
+  .sw .role{font-size:12.5px;color:var(--ink-2);margin-top:6px;line-height:1.45}
+
+  /* Type specimen */
+  .specimen{margin-top:var(--s5);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden}
+  .spec-row{
+    display:grid;grid-template-columns:130px 1fr auto;gap:var(--s5);
+    align-items:baseline;padding:var(--s4) var(--s5);border-bottom:1px solid var(--line-soft);
+    background:#fff;
+  }
+  .spec-row:last-child{border-bottom:none}
+  .spec-label{font-family:var(--font-mono);font-size:var(--t-micro);color:var(--ink-3)}
+  .spec-meta{font-family:var(--font-mono);font-size:var(--t-micro);color:var(--ink-3);text-align:right}
+  .sp-hero{font-family:var(--font-display);font-size:48px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+  .sp-h1{font-family:var(--font-display);font-size:var(--t-h1);font-weight:700;letter-spacing:-.01em}
+  .sp-h2{font-family:var(--font-display);font-size:var(--t-h2);font-weight:500}
+  .sp-lead{font-size:var(--t-lead)}
+  .sp-body{font-size:var(--t-body)}
+  .sp-mono{font-family:var(--font-mono);font-size:var(--t-body)}
+  .sp-micro{font-family:var(--font-mono);font-size:var(--t-micro);letter-spacing:.14em;text-transform:uppercase}
+
+  /* Spacing scale */
+  .sp-scale{margin-top:var(--s5)}
+  .sp-item{display:flex;align-items:center;gap:var(--s4);margin-bottom:var(--s3)}
+  .sp-item .bar{height:14px;background:var(--accent);border-radius:2px}
+  .sp-item .lbl{font-family:var(--font-mono);font-size:var(--t-micro);color:var(--ink-2);width:110px}
+
+  /* Icon sample */
+  .icon-row{display:flex;gap:var(--s5);flex-wrap:wrap;margin-top:var(--s5)}
+  .icon-card{
+    width:120px;text-align:center;padding:var(--s4);border:1px solid var(--line);
+    border-radius:var(--r-md);background:#fff;
+  }
+  .icon-card svg{margin:0 auto var(--s2);display:block}
+  .icon-card .ic-name{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-2)}
+
+  /* Motion spec table */
+  table{width:100%;border-collapse:collapse;margin-top:var(--s5);font-size:var(--t-body)}
+  th{
+    text-align:left;font-family:var(--font-mono);font-size:var(--t-micro);
+    letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+    padding:var(--s3);border-bottom:2px solid var(--ink);
+  }
+  td{padding:var(--s3);border-bottom:1px solid var(--line-soft);vertical-align:top;color:var(--ink-2)}
+  td:first-child{font-family:var(--font-display);color:var(--ink);font-weight:500;white-space:nowrap}
+
+  /* Anti-generic checklist */
+  .tells{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:var(--s5);margin-top:var(--s6)}
+  .tell{border-radius:var(--r-md);padding:var(--s5)}
+  .tell.bad{background:#FBEAE4;border:1px solid #EFC5B4}
+  .tell.good{background:#EAF3EE;border:1px solid #BFDBCF}
+  .tell h4{font-family:var(--font-display);margin-bottom:var(--s3)}
+  .tell.bad h4{color:var(--accent-deep)}
+  .tell.good h4{color:var(--pine)}
+  .tell ul{list-style:none}
+  .tell li{padding:var(--s2) 0;border-bottom:1px dashed rgba(0,0,0,.08);font-size:var(--t-body);color:var(--ink-2)}
+  .tell li:last-child{border-bottom:none}
+
+  /* References */
+  .refs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--s4);margin-top:var(--s5)}
+  .ref{
+    border:1px solid var(--line);border-radius:var(--r-md);padding:var(--s4);background:#fff;
+  }
+  .ref .r-name{font-family:var(--font-display);font-weight:500;margin-bottom:4px}
+  .ref .r-why{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+
+  footer{padding:var(--s7) 0;font-family:var(--font-mono);font-size:var(--t-micro);color:var(--ink-3)}
+
+  @media (max-width:640px){
+    .spec-row{grid-template-columns:1fr;gap:var(--s2)}
+    .spec-meta{text-align:left}
+    .sp-hero{font-size:34px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= HEADER / BRIEF ================= -->
+<header class="doc-head">
+  <svg class="contour-bg" viewBox="0 0 640 640" fill="none" aria-hidden="true">
+    <ellipse cx="340" cy="330" rx="70" ry="52"   stroke="#1C2333" stroke-opacity=".18" transform="rotate(-8 340 330)"/>
+    <ellipse cx="340" cy="330" rx="135" ry="100" stroke="#1C2333" stroke-opacity=".14" transform="rotate(-8 340 330)"/>
+    <ellipse cx="340" cy="330" rx="205" ry="152" stroke="#1C2333" stroke-opacity=".11" transform="rotate(-8 340 330)"/>
+    <ellipse cx="340" cy="330" rx="282" ry="208" stroke="#1C2333" stroke-opacity=".08" transform="rotate(-8 340 330)"/>
+    <ellipse cx="340" cy="330" rx="365" ry="268" stroke="#1C2333" stroke-opacity=".06" transform="rotate(-8 340 330)"/>
+    <path d="M120 560 C 220 520, 250 430, 320 400 S 470 340, 520 240 S 590 130, 620 96" stroke="#E4572E" stroke-width="2" stroke-dasharray="1" pathLength="1"/>
+  </svg>
+
+  <div class="wrap">
+    <div class="kicker">Vantage Design Language · v1.0</div>
+    <h1>Vươn tới<br><em>đỉnh cao.</em></h1>
+    <p class="doc-sub">Ngôn ngữ thiết kế cho nền tảng ôn thi Toán THPT &amp; tuyển sinh lớp 10 —
+    nơi toán học là ngôi sao, và mỗi quyết định hình ảnh đều phục vụ một metaphor duy nhất:
+    <strong>hành trình chinh phục đỉnh.</strong></p>
+    <div class="doc-meta">
+      <span>PHIÊN BẢN — 1.0</span>
+      <span>TRẠNG THÁI — NORTH STAR</span>
+      <span>PHẠM VI — LANDING + APP SHELL</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ================= 01 CONCEPT ================= -->
+  <section id="concept">
+    <div class="sec-label">01 — Concept / Design brief</div>
+    <h2>Một metaphor, không nhiều hơn</h2>
+    <p class="lead">“Vươn tới đỉnh cao” không phải khẩu hiệu trang trí — đó là
+    <strong>hệ quy chiếu ra quyết định</strong>. Trước mọi lựa chọn hình ảnh, tự hỏi:
+    <em>“Nó có giúp người học cảm nhận được độ cao, hành trình và cột mốc không?”</em>
+    Nếu không — loại bỏ.</p>
+
+    <h3>Hệ hình ảnh suy ra từ metaphor</h3>
+    <p>
+      <strong>Bản đồ địa hình (contour lines)</strong> — pattern nền, ngăn cách section.&nbsp;·&nbsp;
+      <strong>Đường leo (ascent path)</strong> — đường cong vermillion đi lên, biểu diễn tiến độ, biểu đồ, hero.&nbsp;·&nbsp;
+      <strong>Cột mốc (markers)</strong> — chấm tròn + nhãn mono cho mỗi đề thi hoàn thành.&nbsp;·&nbsp;
+      <strong>Cờ đỉnh (summit flag)</strong> — dấu ▲ duy nhất, đặt ở đích: mục tiêu đại học.&nbsp;·&nbsp;
+      <strong>Sổ tay trắc địa</strong> — nhãn kỹ thuật monospace, tọa độ, vạch chia cao độ.
+    </p>
+
+    <h3>Năm từ khóa cảm xúc (kiểm tra mọi màn hình)</h3>
+    <div class="keywords">
+      <span class="kw">HỌC THUẬT</span>
+      <span class="kw">CHÍNH XÁC</span>
+      <span class="kw">ĐỘ CAO</span>
+      <span class="kw">KIÊN NHẪN</span>
+      <span class="kw">ẤM</span>
+    </div>
+    <p style="margin-top:var(--s4)">Nếu một màn hình “đẹp” nhưng gợi cảm giác <em>neon SaaS, crypto, hoặc game mobile</em> — sai brief.</p>
+  </section>
+
+  <!-- ================= 02 PRINCIPLES ================= -->
+  <section id="principles">
+    <div class="sec-label">02 — Nguyên tắc thiết kế</div>
+    <h2>Năm nguyên tắc bất biến</h2>
+    <div class="principles">
+      <div class="princ">
+        <div class="num">P·01</div>
+        <h4>Toán là ngôi sao</h4>
+        <p>Công thức render LaTeX sắc nét, đồ thị vẽ như nét bút, ký hiệu xuất hiện như vật liệu nghệ thuật. Không giấu toán sau icon trung gian — Brilliant và Mathigon thắng nhờ dám làm điều này.</p>
+      </div>
+      <div class="princ">
+        <div class="num">P·02</div>
+        <h4>Một metaphor duy nhất</h4>
+        <p>Mọi pattern — nền, đường kẻ, biểu đồ, empty state — đều sinh ra từ “bản đồ + đường leo + cột mốc”. Kỷ luật này tạo ra cảm giác “được thiết kế” mà layout AI-generic không bao giờ có.</p>
+      </div>
+      <div class="princ">
+        <div class="num">P·03</div>
+        <h4>Khoảng trắng hào phóng</h4>
+        <p>Ít phần tử hơn, thở nhiều hơn. Tối đa 3 khối nội dung mỗi màn. Nếu lưới 4 card giống hệt nhau xuất hiện — dừng lại và hỏi có thể nói bằng 1 hình lớn + 1 danh sách thay vì 4 hộp không.</p>
+      </div>
+      <div class="princ">
+        <div class="num">P·04</div>
+        <h4>Chính xác như sổ tay kỹ sư</h4>
+        <p>Lưới 4pt nghiêm ngặt, nhãn kỹ thuật bằng IBM Plex Mono, số liệu căn tabular. Sự chính chắn này chính là “tính học thuật” — đối lập hoàn toàn với bóng đổ mờ ảo và bo góc 24px.</p>
+      </div>
+      <div class="princ">
+        <div class="num">P·05</div>
+        <h4>Ấm, không sterile</h4>
+        <p>Giấy kem, mực xanh-than, vermillion đất — không nền trắng tinh, không gradient tím-xanh. Cảm giác như quyển sổ luyện thi được kẻ ô cẩn thận, không phải dashboard startup.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 03 COLOR ================= -->
+  <section id="color">
+    <div class="sec-label">03 — Màu sắc</div>
+    <h2>Giấy · Mực · Cờ đỉnh</h2>
+    <p>Ba gia đình màu, tám biến thể. Accent vermillion <strong>tiết chế tuyệt đối</strong> —
+    chỉ cho CTA chính, marker cột mốc và vạch đích. Nếu một màn hình có &gt;5% diện tích màu accent, quá nhiều.</p>
+
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#F5F2EA;border-bottom:1px solid var(--line-soft)"></div>
+        <div class="info"><div class="name">Paper</div><div class="hex">#F5F2EA</div><div class="role">Nền chính toàn app</div></div></div>
+      <div class="sw"><div class="chip" style="background:#ECE8DD"></div>
+        <div class="info"><div class="name">Paper 2</div><div class="hex">#ECE8DD</div><div class="role">Nền phụ, chip, code block</div></div></div>
+      <div class="sw"><div class="chip" style="background:#1C2333"></div>
+        <div class="info"><div class="name">Ink</div><div class="hex">#1C2333</div><div class="role">Text chính, đường kẻ đậm</div></div></div>
+      <div class="sw"><div class="chip" style="background:#4A5164"></div>
+        <div class="info"><div class="name">Ink 2</div><div class="hex">#4A5164</div><div class="role">Text phụ (đoạn văn)</div></div></div>
+      <div class="sw"><div class="chip" style="background:#8A8FA0"></div>
+        <div class="info"><div class="name">Ink 3</div><div class="hex">#8A8FA0</div><div class="role">Nhãn mono, metadata</div></div></div>
+      <div class="sw"><div class="chip" style="background:#E4572E"></div>
+        <div class="info"><div class="name">Summit</div><div class="hex">#E4572E</div><div class="role">CTA chính, marker, đường leo</div></div></div>
+      <div class="sw"><div class="chip" style="background:#B03E1C"></div>
+        <div class="info"><div class="name">Summit Deep</div><div class="hex">#B03E1C</div><div class="role">Hover/active của accent</div></div></div>
+      <div class="sw"><div class="chip" style="background:#2F5D8A"></div>
+        <div class="info"><div class="name">Altitude</div><div class="hex">#2F5D8A</div><div class="role">Dữ liệu phụ, link, đồ thị thứ 2</div></div></div>
+      <div class="sw"><div class="chip" style="background:#33705C"></div>
+        <div class="info"><div class="name">Pine</div><div class="hex">#33705C</div><div class="role">Trạng thái đúng/hoàn thành</div></div></div>
+    </div>
+    <h3 style="margin-top:var(--s6)">Chế độ tối — “đêm trắc địa”</h3>
+    <p>Đảo nghịch giấy↔mực, giữ đúng tỷ lệ tương phản. Accent sáng hơn một nấc để nổi trên nền đêm; xanh altitude nhạt hơn.
+    Canvas 3D đọc tokens lúc runtime — đổi theme là địa hình theo ngay, không cần reload.</p>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#12161F"></div>
+        <div class="info"><div class="name">Paper Dark</div><div class="hex">#12161F</div><div class="role">Nền chính chế độ tối</div></div></div>
+      <div class="sw"><div class="chip" style="background:#1A202B"></div>
+        <div class="info"><div class="name">Paper 2 Dark</div><div class="hex">#1A202B</div><div class="role">Nền phụ / chip tối</div></div></div>
+      <div class="sw"><div class="chip" style="background:#EDEAE0"></div>
+        <div class="info"><div class="name">Ink Dark</div><div class="hex">#EDEAE0</div><div class="role">Text chính (kem ấm)</div></div></div>
+      <div class="sw"><div class="chip" style="background:#F06840"></div>
+        <div class="info"><div class="name">Summit Dark</div><div class="hex">#F06840</div><div class="role">Accent sáng hơn trên nền đêm</div></div></div>
+      <div class="sw"><div class="chip" style="background:#6B9BD1"></div>
+        <div class="info"><div class="name">Altitude Dark</div><div class="hex">#6B9BD1</div><div class="role">Tuyến lớp 10 / dữ liệu phụ</div></div></div>
+      <div class="sw"><div class="chip" style="background:#0B0E13"></div>
+        <div class="info"><div class="name">Summit BG Dark</div><div class="hex">#0B0E13</div><div class="role">Panel CTA cuối ở chế độ tối</div></div></div>
+    </div>
+  </section>
+
+  <!-- ================= 04 TYPOGRAPHY ================= -->
+  <section id="type">
+    <div class="sec-label">04 — Typography</div>
+    <h2>Ba vai diễn, ba typeface</h2>
+    <p><strong>Space Grotesk</strong> — display: headline, con số lớn (tracking −0.02em, weight 700).&nbsp;·&nbsp;
+    <strong>Be Vietnam Pro</strong> — body: đọc dài tiếng Việt không vỡ dấu (line-height 1.65).&nbsp;·&nbsp;
+    <strong>IBM Plex Mono</strong> — nhãn kỹ thuật, số liệu, “tọa độ trắc địa”. Cả ba đều hỗ trợ tiếng Việt đầy đủ.</p>
+
+    <div class="specimen">
+      <div class="spec-row"><div class="spec-label">HERO / 61</div><div class="sp-hero">Vươn tới đỉnh cao</div><div class="spec-meta">Space Grotesk 700 · −0.02em</div></div>
+      <div class="spec-row"><div class="spec-label">H1 / 39</div><div class="sp-h1">Tầm nhìn dẫn đường</div><div class="spec-meta">Space Grotesk 700</div></div>
+      <div class="spec-row"><div class="spec-label">H2 / 31</div><div class="sp-h2">Lộ trình của riêng bạn</div><div class="spec-meta">Space Grotesk 500</div></div>
+      <div class="spec-row"><div class="spec-label">LEAD / 20</div><div class="sp-lead">Đề thi thật, phân tích lỗi sai, lộ trình học riêng cho từng học sinh.</div><div class="spec-meta">BVP 400 · 1.55</div></div>
+      <div class="spec-row"><div class="spec-label">BODY / 16</div><div class="sp-body">Mỗi buổi tối, bạn leo thêm một đoạn đường. Hệ thống ghi lại lỗi sai ở từng cột mốc và điều chỉnh lộ trình hôm sau.</div><div class="spec-meta">BVP 400 · 1.65</div></div>
+      <div class="spec-row"><div class="spec-label">MONO / 16</div><div class="sp-mono">lim(x→0) sinx/x = 1 · Δ = b² − 4ac</div><div class="spec-meta">IBM Plex Mono</div></div>
+      <div class="spec-row"><div class="spec-label">LABEL / 13</div><div class="sp-micro">Mốc 03 · Đề thật 2024 · Alt. 2.850m</div><div class="spec-meta">Plex Mono · +0.14em</div></div>
+    </div>
+  </section>
+
+  <!-- ================= 05 SPACING / SHAPE ================= -->
+  <section id="space">
+    <div class="sec-label">05 — Khoảng cách · Hình khối</div>
+    <h2>Lưới 4pt, bo góc tiết chế</h2>
+    <div class="sp-scale">
+      <div class="sp-item"><div class="lbl">4 · --s1</div><div class="bar" style="width:4px"></div></div>
+      <div class="sp-item"><div class="lbl">8 · --s2</div><div class="bar" style="width:8px"></div></div>
+      <div class="sp-item"><div class="lbl">16 · --s4</div><div class="bar" style="width:16px"></div></div>
+      <div class="sp-item"><div class="lbl">24 · --s5</div><div class="bar" style="width:24px"></div></div>
+      <div class="sp-item"><div class="lbl">32 · --s6</div><div class="bar" style="width:32px"></div></div>
+      <div class="sp-item"><div class="lbl">48 · --s7</div><div class="bar" style="width:48px"></div></div>
+      <div class="sp-item"><div class="lbl">64 · --s8</div><div class="bar" style="width:64px"></div></div>
+      <div class="sp-item"><div class="lbl">96 · --s9</div><div class="bar" style="width:96px"></div></div>
+      <div class="sp-item"><div class="lbl">128 · --s10</div><div class="bar" style="width:128px"></div></div>
+    </div>
+    <p style="margin-top:var(--s5)">
+      <strong>Radius:</strong> <code>--r-sm: 6px</code> chip · <code>--r-md: 10px</code> card · <code>--r-lg: 16px</code> panel lớn. Không dùng 20–24px bo tròn “SaaS mềm”.<br>
+      <strong>Đổ bóng:</strong> gần như không — phân tầng bằng <code>border: 1px solid var(--line)</code> và nền paper-2. Chỉ CTA hover được phép <code>translateY(-2px)</code> + shadow 1 lớp rất nhẹ.<br>
+      <strong>Đường kẻ:</strong> luôn 1px, <code>rgba(28,35,51,.14)</code>. Đường “contour” trang trí opacity ≤ .18.
+    </p>
+  </section>
+
+  <!-- ================= 06 ICONOGRAPHY ================= -->
+  <section id="icons">
+    <div class="sec-label">06 — Biểu tượng</div>
+    <h2>Line icons vẽ tay — tuyệt đối không emoji</h2>
+    <p>ViewBox 24×24, stroke <strong>1.5px</strong>, đầu nét <code>round</code>, hình học tối giản, một màu mực.
+    Marker cột mốc là ngoại lệ duy nhất được điểm vermillion.</p>
+    <div class="icon-row">
+      <div class="icon-card">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1C2333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/><path d="M9 3v-1h6v1"/>
+        </svg>
+        <div class="ic-name">Thi thử đề thật</div>
+      </div>
+      <div class="icon-card">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1C2333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="2" width="12" height="20" rx="2"/><rect x="9" y="5" width="6" height="3" rx="0.5"/><path d="M9 12h1M12 12h1M15 12h1M9 15h1M12 15h1M15 15h1M9 18h4M15 18h1"/>
+        </svg>
+        <div class="ic-name">Máy tính CAS</div>
+      </div>
+      <div class="icon-card">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1C2333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4v16M20 4v16"/><path d="M8 7h3M13 7h3M8 12h3M13 12h3M8 17h3M13 17h3"/>
+        </svg>
+        <div class="ic-name">Ma trận / ĐSTT</div>
+      </div>
+      <div class="icon-card">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1C2333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21h18M3 21V3"/><path d="M5 16C8 16 8 8 12 8s4 6 7 6" stroke="#E4572E"/><circle cx="12" cy="8" r="1.4" fill="#E4572E" stroke="none"/>
+        </svg>
+        <div class="ic-name">Math Playground</div>
+      </div>
+      <div class="icon-card">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1C2333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3l7 18H5l7-18z"/><path d="M12 3l2.6 7" stroke="#E4572E"/><path d="M9.5 14h5"/>
+        </svg>
+        <div class="ic-name">Đỉnh / Mục tiêu</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 07 MOTION ================= -->
+  <section id="motion">
+    <div class="sec-label">07 — Chuyển động &amp; chiều sâu</div>
+    <h2>Chuyển động của một đường leo</h2>
+    <p>Motion phải kể đúng một câu chuyện: <em>vạch ra — rồi tiến lên</em>. Không bounce, không elastic.</p>
+    <p style="margin-top:var(--s3)"><strong>Quy tắc 3D:</strong> chiều sâu chỉ được phép khi <em>là</em> metaphor — địa hình 3D ở hero và contour nhiều tầng ở panel kết. Tuyệt đối không particle field, không shape trôi nổi vô nghĩa: đó là cách nhanh nhất để từ “có gu” tuột về “AI-generic màu neon”.</p>
+    <table>
+      <thead><tr><th>Pattern</th><th>Dùng cho</th><th>Thông số</th></tr></thead>
+      <tbody>
+        <tr><td>Draw</td><td>Đường contour, đồ thị, đường leo xuất hiện</td><td><code>stroke-dashoffset 1→0</code> · 900–1400ms · <code>var(--ease-out)</code></td></tr>
+        <tr><td>Rise</td><td>Headline, card, section vào viewport</td><td><code>translateY(12px)→0 + fade</code> · 380ms · stagger con 60ms</td></tr>
+        <tr><td>Count</td><td>Số liệu thống kê</td><td>Đếm 0→n trong 900ms, font mono, bắt đầu khi 50% vào viewport</td></tr>
+        <tr><td>Marker pulse</td><td>Cột mốc trên lộ trình</td><td>Vòng lan 1px, 2.4s lặp vô hạn, opacity 0.4</td></tr>
+        <tr><td>Terrain 3D</td><td>Hero: địa hình 2 đỉnh; <strong>tuyến leo là đồ thị hàm thật</strong> — THPT đi theo <code>z = t³ − 3t</code> (hàm bậc ba, lớp 12), lớp 10 đi theo <code>z = 1 − t²</code> (parabola); nghiêng theo con trỏ; rê vào tuyến → tooltip hiện công thức</td><td>Vanilla canvas · yaw ±0.18 rad lerp 0.045 · tuyến THPT 2.4s, lớp 10 trễ +0.8s · hit-test ≤26px · DPR ≤ 1.75 · dừng khi khuất viewport/đổi tab · reduced-motion → frame tĩnh · màu đọc từ tokens</td></tr>
+        <tr><td>Ambient field</td><td>Nền động toàn trang: 7 “đồi vô hình” dồn ra mép/góc × 5 vòng đồng mức trôi cực chậm + “sky wash” (2 vệt sáng radial accent/ink parallax) + vignette nội dung + 1 đường mòn accent siêu mờ vẽ dần 1 lần</td><td>Chu kỳ 60–95s · <strong>alpha ≤ 0.12 ở mép màn, ~0.05 ở trung tâm</strong> (vignette <code>vis=0.42+0.58·cxr^1.4</code>) · sky wash accent 5% / ink 3.5% · parallax theo con trỏ (hệ số depth 0.6–1.5) và cuộn trang (0.055×) · DPR ≤ 1.5 · dừng khi đổi tab · reduced-motion → 1 frame tĩnh · dạng đóng <code>r(θ)=k/√(cos²θ/sx²+sin²θ/sz²)</code>, không particle · stacking: canvas z-0, nội dung z-1, nav z-50</td></tr>
+        <tr><td>Data morph</td><td>Tab “Năng lực”: địa hình biến thành 6 đồi — cao độ = điểm thành thạo 6 chuyên đề; <strong>cờ accent cắm ở chuyên đề yếu nhất</strong> (điểm yếu → đỉnh cần chinh phục). Điểm đọc thật từ URL (<code>?ham-so=8.5&amp;oxyz=4.5&amp;name=…</code>), người dùng tự chỉnh bằng slider và sao chép liên kết bản đồ của mình</td><td>Morph <code>dataW</code> lerp 0.07/frame · tuyến leo fade <code>1−dataW</code> · slider cập nhật terrain trực tiếp · URL đồng bộ bằng <code>replaceState</code> (debounce 350ms) · clipboard API có fallback thủ công</td></tr>
+        <tr><td>Depth parallax</td><td>Panel CTA cuối: 2 tầng contour lệch pha</td><td><code>translate3d</code> ±10–22px theo con trỏ · transition 450ms <code>var(--ease-out)</code></td></tr>
+        <tr><td>Hover lift</td><td>CTA, card tương tác</td><td><code>translateY(-2px)</code> · 160ms · shadow nhẹ duy nhất ở đây</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:var(--s4)"><strong>Easing chuẩn toàn app:</strong> <code>cubic-bezier(0.22,1,0.36,1)</code>.
+    Bắt buộc tôn trọng <code>prefers-reduced-motion</code>: tắt Draw/Pulse/Count, giữ fade đơn giản.</p>
+  </section>
+
+  <!-- ================= 08 ANTI-GENERIC ================= -->
+  <section id="anti-generic">
+    <div class="sec-label">08 — Bộ lọc chống “AI-generic”</div>
+    <h2>Dấu hiệu cần loại bỏ — và thay bằng gì</h2>
+    <p>Checklist tự chấm trước khi ship bất kỳ màn nào. Đây chính là những “tells” khiến người xem cảm nhận ngay “trang này do AI dựng”.</p>
+    <div class="tells">
+      <div class="tell bad">
+        <h4>✕ Nếu thấy — loại bỏ ngay</h4>
+        <ul>
+          <li>Emoji làm icon (📋🧮🔢📈)</li>
+          <li>Gradient tím → xanh dương</li>
+          <li>Hero căn giữa: badge + H1 + sub + 2 nút, cân đối tăm tắp</li>
+          <li>4–6 card tính năng y hệt nhau, bo góc 20px+, shadow xl</li>
+          <li>Glassmorphism / backdrop-blur mặc định</li>
+          <li>Số liệu “40+ / 63 / 1.104” xếp hàng đều không điểm nhấn</li>
+          <li>Nội dung FAQ accordion mặc định không ăn nhập với ngôn ngữ chung</li>
+        </ul>
+      </div>
+      <div class="tell good">
+        <h4>✓ Thay bằng ngôn ngữ của Vantage</h4>
+        <ul>
+          <li>Line icon 1.5px vẽ tay, một màu mực</li>
+          <li>Màu phẳng: paper + ink, vermillion làm điểm nhấn duy nhất</li>
+          <li>Hero editorial: lệch lưới có chủ đích, bản đồ contour + đường leo animate</li>
+          <li>1 hình lớn kể chuyện + 1 danh sách có nhịp, thay cho hộp đồng nhất</li>
+          <li>Phân tầng bằng border 1px và nền giấy — không kính mờ</li>
+          <li>Số liệu kiểu “sổ tay trắc địa”: mono, baseline kẻ, đơn vị nhỏ</li>
+          <li>FAQ như mục lục sách: số thứ tự + đường kẻ, mở rộng bằng motion Rise</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 09 REFERENCES / MOODBOARD ================= -->
+  <section id="refs">
+    <div class="sec-label">09 — Moodboard tham chiếu (để mổ xẻ, không để sao chép)</div>
+    <h2>Học từ những người làm tốt nhất</h2>
+    <div class="refs">
+      <div class="ref"><div class="r-name">brilliant.org</div><div class="r-why">Toán tương tác đẹp nhất hiện nay. Xem cách họ để công thức &amp; đồ thị làm trung tâm; minh họa geometric, không stock photo.</div></div>
+      <div class="ref"><div class="r-name">mathigon.org/polypad</div><div class="r-why">Toán học như vật liệu nghệ thuật: nét vẽ tay, trò chơi hình học, cảm giác “sổ tay khám phá”.</div></div>
+      <div class="ref"><div class="r-name">Swiss International Style</div><div class="r-why">Grid Systems (Müller-Brockmann): lưới nghiêm, type-scale rõ, khoảng trắng kỷ luật — cùng DNA với toán học.</div></div>
+      <div class="ref"><div class="r-name">Bản đồ địa hình USGS / quân sự</div><div class="r-why">Contour lines, vạch cao độ, nhãn tọa độ mono — nguồn pattern nền và ngôn ngữ “cột mốc” của Vantage.</div></div>
+      <div class="ref"><div class="r-name">designspells.com</div><div class="r-why">Kho micro-interaction được mổ xẻ chi tiết — học cách “hoàn thiện 10% cuối” tạo cảm giác crafted.</div></div>
+      <div class="ref"><div class="r-name">linear.app · raycast.com</div><div class="r-why">Chuẩn mực design token &amp; dark-on-paper hiện đại; xem cách họ giới hạn bảng màu và dùng mono cho nhãn.</div></div>
+    </div>
+  </section>
+
+  <!-- ================= 10 VOICE ================= -->
+  <section id="voice">
+    <div class="sec-label">10 — Giọng nói</div>
+    <h2>Như một người thầy giỏi: ngắn, chắc, không phô</h2>
+    <p>Gọi tiến độ là <em>“đoạn đường”</em>, bài thi hoàn thành là <em>“cột mốc”</em>, mục tiêu là <em>“đỉnh”</em> — nhất quán từ hero tới empty state.
+    Tránh từ ngữ SaaS khoa trương (“siêu tối ưu”, “AI đột phá”). Con số luôn thật và kiểm chứng được.</p>
+  </section>
+
+  <footer>
+    VANTAGE DESIGN LANGUAGE · V1.4.1 · GIẤY — MỰC — CỜ ĐỈNH ▲
+  </footer>
+</main>
+</body>
+</html>

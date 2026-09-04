@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đang thi: Ôn thi vào lớp 10 — Giữa kỳ 1 Toán 9 (Đề 1) · Vantage</title>
+<!-- VANTAGE PROTOTYPE · 09-LAM-BAI-THI · "BÀN THI TRẮC ĐỊA & SƯỜN LÀM BÀI"
+     Ngôn ngữ: GIẤY — MỰC — CỜ ĐỈNH v1.4.1 -->
+<script>
+try{
+  var __t = localStorage.getItem('vantage-theme');
+  if(!__t) __t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', __t);
+}catch(e){ document.documentElement.setAttribute('data-theme','light'); }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- KaTeX for pristine mathematical typesetting -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+<style>
+:root{
+  --paper:        #F5F2EA;
+  --paper-2:      #ECE8DD;
+  --paper-3:      #E4DFC7;
+  --ink:          #1C2333;
+  --ink-2:        #4A5164;
+  --ink-3:        #8A8FA0;
+  --line:         rgba(28,35,51,.14);
+  --line-soft:    rgba(28,35,51,.08);
+  --accent:       #E4572E;
+  --accent-deep:  #B03E1C;
+  --altitude:     #2F5D8A;
+  --pine:         #33705C;
+  --dot:          rgba(28,35,51,.10);
+  --summit-bg:    var(--ink);
+  --ink-rgb:      28,35,51;
+  --paper-rgb:    245,242,234;
+  --accent-rgb:   228,87,46;
+  --altitude-rgb: 47,93,138;
+
+  --font-display: 'Space Grotesk','Be Vietnam Pro','Segoe UI',system-ui,sans-serif;
+  --font-body:    'Be Vietnam Pro','Segoe UI',system-ui,sans-serif;
+  --font-mono:    'IBM Plex Mono',ui-monospace,monospace;
+  --ease-out:     cubic-bezier(0.22,1,0.36,1);
+}
+
+[data-theme="dark"]{
+  --paper:        #12161F;
+  --paper-2:      #1A202B;
+  --paper-3:      #242C3B;
+  --ink:          #EDEAE0;
+  --ink-2:        #B9BDC9;
+  --ink-3:        #79808F;
+  --line:         rgba(237,234,224,.15);
+  --line-soft:    rgba(237,234,224,.08);
+  --accent:       #F06840;
+  --accent-deep:  #E4572E;
+  --altitude:     #6B9BD1;
+  --pine:         #4FA586;
+  --dot:          rgba(237,234,224,.12);
+  --summit-bg:    #0B0E13;
+  --ink-rgb:      237,234,224;
+  --paper-rgb:    18,22,31;
+  --accent-rgb:   240,104,64;
+  --altitude-rgb: 107,155,209;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  transition:background .35s var(--ease-out),color .35s var(--ease-out);
+}
+::selection{background:var(--accent);color:var(--paper)}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+
+/* Fixed ambient terrain canvas */
+#bgField{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;z-index:0;pointer-events:none}
+.app-shell{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh}
+
+/* Top Examination Header (Thanh Trắc Địa Đầu Bàn) */
+.exam-bar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.exam-bar-inner{
+  max-width:1200px;
+  margin:0 auto;
+  padding:0 24px;
+  height:60px;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:24px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:18px;
+  letter-spacing:-0.01em;
+}
+.brand .flag{color:var(--accent);font-size:13px}
+.brand .badge{
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:0.12em;
+  padding:3px 8px;
+  border-radius:4px;
+  background:var(--paper-2);
+  color:var(--ink-2);
+  border:1px solid var(--line-soft);
+  text-transform:uppercase;
+}
+
+.exam-meta-center{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  overflow:hidden;
+}
+.exam-title-text{
+  font-family:var(--font-display);
+  font-size:14.5px;
+  font-weight:600;
+  color:var(--ink);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.exam-sub-meta{
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  color:var(--ink-3);
+  letter-spacing:0.04em;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.exam-sub-meta span.dot{color:var(--line)}
+
+.exam-controls-right{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+/* Đồng hồ đo cao / Timer trắc địa */
+.chronometer{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 14px;
+  border:1px solid var(--line);
+  background:var(--paper-2);
+  border-radius:6px;
+  position:relative;
+}
+.chrono-gauge{
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  border:2px solid var(--line);
+  border-top-color:var(--accent);
+  transition:border-color 0.3s;
+}
+.chrono-gauge.warning{
+  border-top-color:var(--accent);
+  animation:spin-gauge 1.5s linear infinite;
+}
+.chrono-gauge.critical{
+  border-top-color:var(--accent-deep);
+  animation:spin-gauge 0.75s linear infinite;
+}
+@keyframes spin-gauge{
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(360deg)}
+}
+.chrono-time{
+  font-family:var(--font-mono);
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:0.06em;
+  color:var(--ink);
+  font-variant-numeric:tabular-nums;
+}
+.chrono-time.warning{color:var(--accent)}
+.chrono-time.critical{color:var(--accent-deep);animation:pulse-text 1.2s infinite ease-in-out}
+@keyframes pulse-text{
+  0%,100%{opacity:1}
+  50%{opacity:0.4}
+}
+.chrono-label{
+  font-family:var(--font-mono);
+  font-size:10px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+.btn-icon{
+  width:36px;
+  height:36px;
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:transparent;
+  color:var(--ink);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:border-color .16s, background .16s, transform .16s;
+}
+.btn-icon:hover{
+  border-color:var(--ink);
+  background:var(--paper-2);
+  transform:translateY(-1px);
+}
+.btn-icon svg{width:16px;height:16px}
+.btn-icon .i-moon{display:block}
+[data-theme="dark"] .btn-icon .i-moon{display:none}
+[data-theme="dark"] .btn-icon .i-sun{display:block}
+
+/* Sub-header: Topographic Elevation Progress Bar (Thước cao độ trắc lượng) */
+.altitude-strip{
+  width:100%;
+  height:4px;
+  background:var(--line-soft);
+  position:relative;
+  overflow:hidden;
+}
+.altitude-fill{
+  height:100%;
+  background:var(--accent);
+  width:8.33%;
+  transition:width 0.4s var(--ease-out);
+}
+
+/* Main Workspace Layout */
+.workspace-grid{
+  max-width:1200px;
+  width:100%;
+  margin:0 auto;
+  padding:32px 24px 64px;
+  display:grid;
+  grid-template-columns:1fr 340px;
+  gap:36px;
+  align-items:start;
+  flex:1;
+}
+
+/* Main Question Paper (Tờ Giấy Đề Thi) */
+.question-paper{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:8px;
+  box-shadow:0 2px 12px -4px rgba(28,35,51,0.06);
+  position:relative;
+  overflow:hidden;
+}
+.question-paper::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:3px;
+  background:var(--ink);
+}
+
+.paper-header{
+  padding:24px 28px 18px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:color-mix(in srgb, var(--paper-2) 40%, transparent);
+}
+.station-tag{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.station-num{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:22px;
+  letter-spacing:-0.02em;
+  color:var(--ink);
+}
+.station-topic{
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--altitude);
+  padding:3px 8px;
+  background:color-mix(in srgb, var(--altitude) 10%, transparent);
+  border:1px solid color-mix(in srgb, var(--altitude) 25%, transparent);
+  border-radius:4px;
+}
+.station-difficulty{
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:0.08em;
+  color:var(--ink-3);
+}
+
+.station-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.btn-flag{
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  letter-spacing:0.06em;
+  padding:6px 12px;
+  border-radius:6px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink-2);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  transition:all 0.16s var(--ease-out);
+}
+.btn-flag:hover{
+  border-color:var(--ink);
+  color:var(--ink);
+}
+.btn-flag.active{
+  border-color:var(--accent);
+  background:color-mix(in srgb, var(--accent) 12%, transparent);
+  color:var(--accent);
+  font-weight:500;
+}
+.btn-flag svg{width:13px;height:13px;stroke:currentColor;fill:none}
+.btn-flag.active svg{fill:var(--accent)}
+
+.paper-body{
+  padding:32px 28px;
+}
+
+/* Question Statement Typography */
+.question-prompt{
+  font-size:18.5px;
+  line-height:1.75;
+  color:var(--ink);
+  margin-bottom:32px;
+}
+.question-prompt .katex-display{
+  margin:18px 0;
+  text-align:left;
+  padding-left:12px;
+  border-left:2px solid var(--altitude);
+}
+
+/* Choices Options Grid / Technical Layout */
+.choices-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.choice-card{
+  display:grid;
+  grid-template-columns:44px 1fr;
+  align-items:stretch;
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:var(--paper);
+  cursor:pointer;
+  transition:border-color 0.16s, background 0.16s, transform 0.16s;
+  overflow:hidden;
+  user-select:none;
+}
+.choice-card:hover{
+  border-color:var(--ink-2);
+  background:var(--paper-2);
+}
+.choice-card.selected{
+  border-color:var(--ink);
+  background:color-mix(in srgb, var(--paper-2) 80%, transparent);
+  box-shadow:inset 0 0 0 1px var(--ink);
+}
+[data-theme="dark"] .choice-card.selected{
+  border-color:var(--accent);
+  box-shadow:inset 0 0 0 1px var(--accent);
+}
+
+.choice-key{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--font-mono);
+  font-size:13.5px;
+  font-weight:600;
+  border-right:1px solid var(--line);
+  background:color-mix(in srgb, var(--paper-2) 60%, transparent);
+  color:var(--ink-2);
+  transition:all 0.16s;
+}
+.choice-card:hover .choice-key{
+  color:var(--ink);
+}
+.choice-card.selected .choice-key{
+  background:var(--ink);
+  color:var(--paper);
+  border-right-color:var(--ink);
+}
+[data-theme="dark"] .choice-card.selected .choice-key{
+  background:var(--accent);
+  color:var(--paper);
+  border-right-color:var(--accent);
+}
+
+.choice-text{
+  padding:14px 18px;
+  font-size:16px;
+  line-height:1.6;
+  color:var(--ink);
+  display:flex;
+  align-items:center;
+}
+
+/* Practice Mode Real-time Feedback & Breakdown */
+.practice-feedback{
+  margin-top:24px;
+  padding:20px;
+  border-radius:6px;
+  border-top:2px solid;
+  animation:fadeIn 0.3s var(--ease-out);
+}
+.practice-feedback.correct{
+  background:color-mix(in srgb, var(--pine) 8%, var(--paper));
+  border-color:var(--pine);
+}
+.practice-feedback.wrong{
+  background:color-mix(in srgb, var(--accent) 8%, var(--paper));
+  border-color:var(--accent);
+}
+.feedback-head{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  font-weight:600;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.practice-feedback.correct .feedback-head{color:var(--pine)}
+.practice-feedback.wrong .feedback-head{color:var(--accent)}
+
+.step-by-step-box{
+  margin-top:16px;
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:var(--paper);
+  padding:16px;
+}
+.step-title{
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.step-item{
+  padding:10px 0;
+  border-top:1px dashed var(--line-soft);
+  font-size:14.5px;
+}
+.step-item:first-of-type{border-top:none;padding-top:0}
+.step-item .step-exp{
+  font-size:12.5px;
+  color:var(--ink-3);
+  margin-top:4px;
+  font-style:italic;
+}
+
+/* Bottom Paper Navigation */
+.paper-footer{
+  padding:18px 28px;
+  border-top:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:color-mix(in srgb, var(--paper-2) 30%, transparent);
+}
+.btn-nav{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  letter-spacing:0.06em;
+  padding:9px 18px;
+  border-radius:6px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  transition:all 0.16s var(--ease-out);
+}
+.btn-nav:hover:not(:disabled){
+  border-color:var(--ink);
+  background:var(--paper-2);
+  transform:translateY(-1px);
+}
+.btn-nav:disabled{
+  opacity:0.35;
+  cursor:not-allowed;
+}
+.btn-nav-primary{
+  background:var(--ink);
+  color:var(--paper);
+  border-color:var(--ink);
+  font-weight:600;
+}
+.btn-nav-primary:hover:not(:disabled){
+  background:var(--ink-2);
+  border-color:var(--ink-2);
+}
+.btn-submit-exam{
+  background:var(--accent);
+  color:var(--paper);
+  border-color:var(--accent);
+  font-weight:600;
+}
+.btn-submit-exam:hover{
+  background:var(--accent-deep);
+  border-color:var(--accent-deep);
+}
+
+/* Sidebar: Surveyor's Station Map (Bản Đồ Mốc & Dụng Cụ) */
+.sidebar{
+  display:flex;
+  flex-direction:column;
+  gap:24px;
+  position:sticky;
+  top:84px;
+}
+.panel-box{
+  border:1px solid var(--line);
+  background:var(--paper);
+  border-radius:8px;
+  padding:20px;
+  position:relative;
+}
+.panel-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:14px;
+  border-bottom:1px solid var(--line-soft);
+  padding-bottom:10px;
+}
+.panel-head h3{
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+.panel-head .stat{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  color:var(--accent);
+  font-weight:600;
+}
+
+/* Topographic Waypoint Track Grid */
+.waypoint-grid{
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:8px;
+}
+.wp-btn{
+  height:40px;
+  border-radius:6px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  font-family:var(--font-mono);
+  font-size:13px;
+  font-weight:500;
+  color:var(--ink-2);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  transition:all 0.16s var(--ease-out);
+}
+.wp-btn:hover{
+  border-color:var(--ink);
+  color:var(--ink);
+  background:var(--paper-2);
+}
+.wp-btn.current{
+  border:2px solid var(--ink);
+  color:var(--ink);
+  font-weight:700;
+  background:var(--paper-2);
+}
+[data-theme="dark"] .wp-btn.current{
+  border-color:var(--ink);
+}
+.wp-btn.answered{
+  background:color-mix(in srgb, var(--pine) 14%, var(--paper));
+  border-color:color-mix(in srgb, var(--pine) 40%, transparent);
+  color:var(--pine);
+  font-weight:600;
+}
+.wp-btn.flagged::after{
+  content:"";
+  position:absolute;
+  top:4px;
+  right:4px;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent);
+}
+.wp-btn.current.flagged::after{
+  box-shadow:0 0 0 2px var(--paper);
+}
+
+.wp-legend{
+  margin-top:14px;
+  padding-top:10px;
+  border-top:1px solid var(--line-soft);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  color:var(--ink-3);
+  letter-spacing:0.06em;
+}
+.legend-item{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.legend-dot{
+  width:8px;
+  height:8px;
+  border-radius:2px;
+  border:1px solid var(--line);
+}
+.legend-dot.c-cur{border:2px solid var(--ink);background:var(--paper-2)}
+.legend-dot.c-ans{background:color-mix(in srgb, var(--pine) 30%, transparent);border-color:var(--pine)}
+.legend-dot.c-flg{background:var(--accent);border-color:var(--accent);border-radius:50%}
+
+/* Quick Field Formula Reference Panel */
+.formula-trigger-btn{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:var(--paper-2);
+  color:var(--ink);
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:0.08em;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  cursor:pointer;
+  transition:all 0.16s var(--ease-out);
+}
+.formula-trigger-btn:hover{
+  border-color:var(--ink);
+  background:var(--paper-3);
+}
+
+/* Drawer Modal / Sổ Tra Cứu Công Thức */
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(18,22,31,0.65);
+  backdrop-filter:blur(6px);
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.24s var(--ease-out);
+}
+.modal-overlay.open{
+  opacity:1;
+  pointer-events:auto;
+}
+.modal-window{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:8px;
+  width:100%;
+  max-width:560px;
+  box-shadow:0 16px 36px -12px rgba(0,0,0,0.3);
+  overflow:hidden;
+  transform:translateY(12px);
+  transition:transform 0.24s var(--ease-out);
+}
+.modal-overlay.open .modal-window{
+  transform:none;
+}
+.modal-head{
+  padding:18px 24px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:var(--paper-2);
+}
+.modal-head h2{
+  font-family:var(--font-display);
+  font-size:18px;
+  font-weight:700;
+  letter-spacing:-0.01em;
+}
+.modal-close{
+  background:transparent;
+  border:none;
+  font-family:var(--font-mono);
+  font-size:18px;
+  color:var(--ink-3);
+  cursor:pointer;
+  padding:4px 8px;
+}
+.modal-close:hover{color:var(--ink)}
+.modal-content{
+  padding:24px;
+  max-height:65vh;
+  overflow-y:auto;
+}
+
+/* Tab selector in formula modal */
+.formula-tabs{
+  display:flex;
+  gap:8px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:10px;
+  margin-bottom:16px;
+  overflow-x:auto;
+}
+.f-tab{
+  padding:6px 12px;
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  letter-spacing:0.06em;
+  border-radius:4px;
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--ink-2);
+  cursor:pointer;
+  white-space:nowrap;
+}
+.f-tab:hover{color:var(--ink)}
+.f-tab.active{
+  border-color:var(--ink);
+  background:var(--paper-2);
+  color:var(--ink);
+  font-weight:600;
+}
+.f-list{display:flex;flex-direction:column;gap:12px}
+.f-item{
+  padding:12px 14px;
+  border:1px solid var(--line-soft);
+  border-radius:6px;
+  background:var(--paper-2);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+}
+.f-item .f-name{
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:0.08em;
+  color:var(--ink-3);
+  width:140px;
+  flex-shrink:0;
+}
+.f-item .f-math{
+  font-size:14.5px;
+  color:var(--ink);
+}
+
+/* Submit Confirmation Modal (Biên Bản Chốt Bài) */
+.submit-summary{
+  margin:18px 0;
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:var(--paper-2);
+  padding:16px;
+}
+.submit-row{
+  display:flex;
+  justify-content:space-between;
+  font-family:var(--font-mono);
+  font-size:13px;
+  padding:6px 0;
+  border-bottom:1px dashed var(--line-soft);
+}
+.submit-row:last-child{border-bottom:none}
+.submit-row .val{font-weight:600;color:var(--ink)}
+.submit-row .val.warn{color:var(--accent)}
+
+.modal-actions{
+  padding:16px 24px;
+  border-top:1px solid var(--line);
+  background:var(--paper-2);
+  display:flex;
+  justify-content:flex-end;
+  gap:12px;
+}
+
+/* Keyboard hint bottom ribbon */
+.kb-ribbon{
+  max-width:1200px;
+  margin:0 auto;
+  padding:0 24px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  color:var(--ink-3);
+}
+.kb-keys{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.kbd{
+  padding:2px 6px;
+  border:1px solid var(--line);
+  border-radius:3px;
+  background:var(--paper-2);
+  color:var(--ink);
+  font-weight:600;
+  font-size:10.5px;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:none}
+}
+
+/* Responsive */
+@media(max-width:960px){
+  .workspace-grid{
+    grid-template-columns:1fr;
+    gap:24px;
+    padding:20px 16px 48px;
+  }
+  .sidebar{
+    position:static;
+  }
+  .exam-bar-inner{
+    padding:0 16px;
+    gap:12px;
+  }
+  .brand span.badge{display:none}
+  .exam-sub-meta{display:none}
+}
+@media(max-width:600px){
+  .paper-body{padding:20px 16px}
+  .paper-header,.paper-footer{padding:14px 16px}
+  .question-prompt{font-size:16.5px}
+  .chronometer{padding:4px 8px}
+  .chrono-label{display:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgField"></canvas>
+
+<div class="app-shell">
+  <!-- Top Bar: Exam Station Head -->
+  <header class="exam-bar">
+    <div class="exam-bar-inner">
+      <div class="brand">
+        <a href="index.html" style="display:flex;align-items:center;gap:6px">
+          <span>VANTAGE</span>
+          <span class="flag">▲</span>
+        </a>
+        <span class="badge">SƯỜN LÀM BÀI</span>
+      </div>
+
+      <div class="exam-meta-center">
+        <div class="exam-title-text" id="examHeaderTitle">Ôn thi vào lớp 10 — Giữa kỳ 1 Toán 9 (Đề 1)</div>
+        <div class="exam-sub-meta">
+          <span>NGUỒN: LOIGIAIHAY.COM</span>
+          <span class="dot">·</span>
+          <span>12 TRẠM</span>
+          <span class="dot">·</span>
+          <span id="examModeLabel">CHẾ ĐỘ THI THẬT</span>
+        </div>
+      </div>
+
+      <div class="exam-controls-right">
+        <div class="chronometer" title="Thời gian còn lại">
+          <div class="chrono-gauge" id="chronoGauge"></div>
+          <div>
+            <div class="chrono-time" id="timeRemainingDisplay">24:00</div>
+          </div>
+          <div class="chrono-label">CÒN LẠI</div>
+        </div>
+
+        <button class="btn-icon" id="themeToggle" title="Đổi giao diện sáng/tối" aria-label="Theme toggle">
+          <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="display:none"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+      </div>
+    </div>
+    <!-- Sub progress strip -->
+    <div class="altitude-strip">
+      <div class="altitude-fill" id="altitudeFill"></div>
+    </div>
+  </header>
+
+  <!-- Main Exam Workspace -->
+  <main class="workspace-grid">
+    <!-- Left: Question Paper Sheet -->
+    <article class="question-paper" id="mainQuestionPaper">
+      <div class="paper-header">
+        <div class="station-tag">
+          <span class="station-num" id="stationLabel">TRẠM 01/12</span>
+          <span class="station-topic" id="stationTopic">CĂN BẬC HAI & ĐẠI SỐ</span>
+          <span class="station-difficulty" id="stationDiff">MỨC: VỪA</span>
+        </div>
+
+        <div class="station-actions">
+          <button class="btn-flag" id="flagBtn" onclick="toggleFlagCurrentQuestion()">
+            <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
+            <span id="flagText">CẮM CỜ MỐC NÀY</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="paper-body">
+        <div class="question-prompt" id="questionPromptContainer">
+          <!-- Rendered KaTeX Question Prompt -->
+        </div>
+
+        <div class="choices-list" id="choicesListContainer">
+          <!-- Rendered 4 Option Cards -->
+        </div>
+
+        <!-- Practice Mode instant breakdown container (hidden during timed test) -->
+        <div id="practiceFeedbackBox" style="display:none;"></div>
+      </div>
+
+      <div class="paper-footer">
+        <button class="btn-nav" id="prevBtn" onclick="goToPrevQuestion()">
+          ← TRẠM TRƯỚC
+        </button>
+
+        <div style="display:flex;gap:12px;">
+          <button class="btn-nav btn-nav-primary" id="nextBtn" onclick="goToNextQuestion()">
+            TRẠM KẾ TIẾP →
+          </button>
+          <button class="btn-nav btn-submit-exam" id="finishExamBtn" onclick="openSubmitModal()">
+            GẤP BÀI THI ▲
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Right Sidebar: Station Map & Quick Reference -->
+    <aside class="sidebar">
+      <!-- Waypoint Map -->
+      <div class="panel-box">
+        <div class="panel-head">
+          <h3>BẢN ĐỒ CỘT MỐC</h3>
+          <span class="stat" id="completionCounter">0/12 ĐÃ CẮM</span>
+        </div>
+
+        <div class="waypoint-grid" id="waypointGrid">
+          <!-- 12 station buttons generated dynamically -->
+        </div>
+
+        <div class="wp-legend">
+          <div class="legend-item"><span class="legend-dot c-cur"></span> Đang đứng</div>
+          <div class="legend-item"><span class="legend-dot c-ans"></span> Đã cắm mốc</div>
+          <div class="legend-item"><span class="legend-dot c-flg"></span> Cờ cần xem</div>
+          <div class="legend-item"><span class="legend-dot"></span> Chưa tới</div>
+        </div>
+      </div>
+
+      <!-- Quick Formula Pocket Reference -->
+      <div class="panel-box">
+        <div class="panel-head">
+          <h3>DỤNG CỤ TRẮC ĐỊA</h3>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-3)">TRA NHANH</span>
+        </div>
+        <button class="formula-trigger-btn" onclick="openFormulaModal()">
+          <span>SỔ CÔNG THỨC TOÁN 9</span>
+          <span style="font-family:var(--font-mono);color:var(--accent)">MỞ SỔ →</span>
+        </button>
+        <div style="margin-top:12px;font-size:12px;color:var(--ink-3);line-height:1.5">
+          Gồm hằng đẳng thức, bảng biến đổi căn bậc hai, lượng giác góc nhọn và hệ thức lượng.
+        </div>
+      </div>
+
+      <!-- Mode Switch Switcher for Demo testing -->
+      <div class="panel-box" style="background:var(--paper-2);border-style:dashed;">
+        <div class="panel-head" style="margin-bottom:8px;">
+          <h3 style="color:var(--ink-2)">THỬ NGHIỆM CHẾ ĐỘ</h3>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-nav" id="modeTimedBtn" onclick="setExamMode('timed')" style="flex:1;padding:6px;font-size:11px;background:var(--ink);color:var(--paper)">THI THẬT</button>
+          <button class="btn-nav" id="modePracticeBtn" onclick="setExamMode('practice')" style="flex:1;padding:6px;font-size:11px;">LUYỆN TẬP</button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Keyboard ribbon hint -->
+  <div class="kb-ribbon">
+    <div class="kb-keys">
+      <span><span class="kbd">A</span> <span class="kbd">B</span> <span class="kbd">C</span> <span class="kbd">D</span> Chọn đáp án</span>
+      <span><span class="kbd">←</span> <span class="kbd">→</span> Chuyển trạm</span>
+      <span><span class="kbd">F</span> Cắm cờ</span>
+      <span><span class="kbd">Esc</span> Đóng cửa sổ</span>
+    </div>
+    <div style="font-family:var(--font-mono);font-size:11px">VANTAGE · GIẤY — MỰC — CỜ ĐỈNH</div>
+  </div>
+</div>
+
+<!-- Modal 1: Formula Pocket Book (Sổ tra cứu công thức) -->
+<div class="modal-overlay" id="formulaModal" onclick="closeModalOnOverlay(event, 'formulaModal')">
+  <div class="modal-window">
+    <div class="modal-head">
+      <h2>Sổ Tra Cứu Công Thức Trắc Địa</h2>
+      <button class="modal-close" onclick="closeFormulaModal()">✕</button>
+    </div>
+    <div class="modal-content">
+      <div class="formula-tabs">
+        <button class="f-tab active" onclick="switchFormulaTab(0)">Căn Bậc Hai</button>
+        <button class="f-tab" onclick="switchFormulaTab(1)">Hằng Đẳng Thức</button>
+        <button class="f-tab" onclick="switchFormulaTab(2)">Hệ Thức Lượng</button>
+        <button class="f-tab" onclick="switchFormulaTab(3)">Lượng Giác</button>
+      </div>
+      <div class="f-list" id="formulaListContainer">
+        <!-- Rendered formulas -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2: Submit Confirmation Dialog (Biên bản nộp bài) -->
+<div class="modal-overlay" id="submitModal" onclick="closeModalOnOverlay(event, 'submitModal')">
+  <div class="modal-window">
+    <div class="modal-head">
+      <h2>Xác Nhận Gấp Bài Thi & Cắm Đích</h2>
+      <button class="modal-close" onclick="closeSubmitModal()">✕</button>
+    </div>
+    <div class="modal-content">
+      <p style="font-size:15px;color:var(--ink);margin-bottom:12px">
+        Bạn chuẩn bị hoàn tất bài thi và chuyển sang <strong>Biên bản mốc (Trang kết quả)</strong> để đối chiếu từng bước giải.
+      </p>
+
+      <div class="submit-summary">
+        <div class="submit-row">
+          <span>TỔNG SỐ TRẠM:</span>
+          <span class="val">12 câu hỏi</span>
+        </div>
+        <div class="submit-row">
+          <span>ĐÃ CẮM MỐC:</span>
+          <span class="val" id="sumAnswered">0 / 12</span>
+        </div>
+        <div class="submit-row">
+          <span>CHƯA TRẢ LỜI:</span>
+          <span class="val warn" id="sumUnanswered">12 câu</span>
+        </div>
+        <div class="submit-row">
+          <span>CỜ CẦN XEM LẠI:</span>
+          <span class="val" id="sumFlagged" style="color:var(--accent)">0 câu</span>
+        </div>
+        <div class="submit-row">
+          <span>THỜI GIAN ĐÃ DÙNG:</span>
+          <span class="val" id="sumTimeUsed">00:45</span>
+        </div>
+      </div>
+
+      <div id="unansweredWarningText" style="font-size:13px;color:var(--accent);font-family:var(--font-mono);display:none">
+        ▲ CHÚ Ý: Bạn vẫn còn câu chưa trả lời. Bạn có chắc chắn muốn nộp bài ngay?
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-nav" onclick="closeSubmitModal()">LÀM TIẾP</button>
+      <button class="btn-nav btn-submit-exam" onclick="confirmSubmitExam()">NỘP BÀI & XEM KẾT QUẢ ▲</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+   VANTAGE EXAM DATA & ENGINE · PROTOTYPE 09-LAM-BAI-THI
+   ========================================================================== */
+
+const EXAM_QUESTIONS = [
+  {
+    id: "q_01",
+    topic: "CĂN BẬC HAI",
+    difficulty: "Nhẹ",
+    question: "Điều kiện xác định của biểu thức $\\sqrt{2x - 6}$ là:",
+    choices: [
+      "$x \\ge 3$",
+      "$x > 3$",
+      "$x \\le 3$",
+      "$x < 3$"
+    ],
+    correct: 0,
+    explanation: "Biểu thức $\\sqrt{A}$ xác định khi và chỉ khi $A \\ge 0$. Do đó $2x - 6 \\ge 0 \\Leftrightarrow 2x \\ge 6 \\Leftrightarrow x \\ge 3$.",
+    steps: [
+      { exp: "Điều kiện biểu thức dưới dấu căn không âm", math: "2x - 6 \\ge 0" },
+      { exp: "Chuyển vế và chia cả hai vế cho 2 (dương)", math: "2x \\ge 6 \\implies x \\ge 3" }
+    ]
+  },
+  {
+    id: "q_02",
+    topic: "RÚT GỌN BIỂU THỨC",
+    difficulty: "Vừa",
+    question: "Giá trị của biểu thức $P = \\sqrt{(\\sqrt{5} - 3)^2} + \\sqrt{5}$ bằng:",
+    choices: [
+      "$3$",
+      "$2\\sqrt{5} - 3$",
+      "$-3$",
+      "$3 - 2\\sqrt{5}$"
+    ],
+    correct: 0,
+    explanation: "Ta có $\\sqrt{(\\sqrt{5} - 3)^2} = |\\sqrt{5} - 3|$. Vì $\\sqrt{5} < 3$ nên $|\\sqrt{5} - 3| = 3 - \\sqrt{5}$. Suy ra $P = 3 - \\sqrt{5} + \\sqrt{5} = 3$.",
+    steps: [
+      { exp: "Áp dụng hằng đẳng thức căn bậc hai", math: "\\sqrt{A^2} = |A|" },
+      { exp: "Phá dấu giá trị tuyệt đối do $\\sqrt{5} < 3$", math: "|\\sqrt{5}-3| = 3 - \\sqrt{5}" },
+      { exp: "Cộng với số hạng còn lại", math: "P = 3 - \\sqrt{5} + \\sqrt{5} = 3" }
+    ]
+  },
+  {
+    id: "q_03",
+    topic: "HỆ THỨC LƯỢNG TAM GIÁC VUÔNG",
+    difficulty: "Vừa",
+    question: "Cho $\\Delta ABC$ vuông tại $A$, đường cao $AH$. Biết $BH = 4\\text{ cm}$, $CH = 9\\text{ cm}$. Độ dài đường cao $AH$ bằng:",
+    choices: [
+      "$6\\text{ cm}$",
+      "$13\\text{ cm}$",
+      "$\\sqrt{13}\\text{ cm}$",
+      "$36\\text{ cm}$"
+    ],
+    correct: 0,
+    explanation: "Trong tam giác vuông, bình phương đường cao ứng với cạnh huyền bằng tích hai hình chiếu của hai cạnh góc vuông trên cạnh huyền: $AH^2 = BH \\cdot CH = 4 \\cdot 9 = 36 \\implies AH = 6\\text{ cm}$.",
+    steps: [
+      { exp: "Áp dụng hệ thức lượng $AH^2 = BH \\cdot CH$", math: "AH^2 = 4 \\cdot 9 = 36" },
+      { exp: "Khai căn tìm độ dài đường cao", math: "AH = \\sqrt{36} = 6\\text{ cm}" }
+    ]
+  },
+  {
+    id: "q_04",
+    topic: "TỈ SỐ LƯỢNG GIÁC",
+    difficulty: "Nhẹ",
+    question: "Cho góc nhọn $\\alpha$. Khẳng định nào sau đây là **sai**?",
+    choices: [
+      "$\\sin^2 \\alpha + \\cos^2 \\alpha = 1$",
+      "$\\tan \\alpha = \\dfrac{\\sin \\alpha}{\\cos \\alpha}$",
+      "$\\cot \\alpha = \\dfrac{\\cos \\alpha}{\\sin \\alpha}$",
+      "$\\tan \\alpha \\cdot \\cot \\alpha = -1$"
+    ],
+    correct: 3,
+    explanation: "Ta luôn có $\\tan \\alpha \\cdot \\cot \\alpha = 1$ với mọi góc nhọn $\\alpha$. Khẳng định $\\tan \\alpha \\cdot \\cot \\alpha = -1$ là sai.",
+    steps: [
+      { exp: "Theo định nghĩa tỉ số lượng giác", math: "\\tan \\alpha = \\frac{\\sin \\alpha}{\\cos \\alpha}, \\quad \\cot \\alpha = \\frac{\\cos \\alpha}{\\sin \\alpha}" },
+      { exp: "Nhân hai tỉ số", math: "\\tan \\alpha \\cdot \\cot \\alpha = 1" }
+    ]
+  },
+  {
+    id: "q_05",
+    topic: "TRỤC CĂN THỨC",
+    difficulty: "Vừa",
+    question: "Rút gọn biểu thức $M = \\dfrac{2}{\\sqrt{3} - 1} - \\sqrt{3}$ ta được kết quả là:",
+    choices: [
+      "$1$",
+      "$-1$",
+      "$2\\sqrt{3} + 1$",
+      "$\\sqrt{3} + 1$"
+    ],
+    correct: 0,
+    explanation: "Trục căn thức ở mẫu: $\\dfrac{2}{\\sqrt{3}-1} = \\dfrac{2(\\sqrt{3}+1)}{3 - 1} = \\sqrt{3} + 1$. Do đó $M = (\\sqrt{3}+1) - \\sqrt{3} = 1$.",
+    steps: [
+      { exp: "Nhân cả tử và mẫu với lượng liên hợp $(\\sqrt{3}+1)$", math: "\\frac{2(\\sqrt{3}+1)}{(\\sqrt{3}-1)(\\sqrt{3}+1)} = \\frac{2(\\sqrt{3}+1)}{2} = \\sqrt{3}+1" },
+      { exp: "Trừ đi $\\sqrt{3}$", math: "M = \\sqrt{3}+1 - \\sqrt{3} = 1" }
+    ]
+  },
+  {
+    id: "q_06",
+    topic: "HÀM SỐ BẬC NHẤT",
+    difficulty: "Nhẹ",
+    question: "Hàm số nào dưới đây là hàm số bậc nhất đồng biến trên $\\mathbb{R}$?",
+    choices: [
+      "$y = (2 - \\sqrt{5})x + 3$",
+      "$y = (\\sqrt{3} - 1)x - 2$",
+      "$y = -3x + 1$",
+      "$y = 5 - 2x$"
+    ],
+    correct: 1,
+    explanation: "Hàm số bậc nhất $y = ax + b$ đồng biến trên $\\mathbb{R}$ khi và chỉ khi hệ số $a > 0$. Ta thấy $\\sqrt{3} - 1 > 0$ (vì $\\sqrt{3} \\approx 1.732 > 1$).",
+    steps: [
+      { exp: "Xét điều kiện đồng biến: hệ số góc $a > 0$", math: "a = \\sqrt{3} - 1 > 0 \\implies y \\text{ đồng biến}" }
+    ]
+  },
+  {
+    id: "q_07",
+    topic: "GIẢI PHƯƠNG TRÌNH VÔ TỶ",
+    difficulty: "Dốc",
+    question: "Số nghiệm của phương trình $\\sqrt{x^2 - 4x + 4} = 3$ là:",
+    choices: [
+      "$2$",
+      "$1$",
+      "$0$",
+      "Vô số"
+    ],
+    correct: 0,
+    explanation: "Ta có $\\sqrt{x^2 - 4x + 4} = \\sqrt{(x-2)^2} = |x - 2| = 3 \\Leftrightarrow x - 2 = 3$ hoặc $x - 2 = -3 \\Leftrightarrow x = 5$ hoặc $x = -1$. Phương trình có đúng 2 nghiệm phân biệt.",
+    steps: [
+      { exp: "Đưa biểu thức dưới căn về bình phương", math: "\\sqrt{(x-2)^2} = 3" },
+      { exp: "Áp dụng định nghĩa giá trị tuyệt đối", math: "|x-2| = 3 \\implies x-2 = \\pm 3" },
+      { exp: "Giải tìm hai nghiệm phân biệt", math: "x_1 = 5, \\quad x_2 = -1" }
+    ]
+  },
+  {
+    id: "q_08",
+    topic: "HỆ THỨC LƯỢNG NÂNG CAO",
+    difficulty: "Dốc",
+    question: "Cho $\\Delta ABC$ vuông tại $A$, đường cao $AH$. Biết $AB = 6\\text{ cm}$, $AC = 8\\text{ cm}$. Bán kính đường tròn ngoại tiếp $\\Delta ABC$ bằng:",
+    choices: [
+      "$5\\text{ cm}$",
+      "$10\\text{ cm}$",
+      "$4.8\\text{ cm}$",
+      "$2.4\\text{ cm}$"
+    ],
+    correct: 0,
+    explanation: "Theo định lý Pytago: $BC = \\sqrt{AB^2 + AC^2} = \\sqrt{36 + 64} = 10\\text{ cm}$. Tâm đường tròn ngoại tiếp tam giác vuông là trung điểm cạnh huyền, nên $R = \\dfrac{BC}{2} = 5\\text{ cm}$.",
+    steps: [
+      { exp: "Tính cạnh huyền $BC$ theo Pytago", math: "BC = \\sqrt{6^2 + 8^2} = 10\\text{ cm}" },
+      { exp: "Bán kính ngoại tiếp bằng nửa cạnh huyền", math: "R = \\frac{BC}{2} = 5\\text{ cm}" }
+    ]
+  },
+  {
+    id: "q_09",
+    topic: "CỰC TRỊ ĐẠI SỐ",
+    difficulty: "Dốc",
+    question: "Giá trị nhỏ nhất của biểu thức $A = x - 4\\sqrt{x} + 7$ (với $x \\ge 0$) bằng:",
+    choices: [
+      "$3$",
+      "$7$",
+      "$4$",
+      "$-3$"
+    ],
+    correct: 0,
+    explanation: "Biến đổi: $A = (\\sqrt{x})^2 - 2 \\cdot 2\\sqrt{x} + 4 + 3 = (\\sqrt{x} - 2)^2 + 3 \\ge 3$ với mọi $x \\ge 0$. Dấu đẳng thức xảy ra khi $\\sqrt{x} = 2 \\Leftrightarrow x = 4$. Vậy $\\min A = 3$.",
+    steps: [
+      { exp: "Thêm bớt tạo bình phương đủ", math: "A = (\\sqrt{x}-2)^2 + 3" },
+      { exp: "Đánh giá bất đẳng thức", math: "(\\sqrt{x}-2)^2 \\ge 0 \\implies A \\ge 3" },
+      { exp: "Điểm rơi", math: "x = 4" }
+    ]
+  },
+  {
+    id: "q_10",
+    topic: "RÚT GỌN TỔNG HỢP",
+    difficulty: "Dốc",
+    question: "Với $x > 0$ và $x \\ne 4$, biểu thức $Q = \\left(\\dfrac{\\sqrt{x}}{\\sqrt{x}-2} - \\dfrac{4}{x-2\\sqrt{x}}\\right) : \\dfrac{\\sqrt{x}+2}{\\sqrt{x}}$ rút gọn thành:",
+    choices: [
+      "$1$",
+      "$\\dfrac{\\sqrt{x}}{\\sqrt{x}-2}$",
+      "$\\dfrac{\\sqrt{x}-2}{\\sqrt{x}}$",
+      "$\\dfrac{x+4}{x}$"
+    ],
+    correct: 0,
+    explanation: "Trong ngoặc: quy đồng mẫu chung $\\sqrt{x}(\\sqrt{x}-2)$: $\\dfrac{x - 4}{\\sqrt{x}(\\sqrt{x}-2)} = \\dfrac{(\\sqrt{x}-2)(\\sqrt{x}+2)}{\\sqrt{x}(\\sqrt{x}-2)} = \\dfrac{\\sqrt{x}+2}{\\sqrt{x}}$. Chia cho $\\dfrac{\\sqrt{x}+2}{\\sqrt{x}}$ được kết quả bằng 1.",
+    steps: [
+      { exp: "Quy đồng phân thức trong ngoặc", math: "\\frac{x-4}{\\sqrt{x}(\\sqrt{x}-2)} = \\frac{\\sqrt{x}+2}{\\sqrt{x}}" },
+      { exp: "Thực hiện phép chia", math: "\\frac{\\sqrt{x}+2}{\\sqrt{x}} \\cdot \\frac{\\sqrt{x}}{\\sqrt{x}+2} = 1" }
+    ]
+  },
+  {
+    id: "q_11",
+    topic: "HỆ PHƯƠNG TRÌNH",
+    difficulty: "Vừa",
+    question: "Hệ phương trình $\\begin{cases} 2x - y = 5 \\\\ x + 3y = 6 \\end{cases}$ có nghiệm duy nhất $(x; y)$ là:",
+    choices: [
+      "$(3; 1)$",
+      "$(1; 3)$",
+      "$(2; -1)$",
+      "$(4; 3)$"
+    ],
+    correct: 0,
+    explanation: "Nhân phương trình đầu với 3 rồi cộng với phương trình 2: $6x - 3y + x + 3y = 15 + 6 \\Leftrightarrow 7x = 21 \\Leftrightarrow x = 3$. Thay vào được $y = 2(3) - 5 = 1$. Nghiệm là $(3; 1)$.",
+    steps: [
+      { exp: "Cộng đại số khử $y$", math: "7x = 21 \\implies x = 3" },
+      { exp: "Tìm $y$", math: "y = 2(3) - 5 = 1" }
+    ]
+  },
+  {
+    id: "q_12",
+    topic: "BẤT ĐẲNG THỨC HÌNH HỌC",
+    difficulty: "Dốc",
+    question: "Cho góc nhọn $\\alpha$. Biểu thức $T = \\sin^4 \\alpha + \\cos^4 \\alpha + 2\\sin^2 \\alpha \\cos^2 \\alpha$ có giá trị bằng:",
+    choices: [
+      "$1$",
+      "$2$",
+      "$\\sin 2\\alpha$",
+      "$\\cos 2\\alpha$"
+    ],
+    correct: 0,
+    explanation: "Ta có $T = (\\sin^2 \\alpha + \\cos^2 \\alpha)^2$. Vì $\\sin^2 \\alpha + \\cos^2 \\alpha = 1$ nên $T = 1^2 = 1$.",
+    steps: [
+      { exp: "Hằng đẳng thức $(a+b)^2 = a^2 + 2ab + b^2$", math: "T = (\\sin^2\\alpha + \\cos^2\\alpha)^2" },
+      { exp: "Áp dụng hệ thức cơ bản $\\sin^2\\alpha + \\cos^2\\alpha = 1$", math: "T = 1^2 = 1" }
+    ]
+  }
+];
+
+const FORMULA_CATEGORIES = [
+  {
+    name: "Căn Bậc Hai",
+    items: [
+      { name: "Hằng đẳng thức", math: "\\sqrt{A^2} = |A|" },
+      { name: "Khai phương tích", math: "\\sqrt{A \\cdot B} = \\sqrt{A} \\cdot \\sqrt{B} \\quad (A,B \\ge 0)" },
+      { name: "Khai phương thương", math: "\\sqrt{\\frac{A}{B}} = \\frac{\\sqrt{A}}{\\sqrt{B}} \\quad (A \\ge 0, B > 0)" },
+      { name: "Đưa ra ngoài dấu căn", math: "\\sqrt{A^2 B} = |A|\\sqrt{B} \\quad (B \\ge 0)" },
+      { name: "Trục căn thức ở mẫu", math: "\\frac{C}{\\sqrt{A} \\pm \\sqrt{B}} = \\frac{C(\\sqrt{A} \\mp \\sqrt{B})}{A - B}" }
+    ]
+  },
+  {
+    name: "Hằng Đẳng Thức",
+    items: [
+      { name: "Bình phương tổng", math: "(a+b)^2 = a^2 + 2ab + b^2" },
+      { name: "Bình phương hiệu", math: "(a-b)^2 = a^2 - 2ab + b^2" },
+      { name: "Hiệu hai bình phương", math: "a^2 - b^2 = (a-b)(a+b)" },
+      { name: "Lập phương tổng", math: "(a+b)^3 = a^3 + 3a^2b + 3ab^2 + b^3" },
+      { name: "Tổng hai lập phương", math: "a^3 + b^3 = (a+b)(a^2 - ab + b^2)" }
+    ]
+  },
+  {
+    name: "Hệ Thức Lượng",
+    items: [
+      { name: "Định lý Pytago", math: "a^2 = b^2 + c^2" },
+      { name: "Bình phương cạnh góc vuông", math: "b^2 = a \\cdot b', \\quad c^2 = a \\cdot c'" },
+      { name: "Bình phương đường cao", math: "h^2 = b' \\cdot c'" },
+      { name: "Tích cạnh và đường cao", math: "a \\cdot h = b \\cdot c" },
+      { name: "Nghịch đảo đường cao", math: "\\frac{1}{h^2} = \\frac{1}{b^2} + \\frac{1}{c^2}" }
+    ]
+  },
+  {
+    name: "Lượng Giác",
+    items: [
+      { name: "Định nghĩa sin", math: "\\sin \\alpha = \\frac{\\text{đối}}{\\text{huyền}}, \\quad \\cos \\alpha = \\frac{\\text{kề}}{\\text{huyền}}" },
+      { name: "Định nghĩa tan / cot", math: "\\tan \\alpha = \\frac{\\text{đối}}{\\text{kề}}, \\quad \\cot \\alpha = \\frac{\\text{kề}}{\\text{đối}}" },
+      { name: "Hệ thức cơ bản", math: "\\sin^2\\alpha + \\cos^2\\alpha = 1" },
+      { name: "Tích tan và cot", math: "\\tan\\alpha \\cdot \\cot\\alpha = 1" },
+      { name: "Liên hệ tan và cos", math: "1 + \\tan^2\\alpha = \\frac{1}{\\cos^2\\alpha}" }
+    ]
+  }
+];
+
+/* Application State */
+let currentIndex = 0;
+let userAnswers = {};      // questionId -> choiceIndex
+let flaggedQuestions = {}; // questionId -> boolean
+let examMode = 'timed';    // 'timed' or 'practice'
+let totalSeconds = 24 * 60;
+let secondsRemaining = 24 * 60;
+let timerInterval = null;
+let activeFormulaTab = 0;
+
+/* Initialize */
+document.addEventListener("DOMContentLoaded", () => {
+  initAmbientCanvas();
+  renderWaypointGrid();
+  loadQuestion(0);
+  startTimer();
+  initKeyShortcuts();
+  initThemeToggle();
+  switchFormulaTab(0);
+});
+
+function initThemeToggle() {
+  const btn = document.getElementById("themeToggle");
+  btn.addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme") || "light";
+    const next = cur === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("vantage-theme", next); } catch(e){}
+    if (window.VTG_REFRESH_COLORS) window.VTG_REFRESH_COLORS();
+  });
+}
+
+/* Question Loader */
+function loadQuestion(index) {
+  if (index < 0 || index >= EXAM_QUESTIONS.length) return;
+  currentIndex = index;
+  const q = EXAM_QUESTIONS[index];
+
+  // Update Header Labels
+  document.getElementById("stationLabel").textContent = `TRẠM ${String(index + 1).padStart(2, '0')}/${EXAM_QUESTIONS.length}`;
+  document.getElementById("stationTopic").textContent = q.topic;
+  document.getElementById("stationDiff").textContent = `MỨC: ${q.difficulty.toUpperCase()}`;
+
+  // Update Flag state
+  const isFlagged = !!flaggedQuestions[q.id];
+  const flagBtn = document.getElementById("flagBtn");
+  const flagText = document.getElementById("flagText");
+  if (isFlagged) {
+    flagBtn.classList.add("active");
+    flagText.textContent = "ĐÃ CẮM CỜ MỐC NÀY";
+  } else {
+    flagBtn.classList.remove("active");
+    flagText.textContent = "CẮM CỜ MỐC NÀY";
+  }
+
+  // Render Prompt with KaTeX
+  const promptEl = document.getElementById("questionPromptContainer");
+  promptEl.innerHTML = q.question;
+  renderMath(promptEl);
+
+  // Render Choices
+  const choicesEl = document.getElementById("choicesListContainer");
+  choicesEl.innerHTML = "";
+  const selectedChoice = userAnswers[q.id];
+
+  const letters = ["A", "B", "C", "D"];
+  q.choices.forEach((choiceMath, idx) => {
+    const isSelected = selectedChoice === idx;
+    const card = document.createElement("div");
+    card.className = `choice-card ${isSelected ? 'selected' : ''}`;
+    card.onclick = () => selectAnswer(idx);
+
+    card.innerHTML = `
+      <div class="choice-key">${letters[idx]}</div>
+      <div class="choice-text">
+        <span>${choiceMath}</span>
+      </div>
+    `;
+    choicesEl.appendChild(card);
+  });
+  renderMath(choicesEl);
+
+  // Practice Mode feedback
+  renderPracticeFeedback(q);
+
+  // Update Navigation buttons
+  document.getElementById("prevBtn").disabled = (currentIndex === 0);
+  if (currentIndex === EXAM_QUESTIONS.length - 1) {
+    document.getElementById("nextBtn").style.display = "none";
+  } else {
+    document.getElementById("nextBtn").style.display = "inline-flex";
+  }
+
+  // Update Altitude fill
+  const progressPercent = ((currentIndex + 1) / EXAM_QUESTIONS.length) * 100;
+  document.getElementById("altitudeFill").style.width = `${progressPercent}%`;
+
+  // Update Waypoint Grid
+  updateWaypointGrid();
+}
+
+function selectAnswer(choiceIdx) {
+  const q = EXAM_QUESTIONS[currentIndex];
+  userAnswers[q.id] = choiceIdx;
+
+  // Re-render choices selection
+  const choicesEl = document.getElementById("choicesListContainer");
+  const cards = choicesEl.querySelectorAll(".choice-card");
+  cards.forEach((card, idx) => {
+    if (idx === choiceIdx) {
+      card.classList.add("selected");
+    } else {
+      card.classList.remove("selected");
+    }
+  });
+
+  // Re-render practice feedback if in practice mode
+  if (examMode === 'practice') {
+    renderPracticeFeedback(q);
+  }
+
+  updateWaypointGrid();
+  updateCompletionCount();
+}
+
+function renderPracticeFeedback(q) {
+  const fbBox = document.getElementById("practiceFeedbackBox");
+  if (examMode !== 'practice' || userAnswers[q.id] === undefined) {
+    fbBox.style.display = "none";
+    return;
+  }
+
+  const chosen = userAnswers[q.id];
+  const isCorrect = (chosen === q.correct);
+  fbBox.className = `practice-feedback ${isCorrect ? 'correct' : 'wrong'}`;
+  fbBox.style.display = "block";
+
+  const letters = ["A", "B", "C", "D"];
+  let html = `
+    <div class="feedback-head">
+      <span>${isCorrect ? '✓ ĐẠT MỐC CHUẨN XÁC' : '✕ TRẠM VẤP — CẦN ĐỐI CHIẾU'}</span>
+    </div>
+    <div style="font-size:14.5px;color:var(--ink);margin-bottom:10px">
+      ${isCorrect ? 'Bạn đã chọn chính xác phương án trắc lượng.' : `Phương án chuẩn là <strong>${letters[q.correct]}</strong>.`}
+    </div>
+    <div style="font-size:13.5px;color:var(--ink-2);line-height:1.6">
+      ${q.explanation}
+    </div>
+  `;
+
+  if (q.steps && q.steps.length > 0) {
+    html += `
+      <div class="step-by-step-box">
+        <div class="step-title">
+          <span>▲ NHỊP LEO — SOI TỪNG BƯỚC</span>
+        </div>
+        ${q.steps.map(s => `
+          <div class="step-item">
+            <div>$${s.math}$</div>
+            <div class="step-exp">${s.exp}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  fbBox.innerHTML = html;
+  renderMath(fbBox);
+}
+
+function toggleFlagCurrentQuestion() {
+  const q = EXAM_QUESTIONS[currentIndex];
+  flaggedQuestions[q.id] = !flaggedQuestions[q.id];
+  const isFlagged = flaggedQuestions[q.id];
+  const flagBtn = document.getElementById("flagBtn");
+  const flagText = document.getElementById("flagText");
+
+  if (isFlagged) {
+    flagBtn.classList.add("active");
+    flagText.textContent = "ĐÃ CẮM CỜ MỐC NÀY";
+  } else {
+    flagBtn.classList.remove("active");
+    flagText.textContent = "CẮM CỜ MỐC NÀY";
+  }
+  updateWaypointGrid();
+}
+
+function goToPrevQuestion() {
+  if (currentIndex > 0) loadQuestion(currentIndex - 1);
+}
+
+function goToNextQuestion() {
+  if (currentIndex < EXAM_QUESTIONS.length - 1) loadQuestion(currentIndex + 1);
+}
+
+function renderWaypointGrid() {
+  const grid = document.getElementById("waypointGrid");
+  grid.innerHTML = "";
+  EXAM_QUESTIONS.forEach((q, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "wp-btn";
+    btn.id = `wpBtn_${idx}`;
+    btn.textContent = String(idx + 1).padStart(2, '0');
+    btn.onclick = () => loadQuestion(idx);
+    grid.appendChild(btn);
+  });
+  updateWaypointGrid();
+}
+
+function updateWaypointGrid() {
+  EXAM_QUESTIONS.forEach((q, idx) => {
+    const btn = document.getElementById(`wpBtn_${idx}`);
+    if (!btn) return;
+    btn.className = "wp-btn";
+    if (idx === currentIndex) btn.classList.add("current");
+    if (userAnswers[q.id] !== undefined) btn.classList.add("answered");
+    if (flaggedQuestions[q.id]) btn.classList.add("flagged");
+  });
+}
+
+function updateCompletionCount() {
+  const answeredCount = Object.keys(userAnswers).length;
+  document.getElementById("completionCounter").textContent = `${answeredCount}/${EXAM_QUESTIONS.length} ĐÃ CẮM`;
+}
+
+/* Chronometer / Timer */
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (secondsRemaining > 0) {
+      secondsRemaining--;
+      renderTimer();
+    } else {
+      clearInterval(timerInterval);
+      openSubmitModal();
+    }
+  }, 1000);
+  renderTimer();
+}
+
+function renderTimer() {
+  const m = Math.floor(secondsRemaining / 60);
+  const s = secondsRemaining % 60;
+  const timeStr = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  const disp = document.getElementById("timeRemainingDisplay");
+  const gauge = document.getElementById("chronoGauge");
+  disp.textContent = timeStr;
+
+  if (secondsRemaining <= 180) { // < 3 mins
+    disp.className = "chrono-time critical";
+    gauge.className = "chrono-gauge critical";
+  } else if (secondsRemaining <= 600) { // < 10 mins
+    disp.className = "chrono-time warning";
+    gauge.className = "chrono-gauge warning";
+  } else {
+    disp.className = "chrono-time";
+    gauge.className = "chrono-gauge";
+  }
+}
+
+/* Exam Mode switch */
+function setExamMode(mode) {
+  examMode = mode;
+  document.getElementById("modeTimedBtn").style.background = (mode === 'timed' ? 'var(--ink)' : 'transparent');
+  document.getElementById("modeTimedBtn").style.color = (mode === 'timed' ? 'var(--paper)' : 'var(--ink)');
+  document.getElementById("modePracticeBtn").style.background = (mode === 'practice' ? 'var(--ink)' : 'transparent');
+  document.getElementById("modePracticeBtn").style.color = (mode === 'practice' ? 'var(--paper)' : 'var(--ink)');
+  document.getElementById("examModeLabel").textContent = (mode === 'timed' ? 'CHẾ ĐỘ THI THẬT' : 'CHẾ ĐỘ ÔN LUYỆN TỪNG CÂU');
+  loadQuestion(currentIndex);
+}
+
+/* Formula Sheet Pocket Modal */
+function openFormulaModal() {
+  document.getElementById("formulaModal").classList.add("open");
+}
+function closeFormulaModal() {
+  document.getElementById("formulaModal").classList.remove("open");
+}
+function switchFormulaTab(tabIdx) {
+  activeFormulaTab = tabIdx;
+  const tabs = document.querySelectorAll(".f-tab");
+  tabs.forEach((t, i) => {
+    if (i === tabIdx) t.classList.add("active");
+    else t.classList.remove("active");
+  });
+
+  const cat = FORMULA_CATEGORIES[tabIdx];
+  const listEl = document.getElementById("formulaListContainer");
+  listEl.innerHTML = cat.items.map(it => `
+    <div class="f-item">
+      <div class="f-name">${it.name}</div>
+      <div class="f-math">$${it.math}$</div>
+    </div>
+  `).join('');
+  renderMath(listEl);
+}
+
+/* Submit Modal */
+function openSubmitModal() {
+  const answeredCount = Object.keys(userAnswers).length;
+  const unansweredCount = EXAM_QUESTIONS.length - answeredCount;
+  const flaggedCount = Object.values(flaggedQuestions).filter(Boolean).length;
+  const usedSeconds = totalSeconds - secondsRemaining;
+  const usedM = Math.floor(usedSeconds / 60);
+  const usedS = usedSeconds % 60;
+
+  document.getElementById("sumAnswered").textContent = `${answeredCount} / ${EXAM_QUESTIONS.length}`;
+  document.getElementById("sumUnanswered").textContent = `${unansweredCount} câu`;
+  document.getElementById("sumFlagged").textContent = `${flaggedCount} câu`;
+  document.getElementById("sumTimeUsed").textContent = `${String(usedM).padStart(2, '0')}:${String(usedS).padStart(2, '0')}`;
+
+  const warnText = document.getElementById("unansweredWarningText");
+  if (unansweredCount > 0) {
+    warnText.style.display = "block";
+  } else {
+    warnText.style.display = "none";
+  }
+
+  document.getElementById("submitModal").classList.add("open");
+}
+function closeSubmitModal() {
+  document.getElementById("submitModal").classList.remove("open");
+}
+function confirmSubmitExam() {
+  // Navigate to results page prototype
+  window.location.href = "ket-qua.html";
+}
+
+function closeModalOnOverlay(e, modalId) {
+  if (e.target.id === modalId) {
+    document.getElementById(modalId).classList.remove("open");
+  }
+}
+
+/* Keyboard Navigation */
+function initKeyShortcuts() {
+  window.addEventListener("keydown", (e) => {
+    // If modal is open, Esc closes it
+    if (e.key === "Escape") {
+      closeFormulaModal();
+      closeSubmitModal();
+      return;
+    }
+    // If modal open, ignore other keys
+    if (document.querySelector(".modal-overlay.open")) return;
+
+    const key = e.key.toUpperCase();
+    if (key === "A") selectAnswer(0);
+    else if (key === "B") selectAnswer(1);
+    else if (key === "C") selectAnswer(2);
+    else if (key === "D") selectAnswer(3);
+    else if (e.key === "ArrowLeft") goToPrevQuestion();
+    else if (e.key === "ArrowRight") goToNextQuestion();
+    else if (key === "F") toggleFlagCurrentQuestion();
+  });
+}
+
+function renderMath(element) {
+  if (window.renderMathInElement) {
+    window.renderMathInElement(element, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false }
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+/* ==========================================================================
+   AMBIENT BACKGROUND FIELD (7 Hill Contours · Design Language v1.4.1)
+   ========================================================================== */
+function initAmbientCanvas() {
+  const canvas = document.getElementById("bgField");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  let width, height;
+
+  function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    draw();
+  }
+  window.addEventListener("resize", resize);
+
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const strokeColor = isDark ? "rgba(237,234,224,0.04)" : "rgba(28,35,51,0.035)";
+
+    ctx.save();
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 1;
+
+    // Draw topographic soft contour rings
+    const centers = [
+      { x: width * 0.9, y: height * 0.15, rMax: 450, count: 8 },
+      { x: width * 0.1, y: height * 0.85, rMax: 500, count: 9 }
+    ];
+
+    centers.forEach(c => {
+      for (let i = 1; i <= c.count; i++) {
+        const r = (c.rMax / c.count) * i;
+        ctx.beginPath();
+        ctx.ellipse(c.x, c.y, r * 1.3, r * 0.8, -Math.PI / 12, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    });
+
+    ctx.restore();
+  }
+
+  window.VTG_REFRESH_COLORS = draw;
+  resize();
+}
+</script>
+</body>
+</html>

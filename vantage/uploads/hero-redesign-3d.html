@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vantage — Vươn tới đỉnh cao · Hero 3D (đồ thị hàm thật · địa hình năng lực)</title>
+<script>
+try{
+  var __t = localStorage.getItem('vantage-theme');
+  if(!__t) __t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', __t);
+}catch(e){ document.documentElement.setAttribute('data-theme','light'); }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* LIGHT — giấy · mực · cờ đỉnh */
+  --paper:#F5F2EA; --paper-2:#ECE8DD;
+  --ink:#1C2333; --ink-2:#4A5164; --ink-3:#8A8FA0;
+  --line:rgba(28,35,51,.14); --line-soft:rgba(28,35,51,.08);
+  --accent:#E4572E; --accent-deep:#B03E1C; --altitude:#2F5D8A; --pine:#33705C;
+  --dot:rgba(28,35,51,.10);
+  --summit-bg:var(--ink);
+  --ink-rgb:28,35,51; --paper-rgb:245,242,234; --accent-rgb:228,87,46; --altitude-rgb:47,93,138;
+  --font-display:'Space Grotesk','Be Vietnam Pro','Segoe UI',system-ui,sans-serif;
+  --font-body:'Be Vietnam Pro','Segoe UI',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+  --ease-out:cubic-bezier(0.22,1,0.36,1);
+}
+[data-theme="dark"]{
+  /* DARK — bản đồ đêm trắc địa */
+  --paper:#12161F; --paper-2:#1A202B;
+  --ink:#EDEAE0; --ink-2:#B9BDC9; --ink-3:#79808F;
+  --line:rgba(237,234,224,.15); --line-soft:rgba(237,234,224,.08);
+  --accent:#F06840; --accent-deep:#E4572E; --altitude:#6B9BD1; --pine:#4FA586;
+  --dot:rgba(237,234,224,.12);
+  --summit-bg:#0B0E13;
+  --ink-rgb:237,234,224; --paper-rgb:18,22,31; --accent-rgb:240,104,64; --altitude-rgb:107,155,209;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:var(--font-body);font-size:16px;line-height:1.65;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  transition:background .35s var(--ease-out),color .35s var(--ease-out);
+}
+::selection{background:var(--accent);color:var(--paper)}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+
+/* Nền động toàn trang — contour trường (ambient), luôn từ viewport */
+#bgField{
+  position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;
+  z-index:0;pointer-events:none;
+}
+.hero,.features,.faq,.summit,footer{position:relative;z-index:1}
+
+/* ============ NAV ============ */
+.nav{
+  position:sticky;top:0;z-index:50;
+  background:color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line-soft);
+}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.logo{font-family:var(--font-display);font-weight:700;letter-spacing:-.01em;font-size:19px;display:flex;align-items:center;gap:8px}
+.logo .flag{color:var(--accent);font-size:13px;transform:translateY(-1px)}
+.nav-links{display:flex;gap:32px;font-size:15px;color:var(--ink-2);margin-left:auto}
+.nav-links a{position:relative;padding:4px 0;transition:color .16s var(--ease-out)}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:var(--accent);transition:width .22s var(--ease-out)}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a:hover::after{width:100%}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-cta{
+  font-family:var(--font-mono);font-size:13px;letter-spacing:.06em;
+  border:1px solid var(--ink);border-radius:6px;padding:8px 16px;background:transparent;color:var(--ink);
+  transition:all .16s var(--ease-out);
+}
+.nav-cta:hover{background:var(--ink);color:var(--paper)}
+.theme-toggle{
+  width:36px;height:36px;border:1px solid var(--line);border-radius:6px;background:transparent;
+  color:var(--ink);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:border-color .16s var(--ease-out), transform .16s var(--ease-out);
+}
+.theme-toggle:hover{border-color:var(--ink);transform:translateY(-1px)}
+.theme-toggle svg{display:none}
+.theme-toggle .i-moon{display:block}
+[data-theme="dark"] .theme-toggle .i-moon{display:none}
+[data-theme="dark"] .theme-toggle .i-sun{display:block}
+@media(max-width:760px){.nav-links{display:none}}
+
+/* ============ HERO ============ */
+.hero{padding:72px 0 0;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;min-height:560px}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;min-height:0;gap:32px}}
+
+.kicker{
+  font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);display:flex;align-items:center;gap:12px;margin-bottom:20px;
+}
+.kicker::before{content:"";width:32px;height:1px;background:var(--accent)}
+
+h1{
+  font-family:var(--font-display);font-weight:700;letter-spacing:-0.02em;
+  font-size:clamp(38px,5.4vw,61px);line-height:1.06;
+}
+h1 .w{display:inline-block;opacity:0;transform:translateY(14px)}
+h1 .em{color:var(--accent);font-style:normal}
+body.in h1 .w{animation:rise .55s var(--ease-out) forwards;animation-delay:calc(var(--i)*70ms)}
+
+.sub{margin-top:20px;font-size:20px;color:var(--ink-2);max-width:46ch;opacity:0;transform:translateY(10px)}
+body.in .sub{animation:rise .55s var(--ease-out) .42s forwards}
+.cta-row{margin-top:32px;display:flex;gap:14px;flex-wrap:wrap;opacity:0;transform:translateY(10px)}
+body.in .cta-row{animation:rise .55s var(--ease-out) .54s forwards}
+.btn{
+  border-radius:6px;padding:14px 26px;font-weight:500;font-size:16px;border:1px solid transparent;
+  transition:transform .16s var(--ease-out),box-shadow .16s var(--ease-out),background .16s var(--ease-out);
+  display:inline-flex;align-items:center;gap:10px;
+}
+.btn .arr{transition:transform .2s var(--ease-out)}
+.btn-primary{background:var(--accent);color:#F5F2EA}
+.btn-primary:hover{background:var(--accent-deep);transform:translateY(-2px);box-shadow:0 10px 24px -14px rgba(176,62,28,.55)}
+.btn-primary:hover .arr{transform:translateX(3px)}
+.btn-ghost{border-color:var(--ink);color:var(--ink);background:transparent}
+.btn-ghost:hover{transform:translateY(-2px);background:var(--paper-2)}
+.trust{margin-top:18px;font-family:var(--font-mono);font-size:13px;color:var(--ink-3);opacity:0}
+body.in .trust{animation:rise .55s var(--ease-out) .66s forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+
+/* ---- Hero graphic: ĐỊA HÌNH 3D (canvas) ---- */
+.terrain{
+  position:relative;border:1px solid var(--line);border-radius:16px;
+  background-image:radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size:22px 22px;
+  aspect-ratio:640/520;overflow:hidden;
+  opacity:0;transform:translateY(16px);
+  transition:border-color .35s var(--ease-out);
+}
+body.in .terrain{animation:rise .7s var(--ease-out) .3s forwards}
+.terrain canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.terrain .corner{
+  position:absolute;z-index:2;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--ink-3);
+  pointer-events:none;
+}
+.terrain .c-tl{top:14px;left:16px}
+.terrain .c-br{bottom:14px;right:16px;text-align:right}
+.terrain .c-bl{bottom:14px;left:16px;display:flex;align-items:center;gap:8px}
+.terrain .c-bl .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block}
+
+/* Hai chế độ bản đồ */
+.mode-tabs{
+  position:absolute;z-index:3;top:36px;left:14px;
+  display:flex;gap:6px;
+}
+.mt{
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;cursor:pointer;
+  padding:6px 12px;border-radius:999px;border:1px solid var(--line);
+  background:var(--paper);color:var(--ink-3);
+  display:inline-flex;align-items:center;gap:7px;
+  transition:border-color .18s var(--ease-out), color .18s var(--ease-out);
+}
+.mt::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--line);transition:background .18s}
+.mt:hover{border-color:var(--ink-3)}
+.mt.on{border-color:var(--ink);color:var(--ink)}
+.mt.on::before{background:var(--accent)}
+@media(max-width:640px){.mode-tabs{top:auto;bottom:44px;left:14px;transform:none}}
+
+/* Legend bản đồ (route mode) */
+.legend{
+  position:absolute;z-index:2;top:44px;right:16px;pointer-events:none;
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:var(--ink-2);
+  display:flex;flex-direction:column;gap:6px;text-align:right;
+  transition:opacity .3s var(--ease-out);
+  background:color-mix(in srgb, var(--paper) 82%, transparent);
+  padding:8px 10px;border-radius:6px;
+}
+.legend.off{opacity:0}
+.legend .row{display:flex;align-items:center;gap:7px;justify-content:flex-end}
+.legend i{width:14px;height:2px;border-radius:1px;display:inline-block}
+.legend .lg-a i{background:var(--accent)}
+.legend .lg-b i{background:var(--altitude)}
+.legend .fx{color:var(--ink-3);font-size:9.5px}
+
+/* Chú thích dữ liệu (data mode) */
+.legend-data{
+  position:absolute;z-index:2;top:44px;right:16px;pointer-events:none;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--ink-3);
+  text-align:right;opacity:0;transition:opacity .3s var(--ease-out);
+  background:color-mix(in srgb, var(--paper) 82%, transparent);
+  padding:8px 10px;border-radius:6px;line-height:1.7;
+}
+.legend-data.on{opacity:1}
+
+/* Bảng chỉnh điểm — tạo link chia sẻ (data mode) */
+.data-panel{
+  position:absolute;z-index:3;top:80px;right:16px;width:228px;
+  background:var(--paper);border:1px solid var(--line);border-radius:10px;
+  padding:12px 12px 10px;display:none;
+  font-family:var(--font-mono);
+  box-shadow:0 14px 30px -22px rgba(0,0,0,.35);
+}
+.data-panel.show{display:block}
+.dp-head{display:flex;justify-content:space-between;align-items:center;font-size:10px;letter-spacing:.1em;color:var(--ink-3);margin-bottom:8px}
+.dp-head button{border:none;background:none;color:var(--ink-3);font:inherit;cursor:pointer;padding:2px 4px;border-radius:4px}
+.dp-head button:hover{color:var(--ink)}
+.dp-row{display:grid;grid-template-columns:88px 1fr 28px;gap:8px;align-items:center;padding:3px 0;font-size:9.5px;letter-spacing:.05em;color:var(--ink-2)}
+.dp-row output{text-align:right;color:var(--ink)}
+.dp-row input[type=range]{width:100%;accent-color:var(--accent);height:14px;cursor:pointer}
+.dp-copy{
+  margin-top:8px;width:100%;font-family:inherit;font-size:10px;letter-spacing:.1em;cursor:pointer;
+  padding:8px 0;border-radius:6px;border:1px solid var(--ink);background:transparent;color:var(--ink);
+  transition:all .16s var(--ease-out);
+}
+.dp-copy:hover{background:var(--ink);color:var(--paper)}
+.dp-url{margin-top:6px;width:100%;font-family:inherit;font-size:9.5px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper-2);color:var(--ink-2)}
+.chip-open{
+  position:absolute;z-index:3;top:80px;right:16px;display:none;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;cursor:pointer;
+  padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink-2);
+  transition:border-color .16s;
+}
+.chip-open.show{display:inline-flex}
+.chip-open:hover{border-color:var(--ink-3)}
+@media(max-width:640px){
+  .data-panel{top:auto;bottom:44px;left:14px;right:14px;width:auto}
+  .chip-open{top:auto;bottom:44px;right:14px;left:auto}
+}
+
+/* Tooltip công thức khi rê vào tuyến */
+.math-tip{
+  position:absolute;z-index:4;pointer-events:none;
+  background:var(--ink);color:var(--paper);border-radius:6px;
+  padding:9px 12px;min-width:190px;
+  opacity:0;transition:opacity .18s var(--ease-out);
+  transform:translate(-50%, calc(-100% - 14px));
+  box-shadow:0 12px 28px -18px rgba(0,0,0,.5);
+}
+.math-tip.show{opacity:1}
+.math-tip::after{
+  content:"";position:absolute;left:50%;bottom:-5px;transform:translateX(-50%) rotate(45deg);
+  width:10px;height:10px;background:var(--ink);
+}
+.math-tip .mt-f{display:block;font-family:var(--font-mono);font-size:14px;color:var(--accent);letter-spacing:.02em}
+.math-tip .mt-d{display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--paper);opacity:.65;margin-top:3px}
+
+/* ---- Stats baseline ---- */
+.stats{border-top:1px solid var(--line);margin-top:56px;display:grid;grid-template-columns:repeat(3,1fr)}
+.stat{padding:28px 28px 32px;border-left:1px solid var(--line)}
+.stat:first-child{border-left:none;padding-left:4px}
+.stat .n{font-family:var(--font-mono);font-size:clamp(30px,3.6vw,44px);font-weight:500;letter-spacing:-.02em;color:var(--ink)}
+.stat .n .unit{font-size:.5em;color:var(--accent);margin-left:2px}
+.stat .l{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:6px}
+@media(max-width:640px){.stats{grid-template-columns:1fr}.stat{border-left:none;border-top:1px solid var(--line-soft);padding-left:4px}.stat:first-child{border-top:none}}
+
+/* ============ FEATURES ============ */
+.features{padding:96px 0 88px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:24px;margin-bottom:48px;flex-wrap:wrap}
+h2{font-family:var(--font-display);font-size:31px;letter-spacing:-0.01em}
+.sec-note{font-family:var(--font-mono);font-size:13px;color:var(--ink-3);letter-spacing:.1em}
+.feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px}
+@media(max-width:980px){.feat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.feat-grid{grid-template-columns:1fr}}
+.feat{border-top:2px solid var(--ink);padding-top:20px;transition:transform .2s var(--ease-out),border-color .35s var(--ease-out)}
+.feat:hover{transform:translateY(-3px)}
+.feat .idx{font-family:var(--font-mono);font-size:12px;color:var(--accent);letter-spacing:.1em}
+.feat svg{display:block;margin:18px 0 14px;transition:transform .2s var(--ease-out);color:var(--ink)}
+.feat:hover svg{transform:translateX(4px)}
+.ico-a{stroke:var(--accent)}
+.ico-af{fill:var(--accent);stroke:none}
+.feat h3{font-family:var(--font-display);font-size:19px;margin-bottom:8px}
+.feat p{font-size:15px;color:var(--ink-2);line-height:1.6}
+
+/* ============ FAQ ============ */
+.faq{padding:0 0 96px}
+details{border-top:1px solid var(--line)}
+details:last-of-type{border-bottom:1px solid var(--line)}
+summary{
+  list-style:none;cursor:pointer;display:grid;grid-template-columns:56px 1fr 24px;gap:16px;align-items:center;
+  padding:22px 4px;font-family:var(--font-display);font-size:19px;font-weight:500;
+  transition:background .16s var(--ease-out);
+}
+summary::-webkit-details-marker{display:none}
+summary:hover{background:var(--paper-2)}
+summary .no{font-family:var(--font-mono);font-size:13px;color:var(--ink-3)}
+summary .plus{font-family:var(--font-mono);font-size:18px;color:var(--accent);text-align:center;transition:transform .25s var(--ease-out)}
+details[open] .plus{transform:rotate(45deg)}
+.faq-body{padding:0 4px 24px 72px;color:var(--ink-2);max-width:64ch}
+@media(max-width:560px){.faq-body{padding-left:4px}}
+
+/* ============ CTA cuối ============ */
+.summit{position:relative;background:var(--summit-bg);color:#F5F2EA;overflow:hidden;transition:background .35s var(--ease-out)}
+.summit .wrap{padding:96px 24px;position:relative;z-index:1}
+.summit .sec-kicker{font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;color:rgba(245,242,234,.5);text-transform:uppercase}
+.summit h2{color:#F5F2EA;font-size:clamp(28px,4vw,44px);margin:16px 0 12px;max-width:22ch}
+.summit h2 em{font-style:normal;color:var(--accent)}
+.summit p{color:rgba(245,242,234,.72);max-width:52ch;margin-bottom:32px}
+.summit svg.bg{position:absolute;inset:0;width:100%;height:100%}
+.summit .layer{will-change:transform;transition:transform .45s var(--ease-out);transform-box:fill-box;transform-origin:center}
+
+/* ============ FOOTER ============ */
+footer{background:var(--summit-bg);color:rgba(245,242,234,.5);border-top:1px solid rgba(245,242,234,.12);transition:background .35s var(--ease-out)}
+footer .wrap{padding:24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--font-mono);font-size:12px;letter-spacing:.08em}
+
+.rv{opacity:0;transform:translateY(14px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-out)}
+.rv.in{opacity:1;transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+  h1 .w,.sub,.cta-row,.trust,.terrain,.rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Nền động ambient: contour địa hình "thở" (canvas, không chặn tương tác) -->
+<canvas id="bgField" aria-hidden="true"></canvas>
+
+<!-- ================= NAV ================= -->
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="#">VANTAGE<span class="flag">▲</span></a>
+    <nav class="nav-links" aria-label="Chính">
+      <a href="#cong-cu">Công cụ</a>
+      <a href="#lo-trinh">Lộ trình</a>
+      <a href="#hoi-dap">Hỏi đáp</a>
+    </nav>
+    <div class="nav-right">
+      <button id="themeToggle" class="theme-toggle" aria-label="Chuyển chế độ sáng / tối" aria-pressed="false">
+        <svg class="i-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+        </svg>
+        <svg class="i-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+        </svg>
+      </button>
+      <a class="nav-cta" href="#">VÀO ÔN THI →</a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="kicker">Ôn thi Toán THPT · Tuyển sinh 10 · Khóa 2026</div>
+        <h1 aria-label="Tầm nhìn dẫn đường, vươn tới đỉnh cao.">
+          <span class="w" style="--i:0">Tầm</span> <span class="w" style="--i:1">nhìn</span>
+          <span class="w" style="--i:2">dẫn&nbsp;đường,</span><br>
+          <span class="w em" style="--i:4">vươn</span> <span class="w em" style="--i:5">tới</span>
+          <span class="w em" style="--i:6">đỉnh</span> <span class="w em" style="--i:7">cao.</span>
+        </h1>
+        <p class="sub">Đề thi thật từ Bộ GD&amp;ĐT và 63 tỉnh thành. Hai lộ trình — THPT và tuyển sinh lớp 10 —
+        cùng một xuất phát điểm. Bản đồ năng lực của riêng bạn, vẽ bằng điểm số thật.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#">Bắt đầu ôn thi miễn phí <span class="arr" aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" href="#cong-cu">Xem công cụ</a>
+        </div>
+        <div class="trust">KHÔNG CẦN THẺ · DÙNG NGAY TRÊN TRÌNH DUYỆT · ∫Σ√π∞Δ</div>
+      </div>
+
+      <!-- ĐỊA HÌNH 3D: đồ thị hàm thật + chế độ dữ liệu -->
+      <figure class="terrain" aria-label="Bản đồ địa hình 3D có hai chế độ: lộ trình ôn thi đi theo đồ thị hàm số thật, và địa hình năng lực vẽ từ điểm số học sinh">
+        <span class="corner c-tl">VN-02 · 1:63.000</span>
+        <span class="corner c-br" id="cornerBR">ĐỊA HÌNH 3D · 2 TUYẾN</span>
+        <span class="corner c-bl"><span class="dot" aria-hidden="true"></span><span id="cornerBLText">RÊ TUYẾN → XEM HÀM</span></span>
+
+        <div class="mode-tabs" role="tablist" aria-label="Chế độ bản đồ">
+          <button class="mt on" id="tabRoute" role="tab" aria-selected="true">LỘ TRÌNH</button>
+          <button class="mt" id="tabData" role="tab" aria-selected="false">NĂNG LỰC · MẪU</button>
+        </div>
+
+        <div class="legend" id="legendRoute" aria-hidden="true">
+          <span class="row lg-a">THPT → ĐH MƠ ƯỚC<i></i></span>
+          <span class="row fx">z = t³ − 3t</span>
+          <span class="row lg-b">LỚP 10 → TRƯỜNG MƠ ƯỚC<i></i></span>
+          <span class="row fx">z = 1 − t²</span>
+        </div>
+        <div class="legend-data" id="legendData" aria-hidden="true">
+          CAO ĐỘ = ĐIỂM THÀNH THẠO (0–10)<br>HỌC SINH MẪU · KHÓA 2026
+        </div>
+
+        <div class="math-tip" id="mathTip" aria-hidden="true">
+          <span class="mt-f" id="mtF">z = t³ − 3t</span>
+          <span class="mt-d" id="mtD">HÀM BẬC BA · KHẢO SÁT &amp; CỰC TRỊ · LỚP 12</span>
+        </div>
+
+        <canvas id="terrainCanvas" role="img" aria-label="Mô hình địa hình 3D hai lộ trình và bản đồ năng lực">
+          Chế độ lộ trình: tuyến THPT theo đồ thị hàm bậc ba lên đỉnh đại học, tuyến lớp 10 theo parabola lên đỉnh trường mơ ước.
+          Chế độ năng lực: địa hình gồm 6 đồi — Hàm số, Lượng giác, Hình Oxyz, Xác suất, Mũ &amp; Logarit, Nguyên hàm —
+          cao độ tương ứng điểm thành thạo của học sinh mẫu; cờ đỏ cắm ở chuyên đề yếu nhất.
+        </canvas>
+      </figure>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats rv">
+      <div class="stat"><div class="n" data-count="40" data-suffix="+">0<span class="unit">+</span></div><div class="l">Đề thi thật</div></div>
+      <div class="stat"><div class="n" data-count="63" data-suffix="">0<span class="unit"></span></div><div class="l">Tỉnh thành</div></div>
+      <div class="stat"><div class="n" data-count="1104" data-suffix="">0<span class="unit"></span></div><div class="l">Câu hỏi đã phân tích</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FEATURES ================= -->
+<section class="features" id="cong-cu">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <h2>Công cụ đi cùng bạn</h2>
+      <span class="sec-note">04 DỤNG CỤ · NHƯ HỘP BÚT CỦA NGƯỜI LEO NÚI</span>
+    </div>
+    <div class="feat-grid">
+      <div class="feat rv">
+        <div class="idx">D·01</div>
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/><path d="M9 3v-1h6v1"/>
+        </svg>
+        <h3>Thi thử đề thật</h3>
+        <p>Đề THPT Quốc gia &amp; tuyển sinh lớp 10 từ Bộ GD&amp;ĐT và 63 tỉnh thành — chấm và soi lỗi theo từng câu.</p>
+      </div>
+      <div class="feat rv">
+        <div class="idx">D·02</div>
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="6" y="2" width="12" height="20" rx="2"/><rect x="9" y="5" width="6" height="3" rx="0.5"/><path d="M9 12h1M12 12h1M15 12h1M9 15h1M12 15h1M15 15h1M9 18h4M15 18h1"/>
+        </svg>
+        <h3>Máy tính CAS</h3>
+        <p>Giải toán từng bước, công thức hiển thị trực tiếp trên máy tính — học cách máy “nghĩ”, không chỉ đáp số.</p>
+      </div>
+      <div class="feat rv">
+        <div class="idx">D·03</div>
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 4v16M20 4v16"/><path d="M8 7h3M13 7h3M8 12h3M13 12h3M8 17h3M13 17h3"/>
+        </svg>
+        <h3>Đại số tuyến tính</h3>
+        <p>Ma trận, định thức, hệ phương trình — giải và kiểm tra ngay trong trình duyệt, không cần cài thêm gì.</p>
+      </div>
+      <div class="feat rv">
+        <div class="idx">D·04</div>
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 21h18M3 21V3"/><path class="ico-a" d="M5 16C8 16 8 8 12 8s4 6 7 6"/><circle class="ico-af" cx="12" cy="8" r="1.4"/>
+        </svg>
+        <h3>Math Playground</h3>
+        <p>Vẽ đồ thị hàm số, giao điểm, tiếp tuyến — bằng lời nói hoặc thủ công. Toán nhìn thấy được mới thấm được.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="faq" id="hoi-dap">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <h2>Câu hỏi thường gặp</h2>
+      <span class="sec-note">MỤC LỤC · 5 MỤC</span>
+    </div>
+    <div class="rv">
+      <details open>
+        <summary><span class="no">01</span>Vantage có khác gì so với ôn thi thông thường?<span class="plus">+</span></summary>
+        <div class="faq-body">Mỗi đề thi bạn làm là một cột mốc. Hệ thống ghi lại chính xác bạn vấp ở đâu — dạng câu nào, bước nào — rồi vẽ lại lộ trình cho buổi học hôm sau. Điểm số của bạn trở thành một bản đồ địa hình: chuyên đề nào là đồi, chuyên đề nào là đỉnh, và cờ tiếp theo cắm ở chỗ bạn còn yếu.</div>
+      </details>
+      <details>
+        <summary><span class="no">02</span>Vantage có mất phí không?<span class="plus">+</span></summary>
+        <div class="faq-body">Không. Toàn bộ đề thi thật, máy tính CAS, đại số tuyến tính và Math Playground đều miễn phí — không cần thẻ, dùng ngay trên trình duyệt.</div>
+      </details>
+      <details>
+        <summary><span class="no">03</span>Đề thi trên Vantage có thật không?<span class="plus">+</span></summary>
+        <div class="faq-body">Có. Đề được sưu tầm từ kỳ thi THPT Quốc gia của Bộ GD&amp;ĐT và đề tuyển sinh lớp 10 công lập của 63 tỉnh thành, kèm năm và nguồn rõ ràng tại từng cột mốc.</div>
+      </details>
+      <details>
+        <summary><span class="no">04</span>Dùng được cho học sinh lớp 9 thi vào 10 không?<span class="plus">+</span></summary>
+        <div class="faq-body">Được. Vantage có lộ trình riêng cho tuyển sinh lớp 10 — tuyến parabola trên cùng một bản đồ: đề theo từng tỉnh, trọng tâm hàm số, hệ phương trình và hình học phẳng theo cấu trúc đề địa phương bạn chọn.</div>
+      </details>
+      <details>
+        <summary><span class="no">05</span>AI có tạo ra câu hỏi thi không?<span class="plus">+</span></summary>
+        <div class="faq-body">Không. AI của Vantage không bịa đề — nó phân tích lỗi sai của bạn trên đề thật, gợi ý câu tương tự từ ngân hàng đề có nguồn, và giải thích từng bước như một người thầy kèm riêng.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA CUỐI ================= -->
+<section class="summit">
+  <svg class="bg" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g class="layer layer-back" fill="none" stroke="#F5F2EA" stroke-opacity=".22">
+      <ellipse cx="880" cy="200" rx="120" ry="82"/>
+      <ellipse cx="880" cy="200" rx="240" ry="164"/>
+      <ellipse cx="880" cy="200" rx="380" ry="258"/>
+      <ellipse cx="880" cy="200" rx="540" ry="364"/>
+    </g>
+    <g class="layer layer-front" fill="none" stroke="#F5F2EA" stroke-opacity=".4">
+      <ellipse cx="880" cy="200" rx="70" ry="48"/>
+      <ellipse cx="880" cy="200" rx="160" ry="110"/>
+    </g>
+    <path d="M120 380 C 260 350, 340 300, 430 262 S 620 190, 740 150 S 900 78, 960 40"
+      stroke="#E4572E" stroke-width="2" fill="none" pathLength="1" class="climb2"/>
+    <path d="M960 40 v-24" stroke="#F5F2EA" stroke-width="1.5"/>
+    <path d="M960 16 l14 4.7 -14 4.7 z" fill="#E4572E"/>
+  </svg>
+  <div class="wrap">
+    <div class="sec-kicker">Cột mốc tiếp theo là của bạn</div>
+    <h2>Sẵn sàng <em>bắt đầu leo?</em></h2>
+    <p>Vào ôn thi ngay — cột mốc đầu tiên chỉ cách bạn một đề thi thật.</p>
+    <a class="btn btn-primary" href="#">Vào ôn thi ngay <span class="arr" aria-hidden="true">→</span></a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>VANTAGE ▲ · VƯƠN TỚI ĐỈNH CAO</span>
+    <span>GIẤY — MỰC — CỜ ĐỈNH · V1.4.1 · AMBIENT TERRAIN · MATH ROUTES · DATA TERRAIN</span>
+  </div>
+</footer>
+
+<script>
+/* =============== THEME TOGGLE =============== */
+(function(){
+  var b=document.getElementById('themeToggle');
+  if(!b) return;
+  function apply(t){
+    document.documentElement.setAttribute('data-theme', t);
+    b.setAttribute('aria-pressed', String(t==='dark'));
+    try{ localStorage.setItem('vantage-theme', t); }catch(e){}
+    var hooks = window.VTG_THEME_HOOKS || [];
+    if(hooks.length){ hooks.forEach(function(fn){ try{ fn(); }catch(e){} }); }
+    else if(window.VTG_REFRESH_COLORS){ window.VTG_REFRESH_COLORS(); }
+  }
+  b.addEventListener('click', function(){
+    var cur = document.documentElement.getAttribute('data-theme')==='dark' ? 'dark' : 'light';
+    apply(cur==='dark' ? 'light' : 'dark');
+  });
+  b.setAttribute('aria-pressed', String(document.documentElement.getAttribute('data-theme')==='dark'));
+})();
+
+/* ================================================================
+   VANTAGE HERO — ĐỊA HÌNH 3D v1.2
+   - Tuyến leo = ĐỒ THỊ HÀM THẬT:
+       THPT:   z = t³ − 3t  (hàm bậc ba, 2 cực trị — chữ S kinh điển)
+       LỚP 10: z = 1 − t²   (parabola)
+     (đường cong định hướng lại theo phương basecamp→đỉnh; hai đầu khớp
+      chính xác vì t³−3t = 0 tại t=±√3)
+   - Chế độ NĂNG LỰC: terrain morph sang 6 đồi = điểm chuyên đề thật;
+     cờ đỏ cắm ở chuyên đề YẾU NHẤT (đỉnh cần chinh phục tiếp)
+   - Rê chuột vào tuyến → tooltip công thức toán
+   ================================================================ */
+(function(){
+  var canvas = document.getElementById('terrainCanvas');
+  if(!canvas || !canvas.getContext) return;
+  var ctx = canvas.getContext('2d');
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var finePointer = window.matchMedia('(pointer: fine)').matches;
+
+  // ---- thế giới ----
+  var X_MIN=-1.25, X_MAX=1.25, Z_MIN=0.02, Z_MAX=1.7;
+  var NX=64, NZ=46, CENTER_Z=0.86, FOCAL=3.4;
+  var BASE_PITCH=1.03, BASE_YAW=-0.05;
+  var S_SCALE=0.30, CY=0.58;
+
+  function gg(dx,dz,sx,sz){ return Math.exp(-((dx*dx)/(2*sx*sx)+(dz*dz)/(2*sz*sz))); }
+  function baseHeight(x,z){
+    var gA = gg(x-0.34, z-0.86, 0.40, 0.44);
+    return Math.pow(gA,1.7)*1.00
+         + 0.52*gg(x+0.72, z-0.30, 0.34, 0.30)
+         + 0.24*gg(x-0.95, z-0.15, 0.50, 0.55)
+         + 0.10*gg(x+1.00, z-0.90, 0.45, 0.50)
+         + 0.045*Math.sin(x*6.3+z*4.1)*Math.sin(z*5.2-x*2.7)
+         + 0.022*Math.sin(x*13.1)*Math.sin(z*10.9+1.7);
+  }
+
+  // ---- ĐỊA HÌNH DỮ LIỆU: cao độ = điểm thành thạo ----
+  // slug tham gia vào URL share: ?ham-so=8.5&oxyz=4.5&name=...
+  var TOPICS=[
+    {name:'HÀM SỐ',      slug:'ham-so',     score:8.5, x: 0.30, z:0.72},
+    {name:'LƯỢNG GIÁC',  slug:'luong-giac', score:6.0, x:-0.30, z:0.50},
+    {name:'HÌNH OXYZ',   slug:'oxyz',       score:4.5, x: 0.88, z:0.33},
+    {name:'XÁC SUẤT',    slug:'xac-suat',   score:7.0, x:-0.78, z:0.88},
+    {name:'MŨ & LOGARIT',slug:'mu-log',     score:5.5, x: 0.78, z:1.18},
+    {name:'NGUYÊN HÀM',  slug:'nguyen-ham', score:9.0, x:-0.18, z:1.28}
+  ];
+  function weakestNow(){ return TOPICS.reduce(function(a,b){ return b.score<a.score?b:a; }); }
+  function dataHeight(x,z){
+    var h=0.05;
+    for(var i=0;i<TOPICS.length;i++){
+      var tp=TOPICS[i];
+      h += (0.14 + (tp.score/10)*0.80) * gg(x-tp.x, z-tp.z, 0.34, 0.30);
+    }
+    return h*0.92;
+  }
+
+  // ---- morph giữa 2 chế độ ----
+  var dataW = 0, modeTarget = 0; // 0 = lộ trình, 1 = năng lực
+  function mH(x,z){
+    if(dataW<=0.001) return baseHeight(x,z);
+    if(dataW>=0.999) return dataHeight(x,z);
+    return baseHeight(x,z)*(1-dataW) + dataHeight(x,z)*dataW;
+  }
+
+  // ---- tuyến leo = đồ thị hàm thật ----
+  function mkRouteMath(sx,sz, ex,ez, wFn, amp){
+    var dx=ex-sx, dz=ez-sz, L=Math.sqrt(dx*dx+dz*dz);
+    var ux=dx/L, uz=dz/L, nx=-uz, ny=ux;
+    return function(u){
+      var off = wFn(u)*amp;
+      var x = sx+dx*u + nx*off, z = sz+dz*u + ny*off;
+      return {x:x, z:z};
+    };
+  }
+  var wCubic  = function(u){ var t=(2*u-1)*Math.sqrt(3); return (t*t*t-3*t)/2; }; // ∈ [-1,1], 0 ở 2 đầu
+  var wParab  = function(u){ return 1-Math.pow(2*u-1,2); };                          // ∈ [0,1], 0 ở 2 đầu
+
+  var ROUTES=[
+    { key:'thpt',
+      delay:650, dur:2400, progress: reduced?1:0,
+      fp: mkRouteMath(0.02,0.06, 0.34,0.86, wCubic, 0.24),
+      point:function(u){ var q=this.fp(u); return {x:q.x, z:q.z, y:mH(q.x,q.z)+0.016}; },
+      marks:[ {u:0.38,label:'MỐC 02 · ĐỀ 2023'}, {u:0.62,label:'MỐC 03 · ĐỀ 2024'}, {u:0.83,label:'MỐC 04 · ĐỀ 2025'} ],
+      flagLabel:'ĐỈNH · ĐH MƠ ƯỚC', flagPole:26,
+      formula:'z = t³ − 3t', formulaNote:'HÀM BẬC BA · KHẢO SÁT & CỰC TRỊ · LỚP 12'
+    },
+    { key:'l10',
+      delay:1450, dur:2000, progress: reduced?1:0,
+      fp: mkRouteMath(0.02,0.06, -0.72,0.30, function(u){return -wParab(u);}, 0.16),
+      point:function(u){ var q=this.fp(u); return {x:q.x, z:q.z, y:mH(q.x,q.z)+0.016}; },
+      marks:[ {u:0.46,label:'L10 · ĐỀ 2024'}, {u:0.70,label:'L10 · ĐỀ 2025'} ],
+      labelBelow:true,  /* nhãn xanh kẻ dưới điểm — tránh chồng nhãn tuyến đỏ */
+      flagLabel:'ĐỈNH 10 · TRƯỜNG MƠ ƯỚC', flagPole:20,
+      formula:'z = 1 − t²', formulaNote:'PARABOLA · HÀM SỐ BẬC HAI · LỚP 10'
+    }
+  ];
+  var R_N=170;
+
+  // ---- DOM phụ ----
+  var cbr=document.getElementById('cornerBR');
+  var lgR=document.getElementById('legendRoute');
+  var lgD=document.getElementById('legendData');
+  var tip=document.getElementById('mathTip');
+  var tipF=document.getElementById('mtF');
+  var tipD=document.getElementById('mtD');
+  var tabR=document.getElementById('tabRoute');
+  var tabD=document.getElementById('tabData');
+
+  var hasUserData=false, userName='';
+  var panel=document.getElementById('dataPanel');
+  var openChip=document.getElementById('dpOpen');
+  var lgWho=document.getElementById('lgWho');
+  var panelOpen=!window.matchMedia('(max-width:640px)').matches;
+  var urlT=null;
+
+  function whoSuffix(){
+    return hasUserData ? (userName ? userName.toUpperCase() : 'CỦA BẠN') : 'HS MẪU';
+  }
+  function updateWho(){
+    if(lgWho) lgWho.textContent = hasUserData
+      ? ('ĐỊA HÌNH CỦA ' + (userName ? userName.toUpperCase() : 'BẠN'))
+      : 'HỌC SINH MẪU · KHÓA 2026';
+    if(tabD) tabD.textContent = hasUserData ? 'NĂNG LỰC · CỦA BẠN' : 'NĂNG LỰC · MẪU';
+    if(hasUserData){ try{ document.title='Bản đồ năng lực của '+(userName||'bạn')+' · Vantage'; }catch(e){} }
+  }
+
+  function setMode(m){
+    modeTarget=m;
+    tabR.classList.toggle('on', m===0); tabR.setAttribute('aria-selected', String(m===0));
+    tabD.classList.toggle('on', m===1); tabD.setAttribute('aria-selected', String(m===1));
+    if(cbr) cbr.textContent = m===1 ? ('ĐỊA HÌNH NĂNG LỰC · '+whoSuffix()) : 'ĐỊA HÌNH 3D · 2 TUYẾN';
+    if(lgR) lgR.classList.toggle('off', m===1);
+    if(lgD) lgD.classList.toggle('on', m===1);
+    if(panel) panel.classList.toggle('show', m===1 && panelOpen);
+    if(openChip) openChip.classList.toggle('show', m===1 && !panelOpen);
+    var cbl=document.getElementById('cornerBLText');
+    if(cbl) cbl.textContent = m===1 ? 'KÉO SLIDER → ĐỊA HÌNH ĐỔI' : 'RÊ TUYẾN → XEM HÀM';
+    hideTip();
+    if(reduced){ dataW=m; drawFrame(0,true); }
+  }
+  tabR.addEventListener('click', function(){ setMode(0); });
+  tabD.addEventListener('click', function(){ setMode(1); });
+
+  /* ============================================================
+     DỮ LIỆU THẬT QUA URL QUERY — bản đồ chia sẻ được
+     vd: ?ham-so=8.5&oxyz=4.5&name=Minh%20Anh
+     - clamp 0–10, làm tròn 0.5; tham số lạ/không hợp lệ bị bỏ qua
+     - name đưa vào DOM bằng textContent (chống XSS), tối đa 24 ký tự
+     - sandboxed iframe: replaceState/clipboard bọc try/catch + fallback
+     ============================================================ */
+  function buildPanel(){
+    var rows=document.getElementById('dpRows');
+    if(!rows) return;
+    rows.innerHTML = TOPICS.map(function(tp,i){
+      return '<label class="dp-row"><span>'+tp.name+'</span>'
+           + '<input type="range" min="0" max="10" step="0.5" value="'+tp.score+'" data-rt="'+i+'" aria-label="Điểm '+tp.name+'">'
+           + '<output>'+tp.score.toFixed(1)+'</output></label>';
+    }).join('');
+    var inputs=rows.querySelectorAll('input');
+    Array.prototype.forEach.call(inputs, function(inp){
+      inp.addEventListener('input', function(){
+        var tp=TOPICS[parseInt(inp.getAttribute('data-rt'),10)];
+        var v=parseFloat(inp.value);
+        if(isFinite(v)) tp.score=Math.max(0,Math.min(10,v));
+        if(inp.parentElement){
+          var out=inp.parentElement.querySelector('output');
+          if(out) out.textContent=tp.score.toFixed(1);
+        }
+        hasUserData=true; updateWho();
+        if(cbr && modeTarget===1) cbr.textContent='ĐỊA HÌNH NĂNG LỰC · '+whoSuffix();
+        syncURLSoon();
+        if(reduced) drawFrame(0,true);
+      });
+    });
+  }
+  function qsString(){
+    var p=TOPICS.map(function(tp){ return tp.slug+'='+String(tp.score).replace(/\.0+$/,''); });
+    if(userName) p.push('name='+encodeURIComponent(userName));
+    return '?'+p.join('&');
+  }
+  function syncURL(){ try{ history.replaceState(null,'',qsString()); }catch(e){/* sandbox: bỏ qua */} }
+  function syncURLSoon(){ if(urlT) clearTimeout(urlT); urlT=setTimeout(syncURL,350); }
+  function shareURL(){
+    try{
+      var base=(location.origin && location.origin!=='null')
+        ? location.origin+location.pathname
+        : String(location.href||'').split('?')[0];
+      return base+qsString();
+    }catch(e){ return qsString(); }
+  }
+  var copyBtn=document.getElementById('copyLink');
+  if(copyBtn) copyBtn.addEventListener('click', function(){
+    var url=shareURL();
+    var orig='SAO CHÉP LIÊN KẾT BẢN ĐỒ';
+    function flash(t){ copyBtn.textContent=t; setTimeout(function(){ copyBtn.textContent=orig; },1600); }
+    function manual(){
+      var box=document.getElementById('dpUrl');
+      if(box){ box.hidden=false; box.value=url; if(box.focus) box.focus(); }
+      flash('CHÉP TỪ Ô DƯỚI ↓');
+    }
+    var nav=window.navigator;
+    if(nav && nav.clipboard && nav.clipboard.writeText){
+      nav.clipboard.writeText(url).then(function(){ flash('ĐÃ CHÉP ✓'); }, manual);
+    } else manual();
+  });
+  var closeBtn=document.getElementById('dpClose');
+  if(closeBtn) closeBtn.addEventListener('click', function(){
+    panelOpen=false;
+    if(panel) panel.classList.remove('show');
+    if(openChip && modeTarget===1) openChip.classList.add('show');
+  });
+  if(openChip) openChip.addEventListener('click', function(){
+    panelOpen=true;
+    if(panel && modeTarget===1) panel.classList.add('show');
+    openChip.classList.remove('show');
+  });
+
+  function loadFromURL(){
+    try{
+      var q=new URLSearchParams(location.search||'');
+      var found=false;
+      TOPICS.forEach(function(tp){
+        var raw=q.get(tp.slug);
+        if(raw===null) return;
+        var n=parseFloat(String(raw).replace(',','.'));
+        if(isFinite(n)){ tp.score=Math.max(0,Math.min(10,Math.round(n*2)/2)); found=true; }
+      });
+      var nm=q.get('name');
+      if(nm) userName=String(nm).slice(0,24);
+      if(found||userName){
+        hasUserData=true;
+        updateWho();
+        if(found) setMode(1);
+      }
+    }catch(e){}
+  }
+  buildPanel();
+  loadFromURL();
+
+  // ---- màu từ tokens ----
+  var COL={INK:'28,35,51', PAPER_RGB:'245,242,234', ACCENT:'#E4572E', ACCENT_RGB:'228,87,46', ALT:'#2F5D8A', ALT_RGB:'47,93,138', PINE:'#33705C'};
+  function readColors(){
+    var cs=getComputedStyle(document.documentElement);
+    COL.INK        =(cs.getPropertyValue('--ink-rgb')||'').trim()       || COL.INK;
+    COL.PAPER_RGB  =(cs.getPropertyValue('--paper-rgb')||'').trim()     || COL.PAPER_RGB;
+    COL.ACCENT     =(cs.getPropertyValue('--accent')||'').trim()        || COL.ACCENT;
+    COL.ALT        =(cs.getPropertyValue('--altitude')||'').trim()      || COL.ALT;
+    COL.ACCENT_RGB =(cs.getPropertyValue('--accent-rgb')||'').trim()    || COL.ACCENT_RGB;
+    COL.ALT_RGB    =(cs.getPropertyValue('--altitude-rgb')||'').trim()  || COL.ALT_RGB;
+    COL.PINE       =(cs.getPropertyValue('--pine')||'').trim()          || COL.PINE;
+  }
+  readColors();
+  window.VTG_REFRESH_COLORS=function(){
+    readColors();
+    if(reduced) drawFrame(0, true);
+  };
+  (window.VTG_THEME_HOOKS=window.VTG_THEME_HOOKS||[]).push(window.VTG_REFRESH_COLORS);
+  function routeCol(r){ return r.key==='thpt' ? COL.ACCENT : COL.ALT; }
+  function routeRGB(r){ return r.key==='thpt' ? COL.ACCENT_RGB : COL.ALT_RGB; }
+
+  // ---- trạng thái ----
+  var W=2, H=2, DPR=1;
+  var yaw=BASE_YAW, pitch=BASE_PITCH, tYaw=BASE_YAW, tPitch=BASE_PITCH;
+  var startT=null, raf=null, running=false, inView=true, docVisible=true;
+  var mouse={x:-9999, y:-9999, inside:false}; // tọa độ CSS px trong figure
+  var hovered=null;
+
+  function resize(){
+    var r=canvas.getBoundingClientRect();
+    DPR=Math.min(window.devicePixelRatio||1, 1.75);
+    W=Math.max(2, Math.round(r.width*DPR));
+    H=Math.max(2, Math.round(r.height*DPR));
+    canvas.width=W; canvas.height=H;
+    if(reduced) drawFrame(0, true);
+  }
+
+  function project(x,y,z){
+    var cyw=Math.cos(yaw), syw=Math.sin(yaw);
+    var x1=x*cyw+z*syw, z1=-x*syw+z*cyw;
+    var zz=z1-CENTER_Z;
+    var cp=Math.cos(pitch), sp=Math.sin(pitch);
+    var y2=y*cp+zz*sp, z2=zz*cp-y*sp;
+    var s=FOCAL/(FOCAL+z2);
+    var S=Math.min(W,H)*S_SCALE;
+    return [W*0.5 + x1*s*S, H*CY - y2*s*S];
+  }
+
+  function haloText(txt, sx, sy, fillStyle){
+    ctx.lineWidth=3*DPR;
+    ctx.strokeStyle='rgba('+COL.PAPER_RGB+',0.92)';
+    ctx.strokeText(txt, sx, sy);
+    ctx.fillStyle=fillStyle;
+    ctx.fillText(txt, sx, sy);
+  }
+
+  /* --- hit-test chuột tới tuyến (đơn vị CSS px) --- */
+  function hitTest(){
+    hovered=null;
+    if(!mouse.inside || dataW>0.35 || !finePointer || reduced) return;
+    var mx=mouse.x*DPR, my=mouse.y*DPR, best=1e9;
+    ROUTES.forEach(function(r){
+      var N=72;
+      for(var i=0;i<=N;i++){
+        var q=r.point(i/N); var p=project(q.x,q.y,q.z);
+        var dx=p[0]-mx, dy=p[1]-my, d2=dx*dx+dy*dy;
+        if(d2<best){ best=d2; hovered=r; }
+      }
+    });
+    if(best > (26*DPR)*(26*DPR)) hovered=null;
+  }
+  function updateTip(){
+    if(!tip) return;
+    if(hovered){
+      if(tipF.textContent!==hovered.formula){
+        tipF.textContent=hovered.formula;
+        tipD.textContent=hovered.formulaNote;
+      }
+      tip.style.left=mouse.x+'px';
+      tip.style.top =mouse.y+'px';
+      tip.classList.add('show');
+    } else tip.classList.remove('show');
+  }
+  function hideTip(){ hovered=null; if(tip) tip.classList.remove('show'); }
+
+  function drawFrame(now, staticFrame){
+    ctx.clearRect(0,0,W,H);
+    var i, j, p, x, z;
+
+    /* mesh ngang */
+    for(i=NZ; i>=0; i--){
+      z = Z_MIN + (Z_MAX-Z_MIN)*i/NZ;
+      var near = 1-(z-Z_MIN)/(Z_MAX-Z_MIN);
+      var a = 0.055 + 0.27*near;
+      ctx.beginPath();
+      for(j=0; j<=NX; j++){
+        x = X_MIN + (X_MAX-X_MIN)*j/NX;
+        p = project(x, mH(x,z), z);
+        if(j===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]);
+      }
+      ctx.strokeStyle='rgba('+COL.INK+','+a.toFixed(3)+')';
+      ctx.lineWidth=0.9*DPR;
+      ctx.stroke();
+    }
+    /* mesh dọc thưa */
+    for(j=0; j<=NX; j+=8){
+      x = X_MIN + (X_MAX-X_MIN)*j/NX;
+      ctx.beginPath();
+      for(i=0; i<=NZ; i++){
+        z = Z_MIN + (Z_MAX-Z_MIN)*i/NZ;
+        p = project(x, mH(x,z), z);
+        if(i===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]);
+      }
+      ctx.strokeStyle='rgba('+COL.INK+',0.09)';
+      ctx.lineWidth=0.75*DPR;
+      ctx.stroke();
+    }
+
+    ctx.textAlign='center';
+    ctx.font='500 '+(9.5*DPR)+'px "IBM Plex Mono", ui-monospace, monospace';
+
+    /* ============ CHẾ ĐỘ LỘ TRÌNH ============ */
+    var routeAlpha = 1-dataW;
+    if(routeAlpha>0.02){
+      ctx.save();
+      ctx.globalAlpha=routeAlpha;
+
+      /* basecamp */
+      if(ROUTES[0].progress>0.02 || staticFrame){
+        var b0=ROUTES[0].point(0); p=project(b0.x,b0.y,b0.z);
+        haloText('MỐC 01 · XUẤT PHÁT', p[0], p[1]+24*DPR, 'rgba('+COL.INK+',0.8)');
+        ctx.beginPath(); ctx.arc(p[0],p[1],4.4*DPR,0,6.2832);
+        ctx.fillStyle='rgba('+COL.PAPER_RGB+',1)'; ctx.fill();
+        ctx.strokeStyle='rgba('+COL.INK+',0.85)'; ctx.lineWidth=1.8*DPR; ctx.stroke();
+      }
+
+      ROUTES.forEach(function(r, ri){
+        var col=routeCol(r), rgb=routeRGB(r);
+        var upto=Math.max(0, Math.floor(r.progress*R_N));
+        var isHover = (hovered===r);
+
+        /* phần chưa đi */
+        ctx.save();
+        ctx.setLineDash([3*DPR, 5*DPR]);
+        ctx.strokeStyle='rgba('+COL.INK+',0.22)';
+        ctx.lineWidth=1.3*DPR;
+        ctx.beginPath();
+        for(i=upto; i<=R_N; i++){
+          var q0=r.point(i/R_N); p=project(q0.x,q0.y,q0.z);
+          if(i===upto) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]);
+        }
+        ctx.stroke();
+        ctx.restore();
+
+        /* phần đã leo (đậm hơn khi hover) */
+        if(r.progress>0.002){
+          ctx.strokeStyle=col;
+          ctx.lineWidth=(isHover?3.4:2.4)*DPR;
+          ctx.lineJoin='round'; ctx.lineCap='round';
+          ctx.beginPath();
+          for(i=0; i<=upto; i++){
+            var q1=r.point(i/R_N); p=project(q1.x,q1.y,q1.z);
+            if(i===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]);
+          }
+          ctx.stroke();
+        }
+
+        /* người leo */
+        if(!reduced && r.progress>0.002 && r.progress<1){
+          var hk=r.point(r.progress); var hp=project(hk.x,hk.y,hk.z);
+          ctx.beginPath(); ctx.arc(hp[0],hp[1],3.4*DPR,0,6.2832);
+          ctx.fillStyle=col; ctx.fill();
+          ctx.beginPath(); ctx.arc(hp[0],hp[1],6.2*DPR,0,6.2832);
+          ctx.strokeStyle='rgba('+COL.PAPER_RGB+',0.9)'; ctx.lineWidth=1.2*DPR; ctx.stroke();
+        }
+
+        /* cột mốc */
+        r.marks.forEach(function(m, k){
+          if(r.progress < m.u) return;
+          var q2=r.point(m.u); p=project(q2.x,q2.y,q2.z);
+          haloText(m.label, p[0], p[1]+(r.labelBelow?22:-16)*DPR, 'rgba('+COL.INK+',0.8)');
+          ctx.beginPath(); ctx.arc(p[0],p[1],4.4*DPR,0,6.2832);
+          ctx.fillStyle='rgba('+COL.PAPER_RGB+',1)'; ctx.fill();
+          ctx.strokeStyle=col; ctx.lineWidth=1.8*DPR; ctx.stroke();
+          if(!staticFrame){
+            var phase=((now/2400)+k*0.4+ri*0.2)%1;
+            ctx.beginPath();
+            ctx.arc(p[0],p[1],(5+11*phase)*DPR,0,6.2832);
+            ctx.strokeStyle='rgba('+rgb+','+(0.5*(1-phase)).toFixed(3)+')';
+            ctx.lineWidth=1*DPR; ctx.stroke();
+          }
+        });
+
+        /* cờ đỉnh */
+        if(r.progress>0.985){
+          var tp0=r.point(1); var tp=project(tp0.x,tp0.y,tp0.z);
+          var pole=r.flagPole*DPR;
+          ctx.beginPath(); ctx.moveTo(tp[0],tp[1]); ctx.lineTo(tp[0],tp[1]-pole);
+          ctx.strokeStyle='rgba('+COL.INK+',0.95)'; ctx.lineWidth=1.5*DPR; ctx.stroke();
+          var wob = staticFrame ? 0 : Math.sin(now/500 + ri*1.3)*1.5*DPR;
+          ctx.beginPath();
+          ctx.moveTo(tp[0],tp[1]-pole);
+          ctx.lineTo(tp[0]+15*DPR, tp[1]-pole+5*DPR+wob);
+          ctx.lineTo(tp[0],tp[1]-pole+10*DPR);
+          ctx.closePath();
+          ctx.fillStyle=col; ctx.fill();
+          ctx.beginPath(); ctx.arc(tp[0],tp[1],4.6*DPR,0,6.2832);
+          ctx.fillStyle=col; ctx.fill();
+          if(r.labelBelow){
+            /* cờ tuyến xanh: nhãn căn giữa, LÊN TRÊN đỉnh cột cờ (không vươn ra mép khung) */
+            haloText(r.flagLabel, tp[0], tp[1]-r.flagPole*DPR-8*DPR, col);
+          } else {
+            haloText(r.flagLabel, tp[0]-6*DPR, tp[1]+22*DPR, col);
+          }
+        }
+      });
+      ctx.restore();
+    }
+
+    /* ============ CHẾ ĐỘ NĂNG LỰC ============ */
+    if(dataW>0.02){
+      ctx.save();
+      ctx.globalAlpha=dataW;
+      var wk=weakestNow();
+      TOPICS.forEach(function(tp){
+        var h=mH(tp.x,tp.z);
+        var pp=project(tp.x, h+0.03, tp.z);
+        haloText(tp.name, pp[0], pp[1]-8*DPR, 'rgba('+COL.INK+',0.85)');
+        ctx.font='500 '+(10.5*DPR)+'px "IBM Plex Mono", ui-monospace, monospace';
+        haloText(tp.score.toFixed(1), pp[0], pp[1]+6*DPR, (tp===wk? COL.ACCENT : COL.ALT));
+        ctx.font='500 '+(9.5*DPR)+'px "IBM Plex Mono", ui-monospace, monospace';
+      });
+      /* cờ MỤC TIÊU tại chuyên đề yếu nhất */
+      if(dataW>0.55){
+        var fa=(dataW-0.55)/0.45;
+        ctx.globalAlpha=dataW*fa;
+        var h2=mH(wk.x,wk.z);
+        var fp=project(wk.x, h2+0.02, wk.z);
+        var pole=24*DPR;
+        ctx.beginPath(); ctx.moveTo(fp[0],fp[1]); ctx.lineTo(fp[0],fp[1]-pole);
+        ctx.strokeStyle=COL.ACCENT; ctx.lineWidth=1.5*DPR; ctx.stroke();
+        var wob2 = staticFrame ? 0 : Math.sin(now/500)*1.5*DPR;
+        ctx.beginPath();
+        ctx.moveTo(fp[0],fp[1]-pole);
+        ctx.lineTo(fp[0]+15*DPR, fp[1]-pole+5*DPR+wob2);
+        ctx.lineTo(fp[0],fp[1]-pole+10*DPR);
+        ctx.closePath();
+        ctx.fillStyle=COL.ACCENT; ctx.fill();
+        haloText('MỤC TIÊU KẾ · '+wk.name+' '+wk.score.toFixed(1), fp[0], fp[1]+34*DPR, COL.ACCENT);
+      }
+      ctx.restore();
+    }
+  }
+
+  /* --- vòng lặp --- */
+  function tick(now){
+    if(!running) return;
+    yaw   += (tYaw-yaw)*0.045;
+    pitch += (tPitch-pitch)*0.045;
+    if(startT===null) startT=now;
+    ROUTES.forEach(function(r){
+      var p=(now-startT-r.delay)/r.dur;
+      r.progress = p<=0 ? 0 : p>=1 ? 1 : 1-Math.pow(1-p,3);
+    });
+    /* morph data mode */
+    dataW += (modeTarget-dataW)*0.07;
+    if(Math.abs(modeTarget-dataW)<0.001) dataW=modeTarget;
+    hitTest();
+    updateTip();
+    drawFrame(now, false);
+    raf=requestAnimationFrame(tick);
+  }
+  function start(){
+    if(running || reduced || !inView || !docVisible) return;
+    running=true;
+    raf=requestAnimationFrame(tick);
+  }
+  function stop(){
+    running=false;
+    if(raf) cancelAnimationFrame(raf);
+    raf=null;
+  }
+
+  /* --- con trỏ: nghiêng camera + hit-test tuyến --- */
+  var hero=document.querySelector('.hero');
+  if(finePointer && !reduced && hero){
+    hero.addEventListener('mousemove', function(e){
+      var hr=hero.getBoundingClientRect();
+      var nx=(e.clientX-hr.left)/hr.width - 0.5;
+      var ny=(e.clientY-hr.top)/hr.height - 0.5;
+      tYaw  = BASE_YAW + nx*0.36;
+      tPitch= Math.max(0.93, Math.min(1.13, BASE_PITCH + ((0.5-ny)*0.10 - 0.05)));
+      var cr=canvas.getBoundingClientRect();
+      mouse.x=e.clientX-cr.left; mouse.y=e.clientY-cr.top;
+      mouse.inside = mouse.x>=0 && mouse.y>=0 && mouse.x<=cr.width && mouse.y<=cr.height;
+    });
+    hero.addEventListener('mouseleave', function(){
+      tYaw=BASE_YAW; tPitch=BASE_PITCH;
+      mouse.inside=false; hideTip();
+    });
+  }
+  if(!finePointer && !reduced){
+    setInterval(function(){
+      if(!running) return;
+      tYaw = BASE_YAW + Math.sin(performance.now()/5200)*0.10;
+    }, 50);
+  }
+
+  /* --- tiết kiệm pin --- */
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(en){
+      inView = en[0].isIntersecting;
+      if(inView) start(); else stop();
+    }, {threshold:0.08}).observe(canvas);
+  }
+  document.addEventListener('visibilitychange', function(){
+    docVisible = !document.hidden;
+    if(docVisible) start(); else stop();
+  });
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  if(reduced){
+    drawFrame(0, true);
+    if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ drawFrame(0,true); }); }
+  } else {
+    setTimeout(start, 350);
+  }
+})();
+
+/* =============== Reveal + count-up + climb cuối trang =============== */
+(function(){
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  requestAnimationFrame(function(){ document.body.classList.add('in'); });
+
+  var rvEls = document.querySelectorAll('.rv');
+  var counted = false;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      e.target.classList.add('in');
+      if(e.target.classList.contains('stats') && !counted){ counted=true; countUp(); }
+      io.unobserve(e.target);
+    });
+  }, {threshold:.25});
+  rvEls.forEach(function(el){ io.observe(el); });
+
+  function countUp(){
+    document.querySelectorAll('.stat .n').forEach(function(el){
+      var target = parseInt(el.getAttribute('data-count'), 10);
+      var suffix = el.getAttribute('data-suffix') || '';
+      var render = function(v){ el.innerHTML = v.toLocaleString('vi-VN') + '<span class="unit">' + suffix + '</span>'; };
+      if(reduced){ render(target); return; }
+      var start=null, dur=900;
+      function step(ts){
+        if(!start) start=ts;
+        var p=Math.min((ts-start)/dur, 1);
+        render(Math.round(target*(1-Math.pow(1-p,3))));
+        if(p<1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  var climb2 = document.querySelector('.climb2');
+  if(climb2){
+    climb2.style.strokeDasharray=1;
+    climb2.style.strokeDashoffset=1;
+    var io2 = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          climb2.style.transition = reduced ? 'none' : 'stroke-dashoffset 1.4s cubic-bezier(0.22,1,0.36,1)';
+          climb2.style.strokeDashoffset=0;
+          io2.disconnect();
+        }
+      });
+    }, {threshold:.35});
+    io2.observe(document.querySelector('.summit'));
+  }
+})();
+
+/* =============== Parallax panel CTA =============== */
+(function(){
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var finePointer = window.matchMedia('(pointer: fine)').matches;
+  if(reduced || !finePointer) return;
+  var sec=document.querySelector('.summit');
+  if(!sec) return;
+  var back=sec.querySelector('.layer-back'), front=sec.querySelector('.layer-front');
+  sec.addEventListener('mousemove', function(e){
+    var r=sec.getBoundingClientRect();
+    var nx=(e.clientX-r.left)/r.width - 0.5;
+    var ny=(e.clientY-r.top)/r.height - 0.5;
+    back.style.transform='translate3d('+(nx*10)+'px,'+(ny*8)+'px,0)';
+    front.style.transform='translate3d('+(nx*22)+'px,'+(ny*16)+'px,0)';
+  });
+  sec.addEventListener('mouseleave', function(){
+    back.style.transform='translate3d(0,0,0)';
+    front.style.transform='translate3d(0,0,0)';
+  });
+})();
+
+/* ================================================================
+   NỀN ĐỘNG AMBIENT — "bản đồ địa hình đang thở"
+   Kỷ luật: alpha ≤ 0.09 · chu kỳ ≥ 60s · reduced-motion = tĩnh hẳn
+   5 quả đồi vô hình, mỗi quả 5 vòng đồng mức vẽ bằng dạng đóng
+   r(θ) = k / √(cos²θ/sx² + sin²θ/sz²) — không noise, không particle.
+   Parallax 2 lớp: con trỏ (từng đồi một hệ số depth) + cuộn trang.
+   ================================================================ */
+(function(){
+  var cv=document.getElementById('bgField');
+  if(!cv || !cv.getContext) return;
+  var ctx=cv.getContext('2d');
+  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine=window.matchMedia('(pointer: fine)').matches;
+
+  // cx,cy: vị trí chuẩn hóa viewport · sx,sz: bán kính (theo min(W,H)) · depth: hệ số parallax
+  // Phân bổ thiên về MÉP/GÓC — giữ vùng giữa sạch để đọc chữ
+  var HILLS=[
+    {cx:0.08, cy:0.16, sx:0.42, sz:0.27, ph:0.0, spd:0.8,  depth:1.35},
+    {cx:0.52, cy:0.05, sx:0.55, sz:0.30, ph:2.1, spd:0.5,  depth:0.55},
+    {cx:0.92, cy:0.28, sx:0.30, sz:0.40, ph:4.0, spd:1.0,  depth:1.1},
+    {cx:0.10, cy:0.58, sx:0.36, sz:0.25, ph:5.2, spd:0.65, depth:0.85},
+    {cx:0.80, cy:0.66, sx:0.27, sz:0.20, ph:1.3, spd:0.9,  depth:1.5},
+    {cx:0.38, cy:1.04, sx:0.46, sz:0.28, ph:3.3, spd:0.6,  depth:0.7},
+    {cx:0.99, cy:0.97, sx:0.32, sz:0.23, ph:5.8, spd:1.15, depth:1.25}
+  ];
+  var ISO=[0.55, 0.95, 1.35, 1.75, 2.15]; // vòng iso theo "k-sigma"
+
+  var INK_RGB='28,35,51', ACC_RGB='228,87,46';
+  function readCol(){
+    try{
+      var cs=getComputedStyle(document.documentElement);
+      var v=(cs.getPropertyValue('--ink-rgb')||'').trim();    if(v) INK_RGB=v;
+      var a=(cs.getPropertyValue('--accent-rgb')||'').trim(); if(a) ACC_RGB=a;
+    }catch(e){}
+  }
+  readCol();
+  (window.VTG_THEME_HOOKS=window.VTG_THEME_HOOKS||[]).push(function(){
+    readCol(); if(reduced) draw(0);
+  });
+
+  var W=2, Hh=2, DPR=1;
+  function resize(){
+    DPR=Math.min(window.devicePixelRatio||1, 1.5);
+    W=Math.max(2, Math.round(window.innerWidth*DPR));
+    Hh=Math.max(2, Math.round(window.innerHeight*DPR));
+    cv.width=W; cv.height=Hh;
+    if(reduced) draw(0);
+  }
+
+  var ox=0, oy=0, tox=0, toy=0, sy=0, tsy=0;
+  if(fine && !reduced){
+    document.addEventListener('mousemove', function(e){
+      var nx=e.clientX/Math.max(1,window.innerWidth)-0.5;
+      var ny=e.clientY/Math.max(1,window.innerHeight)-0.5;
+      tox=nx*18*DPR; toy=ny*14*DPR;
+    });
+  }
+  window.addEventListener('scroll', function(){
+    tsy=(window.scrollY||0)*0.055*DPR;
+  }, {passive:true});
+
+  function draw(now){
+    ctx.clearRect(0,0,W,Hh);
+    var S=Math.min(W,Hh);
+    var t=now/1000;
+
+    /* "ánh sáng bầu trời": 2 vệt wash cực nhẹ trôi theo parallax */
+    var wy=Hh*0.16 + oy*0.30 - sy*0.30;
+    var g1=ctx.createRadialGradient(W*0.80,wy,0, W*0.80,wy, Math.max(W,Hh)*0.62);
+    g1.addColorStop(0,'rgba('+ACC_RGB+',0.05)');
+    g1.addColorStop(1,'rgba('+ACC_RGB+',0)');
+    ctx.fillStyle=g1; ctx.fillRect(0,0,W,Hh);
+    var g2=ctx.createRadialGradient(W*0.10,Hh*0.94-sy*0.20,0, W*0.10,Hh*0.94-sy*0.20, Math.max(W,Hh)*0.55);
+    g2.addColorStop(0,'rgba('+INK_RGB+',0.035)');
+    g2.addColorStop(1,'rgba('+INK_RGB+',0)');
+    ctx.fillStyle=g2; ctx.fillRect(0,0,W,Hh);
+
+    /* đường mòn accent siêu mờ: vẽ dần 2.2s lúc tải rồi yên */
+    var tProg = reduced ? 1 : Math.min(1, Math.max(0,(t-0.6)/2.2));
+    if(tProg>0){
+      ctx.save();
+      ctx.globalAlpha=0.13;
+      ctx.strokeStyle='rgb('+ACC_RGB+')';
+      ctx.lineWidth=1.1*DPR;
+      ctx.lineCap='round';
+      ctx.beginPath();
+      var TN=90, upTo=Math.max(1, Math.floor(TN*tProg));
+      for(var i=0;i<=upTo;i++){
+        var u=i/TN;
+        var px=(0.05+0.86*u+0.030*Math.sin(u*4.4+1.2))*W + ox*0.5;
+        var py=(0.96-0.86*u+0.085*Math.sin(u*7.0))*Hh + oy*0.5 - sy*0.5;
+        if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+      if(tProg>=1){
+        ctx.globalAlpha=0.3;
+        var ex=(0.05+0.86+0.030*Math.sin(4.4+1.2))*W + ox*0.5;
+        var ey=(0.96-0.86+0.085*Math.sin(7.0))*Hh + oy*0.5 - sy*0.5;
+        ctx.beginPath(); ctx.arc(ex,ey,3*DPR,0,6.2832);
+        ctx.fillStyle='rgb('+ACC_RGB+')'; ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    /* contour "thở" */
+    HILLS.forEach(function(hl){
+      var cxn = hl.cx + Math.sin(t*0.0785*hl.spd + hl.ph)*0.045;        // chu kỳ ~80s
+      var cyn = hl.cy + Math.cos(t*0.0661*hl.spd + hl.ph*1.7)*0.038;    // chu kỳ ~95s
+      var br  = 1 + Math.sin(t*0.052*hl.spd + hl.ph*0.6)*0.05;
+      var cxpx = cxn*W + ox*hl.depth;
+      var cypx = cyn*Hh + oy*hl.depth - sy*hl.depth;
+      var sx = hl.sx*S*br, sz = hl.sz*S*br;
+      /* vignette nội dung: contour đậm dần về mép, vùng giữa sạch để đọc */
+      var cxr=Math.min(1, Math.abs(cxpx - W*0.5)/(W*0.5));
+      var vis=0.42 + 0.58*Math.pow(cxr,1.4);
+      for(var ii=0; ii<ISO.length; ii++){
+        var k=ISO[ii];
+        var alpha=(0.12-(k-0.55)*0.048)*vis;
+        if(alpha<=0.008) continue;
+        ctx.beginPath();
+        for(var s=0;s<=44;s++){
+          var th=s/44*6.2832;
+          var c=Math.cos(th), sn=Math.sin(th);
+          var q=(c*c)/(sx*sx)+(sn*sn)/(sz*sz);
+          var r=k/Math.sqrt(q);
+          var px=cxpx+c*r, py=cypx+sn*r;
+          if(s===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+        }
+        ctx.closePath();
+        ctx.strokeStyle='rgba('+INK_RGB+','+alpha.toFixed(3)+')';
+        ctx.lineWidth=1*DPR;
+        ctx.stroke();
+      }
+    });
+  }
+
+  var raf=null, running=false, docVisible=true;
+  function tick(now){
+    if(!running) return;
+    ox+=(tox-ox)*0.05; oy+=(toy-oy)*0.05; sy+=(tsy-sy)*0.07;
+    draw(now);
+    raf=requestAnimationFrame(tick);
+  }
+  function start(){ if(running||reduced||!docVisible) return; running=true; raf=requestAnimationFrame(tick); }
+  function stop(){ running=false; if(raf) cancelAnimationFrame(raf); raf=null; }
+  document.addEventListener('visibilitychange', function(){
+    docVisible=!document.hidden;
+    if(docVisible) start(); else stop();
+  });
+
+  window.addEventListener('resize', resize);
+  if(window.visualViewport && window.visualViewport.addEventListener){
+    window.visualViewport.addEventListener('resize', resize);
+  }
+  resize();
+  if(reduced){
+    draw(0);
+    if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ draw(0); }); }
+  } else start();
+})();
+</script>
+</body>
+</html>

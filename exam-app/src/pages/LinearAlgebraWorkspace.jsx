@@ -17,11 +17,13 @@ import LinalgTerrain from '../components/motion/LinalgTerrain.jsx'
 // linalg_schema.py's Operation Literal, 12 ops) is used instead.
 //
 // Integrity note on the eigen-axes visualization: the spec asks for "two principal
-// axes" on EIGEN/SVD results. The `eigen` endpoint only returns eigenVALUES (sympy's
-// `.eigenvals()`), never eigenvectors — there is no real direction data to draw.
-// Rather than fabricate axis directions, the axes overlay only renders for `svd`
-// (whose result legitimately includes the V matrix's right-singular-vector columns);
-// `eigen` shows its values in the PHIẾU SỐ LIỆU ticket only, no axis lines.
+// axes" on EIGEN/SVD results. The `eigen` endpoint used to return only eigenVALUES
+// (sympy's `.eigenvals()`), never eigenvectors, so there was no real direction data
+// to draw. The backend now also computes real (sympy-verified, Av = λv) eigenvectors
+// for the 2x2 case — see linalg_solver.py's `eigen_vectors` — so `eigen` draws
+// principal axes from those, same as `svd` draws them from its V matrix's columns.
+// For matrices larger than 2x2 the backend still omits `vectors` (no 2D axis to draw),
+// and the frontend falls back to values-only in the PHIẾU SỐ LIỆU ticket.
 
 const _API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 const MESH_MAX = 6
@@ -75,7 +77,9 @@ const OPERATIONS = [
   { op: 'lu', rail: 'PHÂN TÍCH LU', n: 1, advanced: false },
   { op: 'qr', rail: 'PHÂN TÍCH QR', n: 1, advanced: false },
   { op: 'cholesky', rail: 'PHÂN TÍCH CHOLESKY', n: 1, advanced: false },
-  { op: 'eigen', rail: 'GIÁ TRỊ RIÊNG', n: 1, advanced: true },
+  // Eigen (2x2) is a first-class rail item per the mockup's left-rail list — not
+  // gated behind "advanced" like SVD (which the mockup doesn't list at all).
+  { op: 'eigen', rail: 'EIGEN (2×2)', n: 1, advanced: false },
   { op: 'svd', rail: 'SVD', n: 1, advanced: true },
 ]
 
@@ -242,6 +246,22 @@ export default function LinearAlgebraWorkspace() {
       setAxes(null)
       return
     }
+    if (spec.op === 'eigen' && res.vectors && Object.keys(res.vectors).length) {
+      // Real eigenvectors for the 2x2 case (backend's eigen_vectors, verified via
+      // Av = λv) — draw them as principal axes, same overlay contract as SVD below.
+      const entries = Object.entries(res.vectors)
+      const vec1 = entries[0]?.[1]?.map(parseFrac)
+      const vec2 = entries[1]?.[1]?.map(parseFrac)
+      setAxes({
+        v1: vec1 ? { x: vec1[0] ?? 1, z: vec1[1] ?? 0 } : null,
+        v2: vec2 ? { x: vec2[0] ?? 0, z: vec2[1] ?? 1 } : null,
+        label1: `λ₁=${fmt(entries[0]?.[0])}`,
+        label2: entries[1] ? `λ₂=${fmt(entries[1][0])}` : undefined,
+      })
+      setFlatCollapse(false)
+      setTerrainGrid(clampGrid(numericGridSafe(matrixA)))
+      return
+    }
     if (spec.op === 'svd' && res.result?.V) {
       const V = res.result.V.map(row => row.map(parseFrac))
       const S = (res.result.S ?? []).map(parseFrac)
@@ -324,7 +344,7 @@ export default function LinearAlgebraWorkspace() {
             </div>
             <label className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-3)' }}>
               <input type="checkbox" checked={advanced} onChange={e => setAdvanced(e.target.checked)} />
-              HIỂN THỊ NÂNG CAO (EIGEN, SVD)
+              HIỂN THỊ NÂNG CAO (SVD)
             </label>
 
             <button

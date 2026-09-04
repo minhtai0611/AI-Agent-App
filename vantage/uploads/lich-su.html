@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sổ leo núi — Vantage</title>
+<!-- PROTOTYPE THAM CHIẾU cho prompt 03-lich-su.md · shell clone từ hero-redesign-3d.html v1.4.1
+     Góc phải có chip đổi 3 trạng thái demo (rỗng / 1 lần / nhiều lần) phục vụ nghiệm thu bằng mắt. -->
+<script>
+try{
+  var __t = localStorage.getItem('vantage-theme');
+  if(!__t) __t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', __t);
+}catch(e){ document.documentElement.setAttribute('data-theme','light'); }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F2EA; --paper-2:#ECE8DD;
+  --ink:#1C2333; --ink-2:#4A5164; --ink-3:#8A8FA0;
+  --line:rgba(28,35,51,.14); --line-soft:rgba(28,35,51,.08);
+  --accent:#E4572E; --accent-deep:#B03E1C; --altitude:#2F5D8A; --pine:#33705C;
+  --dot:rgba(28,35,51,.10); --summit-bg:var(--ink);
+  --ink-rgb:28,35,51; --paper-rgb:245,242,234; --accent-rgb:228,87,46; --altitude-rgb:47,93,138;
+  --font-display:'Space Grotesk','Be Vietnam Pro','Segoe UI',system-ui,sans-serif;
+  --font-body:'Be Vietnam Pro','Segoe UI',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+  --ease-out:cubic-bezier(0.22,1,0.36,1);
+}
+[data-theme="dark"]{
+  --paper:#12161F; --paper-2:#1A202B;
+  --ink:#EDEAE0; --ink-2:#B9BDC9; --ink-3:#79808F;
+  --line:rgba(237,234,224,.15); --line-soft:rgba(237,234,224,.08);
+  --accent:#F06840; --accent-deep:#E4572E; --altitude:#6B9BD1; --pine:#4FA586;
+  --dot:rgba(237,234,224,.12); --summit-bg:#0B0E13;
+  --ink-rgb:237,234,224; --paper-rgb:18,22,31; --accent-rgb:240,104,64; --altitude-rgb:107,155,209;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .35s var(--ease-out),color .35s var(--ease-out)}
+::selection{background:var(--accent);color:var(--paper)}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+#bgField{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;z-index:0;pointer-events:none}
+main,footer{position:relative;z-index:1}
+
+/* ===== NAV (shell chung) ===== */
+.nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--paper) 88%, transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line-soft)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.logo{font-family:var(--font-display);font-weight:700;letter-spacing:-.01em;font-size:19px;display:flex;align-items:center;gap:8px}
+.logo .flag{color:var(--accent);font-size:13px;transform:translateY(-1px)}
+.nav-links{display:flex;gap:32px;font-size:15px;color:var(--ink-2);margin-left:auto}
+.nav-links a{position:relative;padding:4px 0;transition:color .16s var(--ease-out)}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:var(--accent);transition:width .22s var(--ease-out)}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a:hover::after,.nav-links a[aria-current]::after{width:100%}
+.nav-links a[aria-current]{color:var(--ink)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-cta{font-family:var(--font-mono);font-size:13px;letter-spacing:.06em;border:1px solid var(--ink);border-radius:6px;padding:8px 16px;background:transparent;color:var(--ink);transition:all .16s var(--ease-out)}
+.nav-cta:hover{background:var(--ink);color:var(--paper)}
+.theme-toggle{width:36px;height:36px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .16s var(--ease-out),transform .16s var(--ease-out)}
+.theme-toggle:hover{border-color:var(--ink);transform:translateY(-1px)}
+.theme-toggle svg{display:none}
+.theme-toggle .i-moon{display:block}
+[data-theme="dark"] .theme-toggle .i-moon{display:none}
+[data-theme="dark"] .theme-toggle .i-sun{display:block}
+@media(max-width:760px){.nav-links{display:none}}
+
+.kicker{font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.kicker::before{content:"";width:32px;height:1px;background:var(--accent)}
+.rv{opacity:0;transform:translateY(12px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-out)}
+.rv.in{opacity:1;transform:none}
+
+/* ===== SỔ LEO NÚI ===== */
+.page{max-width:880px;margin:0 auto;padding:64px 24px 96px}
+.ph{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:40px}
+.ph h1{font-family:var(--font-display);font-weight:700;font-size:clamp(31px,4.2vw,39px);letter-spacing:-.015em;line-height:1.08}
+.ph .sub{margin-top:12px;font-size:16px;color:var(--ink-2);max-width:58ch}
+.ph .note{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:var(--ink-3);text-align:right}
+.demo-bar{display:flex;align-items:center;gap:10px;margin-bottom:32px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-3)}
+.demo-bar .tag{border:1px dashed var(--line);border-radius:6px;padding:3px 8px}
+.demo-bar button{font-family:inherit;font-size:10.5px;letter-spacing:.1em;cursor:pointer;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink-2);transition:all .16s var(--ease-out)}
+.demo-bar button.on{border-color:var(--ink);color:var(--ink)}
+.demo-bar button.on::before{content:"● ";color:var(--accent);font-size:8px}
+
+/* — trạng thái rỗng — */
+.empty{display:none;text-align:center;padding:56px 0 64px}
+.empty.on{display:block}
+.empty svg{display:block;margin:0 auto 24px}
+.empty h2{font-family:var(--font-display);font-size:20px;font-weight:500;margin-bottom:8px}
+.empty p{color:var(--ink-2);font-size:15px;max-width:44ch;margin:0 auto 24px}
+.btn{border-radius:6px;padding:13px 24px;font-weight:500;font-size:15px;border:1px solid transparent;transition:transform .16s var(--ease-out),background .16s var(--ease-out),box-shadow .16s var(--ease-out);display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.btn-primary{background:var(--accent);color:#F5F2EA}
+.btn-primary:hover{background:var(--accent-deep);transform:translateY(-2px);box-shadow:0 10px 24px -14px rgba(176,62,28,.55)}
+.btn-ghost{border-color:var(--ink);color:var(--ink);background:transparent}
+.btn-ghost:hover{transform:translateY(-2px);background:var(--paper-2)}
+
+/* — một mốc đầu tiên — */
+.first{display:none}
+.first.on{display:block}
+.first-card{border-top:2px solid var(--ink);padding-top:28px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:end}
+.first-score{font-family:var(--font-display);font-weight:700;font-size:clamp(56px,8vw,72px);letter-spacing:-.02em;line-height:.95;display:flex;align-items:center;gap:10px}
+.first-score svg{width:18px;height:18px;transform:translateY(-24px)}
+.first-meta{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-2)}
+.first-meta .row{display:flex;justify-content:space-between;gap:16px;padding:7px 0;border-top:1px solid var(--line-soft);max-width:420px}
+.first-meta .k{color:var(--ink-3);letter-spacing:.1em}
+.first-note{margin:20px 0 24px;font-family:var(--font-mono);font-size:12px;letter-spacing:.1em;color:var(--ink-3)}
+@media(max-width:640px){.first-card{grid-template-columns:1fr}}
+
+/* — mặt cắt độ cao (≥2 lần thi) — */
+.elev{display:none}
+.elev.on{display:block}
+.elev .frame{border:1px solid var(--line);border-radius:16px;padding:8px 4px 4px;background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:22px 22px;overflow:hidden}
+.elev svg{display:block;width:100%;height:auto}
+.elev .corner{display:flex;justify-content:space-between;padding:4px 8px 12px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--ink-3)}
+.sb-chip{position:absolute;pointer-events:none;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;background:var(--ink);color:var(--paper);border-radius:5px;padding:5px 9px;opacity:0;transition:opacity .18s var(--ease-out);transform:translate(-50%,-140%)}
+.sb-chip.show{opacity:1}
+.elev-wrap{position:relative}
+
+/* — sổ nhật ký — */
+.journal{display:none;margin-top:56px}
+.journal.on{display:block}
+.month{margin-bottom:8px}
+.month h3{font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.14em;color:var(--ink-3);padding:14px 4px 10px;border-top:1px solid var(--line);margin:0}
+.entry{display:grid;grid-template-columns:52px minmax(0,1fr) auto auto;gap:16px;align-items:baseline;padding:13px 4px;border-top:1px solid var(--line-soft);font-family:var(--font-mono);font-size:13px;transition:background .16s var(--ease-out);cursor:pointer}
+.entry:hover{background:var(--paper-2)}
+.entry .m{color:var(--ink-3)}
+.entry .ex{color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.entry .sc{color:var(--ink);font-variant-numeric:tabular-nums}
+.entry .delta{font-variant-numeric:tabular-nums;text-align:right}
+.entry .delta.up{color:var(--accent)}
+.entry .delta.flat{color:var(--ink-3)}
+.foot-stats{margin-top:40px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;color:var(--ink-3)}
+@media(max-width:640px){
+  .entry{grid-template-columns:44px minmax(0,1fr) auto;grid-template-rows:auto auto;row-gap:2px}
+  .entry .delta{grid-column:3;grid-row:2}
+  .entry .sc{grid-column:1/3;grid-row:2;font-size:12px;color:var(--ink-2)}
+}
+
+footer{background:var(--summit-bg);color:rgba(245,242,234,.5);border-top:1px solid rgba(0,0,0,.12)}
+footer .wrap{padding:24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--font-mono);font-size:12px;letter-spacing:.08em}
+@media(max-width:640px){.page{padding:40px 20px 72px}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgField" aria-hidden="true"></canvas>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html">VANTAGE<span class="flag">▲</span></a>
+    <nav class="nav-links" aria-label="Chính">
+      <a href="index.html#cong-cu">Công cụ</a>
+      <a href="chon-de.html" aria-current="page">Lộ trình</a>
+      <a href="#">Hỏi đáp</a>
+    </nav>
+    <div class="nav-right">
+      <button id="themeToggle" class="theme-toggle" aria-label="Chuyển chế độ sáng / tối" aria-pressed="false">
+        <svg class="i-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="i-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+      <a class="nav-cta" href="chon-de.html">VÀO ÔN THI →</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="page">
+
+  <div class="ph">
+    <div>
+      <div class="kicker">Trạm · nhật ký</div>
+      <h1>Sổ leo núi của bạn.</h1>
+      <p class="sub">Mỗi lần thi là một số đo. Sườn nào càng leo lại, đường zíc-zắc càng rõ.</p>
+    </div>
+    <div class="note" id="quickStat">TỔNG 7 MỐC · CAO NHẤT 7,75Đ</div>
+  </div>
+
+  <div class="demo-bar">
+    <span class="tag">DEMO STATES · SẢN PHẨM THẬT CHỈ CÓ 1:</span>
+    <button data-s="empty">SỔ TRẮNG</button>
+    <button data-s="first">MỐC ĐẦU TIÊN</button>
+    <button data-s="full" class="on">7 LẦN THI</button>
+  </div>
+
+  <!-- ====== EMPTY ====== -->
+  <section class="empty" id="stEmpty">
+    <svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 21V4"/><path d="M12 4l6.5 3.2L12 10.4 5.5 7.2z" style="stroke:var(--accent)"/>
+      <path d="M5 21h14" style="stroke:var(--ink-3)"/>
+    </svg>
+    <h2>Sổ còn trắng — cột mốc đầu tiên chưa được cắm.</h2>
+    <p>Chọn một đề ở trạm, làm hết mình. Trang này sẽ tự ghi lại đường leo của bạn.</p>
+    <a class="btn btn-primary" href="chon-de.html">VỀ TRẠM CHỌN ĐỀ →</a>
+  </section>
+
+  <!-- ====== MỐC ĐẦU TIÊN ====== -->
+  <section class="first" id="stFirst">
+    <div class="first-card">
+      <div class="first-score">7,00
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 18H5z"/><path d="M12 3l2.6 7"/><path d="M9.5 14h5"/></svg>
+      </div>
+      <div class="first-meta">
+        <div class="row"><span class="k">MỐC</span><span>M·01 · ĐỀ THI THỬ HÀ NỘI 2025</span></div>
+        <div class="row"><span class="k">THỜI GIAN</span><span>90/90 PHÚT · 20/07/2026</span></div>
+        <div class="row"><span class="k">TRẠM ĐẠT</span><span>15/22</span></div>
+      </div>
+    </div>
+    <p class="first-note">MỐC ĐẦU TIÊN — SƯỜN MỚI BẮT ĐẦU HIỆN HÌNH. LÀM THÊM MỘT ĐỀ ĐỂ VẼ MẶT CẮT.</p>
+    <a class="btn btn-ghost" href="chon-de.html">LEO TIẾP ĐỂ VẼ SƯỜN →</a>
+  </section>
+
+  <!-- ====== MẶT CẮT ĐỘ CAO (≥2 lần) ====== -->
+  <section class="elev on" id="stElev" aria-labelledby="elev-h">
+    <div class="ph" style="margin-bottom:16px">
+      <h2 id="elev-h" style="font-family:var(--font-display);font-size:25px">Mặt cắt độ cao · hành trình</h2>
+      <div class="note">NÉT ĐỨT XANH = LEO LẠI CÙNG MỘT SƯỜN</div>
+    </div>
+    <div class="elev-wrap">
+      <div class="frame"><svg id="elevSvg" role="img" aria-label="7 lần thi từ 6 tháng 7 đến 31 tháng 8, điểm từ 6,00 lên 7,75. Đề Hà Nội 2025 leo lại ba lần: 6,50 → 7,00 → 7,75."></svg></div>
+      <span class="sb-chip" id="elevChip"></span>
+    </div>
+  </section>
+
+  <!-- ====== SỔ NHẬT KÝ ====== -->
+  <section class="journal on" id="stJournal" aria-label="Nhật ký các lần thi">
+    <div class="month">
+      <h3>THÁNG 8 · 2026 · 4 MỐC</h3>
+      <a class="entry" href="ket-qua.html"><span class="m">M·07</span><span class="ex">ĐỀ THI THỬ HÀ NỘI 2025</span><span class="sc">7,75Đ · 82/90′</span><span class="delta up">▲ +0,75</span></a>
+      <a class="entry" href="ket-qua.html"><span class="m">M·06</span><span class="ex">ĐỀ THPT QUỐC GIA 2024</span><span class="sc">7,25Đ · 84/90′</span><span class="delta flat">· LẦN ĐẦU</span></a>
+      <a class="entry" href="ket-qua.html"><span class="m">M·05</span><span class="ex">ĐỀ THI THỬ HÀ NỘI 2025</span><span class="sc">7,00Đ · 85/90′</span><span class="delta up">▲ +0,50</span></a>
+      <a class="entry" href="ket-qua.html"><span class="m">M·04</span><span class="ex">ĐỀ THI THỬ ĐÀ NẴNG 2025</span><span class="sc">6,75Đ · 86/90′</span><span class="delta flat">· LẦN ĐẦU</span></a>
+    </div>
+    <div class="month">
+      <h3>THÁNG 7 · 2026 · 3 MỐC</h3>
+      <a class="entry" href="ket-qua.html"><span class="m">M·03</span><span class="ex">ĐỀ THI THỬ HÀ NỘI 2025</span><span class="sc">6,50Đ · 90/90′</span><span class="delta flat">· LẦN ĐẦU</span></a>
+      <a class="entry" href="ket-qua.html"><span class="m">M·02</span><span class="ex">ĐỀ VÀO 10 HÀ NỘI 2025</span><span class="sc">7,00Đ · 40/45′</span><span class="delta flat">· LẦN ĐẦU</span></a>
+      <a class="entry" href="ket-qua.html"><span class="m">M·01</span><span class="ex">ĐỀ MINH HỌA 2025 — BỘ GD&amp;ĐT</span><span class="sc">6,00Đ · 88/90′</span><span class="delta flat">· LẦN ĐẦU</span></a>
+    </div>
+    <p class="foot-stats">TỔNG 7 MỐC · CAO NHẤT 7,75 · SƯỜN LEO LẠI NHIỀU NHẤT: ĐỀ HÀ NỘI 2025 ×3</p>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>VANTAGE ▲ · VƯƠN TỚI ĐỈNH CAO</span>
+    <span>GIẤY — MỰC — CỜ ĐỈNH · V2 · ∫Σ√π∞Δ</span>
+  </div>
+</footer>
+
+<script>
+/* ===== THEME TOGGLE ===== */
+(function(){
+  var b=document.getElementById('themeToggle');
+  function apply(t){
+    document.documentElement.setAttribute('data-theme', t);
+    if(b) b.setAttribute('aria-pressed', String(t==='dark'));
+    try{ localStorage.setItem('vantage-theme', t); }catch(e){}
+    (window.VTG_THEME_HOOKS||[]).forEach(function(fn){ try{ fn(); }catch(e){} });
+  }
+  if(b) b.addEventListener('click', function(){
+    apply(document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
+  });
+})();
+
+/* ===== NỀN AMBIENT (shell chung) ===== */
+(function(){
+  var cv=document.getElementById('bgField');
+  if(!cv || !cv.getContext) return;
+  var ctx=cv.getContext('2d');
+  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine=window.matchMedia('(pointer: fine)').matches;
+  var HILLS=[
+    {cx:0.08, cy:0.16, sx:0.42, sz:0.27, ph:0.0, spd:0.8,  depth:1.35},
+    {cx:0.52, cy:0.05, sx:0.55, sz:0.30, ph:2.1, spd:0.5,  depth:0.55},
+    {cx:0.92, cy:0.28, sx:0.30, sz:0.40, ph:4.0, spd:1.0,  depth:1.1},
+    {cx:0.10, cy:0.58, sx:0.36, sz:0.25, ph:5.2, spd:0.65, depth:0.85},
+    {cx:0.80, cy:0.66, sx:0.27, sz:0.20, ph:1.3, spd:0.9,  depth:1.5},
+    {cx:0.38, cy:1.04, sx:0.46, sz:0.28, ph:3.3, spd:0.6,  depth:0.7},
+    {cx:0.99, cy:0.97, sx:0.32, sz:0.23, ph:5.8, spd:1.15, depth:1.25}
+  ];
+  var ISO=[0.55, 0.95, 1.35, 1.75, 2.15];
+  var INK_RGB='28,35,51', ACC_RGB='228,87,46';
+  function readCol(){
+    try{
+      var cs=getComputedStyle(document.documentElement);
+      var v=(cs.getPropertyValue('--ink-rgb')||'').trim();    if(v) INK_RGB=v;
+      var a=(cs.getPropertyValue('--accent-rgb')||'').trim(); if(a) ACC_RGB=a;
+    }catch(e){}
+  }
+  readCol();
+  (window.VTG_THEME_HOOKS=window.VTG_THEME_HOOKS||[]).push(function(){ readCol(); if(reduced) draw(0); });
+  var W=2, Hh=2, DPR=1;
+  function resize(){
+    DPR=Math.min(window.devicePixelRatio||1, 1.5);
+    W=Math.max(2, Math.round(window.innerWidth*DPR));
+    Hh=Math.max(2, Math.round(window.innerHeight*DPR));
+    cv.width=W; cv.height=Hh;
+    if(reduced) draw(0);
+  }
+  var ox=0, oy=0, tox=0, toy=0, sy=0, tsy=0;
+  if(fine && !reduced){
+    document.addEventListener('mousemove', function(e){
+      tox=(e.clientX/Math.max(1,window.innerWidth)-0.5)*18*DPR;
+      toy=(e.clientY/Math.max(1,window.innerHeight)-0.5)*14*DPR;
+    });
+  }
+  window.addEventListener('scroll', function(){ tsy=(window.scrollY||0)*0.055*DPR; }, {passive:true});
+  function draw(now){
+    ctx.clearRect(0,0,W,Hh);
+    var S=Math.min(W,Hh), t=now/1000;
+    var wy=Hh*0.16 + oy*0.30 - sy*0.30;
+    var g1=ctx.createRadialGradient(W*0.80,wy,0, W*0.80,wy, Math.max(W,Hh)*0.62);
+    g1.addColorStop(0,'rgba('+ACC_RGB+',0.05)'); g1.addColorStop(1,'rgba('+ACC_RGB+',0)');
+    ctx.fillStyle=g1; ctx.fillRect(0,0,W,Hh);
+    var g2=ctx.createRadialGradient(W*0.10,Hh*0.94-sy*0.20,0, W*0.10,Hh*0.94-sy*0.20, Math.max(W,Hh)*0.55);
+    g2.addColorStop(0,'rgba('+INK_RGB+',0.035)'); g2.addColorStop(1,'rgba('+INK_RGB+',0)');
+    ctx.fillStyle=g2; ctx.fillRect(0,0,W,Hh);
+    var tProg = reduced ? 1 : Math.min(1, Math.max(0,(t-0.6)/2.2));
+    if(tProg>0){
+      ctx.save();
+      ctx.globalAlpha=0.13; ctx.strokeStyle='rgb('+ACC_RGB+')'; ctx.lineWidth=1.1*DPR; ctx.lineCap='round';
+      ctx.beginPath();
+      var TN=90, upTo=Math.max(1, Math.floor(TN*tProg));
+      for(var i=0;i<=upTo;i++){
+        var u=i/TN;
+        var px=(0.05+0.86*u+0.030*Math.sin(u*4.4+1.2))*W + ox*0.5;
+        var py=(0.96-0.86*u+0.085*Math.sin(u*7.0))*Hh + oy*0.5 - sy*0.5;
+        if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+      if(tProg>=1){
+        ctx.globalAlpha=0.3;
+        var ex=(0.05+0.86+0.030*Math.sin(4.4+1.2))*W + ox*0.5;
+        var ey=(0.96-0.86+0.085*Math.sin(7.0))*Hh + oy*0.5 - sy*0.5;
+        ctx.beginPath(); ctx.arc(ex,ey,3*DPR,0,6.2832); ctx.fillStyle='rgb('+ACC_RGB+')'; ctx.fill();
+      }
+      ctx.restore();
+    }
+    HILLS.forEach(function(hl){
+      var cxn = hl.cx + Math.sin(t*0.0785*hl.spd + hl.ph)*0.045;
+      var cyn = hl.cy + Math.cos(t*0.0661*hl.spd + hl.ph*1.7)*0.038;
+      var br  = 1 + Math.sin(t*0.052*hl.spd + hl.ph*0.6)*0.05;
+      var cxpx = cxn*W + ox*hl.depth, cypx = cyn*Hh + oy*hl.depth - sy*hl.depth;
+      var sx = hl.sx*S*br, sz = hl.sz*S*br;
+      var cxr=Math.min(1, Math.abs(cxpx - W*0.5)/(W*0.5));
+      var vis=0.42 + 0.58*Math.pow(cxr,1.4);
+      for(var ii=0; ii<ISO.length; ii++){
+        var k=ISO[ii];
+        var alpha=(0.12-(k-0.55)*0.048)*vis;
+        if(alpha<=0.008) continue;
+        ctx.beginPath();
+        for(var s=0;s<=44;s++){
+          var th=s/44*6.2832;
+          var c=Math.cos(th), sn=Math.sin(th);
+          var q=(c*c)/(sx*sx)+(sn*sn)/(sz*sz);
+          var r=k/Math.sqrt(q);
+          var px=cxpx+c*r, py=cypx+sn*r;
+          if(s===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+        }
+        ctx.closePath();
+        ctx.strokeStyle='rgba('+INK_RGB+','+alpha.toFixed(3)+')';
+        ctx.lineWidth=1*DPR; ctx.stroke();
+      }
+    });
+  }
+  var raf=null, running=false, docVisible=true;
+  function tick(now){
+    if(!running) return;
+    ox+=(tox-ox)*0.05; oy+=(toy-oy)*0.05; sy+=(tsy-sy)*0.07;
+    draw(now); raf=requestAnimationFrame(tick);
+  }
+  function start(){ if(running||reduced||!docVisible) return; running=true; raf=requestAnimationFrame(tick); }
+  function stop(){ running=false; if(raf) cancelAnimationFrame(raf); raf=null; }
+  document.addEventListener('visibilitychange', function(){ docVisible=!document.hidden; if(docVisible) start(); else stop(); });
+  window.addEventListener('resize', resize);
+  if(window.visualViewport && window.visualViewport.addEventListener) window.visualViewport.addEventListener('resize', resize);
+  resize();
+  if(reduced){ draw(0); if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ draw(0); }); } }
+  else start();
+})();
+
+/* ================================================================
+   SỔ LEO NÚI — mặt cắt độ cao + switchback + đổi 3 trạng thái demo
+   ================================================================ */
+(function(){
+  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var NS='http://www.w3.org/2000/svg';
+
+  /* 7 lần thi (thời gian ↑) — HN2025 lặp 3 lần → switchback */
+  var DATA=[
+    {m:'M·01', ex:'ĐỀ MINH HỌA 2025',      dt:'06/07', sc:6.00},
+    {m:'M·02', ex:'ĐỀ VÀO 10 HN 2025',     dt:'13/07', sc:7.00},
+    {m:'M·03', ex:'ĐỀ THI THỬ HN 2025',    dt:'20/07', sc:6.50, id:'hn'},
+    {m:'M·04', ex:'ĐỀ THI THỬ ĐÀ NẴNG',    dt:'02/08', sc:6.75},
+    {m:'M·05', ex:'ĐỀ THI THỬ HN 2025',    dt:'09/08', sc:7.00, id:'hn', dl:'+0,50'},
+    {m:'M·06', ex:'ĐỀ THPT QUỐC GIA 2024', dt:'16/08', sc:7.25},
+    {m:'M·07', ex:'ĐỀ THI THỬ HN 2025',    dt:'31/08', sc:7.75, id:'hn', dl:'+0,75'}
+  ];
+
+  var svg=document.getElementById('elevSvg');
+  var chip=document.getElementById('elevChip');
+  var VW=880, VH=250, L=40, R=20, T=18, B=32;
+  var IW=VW-L-R, IH=VH-T-B, BASE=T+IH;
+  function xf(i){ return L + i*(IW/(DATA.length-1)); }
+  function yf(v){ return BASE - (v/10)*IH; }
+
+  function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+  var C={};
+  function readCols(){ C.line=css('--line'); C.soft=css('--line-soft'); C.ink=css('--ink'); C.ink3=css('--ink-3'); C.acc=css('--accent'); C.alt=css('--altitude'); }
+  readCols();
+  (window.VTG_THEME_HOOKS=window.VTG_THEME_HOOKS||[]).push(function(){ readCols(); paint(true); });
+
+  var drawn=false;
+  function paint(repeat){
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    svg.setAttribute('viewBox','0 0 '+VW+' '+VH);
+
+    [0,5,10].forEach(function(v){
+      var y=yf(v);
+      var ln=document.createElementNS(NS,'line');
+      ln.setAttribute('x1',L); ln.setAttribute('x2',VW-R); ln.setAttribute('y1',y); ln.setAttribute('y2',y);
+      ln.setAttribute('stroke',v===0?C.line:C.soft); svg.appendChild(ln);
+      var t=document.createElementNS(NS,'text');
+      t.setAttribute('x',L-8); t.setAttribute('y',y+3); t.setAttribute('text-anchor','end');
+      t.setAttribute('style','font:10px var(--font-mono);fill:'+C.ink3); t.textContent=v;
+      svg.appendChild(t);
+    });
+    [0,3,6].forEach(function(i){
+      var t=document.createElementNS(NS,'text');
+      t.setAttribute('x',xf(i)); t.setAttribute('y',BASE+18); t.setAttribute('text-anchor','middle');
+      t.setAttribute('style','font:10px var(--font-mono);letter-spacing:.08em;fill:'+C.ink3);
+      t.textContent=DATA[i].dt;
+      svg.appendChild(t);
+    });
+
+    /* switchback trước (dưới đường chính) */
+    var hn=[2,4,6];
+    for(var k=0;k<2;k++){
+      var a=DATA[hn[k]], b=DATA[hn[k+1]];
+      var seg=document.createElementNS(NS,'path');
+      var x1=xf(hn[k]), y1=yf(a.sc), x2=xf(hn[k+1]), y2=yf(b.sc);
+      var mx=(x1+x2)/2;
+      seg.setAttribute('d','M '+x1+' '+y1+' C '+mx+' '+(y1-14)+' '+mx+' '+(y2-14)+' '+x2+' '+y2);
+      seg.setAttribute('fill','none'); seg.setAttribute('stroke',C.alt);
+      seg.setAttribute('stroke-width','1.2'); seg.setAttribute('stroke-dasharray','4 3');
+      svg.appendChild(seg);
+      var lb=document.createElementNS(NS,'text');
+      lb.setAttribute('x',mx); lb.setAttribute('y',Math.min(y1,y2)-10); lb.setAttribute('text-anchor','middle');
+      lb.setAttribute('style','font:9.5px var(--font-mono);letter-spacing:.06em;fill:'+C.alt);
+      lb.textContent='LEO LẠI '+b.dl;
+      svg.appendChild(lb);
+    }
+
+    /* đường hành trình chính */
+    var d='M '+DATA.map(function(p,i){ return xf(i)+' '+yf(p.sc); }).join(' L ');
+    var path=document.createElementNS(NS,'path');
+    path.setAttribute('d',d); path.setAttribute('fill','none');
+    path.setAttribute('stroke',C.acc); path.setAttribute('stroke-width','1.5');
+    path.setAttribute('stroke-linecap','round'); path.setAttribute('stroke-linejoin','round');
+    svg.appendChild(path);
+
+    DATA.forEach(function(p,i){
+      var g=document.createElementNS(NS,'g');
+      g.setAttribute('style','cursor:pointer');
+      var tt=document.createElementNS(NS,'title');
+      tt.textContent=p.m+' · '+p.ex+' · '+String(p.sc).replace('.',',')+'đ';
+      g.appendChild(tt);
+      var ring=document.createElementNS(NS,'circle');
+      ring.setAttribute('cx',xf(i)); ring.setAttribute('cy',yf(p.sc)); ring.setAttribute('r','5.5');
+      ring.setAttribute('fill','none'); ring.setAttribute('stroke',C.acc); ring.setAttribute('stroke-width','1.4');
+      g.appendChild(ring);
+      var core=document.createElementNS(NS,'circle');
+      core.setAttribute('cx',xf(i)); core.setAttribute('cy',yf(p.sc)); core.setAttribute('r','2.4');
+      core.setAttribute('fill',C.acc);
+      g.appendChild(core);
+      g.addEventListener('mouseenter',function(){
+        chip.textContent=p.m+' · '+String(p.sc).replace('.',',')+'Đ · '+p.dt;
+        var svgR=svg.getBoundingClientRect();
+        chip.style.left=(xf(i)/VW*svgR.width)+'px';
+        chip.style.top=(yf(p.sc)/VH*svgR.height)+'px';
+        chip.classList.add('show');
+      });
+      g.addEventListener('mouseleave',function(){ chip.classList.remove('show'); });
+      g.addEventListener('click',function(){ location.href='ket-qua.html'; });
+      svg.appendChild(g);
+      if(!reduced && !repeat && !drawn){
+        g.style.opacity='0'; g.style.transition='opacity .3s var(--ease-out)';
+        g.style.transitionDelay=(0.9+i*0.05)+'s';
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ g.style.opacity='1'; }); });
+      }
+    });
+
+    if(!reduced && !repeat && !drawn){
+      var len=path.getTotalLength();
+      path.style.strokeDasharray=len; path.style.strokeDashoffset=len;
+      path.getBoundingClientRect();
+      path.style.transition='stroke-dashoffset 1.2s var(--ease-out)';
+      path.style.strokeDashoffset='0';
+    }
+    drawn=true;
+  }
+  paint(false);
+
+  /* — đổi trạng thái demo — */
+  var views={empty:'stEmpty', first:'stFirst', full:null};
+  var els={empty:document.getElementById('stEmpty'), first:document.getElementById('stFirst'),
+           elev:document.getElementById('stElev'), journal:document.getElementById('stJournal'),
+           qs:document.getElementById('quickStat')};
+  function setState(s){
+    els.empty.classList.toggle('on', s==='empty');
+    els.first.classList.toggle('on', s==='first');
+    els.elev.classList.toggle('on', s==='full');
+    els.journal.classList.toggle('on', s==='full');
+    els.qs.textContent = s==='empty' ? 'TỔNG 0 MỐC · SỔ MỚI' : (s==='first' ? 'TỔNG 1 MỐC · CAO NHẤT 7,00Đ' : 'TỔNG 7 MỐC · CAO NHẤT 7,75Đ');
+    document.querySelectorAll('.demo-bar button').forEach(function(b){ b.classList.toggle('on', b.dataset.s===s); });
+  }
+  document.querySelectorAll('.demo-bar button').forEach(function(b){
+    b.addEventListener('click', function(){ setState(b.dataset.s); });
+  });
+
+  /* reveal */
+  if('IntersectionObserver' in window && !reduced){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }});
+    },{threshold:.12});
+    document.querySelectorAll('.elev,.journal,.first,.empty').forEach(function(n){ n.classList.add('rv'); io.observe(n); });
+  }
+})();
+</script>
+</body>
+</html>
