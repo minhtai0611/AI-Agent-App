@@ -5,6 +5,7 @@ import { useHistory } from '../context/HistoryContext.jsx'
 import { loadExamById } from '../api/index.js'
 import { pageVariants } from '../utils/animations.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
+import { useEscapeToClose } from '../hooks/useEscapeToClose.js'
 
 const MONTHS_VI = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12']
 const REVEAL_STEP = 15
@@ -214,8 +215,10 @@ function JournalRow({ result, delta }) {
 export default function History() {
   usePageMeta('Sổ leo núi', { noindex: true })
   const navigate = useNavigate()
-  const { results } = useHistory()
+  const { results, clearHistory } = useHistory()
   const [revealCount, setRevealCount] = useState(REVEAL_STEP * 2)
+  const [resetModal, setResetModal] = useState(false)
+  useEscapeToClose(resetModal, () => setResetModal(false))
   const reducedMotionRef = useRef(
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   )
@@ -266,9 +269,17 @@ export default function History() {
             )}
           </div>
           {results.length > 0 && (
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-3)', letterSpacing: '0.04em' }}>
-              TỔNG {results.length} MỐC · CAO NHẤT {fmtNum(bestScore)}Đ
-            </span>
+            <div className="flex items-center gap-4">
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-3)', letterSpacing: '0.04em' }}>
+                TỔNG {results.length} MỐC · CAO NHẤT {fmtNum(bestScore)}Đ
+              </span>
+              <button
+                onClick={() => setResetModal(true)}
+                style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.04em', color: 'var(--ink-3)' }}
+              >
+                Đóng sổ hành trình
+              </button>
+            </div>
           )}
         </div>
 
@@ -350,6 +361,42 @@ export default function History() {
           </div>
         )}
       </div>
+
+      {resetModal && (
+        <div className="vtg-overlay" onClick={() => setResetModal(false)}>
+          <div className="vtg-modal" style={{ maxWidth: 420 }} onClick={e => e.stopPropagation()}>
+            <div className="vtg-modal-head">
+              <div>
+                <span className="vtg-modal-kicker">ĐÓNG SỔ HÀNH TRÌNH</span>
+                <span className="vtg-modal-title">Xóa trắng mốc đã cắm?</span>
+              </div>
+              <button onClick={() => setResetModal(false)} className="vtg-modal-close" aria-label="Đóng">✕</button>
+            </div>
+
+            <div className="vtg-modal-body">
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: 13.5, color: 'var(--ink-2)' }}>
+                Toàn bộ mốc đã cắm trên sườn núi này sẽ bị xóa khỏi thiết bị và không thể khôi phục.
+              </p>
+              <div className="vtg-ledger-table">
+                <div className="vtg-ledger-row">
+                  <span className="vtg-ledger-label">Số mốc sẽ xóa</span>
+                  <span className="vtg-ledger-value">{results.length}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="vtg-modal-foot">
+              <button onClick={() => setResetModal(false)} className="vtg-btn-ghost">HUỶ</button>
+              <button
+                onClick={() => { clearHistory(); setResetModal(false) }}
+                className="vtg-btn-primary"
+              >
+                ĐÓNG SỔ HÀNH TRÌNH & XÓA MỐC ĐÃ CẮM ▲
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   )
 }

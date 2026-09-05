@@ -37,7 +37,7 @@ export function ReportIssueButton({ questionId }) {
         className="self-start flex items-center gap-2 px-3 py-1.5 transition"
         style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-3)' }}
       >
-        ⚑ Báo lỗi câu hỏi
+        Báo lỗi câu hỏi
       </button>
 
       {open && (

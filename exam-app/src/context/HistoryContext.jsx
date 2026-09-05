@@ -27,6 +27,9 @@ function reducer(state, action) {
     }
     case 'LOAD':
       return action.results
+    case 'CLEAR':
+      saveLocal([])
+      return []
     default:
       return state
   }
@@ -50,8 +53,12 @@ export function HistoryProvider({ children }) {
     return result.id
   }
 
+  function clearHistory() {
+    dispatch({ type: 'CLEAR' })
+  }
+
   return (
-    <HistoryContext.Provider value={{ results, addResult }}>
+    <HistoryContext.Provider value={{ results, addResult, clearHistory }}>
       {children}
     </HistoryContext.Provider>
   )
