@@ -21,6 +21,14 @@ import HeroTerrain from '../components/motion/HeroTerrain.jsx'
 // creates a new containing block and silently breaks position:sticky.
 const EASE = [0.22, 1, 0.36, 1]
 
+// Small hover-state helper — inline `style` props here (colors/borders driven by
+// CSS custom properties) always beat a plain Tailwind `hover:` class in specificity,
+// so hover effects have to be applied by merging into the same style object instead.
+function useHoverState() {
+  const [hovered, setHovered] = useState(false)
+  return [hovered, { onMouseEnter: () => setHovered(true), onMouseLeave: () => setHovered(false) }]
+}
+
 const landingPageVariants = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { duration: 0.32, ease: EASE } },
@@ -90,14 +98,99 @@ function MoonIcon() {
   )
 }
 
+function HeaderNavLink({ label, anchor }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <a
+      href={anchor}
+      {...hoverProps}
+      className="text-[15px] transition-colors relative inline-block"
+      style={{ color: hovered ? 'var(--ink)' : 'var(--ink-2)' }}
+    >
+      {label}
+      <span
+        aria-hidden="true"
+        style={{
+          position: 'absolute', left: 0, bottom: -3, height: 1, background: 'var(--ink)',
+          width: hovered ? '100%' : '0%', transition: 'width 0.2s var(--ease-out)',
+        }}
+      />
+    </a>
+  )
+}
+
+function NavCtaButton({ onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      className="px-4 py-2 text-[13px] transition-colors"
+      style={{
+        fontFamily: 'var(--font-mono)', letterSpacing: '0.06em', border: '1px solid var(--ink)', borderRadius: 'var(--r-sm)',
+        color: hovered ? 'var(--paper)' : 'var(--ink)', background: hovered ? 'var(--ink)' : 'transparent',
+      }}
+    >
+      VÀO ÔN THI →
+    </button>
+  )
+}
+
+function HeroPrimaryCta({ onClick, children }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      className="font-sans transition-colors"
+      style={{
+        padding: '14px 26px', fontSize: 16, fontWeight: 500, color: '#F5F2EA', border: '1px solid transparent', borderRadius: 'var(--r-sm)',
+        background: hovered ? 'var(--accent-deep)' : 'var(--accent)',
+        transform: hovered ? 'translateY(-2px)' : 'none',
+        boxShadow: hovered ? '0 10px 24px -14px rgba(176,62,28,.55)' : 'none',
+        transition: 'background 0.2s var(--ease-out), transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out)',
+      }}
+    >
+      {children}{' '}
+      <span style={{ display: 'inline-block', transform: hovered ? 'translateX(3px)' : 'none', transition: 'transform 0.2s var(--ease-out)' }}>→</span>
+    </button>
+  )
+}
+
+function HeroGhostCta({ onClick, children }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      className="font-sans transition-colors"
+      style={{
+        padding: '14px 26px', fontSize: 16, fontWeight: 500, color: 'var(--ink)', border: '1px solid var(--ink)', borderRadius: 'var(--r-sm)',
+        background: hovered ? 'var(--paper-2)' : 'transparent',
+        transform: hovered ? 'translateY(-2px)' : 'none',
+        transition: 'background 0.2s var(--ease-out), transform 0.2s var(--ease-out)',
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
 function HeaderThemeToggle() {
   const { theme, toggleTheme } = useTheme()
+  const [hovered, hoverProps] = useHoverState()
   return (
     <button
       onClick={toggleTheme}
+      {...hoverProps}
       aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
       className="flex items-center justify-center w-9 h-9 transition-colors"
-      style={{ color: 'var(--ink)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', background: 'transparent' }}
+      style={{
+        color: 'var(--ink)', borderRadius: 'var(--r-sm)', background: 'transparent',
+        border: `1px solid ${hovered ? 'var(--ink)' : 'var(--line)'}`,
+        transform: hovered ? 'translateY(-1px)' : 'none',
+        transition: 'border-color 0.2s var(--ease-out), transform 0.2s var(--ease-out)',
+      }}
     >
       {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
     </button>
@@ -261,25 +354,12 @@ export default function Landing() {
           <VantageLogo variant="wordmark" onClick={goToExams} />
           <nav className="hidden sm:flex items-center gap-8 ml-auto" aria-label="Chính">
             {NAV_LINKS.map(link => (
-              <a
-                key={link.anchor}
-                href={link.anchor}
-                className="text-[15px] transition-colors"
-                style={{ color: 'var(--ink-2)' }}
-              >
-                {link.label}
-              </a>
+              <HeaderNavLink key={link.anchor} label={link.label} anchor={link.anchor} />
             ))}
           </nav>
           <div className="flex items-center gap-3">
             <HeaderThemeToggle />
-            <button
-              onClick={goToExams}
-              className="px-4 py-2 text-[13px] transition-colors"
-              style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.06em', color: 'var(--ink)', border: '1px solid var(--ink)', borderRadius: 'var(--r-sm)', background: 'transparent' }}
-            >
-              VÀO ÔN THI →
-            </button>
+            <NavCtaButton onClick={goToExams} />
           </div>
         </div>
       </header>
@@ -312,20 +392,8 @@ export default function Landing() {
               Đề thi thật từ Bộ GD&amp;ĐT và 63 tỉnh thành. Hai lộ trình — THPT và tuyển sinh lớp 10 — cùng một xuất phát điểm. Bản đồ năng lực của riêng bạn, vẽ bằng điểm số thật.
             </motion.p>
             <motion.div variants={heroFadeUp} className="flex flex-wrap items-center gap-3 mt-1">
-              <button
-                onClick={goToExams}
-                className="font-sans transition-colors"
-                style={{ padding: '14px 26px', fontSize: 16, fontWeight: 500, background: 'var(--accent)', color: '#F5F2EA', border: '1px solid transparent', borderRadius: 'var(--r-sm)' }}
-              >
-                Bắt đầu ôn thi miễn phí →
-              </button>
-              <button
-                onClick={() => viewNavigate(navigate, '/playground')}
-                className="font-sans transition-colors"
-                style={{ padding: '14px 26px', fontSize: 16, fontWeight: 500, color: 'var(--ink)', border: '1px solid var(--ink)', borderRadius: 'var(--r-sm)', background: 'transparent' }}
-              >
-                Xem công cụ
-              </button>
+              <HeroPrimaryCta onClick={goToExams}>Bắt đầu ôn thi miễn phí</HeroPrimaryCta>
+              <HeroGhostCta onClick={() => viewNavigate(navigate, '/playground')}>Xem công cụ</HeroGhostCta>
             </motion.div>
             <motion.p variants={heroFadeUp} style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--ink-3)', letterSpacing: '0.06em' }}>
               KHÔNG CẦN THẺ · DÙNG NGAY TRÊN TRÌNH DUYỆT · ∫Σ√π∞Δ

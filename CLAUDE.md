@@ -91,11 +91,37 @@ exam-app/src/
                      #   for manually-typed curves; compileFunctionOfX/toMathjsSyntax also back the playground
   pages/
     Landing.jsx      # / — marketing landing page. Ground truth is `vantage/uploads/hero-redesign-3d.html`
-                     #   (a standalone static mockup, opened via a local `python -m http.server` since
-                     #   claude-in-chrome rejects file:// URLs) — read ITS actual CSS/JS before assuming a
-                     #   visual difference is a bug or a deliberate deviation; several past "deliberate
-                     #   deviations" here (stats layout, logo mark, terrain competency mode, BgField's
-                     #   algorithm) turned out to be undocumented drift from the mockup, not real decisions.
+                     #   (a standalone static mockup — hero section only, no scroll content below it; also
+                     #   viewable via Arena.ai's own agent preview pane, no local http.server needed there) —
+                     #   read ITS actual CSS/JS before assuming a visual difference is a bug or a deliberate
+                     #   deviation; several past "deliberate deviations" here (stats layout, logo mark, terrain
+                     #   competency mode, BgField's algorithm) turned out to be undocumented drift from the
+                     #   mockup, not real decisions. Re-verified 2026-09-06 via static screenshot comparison
+                     #   against the live production hero (exam-app-ey0.pages.dev): nav, ambient BgField, hero
+                     #   copy/buttons, and the HeroTerrain route panel (waypoints, route formulas, footer
+                     #   labels) all match the mockup pixel-for-pixel at rest. (One non-bug: right after a
+                     #   scroll/resize the live terrain canvas briefly redraws as a bare dot-grid before the
+                     #   mesh repaints — a redraw delay, not missing content.) Fonts/colors also verified exact:
+                     #   computed `--font-display`/`--font-body`/`--font-mono` and the full dark-theme color
+                     #   token set match the mockup's `:root`/`[data-theme="dark"]` values hex-for-hex — despite
+                     #   this, don't trust the "Frontend brand identity" section below (Fraunces+Inter) for what
+                     #   Landing.jsx actually ships; it ships Space Grotesk/Be Vietnam Pro/IBM Plex Mono, matching
+                     #   the mockup — that section is stale for this page specifically.
+                     #   **Hover states fixed 2026-09-06** (had been missing, see [[project_landing_hero_mockup_parity]]
+                     #   for the prior audit): nav links (color + a real animated-underline `<span>`, since inline
+                     #   `style` colors/borders always beat a plain `hover:` Tailwind class in specificity — no
+                     #   `::after` pseudo-element route was viable), nav-cta (bg/color invert), theme toggle
+                     #   (border+lift), both hero CTAs (`HeroPrimaryCta`/`HeroGhostCta` — darken/lift/shadow, arrow
+                     #   translateX), and the Lộ trình/Năng lực terrain-mode tabs (`HeroTerrain.jsx`, border-color)
+                     #   all now merge a `hovered` boolean (via a small `useHoverState()` hook + onMouseEnter/Leave)
+                     #   into the same inline `style` object rather than adding `hover:` utility classes, which is
+                     #   the only way to make a hover effect actually apply when the base look already comes from
+                     #   inline `style`. Values match the mockup's `.nav-links a:hover`/`.nav-cta:hover`/`.theme-
+                     #   toggle:hover`/`.btn-primary:hover`/`.btn-ghost:hover`/`.mt:hover` rules. Verified via a
+                     #   production build (`npm run build`) plus synthetic mouseenter/mouseover dispatch on each
+                     #   element confirming the computed style actually changes (not just class-name presence).
+                     #   Not touched: `SummitCTA`'s closing "Vào ôn thi ngay →" button — outside the hero mockup's
+                     #   scope, was never part of the documented gap.
     ConceptExplorer.jsx        # /concept/:questionId — AI-generated 3D visualization, GSAP-choreographed
     CasCalculator.jsx          # /calculator — mathlive input, live client-side CAS, optional backend "kiểm tra"
     MathPlayground.jsx         # /playground — mathlive expression-list + Mafs 2D canvas; the "mô tả bằng lời"

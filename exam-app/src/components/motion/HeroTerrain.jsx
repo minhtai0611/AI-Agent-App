@@ -119,6 +119,7 @@ export default function HeroTerrain() {
   const [mode, setModeState] = useState(0) // 0 = lộ trình, 1 = năng lực
   const [hasUserData, setHasUserData] = useState(false)
   const [userName, setUserName] = useState('')
+  const [hoveredTab, setHoveredTab] = useState(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -216,12 +217,14 @@ export default function HeroTerrain() {
             key={tab.m}
             type="button"
             onClick={() => handleModeClick(tab.m)}
+            onMouseEnter={() => setHoveredTab(tab.m)}
+            onMouseLeave={() => setHoveredTab(null)}
             aria-pressed={mode === tab.m}
             className="inline-flex items-center gap-1.5"
             style={{
               fontFamily: 'var(--font-mono)', fontSize: 10.5, letterSpacing: '0.1em', cursor: 'pointer',
-              padding: '6px 12px', borderRadius: 999,
-              border: `1px solid ${mode === tab.m ? 'var(--ink)' : 'var(--line)'}`,
+              padding: '6px 12px', borderRadius: 999, transition: 'border-color 0.2s var(--ease-out)',
+              border: `1px solid ${mode === tab.m ? 'var(--ink)' : hoveredTab === tab.m ? 'var(--ink-3)' : 'var(--line)'}`,
               background: 'var(--paper)', color: mode === tab.m ? 'var(--ink)' : 'var(--ink-3)',
             }}
           >
