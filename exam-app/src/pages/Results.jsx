@@ -10,8 +10,6 @@ import { Scene3DLazy } from '../components/motion/Scene3DLazy.jsx'
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import { useExam, useExamDispatch } from '../context/ExamContext.jsx'
 import { useHistory } from '../context/HistoryContext.jsx'
-import { useOrgAuth } from '../context/OrgAuthContext.jsx'
-import { postExamAttempt } from '../api/org.js'
 import { scoreExam } from '../engine/scoringEngine.js'
 import { analyzeResult } from '../engine/aiEngine.js'
 import {
@@ -195,7 +193,6 @@ export default function Results() {
   const session = useExam()
   const dispatch = useExamDispatch()
   const { results, addResult } = useHistory()
-  const { isOrgSession } = useOrgAuth() ?? {}
   const [result, setResult] = useState(() => location.state?.result ?? null)
   const [allQuestions, setAllQuestions] = useState([])
   const [wrongAccordion, setWrongAccordion] = useState({})
@@ -250,18 +247,6 @@ export default function Results() {
       addResult(scored).then(id => {
         navigate(`/results/${id}`, { replace: true, state: { result: scored } })
       })
-      // Additive: an org-session submission also lands server-side for cohort
-      // analytics — the local HistoryContext write above is unchanged.
-      if (isOrgSession) {
-        const itemResponses = Object.entries(scored.answers ?? {}).map(([questionId, choiceIndex]) => ({
-          question_id: questionId, choice_index: choiceIndex,
-        }))
-        postExamAttempt({
-          examId: scored.examId,
-          score: scored.score / 10,
-          itemResponses,
-        }).catch(() => {})
-      }
     } else {
       if (result) return  // already seeded from location.state — skip stale lookup
       const found = results.find(r => r.id === resultId)

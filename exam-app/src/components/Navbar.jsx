@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import VantageLogo from './VantageLogo'
-import { useOrgAuth } from '../context/OrgAuthContext.jsx'
 import { useTheme } from '../hooks/useTheme.js'
 
 function vNavigate(navigate, path) {
@@ -30,8 +29,6 @@ const TOOLS = [
   { label: 'Xác suất', path: '/probability' },
   { label: 'Math Playground', path: '/playground' },
 ]
-
-const ORG_LINK = { label: 'Tổ chức', path: '/org' }
 
 function SunIcon({ size = 16 }) {
   return (
@@ -136,8 +133,7 @@ export default function Navbar() {
   const location = useLocation()
   const go = (path) => { vNavigate(navigate, path); setMenuOpen(false) }
   const [menuOpen, setMenuOpen] = useState(false)
-  const { status: orgStatus } = useOrgAuth() ?? {}
-  const links = orgStatus === 'authenticated' ? [...PRIMARY, ORG_LINK] : PRIMARY
+  const links = PRIMARY
 
   useEffect(() => { setMenuOpen(false) }, [location.pathname])
 

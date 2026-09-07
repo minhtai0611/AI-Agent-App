@@ -3,7 +3,6 @@ import { MotionConfig, AnimatePresence } from 'framer-motion'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { ExamProvider } from './context/ExamContext.jsx'
 import { HistoryProvider } from './context/HistoryContext.jsx'
-import { OrgAuthProvider } from './context/OrgAuthContext.jsx'
 import { useExamDispatch } from './context/ExamContext.jsx'
 import { loadExamById, loadQuestionsByIds } from './api/index.js'
 import Navbar from './components/Navbar.jsx'
@@ -12,8 +11,6 @@ import OfflineBanner from './components/OfflineBanner.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import BgField from './components/motion/BgField.jsx'
 import InstallPrompt from './components/InstallPrompt.jsx'
-import RequireOrgRole from './components/RequireOrgRole.jsx'
-import OrgBrandingProvider from './components/OrgBrandingProvider.jsx'
 import { Toaster } from './components/ui/sonner.jsx'
 import {
   ExamSelectSkeleton, ResultsPageSkeleton, HistoryPageSkeleton, QuestionCardSkeleton, SimplePageSkeleton,
@@ -31,20 +28,6 @@ const LinearAlgebraWorkspace = lazy(() => import('./pages/LinearAlgebraWorkspace
 const ProbabilitySimulator = lazy(() => import('./pages/ProbabilitySimulator.jsx'))
 const MathPlayground = lazy(() => import('./pages/MathPlayground.jsx'))
 const ContentAudit = lazy(() => import('./pages/ContentAudit.jsx'))
-const OrgConsole = lazy(() => import('./pages/org/OrgConsole.jsx'))
-const OrgMembers = lazy(() => import('./pages/org/OrgMembers.jsx'))
-const OrgAuditLog = lazy(() => import('./pages/org/OrgAuditLog.jsx'))
-const ContentLedger = lazy(() => import('./pages/org/ContentLedger.jsx'))
-const OrgSettings = lazy(() => import('./pages/org/OrgSettings.jsx'))
-const ContentLibrary = lazy(() => import('./pages/org/ContentLibrary.jsx'))
-const CohortAnalytics = lazy(() => import('./pages/org/CohortAnalytics.jsx'))
-const Integrations = lazy(() => import('./pages/org/Integrations.jsx'))
-const Compliance = lazy(() => import('./pages/org/Compliance.jsx'))
-const ContentGeneration = lazy(() => import('./pages/admin/ContentGeneration.jsx'))
-const PendingReview = lazy(() => import('./pages/admin/PendingReview.jsx'))
-const ProctoringSettings = lazy(() => import('./pages/admin/ProctoringSettings.jsx'))
-const ProctoringReview = lazy(() => import('./pages/admin/ProctoringReview.jsx'))
-const PsychometricFlags = lazy(() => import('./pages/admin/PsychometricFlags.jsx'))
 
 function PageFallback() {
   const { pathname } = useLocation()
@@ -119,7 +102,6 @@ function AppInner() {
     <>
       <ScrollToTop />
       <BgField />
-      <OrgBrandingProvider />
       <OfflineBanner />
       <InstallPrompt />
       {!isHiddenNavRoute && <Navbar />}
@@ -139,20 +121,6 @@ function AppInner() {
               <Route path="/probability" element={<ProbabilitySimulator />} />
               <Route path="/playground" element={<MathPlayground />} />
               <Route path="/content-audit" element={<ContentAudit />} />
-              <Route path="/org" element={<RequireOrgRole min="admin"><OrgConsole /></RequireOrgRole>} />
-              <Route path="/org/members" element={<RequireOrgRole min="admin"><OrgMembers /></RequireOrgRole>} />
-              <Route path="/org/audit-log" element={<RequireOrgRole min="admin"><OrgAuditLog /></RequireOrgRole>} />
-              <Route path="/org/content-ledger" element={<RequireOrgRole min="admin"><ContentLedger /></RequireOrgRole>} />
-              <Route path="/org/settings" element={<RequireOrgRole min="admin"><OrgSettings /></RequireOrgRole>} />
-              <Route path="/org/content" element={<RequireOrgRole min="admin"><ContentLibrary /></RequireOrgRole>} />
-              <Route path="/org/analytics" element={<RequireOrgRole min="admin"><CohortAnalytics /></RequireOrgRole>} />
-              <Route path="/org/integrations" element={<RequireOrgRole min="admin"><Integrations /></RequireOrgRole>} />
-              <Route path="/org/compliance" element={<RequireOrgRole min="admin"><Compliance /></RequireOrgRole>} />
-              <Route path="/org/agent/generate" element={<RequireOrgRole min="admin"><ContentGeneration /></RequireOrgRole>} />
-              <Route path="/org/pending" element={<RequireOrgRole min="admin"><PendingReview /></RequireOrgRole>} />
-              <Route path="/org/proctoring-settings" element={<RequireOrgRole min="admin"><ProctoringSettings /></RequireOrgRole>} />
-              <Route path="/org/proctoring-review" element={<RequireOrgRole min="admin"><ProctoringReview /></RequireOrgRole>} />
-              <Route path="/org/psychometric-flags" element={<RequireOrgRole min="admin"><PsychometricFlags /></RequireOrgRole>} />
               <Route path="*" element={<Navigate to="/exams" replace />} />
             </Routes>
           </AnimatePresence>
@@ -178,14 +146,12 @@ function AppInner() {
 export default function App() {
   return (
     <MotionConfig reducedMotion="user">
-      <OrgAuthProvider>
-        <HistoryProvider>
-          <ExamProvider>
-            <AppInner />
-            <Toaster />
-          </ExamProvider>
-        </HistoryProvider>
-      </OrgAuthProvider>
+      <HistoryProvider>
+        <ExamProvider>
+          <AppInner />
+          <Toaster />
+        </ExamProvider>
+      </HistoryProvider>
     </MotionConfig>
   )
 }

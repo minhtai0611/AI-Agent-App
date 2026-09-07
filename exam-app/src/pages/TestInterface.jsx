@@ -12,7 +12,6 @@ import { usePageMeta } from '../hooks/usePageMeta.js'
 import { useEscapeToClose } from '../hooks/useEscapeToClose.js'
 import { scoreExam } from '../engine/scoringEngine.js'
 import { track } from '../lib/eventTrack.js'
-import ProctoringMonitor from '../components/ProctoringMonitor.jsx'
 
 import { TOPIC_LABELS } from '../utils/topicLabels.js'
 
@@ -302,15 +301,6 @@ export default function TestInterface() {
   return (
     <motion.div variants={pageVariants} initial="hidden" animate="show" exit="exit"
       className="min-h-screen flex flex-col relative" style={{ background: 'var(--paper)' }}>
-
-      {mode === 'timed' && (
-        <ProctoringMonitor
-          examId={examId}
-          stakesTier={exam?.stakesTier ?? 'low'}
-          tabSwitchCount={tabSwitchCount}
-          devToolsOpen={devToolsOpen}
-        />
-      )}
 
       {/* Exam Top Bar */}
       <div className="sticky top-0 z-30" style={{

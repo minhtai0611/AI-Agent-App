@@ -1,6 +1,6 @@
 # AI Agent App
 
-Zenith — exam-taking app for Vietnamese students (grade-10 and THPT math exams). Started from a **clean, stripped-down baseline** (static exam content + question-taking/scoring only) after the 2026-08-23 strip-to-exam-core pass ([[project_strip_to_exam_core]]), but an AI router (`backend/app/agent/`, hitting `ai-router.locdo.tech`) and several AI-agent features have since been rebuilt on top of it — auditor/narrator content review, org-scoped question generation, and the Pure Mathematics Toolset (3D concept visualization, step-by-step CAS solving, a 2D graphing Math Playground, linear algebra, probability simulation). Every new agent feature extends this one router rather than standing up a second one. Don't assume the *old, pre-strip* AI/auth/credit architecture is current — check the code first — but do assume an AI router exists.
+Zenith — exam-taking app for Vietnamese students (grade-10 and THPT math exams). Started from a **clean, stripped-down baseline** (static exam content + question-taking/scoring only) after the 2026-08-23 strip-to-exam-core pass ([[project_strip_to_exam_core]]), but an AI router (`backend/app/agent/`, hitting `ai-router.locdo.tech`) and several AI-agent features have since been rebuilt on top of it — auditor/narrator content review, and the Pure Mathematics Toolset (3D concept visualization, step-by-step CAS solving, a 2D graphing Math Playground, linear algebra, probability simulation). Every new agent feature extends this one router rather than standing up a second one. Don't assume the *old, pre-strip* AI/auth/credit architecture is current — check the code first — but do assume an AI router exists. The org/institutions feature tree (SSO, RBAC, cohorts, proctoring, psychometrics, predictive analytics) was fully removed 2026-09-07 — see [[project_org_removal]].
 
 ## Stack
 
@@ -33,7 +33,7 @@ backend/app/
   db.py              # AsyncSQLitePool — asyncpg-compatible wrapper over aiosqlite (single connection + lock)
   main.py            # lifespan seeds exams/questions/exam_questions from exam-app/src/data/*.json on first boot
                      #   routes: GET /health, GET /exams, GET /exams/{id}, GET /questions, POST /questions/batch,
-                     #   plus /agent/*, /org/*, /cas/evaluate (see agent/ below)
+                     #   plus /agent/*, /cas/evaluate (see agent/ below)
   agent/             # AI router + agent features — all go through router_client.AiRouterClient
     router_client.py       # AiRouterClient — single ingress to ai-router.locdo.tech
     generator.py / verifier.py / orchestrator.py  # question generate→verify→gate pipeline
