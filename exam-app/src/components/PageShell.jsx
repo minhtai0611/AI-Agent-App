@@ -13,7 +13,7 @@ export default function PageShell({ title, onBack, maxWidth = 'max-w-2xl', child
       className="min-h-screen bg-background flex flex-col"
       variants={pageVariants} initial="hidden" animate="show" exit="exit"
     >
-      <header className="flex items-center justify-between px-6 sm:px-10 py-4 border-b border-border sticky top-0 z-10 bg-background/85 backdrop-blur-md">
+      <header className="flex items-center justify-between px-6 sm:px-10 py-4 border-b border-border sticky top-0 z-10 bg-background">
         <button
           onClick={onBack ?? (() => navigate(-1))}
           className="font-sans text-sm text-dim hover:text-foreground transition"

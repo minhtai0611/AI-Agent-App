@@ -7,7 +7,7 @@ export default function Footer() {
       style={{ borderColor: 'var(--line)', color: 'var(--ink-3)' }}
     >
       <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, letterSpacing: '0.08em' }}>
-        GIẤY — MỰC — CỜ ĐỈNH · V2 · ∫Σ√π∞Δ
+        VANTAGE ▲ · GIẤY — MỰC — CỜ ĐỈNH · V2 · ∫Σ√π∞Δ
       </span>
     </footer>
   )

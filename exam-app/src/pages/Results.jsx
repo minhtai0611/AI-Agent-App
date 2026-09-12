@@ -69,8 +69,8 @@ function formatTime(seconds) {
 
 function topicVerdict(acc) {
   if (acc >= 0.7) return { text: '✓ Tốt', color: 'var(--success)', cls: 'bg-success/5 border border-success/20' }
-  if (acc >= 0.5) return { text: '⚠ Cần ôn', color: 'var(--warning)', cls: 'bg-primary/5 border border-primary/20' }
-  return { text: '✗ Yếu', color: 'var(--destructive)', cls: 'bg-destructive/5 border border-destructive/20' }
+  if (acc >= 0.5) return { text: '▲ Cần ôn', color: 'var(--warning)', cls: 'bg-primary/5 border border-primary/20' }
+  return { text: '✕ Yếu', color: 'var(--destructive)', cls: 'bg-destructive/5 border border-destructive/20' }
 }
 
 function parseExplanationSteps(text) {
@@ -529,14 +529,16 @@ export default function Results() {
           {isPersonalBest && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="flex items-center gap-3 px-5 py-3.5 rounded-xl glass-brand">
-              <span className="text-xl">🏆</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                <path d="M12 3l7 18H5l7-18z"/><path d="M9.5 14h5"/>
+              </svg>
               <span className="font-sans text-sm font-semibold text-primary">Điểm cao nhất của bạn trên đề thi này!</span>
             </motion.div>
           )}
           {isScoreDrop && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="flex items-center gap-3 px-5 py-3.5 rounded-xl glass-base">
-              <span className="text-xl">💪</span>
+              <span className="font-sans text-sm">▲</span>
               <span className="font-sans text-[0.8125rem] text-muted">
                 Hôm nay chưa phải ngày tốt nhất của bạn — không sao cả. Kỷ lục của bạn vẫn là{' '}
                 <strong className="text-[var(--accent)]">{personalBestScore}</strong> điểm. Hãy ôn lại và thử lại!
@@ -661,12 +663,12 @@ export default function Results() {
             <div className="flex flex-wrap gap-2 pt-1">
               <button onClick={() => setActiveTab('insights')}
                 className="px-3 py-1.5 rounded-lg border border-primary/30 bg-primary/5 font-sans text-xs text-primary hover:border-primary hover:bg-primary/10 transition flex items-center gap-1.5">
-                <span>✦</span> Nhận xét →
+                Nhận xét →
               </button>
               {wrongCount > 0 && (
                 <button onClick={() => setActiveTab('wrong')}
                   className="px-3 py-1.5 rounded-lg border border-border font-sans text-xs text-muted hover:border-faint hover:text-foreground transition flex items-center gap-1.5">
-                  <span className="text-destructive">✗</span> {wrongCount} câu sai
+                  <span className="text-destructive">✕</span> {wrongCount} câu sai
                 </button>
               )}
               {schoolFitList.length > 0 && (
@@ -749,7 +751,9 @@ export default function Results() {
               <>
                 {/* Film Review header */}
                 <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-surface-elevated">
-                  <span className="text-base flex-shrink-0">🎬</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-2, currentColor)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                    <rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>
+                  </svg>
                   <div>
                     <p className="font-sans text-[12px] font-semibold text-foreground">Xem lại phim — {wrongCount} câu</p>
                     <p className="font-sans text-[11px] text-muted">Mỗi câu sai đều có manh mối. Tìm quy luật trong phim của bạn.</p>

@@ -56,7 +56,7 @@ export function getAdvisorMessage({
   if (streak > 0 && streak >= streakPB && streakPB >= 5) {
     return {
       category: 'encouragement',
-      message: `🔥 Streak ${streak} ngày — đây là kỷ lục cá nhân của bạn! Mỗi ngày ôn luyện đều xây dựng thói quen học mạnh hơn.`,
+      message: `Streak ${streak} ngày — đây là kỷ lục cá nhân của bạn! Mỗi ngày ôn luyện đều xây dựng thói quen học mạnh hơn.`,
     }
   }
 

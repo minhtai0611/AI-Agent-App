@@ -38,23 +38,23 @@
 
 export function reportToText(report) {
   const lines = [
-    `📊 Báo cáo học tập Vantage — ${report.generatedAt}`,
-    `👤 ${report.studentName}${report.grade ? ` · ${report.grade}` : ''}`,
+    `Báo cáo học tập Vantage — ${report.generatedAt}`,
+    `${report.studentName}${report.grade ? ` · ${report.grade}` : ''}`,
     ``,
-    `📝 Đã hoàn thành: ${report.totalExams} bài thi`,
-    `⭐ Điểm trung bình: ${report.avgScore}/10`,
-    report.scoreImprovement > 0 ? `📈 Cải thiện: +${report.scoreImprovement} điểm so với ban đầu` : null,
-    `🔥 Streak: ${report.streakDays} ngày · Kỷ lục: ${report.personalBest} ngày`,
+    `Đã hoàn thành: ${report.totalExams} bài thi`,
+    `Điểm trung bình: ${report.avgScore}/10`,
+    report.scoreImprovement > 0 ? `Cải thiện: +${report.scoreImprovement} điểm so với ban đầu` : null,
+    `Streak: ${report.streakDays} ngày · Kỷ lục: ${report.personalBest} ngày`,
   ]
 
   if (report.topTopics.length > 0) {
-    lines.push(``, `✅ Điểm mạnh: ${report.topTopics.join(' · ')}`)
+    lines.push(``, `Điểm mạnh: ${report.topTopics.join(' · ')}`)
   }
   if (report.weakTopics.length > 0) {
-    lines.push(`⚠️ Cần ôn thêm: ${report.weakTopics.join(' · ')}`)
+    lines.push(`Cần ôn thêm: ${report.weakTopics.join(' · ')}`)
   }
 
-  lines.push(``, `🎓 Ôn thi cùng Vantage AI: https://exam-app-ey0.pages.dev`)
+  lines.push(``, `Ôn thi cùng Vantage AI: https://exam-app-ey0.pages.dev`)
 
   return lines.filter(l => l !== null).join('\n')
 }

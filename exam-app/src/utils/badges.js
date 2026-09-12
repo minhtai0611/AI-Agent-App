@@ -1,21 +1,21 @@
 export const BADGE_DEFS = [
   {
     id: 'perfect',
-    icon: '🏆',
+    icon: '▲',
     label: 'Điểm hoàn hảo',
     desc: 'Đạt 10 điểm trong một bài thi',
     check: results => results.some(r => (r.score ?? 0) >= 10),
   },
   {
     id: 'ten_exams',
-    icon: '🔥',
+    icon: '·',
     label: 'Chinh phục 10 đề',
     desc: 'Hoàn thành 10 bài thi',
     check: results => results.length >= 10,
   },
   {
     id: 'fast',
-    icon: '⚡',
+    icon: '·',
     label: 'Tốc độ ánh sáng',
     desc: 'Nộp bài trước khi hết 70% thời gian',
     check: results => results.some(r => {
@@ -27,7 +27,7 @@ export const BADGE_DEFS = [
   },
   {
     id: 'improving',
-    icon: '📈',
+    icon: '▲',
     label: 'Tiến bộ vượt bậc',
     desc: 'Cải thiện ≥2 điểm so với lần trước trên cùng một đề',
     check: results => {

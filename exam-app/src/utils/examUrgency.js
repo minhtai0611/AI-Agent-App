@@ -2,7 +2,7 @@ export const EXAM_PHASES = [
   {
     id: 'review',
     label: 'Ôn tập nước rút',
-    icon: '🚨',
+    icon: '▲',
     colorPrimary: '#EF4444',
     bg: '#1A0808',
     border: '#EF444460',
@@ -12,7 +12,7 @@ export const EXAM_PHASES = [
   {
     id: 'critical',
     label: 'Giai đoạn then chốt',
-    icon: '⚠️',
+    icon: '▲',
     colorPrimary: '#F97316',
     bg: '#1A0E08',
     border: '#F9731660',
@@ -22,7 +22,7 @@ export const EXAM_PHASES = [
   {
     id: 'urgent',
     label: 'Tăng tốc',
-    icon: '🔥',
+    icon: '·',
     colorPrimary: '#F59E0B',
     bg: '#1A1308',
     border: '#F59E0B60',
@@ -32,7 +32,7 @@ export const EXAM_PHASES = [
   {
     id: 'focused',
     label: 'Tập trung',
-    icon: '📚',
+    icon: '·',
     colorPrimary: '#818CF8',
     bg: '#0D1521',
     border: '#818CF860',
@@ -42,7 +42,7 @@ export const EXAM_PHASES = [
   {
     id: 'explorer',
     label: 'Khám phá',
-    icon: '🗺️',
+    icon: '·',
     colorPrimary: '#10B981',
     bg: '#0A1A12',
     border: '#10B98160',

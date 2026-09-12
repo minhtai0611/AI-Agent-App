@@ -1,25 +1,25 @@
 export const ARCHETYPES = [
   {
     id: 'expert',
-    icon: '🎯',
+    icon: '▲',
     label: 'Chuyên gia Chuyên sâu',
     desc: 'Ít đề nhưng điểm rất cao — bạn ưu tiên chất lượng hơn số lượng.',
   },
   {
     id: 'consistent',
-    icon: '🔄',
+    icon: '·',
     label: 'Người học Đều đặn',
     desc: 'Ôn luyện đều đặn mỗi ngày — sức mạnh của bạn là tính kiên trì.',
   },
   {
     id: 'explorer',
-    icon: '🗺️',
+    icon: '·',
     label: 'Người chinh phục Tổng hợp',
     desc: 'Nhiều đề, nhiều chủ đề — bạn xây dựng nền tảng kiến thức rộng.',
   },
   {
     id: 'sprinter',
-    icon: '⚡',
+    icon: '▲',
     label: 'Người học Bứt phá',
     desc: 'Điểm số lên xuống mạnh — bạn có tiềm năng lớn, hãy ổn định hơn.',
   },
