@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MathText } from './MathText.jsx'
 import { useEscapeToClose } from '../hooks/useEscapeToClose.js'
+import { useHoverState } from '../hooks/useHoverState.js'
 
 const SHEETS = [
   {
@@ -75,9 +76,31 @@ const SHEETS = [
   },
 ]
 
+function FormulaTab({ label, active, onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      role="tab"
+      aria-selected={active}
+      onClick={onClick}
+      {...hoverProps}
+      className="flex-shrink-0 pb-1.5 transition-colors"
+      style={{
+        fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.03em',
+        color: active || hovered ? 'var(--ink)' : 'var(--ink-3)',
+        fontWeight: active ? 600 : 400,
+        borderBottom: active ? '2px solid var(--accent)' : hovered ? '2px solid var(--line)' : '2px solid transparent',
+      }}
+    >
+      {label}
+    </button>
+  )
+}
+
 export function FormulaDrawer() {
   const [open, setOpen] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
+  const [triggerHovered, triggerHoverProps] = useHoverState()
 
   useEscapeToClose(open, () => setOpen(false))
 
@@ -85,10 +108,13 @@ export function FormulaDrawer() {
     <>
       <button
         onClick={() => setOpen(v => !v)}
+        {...triggerHoverProps}
         className="flex items-center gap-2 w-full px-3 py-2.5 transition-colors"
         style={{
           fontFamily: 'var(--font-mono)', fontSize: 11.5, letterSpacing: '0.04em',
-          color: 'var(--ink-2)', border: '1px solid var(--line)', background: 'var(--paper)',
+          color: triggerHovered ? 'var(--ink)' : 'var(--ink-2)',
+          border: `1px solid ${triggerHovered ? 'var(--ink)' : 'var(--line)'}`,
+          background: 'var(--paper)',
           borderRadius: 'var(--r-sm)',
         }}
       >
@@ -133,21 +159,7 @@ export function FormulaDrawer() {
 
               <div className="flex gap-4 overflow-x-auto pb-1" role="tablist">
                 {SHEETS.map((s, i) => (
-                  <button
-                    key={i}
-                    role="tab"
-                    aria-selected={activeTab === i}
-                    onClick={() => setActiveTab(i)}
-                    className="flex-shrink-0 pb-1.5 transition-colors"
-                    style={{
-                      fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.03em',
-                      color: activeTab === i ? 'var(--ink)' : 'var(--ink-3)',
-                      fontWeight: activeTab === i ? 600 : 400,
-                      borderBottom: activeTab === i ? '2px solid var(--accent)' : '2px solid transparent',
-                    }}
-                  >
-                    {s.label}
-                  </button>
+                  <FormulaTab key={i} label={s.label} active={activeTab === i} onClick={() => setActiveTab(i)} />
                 ))}
               </div>
 

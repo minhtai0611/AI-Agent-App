@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import VantageLogo from './VantageLogo'
 import { useTheme } from '../hooks/useTheme.js'
+import { useHoverState } from '../hooks/useHoverState.js'
 
 function vNavigate(navigate, path) {
   // See utils/animations.js#viewNavigate — startViewTransition can reject with
@@ -55,14 +56,115 @@ function ChevronIcon({ size = 11 }) {
 
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme()
+  const [hovered, hoverProps] = useHoverState()
   return (
     <button
       onClick={toggleTheme}
+      {...hoverProps}
       aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
       className="flex items-center justify-center w-8 h-8 rounded-md transition-colors"
-      style={{ color: 'var(--ink-2)', border: '1px solid var(--line)', background: 'var(--paper)' }}
+      style={{
+        color: hovered ? 'var(--ink)' : 'var(--ink-2)',
+        border: `1px solid ${hovered ? 'var(--ink)' : 'var(--line)'}`,
+        background: 'var(--paper)',
+      }}
     >
       {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+    </button>
+  )
+}
+
+function MobileMenuToggle({ menuOpen, onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      className="flex items-center justify-center w-9 h-9 transition"
+      style={{ color: hovered ? 'var(--ink)' : 'var(--ink-2)' }}
+      onClick={onClick}
+      {...hoverProps}
+      aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'}
+    >
+      {menuOpen ? (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M5 5l14 14M19 5L5 19" /></svg>
+      ) : (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+      )}
+    </button>
+  )
+}
+
+function MobileNavLink({ link, active, onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      className="flex items-center gap-3 px-3 py-3 text-left text-[14px] transition-colors"
+      style={{
+        color: active || hovered ? 'var(--ink)' : 'var(--ink-2)',
+        background: active || hovered ? 'var(--paper-2)' : 'transparent',
+        fontWeight: active ? 600 : 400,
+        borderBottom: '1px solid var(--line-soft)',
+      }}
+    >
+      {link.label}
+    </button>
+  )
+}
+
+function PrimaryNavLink({ link, active, onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      className="px-2.5 py-1.5 rounded-md text-[12px] transition-colors"
+      style={{
+        fontFamily: 'var(--font-mono)',
+        color: active || hovered ? 'var(--ink)' : 'var(--ink-2)',
+        fontWeight: active ? 600 : 400,
+      }}
+    >
+      {link.label.toUpperCase()}
+    </button>
+  )
+}
+
+function VaoOnThiButton({ onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      className="px-3 py-1.5 text-[11.5px] font-bold transition-colors"
+      style={{
+        fontFamily: 'var(--font-mono)',
+        color: hovered ? 'var(--paper)' : 'var(--ink)',
+        border: '1px solid var(--line)',
+        borderRadius: 'var(--r-sm)',
+        background: hovered ? 'var(--ink)' : 'var(--paper)',
+      }}
+    >
+      VÀO ÔN THI ▲
+    </button>
+  )
+}
+
+function ToolsMenuItem({ tool, active, onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      role="menuitem"
+      onClick={onClick}
+      {...hoverProps}
+      className="w-full text-left px-3 py-1.5 text-[13px] transition-colors"
+      style={{
+        color: active || hovered ? 'var(--ink)' : 'var(--ink-2)',
+        fontWeight: active ? 600 : 400,
+        background: hovered ? 'var(--paper-2)' : 'transparent',
+      }}
+    >
+      {tool.label}
     </button>
   )
 }
@@ -80,15 +182,17 @@ function ToolsDropdown({ isActive, go }) {
   }, [])
 
   const active = TOOLS.some(t => isActive(t.path))
+  const [hovered, hoverProps] = useHoverState()
 
   return (
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(v => !v)}
+        {...hoverProps}
         className="flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[12px] transition-colors"
         style={{
           fontFamily: 'var(--font-mono)',
-          color: active ? 'var(--ink)' : 'var(--ink-2)',
+          color: active || hovered ? 'var(--ink)' : 'var(--ink-2)',
           fontWeight: active ? 600 : 400,
         }}
         aria-haspopup="menu"
@@ -108,18 +212,7 @@ function ToolsDropdown({ isActive, go }) {
             style={{ background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow-md)' }}
           >
             {TOOLS.map(tool => (
-              <button
-                key={tool.path}
-                role="menuitem"
-                onClick={() => { go(tool.path); setOpen(false) }}
-                className="w-full text-left px-3 py-1.5 text-[13px] transition-colors"
-                style={{
-                  color: isActive(tool.path) ? 'var(--ink)' : 'var(--ink-2)',
-                  fontWeight: isActive(tool.path) ? 600 : 400,
-                }}
-              >
-                {tool.label}
-              </button>
+              <ToolsMenuItem key={tool.path} tool={tool} active={isActive(tool.path)} onClick={() => { go(tool.path); setOpen(false) }} />
             ))}
           </motion.div>
         )}
@@ -152,18 +245,7 @@ export default function Navbar() {
 
           <div className="hidden sm:flex items-center gap-0.5 ml-4">
             {links.map(link => (
-              <button
-                key={link.path}
-                onClick={() => go(link.path)}
-                className="px-2.5 py-1.5 rounded-md text-[12px] transition-colors"
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  color: isActive(link.path) ? 'var(--ink)' : 'var(--ink-2)',
-                  fontWeight: isActive(link.path) ? 600 : 400,
-                }}
-              >
-                {link.label.toUpperCase()}
-              </button>
+              <PrimaryNavLink key={link.path} link={link} active={isActive(link.path)} onClick={() => go(link.path)} />
             ))}
             <ToolsDropdown isActive={isActive} go={go} />
           </div>
@@ -171,35 +253,12 @@ export default function Navbar() {
 
         <div className="hidden sm:flex items-center gap-2">
           <ThemeToggle />
-          <button
-            onClick={() => go('/exams')}
-            className="px-3 py-1.5 text-[11.5px] font-bold transition-colors"
-            style={{
-              fontFamily: 'var(--font-mono)',
-              color: 'var(--ink)',
-              border: '1px solid var(--line)',
-              borderRadius: 'var(--r-sm)',
-              background: 'var(--paper)',
-            }}
-          >
-            VÀO ÔN THI ▲
-          </button>
+          <VaoOnThiButton onClick={() => go('/exams')} />
         </div>
 
         <div className="flex sm:hidden items-center gap-2">
           <ThemeToggle />
-          <button
-            className="flex items-center justify-center w-9 h-9 transition"
-            style={{ color: 'var(--ink-2)' }}
-            onClick={() => setMenuOpen(v => !v)}
-            aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'}
-          >
-            {menuOpen ? (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M5 5l14 14M19 5L5 19" /></svg>
-            ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
-            )}
-          </button>
+          <MobileMenuToggle menuOpen={menuOpen} onClick={() => setMenuOpen(v => !v)} />
         </div>
       </nav>
 
@@ -216,19 +275,7 @@ export default function Navbar() {
           >
             <div className="flex flex-col px-3 py-4 gap-0.5 relative z-10">
               {[...links, ...TOOLS].map((link) => (
-                <button
-                  key={link.path}
-                  onClick={() => go(link.path)}
-                  className="flex items-center gap-3 px-3 py-3 text-left text-[14px] transition-colors"
-                  style={{
-                    color: isActive(link.path) ? 'var(--ink)' : 'var(--ink-2)',
-                    background: isActive(link.path) ? 'var(--paper-2)' : 'transparent',
-                    fontWeight: isActive(link.path) ? 600 : 400,
-                    borderBottom: '1px solid var(--line-soft)',
-                  }}
-                >
-                  {link.label}
-                </button>
+                <MobileNavLink key={link.path} link={link} active={isActive(link.path)} onClick={() => go(link.path)} />
               ))}
             </div>
           </motion.div>

@@ -10,6 +10,7 @@ import VantageLogo from '../components/VantageLogo.jsx'
 import { useTheme } from '../hooks/useTheme.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { useEscapeToClose } from '../hooks/useEscapeToClose.js'
+import { useHoverState } from '../hooks/useHoverState.js'
 import { scoreExam } from '../engine/scoringEngine.js'
 import { track } from '../lib/eventTrack.js'
 
@@ -38,6 +39,129 @@ function FlagIcon() {
     <svg width="11" height="13" viewBox="0 0 11 13" fill="none" aria-hidden="true">
       <path d="M1 1v11M1 1h7.5l-2 3.5 2 3.5H1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
+  )
+}
+
+function TopBarIconButton({ onClick, ariaLabel, title, children }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      aria-label={ariaLabel}
+      title={title}
+      className="flex items-center justify-center w-8 h-8 transition-colors"
+      style={{
+        color: hovered ? 'var(--ink)' : 'var(--ink-2)',
+        border: `1px solid ${hovered ? 'var(--ink)' : 'var(--line)'}`,
+        background: 'var(--paper)', borderRadius: 'var(--r-sm)',
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
+function FlagThisStationButton({ isFlagged, onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      className="flex items-center gap-1.5 px-2.5 py-1.5 transition"
+      style={{
+        fontFamily: 'var(--font-mono)', fontSize: 10.5, letterSpacing: '0.04em', fontWeight: 600,
+        background: isFlagged
+          ? 'color-mix(in srgb, var(--accent) 12%, var(--paper))'
+          : hovered ? 'var(--paper-2)' : 'var(--paper)',
+        border: `1px solid ${isFlagged || hovered ? 'var(--accent)' : 'var(--line)'}`,
+        color: isFlagged || hovered ? 'var(--accent-deep)' : 'var(--ink-2)',
+        borderRadius: 'var(--r-sm)',
+      }}
+    >
+      <FlagIcon />
+      {isFlagged ? 'ĐÃ CẮM CỜ MỐC NÀY ▲' : 'CẮM CỜ MỐC NÀY'}
+    </button>
+  )
+}
+
+function PrevStationButton({ onClick, disabled }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      {...hoverProps}
+      className="flex items-center gap-1.5 px-4 py-2.5 transition disabled:opacity-35"
+      style={{
+        fontFamily: 'var(--font-mono)', fontSize: 12,
+        color: hovered && !disabled ? 'var(--ink)' : 'var(--ink-2)',
+        border: `1px solid ${hovered && !disabled ? 'var(--ink)' : 'var(--line)'}`,
+        background: 'var(--paper)', borderRadius: 'var(--r-sm)',
+      }}
+    >
+      ← TRẠM TRƯỚC
+    </button>
+  )
+}
+
+function NextStationButton({ onClick, disabled }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      {...hoverProps}
+      className="flex items-center gap-1.5 px-5 py-2.5 transition disabled:opacity-35"
+      style={{
+        fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600, color: 'var(--ink)',
+        border: `1px solid ${hovered && !disabled ? 'var(--ink)' : 'var(--line)'}`,
+        background: hovered && !disabled ? 'var(--line-soft)' : 'var(--paper-2)',
+        borderRadius: 'var(--r-sm)',
+      }}
+    >
+      TRẠM TIẾP →
+    </button>
+  )
+}
+
+function StationTile({ isQFlagged, i, style, onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      className="relative flex items-center justify-center font-semibold transition"
+      style={{
+        width: 40, height: 40, borderRadius: '6px', fontFamily: 'var(--font-mono)', fontSize: 12.5,
+        ...style,
+        filter: hovered ? 'brightness(1.15)' : 'none',
+      }}
+    >
+      {String(i + 1).padStart(2, '0')}
+      {isQFlagged && (
+        <span className="absolute" style={{ top: 3, right: 3, width: 5, height: 5, borderRadius: '50%', background: 'var(--accent)' }} />
+      )}
+    </button>
+  )
+}
+
+function UnansweredJumpButton({ index, onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      className="w-8 h-8 flex items-center justify-center transition"
+      style={{
+        fontFamily: 'var(--font-mono)', fontSize: 11.5, fontWeight: 600,
+        border: '1px solid var(--line)', color: 'var(--ink-2)',
+        background: hovered ? 'var(--line-soft)' : 'var(--paper-2)',
+        borderRadius: 'var(--r-sm)',
+      }}
+    >
+      {index}
+    </button>
   )
 }
 
@@ -331,25 +455,21 @@ export default function TestInterface() {
             {mode === 'timed' && timeLeft !== null && (
               <Timer timeLeft={timeLeft} totalTime={(session.exam?.duration ?? 0) * 60} />
             )}
-            <button
+            <TopBarIconButton
               onClick={toggleTheme}
-              aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
-              className="flex items-center justify-center w-8 h-8 transition-colors"
-              style={{ color: 'var(--ink-2)', border: '1px solid var(--line)', background: 'var(--paper)', borderRadius: 'var(--r-sm)' }}
+              ariaLabel={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
             >
               {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-            </button>
-            <button
+            </TopBarIconButton>
+            <TopBarIconButton
               onClick={toggleFullscreen}
               title={fullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
-              className="flex items-center justify-center w-8 h-8 transition-colors"
-              style={{ color: 'var(--ink-2)', border: '1px solid var(--line)', background: 'var(--paper)', borderRadius: 'var(--r-sm)' }}
             >
               {fullscreen
                 ? <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M5 1H1v4M9 1h4v4M5 13H1V9M9 13h4V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
                 : <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M1 5V1h4M9 1h4v4M1 9v4h4M13 9v4H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
               }
-            </button>
+            </TopBarIconButton>
           </div>
         </div>
         {/* Altitude Strip */}
@@ -428,20 +548,7 @@ export default function TestInterface() {
                     MỨC: {DIFF_LABELS[question?.difficulty] ?? 'VỪA'}
                   </span>
                 </div>
-                <button
-                  onClick={() => toggleFlag(question.id)}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 transition"
-                  style={{
-                    fontFamily: 'var(--font-mono)', fontSize: 10.5, letterSpacing: '0.04em', fontWeight: 600,
-                    background: isFlagged ? 'color-mix(in srgb, var(--accent) 12%, var(--paper))' : 'var(--paper)',
-                    border: `1px solid ${isFlagged ? 'var(--accent)' : 'var(--line)'}`,
-                    color: isFlagged ? 'var(--accent-deep)' : 'var(--ink-2)',
-                    borderRadius: 'var(--r-sm)',
-                  }}
-                >
-                  <FlagIcon />
-                  {isFlagged ? 'ĐÃ CẮM CỜ MỐC NÀY ▲' : 'CẮM CỜ MỐC NÀY'}
-                </button>
+                <FlagThisStationButton isFlagged={isFlagged} onClick={() => toggleFlag(question.id)} />
               </div>
 
               {/* Question + choices */}
@@ -466,24 +573,10 @@ export default function TestInterface() {
 
             {/* Nav row */}
             <div className="flex items-center justify-between gap-3 sticky bottom-0 lg:static z-20 py-3 -mx-4 px-4 lg:mx-0 lg:px-0" style={{ background: 'var(--paper)', borderTop: '1px solid var(--line-soft)' }}>
-              <button
-                onClick={handlePrev}
-                disabled={currentIndex === 0}
-                className="flex items-center gap-1.5 px-4 py-2.5 transition disabled:opacity-35"
-                style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-2)', border: '1px solid var(--line)', background: 'var(--paper)', borderRadius: 'var(--r-sm)' }}
-              >
-                ← TRẠM TRƯỚC
-              </button>
+              <PrevStationButton onClick={handlePrev} disabled={currentIndex === 0} />
               <div className="flex items-center gap-2.5">
                 {!isLast && (
-                  <button
-                    onClick={handleNext}
-                    disabled={isPractice && !canProceed}
-                    className="flex items-center gap-1.5 px-5 py-2.5 transition disabled:opacity-35"
-                    style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600, color: 'var(--ink)', border: '1px solid var(--line)', background: 'var(--paper-2)', borderRadius: 'var(--r-sm)' }}
-                  >
-                    TRẠM TIẾP →
-                  </button>
+                  <NextStationButton onClick={handleNext} disabled={isPractice && !canProceed} />
                 )}
                 {(isLast || !isPractice) && (
                   <button
@@ -517,19 +610,7 @@ export default function TestInterface() {
                   let style = { border: '1px solid var(--line-soft)', background: 'transparent', color: 'var(--ink-3)' }
                   if (answeredQ) style = { border: '1px solid color-mix(in srgb, var(--pine) 40%, transparent)', background: 'color-mix(in srgb, var(--pine) 14%, var(--paper))', color: 'var(--pine)' }
                   if (isCurrent) style = { border: '2px solid var(--ink)', background: 'var(--paper-2)', color: 'var(--ink)' }
-                  return (
-                    <button
-                      key={q.id}
-                      onClick={() => jumpTo(i)}
-                      className="relative flex items-center justify-center font-semibold"
-                      style={{ width: 40, height: 40, borderRadius: '6px', fontFamily: 'var(--font-mono)', fontSize: 12.5, ...style }}
-                    >
-                      {String(i + 1).padStart(2, '0')}
-                      {isQFlagged && (
-                        <span className="absolute" style={{ top: 3, right: 3, width: 5, height: 5, borderRadius: '50%', background: 'var(--accent)' }} />
-                      )}
-                    </button>
-                  )
+                  return <StationTile key={q.id} isQFlagged={isQFlagged} i={i} style={style} onClick={() => jumpTo(i)} />;
                 })}
               </div>
               <div className="mt-3.5 pt-3" style={{ borderTop: '1px solid var(--line-soft)', fontFamily: 'var(--font-mono)', fontSize: 10.5, color: 'var(--ink-3)', letterSpacing: '0.01em' }}>
@@ -617,14 +698,7 @@ export default function TestInterface() {
               {!allAnswered && (
                 <div className="flex flex-wrap gap-2">
                   {unanswered.map(({ q, i }) => (
-                    <button
-                      key={q.id}
-                      onClick={() => { jumpTo(i); setSubmitModal(false) }}
-                      className="w-8 h-8 flex items-center justify-center transition"
-                      style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, fontWeight: 600, border: '1px solid var(--line)', color: 'var(--ink-2)', background: 'var(--paper-2)', borderRadius: 'var(--r-sm)' }}
-                    >
-                      {i + 1}
-                    </button>
+                    <UnansweredJumpButton key={q.id} index={i + 1} onClick={() => { jumpTo(i); setSubmitModal(false) }} />
                   ))}
                 </div>
               )}

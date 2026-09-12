@@ -23,6 +23,7 @@ import { getTopicLabel } from '../utils/topicLabels.js'
 import { requestStudyReminder, checkAndShowStudyReminder } from '../utils/studyReminder.js'
 import ResultShareCard from '../components/ResultShareCard.jsx'
 import schoolsData from '../data/schools.json'
+import { useHoverState } from '../hooks/useHoverState.js'
 
 const DIFF_RANK = { hard: 3, medium: 2, easy: 1 }
 
@@ -180,6 +181,44 @@ function XsecProfile({ questions, answers, onJumpToWrong }) {
         <span className="inline-flex items-center gap-1.5"><i style={{ width: 8, height: 8, borderRadius: '50%', border: '1.5px solid var(--ink-3)', display: 'inline-block' }} />BỎ TRỐNG</span>
       </div>
     </div>
+  )
+}
+
+function NewMilestoneButton({ onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      className="px-6 py-3 rounded-lg font-sans text-[15px] font-medium transition-transform"
+      style={{
+        background: hovered ? 'var(--accent-deep)' : 'var(--accent)',
+        color: '#F5F2EA',
+        transform: hovered ? 'translateY(-2px)' : 'none',
+        boxShadow: hovered ? '0 10px 24px -14px rgba(176,62,28,.55)' : 'none',
+      }}
+    >
+      CẮM MỐC MỚI ▲
+    </button>
+  )
+}
+
+function BackToHistoryButton({ onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      className="px-4 py-3 rounded-lg font-sans text-sm border transition-transform"
+      style={{
+        borderColor: 'var(--ink)',
+        color: 'var(--ink)',
+        background: hovered ? 'var(--paper-2)' : 'transparent',
+        transform: hovered ? 'translateY(-2px)' : 'none',
+      }}
+    >
+      VỀ NHẬT KÝ HÀNH TRÌNH →
+    </button>
   )
 }
 
@@ -924,16 +963,8 @@ export default function Results() {
             SẴN SÀNG CHO LẦN LEO TIẾP THEO?
           </div>
           <div className="flex gap-3 flex-wrap">
-            <button onClick={() => { dispatch({ type: 'RESET' }); viewNavigate(navigate, '/exams') }}
-              className="px-6 py-3 rounded-lg font-sans text-[15px] font-medium"
-              style={{ background: 'var(--accent)', color: '#F5F2EA' }}>
-              CẮM MỐC MỚI ▲
-            </button>
-            <button onClick={() => navigate('/history')}
-              className="px-4 py-3 rounded-lg font-sans text-sm border"
-              style={{ borderColor: 'var(--ink)', color: 'var(--ink)', background: 'transparent' }}>
-              VỀ NHẬT KÝ HÀNH TRÌNH →
-            </button>
+            <NewMilestoneButton onClick={() => { dispatch({ type: 'RESET' }); viewNavigate(navigate, '/exams') }} />
+            <BackToHistoryButton onClick={() => navigate('/history')} />
           </div>
         </div>
 

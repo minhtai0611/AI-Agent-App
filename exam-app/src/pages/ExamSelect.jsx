@@ -9,6 +9,7 @@ import { pageVariants, viewNavigate } from '../utils/animations.js'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { buildBriefing } from '../utils/examBriefing.js'
 import { useEscapeToClose } from '../hooks/useEscapeToClose.js'
+import { useHoverState } from '../hooks/useHoverState.js'
 
 // 02-chon-de.md — "TRẠM · BẢN ĐỒ TUYẾN". The page is the map: four routes,
 // each exam a station on it. No card grid, no chip filter, no decorative 3D
@@ -53,6 +54,26 @@ const rowVariants = {
   show: (i) => ({ opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1], delay: Math.min(i, 8) * 0.024 } }),
 }
 
+function PlantMocButton({ color, onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      className="px-4 py-2 font-bold transition-colors"
+      style={{
+        fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.04em',
+        background: color, color: 'var(--paper)', border: `1px solid ${color}`, borderRadius: 'var(--r-sm)',
+        transform: hovered ? 'translateY(-1px)' : 'none',
+        boxShadow: hovered ? '0 8px 20px -12px rgba(0,0,0,.45)' : 'none',
+        transition: 'transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out)',
+      }}
+    >
+      CẮM MỐC NÀY ▲
+    </button>
+  )
+}
+
 function ExamRow({ exam, index, color, isOpen, onToggle, bestScore, onSelect }) {
   return (
     <div
@@ -92,21 +113,30 @@ function ExamRow({ exam, index, color, isOpen, onToggle, bestScore, onSelect }) 
                 {exam.source && `NGUỒN: ${exam.source.toUpperCase()}`}
                 {bestScore !== undefined && ` · ĐIỂM CAO NHẤT: ${bestScore}`}
               </span>
-              <button
-                onClick={(e) => { e.stopPropagation(); onSelect(exam) }}
-                className="px-4 py-2 font-bold transition-colors"
-                style={{
-                  fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.04em',
-                  background: color, color: 'var(--paper)', border: `1px solid ${color}`, borderRadius: 'var(--r-sm)',
-                }}
-              >
-                CẮM MỐC NÀY ▲
-              </button>
+              <PlantMocButton color={color} onClick={(e) => { e.stopPropagation(); onSelect(exam) }} />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
+  )
+}
+
+function ExpandRouteButton({ hiddenCount, onClick }) {
+  const [hovered, hoverProps] = useHoverState()
+  return (
+    <button
+      onClick={onClick}
+      {...hoverProps}
+      className="w-full text-left py-3 transition-colors"
+      style={{
+        fontFamily: 'var(--font-mono)', fontSize: 12.5,
+        color: hovered ? 'var(--accent-deep)' : 'var(--accent)',
+        borderTop: '1px solid var(--line)',
+      }}
+    >
+      + NÉT TIẾP ({hiddenCount})
+    </button>
   )
 }
 
@@ -148,13 +178,7 @@ function RouteSection({ route, index, exams, expandedGroups, setExpandedGroups, 
             </motion.div>
           ))}
           {!isExpanded && hiddenCount > 0 && (
-            <button
-              onClick={() => setExpandedGroups(prev => ({ ...prev, [route.key]: true }))}
-              className="w-full text-left py-3"
-              style={{ fontFamily: 'var(--font-mono)', fontSize: 12.5, color: 'var(--accent)', borderTop: '1px solid var(--line)' }}
-            >
-              + NÉT TIẾP ({hiddenCount})
-            </button>
+            <ExpandRouteButton hiddenCount={hiddenCount} onClick={() => setExpandedGroups(prev => ({ ...prev, [route.key]: true }))} />
           )}
         </>
       )}
